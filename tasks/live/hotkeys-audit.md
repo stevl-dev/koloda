@@ -415,7 +415,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Give live hotkeys no bindings while the stored row is unreadable
   Depends on: none
 
-- [ ] 6. Disable the toggle-sidebar hotkey with its button
+- [x] 6. Disable the toggle-sidebar hotkey with its button
   Goal (H9): pass `enabled: !isDisabled` to the toggle-sidebar hotkey (`titlebar-sidebar-controls.tsx:38-40`).
   Constraints: one file.
   Done when: `bun run typecheck` passes.

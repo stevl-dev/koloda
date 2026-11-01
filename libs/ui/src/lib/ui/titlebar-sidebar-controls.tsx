@@ -36,6 +36,7 @@ export function TitlebarSidebarControls() {
   }, [close, isWide, isOpen, open, toggleNavCollapsed]);
 
   useAppHotkey(ui.toggleSidebarControls, handleAction, "", {
+    enabled: !isDisabled,
     ignoreInputs: false,
   });
 
