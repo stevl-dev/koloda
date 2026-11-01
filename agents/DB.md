@@ -32,6 +32,13 @@ When modifying database schema:
    A baseline reset (wipe local DBs and replace `V1`) is a pre-release exception, not the default.
    Do it only when the human asks for one.
    Product tables stay structurally equivalent across hosts (same names, nullability, FKs, indexes).
+   Write SQL both engines run: web's `wa-sqlite` build is SQLite 3.44.0, desktop bundles 3.48.0
+   (`libsqlite3-sys` 0.31.0).
+   No feature newer than 3.44 (for example JSONB, 3.45); it passes `cargo test` and fails only in the web suite.
+   A change that tightens a domain rule on stored data ships, in the same `V` file, a data `UPDATE` that brings
+   existing rows inside the new rule.
+   Web fails a read on a row outside the rules; desktop still lists it
+   (`docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`, Accepted divergences).
    No backticks in SQL.
    Add `IF NOT EXISTS` to `CREATE TABLE` / `CREATE INDEX` / `CREATE UNIQUE INDEX`.
    Storage conventions: timestamps are unix-ms integers, JSON is `text`, booleans are `0/1`.

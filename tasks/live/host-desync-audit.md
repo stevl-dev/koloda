@@ -325,7 +325,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Fail desktop delete guards closed on an invalid learning row
   Depends on: none
 
-- [ ] 6. Tell migration authors the engine floor and the data-update rule
+- [x] 6. Tell migration authors the engine floor and the data-update rule
   Goal: `agents/DB.md` Schema Change Workflow step 1 says what both hosts can run, and what to do when a rule change
   rejects stored rows (HD2, HD3).
   - The floor: SQLite 3.44.0, the `wa-sqlite` build (desktop bundles 3.48.0 via `libsqlite3-sys` 0.31.0).
