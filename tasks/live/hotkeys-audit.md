@@ -400,7 +400,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Fire text-field hotkeys only on chords
   Depends on: 1
 
-- [ ] 5. Give live hotkeys no bindings while the stored row is unreadable
+- [x] 5. Give live hotkeys no bindings while the stored row is unreadable
   Goal (H5, H12 self-import):
   - `useHotkeysSettings` (`use-hotkeys-settings.ts:8-19`) returns every action with no bindings while the hotkeys
     query is in `error`; the defaults still cover loading and a missing row.

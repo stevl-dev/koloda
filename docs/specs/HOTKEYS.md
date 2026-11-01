@@ -263,7 +263,9 @@ Hotkey settings persist across sessions.
 If a save fails, the bindings revert to the last saved state.
 If the stored settings are corrupted, the app reports an error instead of silently falling back to defaults.
 Corrupted settings must never look the same as missing settings.
-Otherwise safety checks could pass when they should fail.
+While the stored settings cannot be read, no configurable hotkey fires, and the hotkeys settings screen shows the error.
+Keys outside this system, such as the lesson dialog keys, keep working.
+Only missing settings use the default bindings.
 
 When stored settings contain unknown action names (for example a retired hotkey), those names are dropped.
 Known actions and their bindings are kept.
