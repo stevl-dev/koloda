@@ -9,8 +9,9 @@ import { useCallback } from "react";
 
 const SCHEME_CYCLE = ["light", "dark", "system"] as const;
 const FOCUS_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false, conflictBehavior: "allow" };
-const TAB_HOTKEY_OPTIONS: HotkeyOptions = { preventDefault: false, conflictBehavior: "allow" };
+const TAB_HOTKEY_OPTIONS: HotkeyOptions = { preventDefault: false, conflictBehavior: "allow", ignoreInputs: true };
 const TOGGLE_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false };
+const NAVIGATION_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: true };
 
 export function useAppHotkeys() {
   const { navigation, ui } = useHotkeysSettings();
@@ -29,12 +30,42 @@ export function useAppHotkeys() {
     write("language", LOCALES[(index + 1) % LOCALES.length]);
   }, [store, write]);
 
-  useAppHotkey(navigation.dashboard, () => navigate({ to: "/dashboard", viewTransition: isMotionOn }), "navigation");
-  useAppHotkey(navigation.decks, () => navigate({ to: "/decks", viewTransition: isMotionOn }), "navigation");
-  useAppHotkey(navigation.algorithms, () => navigate({ to: "/algorithms", viewTransition: isMotionOn }), "navigation");
-  useAppHotkey(navigation.templates, () => navigate({ to: "/templates", viewTransition: isMotionOn }), "navigation");
-  useAppHotkey(navigation.settings, () => navigate({ to: "/settings", viewTransition: isMotionOn }), "navigation");
-  useAppHotkey(navigation.ai, () => navigate({ to: "/ai", viewTransition: isMotionOn }), "navigation");
+  useAppHotkey(
+    navigation.dashboard,
+    () => navigate({ to: "/dashboard", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
+  useAppHotkey(
+    navigation.decks,
+    () => navigate({ to: "/decks", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
+  useAppHotkey(
+    navigation.algorithms,
+    () => navigate({ to: "/algorithms", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
+  useAppHotkey(
+    navigation.templates,
+    () => navigate({ to: "/templates", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
+  useAppHotkey(
+    navigation.settings,
+    () => navigate({ to: "/settings", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
+  useAppHotkey(
+    navigation.ai,
+    () => navigate({ to: "/ai", viewTransition: isMotionOn }),
+    "navigation",
+    NAVIGATION_HOTKEY_OPTIONS,
+  );
   useAppHotkey(ui.focusNext, focusNext, "", FOCUS_HOTKEY_OPTIONS);
   useAppHotkey(ui.focusPrev, focusPrev, "", FOCUS_HOTKEY_OPTIONS);
   useAppHotkey(ui.nextTab, goToNextTab, "", TAB_HOTKEY_OPTIONS);

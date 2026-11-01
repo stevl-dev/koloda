@@ -66,6 +66,8 @@ The **form** runtime scope gates these hotkeys.
 | Save | `Mod+S` | Submits the open form. Does nothing while the form is unchanged or cannot be submitted. |
 | Discard | `Mod+D` | Restores the form's last saved values. Does nothing while the form is unchanged. |
 
+Both work while a text field of the form is focused (§Key Bindings).
+
 ### Interface
 
 No runtime scope gates these hotkeys.
@@ -84,7 +86,7 @@ No runtime scope gates these hotkeys.
 
 Submit text field only acts while a text field is focused.
 The tab hotkeys do not fire while a text field is focused.
-The other hotkeys in this category also work there.
+The other hotkeys in this category also work there (§Key Bindings).
 
 ### Navigation
 
@@ -115,7 +117,7 @@ Each one grades the submitted card in an open lesson, when the key is released.
 ### AI
 
 No runtime scope gates these hotkeys.
-They act on the assistant chat and work while its text field is focused.
+They act on the assistant chat and work while its text field is focused (§Key Bindings).
 
 | Action | Default | Effect |
 | --- | --- | --- |
@@ -184,7 +186,11 @@ Supported modifiers:
 
 Single keys without modifiers are also valid.
 
-Hotkeys do not fire when a text input or textarea is focused, unless the hotkey is designed to ignore input focus.
+While a text field is focused, navigation, grade, and tab hotkeys never fire.
+Form Save and Discard, the AI hotkeys, and the other Interface hotkeys work there, but only through a binding with
+`Mod`, `Ctrl`, or `Alt`, or bound to Escape.
+Bound to anything else, such as a single letter, they fire everywhere except in a text field, where the key types as
+usual.
 
 ## Conflict Resolution
 

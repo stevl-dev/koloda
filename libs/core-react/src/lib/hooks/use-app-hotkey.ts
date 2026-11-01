@@ -1,6 +1,11 @@
 import type { HotkeyEntry } from "@koloda/app";
-import { getHotkeyManager } from "@tanstack/react-hotkeys";
-import type { HotkeyCallback, HotkeyOptions, HotkeyRegistrationHandle } from "@tanstack/react-hotkeys";
+import { getHotkeyManager, parseHotkey, rawHotkeyToParsedHotkey } from "@tanstack/react-hotkeys";
+import type {
+  HotkeyCallback,
+  HotkeyOptions,
+  HotkeyRegistrationHandle,
+  RegisterableHotkey,
+} from "@tanstack/react-hotkeys";
 import { useAtomValue } from "jotai";
 import { useEffect, useEffectEvent, useRef } from "react";
 import type { AppHotkeyScope, RuntimeScope } from "./use-hotkeys-status";
@@ -14,17 +19,18 @@ export function useAppHotkey(
 ) {
   const hotkeyManager = getHotkeyManager();
   const scopes = useAtomValue(hotkeysScopesAtom);
-  const handles = useRef<HotkeyRegistrationHandle[]>([]);
+  const handles = useRef<Registration[]>([]);
 
   const onHotkeysChange = useEffectEvent((updated: HotkeyEntry) => {
-    handles.current.forEach((handle) => handle.unregister());
-    handles.current = updated.map((hotkey) =>
-      hotkeyManager.register(hotkey, callback, getOptions(options, scope, scopes)),
-    );
+    handles.current.forEach(({ handle }) => handle.unregister());
+    handles.current = updated.map((hotkey) => ({
+      hotkey,
+      handle: hotkeyManager.register(hotkey, callback, getOptions(hotkey, options, scope, scopes)),
+    }));
   });
 
   const onCallbackChange = useEffectEvent((updated: HotkeyCallback) => {
-    handles.current.forEach((handle) => (handle.callback = updated));
+    handles.current.forEach(({ handle }) => (handle.callback = updated));
   });
 
   const onOptionsChange = useEffectEvent((updated?: HotkeyOptions) => {
@@ -61,7 +67,7 @@ export function useAppHotkey(
 
   useEffect(() => {
     return () => {
-      handles.current.forEach((handle) => {
+      handles.current.forEach(({ handle }) => {
         handle.unregister();
       });
       handles.current = [];
@@ -71,18 +77,32 @@ export function useAppHotkey(
   return null;
 }
 
+type Registration = { hotkey: RegisterableHotkey; handle: HotkeyRegistrationHandle };
+
 function setHandlesOptions(
-  handles: HotkeyRegistrationHandle[],
+  handles: Registration[],
   options: HotkeyOptions | undefined,
   scope: AppHotkeyScope,
   scopes: Record<RuntimeScope, boolean>,
 ) {
-  const value = getOptions(options, scope, scopes);
-  handles.forEach((handle) => handle.setOptions(value));
+  handles.forEach(({ hotkey, handle }) => handle.setOptions(getOptions(hotkey, options, scope, scopes)));
 }
 
-function getOptions(options: HotkeyOptions | undefined, scope: AppHotkeyScope, scopes: Record<RuntimeScope, boolean>) {
-  const { enabled = true } = options || {};
-  if (!scope) return { ...options, enabled };
-  return { ...options, enabled: enabled && !!scopes[scope] };
+function getOptions(
+  hotkey: RegisterableHotkey,
+  options: HotkeyOptions | undefined,
+  scope: AppHotkeyScope,
+  scopes: Record<RuntimeScope, boolean>,
+) {
+  const { enabled = true, ignoreInputs } = options || {};
+  // WHY: a hotkey meant to work in a text field still must not take a typed character, so it fires there only
+  // through a chord; a user who binds it to a single letter keeps typing that letter (HOTKEYS.md (§Key Bindings)).
+  const resolved = { ...options, ignoreInputs: ignoreInputs === false && !isChord(hotkey) ? true : ignoreInputs };
+  if (!scope) return { ...resolved, enabled };
+  return { ...resolved, enabled: enabled && !!scopes[scope] };
+}
+
+function isChord(hotkey: RegisterableHotkey) {
+  const parsed = typeof hotkey === "string" ? parseHotkey(hotkey) : rawHotkeyToParsedHotkey(hotkey);
+  return parsed.ctrl || parsed.alt || parsed.meta || parsed.key === "Escape";
 }

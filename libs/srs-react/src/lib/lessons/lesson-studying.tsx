@@ -21,10 +21,10 @@ export function LessonStudying() {
   const selectGrade = useSetAtom(selectLessonGradeAtom);
   const requestTermination = useSetAtom(requestLessonTerminationAtom);
 
-  useAppHotkey(grades.again, () => selectGrade(0), "grades", { eventType: "keyup" });
-  useAppHotkey(grades.hard, () => selectGrade(1), "grades", { eventType: "keyup" });
-  useAppHotkey(grades.normal, () => selectGrade(2), "grades", { eventType: "keyup" });
-  useAppHotkey(grades.easy, () => selectGrade(3), "grades", { eventType: "keyup" });
+  useAppHotkey(grades.again, () => selectGrade(0), "grades", { eventType: "keyup", ignoreInputs: true });
+  useAppHotkey(grades.hard, () => selectGrade(1), "grades", { eventType: "keyup", ignoreInputs: true });
+  useAppHotkey(grades.normal, () => selectGrade(2), "grades", { eventType: "keyup", ignoreInputs: true });
+  useAppHotkey(grades.easy, () => selectGrade(3), "grades", { eventType: "keyup", ignoreInputs: true });
   useAppHotkey(["Enter", "Space"], () => submitCard(), "grades", { conflictBehavior: "allow" });
   useAppHotkey(["Escape"], () => requestTermination(), "grades", { ignoreInputs: false });
   useAppHotkey(

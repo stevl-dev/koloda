@@ -91,3 +91,37 @@ describe("useAppHotkey with scope holds", () => {
     expect(callback).toHaveBeenCalledTimes(3);
   });
 });
+
+describe("useAppHotkey in a text field", () => {
+  function pressInTextarea(init: KeyboardEventInit) {
+    const textarea = document.createElement("textarea");
+    document.body.append(textarea);
+    textarea.focus();
+    let isNotPrevented = true;
+    act(() => {
+      isNotPrevented = textarea.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init }),
+      );
+      textarea.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, cancelable: true, ...init }));
+    });
+    textarea.remove();
+    return isNotPrevented;
+  }
+
+  it.each([
+    { binding: "N", ignoreInputs: false, init: { key: "n", code: "KeyN" }, fires: false },
+    { binding: "Mod+N", ignoreInputs: false, init: { key: "n", code: "KeyN", ctrlKey: true }, fires: true },
+    { binding: "Alt+N", ignoreInputs: false, init: { key: "n", code: "KeyN", altKey: true }, fires: true },
+    { binding: "Escape", ignoreInputs: false, init: { key: "Escape", code: "Escape" }, fires: true },
+    { binding: "Mod+H", ignoreInputs: true, init: { key: "h", code: "KeyH", ctrlKey: true }, fires: false },
+  ])("$binding with ignoreInputs $ignoreInputs fires: $fires", ({ binding, ignoreInputs, init, fires }) => {
+    const callback = vi.fn();
+    renderHook(() => useAppHotkey([binding], callback, "", { ignoreInputs }));
+
+    const isNotPrevented = pressInTextarea(init);
+
+    expect(callback).toHaveBeenCalledTimes(fires ? 1 : 0);
+    // A hotkey that does not fire leaves the key to the text field.
+    expect(isNotPrevented).toBe(!fires);
+  });
+});

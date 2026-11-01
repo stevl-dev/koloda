@@ -5,6 +5,7 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import type { HotkeyOptions } from "@tanstack/react-hotkeys";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import type { PropsWithChildren } from "react";
 import { ErrorMessage } from "../../ui/error-message";
@@ -110,6 +111,8 @@ function ResetButton(props: ButtonProps) {
   );
 }
 
+const FORM_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false };
+
 function Controls() {
   const form = useFormContext();
   const {
@@ -127,6 +130,7 @@ function Controls() {
       if (form.state.isDirty && form.state.canSubmit) form.handleSubmit();
     },
     "form",
+    FORM_HOTKEY_OPTIONS,
   );
   useAppHotkey(
     reset,
@@ -134,6 +138,7 @@ function Controls() {
       if (form.state.isDirty) form.reset();
     },
     "form",
+    FORM_HOTKEY_OPTIONS,
   );
 
   return (

@@ -380,7 +380,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Record hotkeys with the recorder's own key listener
   Depends on: none
 
-- [ ] 4. Fire text-field hotkeys only on chords
+- [x] 4. Fire text-field hotkeys only on chords
   Goal (H4):
   - Navigation and grades never fire in a text field: pass `ignoreInputs: true` (`use-app-hotkeys.ts:32-37`,
     `lesson-studying.tsx:24-27`).
