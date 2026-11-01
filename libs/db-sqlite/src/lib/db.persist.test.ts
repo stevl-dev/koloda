@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { IDB_DATABASE_NAME, openDb } from "./db";
+import { clearDb, IDB_DATABASE_NAME, openDb } from "./db";
 
 async function deleteKolodaIdb() {
   await new Promise<void>((resolve, reject) => {
@@ -33,6 +33,18 @@ describe("db-sqlite persist/reload", () => {
     expect(await reopened.get("SELECT name FROM scratch WHERE id = ?", [1])).toEqual({ name: "kept" });
     const [{ foreign_keys: reopenedForeignKeys }] = await reopened.all("PRAGMA foreign_keys");
     expect(reopenedForeignKeys).toBe(1);
+    await reopened.close();
+  });
+
+  it("clears IndexedDB koloda, so the next open starts empty", async () => {
+    const db = await openDb();
+    await db.exec("CREATE TABLE scratch (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
+    await db.run("INSERT INTO scratch (name) VALUES (?)", ["gone"]);
+
+    await clearDb(db);
+
+    const reopened = await openDb();
+    expect(await reopened.all("SELECT name FROM sqlite_master")).toEqual([]);
     await reopened.close();
   });
 

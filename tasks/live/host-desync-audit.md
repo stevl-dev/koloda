@@ -259,7 +259,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Refuse a web database whose applied migrations diverge
   Depends on: 1
 
-- [ ] 3. Offer to clear incompatible web data
+- [x] 3. Offer to clear incompatible web data
   Goal: on `"incompatible"`, the web app explains and offers one button that clears the data and restarts setup
   (HD1).
   - `libs/db-sqlite`: export one function that closes the DB and deletes its IndexedDB, reusing the private `deleteIdb`

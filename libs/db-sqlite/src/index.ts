@@ -20,7 +20,7 @@ export {
 } from "./lib/cards";
 export { deleteConversation, getConversation, getConversations, setConversation } from "./lib/conversations";
 export type { DB } from "./lib/db";
-export { openDb } from "./lib/db";
+export { clearDb, openDb } from "./lib/db";
 export { addDeck, deleteDeck, getDeck, getDecks, updateDeck } from "./lib/decks";
 export { getLessonData, getLessons, submitLessonResult } from "./lib/lessons";
 export { applyPendingMigrations, ensureMigrationsTable, getStatus } from "./lib/migrate";

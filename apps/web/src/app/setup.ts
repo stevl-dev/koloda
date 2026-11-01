@@ -8,6 +8,7 @@ import {
   addDeck,
   addTemplate,
   applyPendingMigrations,
+  clearDb,
   ensureMigrationsTable,
   getStatus as getDbStatus,
   setSettings,
@@ -17,6 +18,10 @@ import { loadSeedData, WEB_SEED_ALGORITHM_IDS, WEB_SEED_TEMPLATE_IDS, webSeedCar
 
 export async function getStatus() {
   return getDbStatus(db);
+}
+
+export async function clearData() {
+  await clearDb(db);
 }
 
 type SetupFromScratchData = Partial<InterfaceSettings>;

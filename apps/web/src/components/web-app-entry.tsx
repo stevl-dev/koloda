@@ -2,6 +2,7 @@ import { Layout, QueryError } from "@koloda/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "@tanstack/react-router";
 import { webAppQueryOptions } from "../app/queries";
+import { WebIncompatibleData } from "./web-incompatible-data";
 import { WebSetup } from "./web-setup";
 import { Titlebar } from "./titlebar";
 
@@ -14,6 +15,7 @@ export function WebAppEntry() {
       {/* WHY: React Query keeps prior data on a failed refetch, so blank/ok must not render beside the error. */}
       {!isError && data === "blank" && <WebSetup />}
       {!isError && data === "ok" && <Outlet />}
+      {!isError && data === "incompatible" && <WebIncompatibleData />}
     </Layout>
   );
 }

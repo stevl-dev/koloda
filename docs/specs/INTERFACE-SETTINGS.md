@@ -169,6 +169,10 @@ The starter content differs by platform:
 - Web — sample algorithms, templates, and decks with cards, so the app can be tried right away
 - Desktop — one algorithm and one template, and no decks
 
+On the web, data that the current version can no longer open is never used.
+Instead the app says so and offers to clear it; after clearing, first setup runs.
+Cleared data cannot be recovered.
+
 ## Editing and Saving
 
 The interface settings screen has no save button.

@@ -283,6 +283,11 @@ function createApi(sqlite3: SQLiteAPI, conn: Conn, idbName: string, locked: bool
   return db;
 }
 
+export async function clearDb(db: DB) {
+  await db.close();
+  await deleteIdb(IDB_DATABASE_NAME);
+}
+
 export async function openDb(options: OpenDbOptions = {}): Promise<DB> {
   const idbName = options.idbName ?? IDB_DATABASE_NAME;
   await wipeIncompatibleIdb(idbName);

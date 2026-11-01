@@ -79,7 +79,7 @@ import {
   updateTemplate,
 } from "@koloda/db-sqlite";
 import { addAIProfile, getAIProfiles, removeAIProfile, updateAIProfile } from "./ai";
-import { getStatus, setupFromScratch } from "./setup";
+import { clearData, getStatus, setupFromScratch } from "./setup";
 
 export const webAppQueryOptions = {
   queryKey: ["app"],
@@ -90,6 +90,8 @@ export const webAppQueryOptions = {
 };
 
 export const webSetupMutationOptions = { mutationFn: setupFromScratch };
+
+export const webClearDataMutationOptions = { mutationFn: clearData };
 
 export const queriesFn = (db: DB): Queries => ({
   getSettingsQuery: <T extends SettingsName>(name: T) => ({
