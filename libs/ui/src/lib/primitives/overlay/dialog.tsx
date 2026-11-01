@@ -1,4 +1,4 @@
-import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
+import { useAppHotkey, useHotkeyScope, useHotkeysSettings } from "@koloda/core-react";
 import type { HotkeyOptions } from "@tanstack/react-hotkeys";
 import type { ComponentProps } from "react";
 import { useRef } from "react";
@@ -49,6 +49,9 @@ function DialogModal(props: DialogModalProps) {
   const { ui } = useHotkeysSettings();
   const ref = useRef(null);
   useAppHotkey(ui.close, () => dispatchKey(ref, "Escape"), "", options);
+  // INVARIANT: `Dialog.Modal` sits inside `Dialog.Overlay`, which mounts it only while the modal is open,
+  // so holding on mount holds navigation off exactly while the modal shows (HOTKEYS.md (§Scope Activation)).
+  useHotkeyScope("navigation", "block", true);
 
   return <Modal ref={ref} {...props} />;
 }

@@ -156,8 +156,9 @@ A runtime scope must be enabled for its hotkeys to fire.
 Scopes are enabled and disabled at runtime.
 
 The **navigation** scope is enabled on app load.
-It is off while a lesson is open or a select list is open.
+It is off while a lesson, a modal dialog, or a select list is open.
 It comes back once none of them is open, including when the screen that showed a list is left with the list open.
+Popovers do not turn navigation off.
 The **grades** scope is enabled while a lesson is open.
 The **form** scope is enabled while any form is mounted.
 When one form replaces another, the scope stays on for the new form.

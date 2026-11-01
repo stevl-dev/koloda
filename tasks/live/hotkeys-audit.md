@@ -335,7 +335,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Count holds per hotkey scope instead of toggling flags
   Depends on: none
 
-- [ ] 2. Hold navigation keys off while a modal dialog is open
+- [x] 2. Hold navigation keys off while a modal dialog is open
   Goal (H14):
   - `DialogModal` (`dialog.tsx:47-54`) holds `navigation` off while its modal is open, through item 1's hook.
     Hold from a component that mounts only with the open modal, or from the overlay's open state; a closed trigger must
