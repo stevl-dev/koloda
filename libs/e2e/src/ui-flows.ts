@@ -427,6 +427,29 @@ export async function editHotkey(page: Page, label: string, newKey: string) {
   await expect(dialog).not.toBeVisible();
 }
 
+// HOTKEYS.md (§Configuration, §Persistence): a saved binding replaces the old one, and both survive a reload.
+export async function rebindDashboardAcrossReload(page: Page) {
+  await openHotkeysSettings(page);
+  await editHotkey(page, "Dashboard", "y");
+  const saveButton = page.locator("form").getByRole("button", { name: "Save", exact: true });
+  await saveButton.click();
+  await expect(saveButton).toBeHidden();
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await openHotkeysSettings(page);
+  await expect(getHotkeyByLabel(page, "Dashboard").kbd.first()).toHaveText("Y");
+
+  // WHY: the old key and Decks lead to different screens, so one history entry proves the old key did nothing.
+  const historyLength = await page.evaluate(() => history.length);
+  await page.keyboard.press("h");
+  await page.keyboard.press("d");
+  await expect(page).toHaveURL(/\/decks$/);
+  expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
+
+  await page.keyboard.press("y");
+  await expect(page).toHaveURL(/\/dashboard$/);
+}
+
 // WHY: The switch role sits on a 1px input. The visible track covers it, so a click
 // on the input never lands. The label around the track and the text toggles it.
 export async function clickSwitch(control: Locator) {

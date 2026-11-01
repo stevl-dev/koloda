@@ -39,6 +39,7 @@ export {
   openNewPresetDialog,
   openNewTemplateDialog,
   openSection,
+  rebindDashboardAcrossReload,
   reorderWithKeyboard,
   selectAIProvider,
   sendAssistantMessage,

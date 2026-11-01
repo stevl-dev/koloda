@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { editHotkey, getHotkeyByLabel, openHotkeysSettings } from "@koloda/e2e";
+import { editHotkey, getHotkeyByLabel, openHotkeysSettings, rebindDashboardAcrossReload } from "@koloda/e2e";
 import { setupWeb, setupPageDefaults } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -56,4 +56,9 @@ test("validates conflicts and resets the hotkeys settings form", async ({ page }
   await expect(getHotkeyByLabel(page, "Again").kbd.first()).toHaveText(initialGradesAgain);
   await expect(getHotkeyByLabel(page, "Hard").kbd.first()).toHaveText(initialGradesHard);
   await expect(getHotkeyByLabel(page, "Good").kbd.first()).toHaveText(initialGradesGood);
+});
+
+test("a saved rebinding replaces the old key after a reload", async ({ page }) => {
+  await setupWeb(page);
+  await rebindDashboardAcrossReload(page);
 });

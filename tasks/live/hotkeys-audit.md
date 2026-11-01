@@ -440,7 +440,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Say in HOTKEYS.md and the playbook what fires on a shared key
   Depends on: 3, 4, 5
 
-- [ ] 8. Check a saved rebinding in both e2e suites
+- [x] 8. Check a saved rebinding in both e2e suites
   Goal (H10 e2e part):
   - One flow per suite, shared in `libs/e2e` where the steps match: rebind Dashboard from `H` to another free key,
     save, reload, press the new key → the Dashboard opens; from another screen press `H` → nothing happens.
