@@ -352,7 +352,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Hold navigation keys off while a modal dialog is open
   Depends on: 1
 
-- [ ] 3. Record hotkeys with the recorder's own key listener
+- [x] 3. Record hotkeys with the recorder's own key listener
   Goal (H7, H3):
   - Replace `useHotkeyRecorder` in `HotkeyRecorder` (`hotkey-recorder.tsx:22-30`) with one capture-phase `keydown`
     listener on `document`, added when the popover opens and removed when it closes.

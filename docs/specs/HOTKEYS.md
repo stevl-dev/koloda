@@ -223,6 +223,11 @@ Users can configure hotkey bindings in the settings panel.
 - Remove a key binding from a hotkey
 - Change an existing key binding to a different key
 
+While a binding is being recorded, each key press replaces the recorded binding, and no other hotkey fires.
+Escape cancels the recording.
+Tab moves focus, and Enter or Space without a modifier presses the focused button, so none of them can be recorded.
+A chord is stored the same way on every platform, so validation sees two spellings of one chord as a duplicate.
+
 ### What Cannot Be Changed
 
 - The hotkey's category
