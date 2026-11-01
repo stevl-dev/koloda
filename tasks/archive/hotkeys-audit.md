@@ -1,6 +1,6 @@
 # Hotkeys audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, docs/specs/HOTKEYS.md, agents/ADD-HOTKEY.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, apps/web-e2e/README.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/REVIEW.md
 Flow: local
 
@@ -482,4 +482,37 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
 
 ## Outcome
 
-<what shipped>
+Shipped as the ten Plan items on `task/hotkeys-audit`, one commit each, with the Archive commit on top.
+Every finding H1–H14 is fixed; none is skipped or left open.
+Open questions 2–5 set the behavior: every enabled hotkey on a shared key fires; navigation and grades never fire in a
+text field, and the others fire there only on a chord (Escape counts as a chord); live hotkeys get no bindings while the
+stored row is unreadable; an open modal holds navigation off.
+
+- Scopes are counted holds (item 1).
+  A scope is on while an owner enables it and no owner holds it off.
+  The form scope stays on while any form is mounted; a lesson or an open Select holds navigation off, and unmounting
+  releases it.
+  `DEFAULT_HOTKEYS_SCOPES`, `enableScope`, and `disableScope` are gone.
+- An open modal dialog holds navigation off; a popover does not (item 2).
+- The recorder has its own capture-phase `keydown` listener on `document`.
+  Escape cancels, Tab, Enter, and Space reach the UI, and no app hotkey fires while recording.
+  Stored spellings follow the defaults' order, with letters and digits from `event.code`, so macOS Cmd+Shift+I stores
+  `Mod+Shift+I` and Option+J stores `Alt+J` (item 3).
+- Navigation and grade hotkeys pass `ignoreInputs: true`.
+  `useAppHotkey` fires an `ignoreInputs: false` registration in a text field only for a chord binding or Escape; form
+  Save and Discard follow that rule (item 4, with the WHY comments in item 10).
+- `useHotkeysSettings` returns empty bindings while the query is in error; the defaults still cover loading and a
+  missing row.
+  It imports `queriesAtom` from `../queries` (item 5).
+- The toggle-sidebar hotkey is `enabled: !isDisabled` (item 6).
+- HOTKEYS.md and ADD-HOTKEY.md state the shared-key rule, the release-time scope rule, the stored modifier list, and
+  the failed-save behavior (item 7).
+- Both e2e suites check a saved rebinding through `settings-hotkeys-form.spec.ts` and `libs/e2e` (item 8).
+- Dead code and stale names are gone: `isPrintableKey`, `isComposingEvent`, `AddHotkeyButton.isDisabled`, the `HotKey`
+  `small` size, the toggle-settings wiring test, and the old Rust test name and fixture spellings (item 9).
+
+Checks: `bun run check:push` passed on the tip before archiving (TS, Rust, and format tracks).
+`bun run check:markdown` passed; its one advisory warning is the long `Guides:` line.
+
+Not run by the agent: the Manual verify paths in items 1–4 and 6, and both e2e suites (item 8, typecheck only).
+The human runs those; the paths are in the Plan above and are not confirmed here.
