@@ -1,6 +1,6 @@
 # Host desync audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/DB.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/APP-ROLES.md, libs/db-sqlite/README.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/RUST.md, docs/specs/INTERFACE-SETTINGS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/I18N.md, agents/CSS.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/DECISIONS.md, apps/electron/README.md, apps/electron/IPC.md, libs/native-ipc/README.md, agents/REVIEW.md
 Flow: local
 
@@ -202,7 +202,8 @@ Those belong to their own triages, and every one of those tasks has landed.
 
 ## Open questions
 
-- [ ] Item 3's drafted copy (en and ru) for the incompatible-data screen. — open
+- [x] Item 3's copy (en and ru) for the incompatible-data screen. — Approved as written in item 3, without the
+  app name.
 - [x] HD1: on an incompatible web DB, fail or wipe silently? — Fail, with a message and a Clear data button.
 - [x] HD1: an existing `_migrations` table without a checksum column? — Incompatible; visitors clear data once.
 - [x] HD5: keep the legacy rename or delete it? — Delete it; legacy DBs take the incompatible path.
@@ -267,10 +268,10 @@ Those belong to their own triages, and every one of those tasks has landed.
     It shows the message and a Clear data button.
     The button calls that function, then reloads the page; the reload opens a blank DB and shows first setup.
     While it runs, the button is pending; a failure shows `QueryError`'s message shape.
-  - Draft copy, to be confirmed at approval (open question):
-    - en: "This browser holds Koloda data from a version that can no longer open it. Clear it to start again; the
+  - Copy (approved):
+    - en: "This browser holds data from a version that can no longer open it. Clear it to start again; the
       data cannot be recovered." Button: "Clear data".
-    - ru: "В этом браузере сохранены данные Koloda из версии, которая больше не может их открыть. Удалите их, чтобы
+    - ru: "В этом браузере сохранены данные версии, которая больше не может быть открыта. Удалите их, чтобы
       начать заново; восстановить данные будет нельзя." Button: "Удалить данные".
   - Extract the web catalogs per `agents/I18N.md`.
   - `docs/specs/INTERFACE-SETTINGS.md` §First Setup: one sentence: on the web, data an app update can no longer open is
