@@ -348,6 +348,14 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Remove the unused desktop single-card channel
   Depends on: none
 
+- [x] 8. Name every path that reaches the web records-table reset
+  Goal: self-review fix. The INVARIANT on `ensureMigrationsTable` said every caller checks `isIncompatible` first;
+  apps/web `setupFromScratch` calls it after `getStatus` read "blank" instead. Name the three paths.
+  Constraints: the comment in `libs/db-sqlite/src/lib/migrate.ts` only.
+  Done when: `bun run check:push` passes.
+  Commit: Name every path that reaches the web records-table reset
+  Depends on: 2
+
 ## Outcome
 
 <what shipped>

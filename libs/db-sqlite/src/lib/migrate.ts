@@ -51,7 +51,8 @@ async function loadMigrationEntries(): Promise<[string, string][]> {
 
 export async function ensureMigrationsTable(db: DB) {
   const columns = await db.all(`PRAGMA table_info(${MIGRATIONS_TABLE})`);
-  // INVARIANT: callers check `isIncompatible` first, so a table without `checksum` that gets here recorded nothing.
+  // INVARIANT: every caller runs after `isIncompatible` passed (in `getStatus` or `applyPendingMigrations`, or in
+  // apps/web `setupFromScratch` once status read "blank"), so a table without `checksum` here recorded nothing.
   // It belongs to a visitor who never finished setup; replacing it keeps that database blank.
   if (columns.length > 0 && !columns.some((column) => column.name === "checksum")) {
     await db.exec(`DROP TABLE ${MIGRATIONS_TABLE}`);
