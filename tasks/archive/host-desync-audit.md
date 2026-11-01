@@ -1,6 +1,6 @@
 # Host desync audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/DB.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/APP-ROLES.md, libs/db-sqlite/README.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/RUST.md, docs/specs/INTERFACE-SETTINGS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/I18N.md, agents/CSS.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/DECISIONS.md, apps/electron/README.md, apps/electron/IPC.md, libs/native-ipc/README.md, agents/REVIEW.md
 Flow: local
 
@@ -358,4 +358,37 @@ Those belong to their own triages, and every one of those tasks has landed.
 
 ## Outcome
 
-<what shipped>
+All seven findings are settled: six fixed here, and HD7 fixed by another task.
+Item 8 is the self-review fix.
+
+- HD1 (web migrations): fixed by items 2–3.
+  The web runner records each file's SHA-256 and orders by the numeric `V` prefix.
+  It returns `"incompatible"` on a legacy `__migrations` table, a missing checksum column, a missing or changed file,
+  or an out-of-order entry.
+  The app then shows a message and a Clear data button, which deletes the browser's Koloda data and returns to first
+  setup.
+  Human decision: a returning demo visitor whose `_migrations` predates checksums clears data once.
+- HD2 (bad stored rows): fixed by items 4–5.
+  A web read of a row that fails its read schema fails with the operation's code, not a raw Zod error.
+  Desktop `learning_defaults` validates, so both hosts fail the delete guards closed with `db.get`, with twin tests.
+  Two accepted divergences are recorded in `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`: desktop entity reads do not
+  validate, and desktop `get_settings` keeps the `validation.*` code.
+- HD3 (engine floor): fixed by item 6.
+  `agents/DB.md` names SQLite 3.44.0 as the floor for `V` files, and requires a data `UPDATE` in the same file when a
+  rule change tightens stored data.
+- HD4 (web upgrade hook): fixed by item 1.
+  Tests cover a fresh `getStatus`, applying the newest pending file, and a setup transaction that rolls back.
+- HD5 (legacy rename): fixed by item 2.
+  The `__migrations` rename branch and its test are deleted.
+  The plan's `rg` check still matches the legacy-table test fixture, which seeds `__migrations` to exercise the
+  incompatible path; the item 2 commit body records this.
+- HD6 (`cmd_get_card`): fixed by item 7.
+  The channel is removed from the contract, the main-process handler, `KolodaDb`, the addon, and `IPC.md`.
+  `repo::cards::get_card` stays.
+- HD7 (list-item mapping): fixed by assistant-conversation-list-audit `2a4914c4`, not by this branch.
+
+Out, as decided: aligning desktop entity reads or `get_settings` with web, and a data-migration framework for rule
+changes.
+
+Not verified here: the incompatible-data screen (item 3) needs the manual check in `agents/VERIFY.md`.
+The push gate passed on the tip before archiving.
