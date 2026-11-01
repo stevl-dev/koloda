@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,6 +41,18 @@ async function readSeries() {
   );
 }
 
+const OLD_RECORDS_TABLE =
+  "CREATE TABLE _migrations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created_at INTEGER NOT NULL)";
+
+function sha256(sql: string) {
+  return createHash("sha256").update(sql).digest("hex");
+}
+
+async function readRecords(db: DB) {
+  const [table] = await db.all("SELECT name FROM sqlite_master WHERE name IN ('_migrations', '__migrations')");
+  return table ? db.all(`SELECT * FROM ${String(table.name)} ORDER BY id`) : [];
+}
+
 async function dumpSchema(db: DB) {
   return db.all(
     "SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name <> '_migrations' ORDER BY type, name",
@@ -65,11 +78,11 @@ describe("getStatus", () => {
       await withDb(async (db) => {
         // A returning visitor's database: every file but the newest, applied and recorded as the runner does.
         await db.exec(
-          "CREATE TABLE _migrations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created_at INTEGER NOT NULL)",
+          "CREATE TABLE _migrations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, checksum TEXT NOT NULL, created_at INTEGER NOT NULL)",
         );
         for (const { name, sql } of series.slice(0, -1)) {
           await db.exec(sql);
-          await db.run("INSERT INTO _migrations (name, created_at) VALUES (?, 0)", [name]);
+          await db.run("INSERT INTO _migrations (name, checksum, created_at) VALUES (?, ?, 0)", [name, sha256(sql)]);
         }
         expect(await dumpSchema(db)).not.toEqual(await dumpSchema(expected));
 
@@ -106,7 +119,8 @@ describe("applyPendingMigrations", () => {
       // A `reviews` shell without `card_id` makes V1 fail at its reviews index —
       // after algorithms, decks, and cards have already applied in the same file.
       // Without a transaction around the migration those earlier tables persist.
-      await db.exec("CREATE TABLE reviews (id)");
+      // WHY: TEMP, because a main-schema table with no records reads as an incompatible database.
+      await db.exec("CREATE TEMP TABLE reviews (id)");
       await expect(applyPendingMigrations(db)).rejects.toThrow(/card_id/);
 
       expect(await getAppliedMigrationNames(db)).toEqual([]);
@@ -119,29 +133,84 @@ describe("applyPendingMigrations", () => {
       await deleteIdb(idbName);
     }
   });
+});
 
-  it("renames the legacy __migrations bookkeeping table in place", async () => {
-    const idbName = `koloda-test-migrate-legacy-${Date.now()}`;
-    const db = await openDb({ idbName });
-    try {
-      // Simulate a pre-unification web database: bookkeeping under the legacy
-      // name with V1 already recorded. The rename must preserve the records so
-      // applied migrations are not re-run against existing tables.
-      await db.exec(
-        "CREATE TABLE __migrations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created_at INTEGER NOT NULL)",
-      );
-      await db.run("INSERT INTO __migrations (name, created_at) VALUES ('V1__init.sql', 0)");
-
+describe("incompatible databases", () => {
+  it("records each applied file's SHA-256", async () => {
+    const series = await readSeries();
+    await withDb(async (db) => {
       await applyPendingMigrations(db);
 
-      const tables = await db.all("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '%migrations%'");
-      expect(tables.map((row) => String(row.name))).toEqual(["_migrations"]);
-      expect(await getAppliedMigrationNames(db)).toContain("V1__init.sql");
-      const [{ reruns }] = await db.all("SELECT COUNT(*) AS reruns FROM _migrations WHERE name = 'V1__init.sql'");
-      expect(reruns).toBe(1);
-    } finally {
-      await db.close();
-      await deleteIdb(idbName);
-    }
+      const rows = await db.all("SELECT name, checksum FROM _migrations ORDER BY id");
+      expect(rows).toEqual(series.map(({ name, sql }) => ({ name, checksum: sha256(sql) })));
+    });
+  });
+
+  it.each<[string, (db: DB) => Promise<void>]>([
+    [
+      "a recorded file is missing",
+      async (db) => {
+        await applyPendingMigrations(db);
+        await db.run("INSERT INTO _migrations (name, checksum, created_at) VALUES ('V0__gone', 'x', 0)");
+      },
+    ],
+    [
+      "a recorded file was edited",
+      async (db) => {
+        await applyPendingMigrations(db);
+        await db.run("UPDATE _migrations SET checksum = ? WHERE name = 'V1__init'", [sha256("-- edited")]);
+      },
+    ],
+    [
+      "an unrecorded file sorts below the newest record",
+      async (db) => {
+        await applyPendingMigrations(db);
+        await db.run("DELETE FROM _migrations WHERE substr(name, 1, 4) = 'V2__'");
+      },
+    ],
+    [
+      "the records predate checksums",
+      async (db) => {
+        await db.exec(OLD_RECORDS_TABLE);
+        for (const { name, sql } of await readSeries()) {
+          await db.exec(sql);
+          await db.run("INSERT INTO _migrations (name, created_at) VALUES (?, 0)", [name]);
+        }
+      },
+    ],
+    [
+      "the schema has no records (a database from before the shared bookkeeping table)",
+      async (db) => {
+        const [first] = await readSeries();
+        await db.exec(OLD_RECORDS_TABLE.replace("_migrations", "__migrations"));
+        await db.exec(first!.sql);
+        await db.run("INSERT INTO __migrations (name, created_at) VALUES (?, 0)", [first!.name]);
+      },
+    ],
+  ])("reports incompatible when %s, and changes nothing", async (_, arrange) => {
+    await withDb(async (db) => {
+      await arrange(db);
+      const schema = "SELECT type, name, sql FROM sqlite_master ORDER BY type, name";
+      const before = await db.all(schema);
+      const recordsBefore = await readRecords(db);
+
+      expect(await getStatus(db)).toBe("incompatible");
+      await expect(applyPendingMigrations(db)).rejects.toThrow(/differ/);
+
+      expect(await db.all(schema)).toEqual(before);
+      expect(await readRecords(db)).toEqual(recordsBefore);
+    });
+  });
+
+  it("replaces an empty pre-checksum records table and stays blank", async () => {
+    await withDb(async (db) => {
+      // A visitor who opened the app before checksums and never finished setup.
+      await db.exec(OLD_RECORDS_TABLE);
+
+      expect(await getStatus(db)).toBe("blank");
+
+      const columns = await db.all("PRAGMA table_info(_migrations)");
+      expect(columns.map((column) => column.name)).toContain("checksum");
+    });
   });
 });

@@ -7,10 +7,12 @@ Who owns persistence on each host, and why: `docs/decisions/TS-RUST-DOMAIN-MIRRO
   Desktop uses SQLite via `koloda` Refinery.
 - **One SQL series**: `crates/koloda/src/migrations/`.
   Desktop embeds it with `refinery::embed_migrations!("src/migrations")` in `crates/koloda/src/migrations/mod.rs`.
-  Web applies the same `V*.sql` files in filename order through `@koloda/db-sqlite`.
-  Both hosts record applied versions in a `_migrations` table private to each database
-  (desktop `crates/koloda/src/app/db.rs`, web `libs/db-sqlite/src/lib/migrate.ts`, which renames
-  pre-unification web `__migrations` tables in place).
+  Web applies the same `V*.sql` files in numeric `V` order through `@koloda/db-sqlite`.
+  Both hosts record applied migrations in a `_migrations` table private to each database
+  (desktop `crates/koloda/src/app/db.rs`, web `libs/db-sqlite/src/lib/migrate.ts`).
+  Web records each file's name and SHA-256.
+  Both stop on an applied entry that is changed, missing, or out of order:
+  desktop refuses to start, and web offers to clear the database.
 - **Rust core owns the desktop connection**.
   `apps/electron/src-rust` consumes `koloda`; it does not define migrations.
 - **Seed ids are shared**: both hosts use the `SEED_*` constants in `libs/app/src/lib/seed-ids.ts`

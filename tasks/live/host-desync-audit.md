@@ -230,7 +230,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Test the web migration status and upgrade paths
   Depends on: none
 
-- [ ] 2. Refuse a web database whose applied migrations diverge
+- [x] 2. Refuse a web database whose applied migrations diverge
   Goal: give the web runner Refinery's guards (HD1) and delete the legacy-table rename (HD5).
   - `libs/db-sqlite/src/lib/migrate.ts`: `_migrations` gains `checksum TEXT NOT NULL`, the SHA-256 hex of the file
     text (`crypto.subtle`), written by `applyPendingMigrations`.

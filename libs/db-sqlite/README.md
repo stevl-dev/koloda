@@ -13,7 +13,8 @@ Wired to `apps/web`. Desktop apps do not use this package; they call `koloda` vi
 
 - DB handle: `db.ts` — open/close, exec, parameterized query, transactions, IndexedDB `koloda`.
 - Migrations: `migrate.ts` — apply Refinery SQL;
-  `_migrations` bookkeeping (shared name with desktop; legacy web `__migrations` tables are renamed in place).
+  `_migrations` bookkeeping (shared name with desktop) records each file's name and SHA-256.
+  `getStatus` reports `"incompatible"` for a changed, missing, or out-of-order entry, as Refinery refuses one.
 - Repos: `algorithms.ts`, `templates.ts`, `decks.ts`, `cards.ts`, `reviews.ts`,
   `lessons.ts`, `settings.ts`, `conversations.ts`, `attachments.ts`.
 - Attachment bytes: `attachment-bytes.ts` — the only reader and writer of `attachment_bytes`
