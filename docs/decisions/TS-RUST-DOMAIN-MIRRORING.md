@@ -55,6 +55,11 @@ These numeric/serde edges are deliberately not mirrored; do not re-flag them as 
   (which rejects `null`, accepting only absence).
   Renderer payloads never carry explicit nulls (`toWire` drops `undefined`),
   so the leniency is reachable only by hand-crafted input, where failing open on desktop is harmless.
+- Web repos parse every stored entity row with the write-time Zod schema; desktop repos deserialize it without
+  `validate()`.
+  A stored row outside today's rules still lists on desktop, and fails the read with the operation's code on web.
+- Desktop `get_settings` reports a stored row that fails `validate()` with that validation code; web reports `db.get`.
+  The repo-level delete guards read the learning row with `db.get` on both hosts.
 
 ## Why
 

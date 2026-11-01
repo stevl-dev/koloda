@@ -302,7 +302,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Fail a bad stored row with the operation's code on web
   Depends on: none
 
-- [ ] 5. Fail desktop delete guards closed on an invalid learning row
+- [x] 5. Fail desktop delete guards closed on an invalid learning row
   Goal: both hosts fail an algorithm or template delete with `db.get` when the learning row is corrupt or invalid
   (HD2).
   - `crates/koloda/src/repo/settings.rs:74-88`: `learning_defaults` deserializes, runs `validate()`, and maps either

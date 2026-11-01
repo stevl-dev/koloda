@@ -120,6 +120,17 @@ export function createCardContent(template: Pick<Template, "content">, overrides
   );
 }
 
+// Learning rows the delete guards must fail closed on: one that does not parse, one that parses but fails a rule.
+// Written raw, since `setSettings` rejects both. Twin of Rust `invalid_learning_rows`.
+export const INVALID_LEARNING_ROWS: [string, string][] = [
+  ["does not parse", JSON.stringify({ dayStartsAt: 42 })],
+  ["does not validate", JSON.stringify({ ...DEFAULT_LEARNING_SETTINGS, dayStartsAt: "not-a-time" })],
+];
+
+export async function storeLearningRow(db: DB, content: string) {
+  await db.run("INSERT INTO settings (name, content, created_at) VALUES (?, ?, ?)", ["learning", content, Date.now()]);
+}
+
 export async function seedLearningSettings(
   db: DB,
   defaults: LearningSettings["defaults"],

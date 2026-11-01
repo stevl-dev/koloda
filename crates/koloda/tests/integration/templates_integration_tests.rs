@@ -11,7 +11,7 @@ use koloda::domain::templates::{
 use koloda::repo::{cards, templates};
 
 use crate::common::fixtures::{add_algorithm, add_card, add_deck, add_template};
-use crate::common::{learning_settings, simple_template_content, test_db};
+use crate::common::{invalid_learning_rows, learning_settings, simple_template_content, store_learning_row, test_db};
 
 // Twin of the web `round-trips every template field through an update` case.
 #[test]
@@ -240,6 +240,33 @@ fn delete_template_fails_while_it_is_the_learning_default() {
             .is_some(),
         "default template should remain"
     );
+}
+
+// Twin of the web `fails closed when the stored learning settings row is invalid` case.
+#[test]
+fn delete_template_fails_closed_when_learning_settings_are_invalid() {
+    for (case, row) in invalid_learning_rows() {
+        let db = test_db();
+        let template_id = add_template(&db, "Basic");
+        let _other_template_id = add_template(&db, "Other Basic");
+        store_learning_row(&db, &row);
+
+        let err = templates::delete_template(
+            &db,
+            DeleteTemplateData {
+                id: template_id.clone(),
+            },
+        )
+        .expect_err(case);
+
+        assert_eq!(err.code, error_codes::DB_GET, "{case}");
+        assert!(
+            templates::get_template(&db, &template_id)
+                .expect("query should succeed")
+                .is_some(),
+            "template should remain after the failed delete when the learning row {case}"
+        );
+    }
 }
 
 #[test]

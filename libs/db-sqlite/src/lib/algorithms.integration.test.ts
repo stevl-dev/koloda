@@ -4,11 +4,13 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { TestDb } from "../test/test-helpers";
 import {
   createTestDb,
+  INVALID_LEARNING_ROWS,
   MISSING_ID,
   seedAlgorithm,
   seedDeckContext,
   seedLearningSettings,
   seedTemplate,
+  storeLearningRow,
 } from "../test/test-helpers";
 import {
   addAlgorithm,
@@ -184,17 +186,12 @@ describe("algorithms repository integration", () => {
     await expect(getAlgorithms(db)).rejects.toMatchObject({ name: "AppError", code: "db.get" });
   });
 
-  it("fails closed when the stored learning settings row is invalid", async () => {
+  // A present-but-invalid row must not read as "absent".
+  it.each(INVALID_LEARNING_ROWS)("fails closed when the stored learning settings row %s", async (_, row) => {
     const { db } = testDb;
     const algorithm = await seedAlgorithm(db);
     await seedAlgorithm(db, { title: "Other" });
-
-    // Valid JSON, invalid schema — a present-but-invalid row must not read as "absent".
-    await db.run("INSERT INTO settings (name, content, created_at) VALUES (?, ?, ?)", [
-      "learning",
-      JSON.stringify({ dayStartsAt: 42 }),
-      Date.now(),
-    ]);
+    await storeLearningRow(db, row);
 
     await expect(deleteAlgorithm(db, { id: algorithm.id })).rejects.toMatchObject({ code: "db.get" });
     expect(await getAlgorithm(db, algorithm.id)).not.toBeNull();

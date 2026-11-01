@@ -132,6 +132,30 @@ pub fn learning_settings_with_day_start(
     })
 }
 
+/// Learning rows the delete guards must fail closed on: one that does not parse, one that parses but fails `validate()`.
+/// Written raw, since `set_settings` rejects both. Twin of the web `fails closed` cases.
+pub fn invalid_learning_rows() -> [(&'static str, String); 2] {
+    [
+        ("does not parse", json!({ "dayStartsAt": 42 }).to_string()),
+        (
+            "does not validate",
+            learning_settings_with_day_start(100, 20, 30, 50, "not-a-time").to_string(),
+        ),
+    ]
+}
+
+pub fn store_learning_row(db: &Database, content: &str) {
+    db.with_conn(|conn| {
+        conn.execute(
+            "INSERT INTO settings (name, content, created_at) VALUES ('learning', ?1, 1)",
+            [content],
+        )
+        .map(|_| ())
+        .map_err(koloda::app::error::AppError::from)
+    })
+    .expect("raw learning row should be inserted");
+}
+
 pub fn valid_learning_defaults() -> serde_json::Value {
     json!({
         "algorithm": "01900000-0000-7000-8000-000000000001",

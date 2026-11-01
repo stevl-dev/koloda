@@ -6,9 +6,11 @@ import type { TestDb } from "../test/test-helpers";
 import {
   createCardContent,
   createTestDb,
+  INVALID_LEARNING_ROWS,
   seedDeckContext,
   seedLearningSettings,
   seedTemplate,
+  storeLearningRow,
 } from "../test/test-helpers";
 
 // A shape that differs from the seed in every part, so a dropped or defaulted column shows.
@@ -204,16 +206,11 @@ describe("templates repository integration", () => {
     expect(await getTemplate(db, defaultTemplate.id)).not.toBeNull();
   });
 
-  it("fails closed when the stored learning settings row is invalid", async () => {
+  // A present-but-invalid row must not read as "absent".
+  it.each(INVALID_LEARNING_ROWS)("fails closed when the stored learning settings row %s", async (_, row) => {
     const { db } = testDb;
     const template = await seedTemplate(db);
-
-    // Valid JSON, invalid schema — a present-but-invalid row must not read as "absent".
-    await db.run("INSERT INTO settings (name, content, created_at) VALUES (?, ?, ?)", [
-      "learning",
-      JSON.stringify({ dayStartsAt: 42 }),
-      Date.now(),
-    ]);
+    await storeLearningRow(db, row);
 
     await expect(deleteTemplate(db, { id: template.id })).rejects.toMatchObject({ code: "db.get" });
     expect(await getTemplate(db, template.id)).not.toBeNull();

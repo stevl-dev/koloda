@@ -69,7 +69,8 @@ pub fn get_settings(db: &Database, name: SettingsName) -> Result<Option<Settings
     })
 }
 
-/// Learning defaults for repo-level delete guards. `None` while learning settings are absent (pre-seed).
+/// Learning defaults for repo-level delete guards. `None` while learning settings are absent (pre-seed);
+/// a present row that fails to parse or validate is `db.get`.
 /// Connection-scoped so it can run inside a transaction (unlike [`get_settings`]).
 pub(crate) fn learning_defaults(conn: &Connection) -> Result<Option<LearningDefaults>, AppError> {
     let content: Option<String> = conn
@@ -81,10 +82,16 @@ pub(crate) fn learning_defaults(conn: &Connection) -> Result<Option<LearningDefa
         .optional()
         .map_err(AppError::from)?;
 
-    match content {
-        Some(content) => Ok(Some(parse_json_column::<LearningSettings>(0, &content)?.defaults)),
-        None => Ok(None),
-    }
+    let Some(content) = content else {
+        return Ok(None);
+    };
+    // INVARIANT: a present row that does not parse or validate fails closed with `db.get`, like web `getSettings`.
+    // Reading it as absent would skip the delete-default guards; `db.get` names the failed read, not the caller.
+    let settings = parse_json_column::<LearningSettings>(0, &content)
+        .map_err(AppError::from)
+        .and_then(|settings| settings.validate().map(|()| settings))
+        .map_err(|err| AppError::new(error_codes::DB_GET, err.details.or(Some(err.code))))?;
+    Ok(Some(settings.defaults))
 }
 
 pub fn set_settings(db: &Database, name: SettingsName, content: Value) -> Result<Settings, AppError> {
