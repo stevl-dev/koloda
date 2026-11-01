@@ -56,11 +56,7 @@ vi.mock("@koloda/core-react", async () => {
         reset: ["Mod+D"],
       },
     }),
-    useHotkeysStatus: () => ({
-      disableScope: () => {},
-      enableScope: () => {},
-      scopes: {},
-    }),
+    useHotkeyScope: () => {},
   };
 });
 

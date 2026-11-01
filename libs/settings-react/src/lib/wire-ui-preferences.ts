@@ -1,11 +1,5 @@
 import { DEFAULT_INTERFACE_SETTINGS } from "@koloda/app";
-import {
-  darkThemeAtom,
-  DEFAULT_HOTKEYS_SCOPES,
-  hotkeysScopesAtom,
-  lightThemeAtom,
-  schemeAtom,
-} from "@koloda/core-react";
+import { darkThemeAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
 import { motionSettingAtom } from "@koloda/ui";
 import type { createStore } from "jotai";
 import { readUiPreferencesCache, writeUiPreferencesCache } from "./ui-preferences-cache";
@@ -70,8 +64,6 @@ export function wireUiPreferences(store: Store) {
   // WHY: theme-boot.js sets an inline surface color before CSS; drop it once tokens apply
   document.documentElement.style.removeProperty("background-color");
   document.documentElement.style.removeProperty("color-scheme");
-
-  store.set(hotkeysScopesAtom, DEFAULT_HOTKEYS_SCOPES);
 }
 
 function persistCache(store: Store) {

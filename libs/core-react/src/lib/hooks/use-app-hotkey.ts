@@ -1,9 +1,10 @@
 import type { HotkeyEntry } from "@koloda/app";
 import { getHotkeyManager } from "@tanstack/react-hotkeys";
 import type { HotkeyCallback, HotkeyOptions, HotkeyRegistrationHandle } from "@tanstack/react-hotkeys";
+import { useAtomValue } from "jotai";
 import { useEffect, useEffectEvent, useRef } from "react";
 import type { AppHotkeyScope, RuntimeScope } from "./use-hotkeys-status";
-import { useHotkeysStatus } from "./use-hotkeys-status";
+import { hotkeysScopesAtom } from "./use-hotkeys-status";
 
 export function useAppHotkey(
   hotkeys: HotkeyEntry,
@@ -12,7 +13,7 @@ export function useAppHotkey(
   options?: HotkeyOptions,
 ) {
   const hotkeyManager = getHotkeyManager();
-  const { scopes } = useHotkeysStatus();
+  const scopes = useAtomValue(hotkeysScopesAtom);
   const handles = useRef<HotkeyRegistrationHandle[]>([]);
 
   const onHotkeysChange = useEffectEvent((updated: HotkeyEntry) => {

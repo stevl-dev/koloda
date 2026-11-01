@@ -1,9 +1,8 @@
-import { useHotkeysStatus } from "@koloda/core-react";
+import { useHotkeyScope } from "@koloda/core-react";
 import { useAssistantEngineHost, useConversationSaveHost } from "@koloda/assistant-react";
 import { AiIcon, AlgorithmsIcon, DecksIcon, HomeIcon, Layout, SettingsIcon, TemplatesIcon } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import type { PropsWithChildren } from "react";
-import { useEffect } from "react";
 import { useAppHotkeys } from "../hooks/use-app-hotkeys";
 import { useAttachmentSweep } from "../hooks/use-attachment-sweep";
 import { useGlobalSync } from "../hooks/use-global-sync";
@@ -26,11 +25,7 @@ export function App({ children }: PropsWithChildren) {
   // closing the app from another route still records `app_shutdown` / flush.
   useConversationSaveHost();
   useAssistantEngineHost();
-  const { enableScope } = useHotkeysStatus();
-
-  useEffect(() => {
-    enableScope("navigation");
-  }, [enableScope]);
+  useHotkeyScope("navigation", "enable", true);
 
   return (
     <>

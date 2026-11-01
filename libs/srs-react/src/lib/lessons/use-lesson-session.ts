@@ -1,4 +1,4 @@
-import { queriesAtom, useHotkeysStatus } from "@koloda/core-react";
+import { queriesAtom, useHotkeyScope } from "@koloda/core-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
@@ -20,7 +20,6 @@ export type UseLessonSessionResult = {
 // INVARIANT: Mount once from Lesson(). A second mount duplicates queries,
 // initialize effects, uploader, and hotkey-scope effects.
 export function useLessonSession(): UseLessonSessionResult {
-  const { disableScope, enableScope } = useHotkeysStatus();
   const phase = useAtomValue(lessonPhaseAtom);
   const request = useAtomValue(lessonRequestAtom);
   const setup = useAtomValue(lessonSetupAtom);
@@ -141,20 +140,8 @@ export function useLessonSession(): UseLessonSessionResult {
     failLessonDataLoad(lessonDataError);
   }, [phase, hasLessonDataError, isFetchingLessonData, lessonDataError, failLessonDataLoad]);
 
-  useEffect(() => {
-    if (isOpen) {
-      disableScope("navigation");
-      enableScope("grades");
-    } else {
-      enableScope("navigation");
-      disableScope("grades");
-    }
-
-    return () => {
-      enableScope("navigation");
-      disableScope("grades");
-    };
-  }, [isOpen, disableScope, enableScope]);
+  useHotkeyScope("navigation", "block", isOpen);
+  useHotkeyScope("grades", "enable", isOpen);
 
   useLessonUploader();
 

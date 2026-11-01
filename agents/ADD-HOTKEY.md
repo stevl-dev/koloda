@@ -65,5 +65,7 @@ Do everything above, plus:
   Add the field to the per-category loop and the `ui` conflict chain in `validate()`, and to `fill_defaults()`.
 - **Runtime scope**, when the category is gated:
   add it to `RuntimeScope` in `libs/core-react/src/lib/hooks/use-hotkeys-status.ts`.
-  Call `enableScope` and `disableScope` where the feature mounts, as `libs/ui/src/lib/primitives/form/form.tsx` does.
+  Call `useHotkeyScope(scope, "enable", isActive)` where the feature mounts,
+  as `libs/ui/src/lib/primitives/form/form.tsx` does.
+  A feature that must silence another scope holds it with `"block"`, as the lesson does with navigation.
 - **Tests**: add the category to both twin pins and to the TS test's expected object.

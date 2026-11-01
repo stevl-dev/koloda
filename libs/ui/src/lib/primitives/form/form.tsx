@@ -1,13 +1,12 @@
 import { ERROR_MESSAGES } from "@koloda/app";
 import type { ErrorCode, FormError } from "@koloda/app";
-import { useAppHotkey, useHotkeysSettings, useHotkeysStatus, useTimestampFormatter } from "@koloda/core-react";
+import { useAppHotkey, useHotkeysSettings, useHotkeyScope, useTimestampFormatter } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import type { PropsWithChildren } from "react";
-import { useEffect } from "react";
 import { ErrorMessage } from "../../ui/error-message";
 import { Fade } from "../animations/fade";
 import { Button } from "./button";
@@ -116,15 +115,11 @@ function Controls() {
   const {
     form: { submit, reset },
   } = useHotkeysSettings();
-  const { disableScope, enableScope } = useHotkeysStatus();
 
   // WHY: Scoped activation instead of conflictBehavior replace — replace permanently
   // unregisters the conflicting handler, so a user-rebound key would kill e.g. a nav
   // binding until the settings query identity changes.
-  useEffect(() => {
-    enableScope("form");
-    return () => disableScope("form");
-  }, [disableScope, enableScope]);
+  useHotkeyScope("form", "enable", true);
 
   useAppHotkey(
     submit,

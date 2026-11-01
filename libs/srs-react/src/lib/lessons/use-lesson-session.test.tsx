@@ -1,5 +1,5 @@
 import { AppError } from "@koloda/app";
-import { hotkeysScopesAtom, queriesAtom, queryKeys } from "@koloda/core-react";
+import { hotkeysScopesAtom, queriesAtom, queryKeys, useHotkeyScope } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
@@ -74,7 +74,6 @@ function createWrapper(options?: { queries?: Queries }) {
   const queryClient = createQueryClient();
   const queries = options?.queries ?? buildQueries();
   store.set(queriesAtom, queries);
-  store.set(hotkeysScopesAtom, ["navigation"]);
 
   return {
     store,
@@ -82,11 +81,20 @@ function createWrapper(options?: { queries?: Queries }) {
     Wrapper: function Wrapper({ children }: PropsWithChildren) {
       return (
         <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
+          <JotaiProvider store={store}>
+            <NavigationOwner />
+            {children}
+          </JotaiProvider>
         </QueryClientProvider>
       );
     },
   };
+}
+
+// The app shell enables navigation for as long as it is mounted.
+function NavigationOwner() {
+  useHotkeyScope("navigation", "enable", true);
+  return null;
 }
 
 describe("useLessonSession", () => {
@@ -414,22 +422,24 @@ describe("useLessonSession", () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.todayReviewTotals() });
   });
 
-  it("restores nav scope when unmounted while open", async () => {
+  it("holds navigation off and grades on while open, and gives navigation back on close", async () => {
     const { store, Wrapper } = createWrapper();
-    const { unmount } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
+
+    expect(store.get(hotkeysScopesAtom)).toMatchObject({ navigation: true, grades: false });
 
     act(() => {
       store.set(openLessonAtom, REQUEST);
     });
 
     await waitFor(() => {
-      expect(store.get(hotkeysScopesAtom)).toContain("grades");
-      expect(store.get(hotkeysScopesAtom)).not.toContain("navigation");
+      expect(store.get(hotkeysScopesAtom)).toMatchObject({ navigation: false, grades: true });
     });
 
-    unmount();
+    act(() => {
+      result.current.closeLesson();
+    });
 
-    expect(store.get(hotkeysScopesAtom)).toContain("navigation");
-    expect(store.get(hotkeysScopesAtom)).not.toContain("grades");
+    expect(store.get(hotkeysScopesAtom)).toMatchObject({ navigation: true, grades: false });
   });
 });

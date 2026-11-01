@@ -302,7 +302,7 @@ and `libs/assistant-react`.
 The libs run with `isolate: false`; a new file-level `vi.mock` must not replace a module a sibling imports for real.
 Line numbers are at `902550f6`; when an earlier item moved them, find the code by its text.
 
-- [ ] 1. Count holds per hotkey scope instead of toggling flags
+- [x] 1. Count holds per hotkey scope instead of toggling flags
   Goal (H1, H8, H10 gating part, H6 Select bullet, H11 scope reset):
   - Replace the flag list in `use-hotkeys-status.ts` with counted holds.
     A scope is on while at least one owner enables it and no owner holds it off.

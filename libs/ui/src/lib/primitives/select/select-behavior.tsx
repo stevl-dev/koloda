@@ -1,4 +1,4 @@
-import { useAppHotkey, useHotkeysSettings, useHotkeysStatus } from "@koloda/core-react";
+import { useAppHotkey, useHotkeyScope, useHotkeysSettings } from "@koloda/core-react";
 import type { Key, KeyboardDelegate } from "@react-types/shared";
 import type { HotkeyOptions } from "@tanstack/react-hotkeys";
 import type { RefObject } from "react";
@@ -52,16 +52,13 @@ const SELECT_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false, conflictBeha
 
 export function useSelectHotkeys(ref: RefObject<HTMLDivElement | null>) {
   const { ui } = useHotkeysSettings();
-  const { disableScope, enableScope } = useHotkeysStatus();
   const state = useContext(SelectStateContext);
   const isOpen = state?.isOpen ?? false;
 
   useAppHotkey(ui.focusNext, () => dispatchSelectNavigationKey(ref, state, "ArrowDown"), "", SELECT_HOTKEY_OPTIONS);
   useAppHotkey(ui.focusPrev, () => dispatchSelectNavigationKey(ref, state, "ArrowUp"), "", SELECT_HOTKEY_OPTIONS);
 
-  useEffect(() => {
-    (isOpen ? disableScope : enableScope)("navigation");
-  }, [isOpen, disableScope, enableScope]);
+  useHotkeyScope("navigation", "block", isOpen);
 
   // WHY: Capture-phase close hotkey — Autocomplete onKeyDown may stopPropagation
   // (React 19 also stops the native event), so this must run before the search input.

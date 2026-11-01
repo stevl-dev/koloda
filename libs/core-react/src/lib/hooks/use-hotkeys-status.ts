@@ -1,5 +1,5 @@
-import { atom, useAtom } from "jotai";
-import { useCallback, useMemo } from "react";
+import { atom, useSetAtom } from "jotai";
+import { useEffect } from "react";
 
 // WHY: Runtime activation scope, distinct from the settings `HotkeyCategory` grouping.
 // A category organizes bindings in settings/validation; a runtime scope gates whether
@@ -9,31 +9,40 @@ export type RuntimeScope = "navigation" | "grades" | "form";
 
 export type AppHotkeyScope = RuntimeScope | "";
 
-export const DEFAULT_HOTKEYS_SCOPES: RuntimeScope[] = [];
+export type HotkeyScopeHold = "enable" | "block";
 
-export const hotkeysScopesAtom = atom<RuntimeScope[]>(DEFAULT_HOTKEYS_SCOPES);
+type ScopeHolds = Record<RuntimeScope, Record<HotkeyScopeHold, number>>;
 
-export function useHotkeysStatus() {
-  const [scopesArray, setScopesArray] = useAtom(hotkeysScopesAtom);
+// INVARIANT: owners add and remove holds; nothing sets a scope on or off directly.
+// Owners overlap — an exiting form unmounts after the form that replaced it mounts —
+// so a flag one owner clears would switch the scope off under another.
+const scopeHoldsAtom = atom<ScopeHolds>({
+  navigation: { enable: 0, block: 0 },
+  grades: { enable: 0, block: 0 },
+  form: { enable: 0, block: 0 },
+});
 
-  const disableScope = useCallback(
-    (name: RuntimeScope) => {
-      setScopesArray((prev) => prev.filter((x) => x !== name));
-    },
-    [setScopesArray],
-  );
+const isScopeOn = ({ enable, block }: Record<HotkeyScopeHold, number>) => enable > 0 && block === 0;
 
-  const enableScope = useCallback(
-    (name: RuntimeScope) => {
-      setScopesArray((prev) => (prev.includes(name) ? prev : [...prev, name]));
-    },
-    [setScopesArray],
-  );
+export const hotkeysScopesAtom = atom<Record<RuntimeScope, boolean>>((get) => {
+  const holds = get(scopeHoldsAtom);
+  return {
+    navigation: isScopeOn(holds.navigation),
+    grades: isScopeOn(holds.grades),
+    form: isScopeOn(holds.form),
+  };
+});
 
-  const scopes: Record<RuntimeScope, boolean> = useMemo(
-    () => scopesArray.reduce((acc, x) => ({ ...acc, [x]: true }), {}) as Record<RuntimeScope, boolean>,
-    [scopesArray],
-  );
+export function useHotkeyScope(scope: RuntimeScope, hold: HotkeyScopeHold, isActive: boolean) {
+  const setHolds = useSetAtom(scopeHoldsAtom);
 
-  return { scopes, disableScope, enableScope };
+  useEffect(() => {
+    if (!isActive) return;
+
+    const change = (delta: number) =>
+      setHolds((prev) => ({ ...prev, [scope]: { ...prev[scope], [hold]: prev[scope][hold] + delta } }));
+
+    change(1);
+    return () => change(-1);
+  }, [scope, hold, isActive, setHolds]);
 }
