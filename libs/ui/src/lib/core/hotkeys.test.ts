@@ -1,29 +1,6 @@
-import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
+import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { dispatchKey, isComposingEvent, isPrintableKey, matchesAnyHotkey } from "./hotkeys";
-
-function createReactKeyEvent(
-  partial: Partial<ReactKeyboardEvent<HTMLElement>> & { key: string },
-): ReactKeyboardEvent<HTMLElement> {
-  return {
-    altKey: false,
-    ctrlKey: false,
-    metaKey: false,
-    nativeEvent: { isComposing: false },
-    ...partial,
-  } as ReactKeyboardEvent<HTMLElement>;
-}
-
-describe("isPrintableKey", () => {
-  it("returns true for a single character without modifiers", () => {
-    expect(isPrintableKey(createReactKeyEvent({ key: "a" }))).toBe(true);
-  });
-
-  it("returns false for modifier combinations and non-character keys", () => {
-    expect(isPrintableKey(createReactKeyEvent({ key: "a", ctrlKey: true }))).toBe(false);
-    expect(isPrintableKey(createReactKeyEvent({ key: "Enter" }))).toBe(false);
-  });
-});
+import { dispatchKey, matchesAnyHotkey } from "./hotkeys";
 
 describe("matchesAnyHotkey", () => {
   it("matches when any registered hotkey matches the event", () => {
@@ -62,12 +39,5 @@ describe("dispatchKey", () => {
 
   it("no-ops when the ref has no current element", () => {
     expect(() => dispatchKey({ current: null }, "Escape")).not.toThrow();
-  });
-});
-
-describe("isComposingEvent", () => {
-  it("detects composing IME events", () => {
-    expect(isComposingEvent(createReactKeyEvent({ key: "a", nativeEvent: { isComposing: true } }))).toBe(true);
-    expect(isComposingEvent(createReactKeyEvent({ key: "a" }))).toBe(false);
   });
 });

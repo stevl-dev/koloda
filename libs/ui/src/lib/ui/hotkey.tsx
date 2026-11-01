@@ -7,7 +7,6 @@ const hotkey = tv({
   variants: {
     size: {
       default: "h-10 min-h-10 min-w-10 py-1 px-2 rounded-md",
-      small: "py-1 px-2 rounded-md text-xs",
     },
   },
   defaultVariants: {

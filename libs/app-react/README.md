@@ -21,7 +21,8 @@ Each app must set `appEntryAtom` before routes render and inject its `Queries` i
   `routeTree.gen.ts` is generated.
   Settings → Sync and its link exist only when the host sets `syncQueriesAtom`.
 - Global sync: `hooks/use-global-sync.ts` — settings → Jotai atoms (theme, motion, defaults, lang).
-- Global hotkeys: `hooks/use-app-hotkeys.ts` — navigation/ui scopes only; feature scopes live in feature components.
+- Global hotkeys: `hooks/use-app-hotkeys.ts` — the navigation scope and the app-wide ui hotkeys;
+  feature scopes live in feature components.
 - Locales: `locales/` — Lingui `.po` catalogs for the shell.
 
 ### Does NOT own (prevent scope creep)

@@ -452,7 +452,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Check a saved rebinding in both e2e suites
   Depends on: 3
 
-- [ ] 9. Drop hotkey residue and stale names
+- [x] 9. Drop hotkey residue and stale names
   Goal (H11 except the scope reset, H12 first two bullets, H13 first two bullets):
   - Delete `isPrintableKey` and `isComposingEvent` (`libs/ui/src/lib/core/hotkeys.ts`) and their tests; delete
     `AddHotkeyButton.isDisabled` and the `HotKey` `small` size.

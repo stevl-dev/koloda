@@ -1,4 +1,4 @@
-//! `settings.hotkeys` slice — mirrors `@koloda/app` `settingsHotkeysValidation`.
+//! `settings.hotkeys` slice — mirrors `@koloda/app` `hotkeysSettingsValidation`.
 
 use std::collections::{HashMap, HashSet};
 

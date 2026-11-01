@@ -6,19 +6,14 @@ import { HotkeyRecorder } from "./hotkey-recorder";
 
 type AddHotkeyButtonProps = {
   onAdd: (hotkey: string | null) => void;
-  isDisabled?: boolean;
 };
 
-export function AddHotkeyButton({ onAdd, isDisabled }: AddHotkeyButtonProps) {
+export function AddHotkeyButton({ onAdd }: AddHotkeyButtonProps) {
   const { _ } = useLingui();
 
   return (
     <HotkeyRecorder onAccept={onAdd}>
-      <Button
-        variants={{ size: "icon", style: "dashed" }}
-        aria-label={_(msg`hotkey-recorder.add-button.label`)}
-        isDisabled={isDisabled}
-      >
+      <Button variants={{ size: "icon", style: "dashed" }} aria-label={_(msg`hotkey-recorder.add-button.label`)}>
         <AddIcon className="size-4 min-w-4" strokeWidth={3} aria-hidden="true" />
       </Button>
     </HotkeyRecorder>

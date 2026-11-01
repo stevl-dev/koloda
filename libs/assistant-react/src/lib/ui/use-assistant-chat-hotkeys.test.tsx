@@ -8,7 +8,6 @@ import { useAssistantChatHotkeys } from "./use-assistant-chat-hotkeys";
 
 const registrations = vi.hoisted(() => ({
   newConversation: { enabled: undefined as boolean | undefined },
-  toggleSettings: { callback: undefined as (() => void) | undefined },
 }));
 
 const aiKeys = vi.hoisted(() => ({
@@ -29,12 +28,9 @@ vi.mock("@koloda/core-react", async (importOriginal) => {
   return {
     ...actual,
     useHotkeysSettings: () => ({ ai: aiKeys }),
-    useAppHotkey: (hotkeys: unknown, callback: () => void, _scope: string, options?: { enabled?: boolean }) => {
+    useAppHotkey: (hotkeys: unknown, _callback: () => void, _scope: string, options?: { enabled?: boolean }) => {
       if (hotkeys === aiKeys.newConversation) {
         registrations.newConversation.enabled = options?.enabled;
-      }
-      if (hotkeys === aiKeys.toggleSettings) {
-        registrations.toggleSettings.callback = callback;
       }
     },
   };
@@ -44,11 +40,7 @@ const scroll = {
   resetScroll: vi.fn(),
 } as unknown as UseAutoScrollReturn;
 
-function renderWithStore(
-  store: ReturnType<typeof createStore>,
-  conversationId: string | undefined,
-  onToggleSettings = vi.fn(),
-) {
+function renderWithStore(store: ReturnType<typeof createStore>, conversationId: string | undefined) {
   const wrapper = ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>;
   return renderHook(
     () =>
@@ -58,7 +50,7 @@ function renderWithStore(
         handleNewConversation: vi.fn(),
         scroll,
         modelProfilePickerRef: { current: null },
-        onToggleSettings,
+        onToggleSettings: vi.fn(),
       }),
     { wrapper },
   );
@@ -76,15 +68,5 @@ describe("useAssistantChatHotkeys", () => {
     renderWithStore(createStore(), undefined);
 
     expect(registrations.newConversation.enabled).toBe(false);
-  });
-
-  it("routes the toggle-settings hotkey to onToggleSettings", () => {
-    const store = createStore();
-    const onToggleSettings = vi.fn();
-
-    renderWithStore(store, "draft", onToggleSettings);
-    registrations.toggleSettings.callback?.();
-
-    expect(onToggleSettings).toHaveBeenCalledTimes(1);
   });
 });

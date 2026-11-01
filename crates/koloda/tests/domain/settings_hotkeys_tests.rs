@@ -4,22 +4,21 @@ use koloda::domain::settings::SettingsName;
 use koloda::domain::settings_hotkeys::HotkeysSettings;
 
 #[test]
-fn test_valid_hotkeys_settings_full() {
-    // WHY: dashboard carries two bindings so this single config also pins that multi-key actions
-    // are accepted, and "Control+Comma" covers modifier spellings.
+fn test_action_with_several_bindings_passes_validation() {
+    // WHY: dashboard carries two bindings, so this pins that one action may hold several keys.
     let json = r#"{
         "navigation": {
-            "dashboard": ["KeyH", "KeyJ"],
-            "decks": ["KeyD"],
-            "algorithms": ["KeyP"],
-            "templates": ["KeyT"],
-            "settings": ["Control+Comma"]
+            "dashboard": ["H", "J"],
+            "decks": ["D"],
+            "algorithms": ["P"],
+            "templates": ["T"],
+            "settings": ["Mod+,"]
         },
         "grades": {
-            "again": ["Digit1"],
-            "hard": ["Digit2"],
-            "normal": ["Digit3"],
-            "easy": ["Digit4"]
+            "again": ["1"],
+            "hard": ["2"],
+            "normal": ["3"],
+            "easy": ["4"]
         }
     }"#;
 
@@ -66,7 +65,7 @@ fn test_unknown_action_names_pass_validation() {
 fn test_extra_top_level_fields_ignored() {
     let json = r#"{
         "navigation": {"dashboard": ["ArrowRight"]},
-        "grades": {"again": ["Digit1"]},
+        "grades": {"again": ["1"]},
         "extraField": "ignored",
         "anotherExtra": 123
     }"#;
@@ -100,20 +99,20 @@ fn test_duplicate_keys_fail_with_code() {
             "duplicate within a grade action",
             r#"{
                 "navigation": {},
-                "grades": { "again": ["Digit1", "Digit1"] }
+                "grades": { "again": ["1", "1"] }
             }"#,
         ),
         (
             "duplicate across grade actions",
             r#"{
                 "navigation": {},
-                "grades": { "again": ["Digit1"], "hard": ["Digit1"] }
+                "grades": { "again": ["1"], "hard": ["1"] }
             }"#,
         ),
         (
             "duplicate later in the same array",
             r#"{
-                "navigation": { "dashboard": ["ArrowRight", "KeyJ", "ArrowRight"] },
+                "navigation": { "dashboard": ["ArrowRight", "J", "ArrowRight"] },
                 "grades": {}
             }"#,
         ),
@@ -181,7 +180,7 @@ fn test_settings_name_hotkeys_validation_via_json() {
             "dashboard": ["ArrowRight"]
         },
         "grades": {
-            "again": ["Digit1"]
+            "again": ["1"]
         }
     }"#;
 
@@ -212,8 +211,8 @@ fn test_hotkeys_normalize_drops_unknown_action_names() {
     for (category, known_action, known_binding, unknown_action, missing_action) in [
         ("form", "submit", "Mod+S", "retiredFormAction", "reset"),
         ("ui", "close", "Alt+C", "legacyUiAction", "focusNext"),
-        ("navigation", "dashboard", "KeyH", "extraAction", "decks"),
-        ("grades", "again", "Digit1", "retiredGrade", "hard"),
+        ("navigation", "dashboard", "H", "extraAction", "decks"),
+        ("grades", "again", "1", "retiredGrade", "hard"),
         ("ai", "cancel", "Mod+Shift+I", "toggleCardsMode", "focusPrompt"),
     ] {
         let mut actions = serde_json::Map::new();

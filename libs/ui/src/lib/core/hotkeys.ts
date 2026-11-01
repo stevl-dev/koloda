@@ -1,10 +1,6 @@
 import { matchesKeyboardEvent, rawHotkeyToParsedHotkey } from "@tanstack/hotkeys";
 import type { Hotkey, ParsedHotkey, RawHotkey, RegisterableHotkey } from "@tanstack/hotkeys";
-import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
-
-export function isPrintableKey(e: ReactKeyboardEvent<HTMLElement>) {
-  return e.altKey || e.ctrlKey || e.metaKey ? false : e.key.length === 1;
-}
+import type { RefObject } from "react";
 
 export function matchesAnyHotkey(event: KeyboardEvent, hotkeys: RegisterableHotkey[]) {
   return hotkeys.some((hotkey) => matchesKeyboardEvent(event, toMatchableHotkey(hotkey)));
@@ -23,9 +19,4 @@ function toMatchableHotkey(hotkey: RegisterableHotkey): Hotkey | ParsedHotkey {
 
 function isRawHotkey(hotkey: RegisterableHotkey): hotkey is RawHotkey {
   return typeof hotkey !== "string";
-}
-
-export function isComposingEvent(event: ReactKeyboardEvent<HTMLElement>) {
-  const nativeEvent = event.nativeEvent as KeyboardEvent & { isComposing?: boolean };
-  return !!nativeEvent.isComposing;
 }
