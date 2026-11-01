@@ -284,7 +284,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Offer to clear web data the app can no longer open
   Depends on: 2
 
-- [ ] 4. Give a bad stored row a catalog code on web
+- [x] 4. Give a bad stored row a catalog code on web
   Goal: a stored row that fails its read schema fails with the operation's code, as on desktop, not a raw `ZodError`
   (HD2).
   - `libs/db-sqlite/src/lib/parse-rows.ts:60-64`: on a schema failure, `parseRow` throws a plain `Error` carrying

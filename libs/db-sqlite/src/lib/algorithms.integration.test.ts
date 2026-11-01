@@ -172,6 +172,18 @@ describe("algorithms repository integration", () => {
     expect(await getAlgorithmDecks(db, algorithm.id)).toEqual([{ id: deck.id, title: deck.title }]);
   });
 
+  it("fails a list read with db.get when a stored algorithm is outside today's rules", async () => {
+    const { db } = testDb;
+    await seedAlgorithm(db);
+    const stored = await seedAlgorithm(db, { title: "Out of bounds" });
+    await db.run("UPDATE algorithms SET content = ? WHERE id = ?", [
+      JSON.stringify({ ...DEFAULT_FSRS_ALGORITHM, retention: 50 }),
+      stored.id,
+    ]);
+
+    await expect(getAlgorithms(db)).rejects.toMatchObject({ name: "AppError", code: "db.get" });
+  });
+
   it("fails closed when the stored learning settings row is invalid", async () => {
     const { db } = testDb;
     const algorithm = await seedAlgorithm(db);

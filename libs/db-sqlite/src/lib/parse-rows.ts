@@ -60,7 +60,12 @@ export function mapSqliteRow(row: SqlRow): Record<string, unknown> {
 export function parseRow<S extends z.ZodType>(schema: S, row: unknown): z.infer<S> {
   if (row == null) throw new Error("no row returned");
   const mapped = typeof row === "object" ? mapSqliteRow(row as SqlRow) : row;
-  return schema.parse(mapped);
+  const parsed = schema.safeParse(mapped);
+  // WHY: a stored row outside today's rules is a failed read, not invalid input. A plain Error takes the
+  // operation's code in `throwKnownError`, as a serde failure takes it in Rust `throw_known_error`; a ZodError
+  // would pass through with no catalog code.
+  if (!parsed.success) throw new Error(`Stored row does not match its schema: ${parsed.error.message}`);
+  return parsed.data;
 }
 
 export function parseRows<S extends z.ZodType>(schema: S, rows: unknown[]): z.infer<S>[] {
