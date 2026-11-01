@@ -469,6 +469,17 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Drop hotkey residue and stale names
   Depends on: 1
 
+- [x] 10. Say why navigation and grade hotkeys ignore text fields
+  Goal (self-review of item 4): a WHY on the explicit `ignoreInputs: true` in `use-app-hotkeys.ts` and
+  `lesson-studying.tsx` (the library default lets a Ctrl or Cmd binding fire in a text field); ADD-HOTKEY.md step 5
+  says an `ignoreInputs: false` hotkey fires in a text field only through a chord, and that navigation and grade
+  hotkeys pass `ignoreInputs: true`.
+  Constraints: comments and the playbook only.
+  Done when: `bun run typecheck` and `bun run check:markdown` pass.
+  Manual verify: none — comments and docs only.
+  Commit: Say why navigation and grade hotkeys ignore text fields
+  Depends on: 4
+
 ## Outcome
 
 <what shipped>

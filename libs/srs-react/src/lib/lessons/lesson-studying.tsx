@@ -21,6 +21,8 @@ export function LessonStudying() {
   const selectGrade = useSetAtom(selectLessonGradeAtom);
   const requestTermination = useSetAtom(requestLessonTerminationAtom);
 
+  // WHY: `ignoreInputs: true` is explicit because the library default lets a Ctrl or Cmd binding fire in a text field,
+  // and a grade key never fires while an answer is typed (HOTKEYS.md (§Key Bindings)).
   useAppHotkey(grades.again, () => selectGrade(0), "grades", { eventType: "keyup", ignoreInputs: true });
   useAppHotkey(grades.hard, () => selectGrade(1), "grades", { eventType: "keyup", ignoreInputs: true });
   useAppHotkey(grades.normal, () => selectGrade(2), "grades", { eventType: "keyup", ignoreInputs: true });

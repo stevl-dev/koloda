@@ -9,6 +9,8 @@ import { useCallback } from "react";
 
 const SCHEME_CYCLE = ["light", "dark", "system"] as const;
 const FOCUS_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false, conflictBehavior: "allow" };
+// WHY: `ignoreInputs: true` is explicit because the library default lets a Ctrl or Cmd binding fire in a text field;
+// navigation and tab hotkeys never fire there, whatever the binding (HOTKEYS.md (§Key Bindings)).
 const TAB_HOTKEY_OPTIONS: HotkeyOptions = { preventDefault: false, conflictBehavior: "allow", ignoreInputs: true };
 const TOGGLE_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: false };
 const NAVIGATION_HOTKEY_OPTIONS: HotkeyOptions = { ignoreInputs: true };
