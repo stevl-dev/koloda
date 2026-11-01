@@ -236,15 +236,6 @@ impl KolodaDb {
     }
 
     #[napi]
-    pub fn get_card(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
-        self.run(env, move |db| {
-            let id = extract_id(params)?;
-            let card = repo::cards::get_card(db, &id).map_err(to_napi_error)?;
-            card.map(|c| to_value(&c)).transpose()
-        })
-    }
-
-    #[napi]
     pub fn add_card(&self, env: Env, data: serde_json::Value) -> Result<JsObject> {
         self.run_write(env, move |db| {
             let data = from_wire(data)?;

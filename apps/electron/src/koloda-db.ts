@@ -87,7 +87,6 @@ export interface KolodaDb {
   // Cards
   getCards(params: GetCardsParams): Promise<Card[]>;
   getCardCounts(): Promise<Array<{ deckId: string; count: number }>>;
-  getCard(params: { id: string }): Promise<Card | null>;
   addCard(data: InsertCardData): Promise<Card>;
   addCards(data: InsertCardData[]): Promise<InsertCardsResponse>;
   updateCard(data: UpdateCardData): Promise<Card>;

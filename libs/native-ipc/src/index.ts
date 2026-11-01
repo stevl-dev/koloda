@@ -183,7 +183,6 @@ export interface DataIpc {
   seed_db: { args: { data: SeedDbData }; result: true };
 
   cmd_get_cards: { args: { params: GetCardsParams }; result: Card[] };
-  cmd_get_card: { args: { id: string }; result: Card | null };
   cmd_add_card: { args: { data: InsertCardData }; result: Card };
   cmd_add_cards: { args: { data: InsertCardData[] }; result: InsertCardsResponse };
   cmd_update_card: { args: { data: UpdateCardData }; result: Card };

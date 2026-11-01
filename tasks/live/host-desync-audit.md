@@ -337,7 +337,7 @@ Those belong to their own triages, and every one of those tasks has landed.
   Commit: Name the web SQLite floor and the data-update rule in DB.md
   Depends on: 2
 
-- [ ] 7. Remove the unused desktop single-card channel
+- [x] 7. Remove the unused desktop single-card channel
   Goal: delete `cmd_get_card` (HD6).
   Remove it from `libs/native-ipc/src/index.ts:186`, `apps/electron/src/data-ipc.ts:25`,
   `apps/electron/src/koloda-db.ts:90`, the addon method `get_card` (`apps/electron/src-rust/src/lib.rs:239-245`), and

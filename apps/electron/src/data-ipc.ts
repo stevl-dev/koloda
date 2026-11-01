@@ -22,7 +22,6 @@ const dataHandlers = {
   },
 
   cmd_get_cards: (db, { params }: IpcArgs<"cmd_get_cards">) => db.getCards(params),
-  cmd_get_card: (db, args: IpcArgs<"cmd_get_card">) => db.getCard(args),
   cmd_add_card: (db, { data }: IpcArgs<"cmd_add_card">) => db.addCard(data),
   cmd_add_cards: (db, { data }: IpcArgs<"cmd_add_cards">) => db.addCards(data),
   cmd_update_card: (db, { data }: IpcArgs<"cmd_update_card">) => db.updateCard(data),

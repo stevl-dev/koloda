@@ -32,7 +32,7 @@ Each handler maps 1:1 to a `KolodaDb` NAPI method backed by `crates/koloda` repo
 The full method list lives in `src-rust/src/lib.rs`.
 
 - Lifecycle: `get_db_status`, `seed_db`
-- Cards: `cmd_get_cards`, `cmd_get_card`, `cmd_add_card`, `cmd_add_cards`, `cmd_update_card`,
+- Cards: `cmd_get_cards`, `cmd_add_card`, `cmd_add_cards`, `cmd_update_card`,
   `cmd_delete_card`, `cmd_delete_cards`, `cmd_reset_card_progress`
 - Presets (algorithms): `cmd_get_algorithms`, `cmd_get_algorithm`, `cmd_get_algorithm_decks`,
   `cmd_add_algorithm`, `cmd_clone_algorithm`, `cmd_update_algorithm`, `cmd_delete_algorithm`,
