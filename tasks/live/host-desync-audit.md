@@ -212,7 +212,7 @@ Those belong to their own triages, and every one of those tasks has landed.
 
 ## Plan
 
-- [ ] 1. Test the web upgrade hook
+- [x] 1. Test the web upgrade hook
   Goal: pin what `getStatus` does today, before item 2 rewrites the runner around it (HD4).
   In `libs/db-sqlite/src/lib/migrate.integration.test.ts`, add three cases on a fresh `openDb({ idbName })`, closed
   and deleted in `finally` like the existing cases:

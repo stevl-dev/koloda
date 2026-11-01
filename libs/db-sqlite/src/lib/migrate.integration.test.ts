@@ -1,6 +1,12 @@
+import { readdir, readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { openDb } from "./db";
-import { applyPendingMigrations, getAppliedMigrationNames } from "./migrate";
+import type { DB } from "./db";
+import { applyPendingMigrations, compareMigrationNames, getAppliedMigrationNames, getStatus } from "./migrate";
+
+const MIGRATIONS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../crates/koloda/src/migrations");
 
 async function deleteIdb(name: string) {
   await new Promise<void>((resolve, reject) => {
@@ -10,6 +16,87 @@ async function deleteIdb(name: string) {
     request.onblocked = () => resolve();
   });
 }
+
+let dbSeq = 0;
+
+async function withDb(fn: (db: DB) => Promise<void>) {
+  const idbName = `koloda-test-migrate-status-${++dbSeq}-${Date.now()}`;
+  const db = await openDb({ idbName });
+  try {
+    await fn(db);
+  } finally {
+    await db.close();
+    await deleteIdb(idbName);
+  }
+}
+
+async function readSeries() {
+  const files = (await readdir(MIGRATIONS_DIR)).filter((file) => file.endsWith(".sql")).sort(compareMigrationNames);
+  return Promise.all(
+    files.map(async (file) => ({
+      name: file.replace(/\.sql$/, ""),
+      sql: await readFile(resolve(MIGRATIONS_DIR, file), "utf8"),
+    })),
+  );
+}
+
+async function dumpSchema(db: DB) {
+  return db.all(
+    "SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name <> '_migrations' ORDER BY type, name",
+  );
+}
+
+describe("getStatus", () => {
+  it("reports a fresh database as blank and applies nothing", async () => {
+    await withDb(async (db) => {
+      expect(await getStatus(db)).toBe("blank");
+
+      expect(await getAppliedMigrationNames(db)).toEqual([]);
+      expect(await dumpSchema(db)).toEqual([]);
+    });
+  });
+
+  it("applies a file added since the last visit before it reports ok", async () => {
+    const series = await readSeries();
+
+    await withDb(async (expected) => {
+      await applyPendingMigrations(expected);
+
+      await withDb(async (db) => {
+        // A returning visitor's database: every file but the newest, applied and recorded as the runner does.
+        await db.exec(
+          "CREATE TABLE _migrations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created_at INTEGER NOT NULL)",
+        );
+        for (const { name, sql } of series.slice(0, -1)) {
+          await db.exec(sql);
+          await db.run("INSERT INTO _migrations (name, created_at) VALUES (?, 0)", [name]);
+        }
+        expect(await dumpSchema(db)).not.toEqual(await dumpSchema(expected));
+
+        expect(await getStatus(db)).toBe("ok");
+
+        expect(await getAppliedMigrationNames(db)).toEqual(series.map(({ name }) => name));
+        expect(await dumpSchema(db)).toEqual(await dumpSchema(expected));
+      });
+    });
+  });
+
+  it("stays blank when the setup transaction fails after applying the series", async () => {
+    await withDb(async (db) => {
+      // The shape of apps/web `setupFromScratch`: migrations and seeding share one outer transaction.
+      await expect(
+        db.transaction(async (tx) => {
+          await applyPendingMigrations(tx);
+          throw new Error("seeding failed");
+        }),
+      ).rejects.toThrow("seeding failed");
+
+      expect(await getStatus(db)).toBe("blank");
+      expect(await getAppliedMigrationNames(db)).toEqual([]);
+      expect(await dumpSchema(db)).toEqual([]);
+    });
+  });
+});
 
 describe("applyPendingMigrations", () => {
   it("rolls back the whole migration when a statement fails mid-file", async () => {
