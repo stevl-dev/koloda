@@ -1,6 +1,6 @@
 # Hotkeys audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, docs/specs/HOTKEYS.md, agents/ADD-HOTKEY.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, apps/web-e2e/README.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/REVIEW.md
 Flow: local
 
@@ -288,7 +288,7 @@ The report's other product decisions are H2, H4, and H5; they are questions 2-4.
   Fixed keys that are not settings (lesson Escape, Enter, Space; the desktop history keys) keep working.
 - [x] 5. H14: does an open modal hold navigation off? — yes, through item 1's scope holds; popovers do not
   (human, 2026-11-01).
-- [ ] 6. Plan approval — open.
+- [x] 6. Plan approval — approved as drafted (human, 2026-11-01).
 
 ## Plan
 
