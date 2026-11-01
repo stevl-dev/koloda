@@ -168,8 +168,7 @@ When one form replaces another, the scope stays on for the new form.
 When a scope is disabled, its hotkeys are silently ignored.
 They do not fire, even if the keys are pressed.
 Enabling a scope that is already enabled leaves it enabled.
-If a scope is disabled while one of its hotkeys is mid-keystroke, that action completes.
-Only later presses are blocked.
+A hotkey that acts when its key is released, such as a grade, does nothing if its scope turned off before the release.
 
 ## Key Bindings
 
@@ -177,18 +176,19 @@ Each hotkey can have zero or more key bindings.
 A hotkey with no bindings does nothing.
 
 Key bindings use a modifier-plus-key format.
-Supported modifiers:
+Modifiers are written in this order:
 
-- `Mod` — Ctrl on Windows/Linux, Cmd on macOS
-- `Shift`
+- `Mod` — Ctrl on Windows and Linux, Cmd on macOS
+- `Control` — Ctrl on macOS
 - `Alt`
-- `Ctrl`
+- `Shift`
+- `Meta` — the Windows or Super key on Windows and Linux
 
 Single keys without modifiers are also valid.
 
 While a text field is focused, navigation, grade, and tab hotkeys never fire.
 Form Save and Discard, the AI hotkeys, and the other Interface hotkeys work there, but only through a binding with
-`Mod`, `Ctrl`, or `Alt`, or bound to Escape.
+`Mod`, `Control`, `Alt`, or `Meta`, or bound to Escape.
 Bound to anything else, such as a single letter, they fire everywhere except in a text field, where the key types as
 usual.
 
@@ -208,16 +208,11 @@ If a **ui** hotkey shares a binding with a hotkey in any other category, both ho
 The conflict is reported as a validation error.
 
 Non-UI categories can share bindings with each other without conflict.
-For example, a **navigation** hotkey and an **ai** hotkey can use the same key.
-Only the one that fires first (based on scope activation order) will trigger.
-
-### Conflict Behavior
-
-Some hotkeys can coexist with other hotkeys on the same key.
-When the key is pressed, both hotkeys fire.
-
-This is used for hotkeys that should work in specific contexts regardless of conflicts.
-For example, tab switching hotkeys allow conflicts because they only fire when focus is in the right element.
+When the key is pressed, every hotkey on it that is active at that moment fires.
+For example, with an **ai** scroll hotkey and the **navigation** Decks hotkey both on `D`, pressing `D` on the assistant
+screen scrolls the chat and opens Decks.
+A **navigation** hotkey and a **grades** hotkey on one key never fire together, because navigation is off during a
+lesson.
 
 ## Configuration
 
@@ -260,7 +255,8 @@ Some hotkeys have no default binding and must be configured by the user to be us
 
 Hotkey settings persist across sessions.
 
-If a save fails, the bindings revert to the last saved state.
+If a save fails, the hotkeys keep working with the last saved bindings.
+The settings screen keeps the unsaved edits next to the error.
 If the stored settings are corrupted, the app reports an error instead of silently falling back to defaults.
 Corrupted settings must never look the same as missing settings.
 While the stored settings cannot be read, no configurable hotkey fires, and the hotkeys settings screen shows the error.

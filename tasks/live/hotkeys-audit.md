@@ -425,7 +425,7 @@ Line numbers are at `902550f6`; when an earlier item moved them, find the code b
   Commit: Disable the toggle-sidebar hotkey with its button
   Depends on: none
 
-- [ ] 7. Say in HOTKEYS.md and the playbook what fires on a shared key
+- [x] 7. Say in HOTKEYS.md and the playbook what fires on a shared key
   Goal (H2, H6 first three bullets):
   - §Across Categories: non-ui categories may share a key, and every enabled hotkey on it fires; drop line 202.
     §Conflict Behavior and ADD-HOTKEY.md line 48: `conflictBehavior: "allow"` only silences the library's warning.

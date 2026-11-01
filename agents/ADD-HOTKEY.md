@@ -45,8 +45,9 @@ An always-on hotkey is gated by where its handler mounts and by its `enabled` op
      `libs/srs-react/src/lib/lessons/lesson-studying.tsx`.
    - Set `ignoreInputs: false` when the hotkey must fire while a text field is focused.
    - Set `enabled` when the action is available only in some states, such as a run being active.
-   - Set `conflictBehavior: "allow"` only when both actions on a shared key should fire
-     (`docs/specs/HOTKEYS.md` (§Conflict Behavior)).
+   - Every enabled registration on a key fires, whatever `conflictBehavior` says
+     (`docs/specs/HOTKEYS.md` (§Across Categories)).
+     `conflictBehavior: "allow"` only silences the library's warning; set it where a shared key is intended.
 6. **Translations**: the label lives in the `libs/app` catalogs; follow `agents/I18N.md`.
 7. **Manual verify**: end with a block per `agents/VERIFY.md` that covers these paths:
    - Settings → Hotkeys shows the new row with its default binding.
