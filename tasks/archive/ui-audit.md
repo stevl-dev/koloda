@@ -1,6 +1,6 @@
 # libs/ui audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/LAYOUT.md, agents/BACKWARDS-COMPATIBILITY.md, agents/ADD-COLOR-THEME.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/HOTKEYS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, libs/ui/README.md, libs/srs-react/README.md, agents/REVIEW.md
 Flow: local
 
@@ -629,4 +629,44 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
 
 ## Outcome
 
-<what shipped>
+Shipped on `task/ui-audit` as the Add commit, one commit per Plan item 1-18, and `Tidy useIsWide imports`.
+The last one is not a Plan item; it tidies the imports left by item 10.
+
+Every finding in Scope has a decision, and all are fixed except these two skips:
+
+- #17, tooltip half: RAC moves `OverlayArrow` by re-rendering the tooltip with a new offset style, while placement and
+  size stay the same.
+  A `placement` dependency or a `ResizeObserver` would miss that move, so the per-render read stays.
+  The textarea half is fixed by item 11.
+- #25, `motionSettingAtom` typing and its move to `core-react`: `@koloda/app` has no motion union to type it with, and
+  the sibling atoms are untyped too.
+  Dropped at implementation (item 13); the plan was approved with this skip on 2026-11-02.
+
+Findings that belong to other audits (`interface-settings.md` finding 2, already fixed; `hotkeys.md` 7, 9, 11, 13) were
+not touched here.
+
+Behavior changes a reviewer should know about:
+
+- Motion Off keeps fades on popovers, modals, the modal backdrop, tooltips, tab panels, and the text swap.
+  Nothing slides or zooms, and `Fade` skips its layout animation.
+  The spec already said this (INTERFACE-SETTINGS.md §Motion); the code now matches it.
+- Keys pressed on a tooltip's trigger button now reach app hotkeys.
+  Before, react-aria stopped their propagation.
+- `Link` and `Tooltip` run the caller's key handlers once per press.
+- The wide-breakpoint read is one `useIsWide()` in `libs/ui`, used by all seven callers.
+  The breakpoint value is unchanged.
+- The cards and lessons table presets now live in srs-react. `ui` keeps only the selection preset.
+- The eight `@koloda/ui` icon exports listed in #20 are gone, along with `Tooltip.Root`, `Tooltip.Content`,
+  `Select.Autocomplete`, `Select.SearchField`, `Tabs.Indicator`, `Slider.Label`,
+  `NumberField.Input/Increment/Decrement`, and `getCSSVar`.
+  `rg` finds no remaining use of the removed names.
+- `HOTKEYS.md` now describes Toggle sidebar at both window widths.
+
+Verification:
+
+- `bun run check:push` passed on `22da793a`, the tip before this Archive commit. It covers oxlint, tsc, lib and app unit
+  tests, workspace-deps, the Rust lint and tests, and dprint.
+- `libs/ui` tests: 18 files, 75 tests pass. The audit's run was 15 files, 64 tests.
+- Self-review of `origin/main..HEAD` against `agents/REVIEW.md` found no Blocking findings.
+- Not run: the Plan's Manual verify steps, which need the web app in a browser, and the check that each new test fails
+  when its guard is removed (item 5). Those are left for a person to run.
