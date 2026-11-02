@@ -134,17 +134,4 @@ describe("Select", () => {
 
     expect(screen.getByRole("button", { name: /Alpha/ }).textContent).toContain("Alpha");
   });
-
-  it("moves focus with the select focusNext hotkey", () => {
-    render(<ControlledSelect />);
-
-    openSelect(/Test select/);
-    const listbox = screen.getByRole("listbox");
-
-    expect(within(listbox).getByRole("option", { name: "Alpha" }).getAttribute("data-focused")).toBe("true");
-
-    fireEvent.keyDown(listbox, { key: "j" });
-
-    expect(within(listbox).getByRole("option", { name: "Beta" }).getAttribute("data-focused")).toBe("true");
-  });
 });

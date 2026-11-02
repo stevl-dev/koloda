@@ -156,6 +156,9 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
     The modal twin is pinned in `primitives/overlay/dialog.test.tsx` with real `core-react`.
 - 13. Risk, Later: select focus hotkeys and app-wide focus hotkeys both fire; only one is tested.
   Decision: fixed by item 5; if the test shows both handlers acting, gate the app-wide one.
+  Result: with both registered against the real hotkey manager, one press moves one option and focus stays in the
+  list, so no gate was needed (`primitives/select/select-hotkeys.test.tsx`).
+  It replaces the stub-only case in `select.test.tsx`.
   - `primitives/select/select-behavior.tsx:51,58-59` registers `ui.focusNext`/`focusPrev` with
     `conflictBehavior: "allow"`.
   - `libs/app-react/src/lib/hooks/use-app-hotkeys.ts:71-72` registers the same bindings app-wide, calling `focusNext`,
@@ -168,6 +171,11 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - `ui/query-error.tsx:43-53`: a double-press guard (`isPending`), a deliberate 125 ms beat, and a `finally` that
     clears pending when the retry rejects.
   - `ui/query-error.test.tsx` never passes `onRetry`.
+  - Result: the test pins the double-press guard and that a settled retry re-enables the button.
+    A rejecting retry is not tested: `handleRetry` rethrows it out of the click handler as an unhandled rejection,
+    so a test of it fails Vitest's unhandled-error check.
+    No caller rejects today: every `onRetry` is a react-query `refetch`, which resolves on error (assistant-react's
+    `retryLoad` included).
 
 ### Improvements
 
@@ -379,7 +387,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Run caller key handlers once in Link and Tooltip
   Depends on: none
 
-- [ ] 5. Pin the Discard guard, select hotkeys, and QueryError retry with tests
+- [x] 5. Pin the Discard guard, select hotkeys, and QueryError retry with tests
   Goal (#5, #12, #13, #14):
   - `primitives/form/form-controls.test.tsx`: the Discard twin of the Save case. Press `Mod+D` before an edit (value
     unchanged, no reset) and after an edit (value restored). The stub binds `reset: ["Mod+D"]`.

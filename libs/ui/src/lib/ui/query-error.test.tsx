@@ -1,6 +1,6 @@
 import type { ErrorCode } from "@koloda/app";
 import { AppError } from "@koloda/app";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryError } from "./query-error";
 
@@ -48,5 +48,31 @@ describe("QueryError", () => {
     expect(screen.getByText("query-error.message")).toBeTruthy();
     expect(screen.queryByText("network down")).toBeNull();
     expect(screen.getByRole("button", { name: "error.details" })).toBeTruthy();
+  });
+
+  it("ignores presses while a retry runs and accepts one again after it settles", async () => {
+    vi.useFakeTimers();
+    let settleRetry = () => {};
+    const onRetry = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          settleRetry = resolve;
+        }),
+    );
+    render(<QueryError error={new AppError("db.get")} onRetry={onRetry} />);
+    const retry = screen.getByRole("button", { name: "query-error.retry" });
+
+    fireEvent.click(retry);
+    await act(() => vi.advanceTimersByTimeAsync(125));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(retry);
+    await act(() => vi.advanceTimersByTimeAsync(125));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+
+    await act(async () => settleRetry());
+    fireEvent.click(retry);
+    await act(() => vi.advanceTimersByTimeAsync(125));
+    expect(onRetry).toHaveBeenCalledTimes(2);
   });
 });
