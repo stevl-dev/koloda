@@ -1,6 +1,5 @@
 import { queriesAtom } from "@koloda/core-react";
-import { QueryState } from "@koloda/ui";
-import { useIsWide } from "@koloda/ui";
+import { QueryState, useIsWide } from "@koloda/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import type { ReactNode } from "react";

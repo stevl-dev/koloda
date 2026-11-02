@@ -7,11 +7,11 @@ import type { PropsWithChildren } from "react";
 import { useCallback, useContext, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { tv } from "tailwind-variants";
+import { useIsWide } from "../hooks/use-is-wide";
 import { useMotionSetting } from "../hooks/use-motion-settings";
 import type { IconComponent } from "../icons/icon";
 import { Link } from "../primitives/link";
 import { Tooltip } from "../primitives/overlay/tooltip/tooltip";
-import { useIsWide } from "../hooks/use-is-wide";
 import { useLayoutDrawer } from "./drawer";
 import { LayoutPortalContext } from "./layout";
 
