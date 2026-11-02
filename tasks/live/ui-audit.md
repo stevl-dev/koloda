@@ -408,7 +408,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Pin the Discard guard, select hotkeys, and QueryError retry with tests
   Depends on: none
 
-- [ ] 6. Test the focus helpers next to core/focus.ts
+- [x] 6. Test the focus helpers next to core/focus.ts
   Goal (#27): move `libs/app-react/src/lib/hooks/use-app-hotkeys-focus.test.tsx` to
   `libs/ui/src/lib/core/focus.test.tsx`, importing from relative paths, unchanged in what it asserts.
   Constraints: the move only.
