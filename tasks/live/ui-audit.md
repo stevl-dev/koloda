@@ -605,6 +605,18 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Bring ui docs and comments up to date
   Depends on: 10, 16
 
+- [x] 18. Skip animations in the delete conversation button test
+  Goal (follow-up to item 1, found in item 12's check runs): `delete-conversation-button.test.tsx` set Motion Off
+  so `Fade` exited instantly and the error child behind `AnimatePresence mode="wait"` mounted.
+  After item 1, Motion Off keeps the 0.25 s fade, and one run in three timed out.
+  Set `MotionGlobalConfig.skipAnimations` for the file and restore it after, since sibling files share the worker.
+  Constraints: that test file.
+  Done when: `ASR` passes three runs in a row; the `ai-react`, `settings-react`, `srs-react`, and `app-react` suites
+  pass twice each.
+  Manual verify: none — test only.
+  Commit: Skip animations in the delete conversation button test
+  Depends on: 1
+
 ## Outcome
 
 <what shipped>

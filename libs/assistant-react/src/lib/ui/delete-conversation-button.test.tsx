@@ -2,12 +2,12 @@ import { AppError } from "@koloda/app";
 import type { DeleteConversationData } from "@koloda/app";
 import { queriesAtom } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
+import { MotionGlobalConfig } from "motion/react";
 import type { PropsWithChildren } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetAssistantEngineForTests } from "../runs/assistant-persistence-host";
 import { DeleteConversationButton } from "./delete-conversation-button";
 
@@ -28,10 +28,6 @@ function buildQueries(): Queries {
 function renderButton(hasTurns: boolean) {
   const store = createStore();
   store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
-  // WHY: useReducedMotion is a module singleton. Once a sibling inits it with
-  // animations on, Fade's exit never finishes in jsdom, so the error child
-  // behind AnimatePresence mode="wait" never mounts.
-  store.set(motionSettingAtom, "off");
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -48,6 +44,16 @@ function renderButton(hasTurns: boolean) {
 }
 
 describe("DeleteConversationButton", () => {
+  // WHY: Fade plays its fade even with Motion Off, and its exit does not reliably finish in jsdom, so the error child
+  // behind AnimatePresence mode="wait" may never mount. Restore the flag: sibling files share this worker.
+  beforeAll(() => {
+    MotionGlobalConfig.skipAnimations = true;
+  });
+
+  afterAll(() => {
+    MotionGlobalConfig.skipAnimations = false;
+  });
+
   beforeEach(() => {
     // WHY: The persistence host is a process singleton. A sibling file that
     // already deleted "c1" leaves a tombstone, and the next delete never settles.
