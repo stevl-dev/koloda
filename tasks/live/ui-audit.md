@@ -319,7 +319,7 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
 Their dirs are `libs/ui`, `libs/srs-react`, `libs/assistant-react`, and `libs/app-react`.
 Line numbers are at `8a45e96f`; when an earlier item moved them, find the code by its text.
 
-- [ ] 1. Keep fades playing when Motion is off
+- [x] 1. Keep fades playing when Motion is off
   Goal (#1, #22 backdrop):
   - `Fade` (`primitives/animations/fade.tsx:18`): always `{ duration: 0.25 }`; drop the `useMotionSetting` branch if
     nothing else in the file needs it.

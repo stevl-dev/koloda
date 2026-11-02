@@ -8,9 +8,9 @@ const modal = tv({
   extend: overlayFrame,
   base: [
     "rounded-xl",
-    "motion:entering:animate-in motion:exiting:animate-out",
-    "motion:entering:fade-in-0 motion:exiting:fade-out-0",
-    "zoom-in-90 zoom-out-90",
+    "entering:animate-in exiting:animate-out",
+    "entering:fade-in-0 exiting:fade-out-0",
+    "motion:zoom-in-90 motion:zoom-out-90",
   ],
   variants: {
     size: {

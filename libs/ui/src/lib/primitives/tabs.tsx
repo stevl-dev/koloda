@@ -75,7 +75,7 @@ function TabsPanels<T extends object>({ variants, ...props }: TabsPanelsProps<T>
 
 const tabsPanel = tv({
   base: [
-    "grow flex flex-col motion:transition duration-250",
+    "grow flex flex-col transition-opacity duration-250",
     "entering:opacity-0 exiting:opacity-0 exiting:absolute exiting:top-0 exiting:left-0 exiting:w-full",
   ],
 });

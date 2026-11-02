@@ -8,7 +8,7 @@ export const overlay = tv({
     "flex items-center justify-center",
     "fixed inset-x-0 bottom-0 top-[var(--titlebar-height)] z-10 overflow-y-auto p-1 wd:p-4",
     "bg-overlay backdrop-blur-xs",
-    "motion:entering:fade-in-0 motion:exiting:fade-out-0",
+    "entering:animate-in exiting:animate-out entering:fade-in-0 exiting:fade-out-0",
   ],
 });
 

@@ -8,6 +8,8 @@ const BLUR_PX = 2;
 // with duration-0 width avoids a 0→measured spring that flashes and stutters.
 const MOTION_ENABLE_DELAY_MS = 60;
 const SPRING = { type: "spring", visualDuration: 0.5, bounce: 0 } as const;
+// WHY: Motion Off keeps the cross-fade and drops the width spring (INTERFACE-SETTINGS.md §Motion).
+const FADE = { duration: 0.25 } as const;
 
 const gridStyle = {
   gridTemplateAreas: '"text"',
@@ -56,14 +58,6 @@ export function TextSwap({ value, className, ...props }: TextSwapProps) {
     return () => window.clearTimeout(id);
   }, [isLayoutReady, isMotionReady]);
 
-  if (!isMotionOn) {
-    return (
-      <span className={className} {...props}>
-        {value}
-      </span>
-    );
-  }
-
   // WHY: Off-screen probe — same className/fonts as visible text; in-flow measure
   // would shift layout and pollute width before the clip grid exists.
   const measure = (
@@ -91,7 +85,7 @@ export function TextSwap({ value, className, ...props }: TextSwapProps) {
         className="inline-grid align-baseline overflow-hidden"
         style={gridStyle}
         animate={{ width }}
-        transition={isMotionReady ? SPRING : { duration: 0 }}
+        transition={isMotionOn && isMotionReady ? SPRING : { duration: 0 }}
         initial={false}
       >
         <AnimatePresence mode="popLayout" initial={false}>
@@ -102,7 +96,7 @@ export function TextSwap({ value, className, ...props }: TextSwapProps) {
             initial={{ opacity: 0, filter: `blur(${BLUR_PX}px)` }}
             animate={{ opacity: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, filter: `blur(${BLUR_PX}px)` }}
-            transition={SPRING}
+            transition={isMotionOn ? SPRING : FADE}
           >
             {value}
           </motion.span>

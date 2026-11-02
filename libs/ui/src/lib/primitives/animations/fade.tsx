@@ -7,15 +7,17 @@ import { useMotionSetting } from "../../hooks/use-motion-settings";
 // Chrome promotes a compositor layer for accelerated opacity and the enter flashes.
 function disableAcceleratedOpacity() {}
 
-export function Fade({ style, onUpdate, ...props }: MotionProps & ComponentProps<"div">) {
+export function Fade({ style, onUpdate, layout, ...props }: MotionProps & ComponentProps<"div">) {
   const isMotionOn = useMotionSetting();
 
+  // WHY: Motion Off keeps the fade (INTERFACE-SETTINGS.md §Motion); only the layout animation moves.
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={isMotionOn ? { duration: 0.25 } : { duration: 0 }}
+      transition={{ duration: 0.25 }}
+      layout={isMotionOn ? layout : false}
       {...props}
       style={{ ...style, willChange: "auto" }}
       onUpdate={onUpdate ?? disableAcceleratedOpacity}
