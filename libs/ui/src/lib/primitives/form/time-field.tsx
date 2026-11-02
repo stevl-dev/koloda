@@ -39,11 +39,16 @@ export const timeFieldSegment = tv({
       true: "px-0 border-none shadow-none bg-transparent",
       false: "w-12",
     },
-    isEmpty: {
+    isBidiMark: {
       true: "hidden",
     },
   },
 });
+
+// WHY: react-stately wraps the time segments in LRI/PDI bidi isolates, emitted as literal segments.
+// Shown, each adds an empty flex item and a gap beside the hour; match their text, not `isPlaceholder`, whose
+// `false` on these two (and `undefined` on other literals) is an implementation detail.
+const BIDI_ISOLATES = new Set(["\u2066", "\u2069"]);
 
 type TimeFieldInputProps = Omit<DateInputProps, "children">;
 
@@ -54,7 +59,7 @@ function TimeFieldInput(props: TimeFieldInputProps) {
         <DateSegment
           className={timeFieldSegment({
             isLiteral: segment.type === "literal",
-            isEmpty: segment.type === "literal" && segment.isPlaceholder === false,
+            isBidiMark: segment.type === "literal" && BIDI_ISOLATES.has(segment.text),
           })}
           segment={segment}
         >

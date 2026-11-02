@@ -109,6 +109,8 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - The test stub already binds `reset: ["Mod+D"]` (`libs/ui/src/test-setup.ts:55-56`).
 - 6. Risk, Later: TimeField hides segments through an undocumented react-stately quirk.
   Decision: fixed by item 8; match the bidi characters by text (human, 2026-11-02).
+  No test was added: jsdom has no layout, so the only signal is the `hidden` class, and TESTING.md bans class
+  assertions.
   - `primitives/form/time-field.tsx:57`: `isEmpty: segment.type === "literal" && segment.isPlaceholder === false`.
   - react-stately gives ordinary literals `isPlaceholder: undefined` (`useDateFieldState.mjs:314`); only the injected
     LRI/PDI bidi-isolate literals (U+2066, U+2069) get `false` (`useDateFieldState.mjs:327-354`).
@@ -426,7 +428,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Drop the dead toggle-button branch from tab navigation
   Depends on: 6
 
-- [ ] 8. Hide TimeField bidi marks by their text
+- [x] 8. Hide TimeField bidi marks by their text
   Goal (#6): in `primitives/form/time-field.tsx:57`, replace the `isPlaceholder === false` test with a check that the
   literal's text is U+2066 or U+2069, rename the variant from `isEmpty` to `isBidiMark`, and add a `// WHY:` saying
   react-stately injects these isolates and they must not take width.
