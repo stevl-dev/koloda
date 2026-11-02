@@ -54,50 +54,30 @@ export function focusPrev(e: KeyboardEvent) {
   focusByOffset(-1);
 }
 
+function dispatchArrowKey(item: HTMLElement, group: HTMLElement, offset: 1 | -1) {
+  const orientation = group.getAttribute("aria-orientation") || group.getAttribute("data-orientation");
+  const isVertical = orientation === "vertical";
+  const key = offset > 0 ? (isVertical ? "ArrowDown" : "ArrowRight") : isVertical ? "ArrowUp" : "ArrowLeft";
+
+  item.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+}
+
 function moveFocusedTab(offset: 1 | -1) {
   const active = document.activeElement as HTMLElement | null;
   if (!active) return false;
 
   const tab = active.closest<HTMLElement>('[role="tab"]');
-  if (tab) {
-    const tabList = tab.closest<HTMLElement>('[role="tablist"]');
-    if (tabList) {
-      const orientation = tabList.getAttribute("aria-orientation") || tabList.getAttribute("data-orientation");
-      const isVertical = orientation === "vertical";
-      const key = offset > 0 ? (isVertical ? "ArrowDown" : "ArrowRight") : isVertical ? "ArrowUp" : "ArrowLeft";
-
-      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
-      tab.dispatchEvent(event);
-      return true;
-    }
+  const tabList = tab?.closest<HTMLElement>('[role="tablist"]');
+  if (tab && tabList) {
+    dispatchArrowKey(tab, tabList, offset);
+    return true;
   }
 
   const radio = active.closest<HTMLElement>('[role="radio"]');
-  if (radio) {
-    const group = radio.closest<HTMLElement>('[role="radiogroup"]');
-    if (group) {
-      const orientation = group.getAttribute("aria-orientation") || group.getAttribute("data-orientation");
-      const isVertical = orientation === "vertical";
-      const key = offset > 0 ? (isVertical ? "ArrowDown" : "ArrowRight") : isVertical ? "ArrowUp" : "ArrowLeft";
-
-      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
-      radio.dispatchEvent(event);
-      return true;
-    }
-  }
-
-  const toggleButton = active.closest<HTMLElement>('[role="button"][aria-pressed], [role="button"][aria-checked]');
-  if (toggleButton) {
-    const group = toggleButton.closest<HTMLElement>('[role="group"]');
-    if (group) {
-      const orientation = group.getAttribute("aria-orientation") || group.getAttribute("data-orientation");
-      const isVertical = orientation === "vertical";
-      const key = offset > 0 ? (isVertical ? "ArrowDown" : "ArrowRight") : isVertical ? "ArrowUp" : "ArrowLeft";
-
-      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
-      toggleButton.dispatchEvent(event);
-      return true;
-    }
+  const radioGroup = radio?.closest<HTMLElement>('[role="radiogroup"]');
+  if (radio && radioGroup) {
+    dispatchArrowKey(radio, radioGroup, offset);
+    return true;
   }
 
   return false;

@@ -417,7 +417,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Test the focus helpers next to core/focus.ts
   Depends on: none
 
-- [ ] 7. Drop the dead toggle-button branch from tab navigation
+- [x] 7. Drop the dead toggle-button branch from tab navigation
   Goal (#15): delete `core/focus.ts:89-101` and compute the arrow key from orientation and offset once for the tab and
   radio branches (one local helper).
   Constraints: `core/focus.ts`; behavior for tabs and radio groups unchanged.
