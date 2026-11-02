@@ -1,10 +1,9 @@
-import { useMediaQuery } from "@react-hook/media-query";
 import { useMatch, useRouterState } from "@tanstack/react-router";
 import { atom, useAtom, useSetAtom } from "jotai";
 import type { ComponentProps, PropsWithChildren } from "react";
 import { useLayoutEffect } from "react";
 import { tv } from "tailwind-variants";
-import { getCSSVar } from "../utility";
+import { useIsWide } from "../hooks/use-is-wide";
 import { drawerOpenAtom } from "./drawer";
 
 export const layoutHasContentAtom = atom(false);
@@ -29,7 +28,7 @@ export function LayoutContent({ children, isAlwaysVisible }: LayoutContentProps)
   const hasContent = hasChildRoute || !!isAlwaysVisible;
   const setHasContent = useSetAtom(layoutHasContentAtom);
   const [isDrawerOpen] = useAtom(drawerOpenAtom);
-  const isNarrow = useMediaQuery(`(width < ${getCSSVar("--breakpoint-wd")})`);
+  const isNarrow = !useIsWide();
   const isInert = isNarrow && hasContent && isDrawerOpen;
 
   useLayoutEffect(() => {

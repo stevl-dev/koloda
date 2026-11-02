@@ -1,12 +1,11 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMediaQuery } from "@react-hook/media-query";
 import { useRouterState } from "@tanstack/react-router";
 import { atom, useAtom } from "jotai";
 import type { Dispatch, MouseEvent, SetStateAction } from "react";
 import { useCallback, useEffect } from "react";
 import { tv } from "tailwind-variants";
-import { getCSSVar } from "../utility";
+import { useIsWide } from "../hooks/use-is-wide";
 import { layoutHasContentAtom } from "./content";
 
 export const drawerOpenAtom = atom(false);
@@ -71,7 +70,7 @@ type LayoutDrawerProps = {
 export function LayoutDrawer({ setNavPortal, setSidebarPortal }: LayoutDrawerProps) {
   const { _ } = useLingui();
   const { isOpen, close } = useLayoutDrawer();
-  const isNarrow = useMediaQuery(`(width < ${getCSSVar("--breakpoint-wd")})`);
+  const isNarrow = !useIsWide();
   const location = useRouterState({ select: (s) => s.location.pathname });
   const [hasContent] = useAtom(layoutHasContentAtom);
   const drawerLabel = isNarrow && hasContent ? _(msg`layout.drawer.label`) : undefined;

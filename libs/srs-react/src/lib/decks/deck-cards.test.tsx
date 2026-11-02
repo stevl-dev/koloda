@@ -23,7 +23,7 @@ function stubMatchMedia() {
   vi.stubGlobal("matchMedia", (media: string) => ({
     media,
     get matches() {
-      return isNarrow;
+      return !isNarrow;
     },
     addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
     removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),

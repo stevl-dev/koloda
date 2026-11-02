@@ -1,6 +1,5 @@
 import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
-import { getCSSVar } from "@koloda/ui";
-import { useMediaQuery } from "@react-hook/media-query";
+import { useIsWide } from "@koloda/ui";
 import { useAtomValue, useSetAtom } from "jotai";
 import { submitLessonSetupAtom } from "./lesson-actions";
 import { LessonInitList } from "./lesson-init-list";
@@ -10,7 +9,7 @@ import { useLessonClose } from "./use-lesson-close";
 
 export function LessonInit() {
   const { ui } = useHotkeysSettings();
-  const isMobile = useMediaQuery(`(width < ${getCSSVar("--breakpoint-wd")})`);
+  const isMobile = !useIsWide();
   const setup = useAtomValue(lessonSetupAtom);
   const submitSetup = useSetAtom(submitLessonSetupAtom);
   const { closeLesson } = useLessonClose();

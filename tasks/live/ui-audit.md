@@ -197,6 +197,8 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - The orientation-to-arrow-key mapping is copied three times (`:65-67`, `:79-81`, `:93-95`).
 - 16. Improvement, Later: `getCSSVar` forces a style read on every render.
   Decision: fixed by item 10.
+  `useIsWide()` (`hooks/use-is-wide.ts`) replaces all seven reads; `utility.ts` and the `getCSSVar` export are gone.
+  The `deck-cards.test.tsx` `matchMedia` stub now answers the wide query.
   - `useMediaQuery(\`(width < ${getCSSVar("--breakpoint-wd")})\`)` calls `getComputedStyle(document.documentElement)`
     (`utility.ts:1-3`) on every render.
   - Callers: `layout/content.tsx:32`, `layout/drawer.tsx:74`, `layout/nav.tsx:60` (once per nav link),
@@ -455,7 +457,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Move form Errors to its own file
   Depends on: none
 
-- [ ] 10. Read the wide breakpoint once
+- [x] 10. Read the wide breakpoint once
   Goal (#16): add `useIsWide()` to `libs/ui` (next to `useMediaQuery`'s other hooks), which reads `--breakpoint-wd`
   once (module-level lazy read) and returns `useMediaQuery` of it.
   Replace all seven callers: `layout/content.tsx:32`, `layout/drawer.tsx:74`, `layout/nav.tsx:60`,

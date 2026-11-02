@@ -1,4 +1,5 @@
 export { focusNext, focusPrev, goToNextTab, goToPrevTab } from "./lib/core/focus";
+export { useIsWide } from "./lib/hooks/use-is-wide";
 export { motionSettingAtom, useMotionSetting } from "./lib/hooks/use-motion-settings";
 export { useRouteFocus } from "./lib/hooks/use-route-focus";
 export { AddIcon } from "./lib/icons/add-icon";
@@ -120,4 +121,3 @@ export { QueryError } from "./lib/ui/query-error";
 export { QueryState } from "./lib/ui/query-state";
 export { SetupBackground } from "./lib/ui/setup-background";
 export { Titlebar } from "./lib/ui/titlebar";
-export { getCSSVar } from "./lib/utility";

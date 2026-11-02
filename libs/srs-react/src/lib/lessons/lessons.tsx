@@ -1,7 +1,6 @@
 import { queriesAtom } from "@koloda/core-react";
 import { QueryState } from "@koloda/ui";
-import { getCSSVar } from "@koloda/ui";
-import { useMediaQuery } from "@react-hook/media-query";
+import { useIsWide } from "@koloda/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import type { ReactNode } from "react";
@@ -15,7 +14,7 @@ type LessonsProps = {
 };
 
 export function Lessons({ lesson = <CurrentLesson /> }: LessonsProps) {
-  const isMobile = useMediaQuery(`(width < ${getCSSVar("--breakpoint-wd")})`);
+  const isMobile = !useIsWide();
   const { getLessonsQuery } = useAtomValue(queriesAtom);
   const query = useQuery({
     ...getLessonsQuery(),

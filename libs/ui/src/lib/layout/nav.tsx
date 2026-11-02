@@ -1,6 +1,5 @@
 import type { MessageDescriptor } from "@lingui/core";
 import { useLingui } from "@lingui/react";
-import { useMediaQuery } from "@react-hook/media-query";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { AnimatePresence, motion } from "motion/react";
@@ -12,7 +11,7 @@ import { useMotionSetting } from "../hooks/use-motion-settings";
 import type { IconComponent } from "../icons/icon";
 import { Link } from "../primitives/link";
 import { Tooltip } from "../primitives/overlay/tooltip/tooltip";
-import { getCSSVar } from "../utility";
+import { useIsWide } from "../hooks/use-is-wide";
 import { useLayoutDrawer } from "./drawer";
 import { LayoutPortalContext } from "./layout";
 
@@ -57,7 +56,7 @@ export function LayoutNavLink({ to, msg, icon: Icon }: LayoutNavLinkProps) {
   const isMotionOn = useMotionSetting();
   const { close } = useLayoutDrawer();
   const { isNavCollapsed } = useNavCollapsed();
-  const isWide = useMediaQuery(`(width >= ${getCSSVar("--breakpoint-wd")})`);
+  const isWide = useIsWide();
   const isTextVisible = isWide ? !isNavCollapsed : false;
 
   return (

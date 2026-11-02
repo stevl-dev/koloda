@@ -1,7 +1,6 @@
 import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMediaQuery } from "@react-hook/media-query";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { SidebarIcon } from "../icons/sidebar-icon";
@@ -10,14 +9,14 @@ import { useLayoutDrawer } from "../layout/drawer";
 import { layoutHasNavAtom, useNavCollapsed } from "../layout/nav";
 import { layoutHasSidebarAtom } from "../layout/sidebar";
 import { Button } from "../primitives/form/button";
-import { getCSSVar } from "../utility";
+import { useIsWide } from "../hooks/use-is-wide";
 
 export function TitlebarSidebarControls() {
   const { _ } = useLingui();
   const { ui } = useHotkeysSettings();
   const { close, isOpen, open } = useLayoutDrawer();
   const { isNavCollapsed, toggle: toggleNavCollapsed } = useNavCollapsed();
-  const isWide = useMediaQuery(`(width >= ${getCSSVar("--breakpoint-wd")})`);
+  const isWide = useIsWide();
   const hasNav = useAtomValue(layoutHasNavAtom);
   const hasSidebar = useAtomValue(layoutHasSidebarAtom);
   const hasContent = useAtomValue(layoutHasContentAtom);

@@ -1,7 +1,6 @@
 import { queriesAtom } from "@koloda/core-react";
 import type { Deck } from "@koloda/srs";
-import { getCSSVar, QueryState } from "@koloda/ui";
-import { useMediaQuery } from "@react-hook/media-query";
+import { QueryState, useIsWide } from "@koloda/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
@@ -14,7 +13,7 @@ import { cardsViewAtom, CardsViewToggle } from "../cards/cards-view-toggle";
 type DeckCardsProps = { deckId: Deck["id"] };
 
 export function DeckCards({ deckId }: DeckCardsProps) {
-  const isMobile = useMediaQuery(`(width < ${getCSSVar("--breakpoint-wd")})`);
+  const isMobile = !useIsWide();
   const { getDeckQuery, getCardsQuery } = useAtomValue(queriesAtom);
   const { data } = useQuery(getDeckQuery(deckId));
   const query = useQuery(getCardsQuery({ deckId }));
