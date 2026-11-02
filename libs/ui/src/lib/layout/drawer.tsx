@@ -54,12 +54,6 @@ const layoutDrawerSidebar = tv({
     "flex flex-col shrink-0 overflow-hidden border-r-2 border-main empty:hidden",
     "max-wd:w-[clamp(14rem,80vw,20rem)] wd:w-[clamp(14rem,25vw,20rem)]",
   ],
-  variants: {
-    hasContent: {
-      true: "",
-      false: "",
-    },
-  },
 });
 
 type LayoutDrawerProps = {
@@ -111,7 +105,7 @@ export function LayoutDrawer({ setNavPortal, setSidebarPortal }: LayoutDrawerPro
           className="flex flex-col shrink-0 gap-2 h-full p-2 border-r-2 border-main empty:hidden overflow-y-auto"
           ref={setNavPortal}
         />
-        <div className={layoutDrawerSidebar({ hasContent })} ref={setSidebarPortal} />
+        <div className={layoutDrawerSidebar()} ref={setSidebarPortal} />
       </div>
     </div>
   );

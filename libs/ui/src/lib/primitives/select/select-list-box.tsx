@@ -8,7 +8,6 @@ import { useSelectHotkeys } from "./select-behavior";
 
 export const selectListBox = tv({
   base: "py-1 rounded-lg max-h-96 overflow-y-auto overflow-x-hidden",
-  variants: { isVirtualized: { true: "overflow-x-hidden" } },
 });
 
 export type SelectListBoxProps<T extends object> = ListBoxProps<T> &
@@ -26,12 +25,7 @@ export function SelectListBox<T extends object>({
   useSelectHotkeys(ref);
 
   const listBox = (
-    <ListBox
-      className={selectListBox({ isVirtualized, ...variants })}
-      renderEmptyState={renderEmptyState}
-      ref={ref}
-      {...props}
-    />
+    <ListBox className={selectListBox(variants)} renderEmptyState={renderEmptyState} ref={ref} {...props} />
   );
 
   return !isVirtualized ? (
@@ -47,7 +41,7 @@ const selectListBoxItem = tv({
   base: [
     "flex flex-row items-center justify-between gap-2 mx-1 py-2 px-2",
     "outline-none rounded-lg cursor-default select-none truncate",
-    "cursor-default select-none focus:bg-picker-item-hover",
+    "focus:bg-picker-item-hover",
     "disabled:fg-disabled disabled:focus:bg-transparent",
   ],
 });

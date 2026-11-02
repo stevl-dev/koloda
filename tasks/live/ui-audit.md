@@ -261,6 +261,8 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
     `null`: Accept is disabled without a value (`hotkey-recorder.tsx:71`).
 - 22. Improvement, Later: inert classes, dead tokens, ignored config.
   Decision: fixed by items 1 (backdrop) and 14 (the rest).
+  Item 14 also deleted the scheme variables only the dead bridges read (`--bg-button-bordered-hover`,
+  `--fg-table-head-inactive`, in both schemes), so the schemes keep the same variable set.
   The backdrop gets `animate-in`/`animate-out` outside `motion:`, so it fades (human, 2026-11-02).
   - `primitives/overlay/overlay.tsx:11`: `motion:entering:fade-in-0 motion:exiting:fade-out-0` without
     `animate-in`/`animate-out`; tw-animate's `fade-in-*` only sets `--tw-enter-opacity`, so the backdrop never fades.
@@ -542,7 +544,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Trim unused ui exports and residue parameters
   Depends on: 12
 
-- [ ] 14. Delete inert classes and dead tokens in ui
+- [x] 14. Delete inert classes and dead tokens in ui
   Goal (#8, #22 rest, #24):
   - Delete the `hasContent` variant in `layout/drawer.tsx:58-63`, the duplicate `overflow-x-hidden` from
     `isVirtualized` and the repeated `cursor-default select-none` in `primitives/select/select-list-box.tsx:11,49-50`.

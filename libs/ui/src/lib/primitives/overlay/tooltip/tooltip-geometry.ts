@@ -47,7 +47,7 @@ type TooltipSurfacePathProps = {
 };
 
 function getTooltipSurfacePathWithBottomArrow({ bottom, center, left, radius, right, top }: TooltipSurfacePathProps) {
-  let arrow = getVerticalArrowPoints(center, bottom, 1);
+  let arrow = getArrowPoints(center, bottom, 1);
 
   return [
     `M ${left + radius} ${top}`,
@@ -68,7 +68,7 @@ function getTooltipSurfacePathWithBottomArrow({ bottom, center, left, radius, ri
 }
 
 function getTooltipSurfacePathWithTopArrow({ bottom, center, left, radius, right, top }: TooltipSurfacePathProps) {
-  let arrow = getVerticalArrowPoints(center, top, -1);
+  let arrow = getArrowPoints(center, top, -1);
 
   return [
     `M ${left + radius} ${top}`,
@@ -89,7 +89,7 @@ function getTooltipSurfacePathWithTopArrow({ bottom, center, left, radius, right
 }
 
 function getTooltipSurfacePathWithRightArrow({ bottom, center, left, radius, right, top }: TooltipSurfacePathProps) {
-  let arrow = getHorizontalArrowPoints(center, right, 1);
+  let arrow = getArrowPoints(center, right, 1);
 
   return [
     `M ${left + radius} ${top}`,
@@ -110,7 +110,7 @@ function getTooltipSurfacePathWithRightArrow({ bottom, center, left, radius, rig
 }
 
 function getTooltipSurfacePathWithLeftArrow({ bottom, center, left, radius, right, top }: TooltipSurfacePathProps) {
-  let arrow = getHorizontalArrowPoints(center, left, -1);
+  let arrow = getArrowPoints(center, left, -1);
 
   return [
     `M ${left + radius} ${top}`,
@@ -130,23 +130,7 @@ function getTooltipSurfacePathWithLeftArrow({ bottom, center, left, radius, righ
   ].join(" ");
 }
 
-function getVerticalArrowPoints(center: number, edge: number, direction: 1 | -1) {
-  return {
-    end: center + TOOLTIP_ARROW_HALF_WIDTH,
-    endControl: center + TOOLTIP_ARROW_HALF_WIDTH * 0.65,
-    start: center - TOOLTIP_ARROW_HALF_WIDTH,
-    startControl: center - TOOLTIP_ARROW_HALF_WIDTH * 0.65,
-    tip: edge + TOOLTIP_ARROW_DEPTH * direction,
-    tipLeft: center - TOOLTIP_ARROW_TIP_HALF_WIDTH,
-    tipLeftControl: center - TOOLTIP_ARROW_HALF_WIDTH * 0.48,
-    tipRight: center + TOOLTIP_ARROW_TIP_HALF_WIDTH,
-    tipRightControl: center + TOOLTIP_ARROW_HALF_WIDTH * 0.48,
-    tipShoulder: edge + TOOLTIP_ARROW_DEPTH * 0.7 * direction,
-    tipSide: edge + TOOLTIP_ARROW_DEPTH * 0.36 * direction,
-  };
-}
-
-function getHorizontalArrowPoints(center: number, edge: number, direction: 1 | -1) {
+function getArrowPoints(center: number, edge: number, direction: 1 | -1) {
   return {
     end: center + TOOLTIP_ARROW_HALF_WIDTH,
     endControl: center + TOOLTIP_ARROW_HALF_WIDTH * 0.65,

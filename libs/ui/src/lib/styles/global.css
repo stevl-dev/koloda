@@ -12,6 +12,9 @@
 @import "./themes/github-dark.css";
 
 @theme {
+  /* INVARIANT: each `--shadow-*` bridge below names the scheme variable it reads, so it reads itself. It resolves only
+     because Tailwind emits these in `@layer theme` and the unlayered scheme imports above redefine the same names and
+     win. Importing the schemes into a layer makes every such shadow cyclic and invalid. */
   /* breakpoints */
   --breakpoint-\*: initial;
   --breakpoint-wd: 48rem; /* wide */
@@ -25,7 +28,6 @@
   --color-\*: initial;
   --color-bg-body: var(--bg-body);
   --color-bg-level-1: var(--bg-level-1);
-  --color-bg-level-2: var(--bg-level-2);
   --color-fg-level-1: var(--fg-level-1);
   --color-fg-level-2: var(--fg-level-2);
   --color-fg-level-3: var(--fg-level-3);
@@ -47,9 +49,7 @@
   --color-bg-button-hover: var(--bg-button-hover);
   --color-bg-button-pressed: var(--bg-button-pressed);
   --shadow-button-pressed: var(--shadow-button-pressed);
-  --color-bg-button-bordered-hover: var(--bg-button-bordered-hover);
   --color-border-button-bordered: var(--border-button-bordered);
-  --shadow-button-bordered: var(--shadow-button-bordered);
   --color-bg-button-primary: var(--bg-button-primary);
   --color-bg-button-primary-hover: var(--bg-button-primary-hover);
   --color-border-button-primary: var(--border-button-primary);
@@ -91,7 +91,6 @@
   --color-border-table: var(--border-table);
   --color-bg-table-head: var(--bg-table-head);
   --color-fg-table-head: var(--fg-table-head);
-  --color-fg-table-head-inactive: var(--fg-table-head-inactive);
   /* tabs */
   --color-fg-tabs-item: var(--fg-tabs-item);
   --color-fg-tabs-item-active: var(--fg-tabs-item-active);

@@ -29,7 +29,6 @@
   --shadow-button-pressed: var(--shadow-input);
   --bg-button-hover: color-mix(in oklab, var(--fg-level-1) 4%, transparent);
   --bg-button-pressed: color-mix(in oklab, var(--fg-level-1) 5%, transparent);
-  --bg-button-bordered-hover: color-mix(in oklab, var(--fg-level-1) 5%, var(--bg-level-1));
   --border-button-bordered: color-mix(in oklab, var(--fg-level-1) 10%, var(--bg-level-1));
   --bg-button-primary: color-mix(in oklab, var(--fg-level-1) 3%, var(--bg-level-1));
   --bg-button-primary-hover: color-mix(in oklab, var(--fg-level-1) 3%, var(--bg-button-primary));
@@ -68,7 +67,6 @@
   --border-table: color-mix(in oklab, var(--fg-level-1) 5%, var(--bg-level-1));
   --bg-table-head: color-mix(in oklab, var(--fg-level-1) 3%, var(--bg-level-1));
   --fg-table-head: var(--fg-level-2);
-  --fg-table-head-inactive: var(--fg-level-3);
   /* tabs */
   --fg-tabs-item: var(--fg-level-2);
   --fg-tabs-item-active: var(--fg-level-1);

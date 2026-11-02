@@ -6,9 +6,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   cacheDir: "../../node_modules/.vite/libs/ui",
-  esbuild: {
-    jsx: "automatic",
-  },
   resolve: {
     tsconfigPaths: true,
     alias: {
