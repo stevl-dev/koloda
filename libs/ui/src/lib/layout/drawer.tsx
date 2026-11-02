@@ -18,9 +18,8 @@ const layoutDrawerOverlay = tv({
         "max-wd:absolute max-wd:inset-0 max-wd:z-50 max-wd:bg-overlay max-wd:animate-opacity",
         "max-wd:opacity-0 max-wd:pointer-events-none",
       ],
-      false: "",
     },
-    isOpen: { true: "", false: "" },
+    isOpen: { true: "" },
   },
   compoundVariants: [
     {
@@ -34,15 +33,15 @@ const layoutDrawerOverlay = tv({
 const layoutDrawerPanel = tv({
   base: "flex flex-row shrink-0 bg-transparent",
   variants: {
-    hasContent: {
-      true: "max-wd:bg-level-1 max-wd:motion:transition-transform max-wd:duration-250 max-wd:-translate-x-full",
-      false: "max-wd:grow",
+    mode: {
+      drawer: "max-wd:bg-level-1 max-wd:motion:transition-transform max-wd:duration-250 max-wd:-translate-x-full",
+      inline: "max-wd:grow",
     },
-    isOpen: { true: "", false: "" },
+    isOpen: { true: "" },
   },
   compoundVariants: [
     {
-      hasContent: true,
+      mode: "drawer",
       isOpen: true,
       class: "max-wd:translate-x-0",
     },
@@ -95,7 +94,7 @@ export function LayoutDrawer({ setNavPortal, setSidebarPortal }: LayoutDrawerPro
       onMouseDown={isNarrow && hasContent ? handleMouseDown : undefined}
     >
       <div
-        className={layoutDrawerPanel({ isOpen, hasContent })}
+        className={layoutDrawerPanel({ isOpen, mode: hasContent ? "drawer" : "inline" })}
         aria-label={drawerLabel}
         role={isNarrow && hasContent ? "dialog" : undefined}
         onMouseDown={isNarrow && hasContent ? (e) => e.stopPropagation() : undefined}

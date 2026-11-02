@@ -25,13 +25,11 @@ const checkboxIndicator = [
   "group-disabled:opacity-40 animate-colors",
 ].join(" ");
 
-const checkboxIndicatorCheck = [
-  "absolute size-3 min-w-3 fg-checkbox-check opacity-0 group-selected:opacity-100 animate-opacity",
-].join(" ");
+const checkboxIndicatorCheck =
+  "absolute size-3 min-w-3 fg-checkbox-check opacity-0 group-selected:opacity-100 animate-opacity";
 
-const checkboxIndicatorMinus = [
-  "absolute size-3 min-w-3 fg-checkbox-check opacity-0 group-indeterminate:opacity-100 animate-opacity",
-].join(" ");
+const checkboxIndicatorMinus =
+  "absolute size-3 min-w-3 fg-checkbox-check opacity-0 group-indeterminate:opacity-100 animate-opacity";
 
 function CheckboxIndicator() {
   return (

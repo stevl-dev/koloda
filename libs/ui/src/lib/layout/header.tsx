@@ -10,7 +10,7 @@ const layoutHeader = tv({
   ],
   variants: {
     type: { sidebar: "border-main", content: "" },
-    isScrolled: { true: "border-main", false: "" },
+    isScrolled: { true: "border-main" },
   },
 });
 
@@ -31,7 +31,7 @@ export function LayoutHeader({ variants, children }: LayoutHeaderProps) {
 const layoutH1 = tv({
   base: "p-2 text-lg/6 truncate",
   variants: {
-    isGrow: { true: "grow", false: "" },
+    isGrow: { true: "grow" },
   },
   defaultVariants: { isGrow: true },
 });

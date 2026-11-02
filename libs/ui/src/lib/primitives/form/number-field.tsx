@@ -50,13 +50,13 @@ const numberFieldInput = tv({
   extend: textFieldInput,
   base: "w-auto px-1 leading-[1em]",
   variants: {
-    showCaret: {
-      true: "caret-fg-level-1",
-      false: "caret-transparent",
+    caret: {
+      visible: "caret-fg-level-1",
+      hidden: "caret-transparent",
     },
-    isInput: {
-      true: "spin-hide text-transparent",
-      false: "pointer-events-none",
+    layer: {
+      input: "spin-hide text-transparent",
+      display: "pointer-events-none",
     },
   },
   defaultVariants: {
@@ -71,7 +71,7 @@ function NumberFieldInput(props: NumberFieldInputProps) {
   const state = useContext(NumberFieldStateContext);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isAnimated, setIsAnimated] = useState(true);
-  const [showCaret, setShowCaret] = useState(true);
+  const [isCaretVisible, setIsCaretVisible] = useState(true);
 
   const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = () => {
     setIsAnimated(false);
@@ -85,7 +85,7 @@ function NumberFieldInput(props: NumberFieldInputProps) {
   return (
     <div className="relative grid [grid-template-areas:'overlap'] *:[grid-area:overlap]">
       <TextFieldInput
-        className={numberFieldInput({ showCaret, isInput: true })}
+        className={numberFieldInput({ caret: isCaretVisible ? "visible" : "hidden", layer: "input" })}
         style={{ fontKerning: "none" }}
         ref={inputRef}
         onChange={handleInputChange}
@@ -93,13 +93,13 @@ function NumberFieldInput(props: NumberFieldInputProps) {
         {...props}
       />
       <AnimatedNumber
-        className={numberFieldInput({ isInput: false })}
+        className={numberFieldInput({ layer: "display" })}
         value={state?.numberValue || 0}
         format={{ useGrouping: false }}
         aria-hidden="true"
         animated={isAnimated}
-        onAnimationsStart={() => setShowCaret(false)}
-        onAnimationsFinish={() => setShowCaret(true)}
+        onAnimationsStart={() => setIsCaretVisible(false)}
+        onAnimationsFinish={() => setIsCaretVisible(true)}
         willChange
       />
     </div>

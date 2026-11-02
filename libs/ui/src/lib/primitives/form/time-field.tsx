@@ -35,9 +35,9 @@ export function TimeField({ variants, label, children, ...props }: TimeFieldProp
 export const timeFieldSegment = tv({
   base: [textFieldInput({ content: "number" }), "flex items-center justify-center"],
   variants: {
-    isLiteral: {
-      true: "px-0 border-none shadow-none bg-transparent",
-      false: "w-12",
+    segment: {
+      literal: "px-0 border-none shadow-none bg-transparent",
+      value: "w-12",
     },
     isBidiMark: {
       true: "hidden",
@@ -58,7 +58,7 @@ function TimeFieldInput(props: TimeFieldInputProps) {
       {(segment) => (
         <DateSegment
           className={timeFieldSegment({
-            isLiteral: segment.type === "literal",
+            segment: segment.type === "literal" ? "literal" : "value",
             isBidiMark: segment.type === "literal" && BIDI_ISOLATES.has(segment.text),
           })}
           segment={segment}

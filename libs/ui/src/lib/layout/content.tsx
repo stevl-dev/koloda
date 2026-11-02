@@ -10,7 +10,7 @@ export const layoutHasContentAtom = atom(false);
 
 const layoutContent = tv({
   base: ["grow flex-col h-full min-h-0 min-w-0 overflow-hidden", "wd:w-full wd:grow-0 wd:basis-full wd:mx-auto"],
-  variants: { hasContent: { true: "flex", false: "hidden" } },
+  variants: { display: { content: "flex", empty: "hidden" } },
 });
 
 type LayoutContentProps = PropsWithChildren & {
@@ -37,7 +37,7 @@ export function LayoutContent({ children, isAlwaysVisible }: LayoutContentProps)
   }, [hasContent, setHasContent]);
 
   return (
-    <div className={layoutContent({ hasContent })} {...(isInert ? { inert: true } : {})}>
+    <div className={layoutContent({ display: hasContent ? "content" : "empty" })} {...(isInert ? { inert: true } : {})}>
       {children}
     </div>
   );

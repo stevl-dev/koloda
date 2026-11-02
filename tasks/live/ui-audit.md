@@ -563,7 +563,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Delete inert classes and dead tokens in ui
   Depends on: 1
 
-- [ ] 15. Align ui boolean variants with CSS.md
+- [x] 15. Align ui boolean variants with CSS.md
   Goal (#23): per CSS.md §Conventions, file by file: drop empty `false` keys, turn distinct off-state styling into a
   string variant, verb-prefix names (`showCaret` → e.g. `hasCaret`), and replace single-string arrays joined with
   `.join(" ")` in `checkbox.tsx:28-34` with plain strings.
