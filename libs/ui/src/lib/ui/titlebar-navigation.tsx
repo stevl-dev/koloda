@@ -20,6 +20,7 @@ export function TitlebarNavigation() {
   // WHY: Back and forward can come from outside these buttons (mouse buttons, desktop keys),
   // so forward is derived from history indexes rather than from clicks.
   // A push drops every later entry, which makes its index the last one.
+  // WORKAROUND: `__TSR_index` is TanStack Router's private history index; recheck it on a router upgrade.
   useEffect(
     () =>
       history.subscribe(({ location, action }) => {

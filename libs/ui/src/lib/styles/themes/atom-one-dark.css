@@ -11,7 +11,6 @@
   --color-red-2: #be5046;
   --color-orange: #d19a66;
   --color-orange-2: #e5c07b;
-  /* accent-derived fills */
   --bg-switch-selected: oklch(from var(--color-green) calc(l - 0.3) calc(c + 0.1) h);
   --border-switch-selected: oklch(from var(--bg-switch-selected) calc(l + 0.03) c h);
   --bg-checkbox-selected: oklch(from var(--color-green) calc(l - 0.34) calc(c + 0.08) h);
@@ -19,7 +18,7 @@
   --bg-lesson-type-blue: oklch(from var(--color-blue) calc(l - 0.32) calc(c + 0.03) h);
   --bg-lesson-type-red: oklch(from var(--color-red) calc(l - 0.3) calc(c - 0.04) h);
   --bg-lesson-type-green: oklch(from var(--color-green) calc(l - 0.36) calc(c + 0.16) h);
-  /* electron doesn't accept oklch — hex must match --color-bg-level-1 */
+  /* WHY: the Electron titlebar overlay rejects oklch, so this hex must equal --color-bg (ADD-COLOR-THEME.md §4). */
   --titlebar-overlay-color: #282c34;
   --titlebar-overlay-symbol-color: #abb2bf;
 }

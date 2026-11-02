@@ -597,10 +597,10 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Replace ui tests that pin markup with behavior tests
   Depends on: 5
 
-- [ ] 17. Bring ui docs and comments up to date
+- [x] 17. Bring ui docs and comments up to date
   Goal (#11, #28, #29):
-  - `libs/ui/README.md`: describe icons as the `Icon` shell plus the icon set (no partial list); list `useIsWide` (and
-    `utility.ts` if it still exists after item 10); say `core-react` supplies settings-backed hotkeys and the timestamp
+  - `libs/ui/README.md`: describe icons as the `Icon` shell plus the icon set (no partial list); list `useIsWide`
+    (`utility.ts` is gone after item 10); say `core-react` supplies settings-backed hotkeys and the timestamp
     formatter; replace "No routing" with "reads router state; defines no routes".
   - `agents/TESTING.md:238`: name all three `ui` tests that mock `@lingui/react` (`query-error.test.tsx`,
     `error-message.test.tsx`, `form-errors-display.test.tsx`), after item 16's changes.

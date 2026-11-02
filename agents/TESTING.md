@@ -235,7 +235,8 @@ Process singletons leak across files the same way; reset them in the test that d
 `ui` and `srs-react` keep Vitest's default isolation.
 A file-level mock there replaces a module that siblings import for real:
 
-- `ui`: `query-error.test.tsx` mocks `@lingui/react`; siblings need the real catalog text.
+- `ui`: `query-error.test.tsx`, `error-message.test.tsx`, and `form-errors-display.test.tsx` mock `@lingui/react`;
+  siblings need the real catalog text.
 - `srs-react`: `optimize-algorithm.test.tsx` mocks `@koloda/core-react`; later files import the real module.
 
 Other `isolate: false` libs file-mock `@lingui/react` too and pass, because no sibling imports it for real.

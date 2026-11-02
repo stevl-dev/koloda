@@ -2,7 +2,7 @@
 
 Design system and layout shell: Tailwind/RAC primitives, responsive layout zones,
 color themes, hotkey widgets, and async query-state components.
-No routing, feature screens,
+It reads router state (current route, history) but defines no routes, feature screens,
 or data fetching — form/overlay chrome and query-error UI may still call app hotkey hooks and domain error catalogs.
 
 ## Where it sits
@@ -11,7 +11,8 @@ Consumed by `@koloda/app-react`, `@koloda/srs-react`, `@koloda/assistant-react`,
 `@koloda/settings-react`, and app entry components.
 The design system app (`apps/design-system`) renders it standalone as a dev catalog.
 Depends on `@koloda/app` (`ERROR_MESSAGES`, form error types) and
-`@koloda/core-react` (settings-backed hotkeys for Dialog, Form controls, Select, titlebar).
+`@koloda/core-react` (settings-backed hotkeys for Dialog, Form controls, Select, titlebar,
+and the timestamp formatter for form timestamps).
 That edge is intentional.
 Do not "fix" it by splitting widgets or injecting binders unless a new decision says so (`agents/DECISIONS.md`).
 
@@ -24,10 +25,11 @@ Do not "fix" it by splitting widgets or injecting binders unless a new decision 
   `primitives/overlay/` — RAC-backed controls, dialogs, popovers, tooltips.
 - Table & misc primitives: `primitives/table/`, tabs, select, search-field, link, dnd, animations.
 - Core helpers: `core/focus.ts`, `core/hotkeys.ts` — focus and keyboard matching.
-- Icons: `icons/` — `cards-icon`, `check-icon`, `circular-progress`.
+- Icons: `icons/` — the `Icon` shell (`icon.tsx`) and one file per icon.
 - Types: `types.ts` — Tailwind Variants prop helpers (`TWVProp`, `TWVProps`).
 - App chrome widgets and brand art: `ui/` — titlebar, hotkey recorder, query loading/error, delete dialog, not-found, Koloda logo, setup background.
-- Hooks: `hooks/use-motion-settings`, `use-route-focus`, `use-scrolled-past`.
+- Hooks: `hooks/use-is-wide` (the `--breakpoint-wd` media query), `use-motion-settings`, `use-route-focus`,
+  `use-scrolled-past`.
 
 ### Does NOT own (prevent scope creep)
 

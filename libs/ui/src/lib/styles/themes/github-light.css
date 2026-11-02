@@ -16,7 +16,7 @@
   --color-orange: #bc4c00;
   --color-orange-2: #9a6700;
   --outline-focus-ring: var(--color-blue);
-  /* accent-derived fills (Primer uses accent blue for checked controls) */
+  /* WHY: Primer fills checked controls with the accent blue. */
   --bg-switch-selected: var(--color-blue);
   --border-switch-selected: oklch(from var(--color-blue) calc(l - 0.08) c h);
   --bg-checkbox-selected: var(--color-blue);
@@ -24,7 +24,7 @@
   --bg-lesson-type-blue: oklch(from var(--color-blue) calc(l + 0.18) calc(c - 0.02) h);
   --bg-lesson-type-red: oklch(from var(--color-red) calc(l + 0.2) calc(c + 0.04) h);
   --bg-lesson-type-green: oklch(from var(--color-green) calc(l + 0.16) c h);
-  /* electron doesn't accept oklch — hex must match --color-bg-level-1 */
+  /* WHY: the Electron titlebar overlay rejects oklch, so this hex must equal --color-bg (ADD-COLOR-THEME.md §4). */
   --titlebar-overlay-color: #ffffff;
   --titlebar-overlay-symbol-color: #1f2328;
 }

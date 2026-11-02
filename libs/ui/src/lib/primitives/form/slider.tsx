@@ -38,8 +38,7 @@ type SliderState = SliderThumbRenderProps["state"];
 
 // WHY: React Aria exposes `formatOptions` only on `Slider`, not on `SliderThumb`, so
 // the thumb's value bubble would lose formatting (percent, units, decimals) when it
-// renders a NumberFlow digit instead of the formatted label. Thread it down here so
-// the bubble formats identically to the previous `getThumbValueLabel` rendering.
+// renders a NumberFlow digit instead of the formatted label. Thread it down here.
 const SliderFormatContext = createContext<Intl.NumberFormatOptions | undefined>(undefined);
 
 export const sliderRoot = tv({
