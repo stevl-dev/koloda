@@ -1,11 +1,12 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
+import type { Hotkey } from "@tanstack/react-hotkeys";
 import { AddIcon } from "../icons/add-icon";
 import { Button } from "../primitives/form/button";
 import { HotkeyRecorder } from "./hotkey-recorder";
 
 type AddHotkeyButtonProps = {
-  onAdd: (hotkey: string | null) => void;
+  onAdd: (hotkey: Hotkey) => void;
 };
 
 export function AddHotkeyButton({ onAdd }: AddHotkeyButtonProps) {

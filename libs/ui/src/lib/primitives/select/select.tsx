@@ -1,10 +1,6 @@
 import type { ReactNode, RefObject } from "react";
 import { useMemo, useRef } from "react";
-import {
-  Autocomplete as ReactAriaAutocomplete,
-  Collection as ReactAriaCollection,
-  useFilter,
-} from "react-aria-components";
+import { Collection as ReactAriaCollection, useFilter } from "react-aria-components";
 import { Label } from "../form/label";
 import type { LabelProps } from "../form/label";
 import { SelectStateBridge, createSelectKeyboardDelegate, isIterableEmpty } from "./select-behavior";
@@ -19,7 +15,6 @@ import { SelectPopover } from "./select-popover";
 import type { SelectPopoverProps } from "./select-popover";
 import { SelectRoot } from "./select-root";
 import type { SelectRootProps } from "./select-root";
-import { SelectSearchField } from "./select-search-field";
 import { SelectValue } from "./select-value";
 
 export type SelectProps<T extends object> = Omit<SelectRootProps<T>, "children"> & {
@@ -111,8 +106,6 @@ Select.Root = SelectRoot;
 Select.Button = SelectButton;
 Select.Value = SelectValue;
 Select.Popover = SelectPopover;
-Select.Autocomplete = ReactAriaAutocomplete;
-Select.SearchField = SelectSearchField;
 Select.ListBox = SelectListBox;
 Select.ListBoxItem = SelectListBoxItem;
 Select.ListBoxSection = SelectListBoxSection;

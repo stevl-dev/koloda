@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import type { ComponentProps } from "react";
+import type { ComponentProps, PropsWithChildren } from "react";
 import { tv } from "tailwind-variants";
 import type { TWVProps } from "../../types";
 
 export const formLayout = "grow self-center flex flex-col w-full max-w-main py-2 px-4";
 
-type FormLayoutProps = ComponentProps<"div">;
+type FormLayoutProps = PropsWithChildren;
 
 export function FormLayout({ children }: FormLayoutProps) {
   return <div className={formLayout}>{children}</div>;
@@ -20,7 +20,7 @@ type FormLayoutSectionProps = ComponentProps<"div"> & TWVProps<typeof formLayout
 export function FormLayoutSection({ variants, term, children, ...props }: FormLayoutSectionProps) {
   if (term) {
     return (
-      <div className={formLayoutSection(variants)}>
+      <div className={formLayoutSection(variants)} {...props}>
         <FormLayoutSectionTerm>{term}</FormLayoutSectionTerm>
         <FormLayoutSectionContent>{children}</FormLayoutSectionContent>
       </div>

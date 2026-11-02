@@ -56,6 +56,4 @@ export function Tooltip({ children, content, delay = 0, closeDelay = 250, placem
   );
 }
 
-Tooltip.Root = TooltipTrigger;
-Tooltip.Content = TooltipContent;
 Tooltip.Trigger = TooltipTrigger;

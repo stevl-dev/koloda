@@ -19,7 +19,6 @@ import { AnimatedNumber } from "../animations/number";
 import { formLayoutSection } from "./form-layout";
 import type { TooltipArrowPlacement } from "../overlay/tooltip/tooltip-geometry";
 import { TooltipSurface } from "../overlay/tooltip/tooltip-surface";
-import { label } from "./label";
 
 const SLIDER_VALUE_EASING_STOPS = [
   0, 0.005, 0.019, 0.039, 0.066, 0.096, 0.129, 0.165, 0.202, 0.24, 0.278, 0.316, 0.354, 0.39, 0.426, 0.461, 0.494,
@@ -163,11 +162,6 @@ function SliderThumbValue({ state, index }: SliderThumbValueProps) {
   );
 }
 
-function SliderLabel({ children }: PropsWithChildren) {
-  return <span className={label({ class: "group-disabled:fg-disabled" })}>{children}</span>;
-}
-
 Slider.Container = SliderContainer;
 Slider.Track = SliderTrack;
 Slider.Thumb = SliderThumb;
-Slider.Label = SliderLabel;

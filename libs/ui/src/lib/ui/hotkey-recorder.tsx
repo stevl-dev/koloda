@@ -11,7 +11,7 @@ import { Dialog } from "../primitives/overlay/dialog";
 import { HotKey } from "./hotkey";
 
 export type HotkeyRecorderProps = {
-  onAccept: (hotkey: Hotkey | null) => void;
+  onAccept: (hotkey: Hotkey) => void;
   children: ReactNode;
 };
 
@@ -47,6 +47,7 @@ export function HotkeyRecorder({ onAccept, children }: HotkeyRecorderProps) {
   }, [isOpen]);
 
   const handleAccept = () => {
+    if (!value) return;
     onAccept(value);
     setIsOpen(false);
   };

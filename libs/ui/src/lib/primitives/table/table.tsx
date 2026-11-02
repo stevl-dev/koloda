@@ -19,7 +19,7 @@ export function Table({ table }: TableProps) {
   );
 }
 
-export const tableRoot = tv({
+const tableRoot = tv({
   base: "rounded-md border-2 border-table table-fixed border-separate border-spacing-0 overflow-hidden",
 });
 

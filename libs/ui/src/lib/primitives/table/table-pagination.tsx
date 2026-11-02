@@ -26,7 +26,7 @@ type TablePaginationProps = {
   pageSizes: number[];
 };
 
-export function TablePagination({ table, pageSizes }: Omit<TablePaginationProps, "totalCount">) {
+export function TablePagination({ table, pageSizes }: TablePaginationProps) {
   const { _ } = useLingui();
   const { pagination } = table.state;
   const filteredCount = table.getFilteredRowModel().rows.length;

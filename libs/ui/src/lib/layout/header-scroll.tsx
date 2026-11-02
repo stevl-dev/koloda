@@ -62,8 +62,8 @@ export function useReportLayoutHeaderScroll(isScrolled: boolean) {
   }, [reportScroll, unregister, id, isScrolled]);
 }
 
-export function useLayoutHeaderScrollShadow<T extends HTMLElement>(ref: RefObject<T | null>, threshold = 0) {
-  const isScrolled = useScrolledPast(ref, threshold);
+export function useLayoutHeaderScrollShadow<T extends HTMLElement>(ref: RefObject<T | null>) {
+  const isScrolled = useScrolledPast(ref);
   useReportLayoutHeaderScroll(isScrolled);
 
   return isScrolled;

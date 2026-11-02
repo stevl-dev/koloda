@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import { useEffect, useState } from "react";
 
-export function useScrolledPast<T extends HTMLElement>(ref: RefObject<T | null>, threshold = 0) {
+export function useScrolledPast<T extends HTMLElement>(ref: RefObject<T | null>) {
   const [isScrolledPast, setIsScrolledPast] = useState(false);
 
   useEffect(() => {
@@ -9,14 +9,14 @@ export function useScrolledPast<T extends HTMLElement>(ref: RefObject<T | null>,
     if (!element) return;
 
     const update = () => {
-      setIsScrolledPast(element.scrollTop > threshold);
+      setIsScrolledPast(element.scrollTop > 0);
     };
 
     update();
     element.addEventListener("scroll", update, { passive: true });
 
     return () => element.removeEventListener("scroll", update);
-  }, [ref, threshold]);
+  }, [ref]);
 
   return isScrolledPast;
 }

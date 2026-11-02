@@ -52,7 +52,7 @@ Done when, in user-visible terms:
 In: every finding below, by the decision on each.
 Out:
 
-- Moving `motionSettingAtom` next to its sibling atoms in `core-react` (#25's optional half): no concrete payoff.
+- #25, `motionSettingAtom` typing and its move to `core-react`: see the entry for why.
 - Findings other audits own: `interface-settings.md` finding 2 (already fixed) and `hotkeys.md` findings 7, 9, 11, 13.
 
 Entries use the report's numbers.
@@ -287,7 +287,12 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - `primitives/overlay/tooltip/tooltip-geometry.ts:133-147` and `:149-163` (`getVerticalArrowPoints`,
     `getHorizontalArrowPoints`) have identical bodies.
 - 25. Improvement, Later: `motionSettingAtom` is typed `string`, with `""` as a sentinel.
-  Decision: the type is fixed by item 13; moving the atom to `core-react` is skipped (Scope Out).
+  Decision: skipped, both halves.
+  - The type: `@koloda/app` has no motion union to type it with.
+    `MOTION_SETTINGS` is a `Record<string, MessageDescriptor>`, and the zod enum built from its keys yields `string`.
+    The sibling atoms are `atom("")` too (`libs/core-react/src/lib/atoms.ts:5-10`).
+    Typing this one atom would add a union to `@koloda/app` and leave its siblings as they are.
+  - Moving the atom to `core-react`: no concrete payoff (Scope Out).
   - `hooks/use-motion-settings.ts:5,11`: `atom("")`. Any value but `"on"` or `"off"`, a typo included, means System.
   - `""` is also the "not wired yet" sentinel that `libs/settings-react/src/lib/wire-ui-preferences.ts:73-75` relies
     on.
@@ -517,8 +522,8 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Move the cards and lessons table presets to srs-react
   Depends on: none
 
-- [ ] 13. Trim unused ui exports and residue parameters
-  Goal (#10, #19 rest, #20, #21, #25 type):
+- [x] 13. Trim unused ui exports and residue parameters
+  Goal (#10, #19 rest, #20, #21):
   - Delete `Tooltip.Root`, `Tooltip.Content`, `Select.Autocomplete`, `Select.SearchField`, `Tabs.Indicator`,
     `Slider.Label`, `NumberField.Input/Increment/Decrement`, and the code only they use.
   - Drop `export` from `tableRoot` (`table.tsx:22`), `tabLink`, `tabIndicator`, `TabIndicator` (`tabs.tsx:44,57,62`),
@@ -529,8 +534,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
     `(hotkey: Hotkey)` in `hotkey-recorder.tsx` and `add-hotkey-button.tsx`.
   - #10: narrow `FormLayoutProps` to `PropsWithChildren`, make the `term` branch of `FormLayoutSection` take the same
     props as it forwards, and type `DeleteDialog.Trigger` props as `ButtonProps` without `variants`.
-  - #25: type `motionSettingAtom` as the motion union from `@koloda/app` plus `""`; keep `""` as the not-wired sentinel
-    (`libs/settings-react/src/lib/wire-ui-preferences.ts:73-75`).
+  - #25 was dropped at implementation: there is no motion union to type the atom with (see #25).
   Constraints: `agents/BACKWARDS-COMPATIBILITY.md` (no shims); no behavior change.
   Done when: `UI` passes; `bun run typecheck` and `bun run lint` pass; `rg -w` for each deleted name over `apps libs`
   finds nothing.

@@ -4,7 +4,6 @@ import { DeleteIcon } from "../icons/delete-icon";
 import { Button, button } from "../primitives/form/button";
 import type { ButtonProps } from "../primitives/form/button";
 import { Dialog } from "../primitives/overlay/dialog";
-import type { TWVProps } from "../types";
 
 type DeleteDialogProps = ComponentProps<typeof Dialog.Root>;
 
@@ -17,7 +16,7 @@ const deleteButtonTrigger = tv({
   base: "disabled:cursor-not-allowed",
 });
 
-type DeleteDialogTriggerProps = PropsWithChildren & ButtonProps & TWVProps<typeof deleteButtonTrigger>;
+type DeleteDialogTriggerProps = PropsWithChildren & Omit<ButtonProps, "variants" | "children">;
 
 function DeleteDialogTrigger({ children, ...props }: DeleteDialogTriggerProps) {
   return (

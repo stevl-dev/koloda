@@ -120,7 +120,4 @@ function NumberFieldDecrement(props: ButtonProps) {
   return <Button className={numberFieldButton} slot="decrement" {...props} />;
 }
 
-NumberField.Input = NumberFieldInput;
-NumberField.Increment = NumberFieldIncrement;
-NumberField.Decrement = NumberFieldDecrement;
 NumberField.Group = NumberFieldGroup;

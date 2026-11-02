@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { tv } from "tailwind-variants";
-import type { TWVProps } from "../types";
+import type { TWVProp, TWVProps } from "../types";
 import { useLayoutHeaderScroll } from "./header-scroll";
 
 const layoutHeader = tv({
@@ -14,12 +14,10 @@ const layoutHeader = tv({
   },
 });
 
-type LayoutHeaderProps = PropsWithChildren & TWVProps<typeof layoutHeader>;
+type LayoutHeaderProps = PropsWithChildren & { variants?: Pick<TWVProp<typeof layoutHeader>, "type"> };
 
 export function LayoutHeader({ variants, children }: LayoutHeaderProps) {
-  const scrollContext = useLayoutHeaderScroll();
-  const contextIsScrolled = scrollContext?.isScrolled ?? false;
-  const isScrolled = variants?.isScrolled ?? contextIsScrolled;
+  const isScrolled = useLayoutHeaderScroll()?.isScrolled ?? false;
 
   return (
     <div className={layoutHeader({ ...variants, isScrolled })}>
