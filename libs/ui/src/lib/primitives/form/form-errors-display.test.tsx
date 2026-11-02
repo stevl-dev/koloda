@@ -26,8 +26,7 @@ describe("Errors", () => {
   it("keeps AppError details behind the details control", async () => {
     render(<Errors errors={[{ message: "db.add", path: ["0"], details: "SQLITE_BUSY" }]} />);
 
-    const message = screen.getByText("db.add");
-    expect(message.closest("div")?.className).toContain("flex-row");
+    expect(screen.getByText("db.add")).toBeTruthy();
     expect(screen.queryByText("SQLITE_BUSY")).toBeNull();
 
     const trigger = screen.getByRole("button", { name: "error.details" });

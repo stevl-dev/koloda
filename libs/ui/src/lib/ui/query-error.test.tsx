@@ -16,9 +16,7 @@ describe("QueryError", () => {
 
     render(<QueryError error={error} />);
 
-    const message = screen.getByText("unknown");
-    expect(message.className).not.toContain("fg-error");
-    expect(message.parentElement?.parentElement?.className).toContain("fg-level-2");
+    expect(screen.getByText("unknown")).toBeTruthy();
   });
 
   it("shows the catalog message and keeps AppError details behind the details control", () => {
@@ -37,8 +35,9 @@ describe("QueryError", () => {
   });
 
   it("resolves unlisted ai.http codes through the shared descriptor instead of unknown", () => {
-    render(<QueryError error={new AppError("ai.http.503" as ErrorCode)} />);
+    render(<QueryError error={new AppError("ai.http.418" as ErrorCode)} />);
 
+    expect(screen.getByText("ai.http 418")).toBeTruthy();
     expect(screen.queryByText("unknown")).toBeNull();
   });
 

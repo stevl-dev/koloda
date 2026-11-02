@@ -30,16 +30,6 @@ describe("Tooltip", () => {
     expect(screen.queryByRole("tooltip")).toBeNull();
   });
 
-  it("renders content when controlled open", () => {
-    render(
-      <Tooltip content="Open tip" isOpen delay={0} closeDelay={0}>
-        <Button>Hint</Button>
-      </Tooltip>,
-    );
-
-    expect(screen.getByRole("tooltip").textContent).toContain("Open tip");
-  });
-
   it("closes on Escape while open", async () => {
     render(
       <Tooltip content="More info" delay={0} closeDelay={0}>

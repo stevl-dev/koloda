@@ -301,6 +301,10 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - The sibling atoms (`schemeAtom`, `lightThemeAtom`, `darkThemeAtom`) live in `core-react`.
 - 26. Improvement, Later: tests that fail the survival question (TESTING.md §Banned patterns).
   Decision: fixed by item 16.
+  The "closed path" test became a per-placement check that the arrow tip points outward, which item 14's shared
+  arrow helper needs.
+  The `ai.http` case used `ai.http.503`, which the catalog lists; it now uses the unlisted `ai.http.418` and asserts
+  the shared descriptor's text.
   - `primitives/form/text-field.test.tsx:22-73`: four react-aria passthrough tests (onChange, controlled value,
     disabled, invalid). The auto-resize tests (`:75-106`) are good.
   - `primitives/overlay/tooltip/tooltip.test.tsx:33-41`: "renders content when controlled open".
@@ -579,7 +583,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Align ui boolean variants with CSS.md
   Depends on: 8, 14
 
-- [ ] 16. Replace ui tests that pin markup with behavior tests
+- [x] 16. Replace ui tests that pin markup with behavior tests
   Goal (#26):
   - Delete the four passthrough tests in `primitives/form/text-field.test.tsx:22-73` and "renders content when
     controlled open" in `tooltip.test.tsx:33-41`.

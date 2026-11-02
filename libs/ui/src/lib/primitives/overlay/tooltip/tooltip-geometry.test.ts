@@ -30,14 +30,15 @@ function drawableEdgeRange(width: number) {
 }
 
 describe("getTooltipSurfacePath", () => {
-  it("returns a closed path for each arrow placement", () => {
-    for (const placement of ["top", "bottom", "left", "right"] as const) {
-      const path = getTooltipSurfacePath({ ...baseGeometry, placement });
-
-      expect(path.startsWith("M ")).toBe(true);
-      expect(path.endsWith(" Z") || path.endsWith("Z")).toBe(true);
-      expect(path).toContain(` ${TOOLTIP_BORDER_WIDTH / 2} `);
-    }
+  // WHY: the four path builders share one arrow-point helper; a wrong edge or direction would point the arrow into
+  // the tooltip. Edges are inset by half the border: top 1, bottom 39, left 1, right 119.
+  it.each([
+    ["top", 60, `Q 60 ${39 + TOOLTIP_ARROW_DEPTH}`],
+    ["bottom", 60, `Q 60 ${1 - TOOLTIP_ARROW_DEPTH}`],
+    ["left", 20, `Q ${119 + TOOLTIP_ARROW_DEPTH} 20`],
+    ["right", 20, `Q ${1 - TOOLTIP_ARROW_DEPTH} 20`],
+  ] as const)("points a %s-placed tooltip's arrow outward from its edge", (placement, arrowCenter, tip) => {
+    expect(getTooltipSurfacePath({ ...baseGeometry, placement, arrowCenter })).toContain(tip);
   });
 
   it("clamps an out-of-range arrow center into the drawable edge", () => {
