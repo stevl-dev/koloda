@@ -347,7 +347,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Keep fades playing when Motion is off
   Depends on: none
 
-- [ ] 2. Describe Toggle sidebar at both window widths
+- [x] 2. Describe Toggle sidebar at both window widths
   Goal (#2): reword the Toggle sidebar row in `docs/specs/HOTKEYS.md` §Interface (line 83): on a wide window it
   collapses or expands the navigation; on a narrow window it opens or closes the drawer.
   Constraints: that row only; `agents/FUNCTIONAL-SPECIFICATIONS.md`, `agents/MARKDOWN.md`.

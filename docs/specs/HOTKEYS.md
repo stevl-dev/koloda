@@ -80,7 +80,7 @@ No runtime scope gates these hotkeys.
 | Go to next tab | `J` | Moves to the next tab or radio option while focus is on a tab or radio group. |
 | Go to previous tab | `K` | Moves to the previous tab or radio option while focus is on a tab or radio group. |
 | Close popover | `Alt+C` | Closes the open dialog or popover, the same as Escape. |
-| Toggle sidebar | `Mod+B` | Opens or closes the sidebar. |
+| Toggle sidebar | `Mod+B` | On a wide window, collapses or expands the navigation. On a narrow window, opens or closes the drawer that holds the navigation and sidebar. |
 | Toggle color scheme | none | Cycles Light, Dark, and System, and saves the choice. |
 | Toggle language | none | Cycles the offered languages and saves the choice. |
 
