@@ -28,10 +28,19 @@ function TooltipFocusable({ children }: TooltipFocusableProps) {
   const { focusableProps } = useFocusable({}, ref);
   const child = Children.only(children);
 
+  // WHY: `focusableProps` key handlers come from react-aria's `createEventHandler`, which stops propagation, so app
+  // hotkeys never saw keys pressed on a button trigger. Replace them, keep the child's own handlers, and continue
+  // propagation through the child's react-aria wrapper.
   return cloneElement(child, {
     ...mergeProps(focusableProps, child.props),
-    onKeyDown: continueKeyPropagation,
-    onKeyUp: continueKeyPropagation,
+    onKeyDown: (event: KeyboardEvent<FocusableElement>) => {
+      child.props.onKeyDown?.(event);
+      continueKeyPropagation(event);
+    },
+    onKeyUp: (event: KeyboardEvent<FocusableElement>) => {
+      child.props.onKeyUp?.(event);
+      continueKeyPropagation(event);
+    },
     ref: mergeRefs(child.props.ref, ref),
   });
 }

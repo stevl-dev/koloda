@@ -365,7 +365,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Center the table pagination row
   Depends on: none
 
-- [ ] 4. Run caller key handlers once in Link and Tooltip
+- [x] 4. Run caller key handlers once in Link and Tooltip
   Goal (#3, #7):
   - `Link` (`primitives/link.tsx:17-28`): drop the explicit `props.onKeyDown?.(event)` call and let `mergeProps`
     chain it ahead of the local Space handler; the `defaultPrevented` check still sees the caller's run.

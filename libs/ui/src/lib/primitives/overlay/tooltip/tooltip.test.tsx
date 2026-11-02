@@ -1,7 +1,7 @@
 import { Button, Tooltip } from "@koloda/ui";
 import { fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 async function openTooltipOnFocus(name: string) {
   const trigger = screen.getByRole("button", { name });
@@ -53,6 +53,23 @@ describe("Tooltip", () => {
     fireEvent.keyDown(trigger, { key: "Escape" });
 
     expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("runs the trigger's own key handler and lets the key reach app hotkeys", () => {
+    const onKeyDown = vi.fn();
+    const onDocumentKeyDown = vi.fn();
+    document.addEventListener("keydown", onDocumentKeyDown);
+    render(
+      <Tooltip content="Save tip" delay={0} closeDelay={0}>
+        <Button onKeyDown={onKeyDown}>Save</Button>
+      </Tooltip>,
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: "Save" }), { key: "s", ctrlKey: true });
+    document.removeEventListener("keydown", onDocumentKeyDown);
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onDocumentKeyDown).toHaveBeenCalledTimes(1);
   });
 
   it("supports Tooltip.Trigger as the focusable child", async () => {

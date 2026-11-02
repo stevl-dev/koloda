@@ -15,7 +15,6 @@ export function Link(props: LinkProps) {
   const { focusProps, isFocusVisible } = useFocusRing();
 
   const onKeyDown: LinkProps["onKeyDown"] = (event) => {
-    props.onKeyDown?.(event);
     if (event.defaultPrevented) return;
     if (event.key === " " || event.key === "Spacebar") {
       event.preventDefault();
