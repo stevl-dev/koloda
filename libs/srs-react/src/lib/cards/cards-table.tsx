@@ -1,6 +1,6 @@
 import { queriesAtom } from "@koloda/core-react";
 import type { Card, Deck, Template } from "@koloda/srs";
-import { QueryError, SearchField, Table, createCardsColumnHelper, useCardsTable } from "@koloda/ui";
+import { QueryError, SearchField, Table } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import { CardsTableCell } from "./cards-table-cell";
 import { CardsTableColumnsVisibility } from "./cards-table-columns-visibility";
 import { CardsTableFilters } from "./cards-table-filters";
 import { CardsTableHeaderSelect } from "./cards-table-header-select";
+import { createCardsColumnHelper, useCardsTable } from "./cards-table-hook";
 import { CardsTableSelectionControls } from "./cards-table-selection-controls";
 import { getCardsTableContentColumns } from "./cards-table-utility";
 import { useCardsTemplates } from "./use-cards-templates";

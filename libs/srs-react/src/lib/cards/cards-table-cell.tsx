@@ -1,7 +1,7 @@
 import { useTimestampFormatter } from "@koloda/core-react";
 import type { Card } from "@koloda/srs";
 import { Table } from "@koloda/ui";
-import type { CardsTableFeatures } from "@koloda/ui";
+import type { CardsTableFeatures } from "./cards-table-hook";
 import type { CellContext } from "@tanstack/react-table";
 import { isDate } from "date-fns";
 import { CardState } from "./card-state";

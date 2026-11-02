@@ -1,10 +1,11 @@
 import type { LessonTableRow, LessonsResult } from "@koloda/srs";
 import { LESSON_TYPE_LABELS, toLessonTableRows } from "@koloda/srs";
-import { Table, createLessonsColumnHelper, useLessonsTable } from "@koloda/ui";
+import { Table } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMemo } from "react";
 import { LessonsTableCell } from "./lessons-table-cell";
+import { createLessonsColumnHelper, useLessonsTable } from "./lessons-table-hook";
 
 const columnHelper = createLessonsColumnHelper<LessonTableRow>();
 const AMOUNT_WIDTH = 6;

@@ -4,7 +4,7 @@ import { DragDropProvider, KeyboardSensor, PointerSensor } from "@dnd-kit/react"
 import type { DragDropEventHandlers } from "@dnd-kit/react";
 import { isSortable } from "@dnd-kit/react/sortable";
 import { Button, Checkbox, ColumnsIcon, Dialog, Draggable } from "@koloda/ui";
-import type { CardsTableFeatures } from "@koloda/ui";
+import type { CardsTableFeatures } from "./cards-table-hook";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import type { Card } from "@koloda/srs";

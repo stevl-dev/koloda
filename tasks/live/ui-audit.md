@@ -496,7 +496,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Re-measure the auto-resize textarea only when its value changes
   Depends on: none
 
-- [ ] 12. Move the cards and lessons table presets to srs-react
+- [x] 12. Move the cards and lessons table presets to srs-react
   Goal (#18, #19 `*Features`):
   - Move `cardsTableFeatures`, `cardsTableOptions`, `lessonsTableFeatures`, `lessonsTableOptions`, the
     `CardsTableFeatures` type, and their `createTableHook` calls (`useCardsTable`, `createCardsColumnHelper`,

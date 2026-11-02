@@ -1,6 +1,6 @@
 import type { Card } from "@koloda/srs";
 import { Checkbox, tableCellContent } from "@koloda/ui";
-import type { CardsTableFeatures } from "@koloda/ui";
+import type { CardsTableFeatures } from "./cards-table-hook";
 import type { Row } from "@tanstack/react-table";
 
 export type CardsTableCellSelectProps = {

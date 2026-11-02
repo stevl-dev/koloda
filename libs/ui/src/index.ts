@@ -98,16 +98,9 @@ export { Select } from "./lib/primitives/select/select";
 export type { SelectProps } from "./lib/primitives/select/select";
 export { Table } from "./lib/primitives/table/table";
 export { tableCellContent } from "./lib/primitives/table/table-cell-content";
-export type { CardsTableFeatures, SelectionTableFeatures } from "./lib/primitives/table/table-features";
+export type { SelectionTableFeatures } from "./lib/primitives/table/table-features";
 export { tableHeadCellContent } from "./lib/primitives/table/table-head";
-export {
-  createCardsColumnHelper,
-  createLessonsColumnHelper,
-  createSelectionColumnHelper,
-  useCardsTable,
-  useLessonsTable,
-  useSelectionTable,
-} from "./lib/primitives/table/table-hook";
+export { createSelectionColumnHelper, useSelectionTable } from "./lib/primitives/table/table-hook";
 export { Tabs } from "./lib/primitives/tabs";
 export type { TWVProps } from "./lib/types";
 export { AddHotkeyButton } from "./lib/ui/add-hotkey-button";
