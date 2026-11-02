@@ -1,17 +1,16 @@
-import { ERROR_MESSAGES } from "@koloda/app";
-import type { ErrorCode, FormError } from "@koloda/app";
 import { useAppHotkey, useHotkeysSettings, useHotkeyScope, useTimestampFormatter } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { createFormHook } from "@tanstack/react-form";
 import type { HotkeyOptions } from "@tanstack/react-hotkeys";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import type { PropsWithChildren } from "react";
-import { ErrorMessage } from "../../ui/error-message";
 import { Fade } from "../animations/fade";
 import { Button } from "./button";
 import type { ButtonProps } from "./button";
+import { Errors } from "./errors";
+import { fieldContext, formContext, useFormContext } from "./form-context";
 import { FormTextField } from "./text-field";
 
 function Timestamps(props: PropsWithChildren) {
@@ -46,35 +45,6 @@ function UpdatedAt({ timestamp }: FormTimestampProps) {
       <Trans>form.updated-at {formatTimestamp(timestamp, "date")}</Trans>
     </Timestamp>
   );
-}
-
-type FormErrorsProps = {
-  errors: Record<number | string, FormError[]> | FormError[] | undefined;
-};
-
-export function Errors({ errors }: FormErrorsProps) {
-  if (!errors) return null;
-
-  const flattenedErrors = (Array.isArray(errors) ? errors : Object.values(errors).flat()) as FormError[];
-  const uniqueErrors = Array.from(new Map(flattenedErrors.map((error) => [error.message, error])).values());
-
-  return (
-    <div className="flex flex-col gap-2" role="alert">
-      {uniqueErrors.map((error) => (
-        <ErrorsItem error={error} key={error.message} />
-      ))}
-    </div>
-  );
-}
-
-type ErrorsItemProps = { error: FormError };
-
-function ErrorsItem({ error }: ErrorsItemProps) {
-  const { _ } = useLingui();
-  const content = ERROR_MESSAGES[error.message as ErrorCode] ?? ERROR_MESSAGES.unknown;
-  const message = typeof content === "function" ? _(content(error)) : _(content);
-
-  return <ErrorMessage layout="inline" message={message} details={error.details} />;
 }
 
 function SubmitButton(props: ButtonProps) {
@@ -173,8 +143,6 @@ function Controls() {
   );
 }
 
-const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
-
 const { useAppForm, withForm } = createFormHook({
   fieldComponents: { TextField: FormTextField },
   formComponents: {
@@ -191,4 +159,4 @@ const { useAppForm, withForm } = createFormHook({
   formContext,
 });
 
-export { useAppForm, useFieldContext, useFormContext, withForm };
+export { useAppForm, withForm };

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Errors } from "./form";
+import { Errors } from "./errors";
 
 vi.mock("@lingui/react", () => ({
   useLingui: () => ({

@@ -131,6 +131,8 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
   - `--shadow-button-bordered` (`global.css:52`) is already cyclic (no scheme defines it) and unused (#22).
 - 9. Risk, Later: circular import between `form.tsx` and `text-field.tsx`.
   Decision: fixed by item 9.
+  `Errors` moved to `errors.tsx` and the hook contexts (`useFieldContext`, `useFormContext`) to `form-context.ts`;
+  `text-field.tsx` no longer imports `form.tsx`.
   - `primitives/form/form.tsx:15` imports `FormTextField` from `text-field.tsx`; `text-field.tsx:8` imports `Errors`
     and `useFieldContext` from `form.tsx`; `text-field.tsx:160` assigns `TextField.Errors = Errors` at module
     evaluation.
@@ -442,7 +444,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Hide TimeField bidi marks by their text
   Depends on: none
 
-- [ ] 9. Move form Errors to its own file
+- [x] 9. Move form Errors to its own file
   Goal (#9): move `Errors` and `ErrorsItem` from `primitives/form/form.tsx` to `primitives/form/errors.tsx`; import
   them in `form.tsx` and `text-field.tsx`; update `src/index.ts:70`.
   `text-field.tsx` keeps importing `useFieldContext` from `form.tsx` only if that no longer forms a cycle; otherwise
