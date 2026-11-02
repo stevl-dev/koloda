@@ -1,7 +1,13 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import type { ComponentProps, PropsWithChildren, RefAttributes } from "react";
-import { Input, TextArea, TextField as ReactAriaTextField } from "react-aria-components";
+import {
+  Input,
+  TextArea,
+  TextAreaContext,
+  TextField as ReactAriaTextField,
+  useSlottedContext,
+} from "react-aria-components";
 import type { InputProps, TextFieldProps as ReactAriaTextFieldProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import type { TWVProps } from "../../types";
@@ -72,6 +78,9 @@ export function TextFieldTextArea({
   ...props
 }: TextFieldTextAreaProps) {
   const internalRef = useRef<HTMLTextAreaElement>(null);
+  // WHY: callers usually pass the value to the parent TextField, which reaches the TextArea through RAC context.
+  const textAreaContext = useSlottedContext(TextAreaContext);
+  const shownValue = value ?? textAreaContext?.value;
 
   const setRef = useCallback(
     (node: HTMLTextAreaElement | null) => {
@@ -134,7 +143,7 @@ export function TextFieldTextArea({
       el.style.height = "";
       el.style.overflowY = "";
     }
-  });
+  }, [adjustHeight, canAutoResize, shownValue]);
 
   const handleInput = useCallback(
     (e: FormEvent<HTMLTextAreaElement>) => {

@@ -104,4 +104,22 @@ describe("TextField", () => {
     expect(textarea.style.height).toBe("96px");
     expect(textarea.style.overflowY).toBe("auto");
   });
+
+  it("resizes when the parent field's value changes without typing", () => {
+    const { rerender } = render(
+      <TextField aria-label="Prompt" value="line1">
+        <TextField.TextArea canAutoResize maxRows={8} />
+      </TextField>,
+    );
+    const textarea = screen.getByRole("textbox", { name: "Prompt" }) as HTMLTextAreaElement;
+    mockTextAreaMetrics(textarea, 64);
+
+    rerender(
+      <TextField aria-label="Prompt" value={"line1\nline2\nline3"}>
+        <TextField.TextArea canAutoResize maxRows={8} />
+      </TextField>,
+    );
+
+    expect(textarea.style.height).toBe("64px");
+  });
 });

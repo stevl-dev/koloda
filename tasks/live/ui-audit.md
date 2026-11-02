@@ -206,7 +206,15 @@ Paths are relative to `libs/ui/src/lib/` unless they start with `libs/`, `apps/`
     `lessons/lessons.tsx:18`.
   - Before the stylesheet applies, the value is empty and the query `(width < )` is invalid.
 - 17. Improvement, Later: layout effects with no dependency list re-measure every render.
-  Decision: fixed by item 11.
+  Decision: the textarea half is fixed by item 11; the tooltip half is skipped.
+  - Textarea: most callers pass the value to the parent `TextField`, so the textarea's own `value` prop is undefined
+    and a `[value]` dependency would miss a reset or a cleared prompt.
+    The effect depends on the value the textarea shows, read from RAC's `TextAreaContext` when the prop is absent.
+  - Tooltip, skipped: RAC moves `OverlayArrow` by re-rendering the tooltip with a new offset style, while placement
+    and size stay the same.
+    The per-render read is how the notch follows the arrow; a `placement` dependency and the `ResizeObserver` would
+    both miss that move.
+    It runs only while a tooltip is open, and `setGeometry` bails out when nothing changed.
   - `primitives/form/text-field.tsx:127-136` runs `adjustHeight()` after every render (height `auto`, read
     `scrollHeight`, write height).
     `onInput` already covers typing.
@@ -473,19 +481,19 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Read the wide breakpoint once
   Depends on: none
 
-- [ ] 11. Give the measuring layout effects dependency lists
-  Goal (#17):
-  - `primitives/form/text-field.tsx:127-136`: depend on `[value, canAutoResize, maxRows]` (the value the textarea
-    shows, controlled or not).
-  - `primitives/overlay/tooltip/tooltip-surface.tsx:42-44`: depend on `placement` only; the `ResizeObserver` covers
-    size.
-  Constraints: those two effects; the auto-resize tests (`text-field.test.tsx:75-106`) stay green.
+- [x] 11. Re-measure the auto-resize textarea only when its value changes
+  Goal (#17, textarea half; the tooltip half is skipped, see #17):
+  - `primitives/form/text-field.tsx:127-136`: depend on `[adjustHeight, canAutoResize, shownValue]`, where
+    `shownValue` is the `value` prop or, when absent, the value the parent `TextField` passes through
+    `TextAreaContext`.
+  - Test: a parent `TextField` value change without typing resizes the textarea.
+  Constraints: that effect; the auto-resize tests (`text-field.test.tsx:75-106`) stay green.
   Done when: `UI` passes.
   Manual verify:
   - Host: web.
-  - Assistant → type a multi-line prompt, then clear it → the box grows and shrinks; hover a tooltip near a window
-    edge → its arrow points at the trigger.
-  Commit: Give the measuring layout effects dependency lists
+  - Assistant → type a multi-line prompt and send it → the box shrinks back to one line; a deck's description →
+    type several lines, then Discard → the box shrinks.
+  Commit: Re-measure the auto-resize textarea only when its value changes
   Depends on: none
 
 - [ ] 12. Move the cards and lessons table presets to srs-react
