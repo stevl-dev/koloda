@@ -356,7 +356,7 @@ Line numbers are at `8a45e96f`; when an earlier item moved them, find the code b
   Commit: Describe Toggle sidebar at both window widths
   Depends on: none
 
-- [ ] 3. Center the table pagination row
+- [x] 3. Center the table pagination row
   Goal (#4): `item-center` → `items-center` in `primitives/table/table-pagination.tsx:61`.
   Done when: `UI` passes.
   Manual verify:

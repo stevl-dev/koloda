@@ -58,7 +58,7 @@ export function TablePagination({ table, pageSizes }: Omit<TablePaginationProps,
         <span className="fg-level-4">{_(msg`table.pagination.records.label`)}</span>
         <span className="numbers-text text-base">{filteredCount}</span>
       </div>
-      <div className="flex flex-row item-center gap-8">
+      <div className="flex flex-row items-center gap-8">
         {pageNumbers.length > 1 && (
           <div className="flex items-center space-x-2">
             <TablePaginationButton
