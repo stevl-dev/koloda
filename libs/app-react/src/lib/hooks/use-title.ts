@@ -7,7 +7,7 @@ export function useTitle() {
   const matches = useMatches();
   const title = matches
     .map((x) => x.loaderData?.title)
-    .filter((title) => title !== undefined)
+    .filter((item) => item !== undefined)
     .reverse()
     .map(_)
     .join(" · ");
