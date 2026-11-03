@@ -1,3 +1,4 @@
+import type { HotkeyEntry } from "@koloda/app";
 import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
 import { useIsWide } from "@koloda/ui";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -7,6 +8,8 @@ import { LessonInitTable } from "./lesson-init-table";
 import { lessonSetupAtom } from "./lesson-selectors";
 import { useLessonClose } from "./use-lesson-close";
 
+const ESCAPE_KEYS: HotkeyEntry = ["Escape"];
+
 export function LessonInit() {
   const { ui } = useHotkeysSettings();
   const isMobile = !useIsWide();
@@ -14,7 +17,7 @@ export function LessonInit() {
   const submitSetup = useSetAtom(submitLessonSetupAtom);
   const { closeLesson } = useLessonClose();
 
-  useAppHotkey(["Escape"], () => closeLesson(), "grades", { ignoreInputs: false });
+  useAppHotkey(ESCAPE_KEYS, () => closeLesson(), "grades", { ignoreInputs: false });
 
   useAppHotkey(
     ui.submit,

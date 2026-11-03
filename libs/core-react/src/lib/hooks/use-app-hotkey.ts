@@ -11,6 +11,8 @@ import { useEffect, useEffectEvent, useRef } from "react";
 import type { AppHotkeyScope, RuntimeScope } from "./use-hotkeys-status";
 import { hotkeysScopesAtom } from "./use-hotkeys-status";
 
+// INVARIANT: `hotkeys` must keep its identity across renders: a binding from `useHotkeysSettings()` or a module
+// constant. Its identity drives re-registration, so an inline literal re-registers every key on every render.
 export function useAppHotkey(
   hotkeys: HotkeyEntry,
   callback: HotkeyCallback,

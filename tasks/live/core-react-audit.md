@@ -283,7 +283,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Add query key prefixes for lesson data and reviews
   Depends on: none
 
-- [ ] 5. Hoist inline hotkey arrays to constants
+- [x] 5. Hoist inline hotkey arrays to constants
   Goal (finding 4):
   - Replace the five literal key arrays with module constants in their files: `card-preview.tsx:35`,
     `lesson-studying.tsx:30,31`, `lesson-init.tsx:17`, `lesson-completion.tsx:15` (all under `libs/srs-react/src/lib`).

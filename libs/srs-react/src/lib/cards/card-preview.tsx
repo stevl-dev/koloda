@@ -1,3 +1,4 @@
+import type { HotkeyEntry } from "@koloda/app";
 import { queriesAtom, useAppHotkey } from "@koloda/core-react";
 import type { Card, Template } from "@koloda/srs";
 import { Button, Dialog, Fade } from "@koloda/ui";
@@ -13,6 +14,8 @@ import { LessonFooterLayout } from "../lessons/lesson-footer";
 import { LessonHeaderLayout } from "../lessons/lesson-header";
 import { lessonStudying } from "../lessons/lesson-studying";
 import { cardPreviewReducer, cardPreviewReducerDefault } from "./card-preview-reducer";
+
+const SUBMIT_KEYS: HotkeyEntry = ["Enter", "Space"];
 
 type PreviewCardProps = {
   isOpen: boolean;
@@ -32,7 +35,7 @@ export function CardPreview({ isOpen, onOpenChange, card, templateId }: PreviewC
 
   // WHY: every table row mounts a closed preview, so the keys are on only while this one is open.
   // The lesson binds them in its "grades" scope, which only a lesson session turns on.
-  useAppHotkey(["Enter", "Space"], () => dispatch(["cardSubmitted"]), "", {
+  useAppHotkey(SUBMIT_KEYS, () => dispatch(["cardSubmitted"]), "", {
     conflictBehavior: "allow",
     enabled: isOpen,
   });

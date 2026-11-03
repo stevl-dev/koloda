@@ -1,3 +1,4 @@
+import type { HotkeyEntry } from "@koloda/app";
 import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
 import { Fade } from "@koloda/ui";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -13,6 +14,9 @@ import { lessonContentAtom } from "./lesson-selectors";
 
 export const lessonStudying = "self-stretch flex flex-col items-center gap-6";
 
+const SUBMIT_KEYS: HotkeyEntry = ["Enter", "Space"];
+const ESCAPE_KEYS: HotkeyEntry = ["Escape"];
+
 export function LessonStudying() {
   const { grades, ui } = useHotkeysSettings();
   const content = useAtomValue(lessonContentAtom);
@@ -27,8 +31,8 @@ export function LessonStudying() {
   useAppHotkey(grades.hard, () => selectGrade(1), "grades", { eventType: "keyup", ignoreInputs: true });
   useAppHotkey(grades.normal, () => selectGrade(2), "grades", { eventType: "keyup", ignoreInputs: true });
   useAppHotkey(grades.easy, () => selectGrade(3), "grades", { eventType: "keyup", ignoreInputs: true });
-  useAppHotkey(["Enter", "Space"], () => submitCard(), "grades", { conflictBehavior: "allow" });
-  useAppHotkey(["Escape"], () => requestTermination(), "grades", { ignoreInputs: false });
+  useAppHotkey(SUBMIT_KEYS, () => submitCard(), "grades", { conflictBehavior: "allow" });
+  useAppHotkey(ESCAPE_KEYS, () => requestTermination(), "grades", { ignoreInputs: false });
   useAppHotkey(
     ui.submit,
     () => {

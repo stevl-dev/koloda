@@ -1,4 +1,5 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
+import type { HotkeyEntry } from "@koloda/app";
 import { useAppHotkey } from "@koloda/core-react";
 import { ErrorMessage } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -7,12 +8,14 @@ import { useAtomValue } from "jotai";
 import { lessonLoadErrorAtom } from "./lesson-selectors";
 import { useLessonClose } from "./use-lesson-close";
 
+const ESCAPE_KEYS: HotkeyEntry = ["Escape"];
+
 export function LessonCompletion() {
   const { _ } = useLingui();
   const loadError = useAtomValue(lessonLoadErrorAtom);
   const { closeLesson } = useLessonClose();
 
-  useAppHotkey(["Escape"], () => closeLesson(), "grades");
+  useAppHotkey(ESCAPE_KEYS, () => closeLesson(), "grades");
 
   if (loadError != null) {
     return <ErrorMessage {...formatAppError(loadError, _, ERROR_MESSAGES["db.get"])} />;
