@@ -1,3 +1,4 @@
+import { LOCALES } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { queriesAtom } from "@koloda/core-react";
@@ -92,10 +93,15 @@ function AppProvidersInner({ activateLanguage, getLanguage, queryClient, router 
   const [isI18nReady, setIsI18nReady] = useState(false);
 
   useEffect(() => {
-    activateLanguage(getLanguage()).then(() => {
-      setLang(i18n.locale);
-      setIsI18nReady(true);
-    });
+    activateLanguage(getLanguage())
+      .then(
+        () => setLang(i18n.locale),
+        // WHY: a catalog chunk that fails to load must not leave a blank page, so fall back to the default locale,
+        // and mount even if that fails too, so the router's error screens can show. The fallback leaves `langAtom`
+        // alone: the hosts save it as the device language, and a reload retries it.
+        () => activateLanguage(LOCALES[0]).catch(() => undefined),
+      )
+      .finally(() => setIsI18nReady(true));
   }, [activateLanguage, getLanguage, setLang]);
 
   if (!isI18nReady) return null;

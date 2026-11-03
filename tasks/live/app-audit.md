@@ -278,7 +278,9 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Show the length limit in sync name errors
   Depends on: none
 
-- [ ] 2. Mount the app when the boot language fails to load
+- [x] 2. Mount the app when the boot language fails to load
+  Result: no test; rendering `AppProviders` needs a host store with `appEntryAtom` and `queriesAtom`, which no
+  app-react test harness provides, so the Manual verify brief is the check.
   Goal (#2, failure path):
   - `libs/app-react/src/lib/app-providers.tsx:94-99`: when `activateLanguage(getLanguage())` rejects, activate the
     default locale (`LOCALES[0]` from `@koloda/app`) instead.
