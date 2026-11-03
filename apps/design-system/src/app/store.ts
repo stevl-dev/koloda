@@ -1,10 +1,7 @@
-import type { AIRuntime } from "@koloda/ai";
 import { coerceConversationState, upsertConversationAtom } from "@koloda/assistant-react";
 import { aiRuntimeAtom, langAtom, queriesAtom } from "@koloda/core-react";
-import type { Queries } from "@koloda/core-react";
 import { wireUiPreferences } from "@koloda/settings-react";
 import { createStore } from "jotai";
-import type { WritableAtom } from "jotai";
 import { aiRuntime } from "./ai-runtime";
 import { IN_PROGRESS_CONVERSATION } from "./assistant-samples";
 import { activateLanguage, getLanguage } from "./i18n";
@@ -30,6 +27,6 @@ wireUiPreferences(store);
 
 store.set(langAtom, getLanguage());
 
-store.set(queriesAtom as WritableAtom<Queries, [Queries], unknown>, queries);
+store.set(queriesAtom, queries);
 
-store.set(aiRuntimeAtom as WritableAtom<AIRuntime, [AIRuntime], unknown>, aiRuntime);
+store.set(aiRuntimeAtom, aiRuntime);

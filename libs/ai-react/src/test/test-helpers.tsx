@@ -3,7 +3,6 @@ import { aiRuntimeAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createStore, Provider as JotaiProvider } from "jotai";
-import type { WritableAtom } from "jotai";
 import type { PropsWithChildren } from "react";
 
 export type AppStoreWrapperOptions = {
@@ -17,14 +16,11 @@ export type AppStoreWrapperOptions = {
  */
 export function createAppStoreWrapper({ listModels }: AppStoreWrapperOptions = {}) {
   const store = createStore();
-  store.set(
-    queriesAtom as WritableAtom<Queries, [Queries], unknown>,
-    {
-      getSettingsQuery: () => ({ queryKey: queryKeys.settings.detail("hotkeys"), queryFn: async () => null }),
-    } as unknown as Queries,
-  );
+  store.set(queriesAtom, {
+    getSettingsQuery: () => ({ queryKey: queryKeys.settings.detail("hotkeys"), queryFn: async () => null }),
+  } as unknown as Queries);
   if (listModels) {
-    store.set(aiRuntimeAtom as WritableAtom<AIRuntime, [AIRuntime], unknown>, { listModels } as unknown as AIRuntime);
+    store.set(aiRuntimeAtom, { listModels } as unknown as AIRuntime);
   }
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 

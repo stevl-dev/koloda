@@ -30,7 +30,7 @@ async function renderAppHotkeys(scheme: string, lang: string) {
     }),
   } as unknown as Queries;
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+  store.set(queriesAtom, queries);
   store.set(schemeAtom, scheme);
   store.set(langAtom, lang);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });

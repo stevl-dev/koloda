@@ -195,7 +195,7 @@ Their dirs are `libs/core-react`, `libs/app-react`, `libs/srs-react`, `libs/sett
 A scoped lib run is `bunx vitest run --config libs/<name>/vitest.config.mjs --configLoader runner`.
 Lib test files are not type-checked by `bun run typecheck`; keep them honest by hand.
 
-- [ ] 1. Type the queries and AI runtime atoms as writable
+- [x] 1. Type the queries and AI runtime atoms as writable
   Goal (finding 1):
   - `libs/core-react/src/lib/queries.ts:111`: `export const queriesAtom = atom(null as unknown as Queries);`.
     `libs/core-react/src/lib/ai-runtime.ts:4`: the same with `AIRuntime`.

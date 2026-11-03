@@ -28,7 +28,7 @@ function buildQueries(): Queries {
 
 function renderMenu(state: Record<string, unknown>, hasTurns: boolean) {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+  store.set(queriesAtom, buildQueries());
   store.set(conversationsAtom, {
     c1: {
       messages: hasTurns ? [{ id: "m1", role: "user", content: "hi" }] : [],

@@ -23,7 +23,7 @@ function buildQueries(): Queries {
 
 function createTestWrapper() {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+  store.set(queriesAtom, buildQueries());
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });

@@ -39,7 +39,7 @@ function renderSettingsLearning(data: ResolvedLearningSettings) {
     setSettingsMutation: () => ({ mutationFn: setSettings }),
   } as unknown as Queries;
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+  store.set(queriesAtom, queries);
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });

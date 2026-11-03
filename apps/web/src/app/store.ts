@@ -1,10 +1,7 @@
-import type { AIRuntime } from "@koloda/ai";
 import { listProvidersThatWorkInBrowser } from "@koloda/ai";
 import { aiProvidersAtom, aiRuntimeAtom, appEntryAtom, langAtom, queriesAtom } from "@koloda/core-react";
-import type { Queries } from "@koloda/core-react";
 import { wireUiPreferences } from "@koloda/settings-react";
 import { createStore } from "jotai";
-import type { WritableAtom } from "jotai";
 import { WebAppEntry } from "../components/web-app-entry";
 import { createWebAIRuntime } from "./ai-runtime";
 import { db } from "./db";
@@ -25,9 +22,9 @@ wireUiPreferences(store);
 
 store.set(langAtom, getLanguage());
 
-store.set(queriesAtom as WritableAtom<Queries, [Queries], unknown>, queries);
+store.set(queriesAtom, queries);
 
-store.set(aiRuntimeAtom as WritableAtom<AIRuntime, [AIRuntime], unknown>, aiRuntime);
+store.set(aiRuntimeAtom, aiRuntime);
 
 store.set(aiProvidersAtom, listProvidersThatWorkInBrowser());
 

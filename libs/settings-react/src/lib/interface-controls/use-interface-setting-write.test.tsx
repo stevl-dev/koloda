@@ -42,7 +42,7 @@ function renderWrite(patchSettings: () => Promise<unknown>) {
     patchSettingsMutation: () => ({ mutationFn: patchSettings }),
   } as unknown as Queries;
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+  store.set(queriesAtom, queries);
   store.set(schemeAtom, "light");
   const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
 

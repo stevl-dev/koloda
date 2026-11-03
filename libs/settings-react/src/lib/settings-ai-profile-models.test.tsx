@@ -52,8 +52,8 @@ function buildQueries(): Queries {
 
 function renderDialog() {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
-  store.set(aiRuntimeAtom as unknown as Parameters<typeof store.set>[0], { listModels } as unknown as AIRuntime);
+  store.set(queriesAtom, buildQueries());
+  store.set(aiRuntimeAtom, { listModels } as unknown as AIRuntime);
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });

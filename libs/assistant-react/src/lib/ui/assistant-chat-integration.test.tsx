@@ -279,7 +279,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("handleStreamError: two streams in flight on different conversations, one errors, error routes to the right conversation", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(upsertConversationAtom, makeConversation("B"));
@@ -347,7 +347,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("a chunk emitted after conversationId has changed still updates the originating conversation", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(upsertConversationAtom, makeConversation("B"));
@@ -415,7 +415,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("reasoning deltas stream into one activity row and survive text updates", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -473,7 +473,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("save host: dirtying A while viewing B schedules a save for A", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(
       upsertConversationAtom,
@@ -563,7 +563,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("save throttler: bumps on A do not trigger saves for B and vice-versa", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(
       upsertConversationAtom,
@@ -675,7 +675,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("throttled save during a streaming run persists the run as streaming", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -746,7 +746,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("pagehide during a streaming run interrupts runs and persists app_shutdown", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -816,7 +816,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("persisted pagehide/pageshow keeps the assistant available for a new run", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -902,7 +902,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("pagehide plus unmount during a streaming run persists interrupted app_shutdown", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -969,7 +969,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("unmount without pagehide keeps an in-flight run streaming", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -1022,7 +1022,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("switch-away from AI route keeps an in-flight run streaming", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -1098,7 +1098,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("pagehide after leaving AI route still persists app_shutdown", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -1189,7 +1189,7 @@ describe("assistant chat integration (per-conversation state)", () => {
   it("controller.cancel aborts the in-flight run, marks it read, and leaves it canceled", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
@@ -1276,7 +1276,7 @@ describe("assistant chat restore policy (blocked rows)", () => {
         },
       });
     }
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+    store.set(queriesAtom, queries);
     store.set(aiRuntimeAtom, createMockAIRuntime());
     const queryClient = createTestQueryClient();
 
@@ -1302,7 +1302,7 @@ describe("assistant chat restore policy (blocked rows)", () => {
   it("restore: a future-version row is blocked and never written on selection, touch, or autosave", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
 
     const queryClient = createTestQueryClient();
@@ -1379,7 +1379,7 @@ describe("assistant chat restore policy (blocked rows)", () => {
   it("restore: a corrupt row is blocked and preserved until an explicit recovery action", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
 
     const queryClient = createTestQueryClient();
@@ -1625,7 +1625,7 @@ describe("assistant chat restore policy (blocked rows)", () => {
   it("restore: an ok row is restored into the store and is not blocked", async () => {
     setupTestHarness();
     const store = createStore();
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+    store.set(queriesAtom, buildQueries());
     store.set(aiRuntimeAtom, createMockAIRuntime());
 
     const queryClient = createTestQueryClient();
@@ -1691,7 +1691,7 @@ describe("assistant chat restore policy (blocked rows)", () => {
       queryKey: queryKeys.conversations.detail(id),
       queryFn: async () => null,
     });
-    store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+    store.set(queriesAtom, queries);
     store.set(aiRuntimeAtom, createMockAIRuntime());
 
     const queryClient = createTestQueryClient();

@@ -66,7 +66,7 @@ function renderMessage(
   live: LiveTargets = {},
 ) {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries(live));
+  store.set(queriesAtom, buildQueries(live));
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });

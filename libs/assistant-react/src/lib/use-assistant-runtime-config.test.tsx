@@ -3,7 +3,6 @@ import type { Queries } from "@koloda/core-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
-import type { WritableAtom } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it } from "vitest";
 import { createQueryClient } from "../test/test-helpers";
@@ -11,15 +10,12 @@ import { useAssistantRuntimeConfig } from "./use-assistant-runtime-config";
 
 function renderConfig(content: unknown) {
   const store = createStore();
-  store.set(
-    queriesAtom as WritableAtom<Queries, [Queries], unknown>,
-    {
-      getSettingsQuery: (name: string) => ({
-        queryKey: queryKeys.settings.detail(name as "ai"),
-        queryFn: async () => ({ name, content }),
-      }),
-    } as unknown as Queries,
-  );
+  store.set(queriesAtom, {
+    getSettingsQuery: (name: string) => ({
+      queryKey: queryKeys.settings.detail(name as "ai"),
+      queryFn: async () => ({ name, content }),
+    }),
+  } as unknown as Queries);
   const queryClient = createQueryClient();
 
   function Wrapper({ children }: PropsWithChildren) {

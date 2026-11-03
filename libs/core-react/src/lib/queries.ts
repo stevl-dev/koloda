@@ -108,4 +108,6 @@ export type Queries = {
   getAIProfilesQuery: () => AppQueryOptions<AIProfile[]>;
 };
 
-export const queriesAtom = atom<Queries>(null!);
+// INVARIANT: every host sets this before the first render, so readers never see the empty value.
+// WHY: typed as `Queries`, not `null!`: `never` fits Jotai's read-function overload and makes a read-only atom.
+export const queriesAtom = atom(null as unknown as Queries);

@@ -40,7 +40,7 @@ type WrapperProps = {
 
 function Wrapper({ children }: WrapperProps) {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries());
+  store.set(queriesAtom, buildQueries());
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
@@ -280,12 +280,9 @@ function gatedAdd() {
 
 function conversationsStore(mutate: AddCards, conversations: Record<string, ConversationReducerState>) {
   const store = createStore();
-  store.set(
-    queriesAtom as unknown as Parameters<typeof store.set>[0],
-    {
-      addCardsMutation: () => ({ mutationFn: mutate }),
-    } as unknown as Queries,
-  );
+  store.set(queriesAtom, {
+    addCardsMutation: () => ({ mutationFn: mutate }),
+  } as unknown as Queries);
   store.set(currentConversationIdAtom, Object.keys(conversations)[0] ?? null);
   store.set(conversationsAtom, conversations);
   return store;

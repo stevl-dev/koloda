@@ -49,7 +49,7 @@ function buildQueries(list: ConversationListItem[]): Queries {
 function renderList(list: ConversationListItem[], setup?: (store: ReturnType<typeof createStore>) => void) {
   const store = createStore();
   setup?.(store);
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries(list));
+  store.set(queriesAtom, buildQueries(list));
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });

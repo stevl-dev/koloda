@@ -1,5 +1,4 @@
 import { AI_PROVIDERS } from "@koloda/ai";
-import type { AIRuntime } from "@koloda/ai";
 import {
   addAttachmentFromUrlAtom,
   aiProvidersAtom,
@@ -11,10 +10,8 @@ import {
   schemeAtom,
   syncQueriesAtom,
 } from "@koloda/core-react";
-import type { Queries } from "@koloda/core-react";
 import { wireUiPreferences } from "@koloda/settings-react";
 import { createStore } from "jotai";
-import type { WritableAtom } from "jotai";
 import { AppEntry } from "../components/app-entry";
 import { createElectronAIRuntime } from "./ai-runtime";
 import { invoke } from "./electron";
@@ -37,9 +34,9 @@ store.sub(langAtom, () => {
 
 store.set(langAtom, getLanguage());
 
-store.set(queriesAtom as WritableAtom<Queries, [Queries], unknown>, queries);
+store.set(queriesAtom, queries);
 
-store.set(aiRuntimeAtom as WritableAtom<AIRuntime, [AIRuntime], unknown>, aiRuntime);
+store.set(aiRuntimeAtom, aiRuntime);
 
 store.set(aiProvidersAtom, [...AI_PROVIDERS]);
 

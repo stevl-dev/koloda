@@ -20,7 +20,7 @@ function renderRouteError(error: Error, reset: () => void = () => {}) {
     getSettingsQuery: (name: string) => ({ queryKey: ["settings", name], queryFn: async () => null }),
   } as unknown as Queries;
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], queries);
+  store.set(queriesAtom, queries);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
   function Wrapper({ children }: PropsWithChildren) {

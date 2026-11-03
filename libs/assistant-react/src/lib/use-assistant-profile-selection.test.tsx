@@ -4,7 +4,6 @@ import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
-import type { WritableAtom } from "jotai";
 import type { PropsWithChildren } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { createAIModel, createAIProfile } from "../test/test-helpers";
@@ -37,21 +36,15 @@ type HarnessOptions = {
 
 function renderSelection({ profiles, models, stored, loadProfiles }: HarnessOptions) {
   const store = createStore();
-  store.set(
-    queriesAtom as WritableAtom<Queries, [Queries], unknown>,
-    {
-      getAIProfilesQuery: () => ({
-        queryKey: queryKeys.ai.profiles(),
-        queryFn: loadProfiles ?? (async () => profiles),
-      }),
-    } as unknown as Queries,
-  );
-  store.set(
-    aiRuntimeAtom as WritableAtom<AIRuntime, [AIRuntime], unknown>,
-    {
-      listModels: async () => models,
-    } as unknown as AIRuntime,
-  );
+  store.set(queriesAtom, {
+    getAIProfilesQuery: () => ({
+      queryKey: queryKeys.ai.profiles(),
+      queryFn: loadProfiles ?? (async () => profiles),
+    }),
+  } as unknown as Queries);
+  store.set(aiRuntimeAtom, {
+    listModels: async () => models,
+  } as unknown as AIRuntime);
   store.set(aiProfileStateAtom, stored);
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 

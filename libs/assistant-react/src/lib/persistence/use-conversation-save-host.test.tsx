@@ -65,8 +65,8 @@ function createMockAIRuntime(): AIRuntime {
 
 function createTestWrapper(onWrite?: (id: string) => void) {
   const store = createStore();
-  store.set(queriesAtom as unknown as Parameters<typeof store.set>[0], buildQueries(onWrite));
-  store.set(aiRuntimeAtom as unknown as Parameters<typeof store.set>[0], createMockAIRuntime());
+  store.set(queriesAtom, buildQueries(onWrite));
+  store.set(aiRuntimeAtom, createMockAIRuntime());
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
