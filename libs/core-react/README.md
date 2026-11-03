@@ -7,25 +7,29 @@ No feature screens and no concrete DB backends.
 ## Where it sits
 
 Consumed by `@koloda/app-react`, `@koloda/srs-react`, `@koloda/assistant-react`, `@koloda/settings-react`,
-`@koloda/ui` (form/overlay/titlebar hotkeys), and apps that inject a concrete `queriesFn` into `queriesAtom`.
-Depends on `@koloda/app`, `@koloda/srs`, `@koloda/ai`, and `@koloda/settings` for types only.
+`@koloda/ai-react`, `@koloda/ui` (form/overlay/titlebar hotkeys), and the apps.
+Each app sets `queriesAtom` and `aiRuntimeAtom` with its own implementations before the first render.
+Depends on `@koloda/app`, `@koloda/srs`, `@koloda/ai`, and `@koloda/settings`, mostly for types.
+It also takes the hotkey defaults and validation and the timestamp formatting from `@koloda/app`.
 Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Electron `invoke` → `koloda`.
 
 ## Architectural Map
 
 - Query contract: `queries.ts` — `Queries` (settings, conversations, algorithms, templates, decks,
-  cards, lessons, reviews, attachments, AI profiles).
-- Query keys: `query-keys.ts` — centralized key builders;
+  cards, lessons, reviews, attachments, AI profiles) and `queriesAtom`.
+- Query keys: `query-keys.ts` — centralized key builders, their invalidation prefixes, and `AppStatus`;
   `invalidate-deck-queries.ts` — the refresh after a deck is added, shared by the add dialog and the assistant.
-- Atoms: `atoms.ts` — theme/lang/defaults, `aiProvidersAtom`, `appEntryAtom`, `queriesAtom`;
+- Atoms: `atoms.ts` — scheme, themes, date and time formats, language, default algorithm and template,
+  `aiProvidersAtom`, `appEntryAtom`;
   `ai-runtime.ts` — `aiRuntimeAtom` (host-injected `AIRuntime`; the AIRuntime seam);
   `attachment-from-url.ts` — `addAttachmentFromUrlAtom` (set only by the desktop app);
   `sync.ts` — `syncQueriesAtom`, the sync engine's calls, and `fetchedAttachmentsAtom`, the images it downloaded
   (both set only by the desktop app);
   `optimizer.ts` — `optimizerQueriesAtom`, FSRS optimization runs and apply (set only by the desktop app).
-- Hotkeys: `hooks/use-app-hotkey.ts`, `use-hotkeys-settings.ts`,
-  `use-hotkeys-status.ts` — scope-aware registration via TanStack Hotkeys.
-- Misc: `utility.ts` (`dispatchReducerAction`).
+- Hotkeys: `hooks/use-app-hotkey.ts` — registration via TanStack Hotkeys;
+  `use-hotkeys-status.ts` — runtime scope holds; `use-hotkeys-settings.ts` — the user's bindings.
+- Misc: `hooks/use-timestamp-formatter.ts` (dates and times in the user's formats),
+  `utility.ts` (`dispatchReducerAction`).
 
 ### Does NOT own (prevent scope creep)
 

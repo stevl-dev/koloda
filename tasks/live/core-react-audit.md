@@ -75,7 +75,8 @@ Searches were run with `grep -rn` over `libs apps tools` (`*.ts`, `*.tsx`), with
       `use-app-hotkeys.test.tsx`, `use-global-sync.test.tsx`; in `libs/assistant-react`,
       `use-conversation-restore.test.tsx`, `use-conversation-save-host.test.tsx`, `assistant-cards-message.test.tsx`,
       `assistant-cards-table.test.tsx`, `assistant-chat-integration.test.tsx` (18),
-      `assistant-conversations-list.test.tsx`, `assistant-settings.test.tsx`, `conversation-header-menu.test.tsx`, `delete-conversation-button.test.tsx`,
+      `assistant-conversations-list.test.tsx`, `assistant-settings.test.tsx`, `conversation-header-menu.test.tsx`,
+      `delete-conversation-button.test.tsx`,
       `use-assistant-profile-selection.test.tsx`, `use-assistant-runtime-config.test.tsx`; in `libs/settings-react`,
       `use-interface-setting-write.test.tsx`, `settings-ai-add-profile.test.tsx`, `settings-ai-delete-profile.test.tsx`,
       `settings-ai-edit-profile.test.tsx`, `settings-ai-profile-models.test.tsx`, `settings-interface.test.tsx`,
@@ -342,7 +343,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Fix core-react residue
   Depends on: 2, 5 (they edit `use-app-hotkey.ts`)
 
-- [ ] 9. Bring the core-react README up to date
+- [x] 9. Bring the core-react README up to date
   Goal (finding 8, the lines items 6 and 7 do not cover):
   - `libs/core-react/README.md:9-10`: add `@koloda/ai-react` to the consumers.
   - `README.md:11`: say the domain libs give types and the hotkey defaults, validation, and timestamp formatting, not
