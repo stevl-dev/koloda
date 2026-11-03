@@ -15,7 +15,6 @@ export {
 export { useAppHotkey } from "./lib/hooks/use-app-hotkey";
 export { useHotkeysSettings } from "./lib/hooks/use-hotkeys-settings";
 export { hotkeysScopesAtom, useHotkeyScope } from "./lib/hooks/use-hotkeys-status";
-export type { AppHotkeyScope, HotkeyScopeHold, RuntimeScope } from "./lib/hooks/use-hotkeys-status";
 export { useTitle } from "./lib/hooks/use-title";
 export { useTimestampFormatter } from "./lib/hooks/use-timestamp-formatter";
 export { invalidateDeckQueriesAfterAddDeck } from "./lib/invalidate-deck-queries";

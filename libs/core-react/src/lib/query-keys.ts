@@ -35,7 +35,6 @@ export const queryKeys = {
   cards: {
     all: () => ["cards"] as const,
     deck: ({ deckId }: GetCardsParams) => ["cards", String(deckId)] as const,
-    detail: (id: Deck["id"]) => ["cards", String(id)] as const,
   },
   conversations: {
     all: () => ["conversations"] as const,
@@ -57,7 +56,6 @@ export const queryKeys = {
     todayReviewTotals: () => ["today_review_totals"] as const,
   },
   settings: {
-    all: () => ["settings"] as const,
     detail: (name: SettingsName) => ["settings", name] as const,
   },
   reviews: {

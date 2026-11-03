@@ -295,7 +295,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Hoist inline hotkey arrays to constants
   Depends on: none
 
-- [ ] 6. Remove the unused Queries contract check and dead query keys
+- [x] 6. Remove the unused Queries contract check and dead query keys
   Goal (finding 5, README line 18 of finding 8):
   - Delete `libs/core-react/src/lib/queries-contract.ts` and `queries-contract.test.ts`.
   - Delete `queryKeys.cards.detail` and `queryKeys.settings.all` from `query-keys.ts`.

@@ -14,8 +14,7 @@ Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Ele
 ## Architectural Map
 
 - Query contract: `queries.ts` — `Queries` (settings, conversations, algorithms, templates, decks,
-  cards, lessons, reviews, attachments, AI profiles);
-  `queries-contract.ts` — runtime check that an injected `Queries` implements every method.
+  cards, lessons, reviews, attachments, AI profiles).
 - Query keys: `query-keys.ts` — centralized key builders;
   `invalidate-deck-queries.ts` — the refresh after a deck is added, shared by the add dialog and the assistant.
 - Atoms: `atoms.ts` — theme/lang/defaults, `aiProvidersAtom`, `appEntryAtom`, `queriesAtom`;
