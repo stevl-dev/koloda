@@ -139,9 +139,9 @@ export const queriesFn = (): Queries => ({
   deleteTemplateMutation: () => ({
     mutationFn: (data: DeleteTemplateData) => invoke("cmd_delete_template", { data }),
   }),
-  getTemplateDecksQuery: (data: DeleteTemplateData) => ({
-    queryKey: queryKeys.templates.decks(data.id),
-    queryFn: () => invoke("cmd_get_template_decks", data),
+  getTemplateDecksQuery: (id: Template["id"]) => ({
+    queryKey: queryKeys.templates.decks(id),
+    queryFn: () => invoke("cmd_get_template_decks", { id }),
   }),
   getCardsQuery: (params: GetCardsParams) => ({
     queryKey: queryKeys.cards.deck(params),

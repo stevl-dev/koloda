@@ -143,8 +143,8 @@ function buildQueries(): Queries {
     cloneTemplateMutation: () => ({ mutationFn: async () => undefined }),
     updateTemplateMutation: () => ({ mutationFn: async () => undefined }),
     deleteTemplateMutation: () => ({ mutationFn: async () => undefined }),
-    getTemplateDecksQuery: (data) => ({
-      queryKey: queryKeys.templates.decks(data.id),
+    getTemplateDecksQuery: (id) => ({
+      queryKey: queryKeys.templates.decks(id),
       queryFn: async () => [],
     }),
     getCardsQuery: (params) => ({ queryKey: queryKeys.cards.deck(params), queryFn: async () => [] }),

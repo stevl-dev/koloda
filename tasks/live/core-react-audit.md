@@ -231,7 +231,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Treat an omitted ignoreInputs as true in useAppHotkey
   Depends on: none
 
-- [ ] 3. Narrow the Queries result types to what the hosts return
+- [x] 3. Narrow the Queries result types to what the hosts return
   Goal (finding 6):
   - In `libs/core-react/src/lib/queries.ts`, drop `| undefined` from the entries finding 6 lists (lines 72-101).
     `getAlgorithmQuery`, `getDeckQuery`, and `getTemplateQuery` keep `| null`.
@@ -255,6 +255,14 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   - Decks → Add deck → submit: the new deck opens and shows in the list.
   Commit: Narrow the Queries result types to what the hosts return
   Depends on: 1
+  Notes:
+  - `tsc` also named the design-system stub `updateCardMutation`, which could return `undefined`.
+    It now throws when the card is missing, as both hosts do.
+  - The narrowed add and clone results made `useEntityCreatedLink`'s `null | undefined` input and its guard dead
+    (`libs/srs-react/src/lib/components/use-entity-created-link.ts`); both are gone.
+  - Seen, not fixed: the typed `buildQueries()` stub in `assistant-chat-integration.test.tsx` already had about 17
+    type errors before this item (number ids, wrong shapes), and lib tests are not type-checked.
+    Its `async () => undefined` mutations add about 11 more under the narrowed types; it still runs green.
 
 - [ ] 4. Add query key prefixes for lesson data and reviews
   Goal (findings 3 and 9):

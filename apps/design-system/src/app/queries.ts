@@ -192,7 +192,9 @@ const stubs: Pick<
   updateCardMutation: () => ({
     mutationFn: async ({ id, values }) => {
       sampleCards = sampleCards.map((card) => (card.id === id ? { ...card, ...values, updatedAt: new Date() } : card));
-      return sampleCards.find((card) => card.id === id);
+      const card = sampleCards.find((card) => card.id === id);
+      if (!card) throw new Error(`The design system app has no card ${id}`);
+      return card;
     },
   }),
   getReviewsQuery: (data) => ({

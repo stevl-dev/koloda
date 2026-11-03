@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type CreatedEntity<TId> = { id: TId } | null | undefined;
+type CreatedEntity<TId> = { id: TId };
 
 export function useEntityCreatedLink<TId>(isSuccess: boolean) {
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -18,7 +18,7 @@ export function useEntityCreatedLink<TId>(isSuccess: boolean) {
     // WHY: reset() fires the form onChange listener, which clears newId; the
     // microtask sets it after that so the success link survives the reset.
     queueMicrotask(() => {
-      if (returning) setNewId(returning.id);
+      setNewId(returning.id);
     });
   }, []);
 
