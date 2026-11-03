@@ -75,8 +75,6 @@ export function useAppHotkey(
       handles.current = [];
     };
   }, []);
-
-  return null;
 }
 
 type Registration = { hotkey: RegisterableHotkey; handle: HotkeyRegistrationHandle };

@@ -330,7 +330,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Move useTitle into app-react
   Depends on: none
 
-- [ ] 8. Fix core-react residue
+- [x] 8. Fix core-react residue
   Goal (finding 10, except `use-title.ts`):
   - `libs/core-react/src/lib/utility.ts:19`: replace the stray `"` with a dash, so the WHY reads as one sentence.
   - `libs/core-react/src/lib/atoms.ts:14`: a WHY on `appEntryAtom`.

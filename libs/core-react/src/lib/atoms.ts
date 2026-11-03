@@ -11,4 +11,5 @@ export const langAtom = atom("");
 export const defaultAlgorithmAtom = atom("");
 export const defaultTemplateAtom = atom("");
 export const aiProvidersAtom = atom<AiProvider[]>([]);
+// WHY: the component is wrapped in an object because `store.set` calls a bare function value as an updater.
 export const appEntryAtom = atom<{ component: (() => JSX.Element) | null }>({ component: null });
