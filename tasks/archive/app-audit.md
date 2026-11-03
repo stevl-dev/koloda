@@ -1,6 +1,6 @@
 # libs/app and app-react audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/BACKWARDS-COMPATIBILITY.md, agents/ADD-COLOR-THEME.md, docs/specs/HOTKEYS.md, agents/MARKDOWN.md, agents/VERIFY.md, libs/app/README.md, libs/app-react/README.md, libs/settings-react/README.md, libs/core-react/README.md, agents/REVIEW.md
 Flow: local
 
@@ -494,4 +494,45 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
 
 ## Outcome
 
-<what shipped>
+Shipped on `task/app-audit` from `87a6d129`: the Add commit and eleven plan commits, one per plan item.
+Plan items 9, 11, and 10 landed in that order; `git log --grep='Task: app-audit'` lists them all.
+`bun run check:push` passed on the tip before this Archive commit.
+
+Findings, by the decision on each:
+
+- #1 fixed (item 1): the title, notes, and sync name length messages show the limit.
+  A too-long code with no `maximum` falls back to a plain message without a number (Open question 5).
+- #2 failure path fixed (item 2): a failed boot language load falls back to the default locale and mounts the app,
+  instead of a blank page. The saved language is not overwritten. No automated test; the plan's manual check is the
+  only check. The duplicate activation is skipped (see Skipped).
+- #3 fixed (item 3): the app status query key and status are typed, and the landing route is named.
+- #4 fixed (item 6): the settings sidebar links are typed, so a renamed route fails to compile.
+- #5 fixed (item 7): the scheme and language toggle hotkeys have tests.
+- #6 fixed (item 4): `theme-boot.js` moved to `libs/settings-react/public/`.
+- #7 fixed (item 5): `libs/app` takes its type-only imports from framework-free packages.
+- #8 fixed (item 10): both READMEs updated.
+- #9 fixed (item 11): `RouteError`'s WHY is corrected.
+- #10 fixed (item 8): the page title is set from the root route only.
+- #11 fixed (item 9), except `isAbortError` (skipped) and `deepMerge` (needs decision).
+- #12 fixed (item 11): the `route-error` test checks behavior, not markup.
+
+Skipped:
+
+- #2 duplicate boot activation (Open question 1).
+  Removing it needs a new `AppProviders` API in both hosts, or a reorder of `store.sub` and `store.set` in both
+  host stores, which changes when the detected language is first written to `localStorage`.
+- #11 `isAbortError` and its tests.
+  It has a caller, `libs/assistant/src/lib/conversation-runtime.ts:308`; the report's "no caller" claim was wrong.
+
+Needs decision:
+
+- `deepMerge` location (Open question 7).
+  It stays in `@koloda/app`, which is the recommended option, but `libs/app/README.md` only lists it.
+  The test-fixture note the option proposed is not written.
+  Its callers are the `libs/srs-react` and `libs/assistant-react` test helpers, and its own test.
+  The human has not answered.
+
+Out, owned elsewhere:
+
+- The `items` effect dependency in `libs/core-react/src/lib/hooks/use-title.ts` (the core-react audit).
+- `ui.md` findings 13 and 27 (fixed by the ui audit).
