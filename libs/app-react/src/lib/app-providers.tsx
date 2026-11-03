@@ -116,3 +116,10 @@ function AppProvidersInner({ activateLanguage, getLanguage, queryClient, router 
     </ReactAriaI18nProvider>
   );
 }
+
+// INVARIANT: registering the router types every `to` and `navigate` in app-react; without it any string compiles.
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof createAppRouter>;
+  }
+}

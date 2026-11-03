@@ -20,7 +20,7 @@ import { tv } from "tailwind-variants";
 
 export const Route = createFileRoute("/_/ai")({
   component: AIRoute,
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { conversationId?: string } => ({
     conversationId: typeof search.conversationId === "string" ? search.conversationId : undefined,
   }),
   loader: async ({ context: { queryClient, queries } }) => {

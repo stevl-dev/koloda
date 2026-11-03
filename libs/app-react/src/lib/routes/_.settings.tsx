@@ -13,13 +13,13 @@ export const Route = createFileRoute("/_/settings")({
 });
 
 const LINKS = [
-  { id: "interface", t: msg`settings.interface`, url: "interface" },
-  { id: "learning", t: msg`settings.learning`, url: "learning" },
-  { id: "hotkeys", t: msg`settings.hotkeys`, url: "hotkeys" },
-  { id: "ai", t: msg`settings.ai`, url: "ai" },
-];
+  { id: "interface", t: msg`settings.interface`, to: "/settings/interface" },
+  { id: "learning", t: msg`settings.learning`, to: "/settings/learning" },
+  { id: "hotkeys", t: msg`settings.hotkeys`, to: "/settings/hotkeys" },
+  { id: "ai", t: msg`settings.ai`, to: "/settings/ai" },
+] as const;
 
-const SYNC_LINK = { id: "sync", t: msg`settings.sync`, url: "sync" };
+const SYNC_LINK = { id: "sync", t: msg`settings.sync`, to: "/settings/sync" } as const;
 
 function SettingsRoute() {
   useTitle();
@@ -37,9 +37,9 @@ function SettingsRoute() {
         </Layout.Header>
         <Layout.Container ref={ref} tabIndex={-1}>
           <div className="flex flex-col">
-            {links.map(({ id, t, url }) => (
+            {links.map(({ id, t, to }) => (
               <Layout.SidebarItem key={id}>
-                <Link className={layoutSidebarItemLink} to={`/settings/${url}`} viewTransition={isMotionOn}>
+                <Link className={layoutSidebarItemLink} to={to} viewTransition={isMotionOn}>
                   <Layout.SidebarItemLinkContent>{_(t)}</Layout.SidebarItemLinkContent>
                 </Link>
               </Layout.SidebarItem>

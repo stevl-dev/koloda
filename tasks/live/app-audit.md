@@ -369,7 +369,14 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Take libs/app types from framework-free packages
   Depends on: none
 
-- [ ] 6. Type the settings sidebar links
+- [x] 6. Type the settings sidebar links
+  Result: the typed `to` alone still compiled with a wrong route.
+  The app's router was never registered (`interface Register` appeared only in `apps/design-system`), so no `to` in
+  app-react was checked, the other sidebars included; the report's "literal typed routes" premise was wrong.
+  The item registers the router in `app-providers.tsx`, which types every `to` and `navigate` in app-react.
+  Registration surfaced one error: `/ai`'s `validateSearch` now returns `{ conversationId?: string }`, so a link to
+  `/ai` needs no search.
+  A wrong settings route now fails typecheck (tried once, reverted).
   Goal (#4): in `libs/app-react/src/lib/routes/_.settings.tsx:15-22`, replace each entry's `url` with a typed `to`
   (`"/settings/interface"`, …, `"/settings/sync"`), and pass `to={to}` at `:42`.
   Keep `id` as the React key.
