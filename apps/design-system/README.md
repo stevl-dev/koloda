@@ -25,7 +25,7 @@ Nothing in `apps/web`, `apps/electron`, or `apps/electron-react` imports it.
 - Entry: `src/main.tsx` — mounts the providers.
 - Store: `src/app/store.ts` — calls `wireUiPreferences` from `@koloda/settings-react`, as the web app does.
   It applies the scheme, both themes, and motion to `<html>` and keeps them in local storage.
-  `libs/app-react/public/theme-boot.js` (served by the `theme-boot` Vite plugin) applies them before CSS loads.
+  `libs/settings-react/public/theme-boot.js` (served by the `theme-boot` Vite plugin) applies them before CSS loads.
   It also keeps the language in `localStorage` (`lang`) and activates it on change, as the web app does.
 - Providers: `src/app/providers.tsx` — jotai, TanStack Query, Lingui and React Aria i18n, and the router.
 - Router: `src/app/router.tsx` — code-based TanStack routes over browser history, one per page.

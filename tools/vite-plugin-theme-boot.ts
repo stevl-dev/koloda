@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
 
-const themeBootPath = resolve(dirname(fileURLToPath(import.meta.url)), "../libs/app-react/public/theme-boot.js");
+const themeBootPath = resolve(dirname(fileURLToPath(import.meta.url)), "../libs/settings-react/public/theme-boot.js");
 
 /** Serves and copies theme-boot.js so last-used theme can paint before CSS. */
 export function themeBootPlugin(): Plugin {

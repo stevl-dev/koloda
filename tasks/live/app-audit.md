@@ -329,7 +329,7 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Type the app status query and name the landing route
   Depends on: none
 
-- [ ] 4. Move theme-boot.js to settings-react
+- [x] 4. Move theme-boot.js to settings-react
   Goal (#6):
   - `git mv libs/app-react/public/theme-boot.js libs/settings-react/public/theme-boot.js`.
   - Update every path reference: `tools/vite-plugin-theme-boot.ts:6`,
