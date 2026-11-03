@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
 import { ColorSchemePicker, LanguagePicker, SyncFirstRunJoin } from "@koloda/settings-react";
-import { langAtom, schemeAtom, syncQueriesAtom } from "@koloda/core-react";
+import { langAtom, queryKeys, schemeAtom, syncQueriesAtom } from "@koloda/core-react";
 import {
   Button,
   ChevronRightIcon,
@@ -33,7 +33,7 @@ export function Setup() {
   const setupError = isError && error ? formatAppError(error, _, ERROR_MESSAGES.unknown) : null;
 
   const openApp = useCallback(() => {
-    queryClient.resetQueries({ queryKey: ["app"] });
+    queryClient.resetQueries({ queryKey: queryKeys.app.status() });
     navigate({ to: "/dashboard" });
   }, [queryClient, navigate]);
 

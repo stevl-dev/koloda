@@ -7,8 +7,10 @@ import { useAppHotkeys } from "../hooks/use-app-hotkeys";
 import { useAttachmentSweep } from "../hooks/use-attachment-sweep";
 import { useGlobalSync } from "../hooks/use-global-sync";
 
+export const LANDING_ROUTE = "/dashboard";
+
 export const appMenu = [
-  { to: "/dashboard", t: msg`nav.home`, icon: HomeIcon },
+  { to: LANDING_ROUTE, t: msg`nav.home`, icon: HomeIcon },
   { to: "/decks", t: msg`nav.decks`, icon: DecksIcon },
   { to: "/algorithms", t: msg`nav.algorithms`, icon: AlgorithmsIcon },
   { to: "/templates", t: msg`nav.templates`, icon: TemplatesIcon },

@@ -3,7 +3,7 @@ import type { ConversationListItem, DeleteConversationData, SetConversationData 
 import type { AllowedSettings, PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import { toConversationListItem } from "@koloda/app";
 import { queryKeys } from "@koloda/core-react";
-import type { Queries } from "@koloda/core-react";
+import type { AppStatus, Queries } from "@koloda/core-react";
 import type {
   AddAttachmentData,
   Algorithm,
@@ -38,8 +38,8 @@ import { invoke } from "./electron";
 import { getStatus, seedDB } from "./setup";
 
 export const appQueryOptions = {
-  queryKey: ["app"],
-  queryFn: getStatus,
+  queryKey: queryKeys.app.status(),
+  queryFn: (): Promise<AppStatus> => getStatus(),
   refetchOnReconnect: false,
   refetchOnWindowFocus: false,
   staleTime: Infinity,

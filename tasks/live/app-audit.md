@@ -301,7 +301,7 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Mount the app when the boot language fails to load
   Depends on: none
 
-- [ ] 3. Type the app status query and name the landing route
+- [x] 3. Type the app status query and name the landing route
   Goal (#3):
   - `libs/core-react/src/lib/query-keys.ts`: add `app: { status: () => ["app"] as const }` to `queryKeys`, in the
     file's style.

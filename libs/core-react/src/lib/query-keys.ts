@@ -10,6 +10,9 @@ import type {
   Template,
 } from "@koloda/srs";
 
+/** Database status a host reports for the app query: web reports all three, desktop `"blank" | "ok"` (`DbStatus`). */
+export type AppStatus = "blank" | "ok" | "incompatible";
+
 export const queryKeys = {
   ai: {
     profiles: () => ["ai", "profiles"] as const,
@@ -22,6 +25,9 @@ export const queryKeys = {
     // WHY: deck mutations change which decks reference any algorithm; invalidate
     // every per-algorithm deck list via this prefix.
     decksAll: () => ["algorithm_decks"] as const,
+  },
+  app: {
+    status: () => ["app"] as const,
   },
   attachments: {
     detail: (id: Attachment["id"]) => ["attachments", id] as const,

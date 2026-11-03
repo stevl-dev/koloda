@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
 import { LanguagePicker } from "@koloda/settings-react";
-import { langAtom, schemeAtom } from "@koloda/core-react";
+import { langAtom, queryKeys, schemeAtom } from "@koloda/core-react";
 import {
   Button,
   Dialog,
@@ -86,7 +86,7 @@ export function WebSetup() {
       { language, scheme },
       {
         onSuccess: () => {
-          queryClient.resetQueries({ queryKey: ["app"] });
+          queryClient.resetQueries({ queryKey: queryKeys.app.status() });
           navigate({ to: "/dashboard" });
         },
       },

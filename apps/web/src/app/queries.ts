@@ -3,6 +3,7 @@ import type { RemoveAIProfileData, UpdateAIProfileData } from "@koloda/ai";
 import type { DeleteConversationData, SetConversationData } from "@koloda/app";
 import type { PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import { queryKeys } from "@koloda/core-react";
+import type { AppStatus } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type {
   AddAttachmentData,
@@ -82,8 +83,8 @@ import { addAIProfile, getAIProfiles, removeAIProfile, updateAIProfile } from ".
 import { clearData, getStatus, setupFromScratch } from "./setup";
 
 export const webAppQueryOptions = {
-  queryKey: ["app"],
-  queryFn: getStatus,
+  queryKey: queryKeys.app.status(),
+  queryFn: (): Promise<AppStatus> => getStatus(),
   refetchOnReconnect: false,
   refetchOnWindowFocus: false,
   staleTime: Infinity,

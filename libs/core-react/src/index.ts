@@ -26,5 +26,6 @@ export type { Queries } from "./lib/queries";
 export { fetchedAttachmentsAtom, syncQueriesAtom } from "./lib/sync";
 export type { SyncQueries } from "./lib/sync";
 export { queryKeys } from "./lib/query-keys";
+export type { AppStatus } from "./lib/query-keys";
 export { dispatchReducerAction } from "./lib/utility";
 export type { ReducerAction } from "./lib/utility";
