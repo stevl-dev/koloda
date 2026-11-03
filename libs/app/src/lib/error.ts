@@ -49,10 +49,16 @@ export const ERROR_MESSAGES = {
   "not-found.decks.update.template": msg`not-found.decks.update.template`,
   "not-found.ai-profile": msg`not-found.ai-profile`,
   "validation.common.title.too-short": msg`validation.common.title.too-short`,
+  // WHY: a Rust AppError carries only the code, and one code serves several limits (entity and AI profile titles),
+  // so without `maximum` the message drops the number instead of rendering "NaN".
   "validation.common.title.too-long": ({ maximum }: any) =>
-    msg`${plural(maximum, { other: "validation.common.title.too-long" })}`,
+    typeof maximum === "number"
+      ? msg`${plural(maximum, { other: "validation.common.title.too-long" })}`
+      : msg`validation.common.title.too-long-plain`,
   "validation.common.notes.too-long": ({ maximum }: any) =>
-    msg`${plural(maximum, { other: "validation.common.notes.too-long" })}`,
+    typeof maximum === "number"
+      ? msg`${plural(maximum, { other: "validation.common.notes.too-long" })}`
+      : msg`validation.common.notes.too-long-plain`,
   "validation.decks.algorithm": msg`validation.decks.algorithm`,
   "validation.decks.template": msg`validation.decks.template`,
   "validation.settings-learning.daily-limits.untouched-exceeds-total": msg`validation.settings-learning.daily-limits.untouched-exceeds-total`,
@@ -125,7 +131,9 @@ export const ERROR_MESSAGES = {
   "validation.sync.pairing-code": msg`validation.sync.pairing-code`,
   "validation.sync.name.too-short": msg`validation.sync.name.too-short`,
   "validation.sync.name.too-long": ({ maximum }: any) =>
-    msg`${plural(maximum, { other: "validation.sync.name.too-long" })}`,
+    typeof maximum === "number"
+      ? msg`${plural(maximum, { other: "validation.sync.name.too-long" })}`
+      : msg`validation.sync.name.too-long-plain`,
   "algorithms.optimizer.failed": msg`algorithms.optimizer.failed`,
   "algorithms.optimizer.invalid-output": msg`algorithms.optimizer.invalid-output`,
   "algorithms.optimizer.stale": msg`algorithms.optimizer.stale`,

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { z } from "zod";
 import type { ErrorCode } from "./error";
-import { AppError, formatAppError, isAbortError, throwKnownError, toFormErrors } from "./error";
+import { AppError, ERROR_MESSAGES, formatAppError, isAbortError, throwKnownError, toFormErrors } from "./error";
 
 describe("isAbortError", () => {
   it("returns true for DOMException with name AbortError", () => {
@@ -89,6 +89,16 @@ describe("formatAppError", () => {
       message: "unknown",
       details: "network down",
     });
+  });
+
+  // WHY: a Rust AppError carries no `maximum`; the plural message would render "NaN characters".
+  it.each([
+    "validation.common.title.too-long",
+    "validation.common.notes.too-long",
+    "validation.sync.name.too-long",
+  ] as const)("renders %s without the limit when the error carries none", (code) => {
+    expect(formatAppError(new AppError(code), translate).message).toBe(`${code}-plain`);
+    expect(translate(ERROR_MESSAGES[code]({ maximum: 100 }))).toBe(code);
   });
 
   it("falls back to the generic AI HTTP catalog for unlisted status codes", () => {

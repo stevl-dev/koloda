@@ -1,6 +1,6 @@
 # libs/app and app-react audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/BACKWARDS-COMPATIBILITY.md, agents/ADD-COLOR-THEME.md, docs/specs/HOTKEYS.md, agents/MARKDOWN.md, agents/VERIFY.md, libs/app/README.md, libs/app-react/README.md, libs/settings-react/README.md, libs/core-react/README.md, agents/REVIEW.md
 Flow: local
 
@@ -62,7 +62,7 @@ In: every finding below, by the decision on each.
 Out:
 
 - #11, `isAbortError` and its tests: it has a caller (see Intent).
-- #2, the duplicate boot activation: see Open questions 1.
+- #2, the duplicate boot activation: skipped (Open question 1).
 - The `items` effect dependency in `libs/core-react/src/lib/hooks/use-title.ts`: the `core-react` audit owns it.
 - Findings other audits own: `ui.md` findings 13 and 27 (already fixed by `ui-audit`).
 
@@ -95,7 +95,7 @@ Paths are relative to the repo root.
   - Every lib's Vitest config aliases `@lingui/core/macro` to `tools/test/mocks/lingui-core-macro.ts`, whose
     `plural` drops the value, so no unit test can render the real plural text.
 - 2. Risk, Later: a failed boot language activation leaves a blank page.
-  Decision: the failure path is fixed by item 2; the duplicate activation is Open question 1.
+  Decision: the failure path is fixed by item 2; the duplicate activation is skipped (Open question 1).
   - `libs/app-react/src/lib/app-providers.tsx:94-101`: `activateLanguage(getLanguage()).then(…)` has no rejection
     path, and `:101` renders `null` until ready.
     The router mounts only after that, so no error screen can show.
@@ -227,8 +227,8 @@ Paths are relative to the repo root.
 
 ## Open questions
 
-- [ ] 1. #2: remove the duplicate boot activation too? — open.
-  Recommended: skip it.
+- [x] 1. #2: remove the duplicate boot activation too? — skipped, as recommended (approved with the plan, human,
+  2026-11-03).
   The host's dynamic import is cached by the module loader, so the second call only re-runs `i18n.load` and
   `i18n.activate` on the same messages.
   Removing it needs either a new `AppProviders` API in both hosts or reordering `store.sub`/`store.set` in both
@@ -238,7 +238,7 @@ Paths are relative to the repo root.
 - [x] 4. #7: replace the type imports or amend the README? — replace them (human, 2026-11-03).
 - [x] 5. #1: how should the AppError path handle a missing `maximum`? — fall back to a plain message without the
   number; one code serves two limits, so no default `maximum` is right for both.
-- [ ] 6. Plan approval — open.
+- [x] 6. Plan approval — approved as drafted (human, 2026-11-03).
 
 ## Plan
 
@@ -246,7 +246,10 @@ Paths are relative to the repo root.
 Their dirs are `libs/app`, `libs/app-react`, `libs/settings-react`, and `libs/core-react`.
 Line numbers are at `87a6d129`; when an earlier item moved them, find the code by its text.
 
-- [ ] 1. Show the length limit in sync name errors
+- [x] 1. Show the length limit in sync name errors
+  Result: the parameter stays `({ maximum }: any)`; a typed `{ maximum?: unknown }` fails TS2559 at
+  `libs/ui/src/lib/primitives/form/errors.tsx:30`, because `StandardSchemaV1Issue` shares no property with it.
+  The en and ru catalogs and both apps' compiled catalogs carry the three `-plain` ids.
   Goal (#1):
   - `libs/settings-react/src/lib/sync/sync-forms.ts:7-11`: keep counting characters (`[...name].length`), but report
     the too-long issue with `maximum: NAME_MAX_LENGTH` and the message `validation.sync.name.too-long`.
@@ -284,7 +287,6 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
     failure must not overwrite the device language.
     A reload retries the saved language.
   - Add a WHY at the catch naming both rules.
-  - If Open question 1 is answered "remove it", that change gets its own item; it is not part of this one.
   Constraints: `app-providers.tsx` only; no host change.
   Done when: `AR` passes; `bun run typecheck` passes.
   An `AR` test is optional: add one only if it can render `AppProviders` with a rejecting `activateLanguage` and assert
