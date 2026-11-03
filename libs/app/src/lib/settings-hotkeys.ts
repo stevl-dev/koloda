@@ -1,6 +1,6 @@
 import type { MessageDescriptor } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
-import type { RegisterableHotkey } from "@tanstack/react-hotkeys";
+import type { RegisterableHotkey } from "@tanstack/hotkeys";
 import { z } from "zod";
 
 export const HOTKEY_CATEGORY_LABELS: Record<HotkeyCategory, MessageDescriptor> = {

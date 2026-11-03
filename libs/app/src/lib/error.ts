@@ -1,10 +1,10 @@
 import { msg, plural } from "@lingui/core/macro";
-import type { I18nContext } from "@lingui/react";
-import type { StandardSchemaV1Issue } from "@tanstack/react-form";
+import type { I18n } from "@lingui/core";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { ZodError } from "zod";
 
 export type ZodIssue = ZodError["issues"][number];
-export type FormError = (StandardSchemaV1Issue | ZodIssue) & { details?: string };
+export type FormError = (StandardSchemaV1.Issue | ZodIssue) & { details?: string };
 
 export const ERROR_MESSAGES = {
   unknown: msg`unknown`,
@@ -194,7 +194,7 @@ export function getAIHttpErrorMessageDescriptor(code: string) {
 
 export function formatAppError(
   error: unknown,
-  _: I18nContext["_"],
+  _: I18n["_"],
   fallback: (typeof ERROR_MESSAGES)[ErrorCode] = ERROR_MESSAGES.unknown,
 ): { message: string; details?: string } {
   const catalog = isAppError(error)

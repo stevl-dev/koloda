@@ -349,7 +349,11 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Move theme-boot.js to settings-react
   Depends on: none
 
-- [ ] 5. Take libs/app types from framework-free packages
+- [x] 5. Take libs/app types from framework-free packages
+  Result: the issue type comes from `@standard-schema/spec` (`StandardSchemaV1.Issue`), not `zod/v4/core`, which uses
+  `StandardSchemaV1` but does not export it.
+  `@standard-schema/spec` ^1.1.0 and `@tanstack/hotkeys` ^0.3.2 joined the root dependencies at the versions already
+  installed; `bun install` moved the hoisted `@tanstack/store` copy, and each package keeps its version.
   Goal (#7):
   - `libs/app/src/lib/error.ts:2`: `import type { I18n } from "@lingui/core"`; the `_` parameter at `:189` becomes
     `I18n["_"]`.
