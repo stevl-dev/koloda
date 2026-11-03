@@ -10,7 +10,7 @@ export const LANGUAGES = [
 
 export const LOCALES = LANGUAGES.map(({ id }) => id);
 
-export const DEFAULT_LOCALE = LOCALES[0];
+const DEFAULT_LOCALE = LOCALES[0];
 
 export const SCHEMES: Record<string, MessageDescriptor> = {
   light: msg`scheme.light`,

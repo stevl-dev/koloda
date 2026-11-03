@@ -19,9 +19,8 @@ function TemplateRoute() {
   const { templateId } = Route.useParams();
   const ref = useRouteFocus(templateId);
   useLayoutHeaderScrollShadow(ref);
-  const id = templateId;
   const { getTemplateQuery } = useAtomValue(queriesAtom);
-  const query = useQuery(getTemplateQuery(id));
+  const query = useQuery(getTemplateQuery(templateId));
 
   if (query.isSuccess && query.data === null) return <NotFound />;
 
@@ -31,7 +30,7 @@ function TemplateRoute() {
         <Layout.H1>{query.data?.title}</Layout.H1>
       </Layout.Header>
       <Layout.Container ref={ref} tabIndex={-1}>
-        <QueryState query={query}>{() => <Template id={id} key={templateId} />}</QueryState>
+        <QueryState query={query}>{() => <Template id={templateId} key={templateId} />}</QueryState>
       </Layout.Container>
     </>
   );

@@ -49,6 +49,4 @@ export function useGlobalSync() {
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
-
-  return null;
 }

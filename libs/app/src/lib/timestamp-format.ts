@@ -4,7 +4,7 @@ import { enUS, ru } from "date-fns/locale";
 
 export type TimestampKind = "date" | "datetime" | "time";
 
-export type TimestampFormats = {
+type TimestampFormats = {
   dateFormat: string;
   timeFormat: string;
 };
@@ -38,7 +38,7 @@ function renderPart(date: Date, pattern: string, locale: string, sentinel: Intl.
   }
 }
 
-export type TimeFieldFormatOptions = {
+type TimeFieldFormatOptions = {
   hourCycle?: 12 | 24;
   shouldForceLeadingZeros: boolean;
 };

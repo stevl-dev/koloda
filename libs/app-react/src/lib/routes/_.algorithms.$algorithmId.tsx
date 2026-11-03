@@ -19,9 +19,8 @@ function AlgorithmRoute() {
   const { algorithmId } = Route.useParams();
   const ref = useRouteFocus(algorithmId);
   useLayoutHeaderScrollShadow(ref);
-  const id = algorithmId;
   const { getAlgorithmQuery } = useAtomValue(queriesAtom);
-  const query = useQuery(getAlgorithmQuery(id));
+  const query = useQuery(getAlgorithmQuery(algorithmId));
 
   if (query.isSuccess && query.data === null) return <NotFound />;
 
@@ -31,7 +30,7 @@ function AlgorithmRoute() {
         <Layout.H1>{query.data?.title}</Layout.H1>
       </Layout.Header>
       <Layout.Container ref={ref} tabIndex={-1}>
-        <QueryState query={query}>{() => <Algorithm id={id} key={algorithmId} />}</QueryState>
+        <QueryState query={query}>{() => <Algorithm id={algorithmId} key={algorithmId} />}</QueryState>
       </Layout.Container>
     </>
   );

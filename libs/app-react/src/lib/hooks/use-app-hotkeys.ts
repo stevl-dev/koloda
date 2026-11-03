@@ -74,6 +74,4 @@ export function useAppHotkeys() {
   useAppHotkey(ui.prevTab, goToPrevTab, "", TAB_HOTKEY_OPTIONS);
   useAppHotkey(ui.toggleColorScheme, toggleColorScheme, "", TOGGLE_HOTKEY_OPTIONS);
   useAppHotkey(ui.toggleLanguage, toggleLanguage, "", TOGGLE_HOTKEY_OPTIONS);
-
-  return null;
 }

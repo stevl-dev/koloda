@@ -22,7 +22,7 @@ export function parseDayStartsAt(dayStartsAt: string) {
   return { hours, minutes };
 }
 
-export const dayStartsAtValidation = z.string().refine(
+const dayStartsAtValidation = z.string().refine(
   (value) => {
     try {
       parseDayStartsAt(value);
@@ -36,9 +36,9 @@ export const dayStartsAtValidation = z.string().refine(
 
 export const LEARNING_DAILY_LIMIT_TYPES = ["untouched", "learn", "review"] as const;
 
-export const dailyLimitCapValidation = z.int().min(0).nullable();
+const dailyLimitCapValidation = z.int().min(0).nullable();
 
-export const learningDailyLimitValidation = z.object({
+const learningDailyLimitValidation = z.object({
   value: dailyLimitCapValidation,
   counts: z.boolean(),
 });
@@ -108,7 +108,7 @@ function withCountedLimitRefines<S extends z.ZodType<CountedDailyLimits>>(schema
     });
 }
 
-export const resolvedDailyLimitsValidation = withCountedLimitRefines(
+const resolvedDailyLimitsValidation = withCountedLimitRefines(
   z.object({
     total: dailyLimitCapValidation,
     untouched: learningDailyLimitValidation,

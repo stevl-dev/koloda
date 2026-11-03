@@ -187,9 +187,7 @@ export function getAIHttpErrorMessageDescriptor(code: string) {
 
   const status = Number(code.slice("ai.http.".length));
 
-  return typeof status === "number" && !Number.isNaN(status)
-    ? ERROR_MESSAGES["ai.http"]({ status })
-    : ERROR_MESSAGES.unknown;
+  return !Number.isNaN(status) ? ERROR_MESSAGES["ai.http"]({ status }) : ERROR_MESSAGES.unknown;
 }
 
 export function formatAppError(

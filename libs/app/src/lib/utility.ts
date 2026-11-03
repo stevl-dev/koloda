@@ -73,7 +73,7 @@ function isSpecialObject(obj: unknown): boolean {
   return obj instanceof Date || obj instanceof Set || obj instanceof Map;
 }
 
-export type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T];
+type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T];
 
 export function objectEntries<T extends object>(object: T): Entries<T>[] {
   return Object.entries(object) as any;

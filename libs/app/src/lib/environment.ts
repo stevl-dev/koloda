@@ -1,4 +1,4 @@
-export type AppPlatform = "linux" | "macos" | "windows";
+type AppPlatform = "linux" | "macos" | "windows";
 
 export function getAppPlatform(): AppPlatform {
   const nav = navigator as Navigator & { userAgentData?: { platform?: string } };

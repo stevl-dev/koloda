@@ -96,7 +96,7 @@ export type HotkeysSettings = z.input<typeof hotkeysSettingsValidation>;
 
 export type HotkeyEntry = RegisterableHotkey[];
 
-export type HotkeysSettingsGeneric<T> = {
+type HotkeysSettingsGeneric<T> = {
   [K in HotkeyCategory]: { [L in Hotkeys[K][number]]: T };
 };
 

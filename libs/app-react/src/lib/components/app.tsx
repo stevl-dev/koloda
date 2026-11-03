@@ -17,7 +17,7 @@ export const appMenu = [
   { to: "/ai", t: msg`nav.ai`, icon: AiIcon },
 ];
 
-export const secondaryMenu = [{ to: "/settings", t: msg`nav.settings`, icon: SettingsIcon }];
+const secondaryMenu = [{ to: "/settings", t: msg`nav.settings`, icon: SettingsIcon }];
 
 export function App({ children }: PropsWithChildren) {
   useGlobalSync();

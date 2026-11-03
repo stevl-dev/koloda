@@ -239,6 +239,14 @@ Paths are relative to the repo root.
 - [x] 5. #1: how should the AppError path handle a missing `maximum`? — fall back to a plain message without the
   number; one code serves two limits, so no default `maximum` is right for both.
 - [x] 6. Plan approval — approved as drafted (human, 2026-11-03).
+- [ ] 7. #11: where should `deepMerge` live? — open.
+  The report missed a second caller: `libs/assistant-react/src/test/test-helpers.tsx:2,42,53,69,79` uses it too, so
+  moving it into the srs-react test helpers would break assistant-react's tests or leave two copies.
+  Options: keep it in `@koloda/app` and describe it in the README as the test fixtures' merge; or move it to a shared
+  test-only home that both packages' test helpers import.
+  Recommended: keep it in `@koloda/app`; neither package's tests can import the other's helpers, and no shared
+  test-only package exists.
+  Item 9 left it in place; item 10 describes it by the answer.
 
 ## Plan
 
@@ -425,7 +433,8 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Set the page title from the root route only
   Depends on: none
 
-- [ ] 9. Remove leftover exports from libs/app and app-react
+- [x] 9. Remove leftover exports from libs/app and app-react
+  Result: `deepMerge` stays in `@koloda/app` until Open question 7 is answered; everything else in the item is done.
   Goal (#11, without `isAbortError`):
   - `libs/app/src/index.ts:18,21`: drop `ENTITY_NOTES_MAX_LENGTH` and `PROFILE_TITLE_MAX_LENGTH`.
   - Move `deepMerge` from `libs/app/src/lib/utility.ts` into `libs/srs-react/src/test/test-helpers.tsx`, with its
