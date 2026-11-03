@@ -25,6 +25,7 @@ Each app must set `appEntryAtom` before routes render and inject its `Queries` i
   It does not take the language from the saved row: the device language wins.
 - Global hotkeys: `hooks/use-app-hotkeys.ts` — the navigation scope and the app-wide ui hotkeys;
   feature scopes live in feature components.
+- Page title: `hooks/use-title.ts` — joins the matched routes' loader titles; the root route calls it.
 - Locales: `locales/` — Lingui `.po` catalogs for the shell.
 
 ### Does NOT own (prevent scope creep)

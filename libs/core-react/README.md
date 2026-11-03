@@ -25,7 +25,7 @@ Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Ele
   `optimizer.ts` — `optimizerQueriesAtom`, FSRS optimization runs and apply (set only by the desktop app).
 - Hotkeys: `hooks/use-app-hotkey.ts`, `use-hotkeys-settings.ts`,
   `use-hotkeys-status.ts` — scope-aware registration via TanStack Hotkeys.
-- Misc: `hooks/use-title.ts`, `utility.ts` (`dispatchReducerAction`).
+- Misc: `utility.ts` (`dispatchReducerAction`).
 
 ### Does NOT own (prevent scope creep)
 

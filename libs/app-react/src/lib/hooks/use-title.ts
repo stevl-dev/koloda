@@ -5,14 +5,14 @@ import { useEffect } from "react";
 export function useTitle() {
   const { _ } = useLingui();
   const matches = useMatches();
-  const items = matches
+  const title = matches
     .map((x) => x.loaderData?.title)
-    .filter(Boolean)
-    .reverse();
+    .filter((title) => title !== undefined)
+    .reverse()
+    .map(_)
+    .join(" · ");
 
   useEffect(() => {
-    document.title = items.map(_).join(" · ");
-  }, [items, _]);
-
-  return null;
+    document.title = title;
+  }, [title]);
 }

@@ -310,7 +310,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Remove the unused Queries contract check and dead query keys
   Depends on: 3, 4
 
-- [ ] 7. Move useTitle into app-react
+- [x] 7. Move useTitle into app-react
   Goal (finding 7, README line 29 of finding 8, `use-title.ts:17` of finding 10):
   - Move `libs/core-react/src/lib/hooks/use-title.ts` to `libs/app-react/src/lib/hooks/use-title.ts`.
     Not under `routes/`: the file router would read it as a route.
