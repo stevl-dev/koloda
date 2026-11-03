@@ -462,7 +462,8 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Remove leftover exports from libs/app and app-react
   Depends on: 3 (it may add importers)
 
-- [ ] 10. Bring the app and app-react READMEs up to date
+- [x] 10. Bring the app and app-react READMEs up to date
+  Result: the `deepMerge` mention in the `libs/app` map stays as it was, pending Open question 7.
   Goal (#8):
   - `libs/app-react/README.md:23`: the global sync line lists what it sets: scheme, themes, motion, date and time
     formats, and the default algorithm and template, plus `<html lang>`.

@@ -21,8 +21,15 @@ Desktop mirrors live in `crates/koloda/src/domain/` (settings, hotkeys, conversa
   and active-conversation `localStorage` helpers.
 - Environment: `environment.ts` — `getAppPlatform()`.
   `LOCALES` and `getLanguageCode()` live with the interface slice in `settings-interface.ts`.
+- Titles: `titles.ts` — entity title, AI profile title, and notes schemas, with the length limits the Rust twins
+  check.
+- Seed ids: `seed-ids.ts` — the fixed ids of the seeded algorithms, templates, and template fields.
+- Timestamps: `timestamp-format.ts` — date and time formatting by the interface settings' formats and locale.
 - Shared shapes: `db.ts` (`Timestamps`), `utility.ts` (`DeepPartial`, `deepMerge`, form helpers, id helpers).
 - Sync: `sync.ts` — `SyncStatus` as the desktop sync engine reports it; only the desktop syncs.
+
+Subpath exports `@koloda/app/titles` and `@koloda/app/db` skip the root barrel.
+The barrel pulls in Lingui macros through `error.ts`, and Electron main loads modules without the macro transform.
 
 ### Does NOT own (prevent scope creep)
 

@@ -20,7 +20,9 @@ Each app must set `appEntryAtom` before routes render and inject its `Queries` i
 - Routes: `routes/` — file-based TanStack routes (dashboard, decks, algorithms, templates, AI, settings);
   `routeTree.gen.ts` is generated.
   Settings → Sync and its link exist only when the host sets `syncQueriesAtom`.
-- Global sync: `hooks/use-global-sync.ts` — settings → Jotai atoms (theme, motion, defaults, lang).
+- Global sync: `hooks/use-global-sync.ts` — settings rows → Jotai atoms (scheme, themes, motion, date and time
+  formats, default algorithm and template) and `<html lang>`.
+  It does not take the language from the saved row: the device language wins.
 - Global hotkeys: `hooks/use-app-hotkeys.ts` — the navigation scope and the app-wide ui hotkeys;
   feature scopes live in feature components.
 - Locales: `locales/` — Lingui `.po` catalogs for the shell.
