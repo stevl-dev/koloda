@@ -5,8 +5,8 @@ import { useLingui } from "@lingui/react";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
 /**
- * WHY: rendered without the app layout so a crash inside the layout itself
- * cannot bring the error screen down with it.
+ * WHY: the root route renders this without the app layout, so a crash inside the layout itself cannot bring the
+ * error screen down with it. As the router's `defaultErrorComponent`, nested routes render it in their content area.
  */
 export function RouteError({ error, reset }: ErrorComponentProps) {
   const { _ } = useLingui();

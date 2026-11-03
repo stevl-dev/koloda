@@ -478,7 +478,7 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Bring the app and app-react READMEs up to date
   Depends on: 9 (it removes `deepMerge` from the same map)
 
-- [ ] 11. Correct RouteError's WHY and test its behavior only
+- [x] 11. Correct RouteError's WHY and test its behavior only
   Goal (#9, #12):
   - `libs/app-react/src/lib/components/route-error.tsx:7-10`: the WHY says the root route renders it without the app
     layout, so a crash in the layout cannot take the error screen down, and nested routes render it in their content
