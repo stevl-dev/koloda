@@ -390,7 +390,9 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Type the settings sidebar links
   Depends on: none
 
-- [ ] 7. Test the scheme and language toggle hotkeys
+- [x] 7. Test the scheme and language toggle hotkeys
+  Result: the test fails when `SCHEME_CYCLE` is reordered and when the language toggle writes the wrong field (each
+  tried once, reverted).
   Goal (#5): add `libs/app-react/src/lib/hooks/use-app-hotkeys.test.tsx`.
   - Render `useAppHotkeys` with real Jotai, Query, Lingui, and `core-react` hotkeys.
     Bind `ui.toggleColorScheme` and `ui.toggleLanguage` through the hotkeys settings the hook reads, and record
