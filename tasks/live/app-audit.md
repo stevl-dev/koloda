@@ -412,7 +412,7 @@ Line numbers are at `87a6d129`; when an earlier item moved them, find the code b
   Commit: Test the scheme and language toggle hotkeys
   Depends on: none
 
-- [ ] 8. Set the page title from the root route only
+- [x] 8. Set the page title from the root route only
   Goal (#10): delete the 14 `useTitle()` calls under `libs/app-react/src/lib/routes/` other than `__root.tsx:22`,
   and their now-unused imports.
   Find them with a search for `useTitle()` in that directory.

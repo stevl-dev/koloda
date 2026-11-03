@@ -1,4 +1,4 @@
-import { syncQueriesAtom, useTitle } from "@koloda/core-react";
+import { syncQueriesAtom } from "@koloda/core-react";
 import { NotFound } from "@koloda/ui";
 import { Layout, layoutSidebarItemLink, Link, useMotionSetting, useRouteFocus } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -22,7 +22,6 @@ const LINKS = [
 const SYNC_LINK = { id: "sync", t: msg`settings.sync`, to: "/settings/sync" } as const;
 
 function SettingsRoute() {
-  useTitle();
   const ref = useRouteFocus();
   const { _ } = useLingui();
   const isMotionOn = useMotionSetting();

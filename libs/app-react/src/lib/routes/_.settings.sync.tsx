@@ -1,4 +1,4 @@
-import { syncQueriesAtom, useTitle } from "@koloda/core-react";
+import { syncQueriesAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import { Layout, NotFound, QueryState, useLayoutHeaderScrollShadow, useRouteFocus } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -23,7 +23,6 @@ function SettingsSyncRoute() {
 type SettingsSyncPageProps = { sync: SyncQueries };
 
 function SettingsSyncPage({ sync }: SettingsSyncPageProps) {
-  useTitle();
   const { _ } = useLingui();
   const ref = useRouteFocus();
   useLayoutHeaderScrollShadow(ref);

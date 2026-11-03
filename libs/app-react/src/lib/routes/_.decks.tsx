@@ -1,4 +1,4 @@
-import { queriesAtom, useTitle } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import { AddDeck } from "@koloda/srs-react";
 import { QueryState } from "@koloda/ui";
 import { Layout, layoutSidebarItemLink, Link, useMotionSetting, useRouteFocus } from "@koloda/ui";
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/_/decks")({
 });
 
 function DecksRoute() {
-  useTitle();
   const ref = useRouteFocus();
   const { _ } = useLingui();
   const { getDecksQuery } = useAtomValue(queriesAtom);

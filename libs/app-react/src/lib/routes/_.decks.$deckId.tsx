@@ -1,4 +1,4 @@
-import { queriesAtom, useTitle } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import { DeckCards } from "@koloda/srs-react";
 import { DeckDetails } from "@koloda/srs-react";
 import { NotFound, useLayoutHeaderScrollShadow } from "@koloda/ui";
@@ -28,7 +28,6 @@ const DECK_TABS = [
 ];
 
 function DeckRoute() {
-  useTitle();
   const { _ } = useLingui();
   const { deckId } = Route.useParams();
   const ref = useRouteFocus(deckId);

@@ -1,5 +1,5 @@
 import { clearActiveConversationId, getActiveConversationId, setActiveConversationId } from "@koloda/app";
-import { queriesAtom, useTitle } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import {
   AssistantChat,
   AssistantConversationsList,
@@ -42,7 +42,6 @@ const conversationTitle = tv({
 });
 
 function AIRoute() {
-  useTitle();
   const { _ } = useLingui();
   const ref = useRouteFocus();
   useLayoutHeaderScrollShadow(ref);

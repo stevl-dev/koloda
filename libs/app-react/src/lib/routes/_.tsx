@@ -1,4 +1,4 @@
-import { queryKeys, useTitle } from "@koloda/core-react";
+import { queryKeys } from "@koloda/core-react";
 import type { AppStatus } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
@@ -15,8 +15,6 @@ export const Route = createFileRoute("/_")({
 });
 
 function RootRoute() {
-  useTitle();
-
   return (
     <App>
       <Outlet />

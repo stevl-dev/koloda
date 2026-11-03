@@ -1,4 +1,4 @@
-import { queriesAtom, useTitle } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import { AddTemplate } from "@koloda/srs-react";
 import { QueryState } from "@koloda/ui";
 import { Layout, layoutSidebarItemLink, Link, useMotionSetting, useRouteFocus } from "@koloda/ui";
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/_/templates")({
 });
 
 function TemplatesRoute() {
-  useTitle();
   const ref = useRouteFocus();
   const { _ } = useLingui();
   const { getTemplatesQuery } = useAtomValue(queriesAtom);

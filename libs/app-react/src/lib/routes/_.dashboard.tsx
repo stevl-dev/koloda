@@ -1,4 +1,3 @@
-import { useTitle } from "@koloda/core-react";
 import { LearnedToday, Lessons } from "@koloda/srs-react";
 import { Layout, useRouteFocus } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -17,7 +16,6 @@ export const Route = createFileRoute("/_/dashboard")({
 });
 
 function DashboardRoute() {
-  useTitle();
   const ref = useRouteFocus();
 
   return (

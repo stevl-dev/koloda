@@ -1,4 +1,4 @@
-import { queryKeys, useTitle } from "@koloda/core-react";
+import { queryKeys } from "@koloda/core-react";
 import type { AppStatus } from "@koloda/core-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -10,7 +10,6 @@ export const Route = createFileRoute("/_/")({
 });
 
 function IndexRoute() {
-  useTitle();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   // WHY: covers the cold start, where the status arrives after `_.tsx` `beforeLoad` ran. Reading the cache in render
