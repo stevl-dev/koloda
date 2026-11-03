@@ -331,13 +331,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: wait for the `task/mobile-spike` verdict; a go adds a second Rust façade over the command list,
   which is evidence for C that B would have to be redone against.
 
-- Handoff: `task/mobile-spike` item 4 gives a stale reason for not setting `queriesAtom`.
-  Evidence: at `478a9753` on `task/mobile-spike`, its task file line 174: "whose contract check needs every method".
-  That check is gone since `core-react-audit`.
-  Kind: handoff
-  Source: `tasks/archive/core-react-audit.md`
-  Deferred because: that branch is in flight; the reason needs rewording when it resumes.
-
 - Risk, Later: the conversation list query loads every conversation's full state on both hosts.
   Evidence: at `1c0661bb`, web selects and parses `state` per row (`libs/db-sqlite/src/lib/conversations.ts:20-28`), and
   desktop derives `hasTurns` in the renderer from every full row (`apps/electron-react/src/app/queries.ts:70`).
