@@ -114,9 +114,13 @@ describe("useAppHotkey in a text field", () => {
     { binding: "Alt+N", ignoreInputs: false, init: { key: "n", code: "KeyN", altKey: true }, fires: true },
     { binding: "Escape", ignoreInputs: false, init: { key: "Escape", code: "Escape" }, fires: true },
     { binding: "Mod+H", ignoreInputs: true, init: { key: "h", code: "KeyH", ctrlKey: true }, fires: false },
+    // An omitted option means the hotkey never fires in a text field, chord or not.
+    { binding: "Mod+N", ignoreInputs: undefined, init: { key: "n", code: "KeyN", ctrlKey: true }, fires: false },
+    { binding: "Escape", ignoreInputs: undefined, init: { key: "Escape", code: "Escape" }, fires: false },
   ])("$binding with ignoreInputs $ignoreInputs fires: $fires", ({ binding, ignoreInputs, init, fires }) => {
     const callback = vi.fn();
-    renderHook(() => useAppHotkey([binding], callback, "", { ignoreInputs }));
+    const options = ignoreInputs === undefined ? undefined : { ignoreInputs };
+    renderHook(() => useAppHotkey([binding], callback, "", options));
 
     const isNotPrevented = pressInTextarea(init);
 

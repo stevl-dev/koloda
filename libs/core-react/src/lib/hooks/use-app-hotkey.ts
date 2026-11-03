@@ -94,10 +94,13 @@ function getOptions(
   scope: AppHotkeyScope,
   scopes: Record<RuntimeScope, boolean>,
 ) {
-  const { enabled = true, ignoreInputs } = options || {};
+  // WHY: an omitted `ignoreInputs` means "ignore inputs", and the manager always gets a boolean.
+  // The library's own default lets Ctrl, Cmd, and Escape fire in a text field, and its `setOptions` spread
+  // replaces a stored value with an `undefined` one, so leaving it undefined means different things over time.
+  const { enabled = true, ignoreInputs = true } = options || {};
   // WHY: a hotkey meant to work in a text field still must not take a typed character, so it fires there only
   // through a chord; a user who binds it to a single letter keeps typing that letter (HOTKEYS.md (§Key Bindings)).
-  const resolved = { ...options, ignoreInputs: ignoreInputs === false && !isChord(hotkey) ? true : ignoreInputs };
+  const resolved = { ...options, ignoreInputs: ignoreInputs || !isChord(hotkey) };
   if (!scope) return { ...resolved, enabled };
   return { ...resolved, enabled: enabled && !!scopes[scope] };
 }

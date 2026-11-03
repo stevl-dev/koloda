@@ -214,7 +214,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
   Commit: Type the queries and AI runtime atoms as writable
   Depends on: none
 
-- [ ] 2. Treat an omitted ignoreInputs as true in useAppHotkey
+- [x] 2. Treat an omitted ignoreInputs as true in useAppHotkey
   Goal (finding 2):
   - `libs/core-react/src/lib/hooks/use-app-hotkey.ts` `getOptions`: resolve `ignoreInputs` to a boolean.
     Omitted means `true`; the existing chord rule for `false` stays.

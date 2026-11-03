@@ -45,6 +45,7 @@ An always-on hotkey is gated by where its handler mounts and by its `enabled` op
      `libs/srs-react/src/lib/lessons/lesson-studying.tsx`.
    - Set `ignoreInputs: false` when the hotkey must fire while a text field is focused.
      It then fires there only through a chord (`docs/specs/HOTKEYS.md` (§Key Bindings)).
+     Leaving `ignoreInputs` out is the same as `true`: the hotkey never fires in a text field.
      Navigation and grade hotkeys pass `ignoreInputs: true`, as their neighbors do.
    - Set `enabled` when the action is available only in some states, such as a run being active.
    - Every enabled registration on a key fires, whatever `conflictBehavior` says
