@@ -264,7 +264,7 @@ Lib test files are not type-checked by `bun run typecheck`; keep them honest by 
     type errors before this item (number ids, wrong shapes), and lib tests are not type-checked.
     Its `async () => undefined` mutations add about 11 more under the narrowed types; it still runs green.
 
-- [ ] 4. Add query key prefixes for lesson data and reviews
+- [x] 4. Add query key prefixes for lesson data and reviews
   Goal (findings 3 and 9):
   - `libs/core-react/src/lib/query-keys.ts`: add `lessons.dataAll: () => ["lesson_data"] as const` and
     `reviews.all: () => ["reviews"] as const`, each with a WHY like `decksAll`'s.

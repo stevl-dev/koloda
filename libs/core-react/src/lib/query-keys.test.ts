@@ -15,18 +15,20 @@ describe("queryKeys", () => {
     ]);
   });
 
-  // WHY: deck mutations invalidate every per-entity deck list via decksAll();
-  // each guard prefix must stay a strict prefix of its per-id deck-list key.
-  it("keeps deck-list guard prefixes aligned with their per-id keys", () => {
-    expect(queryKeys.algorithms.decksAll()).toEqual(["algorithm_decks"]);
-    expect(queryKeys.algorithms.decks("01900000-0000-7000-8000-000000000003")).toEqual([
-      "algorithm_decks",
-      "01900000-0000-7000-8000-000000000003",
-    ]);
-    expect(queryKeys.templates.decksAll()).toEqual(["template_decks"]);
-    expect(queryKeys.templates.decks("01900000-0000-7000-8000-000000000002")).toEqual([
-      "template_decks",
-      "01900000-0000-7000-8000-000000000002",
-    ]);
+  // WHY: deck mutations and sync invalidate every per-item entry via a prefix builder;
+  // each prefix must stay a strict prefix of its per-item key, or the invalidation misses it.
+  const id = "01900000-0000-7000-8000-000000000002";
+  it.each([
+    { name: "algorithms.decks", prefix: queryKeys.algorithms.decksAll(), key: queryKeys.algorithms.decks(id) },
+    { name: "templates.decks", prefix: queryKeys.templates.decksAll(), key: queryKeys.templates.decks(id) },
+    {
+      name: "lessons.data",
+      prefix: queryKeys.lessons.dataAll(),
+      key: queryKeys.lessons.data({ filters: {}, amounts: { untouched: 1, learn: 1, review: 1, total: 3 } }),
+    },
+    { name: "reviews.card", prefix: queryKeys.reviews.all(), key: queryKeys.reviews.card({ cardId: id }) },
+  ])("$name keys start with their prefix", ({ prefix, key }) => {
+    expect(key.length).toBeGreaterThan(prefix.length);
+    expect(key.slice(0, prefix.length)).toEqual(prefix);
   });
 });

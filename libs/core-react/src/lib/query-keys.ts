@@ -51,6 +51,9 @@ export const queryKeys = {
     // cached lesson lists that invalidations never reach.
     all: (filters?: LessonFilters) => ["lessons", { filters: filters ?? {} }] as const,
     data: (params: GetLessonDataParams) => ["lesson_data", params] as const,
+    // WHY: sync changes the rows behind every open lesson; invalidate each
+    // per-params lesson-data entry via this prefix.
+    dataAll: () => ["lesson_data"] as const,
     todayReviewTotals: () => ["today_review_totals"] as const,
   },
   settings: {
@@ -58,6 +61,9 @@ export const queryKeys = {
     detail: (name: SettingsName) => ["settings", name] as const,
   },
   reviews: {
+    // WHY: synced reviews can belong to any card; invalidate every per-card
+    // review list via this prefix.
+    all: () => ["reviews"] as const,
     card: (data: GetReviewsData) => ["reviews", String(data.cardId)] as const,
   },
   sync: {

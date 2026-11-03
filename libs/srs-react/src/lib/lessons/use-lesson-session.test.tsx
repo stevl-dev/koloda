@@ -391,7 +391,7 @@ describe("useLessonSession", () => {
     // WHY: a user cannot reopen in the same task as the close. Let the closed session's entry go first,
     // as it does in the app between the two clicks.
     await waitFor(() => {
-      const entries = queryClient.getQueryCache().findAll({ queryKey: ["lesson_data"] });
+      const entries = queryClient.getQueryCache().findAll({ queryKey: queryKeys.lessons.dataAll() });
       expect(entries.some(({ state }) => state.data !== undefined)).toBe(false);
     });
     await startStudying();
