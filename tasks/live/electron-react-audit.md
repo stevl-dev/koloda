@@ -450,7 +450,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Test zoom persistence and the zoom keys
   Depends on: none
 
-- [ ] 10. Remove leftover exports and configuration from the desktop renderer
+- [x] 10. Remove leftover exports and configuration from the desktop renderer
   Goal (finding 9):
   - Drop `export` from `aiRuntime` and `queries` (`src/app/store.ts:24-25`), `JsonPrimitive` and `JsonValue`
     (`src/app/ipc.ts:14-15`), `SetupOptionProps` (`src/components/setup.tsx:99`), and `SyncStart`

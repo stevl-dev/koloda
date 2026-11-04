@@ -12,7 +12,7 @@ export async function getStatus(): Promise<DbStatus> {
   return invoke("get_db_status", undefined);
 }
 
-type seedParams = Partial<InterfaceSettings> & { t: I18nContext["_"] };
+type SeedOptions = Partial<InterfaceSettings> & { t: I18nContext["_"] };
 
 // INVARIANT: the first-run seed and the rows sync repair creates when none is left are the same starter content.
 export function starterContent(t: I18nContext["_"]): SyncStarter {
@@ -32,7 +32,7 @@ export function seedSettings(settings: Partial<InterfaceSettings>): SeedDbData["
   };
 }
 
-export async function seedDB({ t, ...settings }: seedParams): Promise<void> {
+export async function seedDB({ t, ...settings }: SeedOptions): Promise<void> {
   const status = await getStatus();
   if (status === "ok") return;
 

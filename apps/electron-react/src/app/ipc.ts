@@ -11,8 +11,8 @@
 // transform outside Vite/SWC (same reason `libs/ai` imports `@koloda/app/titles`).
 import { TIMESTAMP_FIELD_KEYS } from "@koloda/app/db";
 
-export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
 export class WireError extends Error {
   override readonly name = "WireError";
@@ -90,11 +90,9 @@ function walkWire(value: unknown, seen: WeakSet<object>, path: string): JsonValu
   throw new WireError(`Cannot serialize ${t}`, path);
 }
 
-export type WireReviver = (key: string, value: unknown) => unknown;
-
 const TIMESTAMP_KEYS: ReadonlySet<string> = new Set(TIMESTAMP_FIELD_KEYS);
 
-const defaultWireReviver: WireReviver = (path, value) => {
+function reviveField(path: string, value: unknown): unknown {
   // WHY: Conversation `state` is an opaque TS blob coerced by assistant-react
   // (`coerceConversationState`). Reviving ISO strings inside it turns
   // message metadata `createdAt` (intentionally a string) into a Date;
@@ -108,21 +106,21 @@ const defaultWireReviver: WireReviver = (path, value) => {
   const key = lastDot === -1 ? path : path.slice(lastDot + 1);
   if (!TIMESTAMP_KEYS.has(key)) return value;
   return reviveIsoString(value);
-};
-
-export function fromWire<T = unknown>(value: unknown, reviver: WireReviver = defaultWireReviver): T {
-  return revive(value, "", reviver) as T;
 }
 
-function revive(value: unknown, path: string, reviver: WireReviver): unknown {
-  const r = reviver(path, value);
+export function fromWire<T = unknown>(value: unknown): T {
+  return revive(value, "") as T;
+}
+
+function revive(value: unknown, path: string): unknown {
+  const r = reviveField(path, value);
   if (r === null || r === undefined) return r;
   if (typeof r === "string" || typeof r === "number" || typeof r === "boolean") return r;
   if (r instanceof Date) return r;
   if (Array.isArray(r)) {
     const out = Array.from({ length: r.length });
     for (let i = 0; i < r.length; i++) {
-      out[i] = revive(r[i], path ? `${path}[${i}]` : `[${i}]`, reviver);
+      out[i] = revive(r[i], path ? `${path}[${i}]` : `[${i}]`);
     }
     return out;
   }
@@ -130,7 +128,7 @@ function revive(value: unknown, path: string, reviver: WireReviver): unknown {
     const obj = r as Record<string, unknown>;
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(obj)) {
-      out[k] = revive(obj[k], path ? `${path}.${k}` : k, reviver);
+      out[k] = revive(obj[k], path ? `${path}.${k}` : k);
     }
     return out;
   }

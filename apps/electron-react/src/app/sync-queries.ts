@@ -5,7 +5,7 @@ import type { SyncStarter } from "@koloda/native-ipc";
 import { invoke } from "./electron";
 import { seedSettings } from "./setup";
 
-export type SyncStart = {
+type SyncStart = {
   provide: (starter: SyncStarter) => void;
   getStatus: () => Promise<SyncStatus>;
 };

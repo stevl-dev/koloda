@@ -21,15 +21,7 @@ function NativeApp() {
     return installElectronCloseCoordination(store);
   }, []);
 
-  return (
-    <AppProviders
-      store={store}
-      basepath={import.meta.env.VITE_BASE}
-      history={history}
-      activateLanguage={activateLanguage}
-      getLanguage={getLanguage}
-    />
-  );
+  return <AppProviders store={store} history={history} activateLanguage={activateLanguage} getLanguage={getLanguage} />;
 }
 
 createRoot(document.getElementById("root") as HTMLElement).render(<NativeApp />);

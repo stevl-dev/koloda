@@ -21,8 +21,8 @@ import { queriesFn } from "./queries";
 import { createSyncQueries } from "./sync-queries";
 
 export const store = createStore();
-export const aiRuntime = createElectronAIRuntime();
-export const queries = queriesFn();
+const aiRuntime = createElectronAIRuntime();
+const queries = queriesFn();
 
 wireUiPreferences(store);
 

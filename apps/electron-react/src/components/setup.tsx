@@ -47,7 +47,7 @@ export function Setup() {
   return (
     <div className="grow flex flex-col gap-4 items-center justify-center">
       <div className={overlayFrame({ class: "flex-col rounded-xl w-96" })}>
-        <OverlayFrameHeader variants={{ class: "" }}>
+        <OverlayFrameHeader>
           <OverlayFrameTitle>{isJoining ? _(msg`app.setup.join`) : _(msg`app.setup.header`)}</OverlayFrameTitle>
         </OverlayFrameHeader>
         {isJoining && sync ? (
@@ -104,7 +104,7 @@ const setupOption = [
   "not-first:border-t-2 border-main -outline-offset-4",
 ].join(" ");
 
-export type SetupOptionProps = {
+type SetupOptionProps = {
   title: string;
   description: string;
   onPress: () => void;
