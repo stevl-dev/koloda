@@ -1,6 +1,6 @@
 # apps/electron-react audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, apps/electron-react/README.md, apps/electron/IPC.md, libs/settings-react/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/SYNC.md, docs/specs/HOTKEYS.md, agents/ADD-COLOR-THEME.md, agents/REVIEW.md
 Flow: local
 
@@ -528,4 +528,39 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
 
 ## Outcome
 
-<what shipped>
+All 12 findings are fixed; none is skipped or left open.
+Plan items 1-12 landed in order, plus one commit that recorded the implementation notes above.
+`git log --grep='Task: electron-react-audit'` lists them all.
+
+- Finding 1: the renderer and `libs/app` `test` targets list the Rust and theme files their parity tests read as Nx
+  inputs.
+  Triage addition: `libs/db-sqlite` adds the migration SQL and schema snapshot to its `default` named input, so its
+  dependents (`@koloda/web:test-unit`) re-run on a new migration too.
+  A WHY at each out-of-package read says to list a new one.
+- Finding 2: the setup pickers are disabled while Start fresh or the join call runs.
+  `JoinFlow` runs the join under `SYNC_JOIN_MUTATION_KEY`, exported from `@koloda/settings-react`.
+- Finding 3: `tsconfig.app.json` keeps the base `["es2022", "dom"]` library.
+- Finding 4: the README's standalone-browser claim, the two `electronAPI` guards, and their no-op test are gone.
+- Finding 5: the titlebar reads the two hex tokens and skips the update otherwise; the sampling fallback is gone.
+- Finding 6: `parseElectronError` parses the `Error` message envelope and falls back to `unknown`; a new case pins the
+  fallback.
+- Finding 7: the AI runtime and base64 tests use the real `@koloda/app` and `@koloda/srs`.
+  `ipc.test.ts` lost its repeats and gained BigInt bound and Invalid Date rows.
+- Finding 8: the zoom test covers restore, save, and the zoom keys from a focused text field.
+- Finding 9: the unused exports, `fromWire`'s `reviver` parameter, `basepath`, the favicon link, `@root`, the Nx
+  typings, `src/assets/`, the `vitest` reference, and the empty `class` are gone; `seedParams` is `SeedOptions`.
+- Finding 10: the review-note numbers are gone; the close-coordination JSDoc is one INVARIANT.
+- Finding 11: the README map names `sync-queries.ts`, `i18n.ts`, and `base64.ts`, and says what starts the engine.
+- Finding 12: HOTKEYS.md §Scope says a configurable hotkey on a zoom key fires both actions.
+
+Checks: `bun run check:push` green on the tip before Archive.
+Not run by the agent: the app and the Playwright suites.
+The manual verify paths in items 2, 5, 6, and 10 were handed to the human.
+
+Seen, not fixed:
+
+- The `apps/web` twins (Scope, Out) stay with the `web.md` triage.
+  That includes `apps/web/tsconfig.app.json`'s `"lib": ["dom"]`, which `web.md` does not list.
+- The renderer's test files are not type-checked; item 8's Notes list the drifted shapes.
+- "Dead code" and "Guides and docs" should not re-raise findings 9 and 11.
+  The "e2e suites" concern keeps the setup-picker and desktop-zoom e2e cases.
