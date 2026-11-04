@@ -1,4 +1,4 @@
-import { BrowserWindow, app, dialog } from "electron";
+import { BrowserWindow, Menu, app, dialog } from "electron";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { registerDataIpc } from "./data-ipc";
@@ -58,6 +58,19 @@ app.whenReady().then(() => {
     registerMediaIpc(db);
     registerSyncIpc(db);
     registerOptimizerIpc(db);
+
+    // WHY: Electron's default menu would give packaged builds reload, DevTools, and zoom.
+    // A reload skips the close handshake (the reload keys in window.ts say why that loses data).
+    // DevTools reaches every data channel.
+    // A menu zoom bypasses the preload, so the level is not remembered (INTERFACE-SETTINGS.md §Desktop Zoom).
+    // macOS keeps Edit for copy, paste, and undo, and Window for Cmd+W and Cmd+M; dev keeps the default menu.
+    if (!isDev) {
+      Menu.setApplicationMenu(
+        process.platform === "darwin"
+          ? Menu.buildFromTemplate([{ role: "appMenu" }, { role: "editMenu" }, { role: "windowMenu" }])
+          : null,
+      );
+    }
     createWindow();
   } catch (error) {
     // WHY: a database that cannot open or migrate throws here, before any window exists.

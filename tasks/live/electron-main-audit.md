@@ -345,7 +345,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Show a startup failure and exit
   Depends on: 2
 
-- [ ] 4. Replace Electron's default menu in packaged builds
+- [x] 4. Replace Electron's default menu in packaged builds
   Goal (finding 4):
   - `src/main.ts`, in the `whenReady` startup body, before `createWindow()`: when `!isDev`, set the application
     menu.

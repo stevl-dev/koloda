@@ -85,13 +85,15 @@ export function createWindow() {
     if (isDev && !process.env.KOLODA_E2E) win.webContents.openDevTools();
   });
 
+  // WHY: a reload drops the renderer without the close handshake, because Electron does not await `pagehide`.
+  // Queued assistant saves and an in-progress lesson are lost, and an AI stream in main keeps sending to a page
+  // that no longer knows it. Packaged builds have no reload menu item (main.ts); this blocks the keys as well.
   if (!isDev) {
     win.webContents.on("before-input-event", (event, input) => {
       if (input.type !== "keyDown") return;
       const mod = input.control || input.meta;
       const isReload =
         input.code === "F5" ||
-        (input.code === "F5" && input.control) ||
         (input.code === "KeyR" && mod && input.shift) ||
         (input.code === "KeyR" && mod && !input.shift && !input.alt);
       if (isReload) event.preventDefault();
