@@ -75,13 +75,10 @@ export function Titlebar() {
 
     function updateOverlay(el: HTMLElement) {
       const rootStyle = getComputedStyle(document.documentElement);
-      // WHY: Electron titleBarOverlay only accepts rgba/hsla/hex — use dedicated hex tokens.
-      const color =
-        toHexColor(rootStyle.getPropertyValue("--titlebar-overlay-color").trim()) ||
-        cssVarToHex("--titlebar-overlay-color");
-      const symbolColor =
-        toHexColor(rootStyle.getPropertyValue("--titlebar-overlay-symbol-color").trim()) ||
-        cssVarToHex("--titlebar-overlay-symbol-color");
+      // WHY: Electron titleBarOverlay only accepts rgba/hsla/hex — use dedicated hex tokens. Each theme bakes them in
+      // as hex (agents/ADD-COLOR-THEME.md §4), so a missing or non-hex token skips the update instead of sampling.
+      const color = toHexColor(rootStyle.getPropertyValue("--titlebar-overlay-color").trim());
+      const symbolColor = toHexColor(rootStyle.getPropertyValue("--titlebar-overlay-symbol-color").trim());
       const height = getTitlebarNativeContentHeight(el);
 
       if (!color || !symbolColor) return;
@@ -158,31 +155,11 @@ function getTitlebarNativeContentHeight(el: HTMLElement) {
   return Math.round(height * window.electronAPI.getZoomFactor());
 }
 
-/** Normalize CSS colors to #rrggbb for Electron's titleBarOverlay API. */
 function toHexColor(value: string) {
-  if (!value) return "";
-  if (value.startsWith("#")) {
-    if (value.length === 4) {
-      const [, r, g, b] = value;
-      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
-    }
-    return value.slice(0, 7).toLowerCase();
+  if (/^#[0-9a-f]{6}$/i.test(value)) return value.toLowerCase();
+  if (/^#[0-9a-f]{3}$/i.test(value)) {
+    const [, r, g, b] = value;
+    return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
   }
-
-  const rgbMatch = value.match(/^rgba?\(\s*([\d.]+)[%\s,]+([\d.]+)[%\s,]+([\d.]+)/i);
-  if (rgbMatch) {
-    const [, r, g, b] = rgbMatch;
-    return `#${[r, g, b].map((n) => Math.round(Number(n)).toString(16).padStart(2, "0")).join("")}`;
-  }
-
   return "";
-}
-
-function cssVarToHex(varName: string) {
-  const probe = document.createElement("div");
-  probe.style.color = `var(${varName})`;
-  document.documentElement.appendChild(probe);
-  const resolved = getComputedStyle(probe).color;
-  probe.remove();
-  return toHexColor(resolved);
 }

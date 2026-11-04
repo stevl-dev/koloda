@@ -375,7 +375,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Drop the renderer's standalone browser mode
   Depends on: 4 (both edit `electron-close-coordination.ts`)
 
-- [ ] 6. Read the titlebar colors from the hex tokens only
+- [x] 6. Read the titlebar colors from the hex tokens only
   Goal (finding 5):
   - `src/components/titlebar.tsx` `updateOverlay`: read `--titlebar-overlay-color` and
     `--titlebar-overlay-symbol-color` and normalize each with `toHexColor`.
