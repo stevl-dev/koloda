@@ -212,6 +212,8 @@ impl KolodaDb {
 
     #[napi]
     pub fn seed_db(&self, env: Env, data: serde_json::Value) -> Result<JsObject> {
+        // WHY: `run`, not `run_write`: the database is blank, so it is in no space yet, and joining one backfills
+        // these rows. The engine has nothing to hear about.
         self.run(env, move |db| {
             let data: SeedData = from_wire(data)?;
             init_mod::seed_db(db, data).map_err(to_napi_error)
@@ -832,7 +834,7 @@ mod tests {
 
     #[test]
     fn wire_shape_rejection_carries_code_envelope() {
-        // Pins I5: serde failures must reach the renderer as `{code, details}`
+        // Serde failures must reach the renderer as `{code, details}`
         // so `parseElectronError` builds a classified `AppError`, not a raw string.
         let result: Result<SeedData> = from_wire(serde_json::json!({ "id": 123 }));
         let payload: serde_json::Value =

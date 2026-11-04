@@ -10,7 +10,7 @@ type DataHandler = (
   args: IpcArgs<DataOnlyChannel>,
 ) => IpcResult<DataOnlyChannel> | Promise<IpcResult<DataOnlyChannel>>;
 
-// One entry per non-AI `DataIpc` channel (AI channels register in `ai-ipc.ts`).
+// WHY: One entry per `DataOnlyChannel` (the AI, media, sync, and optimizer channels register in their own modules).
 // The `satisfies` below fails the build when a channel has no entry or a
 // handler's args/result drift from the contract; the per-entry `IpcArgs<C>`
 // annotations give each handler its checked arg type.

@@ -1,8 +1,9 @@
 // Hand-written mirror of the NAPI `KolodaDb` class surface
 // (`src-rust/src/lib.rs`, JS names = camelCased method names).
 //
-// Arg/result types come from the `@koloda/native-ipc` contract; the data
-// handlers in `data-ipc.ts` call exactly these methods. Every method returns a
+// Arg/result types come from the `@koloda/native-ipc` contract. The data
+// handlers in `data-ipc.ts` call most of these methods; `ai-ipc.ts`,
+// `sync-ipc.ts`, and `optimizer-ipc.ts` call the rest. Every method returns a
 // Promise: the addon runs SQLite on its own thread, in call order.
 //
 // INVARIANT: deliberately NO `getAiProfileSecrets` member. Secrets stay
@@ -149,11 +150,11 @@ export interface KolodaDb {
   updateAiProfile(data: UpdateAIProfileData): Promise<AIProfile>;
   removeAiProfile(data: RemoveAIProfileData): Promise<void>;
 
-  // Sync (a worker of its own; host calls wait on the network)
+  // WHY: Sync runs on a worker of its own, because its host calls wait on the network.
   syncStart(starter: SyncStarter, onEvent: (event: SyncEngineEvent) => void): Promise<SyncStatus>;
-  // On the database worker: it only reads.
+  // WHY: On the database worker: it only reads.
   syncStatus(): Promise<SyncStatus>;
-  // Synchronous: it only fires a trigger, so it never waits behind a call on the network.
+  // WHY: Synchronous: it only fires a trigger, so it never waits behind a call on the network.
   syncNudge(): void;
   syncCreateSpace(data: CreateSpaceData): Promise<SyncStatus>;
   syncIssuePairing(): Promise<IssuedPairing>;
@@ -165,8 +166,8 @@ export interface KolodaDb {
   syncImport(params: { mode: ImportMode }): Promise<SyncStatus>;
   syncAcceptRestore(): Promise<SyncStatus>;
 
-  // FSRS optimizer: runs queue on a thread of their own; `onProgress` gets this run's training progress.
+  // WHY: FSRS optimizer runs queue on a thread of their own; `onProgress` gets this run's training progress.
   optimizeAlgorithm(params: OptimizeAlgorithmParams, onProgress: OnOptimizerProgress): Promise<AlgorithmOptimization>;
-  // Synchronous: it only flags the run, which then resolves as cancelled.
+  // WHY: Synchronous: it only flags the run, which then resolves as cancelled.
   cancelAlgorithmOptimization(params: { requestId: string }): void;
 }

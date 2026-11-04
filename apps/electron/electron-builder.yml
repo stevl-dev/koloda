@@ -11,7 +11,7 @@ directories:
   output: dist-pack
   buildResources: build
 # Flatten dist/ into asar root so packaged `__dirname` is sibling to preload + .node,
-# and `../electron-react` resolves to extraResources (see main.ts loadFile).
+# and `../electron-react` resolves to extraResources (see window.ts loadFile and navigation-policy.ts).
 # WHY: package.json must be listed — a `from: dist` fileSet replaces the default
 # include set, and builder sanity-checks for package.json inside the asar.
 files:

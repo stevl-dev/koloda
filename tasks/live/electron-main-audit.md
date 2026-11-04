@@ -547,7 +547,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
     focused goes back to `/settings`.
   - Not run by the agent (`agents/VERIFY.md`); the human runs `hotkeys.spec.ts`.
 
-- [ ] 12. Fix stale and untagged comments in the desktop host
+- [x] 12. Fix stale and untagged comments in the desktop host
   Goal (finding 12):
   - `src/koloda-db.ts:4-6`: the header says the IPC modules call these methods.
     The data handlers in `data-ipc.ts` call most of them; `ai-ipc.ts`, `sync-ipc.ts`, and `optimizer-ipc.ts` call
@@ -563,6 +563,9 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — comments only.
   Commit: Fix stale and untagged comments in the desktop host
   Depends on: none
+  Notes:
+  - The `data-ipc.ts` comment was also stale: it said only AI channels register elsewhere.
+    It now names `DataOnlyChannel` and the AI, media, sync, and optimizer modules.
 
 - [ ] 13. Remove unused close coordinator hooks and duplicate wire structs
   Goal (finding 13):
