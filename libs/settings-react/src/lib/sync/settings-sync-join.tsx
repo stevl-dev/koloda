@@ -12,6 +12,9 @@ import { syncKnownIdsAtom } from "./sync-import-choice";
 import { joinSchema } from "./sync-forms";
 import { useFormatBytes } from "./sync-messages";
 
+// WHY: the desktop setup screen reads this key to lock its language and scheme pickers while the join call runs.
+export const SYNC_JOIN_MUTATION_KEY = ["sync", "join"];
+
 export type SettingsSyncJoinProps = { sync: SyncQueries };
 
 export function SettingsSyncJoin({ sync }: SettingsSyncJoinProps) {
@@ -46,7 +49,7 @@ export function JoinFlow({ sync, onDone, onCancel }: JoinFlowProps) {
   const [preview, setPreview] = useState<SpacePreview | null>(null);
   const setKnownIds = useSetAtom(syncKnownIdsAtom);
   const previewMutation = useMutation(sync.previewMutation());
-  const joinMutation = useMutation(sync.joinMutation());
+  const joinMutation = useMutation({ ...sync.joinMutation(), mutationKey: SYNC_JOIN_MUTATION_KEY });
 
   const handlePreview = (data: JoinData) => {
     setRequest(data);

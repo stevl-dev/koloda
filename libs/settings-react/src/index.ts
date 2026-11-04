@@ -4,6 +4,7 @@ export { SettingsHotkeys } from "./lib/settings-hotkeys";
 export { SettingsAi } from "./lib/settings-ai";
 export { SettingsAIAddProfile } from "./lib/settings-ai-add-profile";
 export { SettingsSync } from "./lib/sync/settings-sync";
+export { SYNC_JOIN_MUTATION_KEY } from "./lib/sync/settings-sync-join";
 export { SyncFirstRunJoin } from "./lib/sync/sync-first-run-join";
 export { SyncIndicator } from "./lib/sync/sync-indicator";
 export { ColorSchemePicker } from "./lib/interface-controls/color-scheme-picker";

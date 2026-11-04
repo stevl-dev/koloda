@@ -307,7 +307,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Rerun the parity tests when the files they read change
   Depends on: none
 
-- [ ] 2. Disable the setup pickers while setup or the join runs
+- [x] 2. Disable the setup pickers while setup or the join runs
   Goal (finding 2; approach in Open question 1):
   - `libs/settings-react/src/lib/sync/settings-sync-join.tsx`: export `SYNC_JOIN_MUTATION_KEY`, a constant tuple in
     the style of `INTERFACE_WRITE_KEY`.

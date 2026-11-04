@@ -24,6 +24,7 @@ The Zod registry stays in `@koloda/settings`; this package owns the forms that e
 - Sync (desktop only): `sync/` — over the host's `syncQueriesAtom`: Settings → Sync (create, join with Add or Replace,
   invite, devices, status, and why sync stopped), the first-run join `SyncFirstRunJoin`, and the title bar's
   `SyncIndicator`.
+  `SYNC_JOIN_MUTATION_KEY` marks the join call, so the host's setup screen can lock its pickers while it runs.
 
 ### Does NOT own (prevent scope creep)
 

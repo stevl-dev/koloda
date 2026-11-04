@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { ColorSchemePicker, LanguagePicker, SyncFirstRunJoin } from "@koloda/settings-react";
+import { ColorSchemePicker, LanguagePicker, SYNC_JOIN_MUTATION_KEY, SyncFirstRunJoin } from "@koloda/settings-react";
 import { langAtom, queryKeys, schemeAtom, syncQueriesAtom } from "@koloda/core-react";
 import {
   Button,
@@ -14,7 +14,7 @@ import {
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useIsMutating, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { useCallback, useId, useState } from "react";
@@ -25,6 +25,8 @@ export function Setup() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutate, isPending, isError, error } = useMutation(appSetupMutationOptions);
+  const isJoinPending = useIsMutating({ mutationKey: SYNC_JOIN_MUTATION_KEY }) > 0;
+  const arePickersDisabled = isPending || isJoinPending;
   const language = useAtomValue(langAtom);
   const scheme = useAtomValue(schemeAtom);
   const sync = useAtomValue(syncQueriesAtom);
@@ -79,11 +81,17 @@ export function Setup() {
           </div>
         )}
       </div>
-      {/* WHY: the join seeds the interface settings from these once; after it, a change here would not be kept. */}
+      {/* WHY: Start fresh and the join read these once, when their call starts. A change while either call runs, or
+          after the join, would show on this screen but not reach the stored settings or the starter content. */}
       {!hasJoined && (
         <div className="flex flex-row gap-2">
-          <ColorSchemePicker buttonVariants={{ style: "ghost" }} showChevron={false} />
-          <LanguagePicker buttonVariants={{ style: "ghost" }} showChevron={false} isPersisted={false} />
+          <ColorSchemePicker buttonVariants={{ style: "ghost" }} showChevron={false} isDisabled={arePickersDisabled} />
+          <LanguagePicker
+            buttonVariants={{ style: "ghost" }}
+            showChevron={false}
+            isPersisted={false}
+            isDisabled={arePickersDisabled}
+          />
         </div>
       )}
     </div>
