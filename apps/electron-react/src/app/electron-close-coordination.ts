@@ -7,18 +7,15 @@ type AssistantJotaiStore = ReturnType<typeof createStore>;
 
 type ElectronCloseApi = Pick<ElectronBridge, "on" | "invoke">;
 
-/**
- * Electron-only: main sends `app:shutdown-request` on window close; renderer
- * runs `shutdownAssistantGracefully` then acks so main can allow close.
- * Awaits the engine single-flight promise, so an unload-started flush is joined
- * before ack. No-op when `window.electronAPI` is missing (web/browser hosts).
- */
 export function installElectronCloseCoordination(store: AssistantJotaiStore): () => void {
   const api = (globalThis as { window?: { electronAPI?: ElectronCloseApi } }).window?.electronAPI;
   if (!api?.on || !api.invoke) return () => {};
 
   let isShuttingDown = false;
 
+  // INVARIANT: the renderer acks one shutdown request, even after a failed flush, so main can close; a repeated
+  // request is ignored. The flush awaits the engine's single-flight promise, so a flush that unload started is joined
+  // before the ack. The handshake is in apps/electron/IPC.md (§Window and Lifecycle).
   return api.on(APP_SHUTDOWN_REQUEST_CHANNEL, () => {
     if (isShuttingDown) return;
     isShuttingDown = true;

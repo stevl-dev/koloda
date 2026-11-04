@@ -341,7 +341,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Keep the base ES library in the renderer tsconfig
   Depends on: none
 
-- [ ] 4. Fix comment residue in the desktop renderer
+- [x] 4. Fix comment residue in the desktop renderer
   Goal (finding 10):
   - `src/main.tsx:19-20`: drop "(see #10 / window-close-coordinator)"; keep the reason.
   - `src/app/ipc.test.ts:48-49`: drop "The V12 audit trap:"; keep the sentence about the deck title and card field.

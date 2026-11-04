@@ -45,8 +45,8 @@ describe("ipc wire", () => {
   });
 
   it("keeps date-shaped strings that are not timestamp fields", () => {
-    // The V12 audit trap: a deck titled "2024-01-01" and a card field holding
-    // "2026-01-01" must survive the wire as strings.
+    // A deck titled "2024-01-01" and a card field holding "2026-01-01" must
+    // survive the wire as strings.
     const result = fromWire<{ title: string; content: Record<string, string> }>({
       title: "2024-01-01",
       content: { "01900000-0000-7000-8000-000000000001": "2026-01-01" },

@@ -17,7 +17,7 @@ function NativeApp() {
 
   useEffect(() => {
     // WHY: Electron must await interrupt + flush before destroying the window;
-    // browser pagehide alone is not durable (see #10 / window-close-coordinator).
+    // browser pagehide alone is not durable.
     return installElectronCloseCoordination(store);
   }, []);
 
