@@ -1,6 +1,6 @@
 # apps/electron main audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, apps/electron/README.md, apps/electron/IPC.md, libs/native-ipc/README.md, apps/electron-react/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/HOTKEYS.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/REVIEW.md
 Flow: local
 
@@ -236,6 +236,12 @@ Paths are relative to `apps/electron` unless they start with `apps/`, `libs/`, `
 - [x] 4. Fix findings 10 and 11 here, or hand them to the "IPC drift" and "e2e suites" concerns? — Here (human,
   2026-11-04).
   Those concerns should find them fixed and not re-raise them.
+- [x] 5. How does the macOS window color reach main (finding 7)? — The renderer sends the overlay message on macOS
+  too; main sets and saves the native background on every platform (triage choice, approved with the plan, human,
+  2026-11-04).
+  Not a new channel, and not a color on the button-position message.
+- [x] 6. How does the app end after the startup-failure box (finding 2)? — `app.exit(1)`, so a launcher sees a failed
+  start (triage choice, approved with the plan, human, 2026-11-04).
 
 ## Plan
 
@@ -306,8 +312,8 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
       When the message parses as JSON with a string `code`, the reason is `<code>: <details>`, or `<code>` without
       details.
     - Locale: a locale starting with `ru` (any case) picks Russian; anything else picks English.
-    - English: title `KOLODA could not start`; content `<reason>`, a blank line, `Database: <dbPath>`.
-    - Russian: title `Не удалось запустить KOLODA`; content `<reason>`, a blank line, `База данных: <dbPath>`.
+    - English: title `Couldn't start the app`; content `<reason>`, a blank line, `Database: <dbPath>`.
+    - Russian: title `Не удалось запустить приложение`; content `<reason>`, a blank line, `База данных: <dbPath>`.
     - A WHY says main has no Lingui catalog and no settings yet.
       INTERFACE-SETTINGS.md §Language falls back to the device language, which is what main has.
   - `src/main.ts`: wrap the `whenReady` startup body in `try`/`catch`.
@@ -328,7 +334,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Done when: the main unit run passes; `nx run @koloda/electron:typecheck` and `bun run lint` pass.
   Manual verify (desktop):
   - Quit the app → replace `<userData>/koloda.db` with a text file (keep a copy) → launch → an error box titled
-    "KOLODA could not start" shows a code and the database path → OK → the process is gone (no window, no tray, no
+    "Couldn't start the app" shows a code and the database path → OK → the process is gone (no window, no tray, no
     process in the task manager).
   - The same with the system language set to Russian → the Russian copy.
   - Restore the copy → launch → the app opens normally.
