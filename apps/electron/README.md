@@ -59,8 +59,9 @@ The TS/Rust mirroring rationale is `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`.
 - Bundling scripts: `scripts/` —
   - `bundle-main.ts` — rolldown bundle of `src/main.ts` to a single CJS `dist/main.cjs` for the release asar
     (AI SDK deps inlined; `import.meta` remapped to CJS equivalents)
-  - `copy-native-addon.ts` — dev: copies the cargo-built addon into `dist/` (honors `CARGO_TARGET_DIR`)
-  - `copy-native-release.ts` — packaged: same copy from the fixed workspace `target/release` path
+  - `copy-native-addon.ts` — copies the cargo-built addon into `dist/` (honors `CARGO_TARGET_DIR`):
+    the release build for `build-rust`, which `serve` and `build` depend on, and a debug build for
+    `apps/electron-e2e`
 - Packaging: `electron-builder.yml` — `dist/` flattened into the asar root beside `preload.js` and the `.node` addon,
   the built renderer included from workspace `dist/apps/electron-react` as extra resources;
   NSIS (win), dmg/zip (mac), AppImage/deb (linux).

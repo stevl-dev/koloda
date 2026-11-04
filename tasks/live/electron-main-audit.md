@@ -472,7 +472,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
     An INVARIANT on the constant keeps them so, and the assistant README lists the subpath.
   - Checked: the re-bundled `main.cjs` has no `import_macro.msg` call and inlines the deadline as 2500.
 
-- [ ] 9. Remove the second native addon copy from the packaged build
+- [x] 9. Remove the second native addon copy from the packaged build
   Goal (finding 9):
   - Delete `scripts/copy-native-release.ts` and its command in the `build` target (`project.json:92`).
     `build-rust`, which `build` depends on, already copies the release addon through `copy-native-addon.ts`.
