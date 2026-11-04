@@ -395,7 +395,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Read the titlebar colors from the hex tokens only
   Depends on: none
 
-- [ ] 7. Parse IPC errors only from the rejection message
+- [x] 7. Parse IPC errors only from the rejection message
   Goal (finding 6):
   - `src/app/electron.ts` `parseElectronError`: keep the `Error` message parse and the final `unknown` fallback.
     Delete the string branch and the plain-object branch.

@@ -291,12 +291,8 @@ describe("createElectronAIRuntime", () => {
 
   it("surfaces invoke failures as AIError with details (not the AppError code)", async () => {
     invokeMock.mockRejectedValueOnce(
-      Object.assign(
-        new Error(
-          'Error invoking remote method \'cmd_ai_list_models\': Error: {"code":"validation.settings-ai.providers.api-key","details":"apiKey is required"}',
-        ),
-        // Electron sometimes attaches a system code; must not win over JSON payload.
-        { code: "ERR_FAILED" },
+      new Error(
+        'Error invoking remote method \'cmd_ai_list_models\': Error: {"code":"validation.settings-ai.providers.api-key","details":"apiKey is required"}',
       ),
     );
 
@@ -304,6 +300,14 @@ describe("createElectronAIRuntime", () => {
     await expect(runtime.listModels("profile-1")).rejects.toEqual(
       new AIError("validation.settings-ai.providers.api-key", "apiKey is required"),
     );
+  });
+
+  it("surfaces an invoke failure without an error envelope as unknown, keeping its message", async () => {
+    const message = "Error invoking remote method 'cmd_ai_list_models': Error: worker gone";
+    invokeMock.mockRejectedValueOnce(new Error(message));
+
+    const runtime = createElectronAIRuntime();
+    await expect(runtime.listModels("profile-1")).rejects.toEqual(new AIError("unknown", message));
   });
 
   it("fails the stream waiter when chat start invoke rejects", async () => {
