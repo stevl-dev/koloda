@@ -29,7 +29,9 @@ export function loadWindowState(): WindowState {
 
 export function saveWindowState(win: BrowserWindow) {
   const isMaximized = win.isMaximized();
-  const bounds = isMaximized ? win.getNormalBounds() : win.getBounds();
+  // WHY: `getBounds()` of a minimized or fullscreen window is the taskbar stub or the whole screen.
+  // `getNormalBounds()` is the restored size in every state.
+  const bounds = win.getNormalBounds();
   const state: WindowState = {
     x: bounds.x,
     y: bounds.y,

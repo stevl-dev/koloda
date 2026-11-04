@@ -374,7 +374,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Replace Electron's default menu in packaged builds
   Depends on: 3
 
-- [ ] 5. Save the normal window bounds in every window state
+- [x] 5. Save the normal window bounds in every window state
   Goal (finding 5):
   - `src/window-state.ts` `saveWindowState`: always read `win.getNormalBounds()`; keep `isMaximized`.
   - Add `src/window-state.test.ts`.
