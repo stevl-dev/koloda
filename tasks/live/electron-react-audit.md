@@ -1,6 +1,6 @@
 # apps/electron-react audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, apps/electron-react/README.md, apps/electron/IPC.md, libs/settings-react/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/SYNC.md, docs/specs/HOTKEYS.md, agents/ADD-COLOR-THEME.md, agents/REVIEW.md
 Flow: local
 
@@ -249,8 +249,8 @@ Paths are relative to `apps/electron-react` unless they start with `apps/`, `lib
 
 ## Open questions
 
-- [x] 1. How does `Setup` learn that the join call is running (finding 2)? — A mutation key (triage choice, approve
-  with the plan).
+- [x] 1. How does `Setup` learn that the join call is running (finding 2)? — A mutation key (triage choice,
+  approved with the plan, human, 2026-11-04).
   `JoinFlow` runs `sync.joinMutation()` under an exported `SYNC_JOIN_MUTATION_KEY`, and `Setup` reads
   `useIsMutating` for it.
   It follows `INTERFACE_WRITE_KEY` in `libs/settings-react/src/lib/interface-controls/use-interface-setting-write.ts`.
