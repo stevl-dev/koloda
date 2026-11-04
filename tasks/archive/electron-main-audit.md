@@ -1,6 +1,6 @@
 # apps/electron main audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, apps/electron/README.md, apps/electron/IPC.md, libs/native-ipc/README.md, apps/electron-react/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/HOTKEYS.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/REVIEW.md
 Flow: local
 
@@ -584,4 +584,41 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
 
 ## Outcome
 
-<what shipped>
+All 13 findings are fixed; none is skipped or left open.
+Plan items 1-13 landed in order, plus one self-review commit that dropped an unused exported type from
+`startup-error.ts`.
+`git log --grep='Task: electron-main-audit'` lists them all.
+
+- Finding 1: `main.ts` reopens a window on `activate` and quits after a quit request once the last window closes.
+- Finding 2: a startup failure shows a native error box, "Couldn't start the app" or "Не удалось запустить
+  приложение" by device locale, with the error code and database path, then exits with code 1.
+  `startup-error.ts` builds the copy, with a table test.
+- Finding 3: `main.ts` holds a single-instance lock after `configureUserData()`; a second launch focuses the first
+  window, or opens one.
+- Finding 4: packaged builds get an app, Edit, and Window menu on macOS and none elsewhere; dev keeps the default.
+  The reload-key block stays with a WHY, and its dead F5 check is gone.
+- Finding 5: `saveWindowState` always saves `getNormalBounds()`.
+- Finding 6: `loadUiPrefs` and `loadWindowState` keep only well-typed fields; table tests cover both.
+- Finding 7: the renderer sends the overlay message on macOS too; main sets and saves the native background on every
+  platform.
+- Finding 8: the close deadline is `SHUTDOWN_FLUSH_TIMEOUT_MS + 500`.
+  Deviation: it imports through a new `@koloda/assistant/conversation-persistence-host` subpath, because the root
+  barrel pulls `@koloda/app`'s Lingui macros into main (see the item's Notes).
+- Finding 9: `copy-native-release.ts` and its `build` command are deleted.
+- Finding 10: `ElectronBridge` in `@koloda/native-ipc` types the preload object (`satisfies`), the renderer's global,
+  and `electron-close-coordination.ts`'s `ElectronCloseApi`.
+- Finding 11: `apps/electron-e2e/src/hotkeys.spec.ts` has a history-keys flow, including one from a focused text
+  field.
+- Finding 12: the stale and untagged comments are fixed, including a second stale line in `data-ipc.ts`.
+- Finding 13: the coordinator's timer hooks are gone; the conversation methods use `extract_id`, and the settings
+  methods share `SettingsWrite`.
+
+Checks: `bun run check:push` green on the tip before Archive.
+The test files `apps/electron`'s `tsc` excludes were type-checked once by hand.
+Not run by the agent: the app and the Playwright suites.
+The manual verify paths in each item, and the `sync.spec.ts` and `hotkeys.spec.ts` runs, were handed to the human.
+
+Seen, not fixed:
+
+- `task/mobile-spike` item 3 copies from `src-rust/src/lib.rs`; a copy made now picks up item 13's changes.
+- The "IPC drift" and "e2e suites" concern audits should not re-raise findings 10 and 11.
