@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { BrowserWindow } from "electron";
@@ -18,6 +18,35 @@ beforeEach(() => {
 
 afterEach(() => {
   rmSync(userData.dir, { recursive: true, force: true });
+});
+
+describe("loadWindowState", () => {
+  const defaults = { width: 1280, height: 720 };
+
+  it.each([
+    { name: "null", file: "null", state: defaults },
+    { name: "a string width", file: '{"width":"800","height":600}', state: defaults },
+    { name: "a zero height", file: '{"width":800,"height":0}', state: defaults },
+    {
+      name: "half a position",
+      file: '{"width":800,"height":600,"x":"a","y":0,"isMaximized":true}',
+      state: { width: 800, height: 600, isMaximized: true },
+    },
+    {
+      name: "a non-boolean maximized flag",
+      file: '{"width":800,"height":600,"x":10,"y":20,"isMaximized":"yes"}',
+      state: { width: 800, height: 600, x: 10, y: 20 },
+    },
+    {
+      name: "a valid file",
+      file: '{"width":800,"height":600,"x":10,"y":20,"isMaximized":false}',
+      state: { width: 800, height: 600, x: 10, y: 20, isMaximized: false },
+    },
+  ])("keeps only the well-typed fields of $name", ({ file, state }) => {
+    writeFileSync(join(userData.dir, "window-state.json"), file);
+
+    expect(loadWindowState()).toStrictEqual(state);
+  });
 });
 
 describe("saveWindowState", () => {

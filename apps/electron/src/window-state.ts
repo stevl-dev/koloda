@@ -17,13 +17,20 @@ export function loadWindowState(): WindowState {
   const defaults: WindowState = { width: 1280, height: 720 };
   try {
     const raw = readFileSync(join(app.getPath("userData"), WINDOW_STATE_FILE), "utf-8");
-    const state = JSON.parse(raw) as WindowState;
-    if (state.width > 0 && state.height > 0 && isWithinDisplay(state)) {
-      return state;
-    }
+    const saved: unknown = JSON.parse(raw);
+    if (typeof saved !== "object" || saved === null) return defaults;
+    const { x, y, width, height, isMaximized } = saved as Record<string, unknown>;
+    if (!isFiniteNumber(width) || !isFiniteNumber(height) || width <= 0 || height <= 0) return defaults;
+    const state: WindowState = {
+      width,
+      height,
+      ...(isFiniteNumber(x) && isFiniteNumber(y) ? { x, y } : {}),
+      ...(typeof isMaximized === "boolean" ? { isMaximized } : {}),
+    };
+    if (isWithinDisplay(state)) return state;
   } catch {}
-  // WHY: a missing or corrupted window-state.json must degrade to defaults, never
-  // crash window startup.
+  // WHY: a missing, corrupted, or wrongly typed window-state.json must degrade to defaults, never
+  // crash window startup or reach the BrowserWindow options. A position is kept only as a pair.
   return defaults;
 }
 
@@ -43,6 +50,10 @@ export function saveWindowState(win: BrowserWindow) {
     writeFileSync(join(app.getPath("userData"), WINDOW_STATE_FILE), JSON.stringify(state));
   } catch {}
   // WHY: bounds persistence is best-effort; a failed write must never fail close.
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function isWithinDisplay(state: WindowState): boolean {

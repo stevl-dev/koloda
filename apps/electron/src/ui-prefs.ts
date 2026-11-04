@@ -10,13 +10,23 @@ type UiPrefsState = {
   overlaySymbolColor?: string;
 };
 
+// WHY: a missing or corrupted ui-prefs.json degrades to defaults, and so does a field that is not a string;
+// nativeTheme supplies the surface colors instead. A file holding `null` must not crash window startup.
 export function loadUiPrefs(): UiPrefsState {
   try {
     const raw = readFileSync(join(app.getPath("userData"), UI_PREFS_FILE), "utf-8");
-    return JSON.parse(raw) as UiPrefsState;
+    const saved: unknown = JSON.parse(raw);
+    if (typeof saved !== "object" || saved === null) return {};
+    const color = (key: keyof UiPrefsState) => {
+      const value = (saved as Record<string, unknown>)[key];
+      return typeof value === "string" ? value : undefined;
+    };
+    return {
+      backgroundColor: color("backgroundColor"),
+      overlayColor: color("overlayColor"),
+      overlaySymbolColor: color("overlaySymbolColor"),
+    };
   } catch {
-    // WHY: missing or corrupted ui-prefs.json degrades to defaults; nativeTheme
-    // supplies the surface colors instead.
     return {};
   }
 }

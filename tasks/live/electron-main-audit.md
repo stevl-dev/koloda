@@ -392,7 +392,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Save the normal window bounds in every window state
   Depends on: none
 
-- [ ] 6. Keep only well-typed fields from the window prefs files
+- [x] 6. Keep only well-typed fields from the window prefs files
   Goal (finding 6):
   - `src/ui-prefs.ts` `loadUiPrefs`: when the parsed value is not a plain object, return `{}`.
     Otherwise keep each of `backgroundColor`, `overlayColor`, and `overlaySymbolColor` only when it is a string.
