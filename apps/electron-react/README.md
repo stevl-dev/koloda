@@ -27,14 +27,18 @@ Normally booted by `nx run @koloda/electron:serve`.
 - IPC bridge: `src/app/electron.ts` — typed `window.electronAPI` wrapper; IPC error payloads become `AppError`.
 - Wire format: `src/app/ipc.ts` — `toWire`/`fromWire` (Date to epoch ms, BigInt checks) for NAPI-safe payloads.
 - AI runtime: `src/app/ai-runtime.ts` — streaming chat over the `ai:stream` channel; errors map to `AIError`.
-- Sync: `src/app/use-sync-engine.ts` starts the engine once the database status is known and nudges it on focus and
-  when the network returns; `src/app/sync-events.ts` refreshes the queries each synced kind feeds.
+- Sync: `src/app/sync-queries.ts` — the sync queries; the status query starts the engine (`createSyncStart`).
+  `src/app/use-sync-engine.ts` provides the starter once the database status is known, prefetches the status, and
+  nudges the engine on focus and when the network returns; `src/app/sync-events.ts` refreshes the queries each synced
+  kind feeds.
 - Queries: `src/app/queries.ts` — the `Queries` contract as `cmd_*` invokes against the Rust core.
+- Attachment bytes: `src/app/base64.ts` — base64 encoding for attachment bytes over IPC, in bounded chunks.
 - Optimizer: `src/app/optimizer-queries.ts` — FSRS optimization runs with progress and cancel, set as
   `optimizerQueriesAtom`, which only the desktop provides.
 - Setup: `src/app/setup.ts` — database status, seeding via IPC, and the starter content sync repair shares.
 - Close coordination: `src/app/electron-close-coordination.ts` — durable interrupt and flush before window destroy.
-- Store wiring: `src/app/store.ts` — jotai store, UI preferences, navigator locale detection.
+- Store wiring: `src/app/store.ts` — jotai store, UI preferences, and the host adapters set as atoms.
+- Language: `src/app/i18n.ts` — language from storage or the navigator, and catalog activation.
 - Chrome: `src/components/` — app entry with the blank-database setup gate, setup screen (start fresh or join a sync
   space), titlebar with the sync indicator.
 

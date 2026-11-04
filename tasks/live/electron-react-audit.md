@@ -475,7 +475,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Remove leftover exports and configuration from the desktop renderer
   Depends on: 2 (edits `setup.tsx`), 3 (edits `tsconfig.app.json`), 4 (edits `main.tsx`)
 
-- [ ] 11. Bring the electron-react README up to date
+- [x] 11. Bring the electron-react README up to date
   Goal (finding 11), `README.md` §Architectural Map:
   - The sync line: `src/app/sync-queries.ts` starts the engine from the status query (`createSyncStart`) and holds
     the sync queries.
