@@ -7,6 +7,8 @@ import { openDb } from "./db";
 import type { DB } from "./db";
 import { applyPendingMigrations, compareMigrationNames, getAppliedMigrationNames, getStatus } from "./migrate";
 
+// WHY: listed in the `default` Nx inputs (project.json) with `migrate.ts`'s glob; a new read outside the package needs
+// the same entry, or Nx replays a cached pass after the file changes.
 const MIGRATIONS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../crates/koloda/src/migrations");
 
 async function deleteIdb(name: string) {

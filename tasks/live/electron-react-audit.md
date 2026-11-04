@@ -274,7 +274,7 @@ Keep them honest by hand.
 The agent never starts the app or a Playwright suite (`agents/VERIFY.md`).
 Each item that changes runtime behavior hands the human a desktop manual verify.
 
-- [ ] 1. Rerun the parity tests when the files they read change
+- [x] 1. Rerun the parity tests when the files they read change
   Goal (finding 1):
   - `project.json` `test` inputs: add `"{workspaceRoot}/crates/koloda-sync-proto/src/registry.rs"`.
   - `libs/app/project.json` `test` inputs, each under `{workspaceRoot}/`:

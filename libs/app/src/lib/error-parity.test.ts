@@ -43,6 +43,8 @@ const TS_ONLY_ERROR_CODES = [
   "validation.sync.name.too-long",
 ] as const;
 
+// WHY: both files sit outside `libs/app`, so they are listed as inputs of its `test` target (project.json); without
+// that, Nx replays a cached pass after they change. A new read outside the package needs the same entry.
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RUST_ERROR_RS = resolve(HERE, "../../../../crates/koloda/src/app/error.rs");
 const ADDON_SYNC_RS = resolve(HERE, "../../../../apps/electron/src-rust/src/sync.rs");

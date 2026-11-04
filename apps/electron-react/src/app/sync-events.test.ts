@@ -10,6 +10,8 @@ import { applySyncEvent, SYNC_KIND_QUERY_KEYS } from "./sync-events";
 
 // WHY: the kinds come from the Rust registry, parsed at test time like `libs/app` error parity,
 // so a kind added there fails here until its rows refresh the screens that show them.
+// The file is listed as an input of this package's `test` target (project.json); without that, Nx replays a cached
+// pass after it changes. A new read outside the package needs the same entry.
 const REGISTRY_RS = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "../../../../crates/koloda-sync-proto/src/registry.rs",

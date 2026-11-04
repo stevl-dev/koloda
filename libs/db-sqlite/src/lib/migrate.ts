@@ -6,6 +6,8 @@ import { nowMs } from "./sql";
 // shared V*.sql series.
 const MIGRATIONS_TABLE = "_migrations";
 
+// WHY: the SQL sits outside this package, so it is listed in the `default` Nx inputs (project.json). Projects that
+// depend on this one hash it through `^default`; without it, Nx replays cached results after a new migration.
 const migrationFiles: Record<string, { default: string }> = import.meta.glob(
   "../../../../crates/koloda/src/migrations/*.sql",
   {

@@ -6,6 +6,15 @@
   ],
   "sourceRoot": "libs/db-sqlite/src",
   "projectType": "library",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "!{projectRoot}/**/*.md",
+      "sharedGlobals",
+      "{workspaceRoot}/crates/koloda/src/migrations/*.sql",
+      "{workspaceRoot}/crates/koloda/src/migrations/schema-inventory.json"
+    ]
+  },
   "targets": {
     "test": {
       "executor": "nx:run-commands",

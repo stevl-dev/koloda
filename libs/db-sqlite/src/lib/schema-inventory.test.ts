@@ -10,6 +10,8 @@ import { createTestDb } from "../test/test-helpers";
 // schema_inventory_tests.rs).
 const BOOKKEEPING_TABLES = new Set(["_migrations"]);
 
+// WHY: the snapshot sits outside this package, so it is listed in the `default` Nx inputs (project.json); without
+// that, Nx replays a cached pass after it changes. A new read outside the package needs the same entry.
 const SNAPSHOT_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "../../../../crates/koloda/src/migrations/schema-inventory.json",

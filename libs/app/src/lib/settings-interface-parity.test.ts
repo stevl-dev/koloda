@@ -17,6 +17,8 @@ import {
 // value added on one side only fails here instead of being rejected silently on the desktop.
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../../../..");
+// WHY: these files sit outside `libs/app`, so they are listed as inputs of its `test` target (project.json); without
+// that, Nx replays a cached pass after they change. A new read outside the package needs the same entry.
 const RUST_SETTINGS_INTERFACE = readFileSync(resolve(ROOT, "crates/koloda/src/domain/settings_interface.rs"), "utf8");
 const THEME_BOOT = readFileSync(resolve(ROOT, "libs/settings-react/public/theme-boot.js"), "utf8");
 const THEMES_DIR = resolve(ROOT, "libs/ui/src/lib/styles/themes");
