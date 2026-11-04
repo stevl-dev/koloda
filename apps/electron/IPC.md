@@ -4,9 +4,11 @@ The channel contract between the desktop renderer (`apps/electron-react`) and th
 Update this file in the same change as any handler.
 
 All renderer-to-main calls go through one `window.electronAPI.invoke(cmd, args)` from the preload.
+The bridge's shape is `ElectronBridge` in `@koloda/native-ipc`: the preload's object `satisfies` it through a
+type-only import (erased when swc compiles the preload standalone), and the renderer's `window` global uses it.
+Its `invoke` is untyped transport.
 The renderer wraps it in a typed `invoke` (`apps/electron-react/src/app/electron.ts`) whose
-channel keys, args, and results are enforced by the contract below; the preload keeps the same
-signature via a type-only import (erased when swc compiles it standalone).
+channel keys, args, and results are enforced by the contract below.
 Main-to-renderer pushes arrive on `window.electronAPI.on(channel, callback)` subscriptions.
 
 ## Conventions

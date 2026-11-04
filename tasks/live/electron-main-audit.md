@@ -487,7 +487,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Remove the second native addon copy from the packaged build
   Depends on: none
 
-- [ ] 10. Declare the preload bridge type once in native-ipc
+- [x] 10. Declare the preload bridge type once in native-ipc
   Goal (finding 10):
   - `libs/native-ipc/src/index.ts`: export `type ElectronBridge`, the shape of `window.electronAPI`.
     Its members are `invoke(channel: string, args?: unknown): Promise<unknown>` and `on(channel, callback)` returning
@@ -516,6 +516,11 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   all work as before.
   Commit: Declare the preload bridge type once in native-ipc
   Depends on: none
+  Notes:
+  - Beyond the plan text: `apps/electron-react/src/app/electron-close-coordination.ts` had a third partial copy,
+    `ElectronCloseApi`, with its own generic `invoke`.
+    It is now `Pick<ElectronBridge, "on" | "invoke">`.
+  - `apps/electron/README.md`'s preload line names `ElectronBridge`.
 
 - [ ] 11. Add a desktop e2e flow for the history keys
   Goal (finding 11):

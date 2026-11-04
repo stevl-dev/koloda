@@ -153,6 +153,23 @@ export const WINDOW_SET_TITLE_BAR_OVERLAY_CHANNEL = "window:set-title-bar-overla
 export const WINDOW_SET_WINDOW_BUTTON_POSITION_CHANNEL = "window:set-window-button-position";
 
 /**
+ * The preload's `window.electronAPI`: `apps/electron/src/preload.ts` `satisfies` it, and the renderer's global uses it.
+ * `invoke` is untyped transport for every channel. The renderer's typed `invoke` checks data channels against
+ * `DataIpc`; the window and shutdown channels go by the constants above.
+ */
+export type ElectronBridge = {
+  invoke: (channel: string, args?: unknown) => Promise<unknown>;
+  on: (channel: string, callback: (...args: unknown[]) => void) => () => void;
+  getZoomFactor: () => number;
+  getZoomLevel: () => number;
+  onZoomFactorChanged: (callback: (zoomFactor: number) => void) => () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  zoomReset: () => void;
+  setZoomLevel: (level: number) => void;
+};
+
+/**
  * Events streamed main-to-renderer on `AI_STREAM_CHANNEL`, all keyed by
  * `requestId` so concurrent runs can be correlated and aborted individually.
  */

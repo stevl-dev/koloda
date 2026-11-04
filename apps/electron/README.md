@@ -47,7 +47,7 @@ The TS/Rust mirroring rationale is `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`.
 - Close handshake: `src/window-close-coordinator.ts` — bounded 2500 ms shutdown request/ack
   so the renderer flushes before destroy.
 - Preload: `src/preload.ts` — `contextBridge` exposes `electronAPI`:
-  generic `invoke`/`on` plus `webFrame` zoom controls.
+  generic `invoke`/`on` plus `webFrame` zoom controls, checked against `ElectronBridge` from `@koloda/native-ipc`.
 - Rust addon: `src-rust/` — `koloda-electron` cdylib;
   `KolodaDb` NAPI façade over `koloda` (SQLite at `<userData>/koloda.db`).
   Methods return Promises and run on one dedicated database thread, in call order.

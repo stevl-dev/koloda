@@ -1,13 +1,11 @@
 import { shutdownAssistantGracefully } from "@koloda/assistant-react";
 import { APP_SHUTDOWN_ACK_CHANNEL, APP_SHUTDOWN_REQUEST_CHANNEL } from "@koloda/native-ipc";
+import type { ElectronBridge } from "@koloda/native-ipc";
 import type { createStore } from "jotai";
 
 type AssistantJotaiStore = ReturnType<typeof createStore>;
 
-type ElectronCloseApi = {
-  on: (channel: string, callback: (...args: unknown[]) => void) => () => void;
-  invoke: <T>(cmd: string, args?: unknown) => Promise<T>;
-};
+type ElectronCloseApi = Pick<ElectronBridge, "on" | "invoke">;
 
 /**
  * Electron-only: main sends `app:shutdown-request` on window close; renderer

@@ -1,21 +1,11 @@
 import { AppError } from "@koloda/app";
 import type { ErrorCode } from "@koloda/app";
-import type { DataChannel, IpcArgs, IpcResult } from "@koloda/native-ipc";
+import type { DataChannel, ElectronBridge, IpcArgs, IpcResult } from "@koloda/native-ipc";
 import { fromWire, toWire } from "./ipc";
 
 declare global {
   interface Window {
-    electronAPI: {
-      invoke: <T>(cmd: string, args?: unknown) => Promise<T>;
-      on: (channel: string, callback: (...args: unknown[]) => void) => () => void;
-      getZoomFactor: () => number;
-      getZoomLevel: () => number;
-      onZoomFactorChanged: (callback: (zoomFactor: number) => void) => () => void;
-      zoomIn: () => void;
-      zoomOut: () => void;
-      zoomReset: () => void;
-      setZoomLevel: (level: number) => void;
-    };
+    electronAPI: ElectronBridge;
   }
 }
 
@@ -67,7 +57,7 @@ function parseElectronError(error: unknown): ConstructorParameters<typeof AppErr
 export async function invoke<C extends DataChannel>(channel: C, args: IpcArgs<C>): Promise<IpcResult<C>> {
   try {
     const wire = args === undefined ? args : toWire(args);
-    const raw = await window.electronAPI.invoke<unknown>(channel, wire);
+    const raw = await window.electronAPI.invoke(channel, wire);
     return fromWire<IpcResult<C>>(raw);
   } catch (error) {
     throw new AppError(...parseElectronError(error));

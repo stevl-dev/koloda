@@ -17,6 +17,7 @@ surfacing as "no handler" at runtime. The human-readable surface it enforces is
 - `src/index.ts` — the whole package: `DataIpc` contract, `DataChannel`/
   `DataOnlyChannel`/`IpcArgs`/`IpcResult` helpers, push-channel constants, `AiStreamEvent`,
   the sync wire types `SyncEvent`, `SyncKind`, and `SyncStarter`, and `OptimizerProgressEvent`.
+  `ElectronBridge` is the type of the preload's `window.electronAPI`, shared by the preload and the renderer.
 
 ### Does NOT own (prevent scope creep)
 
