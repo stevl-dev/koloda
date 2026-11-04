@@ -332,7 +332,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Disable the setup pickers while setup or the join runs
   Depends on: none
 
-- [ ] 3. Keep the base ES library in the renderer tsconfig
+- [x] 3. Keep the base ES library in the renderer tsconfig
   Goal (finding 3): delete `"lib": ["dom"]` from `tsconfig.app.json:10`, so the base `["es2022", "dom"]` applies.
   Constraints: that one line; `apps/web/tsconfig.app.json` does not change (Scope, Out).
   Done when: `nx run @koloda/electron-react:typecheck` and `bun run typecheck` pass.
