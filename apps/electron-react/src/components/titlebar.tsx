@@ -58,11 +58,9 @@ export function Titlebar() {
       const el = titlebarRef.current;
       if (!el) return;
 
-      if (platform === "macos") {
-        updateWindowButtonPosition(el);
-        return;
-      }
-
+      if (platform === "macos") updateWindowButtonPosition(el);
+      // WHY: also on macOS, which has no overlay: the message carries the native window background, which main
+      // applies and saves for the next start.
       updateOverlay(el);
     }
 

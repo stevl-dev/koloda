@@ -418,7 +418,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Keep only well-typed fields from the window prefs files
   Depends on: 5
 
-- [ ] 7. Save and apply the native window background on every platform
+- [x] 7. Save and apply the native window background on every platform
   Goal (finding 7).
   Triage chose this approach: it reuses the overlay channel instead of adding a channel or widening the
   button-position one.

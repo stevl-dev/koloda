@@ -148,7 +148,8 @@ processes import them instead of repeating the literals.
 
 - `window:maximize` (toggle) — the only window-control channel the renderer invokes;
   native overlay buttons and traffic lights handle minimize and close
-- `window:set-title-bar-overlay` `{ color, symbolColor, height }` — non-macOS only; persists colors to `ui-prefs.json`
+- `window:set-title-bar-overlay` `{ color, symbolColor, height }` — on every platform sets the native window
+  background to `color` and persists the colors to `ui-prefs.json`; off macOS it also applies the overlay
 - `window:set-window-button-position` `{ titlebarHeight }` — macOS traffic lights
 - Close handshake (`src/window-close-coordinator.ts`; channel names in `@koloda/native-ipc`):
   - main sends `app:shutdown-request`; the renderer interrupts and flushes, then answers `app:shutdown-ack`

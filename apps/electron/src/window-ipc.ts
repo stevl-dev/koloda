@@ -28,13 +28,18 @@ export function registerWindowIpc() {
     (event, options: { color?: string; symbolColor?: string; height?: number }) => {
       assertAppSender(event);
       const win = BrowserWindow.fromWebContents(event.sender);
-      if (!win || process.platform === "darwin") return;
-      win.setTitleBarOverlay({
-        height: options.height ?? TITLEBAR_HEIGHT,
-        color: options.color,
-        symbolColor: options.symbolColor,
-      });
+      if (!win) return;
+      if (process.platform !== "darwin") {
+        win.setTitleBarOverlay({
+          height: options.height ?? TITLEBAR_HEIGHT,
+          color: options.color,
+          symbolColor: options.symbolColor,
+        });
+      }
       if (options.color) {
+        // WHY: on every platform the saved color is the native background at the next start (window.ts),
+        // and setting it now keeps a resize from showing the startup color after a theme change.
+        win.setBackgroundColor(options.color);
         saveUiPrefs({
           backgroundColor: options.color,
           overlayColor: options.color,
