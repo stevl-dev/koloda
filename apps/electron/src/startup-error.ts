@@ -1,5 +1,3 @@
-export type StartupErrorMessage = { title: string; content: string };
-
 // WHY: main has no Lingui catalog, and the language the user picked lives in the renderer, which never started.
 // INTERFACE-SETTINGS.md (§Language) falls back to the device language, which main has; these are the two offered
 // languages.
@@ -8,7 +6,11 @@ const COPY = {
   ru: { title: "Не удалось запустить приложение", database: "База данных" },
 };
 
-export function describeStartupError(error: unknown, locale: string, dbPath: string): StartupErrorMessage {
+export function describeStartupError(
+  error: unknown,
+  locale: string,
+  dbPath: string,
+): { title: string; content: string } {
   const copy = locale.toLowerCase().startsWith("ru") ? COPY.ru : COPY.en;
   return { title: copy.title, content: `${startupErrorReason(error)}\n\n${copy.database}: ${dbPath}` };
 }
