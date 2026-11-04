@@ -306,6 +306,10 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — Nx cache inputs only.
   Commit: Rerun the parity tests when the files they read change
   Depends on: none
+  Notes:
+  - Checked: after a one-line edit, each run below missed the cache, and the run before it was a cache hit.
+    `@koloda/electron-react:test` (`registry.rs`), `@koloda/app:test` (`error.rs`, then `atom-one-dark.css` for the
+    glob), `@koloda/db-sqlite:test` (`schema-inventory.json`), and `@koloda/web:test-unit` (a `V17` migration).
 
 - [x] 2. Disable the setup pickers while setup or the join runs
   Goal (finding 2; approach in Open question 1):
@@ -340,6 +344,8 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — type library only.
   Commit: Keep the base ES library in the renderer tsconfig
   Depends on: none
+  Notes:
+  - Control: with the old `"lib": ["dom"]` restored, the same `Object.hasOwn` probe failed the typecheck.
 
 - [x] 4. Fix comment residue in the desktop renderer
   Goal (finding 10):
@@ -374,6 +380,9 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Open an assistant conversation, send a message → close the window → relaunch → the conversation is intact.
   Commit: Drop the renderer's standalone browser mode
   Depends on: 4 (both edit `electron-close-coordination.ts`)
+  Notes:
+  - The Done-when grep finds one hit, `use-electron-zoom.test.ts:20`.
+    It is the test cleanup that deletes the stubbed bridge, not a guard.
 
 - [x] 6. Read the titlebar colors from the hex tokens only
   Goal (finding 5):
@@ -412,6 +421,8 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — the deleted branches cannot run, and the kept path is pinned by the `ai-runtime` cases.
   Commit: Parse IPC errors only from the rejection message
   Depends on: none
+  Notes:
+  - The new case is "surfaces an invoke failure without an error envelope as unknown, keeping its message".
 
 - [x] 8. Test the real AppError, attachment cap, and wire bounds
   Goal (finding 7):
@@ -433,6 +444,16 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — tests only.
   Commit: Test the real AppError, attachment cap, and wire bounds
   Depends on: 4 (both edit `ipc.test.ts`), 7 (both edit `ai-runtime.test.ts`)
+  Notes:
+  - Survival, by mutation: an off-by-one bound fails the `MAX_SAFE_INTEGER` row; without the `NaN` check the
+    Invalid Date row fails; without the message parse two AI error cases fail against the real `AppError`.
+  - Seen, not fixed (pre-existing, outside the finding): `tsconfig.app.json` excludes test files, so nothing
+    type-checks them.
+    A scratch tsconfig shows 12 errors in the renderer tests:
+    - `ai-runtime.test.ts` builds chat input with `prompt` and stream events with string `chunk`s.
+      The contract has no `prompt`, and `chunk` is a `ChatStreamChunk` object.
+      The runtime passes chunks through, so the cases still pass.
+    - `electron-close-coordination.test.ts:7` spreads arguments into a mock typed with no parameters.
 
 - [x] 9. Test zoom persistence and the zoom keys
   Goal (finding 8), in `src/app/use-electron-zoom.test.ts`:
@@ -449,6 +470,8 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — tests only.
   Commit: Test zoom persistence and the zoom keys
   Depends on: none
+  Notes:
+  - Survival, by mutation: dropping the restore, the save, or adding a text-field guard each fails a row.
 
 - [x] 10. Remove leftover exports and configuration from the desktop renderer
   Goal (finding 9):
