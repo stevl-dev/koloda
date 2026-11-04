@@ -413,7 +413,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Parse IPC errors only from the rejection message
   Depends on: none
 
-- [ ] 8. Test the real AppError, attachment cap, and wire bounds
+- [x] 8. Test the real AppError, attachment cap, and wire bounds
   Goal (finding 7):
   - `src/app/ai-runtime.test.ts`: delete the `vi.mock("@koloda/app")` block (`:5-20`) and move the remaining imports
     to the top.

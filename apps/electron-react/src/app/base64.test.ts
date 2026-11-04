@@ -1,8 +1,6 @@
+import { ATTACHMENT_MAX_BYTES } from "@koloda/srs";
 import { describe, expect, it } from "vitest";
 import { base64ToBytes, bytesToBase64 } from "./base64";
-
-// WHY: the attachment size cap; the @koloda/srs barrel pulls Lingui macros this runner cannot load.
-const ATTACHMENT_MAX_BYTES = 5_242_880;
 
 describe("base64 codec", () => {
   it("round-trips a cap-sized payload with every byte value", () => {

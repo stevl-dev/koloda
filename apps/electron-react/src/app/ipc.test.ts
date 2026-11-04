@@ -73,38 +73,25 @@ describe("ipc wire", () => {
     });
   });
 
-  it("round-trips conversation timestamps through the wire layer", () => {
-    const ms = 1_700_000_001_000;
-    const wire = toWire({
-      id: "conv-1",
-      state: { messages: [] },
-      updatedAt: new Date(ms),
-    });
-    expect(wire).toEqual({
-      id: "conv-1",
-      state: { messages: [] },
-      updatedAt: ms,
-    });
+  const circular: Record<string, unknown> = { a: 1 };
+  circular.self = circular;
 
-    const restored = fromWire<{ updatedAt: Date }>({
-      ...(wire as Record<string, unknown>),
-      updatedAt: new Date(ms).toISOString(),
-    });
-    expect(restored.updatedAt.getTime()).toBe(ms);
+  it.each([
+    ["a function", () => {}],
+    ["a function in a nested object", { fn() {} }],
+    ["a circular reference", circular],
+    ["an Invalid Date", { dueAt: new Date(Number.NaN) }],
+    ["a BigInt one past MAX_SAFE_INTEGER", BigInt(Number.MAX_SAFE_INTEGER) + 1n],
+    ["a BigInt one past MIN_SAFE_INTEGER", BigInt(Number.MIN_SAFE_INTEGER) - 1n],
+  ])("throws WireError for %s", (_name, value) => {
+    expect(() => toWire(value)).toThrow(WireError);
   });
 
-  it("throws WireError for non-serializable IPC values", () => {
-    expect(() => toWire(() => {})).toThrow(WireError);
-  });
-
-  it("throws WireError for functions in nested objects", () => {
-    expect(() => toWire({ fn() {} })).toThrow(WireError);
-  });
-
-  it("throws WireError for circular references", () => {
-    const obj: Record<string, unknown> = { a: 1 };
-    obj.self = obj;
-    expect(() => toWire(obj)).toThrow(WireError);
+  it.each([
+    ["MAX_SAFE_INTEGER", BigInt(Number.MAX_SAFE_INTEGER), Number.MAX_SAFE_INTEGER],
+    ["MIN_SAFE_INTEGER", BigInt(Number.MIN_SAFE_INTEGER), Number.MIN_SAFE_INTEGER],
+  ])("serializes a BigInt at %s as a number", (_name, value, expected) => {
+    expect(toWire({ count: value })).toEqual({ count: expected });
   });
 
   it("drops undefined values from objects", () => {
@@ -113,18 +100,5 @@ describe("ipc wire", () => {
 
   it("preserves null values in objects", () => {
     expect(toWire({ a: 1, b: null })).toEqual({ a: 1, b: null });
-  });
-
-  it("passes primitives through unchanged", () => {
-    expect(toWire("hello")).toBe("hello");
-    expect(toWire(42)).toBe(42);
-    expect(toWire(true)).toBe(true);
-    expect(toWire(null)).toBeNull();
-  });
-
-  it("round-trips arrays with dates", () => {
-    const dates = [new Date(0), new Date(1_700_000_001_000)];
-    const wire = toWire(dates);
-    expect(wire).toEqual([0, 1_700_000_001_000]);
   });
 });

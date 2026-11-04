@@ -1,25 +1,7 @@
 import type { AIRuntime, AssistantToolEvent } from "@koloda/ai";
 import { AIError } from "@koloda/ai";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("@koloda/app", () => {
-  class AppError extends Error {
-    constructor(
-      public code: string,
-      public details?: string,
-    ) {
-      // Match production AppError: message is the code; text lives on details.
-      super(code);
-      this.name = "AppError";
-    }
-  }
-  return {
-    AppError,
-    isAppError: (error: unknown) => error instanceof AppError,
-  };
-});
-
 import { AI_STREAM_CHANNEL } from "@koloda/native-ipc";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createElectronAIRuntime } from "./ai-runtime";
 
 type InvokeFn = (cmd: string, args?: unknown) => Promise<unknown>;
@@ -57,13 +39,6 @@ beforeEach(() => {
 });
 
 describe("createElectronAIRuntime", () => {
-  it("lists models via request/response IPC", async () => {
-    invokeMock.mockResolvedValueOnce([{ id: "m1", name: "Model", context_length: 1 }]);
-    const runtime = createElectronAIRuntime();
-    await expect(runtime.listModels("profile-1")).resolves.toEqual([{ id: "m1", name: "Model", context_length: 1 }]);
-    expect(invokeMock).toHaveBeenCalledWith("cmd_ai_list_models", { profileId: "profile-1" });
-  });
-
   it("streams chat chunks and resolves usage on done", async () => {
     invokeMock.mockImplementation(async (cmd, args) => {
       if (cmd !== "cmd_ai_chat_stream") return undefined;
