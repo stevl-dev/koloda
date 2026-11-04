@@ -567,7 +567,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   - The `data-ipc.ts` comment was also stale: it said only AI channels register elsewhere.
     It now names `DataOnlyChannel` and the AI, media, sync, and optimizer modules.
 
-- [ ] 13. Remove unused close coordinator hooks and duplicate wire structs
+- [x] 13. Remove unused close coordinator hooks and duplicate wire structs
   Goal (finding 13):
   - `src/window-close-coordinator.ts`: delete `timeoutMs`, `setTimeoutFn`, and `clearTimeoutFn` from the hooks.
     Use `WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS`, `setTimeout`, and `clearTimeout` directly.

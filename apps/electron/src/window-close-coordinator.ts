@@ -15,9 +15,6 @@ export type WindowCloseCoordinatorHooks = {
   requestRendererShutdown: () => void;
   closeWindow: () => void;
   forceCloseWindow: () => void;
-  timeoutMs?: number;
-  setTimeoutFn?: (fn: () => void, ms: number) => ReturnType<typeof setTimeout>;
-  clearTimeoutFn?: (id: ReturnType<typeof setTimeout>) => void;
 };
 
 export type WindowCloseCoordinator = {
@@ -29,13 +26,10 @@ export type WindowCloseCoordinator = {
 export function createWindowCloseCoordinator(hooks: WindowCloseCoordinatorHooks): WindowCloseCoordinator {
   let phase: "idle" | "awaiting_ack" | "closing" = "idle";
   let timer: ReturnType<typeof setTimeout> | null = null;
-  const timeoutMs = hooks.timeoutMs ?? WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS;
-  const setTimeoutFn = hooks.setTimeoutFn ?? setTimeout;
-  const clearTimeoutFn = hooks.clearTimeoutFn ?? clearTimeout;
 
   const clearTimer = () => {
     if (timer == null) return;
-    clearTimeoutFn(timer);
+    clearTimeout(timer);
     timer = null;
   };
 
@@ -57,10 +51,10 @@ export function createWindowCloseCoordinator(hooks: WindowCloseCoordinatorHooks)
       if (phase === "awaiting_ack") return "defer";
       phase = "awaiting_ack";
       hooks.requestRendererShutdown();
-      timer = setTimeoutFn(() => {
+      timer = setTimeout(() => {
         timer = null;
         beginClosing(true);
-      }, timeoutMs);
+      }, WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS);
 
       return "defer";
     },

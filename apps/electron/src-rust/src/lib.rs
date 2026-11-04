@@ -74,6 +74,12 @@ fn extract_name(params: serde_json::Value) -> Result<String> {
     from_wire::<P>(params).map(|p| p.name)
 }
 
+#[derive(serde::Deserialize)]
+struct SettingsWrite {
+    name: String,
+    content: serde_json::Value,
+}
+
 // WHY: `toWire` walks a `Uint8Array` as a plain object, so attachment bytes cross IPC as base64.
 #[derive(serde::Serialize)]
 struct AttachmentContentWire {
@@ -520,12 +526,7 @@ impl KolodaDb {
     #[napi]
     pub fn set_settings(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
         self.run_write(env, move |db| {
-            #[derive(serde::Deserialize)]
-            struct P {
-                name: String,
-                content: serde_json::Value,
-            }
-            let p: P = from_wire(params)?;
+            let p: SettingsWrite = from_wire(params)?;
             let name = parse_settings_name(&p.name)?;
             let settings = repo::settings::set_settings(db, name, p.content).map_err(to_napi_error)?;
             to_value(&settings)
@@ -535,12 +536,7 @@ impl KolodaDb {
     #[napi]
     pub fn patch_settings(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
         self.run_write(env, move |db| {
-            #[derive(serde::Deserialize)]
-            struct P {
-                name: String,
-                content: serde_json::Value,
-            }
-            let p: P = from_wire(params)?;
+            let p: SettingsWrite = from_wire(params)?;
             let name = parse_settings_name(&p.name)?;
             let settings = repo::settings::patch_settings(db, name, p.content).map_err(to_napi_error)?;
             to_value(&settings)
@@ -550,12 +546,8 @@ impl KolodaDb {
     #[napi]
     pub fn get_conversation(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
         self.run(env, move |db| {
-            #[derive(serde::Deserialize)]
-            struct P {
-                id: String,
-            }
-            let p: P = from_wire(params)?;
-            let conversation = repo::conversations::get_conversation(db, &p.id).map_err(to_napi_error)?;
+            let id = extract_id(params)?;
+            let conversation = repo::conversations::get_conversation(db, &id).map_err(to_napi_error)?;
             conversation.map(|c| to_value(&c)).transpose()
         })
     }
@@ -580,12 +572,8 @@ impl KolodaDb {
     #[napi]
     pub fn delete_conversation(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
         self.run(env, move |db| {
-            #[derive(serde::Deserialize)]
-            struct P {
-                id: String,
-            }
-            let p: P = from_wire(params)?;
-            repo::conversations::delete_conversation(db, &p.id).map_err(to_napi_error)
+            let id = extract_id(params)?;
+            repo::conversations::delete_conversation(db, &id).map_err(to_napi_error)
         })
     }
 

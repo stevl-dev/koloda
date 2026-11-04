@@ -44,7 +44,6 @@ describe("createWindowCloseCoordinator", () => {
       requestRendererShutdown,
       closeWindow,
       forceCloseWindow,
-      timeoutMs: WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS,
     });
 
     expect(coordinator.onCloseAttempt()).toBe("defer");
@@ -69,11 +68,10 @@ describe("createWindowCloseCoordinator", () => {
       requestRendererShutdown: vi.fn<() => void>(),
       closeWindow,
       forceCloseWindow,
-      timeoutMs: 100,
     });
 
     coordinator.onCloseAttempt();
-    vi.advanceTimersByTime(100);
+    vi.advanceTimersByTime(WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS);
     expect(forceCloseWindow).toHaveBeenCalledTimes(1);
 
     coordinator.onShutdownAck();
@@ -88,12 +86,11 @@ describe("createWindowCloseCoordinator", () => {
       requestRendererShutdown: vi.fn<() => void>(),
       closeWindow: vi.fn<() => void>(),
       forceCloseWindow,
-      timeoutMs: 100,
     });
 
     coordinator.onCloseAttempt();
     coordinator.dispose();
-    vi.advanceTimersByTime(100);
+    vi.advanceTimersByTime(WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS);
     expect(forceCloseWindow).not.toHaveBeenCalled();
   });
 });
