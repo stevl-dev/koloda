@@ -308,7 +308,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
     That keeps the rest of `main.ts` unindented, and Electron does not say whether `whenReady` resolves after a
     `quit()` before ready.
 
-- [ ] 3. Show a startup failure and exit
+- [x] 3. Show a startup failure and exit
   Goal (finding 2):
   - Add `src/startup-error.ts`, a pure module next to `navigation-policy.ts`.
     It exports `describeStartupError(error: unknown, locale: string, dbPath: string): { title; content }`.

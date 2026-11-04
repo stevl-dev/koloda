@@ -1,4 +1,4 @@
-import { BrowserWindow, app } from "electron";
+import { BrowserWindow, app, dialog } from "electron";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { registerDataIpc } from "./data-ipc";
@@ -7,6 +7,7 @@ import { registerOptimizerIpc } from "./optimizer-ipc";
 import { registerSyncIpc } from "./sync-ipc";
 import { appDir, isDev } from "./env";
 import type { KolodaDb } from "./koloda-db";
+import { describeStartupError } from "./startup-error";
 import { createWindow } from "./window";
 import { registerWindowIpc } from "./window-ipc";
 
@@ -47,16 +48,26 @@ app.whenReady().then(() => {
   // INVARIANT: a second instance only hands over to the first; it must never open the database.
   if (!hasInstanceLock) return;
 
-  const native = loadNativeAddon();
   const dbPath = join(app.getPath("userData"), "koloda.db");
-  const db = new native.KolodaDb(dbPath);
+  try {
+    const native = loadNativeAddon();
+    const db = new native.KolodaDb(dbPath);
 
-  registerWindowIpc();
-  registerDataIpc(db);
-  registerMediaIpc(db);
-  registerSyncIpc(db);
-  registerOptimizerIpc(db);
-  createWindow();
+    registerWindowIpc();
+    registerDataIpc(db);
+    registerMediaIpc(db);
+    registerSyncIpc(db);
+    registerOptimizerIpc(db);
+    createWindow();
+  } catch (error) {
+    // WHY: a database that cannot open or migrate throws here, before any window exists.
+    // Uncaught, it would leave a process with no window on Windows and Linux. With no window there is nothing to
+    // flush, and a nonzero code tells a launcher the start failed.
+    const { title, content } = describeStartupError(error, app.getLocale(), dbPath);
+    dialog.showErrorBox(title, content);
+    app.exit(1);
+    return;
+  }
 
   // WHY: macOS keeps the app running with no window; a dock click or relaunch must bring one back,
   // and so must a second launch, which focuses this instance instead.
