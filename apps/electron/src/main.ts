@@ -34,9 +34,19 @@ function loadNativeAddon(): { KolodaDb: new (dbPath: string) => KolodaDb } {
 
 configureUserData();
 
+// WHY: one process per database file. The addon's single connection and one FIFO worker keep a read after a write
+// consistent only inside one process, and a second process would run a second sync engine on the same file.
+// The lock follows the user-data directory, so it must come after `configureUserData()`;
+// `KOLODA_USER_DATA` then gives each e2e device a lock of its own.
+const hasInstanceLock = app.requestSingleInstanceLock();
+if (!hasInstanceLock) app.quit();
+
 let isQuitting = false;
 
 app.whenReady().then(() => {
+  // INVARIANT: a second instance only hands over to the first; it must never open the database.
+  if (!hasInstanceLock) return;
+
   const native = loadNativeAddon();
   const dbPath = join(app.getPath("userData"), "koloda.db");
   const db = new native.KolodaDb(dbPath);
@@ -48,10 +58,20 @@ app.whenReady().then(() => {
   registerOptimizerIpc(db);
   createWindow();
 
-  // WHY: macOS keeps the app running with no window; a dock click or relaunch must bring one back.
-  // Registered after startup so it never opens a window before the IPC handlers exist.
+  // WHY: macOS keeps the app running with no window; a dock click or relaunch must bring one back,
+  // and so must a second launch, which focuses this instance instead.
+  // Registered after startup so neither opens a window before the IPC handlers exist.
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+  app.on("second-instance", () => {
+    const [win] = BrowserWindow.getAllWindows();
+    if (!win) {
+      createWindow();
+      return;
+    }
+    if (win.isMinimized()) win.restore();
+    win.focus();
   });
 });
 

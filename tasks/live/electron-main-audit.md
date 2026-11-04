@@ -279,7 +279,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Reopen the window on macOS and quit after Cmd+Q
   Depends on: none
 
-- [ ] 2. Hold a single-instance lock on the user-data directory
+- [x] 2. Hold a single-instance lock on the user-data directory
   Goal (finding 3):
   - `src/main.ts`: right after `configureUserData()`, call `app.requestSingleInstanceLock()`.
     When it is not granted, quit at once (`app.quit()`), and register nothing else.
@@ -303,6 +303,10 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
     Both devices start, so the lock is per user-data directory.
   Commit: Hold a single-instance lock on the user-data directory
   Depends on: 1
+  Notes:
+  - A refused instance still registers the `whenReady` callback, but the callback returns first, under an INVARIANT.
+    That keeps the rest of `main.ts` unindented, and Electron does not say whether `whenReady` resolves after a
+    `quit()` before ready.
 
 - [ ] 3. Show a startup failure and exit
   Goal (finding 2):
