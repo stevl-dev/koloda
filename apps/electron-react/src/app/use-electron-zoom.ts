@@ -6,7 +6,6 @@ import { useEffect } from "react";
 export function useElectronZoom() {
   useEffect(() => {
     const api = window.electronAPI;
-    if (!api) return;
 
     const stored = localStorage.getItem("zoom-level");
     if (stored !== null) {

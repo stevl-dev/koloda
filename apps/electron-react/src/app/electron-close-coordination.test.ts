@@ -47,13 +47,6 @@ beforeEach(() => {
 });
 
 describe("installElectronCloseCoordination", () => {
-  it("is a no-op stub when electronAPI is missing", () => {
-    vi.stubGlobal("window", {});
-    const uninstall = installElectronCloseCoordination(store);
-    uninstall();
-    expect(shutdownAssistantGracefully).not.toHaveBeenCalled();
-  });
-
   it("awaits graceful shutdown then acks main", async () => {
     let resolveShutdown!: () => void;
     shutdownAssistantGracefully.mockImplementation(

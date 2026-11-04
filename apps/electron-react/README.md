@@ -8,12 +8,13 @@ Role: product, with `apps/electron` (see `docs/decisions/APP-ROLES.md`).
 
 Assembles the `@koloda/app-react` screens on top of `window.electronAPI` (the preload bridge).
 The Electron main process and preload live in `apps/electron`; the Rust core in `crates/` owns the data.
-Normally booted by `nx run @koloda/electron:serve`; runs standalone in a browser via its own serve target.
+Normally booted by `nx run @koloda/electron:serve`.
 
 ## How to run
 
 - `nx run @koloda/electron:serve` — full desktop app: renderer dev server, Rust addon, Electron
-- `nx run @koloda/electron-react:serve` — renderer alone at `localhost:3000`
+- `nx run @koloda/electron-react:serve` — renderer dev server (`localhost:3000`) that `@koloda/electron:serve` loads.
+  It needs the preload, so a plain browser shows an error.
 - `nx run @koloda/electron-react:test` — unit tests
 - `nx run @koloda/electron:build` — packaged build via electron-builder
 - `nx run @koloda/electron-react:lingui-extract` / `:lingui-compile` — locale catalogs

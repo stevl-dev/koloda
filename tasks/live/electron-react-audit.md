@@ -356,7 +356,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Fix comment residue in the desktop renderer
   Depends on: none
 
-- [ ] 5. Drop the renderer's standalone browser mode
+- [x] 5. Drop the renderer's standalone browser mode
   Goal (finding 4):
   - `README.md:11`: drop "; runs standalone in a browser via its own serve target".
   - `README.md:16`: the serve target is the renderer dev server that `nx run @koloda/electron:serve` loads.

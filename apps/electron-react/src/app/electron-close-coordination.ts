@@ -1,16 +1,11 @@
 import { shutdownAssistantGracefully } from "@koloda/assistant-react";
 import { APP_SHUTDOWN_ACK_CHANNEL, APP_SHUTDOWN_REQUEST_CHANNEL } from "@koloda/native-ipc";
-import type { ElectronBridge } from "@koloda/native-ipc";
 import type { createStore } from "jotai";
 
 type AssistantJotaiStore = ReturnType<typeof createStore>;
 
-type ElectronCloseApi = Pick<ElectronBridge, "on" | "invoke">;
-
 export function installElectronCloseCoordination(store: AssistantJotaiStore): () => void {
-  const api = (globalThis as { window?: { electronAPI?: ElectronCloseApi } }).window?.electronAPI;
-  if (!api?.on || !api.invoke) return () => {};
-
+  const api = window.electronAPI;
   let isShuttingDown = false;
 
   // INVARIANT: the renderer acks one shutdown request, even after a failed flush, so main can close; a repeated
