@@ -434,7 +434,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Test the real AppError, attachment cap, and wire bounds
   Depends on: 4 (both edit `ipc.test.ts`), 7 (both edit `ai-runtime.test.ts`)
 
-- [ ] 9. Test zoom persistence and the zoom keys
+- [x] 9. Test zoom persistence and the zoom keys
   Goal (finding 8), in `src/app/use-electron-zoom.test.ts`:
   - `stubZoomApi` keeps the callback that `onZoomFactorChanged` receives; clear `localStorage` in `afterEach`.
   - Restore: a stored `zoom-level` of `"1.5"` reaches `setZoomLevel(1.5)` at mount; with none stored, nothing is set.
