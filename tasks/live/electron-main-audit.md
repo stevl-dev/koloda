@@ -257,7 +257,7 @@ Keep them honest by hand.
 The agent never starts the app or a Playwright suite (`agents/VERIFY.md`).
 Each item that changes runtime behavior hands the human a desktop manual verify.
 
-- [ ] 1. Reopen the window on macOS and quit after Cmd+Q
+- [x] 1. Reopen the window on macOS and quit after Cmd+Q
   Goal (finding 1):
   - `src/main.ts`: a module-level `let isQuitting = false`, set to `true` in `app.on("before-quit", …)`.
   - `window-all-closed`: quit when the platform is not macOS, or when `isQuitting` is set.

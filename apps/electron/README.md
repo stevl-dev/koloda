@@ -24,8 +24,9 @@ The TS/Rust mirroring rationale is `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`.
 ## Architectural Map
 
 - Main: `src/main.ts` — bootstrap only: user-data paths (`KOLODA_USER_DATA` override; per-platform
-  defaults), native addon loading, IPC registration, window creation. `src/env.ts` holds the dev
-  flag and the main entry dir behind dev/packaged path joins.
+  defaults), native addon loading, IPC registration, window creation.
+  The app lifecycle: on macOS a dock click reopens a closed window, and a quit request quits once the last window
+  has closed. `src/env.ts` holds the dev flag and the main entry dir behind dev/packaged path joins.
 - Window: `src/window.ts` — hidden-titlebar window creation, packaged-mode reload blocking,
   titlebar overlay/button metrics, close-coordination wiring.
 - Window state & UI prefs: `src/window-state.ts` / `src/ui-prefs.ts` — `window-state.json` bounds and
