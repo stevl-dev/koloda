@@ -522,7 +522,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
     It is now `Pick<ElectronBridge, "on" | "invoke">`.
   - `apps/electron/README.md`'s preload line names `ElectronBridge`.
 
-- [ ] 11. Add a desktop e2e flow for the history keys
+- [x] 11. Add a desktop e2e flow for the history keys
   Goal (finding 11):
   - `apps/electron-e2e/src/hotkeys.spec.ts`: a test that sets up the app and presses `d` (Decks) and then `t`
     (Templates).
@@ -542,6 +542,10 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   If it fails because Playwright's key presses never reach `before-input-event`, record that here and drop the test.
   Commit: Add a desktop e2e flow for the history keys
   Depends on: none
+  Notes:
+  - Templates has no text field, so the text-field step uses Settings → Learning: Alt+ArrowLeft with "Minutes"
+    focused goes back to `/settings`.
+  - Not run by the agent (`agents/VERIFY.md`); the human runs `hotkeys.spec.ts`.
 
 - [ ] 12. Fix stale and untagged comments in the desktop host
   Goal (finding 12):

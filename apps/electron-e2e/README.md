@@ -13,6 +13,7 @@ The addon is a debug build, so it can keep secrets in a file instead of the OS k
 So no run of the suite uses the release addon or the OS keyring; a release build's keyring is checked by hand.
 The web counterpart is `apps/web-e2e`; the spec sets mirror each other flow for flow.
 Sync and preset optimization are the exceptions: the web demo offers neither, so their specs are desktop only.
+So are the desktop history keys in `hotkeys.spec.ts`: main binds them, and in the browser its own history keys apply.
 
 ## How to run
 

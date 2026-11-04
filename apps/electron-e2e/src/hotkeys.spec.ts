@@ -62,3 +62,27 @@ test("submits and resets the learning settings form with Ctrl+S and Ctrl+D", asy
   await expect(saveButton).not.toBeVisible();
   await expect(hoursField).toHaveValue("2");
 });
+
+// WHY: main binds these keys (`apps/electron/src/window.ts`), not the page, so the flow has no web twin: in the browser
+// the browser's own history keys apply. The suite runs on Linux, so it presses the Linux keys.
+test("moves back and forward through visited screens with the desktop history keys", async ({ page }) => {
+  await setupApp(page);
+
+  await page.keyboard.press("d");
+  await expect(page).toHaveURL(/\/decks$/);
+  await page.keyboard.press("t");
+  await expect(page).toHaveURL(/\/templates$/);
+
+  await page.keyboard.press("Alt+ArrowLeft");
+  await expect(page).toHaveURL(/\/decks$/);
+
+  await page.keyboard.press("Alt+ArrowRight");
+  await expect(page).toHaveURL(/\/templates$/);
+
+  // The keys also fire while a text field has focus (HOTKEYS.md §Desktop History Keys).
+  await openLearningSettings(page);
+  await expect(page).toHaveURL(/\/settings\/learning$/);
+  await page.getByRole("textbox", { name: "Minutes" }).focus();
+  await page.keyboard.press("Alt+ArrowLeft");
+  await expect(page).toHaveURL(/\/settings$/);
+});
