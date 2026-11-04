@@ -1,10 +1,15 @@
+// WHY: the subpath, not the root barrel: the root pulls `@koloda/app`, whose Lingui macros have no runtime export
+// and crash main at startup (see `libs/ai/src/lib/error-ai.ts`).
+import { SHUTDOWN_FLUSH_TIMEOUT_MS } from "@koloda/assistant/conversation-persistence-host";
+
 // WHY: Renderer `pagehide`/`beforeunload` promises are not awaited by Electron.
 // Main owns a bounded close handshake so `app_shutdown` flush can finish.
 // Handshake channel names live in `@koloda/native-ipc` (shared with the renderer).
 
-// WHY: Align with `@koloda/assistant` `SHUTDOWN_FLUSH_TIMEOUT_MS` (2000) plus IPC slack
-// so main does not force-destroy before the renderer flush deadline.
-export const WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS = 2500;
+const IPC_SLACK_MS = 500;
+
+// WHY: the renderer's flush budget plus IPC slack, so main does not force-destroy before the renderer flush deadline.
+export const WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS = SHUTDOWN_FLUSH_TIMEOUT_MS + IPC_SLACK_MS;
 
 export type WindowCloseCoordinatorHooks = {
   requestRendererShutdown: () => void;

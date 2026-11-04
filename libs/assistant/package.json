@@ -11,6 +11,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./conversation-persistence-host": {
+      "types": "./src/lib/conversation-persistence-host.ts",
+      "import": "./src/lib/conversation-persistence-host.ts",
+      "default": "./src/lib/conversation-persistence-host.ts"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

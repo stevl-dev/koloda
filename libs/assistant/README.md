@@ -50,6 +50,9 @@ Do not log token chunks, card payloads, or secrets.
   or `rollback` (clear tombstone, preserve dirty, resume autosave).
   `SHUTDOWN_FLUSH_TIMEOUT_MS` (2000 ms) and `SHUTDOWN_SAVE_MAX_ATTEMPTS` (3)
   bound the best-effort final flush on graceful shutdown.
+  `conversation-persistence-host.ts` is also exported via the `./conversation-persistence-host` subpath, for the
+  Electron main process: its close deadline derives from the flush timeout, and main must not load the root barrel,
+  which pulls `@koloda/app` and its compile-time Lingui macros.
 - Conversation runtime: `conversation-runtime.ts` — serial command queue and chat/retry execution
   against the injected execution port + by-id ports (`emit`, `touch`, `markReadIfCurrent`,
   `readConversationState`, `isRunStreaming`).

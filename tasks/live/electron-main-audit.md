@@ -446,7 +446,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Save and apply the native window background on every platform
   Depends on: none
 
-- [ ] 8. Derive the close deadline from the assistant flush budget
+- [x] 8. Derive the close deadline from the assistant flush budget
   Goal (finding 8):
   - `src/window-close-coordinator.ts`: import `SHUTDOWN_FLUSH_TIMEOUT_MS` from `@koloda/assistant`.
     Set `WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS = SHUTDOWN_FLUSH_TIMEOUT_MS + IPC_SLACK_MS`, with `IPC_SLACK_MS = 500`.
@@ -459,6 +459,18 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Manual verify: none — the deadline value is unchanged; only its source moves.
   Commit: Derive the close deadline from the assistant flush budget
   Depends on: none
+  Notes:
+  - Deviation: the plan's root import broke main.
+    The `@koloda/assistant` barrel pulls `conversation-runtime.ts` → `@koloda/ai/app-error` → `@koloda/app`.
+    `@koloda/app`'s `error.ts` calls Lingui's `msg` macro at module load, and the macro has no runtime export
+    (`libs/ai/src/lib/error-ai.ts:4-8` records the same trap).
+    The bundled `dist/main.cjs` went from 0 to 9 `import_macro.msg` calls, and the coordinator's unit test failed to
+    load ("msg is not a function").
+  - Fix: `@koloda/assistant` exports `conversation-persistence-host.ts` through a `./conversation-persistence-host`
+    subpath, as `@koloda/ai` does with `./app-error`.
+    That module's imports are macro-free.
+    An INVARIANT on the constant keeps them so, and the assistant README lists the subpath.
+  - Checked: the re-bundled `main.cjs` has no `import_macro.msg` call and inlines the deadline as 2500.
 
 - [ ] 9. Remove the second native addon copy from the packaged build
   Goal (finding 9):

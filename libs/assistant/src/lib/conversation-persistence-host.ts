@@ -2,6 +2,9 @@ import { logAssistantStructured } from "./assistant-observability";
 import { createConversationSaveQueue, SAVE_RETRY_BASE_DELAY_MS } from "./create-conversation-save-queue";
 import type { ConversationDeletion, ConversationSaveQueue, FlushOutcome } from "./create-conversation-save-queue";
 
+// INVARIANT: the Electron main process imports this module through the `./conversation-persistence-host` subpath
+// and derives its close deadline from this constant. Keep this module's imports free of `@koloda/app` and
+// `@koloda/ai` values: their Lingui macros have no runtime export and crash main at startup.
 /** Best-effort ceiling for in-flight durable writes during graceful shutdown. */
 export const SHUTDOWN_FLUSH_TIMEOUT_MS = 2000;
 

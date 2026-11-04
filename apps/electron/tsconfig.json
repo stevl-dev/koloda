@@ -48,6 +48,9 @@
     },
     {
       "path": "../../libs/ai"
+    },
+    {
+      "path": "../../libs/assistant"
     }
   ]
 }
