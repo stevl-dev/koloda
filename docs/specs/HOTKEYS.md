@@ -9,6 +9,7 @@ What an action does beyond the one line in the catalog is covered by the spec of
 Desktop zoom intentionally lives outside this system:
 it is not configurable, not scope-gated, and fires while text inputs are focused.
 Its keys are in INTERFACE-SETTINGS.md (§Desktop Zoom).
+When a configurable hotkey and a desktop zoom key share the same binding, both actions fire.
 
 Desktop history keys also live outside this system; see §Desktop History Keys.
 

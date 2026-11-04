@@ -491,7 +491,7 @@ Each item that changes runtime behavior hands the human a desktop manual verify.
   Commit: Bring the electron-react README up to date
   Depends on: 5 (edits the README)
 
-- [ ] 12. State that a hotkey on a zoom key fires both actions
+- [x] 12. State that a hotkey on a zoom key fires both actions
   Goal (finding 12): `docs/specs/HOTKEYS.md` §Scope, after the zoom paragraph (lines 9-11), add one sentence.
   When a configurable hotkey and a desktop zoom key share the same binding, both actions fire.
   Match the lesson-key sentence at line 18; do not restate the zoom keys, whose home is INTERFACE-SETTINGS.md
