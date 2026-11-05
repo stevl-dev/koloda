@@ -1,12 +1,21 @@
+import { expect } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
-import { applyPageDefaults, bootstrapApp } from "@koloda/e2e";
+import { applyPageDefaults } from "@koloda/e2e";
 
 export async function setupPageDefaults(page: Page) {
   await applyPageDefaults(page, "after-load");
 }
 
 export async function setupApp(page: Page) {
-  await bootstrapApp(page, "How do you want to start?", "Start fresh");
+  await expect(page.getByText("How do you want to start?", { exact: true })).toBeVisible();
+
+  const startButton = page.getByRole("button", { name: "Start fresh", exact: true });
+  await expect(startButton).toBeVisible();
+  await startButton.click();
+
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByText("Learned today", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Templates", exact: true })).toBeVisible();
 }
 
 // WHY: main binds the history keys on `before-input-event` (`apps/electron/src/window.ts`). Playwright's key presses

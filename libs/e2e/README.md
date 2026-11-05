@@ -11,10 +11,10 @@ and it must never gain runtime dependencies.
 ## Architectural Map
 
 - UI flows: `src/ui-flows.ts` — the shared CRUD, lesson, settings, hotkey, AI profile, and
-  assistant flows every spec composes. The two deliberate parameter points:
+  assistant flows every spec composes. The one deliberate parameter point:
   `applyPageDefaults(page, when)` (`before-load` init script vs `after-load`
-  evaluate + reload) and `bootstrapApp(page, bootstrapText)` (the desktop
-  first-setup copy).
+  evaluate + reload). First setup differs per host, so each suite's `helpers.ts`
+  owns its own flow.
 - AI mock protocol: `src/ai-mock.ts` — the `Mock*Options`/`Handle` contracts and
   the OpenAI-compatible SSE/JSON builders, transport-independent.
 - Barrel: `src/index.ts` — the only public door.

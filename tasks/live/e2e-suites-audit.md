@@ -386,7 +386,7 @@ Paths are relative to the repo root.
   Commit: Seed the web suite once per test
   Depends on: none
 
-- [ ] 7. Move the desktop bootstrap flow into the desktop suite
+- [x] 7. Move the desktop bootstrap flow into the desktop suite
   Goal (finding 14): Move `bootstrapApp` from `libs/e2e/src/ui-flows.ts:49-59` into `apps/electron-e2e/src/helpers.ts`
   as the body of `setupApp`, with the desktop copy ("How do you want to start?", "Start fresh") inline.
   Drop it from the `libs/e2e` barrel. Fix `libs/e2e/README.md:15-17` ("the two deliberate parameter points" and the

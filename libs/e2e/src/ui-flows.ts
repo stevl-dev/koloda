@@ -45,23 +45,6 @@ export async function applyPageDefaults(page: Page, when: "before-load" | "after
   }
 }
 
-/**
- * Drive the first-setup screen: confirm the bootstrap copy, click the start button,
- * and wait for the dashboard. `bootstrapText` and `startLabel` are the desktop copy
- * ("How do you want to start?" and "Start fresh").
- */
-export async function bootstrapApp(page: Page, bootstrapText: string, startLabel: string) {
-  await expect(page.getByText(bootstrapText, { exact: true })).toBeVisible();
-
-  const startButton = page.getByRole("button", { name: startLabel, exact: true });
-  await expect(startButton).toBeVisible();
-  await startButton.click();
-
-  await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByText("Learned today", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Templates", exact: true })).toBeVisible();
-}
-
 export async function openSection(page: Page, name: string) {
   const navigationLink = getNavigation(page, name);
   await expect(navigationLink).toBeVisible();

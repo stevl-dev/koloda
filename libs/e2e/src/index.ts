@@ -2,7 +2,6 @@ export {
   addCard,
   addLmStudioProfile,
   applyPageDefaults,
-  bootstrapApp,
   cardRows,
   changeInterfaceThemeMotionAndDateFormat,
   clickSwitch,
