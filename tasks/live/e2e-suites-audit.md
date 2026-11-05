@@ -412,7 +412,7 @@ Paths are relative to the repo root.
   Commit: Close the desktop window through main in the shutdown test
   Depends on: 2 (both edit `helpers.ts`), 7 (edits `helpers.ts`)
 
-- [ ] 9. Test the first-setup pickers on both hosts
+- [x] 9. Test the first-setup pickers on both hosts
   Goal (finding 8): One shared flow in `libs/e2e` and one test per suite (a `first-setup.spec.ts` in each):
   on the setup screen pick Русский and Dark, start (each host's own start step), then assert the Russian nav,
   `html.dark`, the interface settings showing both, and a seeded preset or template under its Russian name.

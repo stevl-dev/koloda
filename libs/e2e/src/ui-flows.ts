@@ -45,6 +45,31 @@ export async function applyPageDefaults(page: Page, when: "before-load" | "after
   }
 }
 
+/** Pick Русский on the first-setup screen while it is still in English. */
+export async function pickRussianAtSetup(page: Page) {
+  await page.getByRole("button", { name: /Language$/ }).click();
+  await page.getByRole("option", { name: "Русский", exact: true }).click();
+}
+
+/**
+ * After a first setup that picked Русский and Dark (INTERFACE-SETTINGS.md §First Setup): the app opens in Russian and
+ * dark, the interface settings hold both, and the starter template has its Russian title, which differs per host.
+ */
+export async function expectRussianDarkSetupKept(page: Page, starterTemplateTitle: string) {
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.locator("html")).toHaveClass(/dark/);
+
+  await openSection(page, "Настройки");
+  await page.getByRole("link", { name: "Интерфейс", exact: true }).click();
+  await expect(page).toHaveURL(/\/settings\/interface$/);
+  await expect(page.getByRole("button", { name: "Русский Язык интерфейса" }).last()).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Тёмная" })).toBeChecked();
+
+  await openSection(page, "Шаблоны");
+  await expect(page).toHaveURL(/\/templates$/);
+  await expect(page.getByText(starterTemplateTitle, { exact: true }).first()).toBeVisible();
+}
+
 export async function openSection(page: Page, name: string) {
   const navigationLink = getNavigation(page, name);
   await expect(navigationLink).toBeVisible();
