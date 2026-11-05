@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import type { ElectronApplication, Page } from "@playwright/test";
 import { applyPageDefaults } from "@koloda/e2e";
+import { launchApp } from "./fixtures";
 
 export async function setupPageDefaults(page: Page) {
   await applyPageDefaults(page, "after-load");
@@ -29,4 +30,12 @@ export async function pressHistoryKey(electronApp: ElectronApplication, directio
     },
     direction === "back" ? "Left" : "Right",
   );
+}
+
+export async function relaunchApp(userDataDir: string) {
+  const app = await launchApp(userDataDir);
+  const page = await app.firstWindow();
+  await page.waitForLoadState("domcontentloaded");
+  await expect(page.getByText("Learned today", { exact: true })).toBeVisible();
+  return { app, page };
 }

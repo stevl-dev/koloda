@@ -5,13 +5,12 @@ import {
   addLmStudioProfile,
   conversationLog,
   createDeckAndOpenAssistant,
-  dispatchGracefulShutdown,
   getConversationIdFromUrl,
   openAssistantWithConversation,
   sendAssistantMessage,
   waitForAssistantReady,
 } from "@koloda/e2e";
-import { setupApp, setupPageDefaults } from "./helpers";
+import { relaunchApp, setupApp, setupPageDefaults } from "./helpers";
 import { mockOpenAICompatibleProvider } from "./mock-openai-compatible";
 
 test.beforeEach(async ({ page }) => {
@@ -79,10 +78,16 @@ test("cancels an in-flight stream", async ({ page }) => {
   }
 });
 
-test("interrupts an in-flight stream on graceful shutdown", async ({ page }) => {
+// WHY: the web twin fires `pagehide`, the browser's close path. Electron does not await `pagehide`; the desktop close
+// is main's shutdown request and the renderer's ack (IPC.md §Window and Lifecycle), so this test closes the window
+// through main and reads the saved conversation after a relaunch.
+test("interrupts an in-flight stream on graceful shutdown", async ({ electronApp, page, userDataDir }) => {
+  test.setTimeout(60_000);
+
   const mock = await mockOpenAICompatibleProvider({
     defaultCompletion: { shouldHold: true },
   });
+  let relaunched: Awaited<ReturnType<typeof relaunchApp>> | undefined;
 
   try {
     await setupApp(page);
@@ -95,13 +100,24 @@ test("interrupts an in-flight stream on graceful shutdown", async ({ page }) => 
     const log = conversationLog(page);
     await expect(log.getByText("Working")).toBeVisible();
     await expect(log.getByText("Please hang")).toBeVisible();
+    const conversationId = getConversationIdFromUrl(page);
 
-    await dispatchGracefulShutdown(page);
+    // Close the window as the user would; the app quits once the renderer has acked
+    const closed = electronApp.waitForEvent("close");
+    await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close());
+    await closed;
 
-    await expect(log.getByText("Interrupted after")).toBeVisible();
-    await expect(log.getByRole("button", { name: "Retry" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Send" })).toBeVisible();
+    relaunched = await relaunchApp(userDataDir);
+    const reopened = relaunched.page;
+    await openAssistantWithConversation(reopened, conversationId);
+
+    const logAfter = conversationLog(reopened);
+    await expect(logAfter.getByText("Please hang")).toBeVisible();
+    await expect(logAfter.getByText("Interrupted after")).toBeVisible();
+    await expect(logAfter.getByRole("button", { name: "Retry" })).toBeVisible();
+    await expect(reopened.getByRole("button", { name: "Send" })).toBeVisible();
   } finally {
+    await relaunched?.app.close();
     mock.release();
     await mock.dispose();
   }

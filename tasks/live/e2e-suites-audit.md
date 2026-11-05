@@ -398,7 +398,7 @@ Paths are relative to the repo root.
   Commit: Move the desktop bootstrap flow into the desktop suite
   Depends on: none
 
-- [ ] 8. Close the desktop window through main in the shutdown test
+- [x] 8. Close the desktop window through main in the shutdown test
   Goal (finding 7): In the desktop twin only (`apps/electron-e2e/src/assistant-chat.spec.ts`, the graceful-shutdown
   test at `:99`), replace `dispatchGracefulShutdown` with closing the window through main
   (`electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close())`).
