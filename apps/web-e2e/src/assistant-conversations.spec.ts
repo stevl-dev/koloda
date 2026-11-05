@@ -578,11 +578,6 @@ test("reloads the param-less AI route onto the last active conversation", async 
   await expect(row).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(1_500);
 
-  // WHY: setupPageDefaults clears localStorage on every document load. Re-seed
-  // the stored active id after that clear so a param-less /ai visit restores.
-  await page.addInitScript((id) => {
-    window.localStorage.setItem("activeConversationId", id);
-  }, activeId);
   await openAssistantWithDeck(page);
   await expect(page).toHaveURL(new RegExp(`conversationId=${activeId}($|&)`));
   await expect(row).toBeVisible();

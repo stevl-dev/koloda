@@ -9,13 +9,17 @@ import type { Locator, Page } from "@playwright/test";
  */
 
 /**
- * Seed the UI defaults every spec expects (English, light scheme, motion off).
+ * Seed the UI defaults every spec expects (English, light scheme, motion off), once per test.
  * `before-load` installs an init script for a page that has not navigated yet;
  * `after-load` rewrites localStorage on an already-open page and reloads (the
  * Electron fixture hands over an already-loaded first window).
  */
 export async function applyPageDefaults(page: Page, when: "before-load" | "after-load") {
   const seed = () => {
+    // WHY: an init script runs before every document load, reloads included. `sessionStorage` survives a reload in
+    // the same tab, so the marker keeps a reload from wiping the device state a real reload keeps.
+    if (window.sessionStorage.getItem("koloda-e2e-seeded")) return;
+    window.sessionStorage.setItem("koloda-e2e-seeded", "1");
     window.localStorage.clear();
     window.localStorage.setItem("lang", "en");
     window.localStorage.setItem(

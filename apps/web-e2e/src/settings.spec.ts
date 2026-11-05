@@ -61,7 +61,13 @@ test("changes theme, animations, and date format and keeps them after a reload",
   await openInterfaceSettings(page);
   await changeInterfaceThemeMotionAndDateFormat(page);
 
-  // Reload, so the screen reads the stored settings: the init script reseeds the device cache with the defaults
+  // Put the defaults back in the device cache, then reload, so the screen must read the stored settings
+  await page.evaluate(() => {
+    window.localStorage.setItem(
+      "koloda-ui-prefs",
+      JSON.stringify({ scheme: "light", motion: "off", lightTheme: "github-light", darkTheme: "github-dark" }),
+    );
+  });
   await page.reload({ waitUntil: "domcontentloaded" });
   await openInterfaceSettings(page);
   await expectInterfaceChangesKept(page);

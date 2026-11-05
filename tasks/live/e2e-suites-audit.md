@@ -368,7 +368,7 @@ Paths are relative to the repo root.
   Commit: Fail the assistant tests when the model auto-pick breaks
   Depends on: none
 
-- [ ] 6. Seed the web suite once per test
+- [x] 6. Seed the web suite once per test
   Goal (finding 5):
   - In `libs/e2e/src/ui-flows.ts` `applyPageDefaults`, the `before-load` init script seeds only once per test: it
     returns early when a `sessionStorage` marker is set, and sets it after seeding.
