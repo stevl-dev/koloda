@@ -485,7 +485,7 @@ Paths are relative to the repo root.
   Commit: Write the deck creation flow once
   Depends on: none
 
-- [ ] 15. Drop the better-sqlite3 fallback from the desktop write-failure sim
+- [x] 15. Drop the better-sqlite3 fallback from the desktop write-failure sim
   Goal (finding 15): In `apps/electron-e2e/src/assistant-conversations.spec.ts:54-73`, `openSqliteConnection` uses
   `node:sqlite` only; drop the fallback branch and its sentence in the doc comment.
   Keep the computed specifier, with its WHY (`@types/node` 20.19 has no `node:sqlite` types).

@@ -52,24 +52,15 @@ type SqliteConnection = {
 };
 
 /**
- * Open a second SQLite connection to the app's database. `node:sqlite` ships
- * with the runtime; `better-sqlite3` is the fallback. Computed specifiers keep
- * both imports out of typechecking (no TS types are installed for either).
+ * Open a second SQLite connection to the app's database through `node:sqlite`, which ships with the Node that runs
+ * Playwright. The computed specifier keeps the import out of typechecking: `@types/node` here has no `node:sqlite`.
  */
 async function openSqliteConnection(dbPath: string): Promise<SqliteConnection> {
   const nodeSqliteSpecifier = "node:sqlite";
-  const betterSqlite3Specifier = "better-sqlite3";
-  try {
-    const { DatabaseSync } = (await import(nodeSqliteSpecifier)) as {
-      DatabaseSync: new (path: string) => SqliteConnection;
-    };
-    return new DatabaseSync(dbPath);
-  } catch {
-    const betterSqlite3 = (await import(betterSqlite3Specifier)) as unknown as {
-      default: new (path: string) => SqliteConnection;
-    };
-    return new betterSqlite3.default(dbPath);
-  }
+  const { DatabaseSync } = (await import(nodeSqliteSpecifier)) as {
+    DatabaseSync: new (path: string) => SqliteConnection;
+  };
+  return new DatabaseSync(dbPath);
 }
 
 function sleep(ms: number): Promise<void> {
