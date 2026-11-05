@@ -304,7 +304,7 @@ Paths are relative to the repo root.
   Commit: Keep card images when a markdown field re-renders
   Depends on: none
 
-- [ ] 2. Send the desktop history keys through main in e2e
+- [x] 2. Send the desktop history keys through main in e2e
   Goal (finding 2): Add a helper to `apps/electron-e2e/src/helpers.ts` that presses a history key through main:
   `electronApp.evaluate` calling the window's `webContents.sendInputEvent` with `type: "keyDown"` (and `keyUp`),
   `keyCode: "Left"` or `"Right"`, and `modifiers: ["alt"]`.

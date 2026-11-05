@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "./fixtures";
 import { openLearningSettings } from "@koloda/e2e";
-import { setupApp, setupPageDefaults } from "./helpers";
+import { pressHistoryKey, setupApp, setupPageDefaults } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await setupPageDefaults(page);
@@ -65,7 +65,7 @@ test("submits and resets the learning settings form with Ctrl+S and Ctrl+D", asy
 
 // WHY: main binds these keys (`apps/electron/src/window.ts`), not the page, so the flow has no web twin: in the browser
 // the browser's own history keys apply. The suite runs on Linux, so it presses the Linux keys.
-test("moves back and forward through visited screens with the desktop history keys", async ({ page }) => {
+test("moves back and forward through visited screens with the desktop history keys", async ({ electronApp, page }) => {
   await setupApp(page);
 
   await page.keyboard.press("d");
@@ -73,16 +73,16 @@ test("moves back and forward through visited screens with the desktop history ke
   await page.keyboard.press("t");
   await expect(page).toHaveURL(/\/templates$/);
 
-  await page.keyboard.press("Alt+ArrowLeft");
+  await pressHistoryKey(electronApp, "back");
   await expect(page).toHaveURL(/\/decks$/);
 
-  await page.keyboard.press("Alt+ArrowRight");
+  await pressHistoryKey(electronApp, "forward");
   await expect(page).toHaveURL(/\/templates$/);
 
   // The keys also fire while a text field has focus (HOTKEYS.md §Desktop History Keys).
   await openLearningSettings(page);
   await expect(page).toHaveURL(/\/settings\/learning$/);
   await page.getByRole("textbox", { name: "Minutes" }).focus();
-  await page.keyboard.press("Alt+ArrowLeft");
+  await pressHistoryKey(electronApp, "back");
   await expect(page).toHaveURL(/\/settings$/);
 });
