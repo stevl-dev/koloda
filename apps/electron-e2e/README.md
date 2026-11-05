@@ -12,8 +12,19 @@ dev server on port 3000 and launches Electron from `apps/electron` — the full 
 The addon is a debug build, so it can keep secrets in a file instead of the OS keyring (Fixtures below).
 So no run of the suite uses the release addon or the OS keyring; a release build's keyring is checked by hand.
 The web counterpart is `apps/web-e2e`; the spec sets mirror each other flow for flow.
-Sync and preset optimization are the exceptions: the web demo offers neither, so their specs are desktop only.
-So are the desktop history keys in `hotkeys.spec.ts`: main binds them, and in the browser its own history keys apply.
+These are the exceptions:
+
+- Sync and preset optimization: the web demo offers neither, so their specs are desktop only.
+- The history keys in `hotkeys.spec.ts`: main binds them, and in the browser its own history keys apply.
+  CDP key presses skip main's `before-input-event`, so the test sends them through `webContents.sendInputEvent`.
+- Zoom (`zoom.spec.ts`): the web app leaves zoom to the browser.
+- Graceful shutdown in `assistant-chat.spec.ts`: same title, but the desktop test closes the window through main and
+  relaunches, while the web test fires `pagehide`, the browser's close path.
+- Link embedding in `card-images.spec.ts`: the desktop embeds an image from a pasted link; the web keeps the link as
+  text (MEDIA.md §Embedding Images From Links).
+- The write-failure tests in `assistant-conversations.spec.ts`: same titles, but the desktop blocks writes with a
+  second SQLite connection that holds the writer lock, and the web wraps IndexedDB `put`.
+- First setup: same title, but each host has its own setup screen, scheme picker, and starter content.
 
 ## How to run
 
@@ -34,9 +45,9 @@ So are the desktop history keys in `hotkeys.spec.ts`: main binds them, and in th
   `KOLODA_E2E=1`, and the first window as `page`.
   `KOLODA_E2E_SECRETS` names `secrets.json` in that dir, where AI keys and sync tokens go instead of the OS keyring.
   `launchApp(userDataDir)` starts another instance the same way, for a spec that needs a second device.
-- Helpers: `src/helpers.ts` — re-exports the shared UI flows from `libs/e2e` (`@koloda/e2e`) and wraps this
-  suite's platform points: defaults written into the already-loaded window followed by a reload, and the
-  desktop bootstrap copy ("How do you want to start?") and its "Start fresh" button.
+- Helpers: `src/helpers.ts` — wraps this suite's platform points: defaults written into the already-loaded window
+  followed by a reload, the desktop setup flow ("How do you want to start?" and "Start fresh"), the history keys sent
+  through main, and closing and relaunching the app on the same `userDataDir`.
 - AI mock: `src/mock-openai-compatible.ts` — a real Node HTTP server, not `page.route` interception,
   built on the shared protocol in `libs/e2e`.
   AI HTTP runs in the Electron main process, invisible to renderer route interception;

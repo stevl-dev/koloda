@@ -508,7 +508,7 @@ Paths are relative to the repo root.
   Commit: Name the reopen checks for what they prove
   Depends on: 14 (both edit `lesson-grades.spec.ts`)
 
-- [ ] 17. List every desktop e2e test without a web twin
+- [x] 17. List every desktop e2e test without a web twin
   Goal (finding 18): Complete `apps/electron-e2e/README.md:15-16`: one sentence per host difference — sync,
   optimization, history keys (sent through main, item 2), zoom (item 10), the window-close shutdown test (item 8), the
   link-embedding pair in `card-images.spec.ts`, and the write-failure sims (same titles, different mechanisms).
