@@ -565,4 +565,53 @@ Before Archive (item 3's rule, first applied here): run both suites on the final
 
 ## Outcome
 
-<what shipped>
+Every finding is settled: findings 1–16 and 18 are fixed by items 1–17, and finding 17 is skipped.
+Items 18 and 19 fixed two test races that the suite runs on this branch found.
+
+- Card preview shows a card's image again on both hosts (finding 1); an `srs-react` test pins the kept `<img>`.
+- The desktop history-keys test sends its keys through main and passes.
+- `agents/TASKS.md` §Done and `agents/VERIFY.md` §Suite runs: a task that adds or edits e2e cases archives only after
+  a recorded run of both suites. This task is the first to follow it.
+- Under `CI`, the web suite runs on a production build served by `vite preview` (base `/`).
+  `@koloda/web:build` hashes `VITE_BASE`, so a build with another base is never replayed for the Pages build.
+- A broken model auto-pick, or an app that stops storing the active conversation id, now fails a web test.
+- New tests: the desktop window close through main with a relaunch, first setup on both hosts, and desktop zoom.
+- One copy of the deck creation, AI profile, and bootstrap flows; hotkey and AI profile rows are labelled groups.
+- Nine test titles say "after reopening"; the first template reorder test reloads.
+
+Suite run (item 3's rule), on `e60e574d`, 2026-11-05, run by the human:
+
+- `nx run web-e2e:e2e` (dev server): 98 passed, 0 failed.
+- `CI=1 nx run web-e2e:e2e` (production build, `vite preview`): 98 passed, 0 failed.
+- `nx run electron-e2e:e2e` (sync included): 102 passed, 0 failed.
+
+Earlier runs on this branch, for the record:
+
+- Web on `3d339099` (item 17): 2 failed in `card-edit.spec.ts`, the Escape race fixed by item 18.
+- Web on `3e7f8acf` (item 18): 1 failed, the failed-delete save race fixed by item 19.
+  Filtered runs of that test (`--repeat-each 10`), with the human's approval: 3 of 10 failed before item 19, 0 of 10
+  after.
+
+Skipped:
+
+- Finding 17 (Improvement, Later), the two AI-mock transports repeat the response decision and hold differently:
+  no action until a test reads `isHolding()` after a cancel.
+  Then move the decision into `libs/e2e` as a function that returns status, headers, and body events.
+
+Notes:
+
+- The desktop rule that the setup pickers are disabled while Start fresh runs stays a manual check (item 9).
+- Item 18 changed only the two Escape presses that raced.
+  The suites have 28 more `keyboard.press("Escape")` calls; an Escape pressed right after the focused control
+  unmounts can race the same way.
+- Item 13 added no unit test for the group names: the e2e helpers depend on them, so the suites cover them.
+
+Manual verify:
+
+- Host: web
+- Paths:
+  - Decks → a card with an inserted image → Preview → the image shows (MEDIA.md §Where Images Show).
+  - A lesson on that card → the image shows.
+- Host: desktop
+  - A fresh profile → setup screen → Start fresh → the language and scheme pickers stay disabled until the dashboard
+    opens.
