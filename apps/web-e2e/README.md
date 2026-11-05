@@ -5,13 +5,16 @@ One spec file per user flow; no app code is mocked except the AI provider.
 
 ## Where it sits
 
-Tests `apps/web` exclusively; the suite boots the web dev server itself on `127.0.0.1:4300`.
+Tests `apps/web` exclusively; the suite boots the app itself on `127.0.0.1:4300`.
+Locally that is the web dev server.
+Under `CI` it is a production build with base `/`, served by `vite preview`, the bundle the pages deploy publishes.
 The desktop counterpart is `apps/electron-e2e` — the two spec sets mirror each other flow for flow.
 Unit tests live in the app projects (`@koloda/web:test-unit`), not here.
 
 ## How to run
 
-- `nx run web-e2e:e2e` — full suite (boots the web dev server on port 4300; reuses a running one outside CI)
+- `nx run web-e2e:e2e` — full suite (boots the app on port 4300; reuses a running server outside CI)
+- `CI=1 nx run web-e2e:e2e` — the same against a production build, as the pages deploy runs it
 - Chromium once: `bunx playwright install chromium`.
   The pages deploy installs it, with system libraries, before the suite.
 - `nx run web-e2e:typecheck` — typecheck only

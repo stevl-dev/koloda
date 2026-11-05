@@ -8,6 +8,20 @@
     "platform:web"
   ],
   "targets": {
+    "build": {
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "externalDependencies": [
+            "vite"
+          ]
+        },
+        {
+          "env": "VITE_BASE"
+        }
+      ]
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

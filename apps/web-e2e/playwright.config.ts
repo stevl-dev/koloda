@@ -4,6 +4,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = 4300;
+const isCI = !!process.env.CI;
+const viteConfig = "apps/web/vite.config.ts";
+const serverArgs = `--host 127.0.0.1 --port ${port} --strictPort`;
 
 export default defineConfig({
   testDir: "./src",
@@ -33,10 +36,16 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `bunx vite --config apps/web/vite.config.ts --host 127.0.0.1 --port ${port} --strictPort`,
+    // WHY: the deploy publishes a production bundle, so CI tests one. StrictMode's double effects and other dev-only
+    // paths hid a production-only bug (`decks-audit` D1). The build keeps base `/`: specs `goto("/")` and build
+    // `${origin}/ai…` URLs, so the Pages base path stays untested. It runs Vite directly, not `nx build`: Nx would
+    // cache this output and could replay it for the deploy's own build.
+    command: isCI
+      ? `bunx vite build --config ${viteConfig} && bunx vite preview --config ${viteConfig} ${serverArgs}`
+      : `bunx vite --config ${viteConfig} ${serverArgs}`,
     cwd: resolve(__dirname, "../.."),
     url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !isCI,
     timeout: 120_000,
   },
 });

@@ -334,7 +334,7 @@ Paths are relative to the repo root.
   Commit: Hold tasks that edit e2e cases until a suite run is recorded
   Depends on: none
 
-- [ ] 4. Run the web suite on a production build in CI
+- [x] 4. Run the web suite on a production build in CI
   Goal (finding 3):
   - In `apps/web-e2e/playwright.config.ts`, when `CI` is set, the `webServer` command builds the app with
     `bunx vite build --config apps/web/vite.config.ts` (not through Nx) and serves it with
