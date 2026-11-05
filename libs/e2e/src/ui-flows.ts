@@ -643,14 +643,9 @@ export async function waitForAssistantReady(page: Page) {
 
   await prompt.fill("ping");
 
-  // WHY: Auto-resolve may already have a model; if Send stays disabled, pick one explicitly.
-  try {
-    await expect(sendButton).toBeEnabled({ timeout: 5_000 });
-  } catch {
-    await page.getByRole("button", { name: "Select a model" }).click();
-    await page.getByRole("option", { name: "e2e-test-model" }).click();
-    await expect(sendButton).toBeEnabled({ timeout: 15_000 });
-  }
+  // INVARIANT: no manual model pick here. The first available model is picked once the list loads
+  // (ASSISTANT-CONVERSATIONS.md §Global AI Profile State); picking one by hand would hide that rule breaking.
+  await expect(sendButton).toBeEnabled({ timeout: 15_000 });
 
   await prompt.clear();
 }

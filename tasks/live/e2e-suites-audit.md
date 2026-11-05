@@ -355,7 +355,7 @@ Paths are relative to the repo root.
   Commit: Run the web suite on a production build in CI
   Depends on: none
 
-- [ ] 5. Fail the assistant tests when the model auto-pick breaks
+- [x] 5. Fail the assistant tests when the model auto-pick breaks
   Goal (finding 4): In `libs/e2e/src/ui-flows.ts` `waitForAssistantReady`, drop the manual "Select a model" fallback.
   The helper fills the prompt, asserts Send enables (one timeout long enough for the model list to load), and clears
   the prompt.
