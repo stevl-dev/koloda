@@ -417,11 +417,10 @@ export async function openHotkeysSettings(page: Page) {
 }
 
 export function getHotkeyByLabel(page: Page, label: string) {
-  const kbd = page.locator(`xpath=//div[normalize-space()='${label}']/following-sibling::div//kbd`);
+  const row = page.getByRole("group", { name: label, exact: true });
+  const kbd = row.locator("kbd");
   const container = kbd.locator("xpath=..");
-  const editButton = kbd
-    .locator("xpath=ancestor::div[contains(@class, 'flex-row') and contains(@class, 'items-center')]")
-    .getByRole("button", { name: "Change hotkey" });
+  const editButton = row.getByRole("button", { name: "Change hotkey" });
 
   return { kbd, container, editButton };
 }
@@ -557,7 +556,10 @@ export async function submitAddAIDialog(page: Page) {
 }
 
 export async function openEditAIDialog(page: Page, profileTitle: string) {
-  await page.locator("div", { hasText: profileTitle }).getByRole("button", { name: "Edit profile" }).click();
+  await page
+    .getByRole("group", { name: profileTitle, exact: true })
+    .getByRole("button", { name: "Edit profile" })
+    .click();
   await expect(page.getByRole("dialog", { name: "Edit AI profile" })).toBeVisible();
 }
 
@@ -566,7 +568,10 @@ export async function submitEditAIDialog(page: Page) {
 }
 
 export async function deleteAIProfile(page: Page, profileTitle: string) {
-  await page.locator("div", { hasText: profileTitle }).getByRole("button", { name: "Delete profile" }).click();
+  await page
+    .getByRole("group", { name: profileTitle, exact: true })
+    .getByRole("button", { name: "Delete profile" })
+    .click();
   await expect(page.getByText("Are you sure you want to delete this profile?")).toBeVisible();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 }

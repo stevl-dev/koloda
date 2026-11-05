@@ -71,7 +71,7 @@ export function SettingsHotkeys({ data }: SettingsHotkeysProps) {
                   const value = (field.state.value || []) as string[];
 
                   return (
-                    <FormLayout.Section term={_(label)}>
+                    <FormLayout.Section term={_(label)} role="group" aria-label={_(label)}>
                       <div className="flex flex-row items-center gap-4 flex-wrap">
                         {value.map((hotkey, index) => (
                           <SettingsHotkeysHotkey

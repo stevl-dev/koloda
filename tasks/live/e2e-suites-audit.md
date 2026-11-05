@@ -457,7 +457,7 @@ Paths are relative to the repo root.
   Commit: Bring the web language and smoke twins in step
   Depends on: 6 (both edit `settings.spec.ts`)
 
-- [ ] 13. Name the hotkey and AI profile rows for their label
+- [x] 13. Name the hotkey and AI profile rows for their label
   Goal (finding 12):
   - `libs/settings-react/src/lib/settings-hotkeys.tsx:75`: the row's button container gets `role="group"` and
     `aria-label={_(label)}`.

@@ -30,12 +30,11 @@ export function SettingsAi({ data }: SettingsAiProps) {
           {data.map((profile) => {
             const provider = profile.secrets.provider;
             const isUnsupported = !providerIds.includes(provider);
+            const title = profile.title || _(msg`settings.ai.profiles.title.placeholder`);
             return (
-              <div className="flex flex-col gap-1" key={profile.id}>
+              <div className="flex flex-col gap-1" key={profile.id} role="group" aria-label={title}>
                 <div className="flex flex-row items-center gap-4">
-                  <div className={profile.title ? undefined : "fg-disabled"}>
-                    {profile.title || _(msg`settings.ai.profiles.title.placeholder`)}
-                  </div>
+                  <div className={profile.title ? undefined : "fg-disabled"}>{title}</div>
                   <div className="fg-level-2">{AI_PROVIDER_LABELS[provider]}</div>
                   <div className="flex flex-row gap-1">
                     <div>
