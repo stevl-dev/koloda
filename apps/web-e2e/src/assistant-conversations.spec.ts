@@ -289,6 +289,10 @@ test("shows a failed delete error in the popover and keeps the conversation", as
     // the row counts the submitted turn before arming the failure sim, or the
     // confirm dialog this test needs never opens.
     await expect(row.locator('[data-has-turns="true"]')).toBeVisible({ timeout: 15_000 });
+    // WHY: the row reads its turns from memory, not storage. The turn's save is throttled
+    // (STREAM_SAVE_THROTTLE_MS is 1000ms), so wait for it to land before arming: a save that fails
+    // while armed is lost on the reload below, which then restores the earlier untitled draft.
+    await page.waitForTimeout(1_500);
 
     await setIdbWriteFailureArmed(page, true);
 

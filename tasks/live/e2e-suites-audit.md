@@ -539,6 +539,27 @@ Paths are relative to the repo root.
   Commit: Wait for focus in the dialog before closing it with Escape
   Depends on: none
 
+- [x] 19. Wait for the turn's save before arming the failed-delete sim
+  Goal (added after the second suite run): The human's web run on the item-18 tip failed "shows a failed delete error
+  in the popover and keeps the conversation" (`assistant-conversations.spec.ts:327`, web): after the reload the row was
+  an empty "Untitled conversation" with the same id.
+  The test arms the IndexedDB write failure right after the row shows `data-has-turns="true"`.
+  That attribute reads the in-memory store (`assistant-conversations-list.tsx:49`), not storage.
+  The turn's save is throttled (`STREAM_SAVE_THROTTLE_MS`, 1000 ms), so it can fire after arming.
+  It then fails and retries, the reload drops it, and storage still holds the earlier draft save: untitled, no turns.
+  The trace showed the save (`generation 7`) failing from about 200 ms after arming.
+  Filtered runs of that one test on the item-18 tip (`--repeat-each 10`): 3 failed at `:327`, 7 passed.
+  With the wait below: 10 passed.
+  The desktop twin arms at the same point, so it gets the same wait.
+  Add a 1.5 s wait before arming in both suites, with a WHY.
+  No page observable says the save landed (the audit's §Considered, not raised); the sibling save tests wait the same.
+  Constraints: that test in both suites.
+  Done when: `bun run typecheck` and `bun run lint` pass; the suite run before Archive shows the test passing on both
+  hosts.
+  Manual verify: none — test-only.
+  Commit: Wait for the turn's save before arming the failed-delete sim
+  Depends on: none
+
 Before Archive (item 3's rule, first applied here): run both suites on the final tip, plus the web suite once with
 `CI=1`, and record date, commit, and counts under Outcome. The human runs them, or asks the agent to.
 
