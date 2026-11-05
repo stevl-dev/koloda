@@ -438,7 +438,7 @@ Paths are relative to the repo root.
   Commit: Test desktop zoom limits and restore
   Depends on: 8 (shares the relaunch helper if one was added)
 
-- [ ] 11. Use the shared AI-profile flows in the web specs
+- [x] 11. Use the shared AI-profile flows in the web specs
   Goal (finding 10): Delete the local flows in `apps/web-e2e/src/ai-providers-delete.spec.ts:10-38` and
   `ai-providers-edit.spec.ts:10-42`, and import the `libs/e2e` ones as the desktop twins do.
   Pass the current provider where the local `selectProvider` hard-coded "OpenRouter".
