@@ -286,7 +286,7 @@ Paths are relative to the repo root.
 
 ## Plan
 
-- [ ] 1. Keep card images when a markdown field re-renders
+- [x] 1. Keep card images when a markdown field re-renders
   Goal (finding 1): In `libs/srs-react/src/lib/lessons/lesson-card-field-markdown.tsx`, memoize the
   `dangerouslySetInnerHTML` object on `html` (`useMemo(() => ({ __html: html }), [html])`).
   Add an INVARIANT there: a new object re-assigns `innerHTML` and replaces the loaded `<img>`s with source-less ones,
