@@ -1,6 +1,6 @@
 # e2e suites audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/MARKDOWN.md, apps/web-e2e/README.md, apps/electron-e2e/README.md, libs/e2e/README.md, libs/settings-react/README.md, apps/electron/IPC.md, docs/specs/MEDIA.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/ASSISTANT-CONVERSATIONS.md, agents/REVIEW.md
 Flow: local
 
