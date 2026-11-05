@@ -519,6 +519,26 @@ Paths are relative to the repo root.
   Commit: List every desktop e2e test without a web twin
   Depends on: 2, 8, 10, 12
 
+- [x] 18. Wait for focus in the dialog before closing it with Escape
+  Goal (added after the first suite run): The human's web run on the item-17 tip failed two `card-edit.spec.ts` tests,
+  "edits card content fields and keeps them after reopening" (`:50-51`) and "opens card preview and verifies content in
+  lesson-like format" (`:90-91`): Escape left the dialog open.
+  The focused control unmounts (Save hides after saving; Continue gives way to the answer), and React Aria's
+  `FocusScope` moves focus back into the dialog one animation frame later (its `focusout` handler, a
+  `requestAnimationFrame`).
+  Both tests pressed Escape at once, so the key landed on `<body>`, where no dialog handles it.
+  The failure screenshots show focus on the close button by then.
+  The dialog's own close hotkey is Alt+C (`ui.close`), so only React Aria's handler on the overlay reacts to Escape.
+  The reset test in the same file passed because it waits for its button to hide before pressing Escape.
+  No branch change touches either flow, so this is a race the audit's single run won.
+  Add `closeDialogWithEscape(dialog)` to `libs/e2e`, with that WHY: it waits until the dialog contains the focused
+  element, presses Escape, and expects the dialog hidden. Use it at those two steps in both suites.
+  Constraints: the helper and the two steps per suite; the other Escape presses in the suites stay as they are.
+  Done when: `bun run typecheck` and `bun run lint` pass; the suite run before Archive shows both tests passing.
+  Manual verify: none — test-only.
+  Commit: Wait for focus in the dialog before closing it with Escape
+  Depends on: none
+
 Before Archive (item 3's rule, first applied here): run both suites on the final tip, plus the web suite once with
 `CI=1`, and record date, commit, and counts under Outcome. The human runs them, or asks the agent to.
 

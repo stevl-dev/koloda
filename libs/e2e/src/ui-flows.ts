@@ -70,6 +70,15 @@ export async function expectRussianDarkSetupKept(page: Page, starterTemplateTitl
   await expect(page.getByText(starterTemplateTitle, { exact: true }).first()).toBeVisible();
 }
 
+// WHY: when the focused control unmounts (Save hides after saving, Continue gives way to the answer), React Aria moves
+// focus back into the dialog one animation frame later. An Escape pressed before then lands on `<body>`, where no
+// dialog handles it, so the dialog stays open.
+export async function closeDialogWithEscape(dialog: Locator) {
+  await expect.poll(() => dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true);
+  await dialog.page().keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+}
+
 export async function openSection(page: Page, name: string) {
   const navigationLink = getNavigation(page, name);
   await expect(navigationLink).toBeVisible();

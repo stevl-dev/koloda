@@ -1,7 +1,13 @@
 import { expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { test } from "./fixtures";
-import { createDeckWithCard, openSection, setLearnAheadLimit, startDeckLesson } from "@koloda/e2e";
+import {
+  closeDialogWithEscape,
+  createDeckWithCard,
+  openSection,
+  setLearnAheadLimit,
+  startDeckLesson,
+} from "@koloda/e2e";
 import { setupApp, setupPageDefaults } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -48,8 +54,7 @@ test("edits card content fields and keeps them after reopening", async ({ page }
 
   // Save changes
   await editDialog.getByRole("button", { name: "Save", exact: true }).click();
-  await page.keyboard.press("Escape");
-  await expect(editDialog).not.toBeVisible();
+  await closeDialogWithEscape(editDialog);
 
   // Verify changes persist after navigation
   await openSection(page, "Dashboard");
@@ -88,8 +93,7 @@ test("opens card preview and verifies content in lesson-like format", async ({ p
   await expect(previewDialog.getByText(cardBack)).toBeVisible();
 
   // Close the preview
-  await page.keyboard.press("Escape");
-  await expect(previewDialog).not.toBeVisible();
+  await closeDialogWithEscape(previewDialog);
 });
 
 test("resets card progress and verifies card returns to New state", async ({ page }) => {

@@ -5,6 +5,7 @@ export {
   cardRows,
   changeInterfaceThemeMotionAndDateFormat,
   clickSwitch,
+  closeDialogWithEscape,
   conversationLog,
   createAlgorithm,
   createDeck,
