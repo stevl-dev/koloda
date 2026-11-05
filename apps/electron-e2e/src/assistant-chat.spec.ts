@@ -10,7 +10,7 @@ import {
   sendAssistantMessage,
   waitForAssistantReady,
 } from "@koloda/e2e";
-import { relaunchApp, setupApp, setupPageDefaults } from "./helpers";
+import { closeWindowThroughMain, relaunchApp, setupApp, setupPageDefaults } from "./helpers";
 import { mockOpenAICompatibleProvider } from "./mock-openai-compatible";
 
 test.beforeEach(async ({ page }) => {
@@ -102,10 +102,7 @@ test("interrupts an in-flight stream on graceful shutdown", async ({ electronApp
     await expect(log.getByText("Please hang")).toBeVisible();
     const conversationId = getConversationIdFromUrl(page);
 
-    // Close the window as the user would; the app quits once the renderer has acked
-    const closed = electronApp.waitForEvent("close");
-    await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close());
-    await closed;
+    await closeWindowThroughMain(electronApp);
 
     relaunched = await relaunchApp(userDataDir);
     const reopened = relaunched.page;

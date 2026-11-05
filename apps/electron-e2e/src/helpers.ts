@@ -32,6 +32,13 @@ export async function pressHistoryKey(electronApp: ElectronApplication, directio
   );
 }
 
+/** Close the window the way a user does: main asks the renderer to shut down, then the app quits. */
+export async function closeWindowThroughMain(electronApp: ElectronApplication) {
+  const closed = electronApp.waitForEvent("close");
+  await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close());
+  await closed;
+}
+
 export async function relaunchApp(userDataDir: string) {
   const app = await launchApp(userDataDir);
   const page = await app.firstWindow();

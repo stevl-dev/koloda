@@ -427,7 +427,7 @@ Paths are relative to the repo root.
   Commit: Test the first-setup pickers on both hosts
   Depends on: 7 (the desktop setup helper moved)
 
-- [ ] 10. Test desktop zoom limits and restore
+- [x] 10. Test desktop zoom limits and restore
   Goal (finding 9): One desktop-only test (`apps/electron-e2e/src/zoom.spec.ts`): press Ctrl+`=` until the level stops
   rising and read `webContents.getZoomLevel()` through `electronApp.evaluate`; it stops at 3 (`MAX_ZOOM`).
   Relaunch on the same `userDataDir` and read the same level; Ctrl+`0` resets it to 0.
