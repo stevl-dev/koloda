@@ -136,6 +136,10 @@ Gate: the branch lands only if all of these hold.
   It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled.
 - Every commit carries `Task: <slug>`.
 - The tip is green: its CI job `checks` (`bun run check:push`) passed.
+- If any plan item adds or edits e2e cases, Outcome records a run of both suites on the tip being archived.
+  The record gives the date, the commit, and passed and failed counts per suite.
+  Both suites are green.
+  A red run is fixed by new commits before Archive, then run again (`agents/VERIFY.md` §Suite runs).
 
 Check the order with `git log origin/main..HEAD --oneline` before landing.
 If the gate does not hold, stop.

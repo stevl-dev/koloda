@@ -319,7 +319,7 @@ Paths are relative to the repo root.
   Commit: Send the desktop history keys through main in e2e
   Depends on: none
 
-- [ ] 3. Hold tasks that edit e2e cases until a suite run is recorded
+- [x] 3. Hold tasks that edit e2e cases until a suite run is recorded
   Goal (finding 6): Write the human's rule.
   - `agents/TASKS.md` §Done, Gate: add a bullet — when any plan item adds or edits e2e cases, the task records a run of
     both suites on the tip it archives (date, commit, passed and failed counts per suite) under Outcome, and both are

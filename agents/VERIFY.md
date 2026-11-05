@@ -22,6 +22,19 @@ Do not treat either suite as the agent's proof loop.
 | Domain, twin rules, persistence, async coordination | Agent | `agents/TESTING.md` |
 | User-visible flows in the real UI | Human | Manual verify brief in this guide |
 
+## Suite runs
+
+A task whose plan items add or edit e2e cases archives only after a run of both suites is recorded in it.
+A typecheck proves the specs compile, not that they pass.
+Cases closed as "typechecked only" once let a red suite sit on `main` until the next deploy.
+
+- An item that adds or edits e2e cases keeps "Done when: typecheck" for its own commit.
+  The task's suite run is what closes it.
+- The human runs the suites, or asks the agent to run that command in the session.
+  Agents still do not run a suite unasked (§Agents must not).
+- The run is on the tip being archived, and Outcome records it: date, commit, passed and failed counts per suite.
+  `agents/TASKS.md` (§Done) makes it part of the landing gate.
+
 ## Agents must not
 
 - Start `apps/web`, the Electron shell, or any long-lived app process.
@@ -98,3 +111,4 @@ Do not include it for pure domain or schema work that has no UI surface.
 - [ ] User-visible change → Manual verify with concrete paths, or an explicit none
 - [ ] Paths are actions and observables, not module names
 - [ ] Desktop listed only when the diff needs it
+- [ ] Task adds or edits e2e cases → a run of both suites recorded before Archive
