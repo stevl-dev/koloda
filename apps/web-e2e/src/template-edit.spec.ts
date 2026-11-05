@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await setupPageDefaults(page);
 });
 
-test("edits template title, adds and removes fields, and verifies persistence", async ({ page }) => {
+test("edits template title, adds and removes fields, and keeps them after reopening", async ({ page }) => {
   const templateTitle = "E2E Edit Template";
   const updatedTitle = "E2E Updated Template";
   const newFieldTitle = "Extra Field";

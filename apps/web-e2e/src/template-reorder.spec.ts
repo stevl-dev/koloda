@@ -15,7 +15,7 @@ function getLayoutSection(page: Page) {
   return page.getByText("Layout", { exact: true }).locator("..");
 }
 
-test("reorders fields via drag-and-drop and verifies persistence", async ({ page }) => {
+test("reorders fields via drag-and-drop and keeps the order after a reload", async ({ page }) => {
   const templateTitle = "E2E Reorder Fields";
 
   await setupWeb(page);
@@ -43,21 +43,18 @@ test("reorders fields via drag-and-drop and verifies persistence", async ({ page
   await saveButton.click();
   await expect(saveButton).not.toBeVisible();
 
-  // Navigate away and back
-  await openSection(page, "Dashboard");
-  await openSection(page, "Templates");
-  await page.getByRole("link", { name: templateTitle, exact: true }).click();
+  // Reload, so the screen reads the stored order rather than the query cache
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(
     /\/templates\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
   );
 
-  // Verify persistence
-  const persistedTitles = getFieldsSection(page).getByRole("textbox", { name: /^Field \d+ title$/ });
-  await expect(persistedTitles.nth(0)).toHaveValue("Back");
-  await expect(persistedTitles.nth(1)).toHaveValue("Front");
+  const storedTitles = getFieldsSection(page).getByRole("textbox", { name: /^Field \d+ title$/ });
+  await expect(storedTitles.nth(0)).toHaveValue("Back");
+  await expect(storedTitles.nth(1)).toHaveValue("Front");
 });
 
-test("reorders layout items via drag-and-drop and verifies persistence", async ({ page }) => {
+test("reorders layout items via drag-and-drop and keeps the order after reopening", async ({ page }) => {
   const templateTitle = "E2E Reorder Layout";
 
   await setupWeb(page);
@@ -161,7 +158,7 @@ test("reorders fields after adding multiple custom fields", async ({ page }) => 
   await expect(persistedTitles.nth(4)).toHaveValue("B");
 });
 
-test("reorders fields via keyboard and verifies persistence", async ({ page }) => {
+test("reorders fields via keyboard and keeps the order after reopening", async ({ page }) => {
   const templateTitle = "E2E Reorder Fields KB";
 
   await setupWeb(page);
@@ -203,7 +200,7 @@ test("reorders fields via keyboard and verifies persistence", async ({ page }) =
   await expect(persistedTitles.nth(1)).toHaveValue("Front");
 });
 
-test("reorders layout items via keyboard and verifies persistence", async ({ page }) => {
+test("reorders layout items via keyboard and keeps the order after reopening", async ({ page }) => {
   const templateTitle = "E2E Reorder Layout KB";
 
   await setupWeb(page);

@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await setupPageDefaults(page);
 });
 
-test("creates an algorithm, modifies parameters, and verifies persistence", async ({ page }) => {
+test("creates an algorithm, modifies parameters, and keeps them after reopening", async ({ page }) => {
   const algorithmTitle = "E2E Algorithm";
   const updatedTitle = "E2E Algorithm Updated";
   const notes = "E2E preset notes";

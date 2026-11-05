@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
   await setupPageDefaults(page);
 });
 
-test("grades cards with all four FSRS grades and verifies persisted state", async ({ page }) => {
+test("grades cards with all four FSRS grades and checks their states after reopening the deck", async ({ page }) => {
   test.setTimeout(90_000);
 
   const deckTitle = "Grading E2E Deck";

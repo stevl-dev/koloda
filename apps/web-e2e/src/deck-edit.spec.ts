@@ -6,7 +6,7 @@ test.beforeEach(async ({ page }) => {
   await setupPageDefaults(page);
 });
 
-test("edits deck title, notes, algorithm, and template via the Details tab and verifies persistence", async ({
+test("edits deck title, notes, algorithm, and template via the Details tab and keeps them after reopening", async ({
   page,
 }) => {
   const deckTitle = "E2E Edit Deck";

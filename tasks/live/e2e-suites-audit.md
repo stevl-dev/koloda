@@ -496,7 +496,7 @@ Paths are relative to the repo root.
   Commit: Drop the better-sqlite3 fallback from the desktop write-failure sim
   Depends on: none
 
-- [ ] 16. Name the reopen checks for what they prove
+- [x] 16. Name the reopen checks for what they prove
   Goal (finding 16): In both suites, rename the nine "verifies persistence" / "verifies persisted state" tests to say
   the check is after leaving and reopening (for example, "… and keeps them after reopening").
   Add one `page.reload` to the first template reorder test (`template-reorder.spec.ts:18`) before its final order

@@ -15,7 +15,7 @@ async function expectStudiedToday(page: Page, count: number) {
   await expect(totalRow.getByText(`${count}`, { exact: true })).toBeVisible();
 }
 
-test("edits card content fields and verifies changes persist", async ({ page }) => {
+test("edits card content fields and keeps them after reopening", async ({ page }) => {
   const deckTitle = "E2E Edit Card Deck";
   const originalFront = "Original Front";
   const originalBack = "Original Back";
