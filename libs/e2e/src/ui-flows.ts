@@ -102,13 +102,22 @@ export async function addCard(page: Page, front: string, back: string) {
   await expect(addCardDialog).not.toBeVisible();
 }
 
-export async function createDeck(page: Page, title: string) {
-  await openSection(page, "Decks");
-  await page.getByRole("button", { name: "New deck", exact: true }).click();
+type CreateDeckOptions = { presetTitle?: string; templateTitle?: string };
 
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
+export async function createDeck(page: Page, title: string, { presetTitle, templateTitle }: CreateDeckOptions = {}) {
+  const dialog = await openNewDeckDialog(page);
   await dialog.getByLabel("Title", { exact: true }).fill(title);
+
+  for (const [picker, option] of [
+    [/Preset$/, presetTitle],
+    [/Template$/, templateTitle],
+  ] as const) {
+    if (!option) continue;
+    await dialog.getByRole("button", { name: picker }).click();
+    const optionItem = page.getByRole("option", { name: option, exact: true });
+    await expect(optionItem).toBeVisible();
+    await optionItem.click();
+  }
 
   const createButton = dialog.getByRole("button", { name: "Add deck", exact: true });
   await expect(createButton).toBeEnabled();
@@ -224,56 +233,6 @@ export async function createMarkdownFrontTemplate(page: Page, title: string) {
   await saveButton.scrollIntoViewIfNeeded();
   await saveButton.click();
   await expect(saveButton).not.toBeVisible();
-}
-
-export async function createDeckWithAlgorithm(page: Page, deckTitle: string, algorithmTitle: string) {
-  await openSection(page, "Decks");
-  await page.getByRole("button", { name: "New deck", exact: true }).click();
-
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await dialog.getByLabel("Title", { exact: true }).fill(deckTitle);
-
-  await dialog.getByRole("button", { name: /Preset$/ }).click();
-  const option = page.getByRole("option", { name: algorithmTitle, exact: true });
-  await expect(option).toBeVisible();
-  await option.click();
-
-  const createButton = dialog.getByRole("button", { name: "Add deck", exact: true });
-  await expect(createButton).toBeEnabled();
-  await createButton.click();
-
-  const redirectLink = dialog.getByRole("link", { name: "Go to the new deck", exact: true });
-  await expect(redirectLink).toBeVisible();
-  await redirectLink.click();
-
-  await expect(page).toHaveURL(/\/decks\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
-  await expect(page.getByRole("heading", { name: deckTitle, exact: true })).toBeVisible();
-}
-
-export async function createDeckWithTemplate(page: Page, deckTitle: string, templateTitle: string) {
-  await openSection(page, "Decks");
-  await page.getByRole("button", { name: "New deck", exact: true }).click();
-
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await dialog.getByLabel("Title", { exact: true }).fill(deckTitle);
-
-  await dialog.getByRole("button", { name: /Template$/ }).click();
-  const option = page.getByRole("option", { name: templateTitle, exact: true });
-  await expect(option).toBeVisible();
-  await option.click();
-
-  const createButton = dialog.getByRole("button", { name: "Add deck", exact: true });
-  await expect(createButton).toBeEnabled();
-  await createButton.click();
-
-  const redirectLink = dialog.getByRole("link", { name: "Go to the new deck", exact: true });
-  await expect(redirectLink).toBeVisible();
-  await redirectLink.click();
-
-  await expect(page).toHaveURL(/\/decks\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
-  await expect(page.getByRole("heading", { name: deckTitle, exact: true })).toBeVisible();
 }
 
 export async function openInterfaceSettings(page: Page) {

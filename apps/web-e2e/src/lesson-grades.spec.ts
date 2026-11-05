@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   addCard,
+  createDeck,
   expectDeckCardCount,
   gradeLessonCards,
   openSection,
@@ -22,18 +23,7 @@ test("grades cards with all four FSRS grades and verifies persisted state", asyn
   await setupWeb(page);
   await setLearnAheadLimit(page, 0, 0);
 
-  await openSection(page, "Decks");
-
-  await page.getByRole("button", { name: "New deck", exact: true }).click();
-
-  const createDeckDialog = page.getByRole("dialog");
-  await expect(createDeckDialog).toBeVisible();
-  await createDeckDialog.getByLabel("Title", { exact: true }).fill(deckTitle);
-
-  await createDeckDialog.getByRole("button", { name: "Add deck", exact: true }).click();
-  await createDeckDialog.getByRole("link", { name: "Go to the new deck", exact: true }).click();
-  await expect(page).toHaveURL(/\/decks\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
-  await expect(page.getByRole("heading", { name: deckTitle, exact: true })).toBeVisible();
+  await createDeck(page, deckTitle);
 
   const cardsTab = page.getByRole("tab", { name: "Cards" });
   await expect(cardsTab).toBeVisible();

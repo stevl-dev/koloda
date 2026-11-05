@@ -473,7 +473,7 @@ Paths are relative to the repo root.
   Commit: Name the hotkey and AI profile rows for their label
   Depends on: 11 (the web specs use the shared profile flows)
 
-- [ ] 14. Write the deck creation flow once
+- [x] 14. Write the deck creation flow once
   Goal (finding 13): One `createDeck` in `libs/e2e/src/ui-flows.ts` with an optional preset and template; replace
   `createDeckWithAlgorithm` and `createDeckWithTemplate` at their callers, and use it in `lesson-grades.spec.ts:25-36`
   in both suites. `openNewDeckDialog` stays only if a caller needs the dialog open without submitting.

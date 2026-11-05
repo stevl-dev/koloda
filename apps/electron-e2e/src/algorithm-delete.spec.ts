@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "./fixtures";
-import { createAlgorithm, createDeckWithAlgorithm, openSection } from "@koloda/e2e";
+import { createAlgorithm, createDeck, openSection } from "@koloda/e2e";
 import { setupApp, setupPageDefaults } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -15,7 +15,7 @@ test("deletes an algorithm with successor selection when in use by a deck", asyn
   await setupApp(page);
   await createAlgorithm(page, successorTitle);
   await createAlgorithm(page, algorithmTitle);
-  await createDeckWithAlgorithm(page, deckTitle, algorithmTitle);
+  await createDeck(page, deckTitle, { presetTitle: algorithmTitle });
 
   // Navigate to the algorithm and try to delete
   await openSection(page, "Presets");

@@ -7,7 +7,7 @@ import {
   addCard,
   cardRows,
   createDeckWithCard,
-  createDeckWithTemplate,
+  createDeck,
   createMarkdownFrontTemplate,
   openSection,
   startDeckLesson,
@@ -166,7 +166,7 @@ test("a device joins a space with a pairing code and gets its cards and images",
 
   // Device A: add a deck whose template has a markdown field
   await createMarkdownFrontTemplate(page, "E2E Image Template");
-  await createDeckWithTemplate(page, imageDeckTitle, "E2E Image Template");
+  await createDeck(page, imageDeckTitle, { templateTitle: "E2E Image Template" });
 
   // Device B: the dashboard shows the new deck
   await openSection(secondDevice, "Dashboard");

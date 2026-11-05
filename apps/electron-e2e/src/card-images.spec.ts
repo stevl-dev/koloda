@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import type { ElectronApplication, Locator, Page } from "@playwright/test";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { createDeckWithTemplate, createMarkdownFrontTemplate, startDeckLesson } from "@koloda/e2e";
+import { createDeck, createMarkdownFrontTemplate, startDeckLesson } from "@koloda/e2e";
 import { test as base } from "./fixtures";
 import { setupApp, setupPageDefaults } from "./helpers";
 
@@ -42,7 +42,7 @@ test.beforeEach(async ({ page }) => {
 async function openAddCardDialog(page: Page, deckTitle: string) {
   await setupApp(page);
   await createMarkdownFrontTemplate(page, "E2E Image Template");
-  await createDeckWithTemplate(page, deckTitle, "E2E Image Template");
+  await createDeck(page, deckTitle, { templateTitle: "E2E Image Template" });
   await page.getByRole("tab", { name: "Cards" }).click();
   await page.getByRole("button", { name: "Add cards" }).click();
   const dialog = page.getByRole("dialog");

@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "./fixtures";
-import { createDeckWithTemplate, createTemplate, openSection } from "@koloda/e2e";
+import { createDeck, createTemplate, openSection } from "@koloda/e2e";
 import { setupApp, setupPageDefaults } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -53,7 +53,7 @@ test("prevents deleting a template that is in use by a deck", async ({ page }) =
 
   await setupApp(page);
   await createTemplate(page, templateTitle);
-  await createDeckWithTemplate(page, deckTitle, templateTitle);
+  await createDeck(page, deckTitle, { templateTitle: templateTitle });
 
   // Navigate back to the template
   await openSection(page, "Templates");
