@@ -448,7 +448,7 @@ Paths are relative to the repo root.
   Commit: Use the shared AI-profile flows in the web specs
   Depends on: none
 
-- [ ] 12. Bring the web language and smoke twins in step
+- [x] 12. Bring the web language and smoke twins in step
   Goal (finding 11): The web language case (`apps/web-e2e/src/settings.spec.ts:47-50`) also checks the heading turned
   "Интерфейс", as the desktop twin does. Delete the two web smoke tests at `smoke.spec.ts:21-42`.
   Constraints: those two specs.

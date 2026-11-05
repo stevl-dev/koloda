@@ -47,6 +47,7 @@ test("changes language and scheme via Settings > Interface", async ({ page }) =>
   const russianOption = page.getByRole("option", { name: "Русский" });
   await expect(russianOption).toBeVisible();
   await russianOption.click();
+  await expect(page.getByRole("heading", { name: "Интерфейс", exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem("lang"))).toBe("ru");
 
   // Pressing the already selected Light first must not throw either
