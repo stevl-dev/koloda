@@ -71,6 +71,20 @@ describe.each(TITLE_SCHEMAS)("$name title bounds", ({ parse }) => {
     expect(result.success).toBe(true);
     expect(result.data!.title).toBe("Deck name");
   });
+
+  // WHY: JS `trim` strips U+FEFF and keeps U+0085; the Rust twin trims the same set (`trim_title_value`), which
+  // `str::trim` would not.
+  it("rejects a U+FEFF-only title", () => {
+    const result = parse("\uFEFF");
+    expect(result.error!.issues[0]?.message).toBe("validation.common.title.too-short");
+  });
+
+  it.each([
+    { name: "strips U+FEFF", title: "\uFEFFDeck", stored: "Deck" },
+    { name: "keeps U+0085", title: "\u0085Deck", stored: "\u0085Deck" },
+  ])("$name", ({ title, stored }) => {
+    expect(parse(title).data!.title).toBe(stored);
+  });
 });
 
 // WHY: notes are optional plain text at the boundary both hosts call — trim,
@@ -112,6 +126,15 @@ describe.each(NOTES_SCHEMAS)("$name notes", ({ parse }) => {
     const result = parse("   ");
     expect(result.success).toBe(true);
     expect(result.data!.notes).toBeUndefined();
+  });
+
+  // WHY: JS `trim` strips U+FEFF and keeps U+0085; the Rust twin (`normalize_optional_notes`) trims the same set.
+  it.each([
+    { name: "U+FEFF-only notes become undefined", notes: "\uFEFF", stored: undefined },
+    { name: "strips U+FEFF", notes: "\uFEFFNote", stored: "Note" },
+    { name: "keeps U+0085", notes: "\u0085Note", stored: "\u0085Note" },
+  ])("$name", ({ notes, stored }) => {
+    expect(parse(notes).data!.notes).toBe(stored);
   });
 
   it("treats null notes as absent on the DB round-trip", () => {

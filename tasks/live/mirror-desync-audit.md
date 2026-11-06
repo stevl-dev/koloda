@@ -260,7 +260,7 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
   Commit: Match validate_uuid to the z.uuid() grammar
   Depends on: none
 
-- [ ] 3. Trim titles and notes in Rust with the JS whitespace set
+- [x] 3. Trim titles and notes in Rust with the JS whitespace set
   Goal: a title or note is stored the same on both hosts (finding 3).
   - In `crates/koloda/src/domain/common.rs`, `trim_title_value` trims with JS `String.prototype.trim`'s set:
     `trim_matches(|c: char| (c.is_whitespace() && c != '\u{85}') || c == '\u{feff}')`.

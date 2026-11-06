@@ -11,7 +11,7 @@ const notesTooLong = "validation.common.notes.too-long";
 /** Required deck / algorithm / template titles — trim, then 1–255 UTF-16 units. */
 export const requiredEntityTitleSchema = z
   .string()
-  // INVARIANT: twin of Rust `title.trim()` before length checks and persistence.
+  // INVARIANT: twin of Rust `trim_title_value` (JS's whitespace set) before length checks and persistence.
   .transform((value) => value.trim())
   .pipe(z.string().min(1, tooShort).max(ENTITY_TITLE_MAX_LENGTH, tooLong));
 

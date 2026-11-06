@@ -137,6 +137,16 @@ fn test_normalize_optional_notes_trims_and_clears_whitespace() {
     );
     assert_eq!(normalize_optional_notes(Some("   ".to_string())), None);
     assert_eq!(normalize_optional_notes(None), None);
+    // WHY: JS's whitespace set, as in the TS twin: U+FEFF is stripped, U+0085 is kept.
+    assert_eq!(normalize_optional_notes(Some("\u{feff}".to_string())), None);
+    assert_eq!(
+        normalize_optional_notes(Some("\u{feff}Note".to_string())),
+        Some("Note".to_string())
+    );
+    assert_eq!(
+        normalize_optional_notes(Some("\u{85}Note".to_string())),
+        Some("\u{85}Note".to_string())
+    );
 }
 
 #[test]

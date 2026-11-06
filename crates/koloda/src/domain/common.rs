@@ -5,19 +5,21 @@ pub const TITLE_MAX_LENGTH: usize = 255;
 pub const PROFILE_TITLE_MAX_LENGTH: usize = 128;
 pub const NOTES_MAX_LENGTH: usize = 1024;
 
+// WHY: trims JS `String.prototype.trim`'s set, not `str::trim`'s, so a title or note is stored the same on both
+// hosts. The two sets differ in two characters: JS strips U+FEFF and keeps U+0085; Rust does the opposite.
 pub fn trim_title_value(title: &str) -> &str {
-    title.trim()
+    title.trim_matches(|c: char| (c.is_whitespace() && c != '\u{85}') || c == '\u{feff}')
 }
 
 pub fn normalize_required_title(title: &str) -> String {
-    title.trim().to_string()
+    trim_title_value(title).to_string()
 }
 
 /// Twin of the TS `optionalEntityNotesSchema` — trim, whitespace-only becomes
 /// absent (None) so the column stores NULL; DB null round-trips as None.
 pub fn normalize_optional_notes(notes: Option<String>) -> Option<String> {
     notes.and_then(|value| {
-        let trimmed = value.trim();
+        let trimmed = trim_title_value(&value);
         if trimmed.is_empty() {
             None
         } else {
@@ -46,7 +48,7 @@ pub fn validate_notes(notes: Option<&str>) -> Result<(), AppError> {
 
 pub fn normalize_optional_title(title: Option<String>) -> Option<String> {
     title.and_then(|value| {
-        let trimmed = value.trim();
+        let trimmed = trim_title_value(&value);
         if trimmed.is_empty() {
             None
         } else {
