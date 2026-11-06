@@ -1,10 +1,10 @@
-// Machine-checked contract for the full desktop renderer<->main command surface:
-// data commands (`apps/electron/src/data-ipc.ts`), AI commands
-// (`src/ai-ipc.ts`), sync commands (`src/sync-ipc.ts`), optimizer commands (`src/optimizer-ipc.ts`),
-// and the `AI_STREAM_CHANNEL`, `SYNC_EVENT_CHANNEL`, and `OPTIMIZER_PROGRESS_CHANNEL` push channels,
-// all consumed by the renderer through `invoke`.
+// Machine-checked contract for the full desktop renderer<->main IPC surface:
+// - `DataIpc`: data, AI, media, sync, and optimizer commands (`apps/electron/src/*-ipc.ts`), which the renderer
+//   calls through its typed `invoke`;
+// - `WindowIpc`: the window and close-handshake ack commands (`src/window-ipc.ts`);
+// - `PushIpc`: the main-to-renderer push channels, sent through `sendPush` and received through `subscribe`.
 //
-// Each channel maps to `{ args; result }` — the shapes crossing
+// Each command maps to `{ args; result }` — the shapes crossing
 // `window.electronAPI.invoke` before `toWire`/`fromWire` coercion. Data-command
 // arg conventions mirror the `KolodaDb` NAPI signatures: `{ params }` for reads,
 // `{ data }` for writes, or the plain object where the method takes one.

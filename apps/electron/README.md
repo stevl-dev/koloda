@@ -44,8 +44,8 @@ The TS/Rust mirroring rationale is `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`.
   See `IPC.md`.
 - Optimizer IPC: `src/optimizer-ipc.ts` — FSRS optimization runs and cancels, progress to the requesting window.
   See `IPC.md`.
-- Close handshake: `src/window-close-coordinator.ts` — bounded 2500 ms shutdown request/ack
-  so the renderer flushes before destroy.
+- Close handshake: `src/window-close-coordinator.ts` — a shutdown request/ack bounded by the renderer's flush budget
+  plus IPC slack (`WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS`), so the renderer flushes before destroy.
 - Preload: `src/preload.ts` — `contextBridge` exposes `electronAPI`:
   generic `invoke`/`on` plus `webFrame` zoom controls, checked against `ElectronBridge` from `@koloda/native-ipc`.
 - Rust addon: `src-rust/` — `koloda-electron` cdylib;

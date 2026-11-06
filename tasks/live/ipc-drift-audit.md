@@ -290,7 +290,7 @@ does not apply; it is held to the code all the same.
   Commit: Return void from seed_db like the other writes
   Depends on: 1
 
-- [ ] 5. State both date directions and the derived close deadline in the IPC docs
+- [x] 5. State both date directions and the derived close deadline in the IPC docs
   Goal: the contract docs describe what crosses the wire (finding 3; the IPC.md:23-29 sentences were updated by
   items 1-3).
   - IPC.md §Conventions (lines 18-20): dates go to Rust as epoch ms; Rust returns them as RFC 3339 strings; the

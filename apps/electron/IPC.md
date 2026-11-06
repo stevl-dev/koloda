@@ -15,8 +15,11 @@ Main-to-renderer pushes arrive on `window.electronAPI.on(channel, callback)` sub
 
 - Errors cross as thrown `Error` messages containing JSON `{ code, details }` (AppError / AIError codes).
   The renderer bridge re-parses them into `AppError` / `AIError`.
-- Values crossing the Rust boundary follow the NAPI wire format (`toWire`/`fromWire` in the renderer):
-  `Date` as epoch ms, `BigInt` bounds-checked to safe integers.
+- Values crossing the Rust boundary follow the NAPI wire format (`toWire`/`fromWire` in the renderer).
+  A `Date` goes to Rust as epoch ms, and a `BigInt` is bounds-checked to a safe integer.
+  Rust returns timestamps as RFC 3339 strings.
+  The renderer revives a string to a `Date` only under the shared `TIMESTAMP_FIELD_KEYS` (`@koloda/app/db`),
+  and never inside a conversation's `state`; a timestamp under any other key stays a string.
   Attachment bytes cross as base64 strings; `toWire` would walk a `Uint8Array` as a plain object.
 - Data-command args mirror the `KolodaDb` NAPI method signatures — `{ params }` for reads, `{ data }` for writes,
   or the plain object where the method takes one.
@@ -160,7 +163,8 @@ The `WindowIpc` map there types each command's payload, with every field require
 - `window:set-window-button-position` `{ titlebarHeight }` — macOS traffic lights
 - Close handshake (`src/window-close-coordinator.ts`; channel names in `@koloda/native-ipc`):
   - main sends `app:shutdown-request`; the renderer interrupts and flushes, then answers `app:shutdown-ack`
-  - bounded at 2500 ms — on timeout main saves window bounds and force-destroys
+  - bounded by `WINDOW_CLOSE_SHUTDOWN_TIMEOUT_MS`: the renderer's flush budget (`SHUTDOWN_FLUSH_TIMEOUT_MS` in
+    `@koloda/assistant`) plus IPC slack; on timeout main saves window bounds and force-destroys
   - extra close clicks during the handshake stay deferred
 
 ## Preload Bridge (renderer-side, no main IPC)
