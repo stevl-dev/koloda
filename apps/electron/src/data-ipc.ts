@@ -1,8 +1,8 @@
-import { ipcMain } from "electron";
 import type { DataOnlyChannel, IpcArgs, IpcResult } from "@koloda/native-ipc";
 import { registerAiIpc } from "./ai-ipc";
 import type { AiProfileSecretsSource } from "./ai-ipc";
-import { assertAppSender } from "./app-sender";
+import { handleIpc } from "./ipc-handlers";
+import type { IpcHandlers } from "./ipc-handlers";
 import type { KolodaDb } from "./koloda-db";
 
 type DataHandler = (
@@ -82,13 +82,16 @@ const dataHandlers = {
 export function registerDataIpc(db: KolodaDb) {
   // WHY: `Object.entries` erases the key type, so re-anchor each pair to the
   // contract union. `satisfies` above proves every key is a `DataOnlyChannel`
-  // and every handler matches its channel, so this cast only widens the type.
-  for (const [channel, handler] of Object.entries(dataHandlers) as [DataOnlyChannel, DataHandler][]) {
-    ipcMain.handle(channel, (event, args: IpcArgs<DataOnlyChannel>) => {
-      assertAppSender(event);
-      return handler(db, args);
-    });
-  }
+  // and every handler matches its channel, so these casts only widen the type.
+  const entries = Object.entries(dataHandlers) as [DataOnlyChannel, DataHandler][];
+  handleIpc<DataOnlyChannel>(
+    Object.fromEntries(
+      entries.map(([channel, handler]) => [
+        channel,
+        (_event: unknown, args: IpcArgs<DataOnlyChannel>) => handler(db, args),
+      ]),
+    ) as IpcHandlers<DataOnlyChannel>,
+  );
 
   // INVARIANT: AI provider calls + secret loads stay in main. Do not add cmd_* for getAiProfileSecrets.
   // WHY: ai-ipc is the single main-side secrets consumer. The addon instance

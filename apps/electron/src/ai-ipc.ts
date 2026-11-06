@@ -9,11 +9,10 @@ import {
   toAIError,
   wrapAIError,
 } from "@koloda/ai";
-import type { AiStreamEvent, IpcArgs } from "@koloda/native-ipc";
+import type { AiChannel, AiStreamEvent } from "@koloda/native-ipc";
 import { AI_STREAM_CHANNEL } from "@koloda/native-ipc";
-import type { IpcMainInvokeEvent, WebContents } from "electron";
-import { ipcMain } from "electron";
-import { assertAppSender } from "./app-sender";
+import type { WebContents } from "electron";
+import { handleIpc } from "./ipc-handlers";
 import type { KolodaDb } from "./koloda-db";
 
 export type AiProfileSecretsSource = {
@@ -161,65 +160,64 @@ function bindChatTools(
 }
 
 export function registerAiIpc(db: AiIpcDb) {
-  ipcMain.handle("cmd_ai_list_models", async (event, args: IpcArgs<"cmd_ai_list_models">) => {
-    assertAppSender(event);
-    try {
-      const secrets = await loadSecrets(db, args.profileId);
-      return await wrapAIError(() => fetchModels(secrets));
-    } catch (error) {
-      throwIpcError(error);
-    }
-  });
-
-  ipcMain.handle("cmd_ai_chat_stream", async (event: IpcMainInvokeEvent, args: IpcArgs<"cmd_ai_chat_stream">) => {
-    assertAppSender(event);
-    const { requestId, profileId, request } = args;
-    const sender = event.sender;
-    // WHY: Register before any work so cmd_ai_abort during start binds to this run.
-    const controller = beginRequest(requestId);
-
-    let secrets: AISecrets;
-    try {
-      secrets = await loadSecrets(db, profileId);
-    } catch (error) {
-      endRequest(requestId, controller);
-      throwIpcError(error);
-    }
-
-    if (controller.signal.aborted) {
-      endRequest(requestId, controller);
-      sendStreamEvent(sender, { requestId, type: "error", code: "aborted", message: "Aborted" });
-      return;
-    }
-
-    void (async () => {
+  handleIpc<AiChannel>({
+    cmd_ai_list_models: async (_event, args) => {
       try {
-        const client = createAIGenerationClient(secrets);
-        const usage = await client.chat(
-          bindChatTools(db, sender, requestId, request),
-          (chunk: ChatStreamChunk) => {
-            sendStreamEvent(sender, { requestId, type: "chunk", chunk });
-          },
-          controller.signal,
-        );
-        sendStreamEvent(sender, { requestId, type: "done", usage });
+        const secrets = await loadSecrets(db, args.profileId);
+        return await wrapAIError(() => fetchModels(secrets));
       } catch (error) {
-        // WHY: Only AbortError is cancel. Prefer provider errors over a racing
-        // aborted signal so auth/network failures are not reported as Aborted.
-        if (isAbortError(error)) {
-          sendStreamEvent(sender, { requestId, type: "error", code: "aborted", message: "Aborted" });
-          return;
-        }
-        const { code, message } = toStreamError(error);
-        sendStreamEvent(sender, { requestId, type: "error", code, message });
-      } finally {
-        endRequest(requestId, controller);
+        throwIpcError(error);
       }
-    })();
-  });
+    },
 
-  ipcMain.handle("cmd_ai_abort", (event, args: IpcArgs<"cmd_ai_abort">) => {
-    assertAppSender(event);
-    activeControllers.get(args.requestId)?.abort();
+    cmd_ai_chat_stream: async (event, args) => {
+      const { requestId, profileId, request } = args;
+      const sender = event.sender;
+      // WHY: Register before any work so cmd_ai_abort during start binds to this run.
+      const controller = beginRequest(requestId);
+
+      let secrets: AISecrets;
+      try {
+        secrets = await loadSecrets(db, profileId);
+      } catch (error) {
+        endRequest(requestId, controller);
+        throwIpcError(error);
+      }
+
+      if (controller.signal.aborted) {
+        endRequest(requestId, controller);
+        sendStreamEvent(sender, { requestId, type: "error", code: "aborted", message: "Aborted" });
+        return;
+      }
+
+      void (async () => {
+        try {
+          const client = createAIGenerationClient(secrets);
+          const usage = await client.chat(
+            bindChatTools(db, sender, requestId, request),
+            (chunk: ChatStreamChunk) => {
+              sendStreamEvent(sender, { requestId, type: "chunk", chunk });
+            },
+            controller.signal,
+          );
+          sendStreamEvent(sender, { requestId, type: "done", usage });
+        } catch (error) {
+          // WHY: Only AbortError is cancel. Prefer provider errors over a racing
+          // aborted signal so auth/network failures are not reported as Aborted.
+          if (isAbortError(error)) {
+            sendStreamEvent(sender, { requestId, type: "error", code: "aborted", message: "Aborted" });
+            return;
+          }
+          const { code, message } = toStreamError(error);
+          sendStreamEvent(sender, { requestId, type: "error", code, message });
+        } finally {
+          endRequest(requestId, controller);
+        }
+      })();
+    },
+
+    cmd_ai_abort: (_event, args) => {
+      activeControllers.get(args.requestId)?.abort();
+    },
   });
 }

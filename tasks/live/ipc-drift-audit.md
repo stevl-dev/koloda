@@ -192,7 +192,7 @@ does not apply; it is held to the code all the same.
 
 ## Plan
 
-- [ ] 1. Register every main handler through one contract-checked helper
+- [x] 1. Register every main handler through one contract-checked helper
   Goal: make main's build check every contract channel, and make the sender check structural (finding 1).
   - In `libs/native-ipc/src/index.ts`, export `AiChannel`, `MediaChannel`, `SyncChannel`, and `OptimizerChannel`.
   - Add `apps/electron/src/ipc-handlers.ts`.

@@ -1,8 +1,8 @@
-import type { IpcArgs, IpcResult } from "@koloda/native-ipc";
-import { ipcMain, net } from "electron";
+import type { MediaChannel } from "@koloda/native-ipc";
+import { net } from "electron";
 import type { ClientRequest, ClientRequestConstructorOptions } from "electron";
 import { Readable } from "node:stream";
-import { assertAppSender } from "./app-sender";
+import { handleIpc } from "./ipc-handlers";
 import type { KolodaDb } from "./koloda-db";
 
 // INVARIANT: twin of `ATTACHMENT_MAX_BYTES` in `@koloda/srs` and the Rust domain; the repo
@@ -130,17 +130,12 @@ export async function fetchImageBytes(value: string, fetch: Fetch, signal: Abort
 
 export function registerMediaIpc(db: KolodaDb) {
   const fetchHop = createHopFetch((options) => net.request(options));
-  ipcMain.handle(
-    "cmd_add_attachment_from_url",
-    async (
-      event,
-      { url }: IpcArgs<"cmd_add_attachment_from_url">,
-    ): Promise<IpcResult<"cmd_add_attachment_from_url">> => {
-      assertAppSender(event);
+  handleIpc<MediaChannel>({
+    cmd_add_attachment_from_url: async (_event, { url }) => {
       // WHY: Chromium's network stack, not Node's fetch, so the system proxy and certificate store apply. The
       // in-memory session and `credentials: "omit"` keep the app's cookies and data out of the request.
       const bytes = await fetchImageBytes(url, fetchHop, AbortSignal.timeout(FETCH_TIMEOUT_MS));
       return db.addAttachment({ bytes: Buffer.from(bytes).toString("base64") });
     },
-  );
+  });
 }

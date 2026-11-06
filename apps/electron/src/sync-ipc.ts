@@ -1,8 +1,8 @@
-import type { IpcArgs, SyncEvent } from "@koloda/native-ipc";
+import type { SyncChannel, SyncEvent } from "@koloda/native-ipc";
 import { SYNC_EVENT_CHANNEL } from "@koloda/native-ipc";
-import { BrowserWindow, ipcMain, powerMonitor } from "electron";
+import { BrowserWindow, powerMonitor } from "electron";
 import { hostname } from "node:os";
-import { assertAppSender } from "./app-sender";
+import { handleIpc } from "./ipc-handlers";
 import type { KolodaDb, SyncEngineEvent } from "./koloda-db";
 
 type SyncDb = Pick<
@@ -37,57 +37,20 @@ function onEngineEvent(event: SyncEngineEvent) {
 }
 
 export function registerSyncIpc(db: SyncDb) {
-  ipcMain.handle("cmd_sync_start", (event, { starter }: IpcArgs<"cmd_sync_start">) => {
-    assertAppSender(event);
-    return db.syncStart(starter, onEngineEvent);
-  });
-  ipcMain.handle("cmd_sync_status", (event) => {
-    assertAppSender(event);
-    return db.syncStatus();
-  });
-  ipcMain.handle("cmd_sync_nudge", (event) => {
-    assertAppSender(event);
-    return db.syncNudge();
-  });
-  ipcMain.handle("cmd_sync_create_space", (event, { data }: IpcArgs<"cmd_sync_create_space">) => {
-    assertAppSender(event);
-    return db.syncCreateSpace(data);
-  });
-  ipcMain.handle("cmd_sync_issue_pairing", (event) => {
-    assertAppSender(event);
-    return db.syncIssuePairing();
-  });
-  ipcMain.handle("cmd_sync_devices", (event) => {
-    assertAppSender(event);
-    return db.syncDevices();
-  });
-  ipcMain.handle("cmd_sync_revoke_device", (event, args: IpcArgs<"cmd_sync_revoke_device">) => {
-    assertAppSender(event);
-    return db.syncRevokeDevice(args);
-  });
-  ipcMain.handle("cmd_sync_detach", (event) => {
-    assertAppSender(event);
-    return db.syncDetach();
-  });
-  ipcMain.handle("cmd_sync_preview", (event, { data }: IpcArgs<"cmd_sync_preview">) => {
-    assertAppSender(event);
-    return db.syncPreview(data);
-  });
-  ipcMain.handle("cmd_sync_join", (event, { data }: IpcArgs<"cmd_sync_join">) => {
-    assertAppSender(event);
-    return db.syncJoin(data);
-  });
-  ipcMain.handle("cmd_sync_import", (event, args: IpcArgs<"cmd_sync_import">) => {
-    assertAppSender(event);
-    return db.syncImport(args);
-  });
-  ipcMain.handle("cmd_sync_accept_restore", (event) => {
-    assertAppSender(event);
-    return db.syncAcceptRestore();
-  });
-  ipcMain.handle("cmd_sync_device_name", (event) => {
-    assertAppSender(event);
-    return hostname();
+  handleIpc<SyncChannel>({
+    cmd_sync_start: (_event, { starter }) => db.syncStart(starter, onEngineEvent),
+    cmd_sync_status: () => db.syncStatus(),
+    cmd_sync_nudge: () => db.syncNudge(),
+    cmd_sync_create_space: (_event, { data }) => db.syncCreateSpace(data),
+    cmd_sync_issue_pairing: () => db.syncIssuePairing(),
+    cmd_sync_devices: () => db.syncDevices(),
+    cmd_sync_revoke_device: (_event, args) => db.syncRevokeDevice(args),
+    cmd_sync_detach: () => db.syncDetach(),
+    cmd_sync_preview: (_event, { data }) => db.syncPreview(data),
+    cmd_sync_join: (_event, { data }) => db.syncJoin(data),
+    cmd_sync_import: (_event, args) => db.syncImport(args),
+    cmd_sync_accept_restore: () => db.syncAcceptRestore(),
+    cmd_sync_device_name: () => hostname(),
   });
 
   powerMonitor.on("resume", () => {

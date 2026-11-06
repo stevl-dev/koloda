@@ -296,13 +296,13 @@ export type DataChannel = keyof DataIpc;
  * Channels registered by `ai-ipc.ts` (secrets-capable main-side glue) rather
  * than by the data handler table in `data-ipc.ts`.
  */
-type AiChannel = "cmd_ai_list_models" | "cmd_ai_chat_stream" | "cmd_ai_abort";
+export type AiChannel = "cmd_ai_list_models" | "cmd_ai_chat_stream" | "cmd_ai_abort";
 
 /** Channels registered by `media-ipc.ts` (network access in main) rather than by `data-ipc.ts`. */
-type MediaChannel = "cmd_add_attachment_from_url";
+export type MediaChannel = "cmd_add_attachment_from_url";
 
 /** Channels registered by `sync-ipc.ts`, which hands the engine main's event broadcaster. */
-type SyncChannel =
+export type SyncChannel =
   | "cmd_sync_start"
   | "cmd_sync_status"
   | "cmd_sync_nudge"
@@ -318,7 +318,7 @@ type SyncChannel =
   | "cmd_sync_device_name";
 
 /** Channels registered by `optimizer-ipc.ts`, which sends progress to the window that started the run. */
-type OptimizerChannel = "cmd_optimize_algorithm" | "cmd_cancel_algorithm_optimization";
+export type OptimizerChannel = "cmd_optimize_algorithm" | "cmd_cancel_algorithm_optimization";
 
 /** Channels served by the `KolodaDb`-backed handler table in `data-ipc.ts`. */
 export type DataOnlyChannel = Exclude<DataChannel, AiChannel | MediaChannel | SyncChannel | OptimizerChannel>;
