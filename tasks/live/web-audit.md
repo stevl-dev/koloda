@@ -393,7 +393,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Bring the web README up to date
   Depends on: 1, 2, 3, 10
 
-- [ ] 13. Keep the base ES library in the web tsconfig
+- [x] 13. Keep the base ES library in the web tsconfig
   Goal (`electron-react-audit` finding 3's twin): drop `"lib": ["dom"]` from `apps/web/tsconfig.app.json`, so it
   inherits `["es2022", "dom"]` from `tsconfig.base.json`, as the desktop renderer does.
   Constraints: that line.
