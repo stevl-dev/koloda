@@ -1,6 +1,6 @@
 # apps/web audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/CSS.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, apps/web/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/decisions/APP-ROLES.md, agents/REVIEW.md
 Flow: local
 
@@ -403,4 +403,32 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
 
 ## Outcome
 
-<what shipped>
+All 12 findings fixed, none skipped; plus the three `apps/web` twins handed over by `electron-react-audit`.
+Plan items 1-13 shipped as one commit each (`Task: web-audit`).
+
+- Base path: the web build always renders a `<base href>` ending in `/`, so the Pages demo loads `theme-boot.js`.
+- Startup: an unsupported browser shows "This browser can't run the demo"; a failed database open shows
+  "Couldn't start the demo" with the error and a Reload button. INTERFACE-SETTINGS.md §First Setup says so.
+- Persistent storage is asked only once setup has created the data, and on later starts until granted (spec too).
+- The setup scheme toggle cannot empty its selection; one storage sentence; "The web version…".
+- Web AI profile writes run in one transaction (real-database overlap test); a failed secrets read with no cache
+  surfaces its own error; `getAIProfiles` redaction is tested.
+- The Camp David pair is one card in both locales.
+- Leftover exports, config, comments, and guards removed; the web tsconfig inherits `es2022`; README corrected.
+
+Changed at implementation:
+
+- Item 3 has no once-guard: the status reads `ok` at most once per page load.
+- Item 5 gives `apps/web/vitest.config.mjs` the `libs/db-sqlite` test setup for `ai.integration.test.ts`.
+- Item 2, found at verification: the startup screen does not use `ErrorMessage` (its dialog reads hotkey settings
+  through the store, which never loaded, and blanked the page), and it falls back to a statically imported English
+  catalog when the catalog chunk fails too.
+
+Verification (2026-11-06, at the human's request; no plan item edits e2e cases, so the suite rule did not apply):
+
+- A Playwright probe against a `VITE_BASE=/koloda` production preview passed 14/14: theme-boot under the base,
+  dark first paint before the WebAssembly fetch, storage ask timing, setup toggle and copy, the merged Nobel card,
+  and both startup screens (including a Russian browser with its catalog blocked).
+- Web suite on `d682e565`: 98 passed, 0 failed with `CI=1` (production build); 98 passed, 0 failed on the dev server
+  (that run overlapped the item 2 fix). The desktop suite was not run: the only desktop change removes a comment.
+- `bun run check:push` green on `d682e565`.
