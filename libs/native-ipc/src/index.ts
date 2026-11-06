@@ -223,7 +223,7 @@ export type PushChannel = keyof PushIpc;
 
 export interface DataIpc {
   get_db_status: { args: undefined; result: DbStatus };
-  seed_db: { args: { data: SeedDbData }; result: true };
+  seed_db: { args: { data: SeedDbData }; result: void };
 
   cmd_get_cards: { args: { params: GetCardsParams }; result: Card[] };
   cmd_add_card: { args: { data: InsertCardData }; result: Card };

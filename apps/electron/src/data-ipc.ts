@@ -16,10 +16,7 @@ type DataHandler = (
 // annotations give each handler its checked arg type.
 const dataHandlers = {
   get_db_status: (db) => db.getDbStatus(),
-  seed_db: async (db, { data }: IpcArgs<"seed_db">): Promise<IpcResult<"seed_db">> => {
-    await db.seedDb(data);
-    return true;
-  },
+  seed_db: (db, { data }: IpcArgs<"seed_db">) => db.seedDb(data),
 
   cmd_get_cards: (db, { params }: IpcArgs<"cmd_get_cards">) => db.getCards(params),
   cmd_add_card: (db, { data }: IpcArgs<"cmd_add_card">) => db.addCard(data),

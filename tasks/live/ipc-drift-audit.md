@@ -280,7 +280,7 @@ does not apply; it is held to the code all the same.
   Commit: Tie each IPC push payload to its channel
   Depends on: 1
 
-- [ ] 4. Return void from seed_db
+- [x] 4. Return void from seed_db
   Goal: `seed_db` is a plain write like the others (finding 5).
   - `libs/native-ipc/src/index.ts`: `seed_db`'s result is `void`.
   - `apps/electron/src/data-ipc.ts`: the handler becomes `(db, { data }: IpcArgs<"seed_db">) => db.seedDb(data)`.
