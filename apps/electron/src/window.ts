@@ -7,6 +7,7 @@ import type { AppNavigationTarget } from "./navigation-policy";
 import { getDefaultSurfaceColor, getDefaultSymbolColor, loadUiPrefs } from "./ui-prefs";
 import { loadWindowState, saveWindowState } from "./window-state";
 import { APP_SHUTDOWN_REQUEST_CHANNEL } from "@koloda/native-ipc";
+import { sendPush } from "./ipc-handlers";
 import { createWindowCloseCoordinator } from "./window-close-coordinator";
 import type { WindowCloseCoordinator } from "./window-close-coordinator";
 
@@ -163,7 +164,7 @@ function attachWindowCloseCoordination(win: BrowserWindow) {
   const coordinator = createWindowCloseCoordinator({
     requestRendererShutdown: () => {
       if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
-        win.webContents.send(APP_SHUTDOWN_REQUEST_CHANNEL);
+        sendPush(win.webContents, APP_SHUTDOWN_REQUEST_CHANNEL, undefined);
       }
     },
     closeWindow: () => {

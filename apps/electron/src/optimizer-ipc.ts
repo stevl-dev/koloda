@@ -1,6 +1,6 @@
 import type { OptimizerChannel, OptimizerProgressEvent } from "@koloda/native-ipc";
 import { OPTIMIZER_PROGRESS_CHANNEL } from "@koloda/native-ipc";
-import { handleIpc } from "./ipc-handlers";
+import { handleIpc, sendPush } from "./ipc-handlers";
 import type { KolodaDb } from "./koloda-db";
 
 type OptimizerDb = Pick<KolodaDb, "optimizeAlgorithm" | "cancelAlgorithmOptimization">;
@@ -14,7 +14,7 @@ export function registerOptimizerIpc(db: OptimizerDb) {
       sender.once("destroyed", cancel);
       try {
         return await db.optimizeAlgorithm(args, (progress: OptimizerProgressEvent) => {
-          if (!sender.isDestroyed()) sender.send(OPTIMIZER_PROGRESS_CHANNEL, progress);
+          if (!sender.isDestroyed()) sendPush(sender, OPTIMIZER_PROGRESS_CHANNEL, progress);
         });
       } finally {
         sender.removeListener("destroyed", cancel);

@@ -3,13 +3,7 @@ import { AIError, isAIError } from "@koloda/ai";
 import { isAppError } from "@koloda/app";
 import type { AiStreamEvent } from "@koloda/native-ipc";
 import { AI_STREAM_CHANNEL } from "@koloda/native-ipc";
-import { invoke } from "./electron";
-
-function isAiStreamEvent(value: unknown): value is AiStreamEvent {
-  if (!value || typeof value !== "object") return false;
-  const event = value as Partial<AiStreamEvent>;
-  return typeof event.requestId === "string" && typeof event.type === "string";
-}
+import { invoke, subscribe } from "./electron";
 
 // WHY: `invoke` throws AppError whose `.message` is the code (details live on
 // `.details`). Convert to AIError so conversation-runtime can map via toAIAppError.
@@ -55,9 +49,8 @@ function waitForStream({ requestId, abortSignal, onChunk, onToolEvent }: WaitFor
   };
 
   const promise = new Promise<StreamUsage | undefined>((resolve, reject) => {
-    const onEvent = (...args: unknown[]) => {
-      const event = args[0];
-      if (!isAiStreamEvent(event) || event.requestId !== requestId) return;
+    const onEvent = (event: AiStreamEvent) => {
+      if (event.requestId !== requestId) return;
 
       switch (event.type) {
         case "chunk":
@@ -91,7 +84,7 @@ function waitForStream({ requestId, abortSignal, onChunk, onToolEvent }: WaitFor
       settle(() => reject(new DOMException("Aborted", "AbortError")));
     };
 
-    unsubscribe = window.electronAPI.on(AI_STREAM_CHANNEL, onEvent);
+    unsubscribe = subscribe(AI_STREAM_CHANNEL, onEvent);
 
     if (abortSignal.aborted) {
       onAbort();

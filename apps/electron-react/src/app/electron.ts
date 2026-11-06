@@ -1,6 +1,6 @@
 import { AppError } from "@koloda/app";
 import type { ErrorCode } from "@koloda/app";
-import type { DataChannel, ElectronBridge, IpcArgs, IpcResult } from "@koloda/native-ipc";
+import type { DataChannel, ElectronBridge, IpcArgs, IpcResult, PushChannel, PushIpc } from "@koloda/native-ipc";
 import { fromWire, toWire } from "./ipc";
 
 declare global {
@@ -47,4 +47,9 @@ export async function invoke<C extends DataChannel>(channel: C, args: IpcArgs<C>
   } catch (error) {
     throw new AppError(...parseElectronError(error));
   }
+}
+
+export function subscribe<C extends PushChannel>(channel: C, callback: (payload: PushIpc[C]) => void): () => void {
+  // WHY: main sends every push through `sendPush`, typed by the same `PushIpc` map, so the payload is not re-checked.
+  return window.electronAPI.on(channel, (payload) => callback(payload as PushIpc[C]));
 }

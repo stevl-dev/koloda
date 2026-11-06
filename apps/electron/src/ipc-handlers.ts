@@ -1,5 +1,5 @@
-import type { DataIpc, WindowIpc } from "@koloda/native-ipc";
-import type { IpcMainInvokeEvent } from "electron";
+import type { DataIpc, PushChannel, PushIpc, WindowIpc } from "@koloda/native-ipc";
+import type { IpcMainInvokeEvent, WebContents } from "electron";
 import { ipcMain } from "electron";
 import { assertAppSender } from "./app-sender";
 
@@ -25,4 +25,8 @@ export function handleIpc<C extends MainChannel = never>(handlers: IpcHandlers<N
       return handler(event, args);
     });
   }
+}
+
+export function sendPush<C extends PushChannel>(contents: WebContents, channel: C, payload: PushIpc[C]) {
+  contents.send(channel, payload);
 }

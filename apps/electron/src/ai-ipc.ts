@@ -12,7 +12,7 @@ import {
 import type { AiChannel, AiStreamEvent } from "@koloda/native-ipc";
 import { AI_STREAM_CHANNEL } from "@koloda/native-ipc";
 import type { WebContents } from "electron";
-import { handleIpc } from "./ipc-handlers";
+import { handleIpc, sendPush } from "./ipc-handlers";
 import type { KolodaDb } from "./koloda-db";
 
 export type AiProfileSecretsSource = {
@@ -32,7 +32,7 @@ const activeControllers = new Map<string, AbortController>();
 
 function sendStreamEvent(sender: WebContents, event: AiStreamEvent) {
   if (sender.isDestroyed()) return;
-  sender.send(AI_STREAM_CHANNEL, event);
+  sendPush(sender, AI_STREAM_CHANNEL, event);
 }
 
 function isAbortError(error: unknown): boolean {

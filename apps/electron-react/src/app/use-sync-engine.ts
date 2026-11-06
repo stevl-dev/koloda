@@ -1,10 +1,9 @@
 import { SYNC_EVENT_CHANNEL } from "@koloda/native-ipc";
-import type { SyncEvent } from "@koloda/native-ipc";
 import { useLingui } from "@lingui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "jotai";
 import { useEffect } from "react";
-import { invoke } from "./electron";
+import { invoke, subscribe } from "./electron";
 import { starterContent } from "./setup";
 import { applySyncEvent } from "./sync-events";
 import { getSyncStatusQuery, syncStart } from "./sync-queries";
@@ -18,7 +17,7 @@ export function useSyncEngine(isDatabaseKnown: boolean) {
   const { _ } = useLingui();
 
   useEffect(
-    () => window.electronAPI.on(SYNC_EVENT_CHANNEL, (event) => applySyncEvent(queryClient, store, event as SyncEvent)),
+    () => subscribe(SYNC_EVENT_CHANNEL, (event) => applySyncEvent(queryClient, store, event)),
     [queryClient, store],
   );
 

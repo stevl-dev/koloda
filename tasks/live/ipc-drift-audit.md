@@ -256,7 +256,7 @@ does not apply; it is held to the code all the same.
   Commit: Declare the window IPC payloads once in the contract
   Depends on: 1
 
-- [ ] 3. Tie each push payload to its channel
+- [x] 3. Tie each push payload to its channel
   Goal: a push payload is checked against its channel on both ends (finding 4).
   - In `libs/native-ipc/src/index.ts`, add `PushIpc`, from each push channel constant to its payload:
     `AI_STREAM_CHANNEL` → `AiStreamEvent`, `SYNC_EVENT_CHANNEL` → `SyncEvent`, `OPTIMIZER_PROGRESS_CHANNEL` →

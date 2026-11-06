@@ -1,6 +1,7 @@
 import { shutdownAssistantGracefully } from "@koloda/assistant-react";
 import { APP_SHUTDOWN_ACK_CHANNEL, APP_SHUTDOWN_REQUEST_CHANNEL } from "@koloda/native-ipc";
 import type { createStore } from "jotai";
+import { subscribe } from "./electron";
 
 type AssistantJotaiStore = ReturnType<typeof createStore>;
 
@@ -11,7 +12,7 @@ export function installElectronCloseCoordination(store: AssistantJotaiStore): ()
   // INVARIANT: the renderer acks one shutdown request, even after a failed flush, so main can close; a repeated
   // request is ignored. The flush awaits the engine's single-flight promise, so a flush that unload started is joined
   // before the ack. The handshake is in apps/electron/IPC.md (§Window and Lifecycle).
-  return api.on(APP_SHUTDOWN_REQUEST_CHANNEL, () => {
+  return subscribe(APP_SHUTDOWN_REQUEST_CHANNEL, () => {
     if (isShuttingDown) return;
     isShuttingDown = true;
     void (async () => {

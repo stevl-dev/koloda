@@ -23,9 +23,11 @@ Main-to-renderer pushes arrive on `window.electronAPI.on(channel, callback)` sub
 - Channel names and arg/result shapes are machine-checked against the `DataIpc` contract in `libs/native-ipc`
   (`@koloda/native-ipc`), which both processes compile against. The contract covers every data, AI, media, sync,
   and optimizer command.
-  It also covers the push payloads: `AiStreamEvent` on `AI_STREAM_CHANNEL` (`ai:stream`), `SyncEvent` on
-  `SYNC_EVENT_CHANNEL` (`sync:event`), and `OptimizerProgressEvent` on `OPTIMIZER_PROGRESS_CHANNEL`
-  (`optimizer:progress`).
+  Its `PushIpc` map ties each push channel to its payload: `AiStreamEvent` on `AI_STREAM_CHANNEL` (`ai:stream`),
+  `SyncEvent` on `SYNC_EVENT_CHANNEL` (`sync:event`), `OptimizerProgressEvent` on `OPTIMIZER_PROGRESS_CHANNEL`
+  (`optimizer:progress`), and no payload on `APP_SHUTDOWN_REQUEST_CHANNEL`.
+  Main sends through `sendPush` (`src/ipc-handlers.ts`) and the renderer listens through `subscribe` (`electron.ts`),
+  both typed by that map.
   The window and close-handshake commands are in its `WindowIpc` map, with their payload types.
 - Main registers every handler through `handleIpc` (`src/ipc-handlers.ts`), which checks the sender first.
   Each module names its channel union, so a channel with no handler, or a handler for no channel, fails the build.

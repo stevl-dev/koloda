@@ -2,7 +2,7 @@ import type { SyncChannel, SyncEvent } from "@koloda/native-ipc";
 import { SYNC_EVENT_CHANNEL } from "@koloda/native-ipc";
 import { BrowserWindow, powerMonitor } from "electron";
 import { hostname } from "node:os";
-import { handleIpc } from "./ipc-handlers";
+import { handleIpc, sendPush } from "./ipc-handlers";
 import type { KolodaDb, SyncEngineEvent } from "./koloda-db";
 
 type SyncDb = Pick<
@@ -23,7 +23,7 @@ type SyncDb = Pick<
 
 function broadcast(event: SyncEvent) {
   for (const window of BrowserWindow.getAllWindows()) {
-    if (!window.webContents.isDestroyed()) window.webContents.send(SYNC_EVENT_CHANNEL, event);
+    if (!window.webContents.isDestroyed()) sendPush(window.webContents, SYNC_EVENT_CHANNEL, event);
   }
 }
 

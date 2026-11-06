@@ -1,15 +1,14 @@
 import type { OptimizerQueries } from "@koloda/core-react";
-import type { OptimizerProgressEvent } from "@koloda/native-ipc";
 import { OPTIMIZER_PROGRESS_CHANNEL } from "@koloda/native-ipc";
 import type { ApplyAlgorithmOptimizationData } from "@koloda/srs";
-import { invoke } from "./electron";
+import { invoke, subscribe } from "./electron";
 
 export const createOptimizerQueries = (): OptimizerQueries => ({
   optimizeAlgorithm: async ({ id, onProgress, signal }) => {
     const requestId = crypto.randomUUID();
     // INVARIANT: listen before invoking, so the first progress event is not missed.
-    const unsubscribe = window.electronAPI.on(OPTIMIZER_PROGRESS_CHANNEL, (event) => {
-      const { requestId: eventRequestId, current, total } = event as OptimizerProgressEvent;
+    const unsubscribe = subscribe(OPTIMIZER_PROGRESS_CHANNEL, (event) => {
+      const { requestId: eventRequestId, current, total } = event;
       if (eventRequestId === requestId) onProgress({ current, total });
     });
     const cancel = () => {

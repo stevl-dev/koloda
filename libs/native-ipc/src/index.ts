@@ -211,6 +211,16 @@ export type SyncEvent =
  */
 export type OptimizerProgressEvent = { requestId: string; current: number; total: number };
 
+/** Main-to-renderer pushes, each channel to its payload; main sends and the renderer subscribes through this map. */
+export interface PushIpc {
+  [AI_STREAM_CHANNEL]: AiStreamEvent;
+  [SYNC_EVENT_CHANNEL]: SyncEvent;
+  [OPTIMIZER_PROGRESS_CHANNEL]: OptimizerProgressEvent;
+  [APP_SHUTDOWN_REQUEST_CHANNEL]: undefined;
+}
+
+export type PushChannel = keyof PushIpc;
+
 export interface DataIpc {
   get_db_status: { args: undefined; result: DbStatus };
   seed_db: { args: { data: SeedDbData }; result: true };
