@@ -87,10 +87,6 @@ msgid "web.setup.diff.optimization.term"
 msgstr "Оптимизация"
 
 #: src/components/web-setup.tsx:52
-msgid "web.setup.diff.storage.detail"
-msgstr "Все данные хранятся только в этом браузере. Очистка данных сайта их удалит."
-
-#: src/components/web-setup.tsx:52
 msgid "web.setup.diff.storage.term"
 msgstr "Хранение"
 
@@ -114,6 +110,7 @@ msgstr "Веб-версия в чём-то уступает настольном
 msgid "web.setup.loading"
 msgstr "Создаём примерные колоды…"
 
+#: src/components/web-setup.tsx:52
 #: src/components/web-setup.tsx:97
 msgid "web.setup.storage"
 msgstr "Все данные хранятся только в этом браузере. Очистка данных сайта их удалит."

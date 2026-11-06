@@ -87,10 +87,6 @@ msgid "web.setup.diff.optimization.term"
 msgstr "Optimization"
 
 #: src/components/web-setup.tsx:52
-msgid "web.setup.diff.storage.detail"
-msgstr "All the data stays only in this browser. Clearing site data deletes it."
-
-#: src/components/web-setup.tsx:52
 msgid "web.setup.diff.storage.term"
 msgstr "Storage"
 
@@ -108,12 +104,13 @@ msgstr "What’s different from the desktop app"
 
 #: src/components/web-setup.tsx:99
 msgid "web.setup.diff.trigger"
-msgstr "Web version has some limitations compared to the desktop app."
+msgstr "The web version has some limitations compared to the desktop app."
 
 #: src/components/web-setup.tsx:145
 msgid "web.setup.loading"
 msgstr "Creating sample decks…"
 
+#: src/components/web-setup.tsx:52
 #: src/components/web-setup.tsx:97
 msgid "web.setup.storage"
 msgstr "All the data stays only in this browser, and clearing site data deletes it."

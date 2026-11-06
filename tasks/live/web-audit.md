@@ -353,7 +353,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Merge the Camp David cards in the Nobel seed deck
   Depends on: none
 
-- [ ] 9. Use one storage sentence on the web setup screen
+- [x] 9. Use one storage sentence on the web setup screen
   Goal (finding 8): The setup dialog's storage row uses `web.setup.storage`; drop `web.setup.diff.storage.detail`.
   `web.setup.diff.trigger` reads "The web version has some limitations compared to the desktop app."
   Extract and compile the web catalogs; revert unrelated `#:` churn.

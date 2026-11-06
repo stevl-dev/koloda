@@ -49,7 +49,7 @@ const SCHEME_ITEMS = [
 ] as const;
 
 const DIFFS = [
-  { id: "storage", term: msg`web.setup.diff.storage.term`, detail: msg`web.setup.diff.storage.detail` },
+  { id: "storage", term: msg`web.setup.diff.storage.term`, detail: msg`web.setup.storage` },
   { id: "sync", term: msg`web.setup.diff.sync.term`, detail: msg`web.setup.diff.sync.detail` },
   { id: "ai", term: msg`web.setup.diff.ai.term`, detail: msg`web.setup.diff.ai.detail` },
   { id: "optimization", term: msg`web.setup.diff.optimization.term`, detail: msg`web.setup.diff.optimization.detail` },
