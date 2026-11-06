@@ -17,6 +17,10 @@ vi.mock("@koloda/db-sqlite", () => ({
   },
 }));
 
+// WHY: the writes run in `db.transaction`; the Map store has no lock, so the transaction only passes the handle on.
+// `ai.integration.test.ts` covers the locking on a real database.
+const TEST_DB = { transaction: (fn: (tx: DB) => Promise<unknown>) => fn(TEST_DB) } as unknown as DB;
+
 const PROFILE_ID = "01900000-0000-7000-8000-000000000001";
 const CREATED_AT = "2026-01-01T00:00:00.000Z";
 
@@ -36,13 +40,13 @@ describe("web AI profile save path", () => {
 
   it("rejects a blank required apiKey on create and persists nothing", async () => {
     await expect(
-      addAIProfile({} as DB, { title: "OpenRouter", secrets: { provider: "openrouter", apiKey: "" } }),
+      addAIProfile(TEST_DB, { title: "OpenRouter", secrets: { provider: "openrouter", apiKey: "" } }),
     ).rejects.toMatchObject({ name: "AppError", code: "validation.settings-ai.providers.api-key" });
     expect(store.has("ai")).toBe(false);
   });
 
   it("rejects a null required apiKey on create", async () => {
-    await expect(addAIProfile({} as DB, { secrets: { provider: "openrouter", apiKey: null } })).rejects.toMatchObject({
+    await expect(addAIProfile(TEST_DB, { secrets: { provider: "openrouter", apiKey: null } })).rejects.toMatchObject({
       code: "validation.settings-ai.providers.api-key",
     });
   });
@@ -50,7 +54,7 @@ describe("web AI profile save path", () => {
   it("persists a keyed profile with hasSecrets derived from the sent key", async () => {
     // WHY: Web keeps the usable key in the settings row (no keyring) and redacts
     // on public reads — assert the stored form, not the redacted public one.
-    await addAIProfile({} as DB, { title: "OR", secrets: { provider: "openrouter", apiKey: "sk-or" } });
+    await addAIProfile(TEST_DB, { title: "OR", secrets: { provider: "openrouter", apiKey: "sk-or" } });
     expect(storedProfiles()).toHaveLength(1);
     expect(storedProfiles()[0]).toMatchObject({
       secrets: { provider: "openrouter", apiKey: "sk-or" },
@@ -60,7 +64,7 @@ describe("web AI profile save path", () => {
 
   it("accepts an ollama profile without an apiKey on create", async () => {
     await expect(
-      addAIProfile({} as DB, { secrets: { provider: "ollama", baseUrl: "http://localhost:11434" } }),
+      addAIProfile(TEST_DB, { secrets: { provider: "ollama", baseUrl: "http://localhost:11434" } }),
     ).resolves.toBeUndefined();
   });
 
@@ -76,7 +80,7 @@ describe("web AI profile save path", () => {
     ]);
 
     await expect(
-      updateAIProfile({} as DB, { id: PROFILE_ID, secrets: { provider: "openrouter", apiKey: "  " } }),
+      updateAIProfile(TEST_DB, { id: PROFILE_ID, secrets: { provider: "openrouter", apiKey: "  " } }),
     ).rejects.toMatchObject({ code: "validation.settings-ai.providers.api-key" });
 
     expect(storedProfiles()[0]?.secrets).toEqual({ provider: "openrouter", apiKey: "sk-or" });
@@ -93,7 +97,7 @@ describe("web AI profile save path", () => {
       },
     ]);
 
-    await updateAIProfile({} as DB, {
+    await updateAIProfile(TEST_DB, {
       id: PROFILE_ID,
       secrets: { provider: "ollama", baseUrl: "http://127.0.0.1:11434", apiKey: "" },
     });
@@ -111,14 +115,14 @@ describe("web AI profile save path", () => {
     store.set("ai", { profiles: [], assistant });
     const storedAssistant = () => (store.get("ai") as { assistant?: unknown }).assistant;
 
-    await addAIProfile({} as DB, { title: "OR", secrets: { provider: "openrouter", apiKey: "sk-or" } });
+    await addAIProfile(TEST_DB, { title: "OR", secrets: { provider: "openrouter", apiKey: "sk-or" } });
     expect(storedAssistant()).toEqual(assistant);
 
     const profileId = storedProfiles()[0]!.id as string;
-    await updateAIProfile({} as DB, { id: profileId, title: "Renamed" });
+    await updateAIProfile(TEST_DB, { id: profileId, title: "Renamed" });
     expect(storedAssistant()).toEqual(assistant);
 
-    await removeAIProfile({} as DB, { id: profileId });
+    await removeAIProfile(TEST_DB, { id: profileId });
     expect(storedAssistant()).toEqual(assistant);
   });
 
@@ -135,7 +139,7 @@ describe("web AI profile save path", () => {
     ]);
 
     await expect(
-      updateAIProfile({} as DB, {
+      updateAIProfile(TEST_DB, {
         id: PROFILE_ID,
         title: "Local model",
         secrets: { provider: "ollama", baseUrl: "http://localhost:11434" },
@@ -160,14 +164,14 @@ describe("web AI profile save path", () => {
       },
     ]);
 
-    await updateAIProfile({} as DB, { id: PROFILE_ID, title: "" });
+    await updateAIProfile(TEST_DB, { id: PROFILE_ID, title: "" });
 
     expect(storedProfiles()[0]?.title).toBeUndefined();
   });
 
   it("throws not-found on update when the ai settings row is absent", async () => {
     // Twin: update_ai_profile_not_found (crates/koloda/tests/integration/ai_integration_tests.rs).
-    await expect(updateAIProfile({} as DB, { id: PROFILE_ID, title: "X" })).rejects.toMatchObject({
+    await expect(updateAIProfile(TEST_DB, { id: PROFILE_ID, title: "X" })).rejects.toMatchObject({
       code: "not-found.ai-profile",
     });
     expect(store.has("ai")).toBe(false);
@@ -176,7 +180,7 @@ describe("web AI profile save path", () => {
   it("throws not-found on update when the profile is missing", async () => {
     seedAiSettings([{ id: "01900000-0000-7000-8000-000000000002", title: "Other", createdAt: CREATED_AT }]);
 
-    await expect(updateAIProfile({} as DB, { id: PROFILE_ID, title: "X" })).rejects.toMatchObject({
+    await expect(updateAIProfile(TEST_DB, { id: PROFILE_ID, title: "X" })).rejects.toMatchObject({
       code: "not-found.ai-profile",
     });
   });
@@ -186,14 +190,14 @@ describe("web AI profile save path", () => {
     seedAiSettings([{ id: "01900000-0000-7000-8000-000000000002", title: "Other", createdAt: CREATED_AT }]);
 
     await expect(
-      updateAIProfile({} as DB, { id: PROFILE_ID, secrets: { provider: "openrouter", apiKey: "" } }),
+      updateAIProfile(TEST_DB, { id: PROFILE_ID, secrets: { provider: "openrouter", apiKey: "" } }),
     ).rejects.toMatchObject({ code: "not-found.ai-profile" });
   });
 
   it("creates the default ai row on remove when the settings row is absent", async () => {
     // Twin: remove_ai_profile_creates_default_row_when_settings_absent
     // (crates/koloda/tests/integration/ai_integration_tests.rs).
-    await removeAIProfile({} as DB, { id: PROFILE_ID });
+    await removeAIProfile(TEST_DB, { id: PROFILE_ID });
     expect(storedProfiles()).toEqual([]);
   });
 });

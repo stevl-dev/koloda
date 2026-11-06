@@ -87,88 +87,98 @@ export async function addAIProfile(db: DB, data: AddAIProfileData): Promise<void
     createdAt: new Date(),
   };
 
-  const currentSettings = await getSettings<"ai">(db, "ai");
-  const currentContent = currentSettings?.content ?? { profiles: [] };
+  // WHY: the lock is per statement, so a read and a write outside one transaction let an overlapping assistant
+  // settings patch land between them and be overwritten. Desktop serializes on its worker.
+  await db.transaction(async (tx) => {
+    const currentSettings = await getSettings<"ai">(tx, "ai");
+    const currentContent = currentSettings?.content ?? { profiles: [] };
 
-  const newContent = aiSettingsValidation.parse(
-    produce(currentContent, (draft) => {
-      draft.profiles.push(newProfile);
-    }),
-  );
+    const newContent = aiSettingsValidation.parse(
+      produce(currentContent, (draft) => {
+        draft.profiles.push(newProfile);
+      }),
+    );
 
-  const duplicateId = findDuplicateProfileId(newContent);
-  if (duplicateId) {
-    throw new AppError("validation.ai-providers.profile-id.duplicate", duplicateId);
-  }
+    const duplicateId = findDuplicateProfileId(newContent);
+    if (duplicateId) {
+      throw new AppError("validation.ai-providers.profile-id.duplicate", duplicateId);
+    }
 
-  await setSettings<"ai">(db, { name: "ai", content: newContent });
+    await setSettings<"ai">(tx, { name: "ai", content: newContent });
+  });
 }
 
 export async function updateAIProfile(db: DB, data: UpdateAIProfileData): Promise<void> {
-  const currentSettings = await getSettings<"ai">(db, "ai");
-  // INVARIANT: not-found before secrets validation, mirroring desktop
-  // `update_ai_profile` error precedence (crates/koloda/src/repo/ai.rs).
-  if (!currentSettings) throw new AppError("not-found.ai-profile", data.id);
+  // WHY: one transaction for the read and the write, as in `addAIProfile`.
+  await db.transaction(async (tx) => {
+    const currentSettings = await getSettings<"ai">(tx, "ai");
+    // INVARIANT: not-found before secrets validation, mirroring desktop
+    // `update_ai_profile` error precedence (crates/koloda/src/repo/ai.rs).
+    if (!currentSettings) throw new AppError("not-found.ai-profile", data.id);
 
-  const profileIndex = currentSettings.content.profiles.findIndex((p) => p.id === data.id);
-  if (profileIndex === -1) throw new AppError("not-found.ai-profile", data.id);
+    const profileIndex = currentSettings.content.profiles.findIndex((p) => p.id === data.id);
+    if (profileIndex === -1) throw new AppError("not-found.ai-profile", data.id);
 
-  if (data.secrets) {
-    validateSecretsForInput(data.secrets);
-    // INVARIANT: a profile keeps its provider (AI-PROVIDERS.md §Editing a Profile).
-    // Twin: `update_ai_profile` in crates/koloda/src/repo/ai.rs.
-    if (data.secrets.provider !== currentSettings.content.profiles[profileIndex]!.secrets.provider) {
-      throw new AppError("validation.ai-providers.provider.changed");
+    if (data.secrets) {
+      validateSecretsForInput(data.secrets);
+      // INVARIANT: a profile keeps its provider (AI-PROVIDERS.md §Editing a Profile).
+      // Twin: `update_ai_profile` in crates/koloda/src/repo/ai.rs.
+      if (data.secrets.provider !== currentSettings.content.profiles[profileIndex]!.secrets.provider) {
+        throw new AppError("validation.ai-providers.provider.changed");
+      }
     }
-  }
 
-  const newContent = aiSettingsValidation.parse(
-    produce(currentSettings.content, (draft) => {
-      const profile = draft.profiles[profileIndex]!;
-      if (data.title !== undefined) profile.title = data.title;
-      if (data.whitelistModelIds !== undefined) {
-        if (data.whitelistModelIds === null) {
-          delete profile.whitelistModelIds;
-        } else {
-          profile.whitelistModelIds = data.whitelistModelIds;
+    const newContent = aiSettingsValidation.parse(
+      produce(currentSettings.content, (draft) => {
+        const profile = draft.profiles[profileIndex]!;
+        if (data.title !== undefined) profile.title = data.title;
+        if (data.whitelistModelIds !== undefined) {
+          if (data.whitelistModelIds === null) {
+            delete profile.whitelistModelIds;
+          } else {
+            profile.whitelistModelIds = data.whitelistModelIds;
+          }
         }
-      }
-      if (data.secrets !== undefined) {
-        const previous = profile.secrets;
-        // WHY: Edit submits may omit apiKey when the user did not replace it.
-        // Keep the stored key unless a new key was sent.
-        if (!profileHasSecrets(data.secrets) && profileHasSecrets(previous)) {
-          profile.secrets = { ...data.secrets, apiKey: previous.apiKey } as AISecrets;
-        } else {
-          profile.secrets = data.secrets;
+        if (data.secrets !== undefined) {
+          const previous = profile.secrets;
+          // WHY: Edit submits may omit apiKey when the user did not replace it.
+          // Keep the stored key unless a new key was sent.
+          if (!profileHasSecrets(data.secrets) && profileHasSecrets(previous)) {
+            profile.secrets = { ...data.secrets, apiKey: previous.apiKey } as AISecrets;
+          } else {
+            profile.secrets = data.secrets;
+          }
+          profile.hasSecrets = profileHasSecrets(profile.secrets);
         }
-        profile.hasSecrets = profileHasSecrets(profile.secrets);
-      }
-    }),
-  );
+      }),
+    );
 
-  const duplicateId = findDuplicateProfileId(newContent);
-  if (duplicateId) {
-    throw new AppError("validation.ai-providers.profile-id.duplicate", duplicateId);
-  }
+    const duplicateId = findDuplicateProfileId(newContent);
+    if (duplicateId) {
+      throw new AppError("validation.ai-providers.profile-id.duplicate", duplicateId);
+    }
 
-  await setSettings<"ai">(db, { name: "ai", content: newContent });
+    await setSettings<"ai">(tx, { name: "ai", content: newContent });
+  });
 }
 
 export async function removeAIProfile(db: DB, data: RemoveAIProfileData): Promise<void> {
-  const currentSettings = await getSettings<"ai">(db, "ai");
-  // WHY: desktop `remove_ai_profile` writes the default row when the settings
-  // row is absent, so the ai row exists after any remove (twin parity).
-  if (!currentSettings) {
-    await setSettings<"ai">(db, { name: "ai", content: { profiles: [] } });
-    return;
-  }
+  // WHY: one transaction for the read and the write, as in `addAIProfile`.
+  await db.transaction(async (tx) => {
+    const currentSettings = await getSettings<"ai">(tx, "ai");
+    // WHY: desktop `remove_ai_profile` writes the default row when the settings
+    // row is absent, so the ai row exists after any remove (twin parity).
+    if (!currentSettings) {
+      await setSettings<"ai">(tx, { name: "ai", content: { profiles: [] } });
+      return;
+    }
 
-  const newContent = aiSettingsValidation.parse(
-    produce(currentSettings.content, (draft) => {
-      draft.profiles = draft.profiles.filter((p) => p.id !== data.id);
-    }),
-  );
+    const newContent = aiSettingsValidation.parse(
+      produce(currentSettings.content, (draft) => {
+        draft.profiles = draft.profiles.filter((p) => p.id !== data.id);
+      }),
+    );
 
-  await setSettings<"ai">(db, { name: "ai", content: newContent });
+    await setSettings<"ai">(tx, { name: "ai", content: newContent });
+  });
 }

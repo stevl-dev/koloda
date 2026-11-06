@@ -12,10 +12,21 @@ export default defineConfig({
       "@lingui/core/macro": resolve(__dirname, "../../tools/test/mocks/lingui-core-macro.ts"),
     },
   },
+  // WHY: `ai.integration.test.ts` opens a real `@koloda/db-sqlite` database, so this mirrors that package's config.
+  assetsInclude: ["**/*.sql"],
+  server: {
+    fs: {
+      allow: [resolve(__dirname, "../..")],
+    },
+  },
+  optimizeDeps: {
+    exclude: ["wa-sqlite"],
+  },
   test: {
     pool: "threads",
     maxWorkers: 2,
     environment: "node",
     include: ["apps/web/src/**/*.test.ts"],
+    setupFiles: [resolve(__dirname, "../../libs/db-sqlite/src/test/setup.ts")],
   },
 });

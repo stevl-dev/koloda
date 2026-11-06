@@ -309,7 +309,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Keep the setup scheme picker from emptying its selection
   Depends on: none
 
-- [ ] 5. Write web AI profiles inside one transaction
+- [x] 5. Write web AI profiles inside one transaction
   Goal (finding 4): `addAIProfile`, `updateAIProfile`, and `removeAIProfile` (`apps/web/src/app/ai.ts`) each run
   their read and write in `db.transaction(async (tx) => …)`, using `tx` for both, as `patchSettings` does.
   Add a test that starts a profile add and an assistant `patchSettings` without awaiting between them, then reads
