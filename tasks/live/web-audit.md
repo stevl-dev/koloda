@@ -384,7 +384,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Fix comment and guard residue in the web host
   Depends on: 3 (both edit `setup.ts`)
 
-- [ ] 12. Bring the web README up to date
+- [x] 12. Bring the web README up to date
   Goal (finding 11): `apps/web/README.md`: `db.ts` only opens the database (migrations run from `setup.ts`); the
   components line adds the incompatible-data screen; the map adds `persistent-storage.ts`; Does NOT own names
   `crates/koloda` as the SQL source, as `libs/db-sqlite/README.md` does. Check the whole map against the tree.

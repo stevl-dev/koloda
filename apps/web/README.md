@@ -28,21 +28,24 @@ See `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Persistence owners).
   or the startup error screen when `src/app/boot.ts` reports an unsupported browser or a failed store load.
 - Store wiring: `src/app/store.ts` — jotai store, UI preferences,
   locale detection (stored lang, then navigator), web AI runtime.
-- Database: `src/app/db.ts` — `wa-sqlite` + `IDBBatchAtomicVFS` at IndexedDB `koloda`,
-  applying `crates/koloda/src/migrations`.
+- Database: `src/app/db.ts` — opens `wa-sqlite` + `IDBBatchAtomicVFS` at IndexedDB `koloda`; migrations run from setup.
 - Queries: `src/app/queries.ts` — the `Queries` contract implemented in-process via `@koloda/db-sqlite`.
-- Setup: `src/app/setup.ts` — status check, migrations, and the one-transaction first setup with seed content.
+- Setup: `src/app/setup.ts` — status check, migrations (`crates/koloda/src/migrations`), and the one-transaction
+  first setup with seed content; a set-up status requests persistent storage.
+- Persistent storage: `src/app/persistent-storage.ts` — asks the browser to keep the data; a refusal retries on the
+  first gesture.
+- i18n: `src/app/i18n.ts` — device language detection and catalog loading from `src/app/locales/`.
 - Seed content: `src/app/seed/<locale>/` — starter algorithms, templates, and decks per language.
 - AI: `src/app/ai.ts` — profiles persisted in the ai settings slice, secrets redacted on read.
 - AI runtime: `src/app/ai-runtime.ts` — browser AI runtime with an in-process tool executor over the same database.
 - Browser support: `src/app/browser-support.ts` — IndexedDB and WASM required; Chromium-based recommended.
-- Chrome: `src/components/` — app entry with the blank-database setup gate, first-setup overlay, startup error screen,
-  titlebar.
+- Chrome: `src/components/` — app entry with the blank-database setup gate, first-setup overlay, incompatible-data
+  screen, startup error screen, titlebar.
 
 ### Does NOT own (prevent scope creep)
 
 - Screens, routes — `@koloda/app-react`; settings screens and setup pickers — `@koloda/settings-react`
-- Domain and scheduling — `@koloda/srs`; persistence schema — `@koloda/db-sqlite`
+- Domain and scheduling — `@koloda/srs`; persistence schema — `crates/koloda` (run here through `@koloda/db-sqlite`)
 - The desktop Electron host — `apps/electron` and `apps/electron-react`
 - E2E harness — `apps/web-e2e`
 
