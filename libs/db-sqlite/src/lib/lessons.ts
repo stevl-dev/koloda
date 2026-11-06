@@ -1,4 +1,4 @@
-import { AppError, mintedUuidv7, throwKnownError } from "@koloda/app";
+import { mintedUuidv7, throwKnownError } from "@koloda/app";
 import type {
   Deck,
   LessonAmounts,
@@ -12,11 +12,11 @@ import type {
 import {
   cardRowSchema,
   convertTemplateToLessonTemplate,
-  insertReviewSchema,
   lessonAlgorithmRowSchema,
   lessonDeckSchema,
   lessonTemplateRowSchema,
-  updateCardProgressSchema,
+  parseLessonResult,
+  validateLessonAmounts,
 } from "@koloda/srs";
 import { CARD_SELECT } from "./columns";
 import type { DB } from "./db";
@@ -74,12 +74,9 @@ export async function getLessons(db: DB, dueAt: Date, filters: LessonFilters = {
 
 export async function getLessonCards(db: DB, dueAt: Date, filters: LessonFilters, amounts: LessonAmounts) {
   return throwKnownError("db.get", async () => {
-    // WHY: Twin of Rust `LessonAmounts::validate`: the three draw amounts must be non-negative; `total`
-    // is derived and unchecked. SQLite reads `LIMIT < 0` as "no limit", so a negative would load
-    // every matching card instead of failing.
-    for (const amount of [amounts.untouched, amounts.learn, amounts.review]) {
-      if (amount < 0) throw new AppError("validation.lessons.amounts.negative");
-    }
+    // WHY: SQLite reads `LIMIT < 0` as "no limit", so a negative amount would load every matching card instead of
+    // failing.
+    validateLessonAmounts(amounts);
 
     const untouchedFilter = lessonDeckFilter("deck_id", filters.deckIds, "AND");
     const learnFilter = lessonDeckFilter("deck_id", filters.deckIds, "AND");
@@ -197,15 +194,11 @@ export async function getLessonData(
   };
 }
 
-export async function submitLessonResult(db: DB, { card, review }: LessonResultData) {
-  if (card.id !== review.cardId) throw new AppError("validation.lessons.result.card-review-mismatch");
-
+export async function submitLessonResult(db: DB, data: LessonResultData) {
   return throwKnownError("db.update", async () => {
-    // WHY: Twin of Rust `LessonResultData::validate` — a corrupted or buggy submit must
-    // fail here with the same catalog codes (zod issue messages), never poison the rows
-    // desktop would have rejected. Parse before the transaction; persist what was parsed.
-    const progress = updateCardProgressSchema.parse(card);
-    const reviewData = insertReviewSchema.parse(review);
+    // WHY: a corrupted or buggy submit must fail here with desktop's codes, never poison the rows desktop would have
+    // rejected. Parse before the transaction; persist what was parsed.
+    const { card: progress, review: reviewData } = parseLessonResult(data);
 
     await db.transaction(async (tx) => {
       await tx.run(

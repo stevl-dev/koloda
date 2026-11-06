@@ -1,10 +1,13 @@
+import { AppError } from "@koloda/app";
 import type { Modify } from "@koloda/app";
 import type { MessageDescriptor } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import { z } from "zod";
 import type { LessonAlgorithm } from "./algorithms";
+import { updateCardProgressSchema } from "./cards";
 import type { Card, UpdateCardProgress } from "./cards";
 import type { Deck } from "./decks";
+import { insertReviewSchema } from "./reviews";
 import type { InsertReviewData } from "./reviews";
 import type { Template, TemplateField, TemplateLayoutItem } from "./templates";
 
@@ -50,6 +53,14 @@ export type LessonFilters = { deckIds?: Deck["id"][] };
 
 export type LessonAmounts = Record<LessonType, number>;
 
+// INVARIANT: twin of Rust `LessonAmounts::validate`: the three draw amounts must be non-negative.
+// WHY: `total` is derived from them, so it is not checked.
+export function validateLessonAmounts({ untouched, learn, review }: LessonAmounts) {
+  for (const amount of [untouched, learn, review]) {
+    if (amount < 0) throw new AppError("validation.lessons.amounts.negative");
+  }
+}
+
 export type LessonTemplateLayoutItem = Modify<
   TemplateLayoutItem,
   {
@@ -81,6 +92,15 @@ export type LessonResultData = {
   card: UpdateCardProgress;
   review: InsertReviewData;
 };
+
+// INVARIANT: twin of Rust `LessonResultData::validate`, in its order: the card's fields, the review's fields, then
+// their link. A submit with a bad field and a broken link reports the field's code on both hosts.
+export function parseLessonResult({ card, review }: LessonResultData): LessonResultData {
+  const progress = updateCardProgressSchema.parse(card);
+  const reviewData = insertReviewSchema.parse(review);
+  if (progress.id !== reviewData.cardId) throw new AppError("validation.lessons.result.card-review-mismatch");
+  return { card: progress, review: reviewData };
+}
 
 export function convertTemplateToLessonTemplate(template: Pick<Template, "id" | "content">): LessonTemplate {
   const layout: LessonTemplateLayoutItem[] = template.content.layout.map((entry) => ({

@@ -73,7 +73,9 @@ export {
   LESSON_TYPE_LABELS,
   convertTemplateToLessonTemplate,
   lessonDeckSchema,
+  parseLessonResult,
   toLessonTableRows,
+  validateLessonAmounts,
 } from "./lib/lessons";
 export type {
   GetLessonDataParams,

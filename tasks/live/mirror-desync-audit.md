@@ -300,7 +300,7 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
   Commit: Keep only the shared seed ids in Rust and check them against TS
   Depends on: 1 (same `project.json` inputs list)
 
-- [ ] 5. Move the lesson amount and result checks into @koloda/srs
+- [x] 5. Move the lesson amount and result checks into @koloda/srs
   Goal: the TS twin of the lesson rules sits in the domain library and checks in Rust's order (finding 5).
   - In `libs/srs/src/lib/lessons.ts`, add the two checks, each with a twin comment naming its Rust function:
     - the amounts check: each of `untouched`, `learn`, `review` non-negative, else `AppError`

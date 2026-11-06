@@ -79,3 +79,21 @@ fn test_lesson_result_card_review_id_mismatch_fails() {
     let err = result.unwrap().validate().unwrap_err();
     assert_eq!(err.code, "validation.lessons.result.card-review-mismatch");
 }
+
+#[test]
+fn test_lesson_result_card_error_precedes_id_mismatch() {
+    // WHY: the card is checked before the link, so a bad field reports its own code; twin of the TS
+    // `parseLessonResult` case in `libs/srs/src/lib/lessons.test.ts`.
+    let mut card = valid_card_progress_json();
+    card["reps"] = json!(-1);
+    let mut review = valid_review_json();
+    review["cardId"] = json!("01900000-0000-7000-8000-000000000008");
+
+    let data = json!({
+        "card": card,
+        "review": review
+    });
+    let result = serde_json::from_value::<LessonResultData>(data);
+    let err = result.unwrap().validate().unwrap_err();
+    assert_eq!(err.code, "validation.cards-progress.reps");
+}
