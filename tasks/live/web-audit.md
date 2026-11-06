@@ -344,7 +344,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Test the web AI profile redaction
   Depends on: 5 (both may edit `ai.test.ts`)
 
-- [ ] 8. Merge the Camp David cards in the Nobel seed deck
+- [x] 8. Merge the Camp David cards in the Nobel seed deck
   Goal (finding 7): In both `seed/{en,ru}/decks/nobel-prize-winners.json`, replace the two cards at `:290-297` with
   one: "Who shared the Nobel Peace Prize for the Camp David Accords?" → "Anwar Sadat and Menachem Begin";
   "Кто разделил Нобелевскую премию мира за Кэмп-дэвидские соглашения?" → "Анвар Садат и Менахем Бегин".
