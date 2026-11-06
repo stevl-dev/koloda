@@ -206,7 +206,7 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
 
 ## Plan
 
-- [ ] 1. Compare the hotkey action ids to the Rust source in the TS test
+- [x] 1. Compare the hotkey action ids to the Rust source in the TS test
   Goal: an action id or category added on one side only fails the `@koloda/app` suite (finding 1).
   - In `libs/app/src/lib/settings-hotkeys.test.ts`, read `crates/koloda/src/domain/settings_hotkeys.rs` at test time
     the way `settings-interface-parity.test.ts` does (`readFileSync` from the repo root, a regex per const).

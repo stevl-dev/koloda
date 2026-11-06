@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use koloda::domain::settings::SettingsName;
 use koloda::domain::settings_hotkeys::HotkeysSettings;
 
@@ -244,70 +242,4 @@ fn test_hotkeys_normalize_drops_unknown_action_names() {
             "{category}: missing known action {missing_action} must be filled with []"
         );
     }
-}
-
-fn sorted_category_keys(map: &HashMap<String, Vec<String>>) -> Vec<String> {
-    let mut keys: Vec<String> = map.keys().cloned().collect();
-    keys.sort();
-    keys
-}
-
-fn sorted_ts_keys(keys: &[&str]) -> Vec<String> {
-    let mut expected: Vec<String> = keys.iter().map(|key| (*key).to_string()).collect();
-    expected.sort();
-    expected
-}
-
-#[test]
-fn test_hotkeys_category_action_ids_match_ts() {
-    // INVARIANT: TS↔Rust twin (agents/TESTING.md) — per-category action ids must stay in sync with
-    // the TS `hotkeys` const in `libs/app/src/lib/settings-hotkeys.ts`, pinned in
-    // `libs/app/src/lib/settings-hotkeys.test.ts`. Adding a hotkey requires touching both pins
-    // (agents/ADD-HOTKEY.md).
-    let mut settings: HotkeysSettings =
-        serde_json::from_value(serde_json::json!({})).expect("empty object deserializes");
-    settings.fill_defaults();
-
-    assert_eq!(
-        sorted_category_keys(&settings.form),
-        sorted_ts_keys(&["submit", "reset"])
-    );
-    assert_eq!(
-        sorted_category_keys(&settings.ui),
-        sorted_ts_keys(&[
-            "submit",
-            "focusNext",
-            "focusPrev",
-            "nextTab",
-            "prevTab",
-            "close",
-            "toggleSidebarControls",
-            "toggleColorScheme",
-            "toggleLanguage",
-        ])
-    );
-    assert_eq!(
-        sorted_category_keys(&settings.navigation),
-        sorted_ts_keys(&["dashboard", "decks", "algorithms", "templates", "settings", "ai"])
-    );
-    assert_eq!(
-        sorted_category_keys(&settings.grades),
-        sorted_ts_keys(&["again", "hard", "normal", "easy"])
-    );
-    assert_eq!(
-        sorted_category_keys(&settings.ai),
-        sorted_ts_keys(&[
-            "cancel",
-            "focusPrompt",
-            "newConversation",
-            "openModelPicker",
-            "previousConversation",
-            "nextConversation",
-            "toggleSettings",
-            "scrollUp",
-            "scrollDown",
-            "scrollToTop",
-            "scrollToBottom",
-        ])
-    );
 }

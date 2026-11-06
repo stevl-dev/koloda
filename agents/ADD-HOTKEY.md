@@ -32,10 +32,9 @@ An always-on hotkey is gated by where its handler mounts and by its `enabled` op
    - Validation derives from `hotkeys`, so it needs no change.
 3. **Rust** (`crates/koloda/src/domain/settings_hotkeys.rs`): add the id to the category's `*_KEYS` const.
    `fill_defaults()` drops ids that are not listed there.
-4. **Tests**: the twin pins change together.
-   - `RUST_HOTKEY_ACTION_IDS` in `libs/app/src/lib/settings-hotkeys.test.ts`.
-   - `test_hotkeys_category_action_ids_match_ts` in `crates/koloda/tests/domain/settings_hotkeys_tests.rs`.
-   - The expected object in the TS test "fills missing categories with empty hotkey arrays".
+4. **Tests**: `libs/app/src/lib/settings-hotkeys.test.ts` parses the step 3 consts from the Rust source.
+   It fails until steps 2 and 3 list the same ids, so it needs no edit.
+   - Add the id to the expected object in the TS test "fills missing categories with empty hotkey arrays".
 5. **Handler**: call `useAppHotkey(binding, callback, scope, options)` from `@koloda/core-react`.
    Read the binding from `useHotkeysSettings()`.
    - App-wide actions (navigation, focus, color scheme, language) go in
