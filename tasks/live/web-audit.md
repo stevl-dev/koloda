@@ -301,7 +301,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Ask for persistent storage only once the demo is set up
   Depends on: 2 (both edit INTERFACE-SETTINGS.md §First Setup)
 
-- [ ] 4. Keep the setup scheme picker from emptying its selection
+- [x] 4. Keep the setup scheme picker from emptying its selection
   Goal (finding 3): Add `disallowEmptySelection` to the setup `ToggleGroup` (`web-setup.tsx:171`), as
   `settings-interface.tsx:38-41` does.
   Constraints: that line.

@@ -150,6 +150,7 @@ export function WebSetup() {
       <div className={setupPrefs({ isDisabled: isPending })}>
         <ToggleGroup
           aria-label={_(msg`color-scheme-picker.label`)}
+          disallowEmptySelection
           isDisabled={isPending}
           selectedKeys={[scheme]}
           onSelectionChange={([value]) => setScheme(value.toString())}
