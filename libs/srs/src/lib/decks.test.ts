@@ -14,6 +14,16 @@ describe("deckValidation references", () => {
     expect(deckValidation.safeParse(validDeck()).success).toBe(true);
   });
 
+  // WHY: Zod 4 `z.uuid()` accepts the nil and max literals, though neither has a version nibble.
+  it("accepts the nil and max uuid literals", () => {
+    const payload = {
+      ...validDeck(),
+      algorithmId: "00000000-0000-0000-0000-000000000000",
+      templateId: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+    };
+    expect(deckValidation.safeParse(payload).success).toBe(true);
+  });
+
   it.each([
     {
       name: "malformed algorithmId",
@@ -31,6 +41,16 @@ describe("deckValidation references", () => {
       code: "validation.decks.algorithm",
     },
     { name: "empty templateId", payload: { ...validDeck(), templateId: "" }, code: "validation.decks.template" },
+    {
+      name: "version-0 algorithmId",
+      payload: { ...validDeck(), algorithmId: "01a08376-dc00-0001-8000-000000000100" },
+      code: "validation.decks.algorithm",
+    },
+    {
+      name: "variant-0 templateId",
+      payload: { ...validDeck(), templateId: "01a08376-dc00-7001-0000-000000000100" },
+      code: "validation.decks.template",
+    },
   ])("rejects $name with its code", ({ payload, code }) => {
     const result = deckValidation.safeParse(payload);
     expect(result.error?.issues.map((issue) => issue.message)).toEqual([code]);

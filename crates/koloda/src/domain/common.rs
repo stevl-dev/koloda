@@ -55,21 +55,28 @@ pub fn normalize_optional_title(title: Option<String>) -> Option<String> {
     })
 }
 
-// WHY: Twin of the zod `z.uuid()` validation (8-4-4-4-12 hex groups, case-insensitive).
+// WHY: Twin of Zod 4 `z.uuid()`: 8-4-4-4-12 hex groups (case-insensitive) with an RFC 9562 version
+// nibble `1`-`8` and variant nibble `8`/`9`/`a`/`b`, plus the nil and the lowercase-only max literal.
+// The bare 8-4-4-4-12 shape is Zod 4's `z.guid()`, not `z.uuid()`.
 // Hand-rolled instead of `uuid::Uuid::parse_str`, which also accepts braced/urn/hyphen-less
 // forms the web validation rejects.
 pub fn validate_uuid(value: &str, code: &'static str) -> Result<(), AppError> {
     const HYPHEN_SLOTS: [usize; 4] = [8, 13, 18, 23];
-    let is_uuid = value.len() == 36
-        && value.bytes().enumerate().all(|(i, b)| {
+    const NIL: &str = "00000000-0000-0000-0000-000000000000";
+    const MAX: &str = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+    let bytes = value.as_bytes();
+    let is_rfc_uuid = bytes.len() == 36
+        && bytes.iter().enumerate().all(|(i, b)| {
             if HYPHEN_SLOTS.contains(&i) {
-                b == b'-'
+                *b == b'-'
             } else {
                 b.is_ascii_hexdigit()
             }
-        });
+        })
+        && matches!(bytes.get(14), Some(b'1'..=b'8'))
+        && matches!(bytes.get(19), Some(b'8' | b'9' | b'a' | b'b' | b'A' | b'B'));
 
-    if is_uuid {
+    if is_rfc_uuid || value == NIL || value == MAX {
         Ok(())
     } else {
         Err(AppError::new(code, Some(format!("Invalid uuid: {value}"))))

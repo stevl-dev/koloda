@@ -233,7 +233,7 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
   Commit: Check hotkey action ids against the Rust source in the TS test
   Depends on: none
 
-- [ ] 2. Give validate_uuid the z.uuid() grammar
+- [x] 2. Give validate_uuid the z.uuid() grammar
   Goal: both hosts accept the same ids (finding 2).
   - In `crates/koloda/src/domain/common.rs`, `validate_uuid` keeps the 36-char 8-4-4-4-12 hex check and adds Zod 4's
     `z.uuid()` rules: the version nibble (index 14) is `1`-`8`, and the variant nibble (index 19) is `8`, `9`, `a`, or
