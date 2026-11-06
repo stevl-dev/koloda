@@ -1,6 +1,6 @@
 # apps/web audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/CSS.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, apps/web/README.md, docs/specs/INTERFACE-SETTINGS.md, docs/decisions/APP-ROLES.md, agents/REVIEW.md
 Flow: local
 
