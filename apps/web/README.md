@@ -15,6 +15,7 @@ See `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Persistence owners).
 
 - `nx run @koloda/web:serve` — dev server at `localhost:3000`
 - `nx run @koloda/web:build` — production build to `dist/apps/web`; `VITE_BASE` sets the base path
+  (`/` is appended if missing)
 - `nx run @koloda/web:preview` — serve the production build
 - `nx run @koloda/web:test-unit` — unit tests
 - `nx run @koloda/web:test` — Playwright e2e (config lives in `apps/web-e2e`)

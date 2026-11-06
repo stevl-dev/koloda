@@ -6,7 +6,7 @@ import { store } from "./app/store";
 createRoot(document.getElementById("root") as HTMLElement).render(
   <AppProviders
     store={store}
-    basepath={import.meta.env.VITE_BASE}
+    basepath={import.meta.env.BASE_URL}
     activateLanguage={activateLanguage}
     getLanguage={getLanguage}
   />,

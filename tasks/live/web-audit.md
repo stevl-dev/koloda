@@ -236,7 +236,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
 
 ## Plan
 
-- [ ] 1. Give the web build a base path that ends with a slash
+- [x] 1. Give the web build a base path that ends with a slash
   Goal (finding 1): The page always renders a real `<base href>` that ends with `/`, so `./theme-boot.js` resolves
   under the base on the deployed demo.
   - In `apps/web/vite.config.ts`, compute the base once: `process.env.VITE_BASE`, or `/` when unset or empty, with a

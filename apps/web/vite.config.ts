@@ -10,9 +10,14 @@ import { themeBootPlugin } from "../../tools/vite-plugin-theme-boot.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// WHY: `index.html` sets `<base href>` from this. Without a trailing slash the last segment is a file name,
+// so `./theme-boot.js` would resolve one level up (`/koloda` + `./x` is `/x`).
+const viteBase = process.env.VITE_BASE || "/";
+const base = viteBase.endsWith("/") ? viteBase : `${viteBase}/`;
+
 export default defineConfig(() => ({
   root: __dirname,
-  base: process.env.VITE_BASE || "/",
+  base,
   cacheDir: "../../node_modules/.vite/apps/web",
   server: {
     port: 3000,
