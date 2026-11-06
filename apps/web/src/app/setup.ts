@@ -14,10 +14,15 @@ import {
   setSettings,
 } from "@koloda/db-sqlite";
 import { db } from "./db";
+import { requestPersistentStorage } from "./persistent-storage";
 import { loadSeedData, WEB_SEED_ALGORITHM_IDS, WEB_SEED_TEMPLATE_IDS, webSeedCardContent } from "./seed/seed";
 
 export async function getStatus() {
-  return getDbStatus(db);
+  const status = await getDbStatus(db);
+  // WHY: not awaited, so a browser permission prompt cannot hold up the app. INTERFACE-SETTINGS.md (§First Setup):
+  // the demo asks only once setup has created its data.
+  if (status === "ok") void requestPersistentStorage();
+  return status;
 }
 
 export async function clearData() {

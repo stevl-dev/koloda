@@ -175,6 +175,8 @@ Cleared data cannot be recovered.
 
 On the web, a browser that cannot run the demo says so instead of showing setup.
 If the demo cannot open its data at all, it says so and offers to reload.
+The demo asks the browser to keep its data once setup has created it, never before.
+Until the browser agrees, it asks again on each later start.
 
 ## Editing and Saving
 

@@ -284,19 +284,20 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Show a message when the web demo cannot start
   Depends on: 1 (both edit `main.tsx`)
 
-- [ ] 3. Ask for persistent storage only once the demo is set up
+- [x] 3. Ask for persistent storage only once the demo is set up
   Goal (finding 12): The demo asks the browser to keep its data once setup has created it, and on each later start
   of a set-up demo; never before setup.
   - Remove the call from `apps/web/src/app/db.ts`.
   - In `apps/web/src/app/setup.ts` `getStatus`, request persistent storage when the status is `ok`.
     After a successful setup the status query is reset and reads `ok`, so this one place covers both the first setup
     and later starts.
-  - Ask at most once per page load: the status may be read again (clear data, then setup), and each refused ask
-    adds gesture listeners. Put the once-guard in `persistent-storage.ts` with a test.
+  - No once-guard (changed at implementation): the status reads `ok` at most once per page load.
+    Clearing data reloads the page, and only setup resets the status query, from `blank`.
+    A guard would be defensive code with nothing to defend (`agents/CODE-STYLE.md` §Change Discipline).
   - INTERFACE-SETTINGS.md §First Setup: one sentence saying when the demo asks.
-  Constraints: `apps/web/src/app/{db,setup,persistent-storage}.ts`, its test, that spec sentence.
-  Done when: the persistent-storage test pins the once-guard; `nx run @koloda/web:test-unit` and
-  `bun run check:push` pass.
+  Constraints: `apps/web/src/app/{db,setup}.ts`, that spec sentence.
+  Done when: `nx run @koloda/web:test-unit`, typecheck, and `bun run check:push` pass.
+  No new test: the change is one call moved behind a status check (`agents/TESTING.md`, pure wiring).
   Commit: Ask for persistent storage only once the demo is set up
   Depends on: 2 (both edit INTERFACE-SETTINGS.md §First Setup)
 
