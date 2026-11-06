@@ -1,6 +1,6 @@
 # Mirror desync audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/ADD-HOTKEY.md, agents/MARKDOWN.md, libs/srs/README.md, libs/db-sqlite/README.md, agents/REVIEW.md
 Flow: local
 
