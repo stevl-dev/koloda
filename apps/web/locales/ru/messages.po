@@ -13,19 +13,19 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/web-setup.tsx:172
+#: src/components/web-setup.tsx:152
 msgid "color-scheme-picker.label"
 msgstr "Цветовая схема"
 
-#: src/components/web-setup.tsx:59
+#: src/components/web-setup.tsx:48
 msgid "scheme.dark"
 msgstr "Тёмная"
 
-#: src/components/web-setup.tsx:58
+#: src/components/web-setup.tsx:47
 msgid "scheme.light"
 msgstr "Светлая"
 
-#: src/components/web-setup.tsx:57
+#: src/components/web-setup.tsx:46
 msgid "scheme.system"
 msgstr "Системная"
 
@@ -37,98 +37,107 @@ msgstr "Удалить данные"
 msgid "web.incompatible-data.message"
 msgstr "В этом браузере сохранены данные версии, которая больше не может быть открыта. Удалите их, чтобы начать заново; восстановить данные будет нельзя."
 
-#: src/components/web-setup.tsx:165
+#: src/components/web-setup.tsx:147
 msgid "web.setup.browser"
 msgstr "Лучше всего работает в Chrome, Edge или другом браузере на базе Chromium."
 
-#: src/components/web-setup.tsx:103
+#: src/components/web-setup.tsx:91
+#: src/components/web-startup-error.tsx:25
 msgid "web.setup.demo"
 msgstr "ДЕМО"
 
-#: src/components/web-setup.tsx:65
+#: src/components/web-setup.tsx:54
 msgid "web.setup.diff.ai.detail"
 msgstr "OpenRouter, Ollama и LM Studio работают и здесь. OpenAI, DeepSeek и остальные доступны только в настольном приложении."
 
-#: src/components/web-setup.tsx:65
+#: src/components/web-setup.tsx:54
 msgid "web.setup.diff.ai.term"
 msgstr "Провайдеры ИИ"
 
-#: src/components/web-setup.tsx:123
+#: src/components/web-setup.tsx:110
 msgid "web.setup.diff.close"
 msgstr "Закрыть"
 
-#: src/components/web-setup.tsx:68
+#: src/components/web-setup.tsx:57
 msgid "web.setup.diff.hotkeys.detail"
 msgstr "Браузер оставляет некоторые сочетания клавиш себе, например Ctrl W."
 
-#: src/components/web-setup.tsx:68
+#: src/components/web-setup.tsx:57
 msgid "web.setup.diff.hotkeys.term"
 msgstr "Горячие клавиши"
 
-#: src/components/web-setup.tsx:67
+#: src/components/web-setup.tsx:56
 msgid "web.setup.diff.images.detail"
 msgstr "Сохранение изображения по ссылке доступно только в настольном приложении."
 
-#: src/components/web-setup.tsx:67
+#: src/components/web-setup.tsx:56
 msgid "web.setup.diff.images.term"
 msgstr "Изображения"
 
-#: src/components/web-setup.tsx:114
+#: src/components/web-setup.tsx:101
 msgid "web.setup.diff.link"
 msgstr "Что отличается"
 
-#: src/components/web-setup.tsx:66
+#: src/components/web-setup.tsx:55
 msgid "web.setup.diff.optimization.detail"
 msgstr "Подгонка алгоритма под ваши повторения доступна только в настольном приложении."
 
-#: src/components/web-setup.tsx:66
+#: src/components/web-setup.tsx:55
 msgid "web.setup.diff.optimization.term"
 msgstr "Оптимизация"
 
-#: src/components/web-setup.tsx:63
+#: src/components/web-setup.tsx:52
 msgid "web.setup.diff.storage.detail"
 msgstr "Все данные хранятся только в этом браузере. Очистка данных сайта их удалит."
 
-#: src/components/web-setup.tsx:63
+#: src/components/web-setup.tsx:52
 msgid "web.setup.diff.storage.term"
 msgstr "Хранение"
 
-#: src/components/web-setup.tsx:64
+#: src/components/web-setup.tsx:53
 msgid "web.setup.diff.sync.detail"
 msgstr "Синхронизация между устройствами доступна только в настольном приложении."
 
-#: src/components/web-setup.tsx:64
+#: src/components/web-setup.tsx:53
 msgid "web.setup.diff.sync.term"
 msgstr "Синхронизация"
 
-#: src/components/web-setup.tsx:120
+#: src/components/web-setup.tsx:107
 msgid "web.setup.diff.title"
 msgstr "Чем отличается от настольного приложения"
 
-#: src/components/web-setup.tsx:112
+#: src/components/web-setup.tsx:99
 msgid "web.setup.diff.trigger"
 msgstr "Веб-версия в чём-то уступает настольному приложению."
 
-#: src/components/web-setup.tsx:162
+#: src/components/web-setup.tsx:145
 msgid "web.setup.loading"
 msgstr "Создаём примерные колоды…"
 
-#: src/components/web-setup.tsx:110
+#: src/components/web-setup.tsx:97
 msgid "web.setup.storage"
 msgstr "Все данные хранятся только в этом браузере. Очистка данных сайта их удалит."
 
-#: src/components/web-setup.tsx:162
+#: src/components/web-setup.tsx:145
 msgid "web.setup.submit"
 msgstr "Начать работу"
 
-#: src/components/web-setup.tsx:106
+#: src/components/web-setup.tsx:94
 msgid "web.setup.title"
 msgstr "Это веб-демо"
 
-#: src/components/web-setup.tsx:143
-msgid "web.setup.unsupported"
+#: src/components/web-startup-error.tsx:28
+msgid "web.startup.failed.title"
+msgstr "Не удалось запустить демо"
+
+#: src/components/web-startup-error.tsx:36
+msgid "web.startup.reload"
+msgstr "Перезагрузить"
+
+#: src/components/web-startup-error.tsx:40
+msgid "web.startup.unsupported"
 msgstr "Для демо нужны IndexedDB и WebAssembly. Откройте страницу в свежем браузере на базе Chromium, например в Chrome или Edge."
 
-#: src/components/web-setup.tsx:106
-msgid "web.setup.unsupported.title"
+#: src/components/web-startup-error.tsx:28
+msgid "web.startup.unsupported.title"
 msgstr "Этот браузер не может запустить демо"

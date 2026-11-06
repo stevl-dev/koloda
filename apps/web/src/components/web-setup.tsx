@@ -42,17 +42,6 @@ const setupPrefs = tv({
   defaultVariants: { isDisabled: false },
 });
 
-const setupTitle = tv({
-  base: "font-bold tracking-tight text-balance fg-level-1",
-  variants: {
-    isVisible: {
-      true: "text-[1.625rem] leading-tight",
-      false: "sr-only",
-    },
-  },
-  defaultVariants: { isVisible: false },
-});
-
 const SCHEME_ITEMS = [
   { id: "system", label: msg`scheme.system`, Icon: SystemThemeIcon },
   { id: "light", label: msg`scheme.light`, Icon: SunIcon },
@@ -76,12 +65,11 @@ export function WebSetup() {
   const language = useAtomValue(langAtom);
   const scheme = useAtomValue(schemeAtom);
   const setScheme = useSetAtom(schemeAtom);
-  const support = getWebBrowserSupport();
-  const canSubmit = support.canRun && !isPending;
+  const isChromiumBased = getWebBrowserSupport().isChromiumBased;
   const setupError = isError && error ? formatAppError(error, _, ERROR_MESSAGES.unknown) : null;
 
   const handleClick = () => {
-    if (!canSubmit) return;
+    if (isPending) return;
     mutate(
       { language, scheme },
       {
@@ -102,70 +90,62 @@ export function WebSetup() {
           <KolodaLogo className="h-6 w-auto" />
           <span className="fg-level-2 text-sm font-bold tracking-widest">{_(msg`web.setup.demo`)}</span>
         </div>
-        <h1 id="setup-title" className={setupTitle({ isVisible: !support.canRun })}>
-          {support.canRun ? _(msg`web.setup.title`) : _(msg`web.setup.unsupported.title`)}
+        <h1 id="setup-title" className="sr-only">
+          {_(msg`web.setup.title`)}
         </h1>
-        {support.canRun ? (
-          <div className="flex flex-col gap-1 mt-3 fg-level-2 text-pretty">
-            <p className="flex flex-row gap-3">{_(msg`web.setup.storage`)}</p>
-            <Dialog.Root>
-              <p>{_(msg`web.setup.diff.trigger`)}</p>
-              <Button variants={{ style: "inline", size: "inline", class: "self-start" }} isDisabled={isPending}>
-                {_(msg`web.setup.diff.link`)}
-              </Button>
-              <Dialog.Overlay>
-                <Dialog.Modal variants={{ class: "w-full max-w-lg" }}>
-                  <Dialog.Body>
-                    <Dialog.Header>
-                      <Dialog.Title>{_(msg`web.setup.diff.title`)}</Dialog.Title>
-                      <Dialog.Close
-                        slot="close"
-                        aria-label={_(msg`web.setup.diff.close`)}
-                        variants={{ class: "ml-auto" }}
-                      />
-                    </Dialog.Header>
-                    <Dialog.Content variants={{ class: "p-6" }}>
-                      <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-4 leading-normal">
-                        {DIFFS.map(({ id, term, detail }) => (
-                          <Fragment key={id}>
-                            <dt className="fg-level-1 font-semibold">{_(term)}</dt>
-                            <dd className="fg-level-2 text-pretty">{_(detail)}</dd>
-                          </Fragment>
-                        ))}
-                      </dl>
-                    </Dialog.Content>
-                  </Dialog.Body>
-                </Dialog.Modal>
-              </Dialog.Overlay>
-            </Dialog.Root>
-          </div>
-        ) : (
-          <p className="mt-3 fg-level-2 leading-relaxed text-pretty">{_(msg`web.setup.unsupported`)}</p>
-        )}
+        <div className="flex flex-col gap-1 mt-3 fg-level-2 text-pretty">
+          <p className="flex flex-row gap-3">{_(msg`web.setup.storage`)}</p>
+          <Dialog.Root>
+            <p>{_(msg`web.setup.diff.trigger`)}</p>
+            <Button variants={{ style: "inline", size: "inline", class: "self-start" }} isDisabled={isPending}>
+              {_(msg`web.setup.diff.link`)}
+            </Button>
+            <Dialog.Overlay>
+              <Dialog.Modal variants={{ class: "w-full max-w-lg" }}>
+                <Dialog.Body>
+                  <Dialog.Header>
+                    <Dialog.Title>{_(msg`web.setup.diff.title`)}</Dialog.Title>
+                    <Dialog.Close
+                      slot="close"
+                      aria-label={_(msg`web.setup.diff.close`)}
+                      variants={{ class: "ml-auto" }}
+                    />
+                  </Dialog.Header>
+                  <Dialog.Content variants={{ class: "p-6" }}>
+                    <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-4 leading-normal">
+                      {DIFFS.map(({ id, term, detail }) => (
+                        <Fragment key={id}>
+                          <dt className="fg-level-1 font-semibold">{_(term)}</dt>
+                          <dd className="fg-level-2 text-pretty">{_(detail)}</dd>
+                        </Fragment>
+                      ))}
+                    </dl>
+                  </Dialog.Content>
+                </Dialog.Body>
+              </Dialog.Modal>
+            </Dialog.Overlay>
+          </Dialog.Root>
+        </div>
         {setupError && (
           <div className="flex justify-center mt-6">
             <ErrorMessage message={setupError.message} details={setupError.details} />
           </div>
         )}
-        {support.canRun && (
-          <div className="mt-8">
-            {/* INVARIANT: the button keeps its size while setup runs; only its label and spinner change, so it never moves under the pointer. */}
-            <Button
-              variants={{ style: "primary", class: "w-full" }}
-              onClick={handleClick}
-              isDisabled={!canSubmit}
-              data-setup-submit
-            >
-              {isPending && (
-                <RefreshIcon className="size-5 min-w-5 motion:animate-spin" strokeWidth={1.75} aria-hidden="true" />
-              )}
-              {isPending ? _(msg`web.setup.loading`) : _(msg`web.setup.submit`)}
-            </Button>
-            {!support.isChromiumBased && (
-              <p className="mt-3 fg-level-3 text-center text-sm">{_(msg`web.setup.browser`)}</p>
+        <div className="mt-8">
+          {/* INVARIANT: the button keeps its size while setup runs; only its label and spinner change, so it never moves under the pointer. */}
+          <Button
+            variants={{ style: "primary", class: "w-full" }}
+            onClick={handleClick}
+            isDisabled={isPending}
+            data-setup-submit
+          >
+            {isPending && (
+              <RefreshIcon className="size-5 min-w-5 motion:animate-spin" strokeWidth={1.75} aria-hidden="true" />
             )}
-          </div>
-        )}
+            {isPending ? _(msg`web.setup.loading`) : _(msg`web.setup.submit`)}
+          </Button>
+          {!isChromiumBased && <p className="mt-3 fg-level-3 text-center text-sm">{_(msg`web.setup.browser`)}</p>}
+        </div>
       </section>
       <div className={setupPrefs({ isDisabled: isPending })}>
         <ToggleGroup

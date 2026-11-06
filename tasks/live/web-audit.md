@@ -253,7 +253,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Give the web build a base path that ends with a slash
   Depends on: none
 
-- [ ] 2. Show a message when the web demo cannot start
+- [x] 2. Show a message when the web demo cannot start
   Goal (finding 2): No load ends in a blank page.
   - Add a pure, injectable boot step in `apps/web/src/app/boot.ts`: it takes the browser support result and a
     function that imports the store, and returns one of `unsupported`, `failed` (with the error), or `ok` (with the
@@ -265,8 +265,11 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
     for `unsupported`, the existing `web.setup.unsupported.title` and `web.setup.unsupported` copy;
     for `failed`, a new title "Couldn't start the demo" / "Не удалось запустить демо", the error's message, and a
     reload button ("Reload" / "Перезагрузить") that calls `location.reload()`.
-    Reuse `@koloda/ui` parts (`SetupBackground`, `overlayFrame`, `Button`, `ErrorMessage`) so it looks like the
-    setup card.
+    Reuse `@koloda/ui` parts (`SetupBackground`, `overlayFrame`, `Button`) so it looks like the setup card.
+    Not `ErrorMessage` (found at verification): its details `Dialog` reads hotkey settings through the store, which
+    never loaded, so it crashed the screen into a blank page; the message and details render as plain text.
+  - If the catalog chunk fails too (found at verification), activate English from a statically imported catalog;
+    `I18nProvider` renders nothing without an active locale.
   - `web-setup.tsx`: drop the `canRun` branches (title, text, submit visibility, `canSubmit`); keep the
     non-Chromium hint. The title stays `sr-only`, so the `setupTitle` variant goes.
   - INTERFACE-SETTINGS.md §First Setup: one sentence that, on the web, a browser that cannot run the demo says so

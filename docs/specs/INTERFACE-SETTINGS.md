@@ -173,6 +173,9 @@ On the web, data that the current version can no longer open is never used.
 Instead the app says so and offers to clear it; after clearing, first setup runs.
 Cleared data cannot be recovered.
 
+On the web, a browser that cannot run the demo says so instead of showing setup.
+If the demo cannot open its data at all, it says so and offers to reload.
+
 ## Editing and Saving
 
 The interface settings screen has no save button.

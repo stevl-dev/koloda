@@ -24,7 +24,8 @@ See `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Persistence owners).
 
 ## Architectural Map
 
-- Entry: `src/main.tsx` — mounts `AppProviders` from `@koloda/app-react` with the store and i18n.
+- Entry: `src/main.tsx` — mounts `AppProviders` from `@koloda/app-react` with the store and i18n,
+  or the startup error screen when `src/app/boot.ts` reports an unsupported browser or a failed store load.
 - Store wiring: `src/app/store.ts` — jotai store, UI preferences,
   locale detection (stored lang, then navigator), web AI runtime.
 - Database: `src/app/db.ts` — `wa-sqlite` + `IDBBatchAtomicVFS` at IndexedDB `koloda`,
@@ -35,7 +36,8 @@ See `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Persistence owners).
 - AI: `src/app/ai.ts` — profiles persisted in the ai settings slice, secrets redacted on read.
 - AI runtime: `src/app/ai-runtime.ts` — browser AI runtime with an in-process tool executor over the same database.
 - Browser support: `src/app/browser-support.ts` — IndexedDB and WASM required; Chromium-based recommended.
-- Chrome: `src/components/` — app entry with the blank-database setup gate, first-setup overlay, titlebar.
+- Chrome: `src/components/` — app entry with the blank-database setup gate, first-setup overlay, startup error screen,
+  titlebar.
 
 ### Does NOT own (prevent scope creep)
 
