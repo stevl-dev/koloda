@@ -13,8 +13,6 @@ import {
 } from "@koloda/db-sqlite";
 import { loadAIProfileSecrets } from "./ai";
 
-// INVARIANT: Web host executor — closes over the SQLite db via the same in-process
-// query implementations queries.ts uses; shaping and budgets live in @koloda/ai.
 async function readDefaultAlgorithmId(db: DB): Promise<string> {
   const learning = await getSettings(db, "learning");
   const algorithmId = learning?.content.defaults.algorithm;
@@ -82,7 +80,7 @@ export function createWebAIRuntime(db: DB): AIRuntime {
       const secrets = await loadSecrets(profileId);
       if (!secrets) throw new AppError("not-found.ai-profile", "No secrets loaded for AI profile");
       const client = createAIGenerationClient(secrets);
-      // Web is in-process: the executor binds directly and onToolEvent passes through untouched.
+      // WHY: unlike desktop, web has no IPC hop, so the executor binds directly and onToolEvent passes through.
       const requestWithExecutor =
         request.tools != null && request.tools.length > 0 ? { ...request, executeTool: webToolExecutor } : request;
       return client.chat(requestWithExecutor, onChunk, abortSignal);

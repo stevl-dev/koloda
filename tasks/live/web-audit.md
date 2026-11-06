@@ -375,7 +375,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Remove leftover exports and configuration from the web host
   Depends on: 2
 
-- [ ] 11. Fix comment and guard residue in the web host
+- [x] 11. Fix comment and guard residue in the web host
   Goal (finding 10): Tag or drop `ai-runtime.ts:81`; move the `:16-17` note above `createWebToolExecutor` as an
   orientation comment, or delete it; do the same for the desktop twin at `apps/electron/src/ai-ipc.ts:105-107`.
   Drop the three unreachable guards at `setup.ts:44`, `:55`, `:82`.

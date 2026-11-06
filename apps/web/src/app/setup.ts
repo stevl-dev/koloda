@@ -46,7 +46,6 @@ export async function setupFromScratch(settings: SetupFromScratchData) {
         { title: algorithm.title, content: algorithm.content },
         WEB_SEED_ALGORITHM_IDS[algorithm.id],
       );
-      if (!returning?.id) throw new AppError("db.add");
       algorithmIds.set(algorithm.id, returning.id);
     }
 
@@ -57,7 +56,6 @@ export async function setupFromScratch(settings: SetupFromScratchData) {
         { title: template.title, content: template.content },
         WEB_SEED_TEMPLATE_IDS[template.id],
       );
-      if (!returning?.id) throw new AppError("db.add");
       templateIds.set(template.id, returning.id);
     }
 
@@ -84,7 +82,6 @@ export async function setupFromScratch(settings: SetupFromScratchData) {
       if (!algorithmId || !templateId) throw new AppError("db.add");
 
       const deck = await addDeck(tx, { title: sample.title, algorithmId, templateId });
-      if (!deck?.id) throw new AppError("db.add");
 
       const results = await addCards(
         tx,

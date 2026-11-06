@@ -103,8 +103,6 @@ function toToolErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-// INVARIANT: main-side executor over the NAPI KolodaDb surface. Shaping and
-// budgets live in @koloda/ai.
 async function readDefaultAlgorithmId(db: AiIpcDb): Promise<string> {
   const learning = await db.getSettings({ name: "learning" });
   const algorithmId = learning?.content.defaults.algorithm;
