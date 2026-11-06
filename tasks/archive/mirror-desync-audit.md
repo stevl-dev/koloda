@@ -1,6 +1,6 @@
 # Mirror desync audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/ADD-HOTKEY.md, agents/MARKDOWN.md, libs/srs/README.md, libs/db-sqlite/README.md, agents/REVIEW.md
 Flow: local
 
@@ -51,7 +51,7 @@ Out:
   SQL and host behaviour, and the IPC wire.
   Where a shared helper a fix changes has an out-of-scope caller, the item names it as a twin that moves.
 - The e2e suites. No item adds or edits an e2e case, so the suite-run rule (`agents/TASKS.md` §Done) does not apply.
-- What the audit considered and did not raise (listed under Outcome at Archive):
+- What the audit considered and did not raise (none is a finding, so none is skipped):
   - `UpdateCardProgress.lastReviewedAt` is required-nullable in TS (`libs/srs/src/lib/cards.ts:126`) and may be
     absent in Rust (`crates/koloda/src/domain/cards.rs:150-151`): the accepted `Option` leniency; the renderer always
     sends the key.
@@ -327,4 +327,27 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
 
 ## Outcome
 
-<what shipped>
+All 5 findings fixed, none skipped, none needs a decision.
+Plan items 1-5 shipped as one commit each, plus one self-review commit; all carry `Task: mirror-desync-audit`.
+
+- `settings-hotkeys.test.ts` parses the five `*_KEYS` consts from `settings_hotkeys.rs` and compares categories and
+  ids to `DEFAULT_HOTKEYS_SETTINGS`; both hand-copied lists are gone, and `ADD-HOTKEY.md` step 4 says so.
+- `validate_uuid` follows Zod 4.1.12's `z.uuid()` pattern: version nibble `1`-`8`, variant `8`/`9`/`a`/`b`, plus the
+  nil and the max literal.
+  Deviation from item 2: Zod accepts the max literal in lowercase only, so Rust does too (the plan said any case).
+- `trim_title_value` trims JS's whitespace set, and every title and notes normalizer in `common.rs` goes through it.
+- `seed_ids.rs` holds only `SEED_ALGORITHM_SIMPLE_ID` and `SEED_TEMPLATE_TYPE_ID`; `seed-ids-parity.test.ts`
+  compares them to `seed-ids.ts`. `agents/DB.md` states the narrower twin.
+- `validateLessonAmounts` and `parseLessonResult` live in `@koloda/srs` `lessons.ts`, in Rust's order;
+  `db-sqlite` calls them. The `db-sqlite` unit test moved to `libs/srs/src/lib/lessons.test.ts`.
+  Beyond item 5's "no Rust change": a Rust twin test pins that a card field error precedes the id mismatch.
+- Self-review added the lesson checks to the `libs/srs/README.md` map.
+
+Verification:
+
+- By hand and reverted: an id added only to `UI_KEYS`, or only to `hotkeys.navigation`, fails the `@koloda/app` run;
+  one changed digit in Rust `SEED_TEMPLATE_TYPE_ID` fails the seed-id parity test; `str::trim` restored in
+  `trim_title_value` fails three Rust tests; the link check moved before the field parses fails the TS order test.
+- `cargo test -p koloda-sync` passed after item 2 (176 tests); no fixture id needed a change.
+- `bun run check:push` green on `ee4257b5`.
+- No plan item adds or edits e2e cases, so the suite-run rule did not apply.
