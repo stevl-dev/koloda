@@ -280,7 +280,7 @@ Paths are relative to the repo root; line numbers are at `636debf2`.
   Commit: Trim titles and notes in Rust with the JS whitespace set
   Depends on: 2 (same file; no logical dependency)
 
-- [ ] 4. Keep only the shared seed ids in Rust and check them against TS
+- [x] 4. Keep only the shared seed ids in Rust and check them against TS
   Goal: `seed_ids.rs` holds what Rust uses, and the two shared ids cannot drift (finding 4).
   - Delete `SEED_ALGORITHM_COMPLEX_ID`, `SEED_TEMPLATE_REVEAL_ID`, and the four `*_FIELD_ID` consts from
     `crates/koloda/src/domain/seed_ids.rs`, and their pins in `crates/koloda/tests/domain/seed_ids_tests.rs`.

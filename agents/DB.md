@@ -15,8 +15,9 @@ Who owns persistence on each host, and why: `docs/decisions/TS-RUST-DOMAIN-MIRRO
   desktop refuses to start, and web offers to clear the database.
 - **Rust core owns the desktop connection**.
   `apps/electron/src-rust` consumes `koloda`; it does not define migrations.
-- **Seed ids are shared**: both hosts use the `SEED_*` constants in `libs/app/src/lib/seed-ids.ts`
-  (Rust twin `crates/koloda/src/domain/seed_ids.rs`).
+- **Seed ids are shared**: both hosts use the `SEED_*` constants in `libs/app/src/lib/seed-ids.ts`.
+  The Rust twin `crates/koloda/src/domain/seed_ids.rs` holds the two that the desktop seed and sync use;
+  `seed-ids-parity.test.ts` compares them.
   First-run content itself differs by host; see `docs/specs/INTERFACE-SETTINGS.md` (§First Setup).
 - There is no Drizzle schema and no `db:generate` script.
 - Sync bookkeeping tables (`sync_*`) live in this series too, so web databases create them.
