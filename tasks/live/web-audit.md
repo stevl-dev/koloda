@@ -335,7 +335,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Report a failed secrets read as itself in the web AI runtime
   Depends on: none
 
-- [ ] 7. Test the web AI profile redaction
+- [x] 7. Test the web AI profile redaction
   Goal (finding 6): One `getAIProfiles` case over a keyed OpenRouter profile and a keyed Ollama profile, asserting
   `apiKey: null`, `hasSecrets: true`, and the kept `baseUrl`; name `ai_serde_tests.rs:8` as its Rust twin.
   Fold `ai.test.ts:37-48` (blank and null key) into one table.

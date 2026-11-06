@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DB } from "@koloda/db-sqlite";
-import { addAIProfile, removeAIProfile, updateAIProfile } from "./ai";
+import { addAIProfile, getAIProfiles, removeAIProfile, updateAIProfile } from "./ai";
 
 const { store } = vi.hoisted(() => ({ store: new Map<string, unknown>() }));
 
@@ -38,17 +38,14 @@ describe("web AI profile save path", () => {
     store.clear();
   });
 
-  it("rejects a blank required apiKey on create and persists nothing", async () => {
+  it.each([
+    { name: "blank", apiKey: "" },
+    { name: "null", apiKey: null },
+  ])("rejects a $name required apiKey on create and persists nothing", async ({ apiKey }) => {
     await expect(
-      addAIProfile(TEST_DB, { title: "OpenRouter", secrets: { provider: "openrouter", apiKey: "" } }),
+      addAIProfile(TEST_DB, { title: "OpenRouter", secrets: { provider: "openrouter", apiKey } }),
     ).rejects.toMatchObject({ name: "AppError", code: "validation.settings-ai.providers.api-key" });
     expect(store.has("ai")).toBe(false);
-  });
-
-  it("rejects a null required apiKey on create", async () => {
-    await expect(addAIProfile(TEST_DB, { secrets: { provider: "openrouter", apiKey: null } })).rejects.toMatchObject({
-      code: "validation.settings-ai.providers.api-key",
-    });
   });
 
   it("persists a keyed profile with hasSecrets derived from the sent key", async () => {
@@ -199,5 +196,37 @@ describe("web AI profile save path", () => {
     // (crates/koloda/tests/integration/ai_integration_tests.rs).
     await removeAIProfile(TEST_DB, { id: PROFILE_ID });
     expect(storedProfiles()).toEqual([]);
+  });
+});
+
+describe("web AI profile read path", () => {
+  beforeEach(() => {
+    store.clear();
+  });
+
+  it("redacts stored keys and keeps local base URLs", async () => {
+    // Twin: test_redacted_profile_keeps_empty_allowlist_and_null_key (crates/koloda/tests/domain/ai_serde_tests.rs).
+    // WHY: the stored hasSecrets is stale on purpose; the public flag must come from the stored key.
+    seedAiSettings([
+      {
+        id: PROFILE_ID,
+        secrets: { provider: "openrouter", apiKey: "sk-or" },
+        hasSecrets: false,
+        createdAt: CREATED_AT,
+      },
+      {
+        id: "01900000-0000-7000-8000-000000000002",
+        secrets: { provider: "ollama", baseUrl: "http://127.0.0.1:11434", apiKey: "ollama-key" },
+        hasSecrets: false,
+        createdAt: CREATED_AT,
+      },
+    ]);
+
+    const profiles = await getAIProfiles(TEST_DB);
+
+    expect(profiles.map(({ secrets, hasSecrets }) => ({ secrets, hasSecrets }))).toEqual([
+      { secrets: { provider: "openrouter", apiKey: null }, hasSecrets: true },
+      { secrets: { provider: "ollama", baseUrl: "http://127.0.0.1:11434", apiKey: null }, hasSecrets: true },
+    ]);
   });
 });
