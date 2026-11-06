@@ -58,8 +58,12 @@ export function createWebAIRuntime(db: DB): AIRuntime {
     let secrets: AISecrets | null;
     try {
       secrets = await loadAIProfileSecrets(db, profileId);
-    } catch {
-      return secretsFallback.get(profileId) ?? null;
+    } catch (error) {
+      // WHY: with nothing cached, the read's own error tells the user more than "AI profile not found".
+      // Desktop twin: `loadSecrets` in apps/electron/src/ai-ipc.ts rethrows the read error.
+      const cached = secretsFallback.get(profileId);
+      if (!cached) throw error;
+      return cached;
     }
     if (secrets) secretsFallback.set(profileId, secrets);
     return secrets;

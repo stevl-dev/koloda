@@ -326,7 +326,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Write web AI profiles inside one transaction
   Depends on: none
 
-- [ ] 6. Report a failed secrets read as itself in the web AI runtime
+- [x] 6. Report a failed secrets read as itself in the web AI runtime
   Goal (finding 5): In `ai-runtime.ts` `loadSecrets`, rethrow the read error when the cache has no entry for the
   profile; keep the cached fallback otherwise. `null` (a missing row) still becomes `not-found.ai-profile`.
   Constraints: `apps/web/src/app/ai-runtime.ts` and its test.
