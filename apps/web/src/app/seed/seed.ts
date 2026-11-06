@@ -11,8 +11,8 @@ import {
 import type { AlgorithmFSRS } from "@koloda/srs";
 import type { InsertTemplateData } from "@koloda/srs";
 
-export type WebSeedTemplateId = "type" | "reveal";
-export type WebSeedAlgorithmId = "simple" | "complex";
+type WebSeedTemplateId = "type" | "reveal";
+type WebSeedAlgorithmId = "simple" | "complex";
 
 export const WEB_SEED_ALGORITHM_IDS: Record<WebSeedAlgorithmId, string> = {
   simple: SEED_ALGORITHM_SIMPLE_ID,
@@ -37,24 +37,24 @@ export function webSeedCardContent(template: WebSeedTemplateId, card: WebSeedCar
   };
 }
 
-export type WebSeedTemplate = {
+type WebSeedTemplate = {
   id: WebSeedTemplateId;
   title: string;
   content: InsertTemplateData["content"];
 };
 
-export type WebSeedAlgorithm = {
+type WebSeedAlgorithm = {
   id: WebSeedAlgorithmId;
   title: string;
   content: AlgorithmFSRS;
 };
 
-export type WebSeedCard = {
+type WebSeedCard = {
   front: string;
   back: string;
 };
 
-export type WebSeedDeck = {
+type WebSeedDeck = {
   title: string;
   template: WebSeedTemplateId;
   algorithm: WebSeedAlgorithmId;

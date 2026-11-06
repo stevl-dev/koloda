@@ -9,8 +9,8 @@ import { activateLanguage, getLanguage } from "./i18n";
 import { queriesFn } from "./queries";
 
 export const store = createStore();
-export const aiRuntime = createWebAIRuntime(db);
-export const queries = queriesFn(db);
+const aiRuntime = createWebAIRuntime(db);
+const queries = queriesFn(db);
 
 store.sub(langAtom, () => {
   const lang = store.get(langAtom);

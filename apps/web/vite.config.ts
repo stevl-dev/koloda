@@ -1,4 +1,3 @@
-/// <reference types='vitest' />
 import { lingui } from "@lingui/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
@@ -53,6 +52,8 @@ export default defineConfig(() => ({
     reportCompressedSize: true,
   },
   optimizeDeps: {
-    exclude: ["@koloda/srs", "wa-sqlite"],
+    // WHY: `wa-sqlite`'s Emscripten build locates its `.wasm` by `new URL(…, import.meta.url)`; pre-bundling moves the
+    // module away from that file. `libs/db-sqlite/vitest.config.mjs` excludes it for the same reason.
+    exclude: ["wa-sqlite"],
   },
 }));

@@ -1,6 +1,6 @@
-export type UserAgentBrand = { brand: string; version?: string };
+type UserAgentBrand = { brand: string; version?: string };
 
-export type NavigatorLike = {
+type NavigatorLike = {
   userAgent: string;
   userAgentData?: { brands?: UserAgentBrand[] };
 };

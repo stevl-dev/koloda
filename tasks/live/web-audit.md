@@ -362,7 +362,7 @@ Paths are relative to `apps/web` unless they start with `apps/`, `libs/`, `crate
   Commit: Use one storage sentence on the web setup screen
   Depends on: 2 (both re-extract the catalogs)
 
-- [ ] 10. Remove leftover exports and configuration from the web host
+- [x] 10. Remove leftover exports and configuration from the web host
   Goal (finding 9):
   - Drop the `export` keyword from `store.ts`'s `aiRuntime` and `queries`, the six `WebSeed*` types in
     `seed/seed.ts`, and the three types in `browser-support.ts`. Keep any that item 2's `boot.ts` imports.
