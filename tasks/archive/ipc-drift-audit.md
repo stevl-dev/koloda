@@ -1,6 +1,6 @@
 # IPC drift audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/MARKDOWN.md, apps/electron/IPC.md, libs/native-ipc/README.md, apps/electron/README.md, agents/REVIEW.md
 Flow: local
 
@@ -311,4 +311,27 @@ does not apply; it is held to the code all the same.
 
 ## Outcome
 
-<what shipped>
+All 5 findings fixed, none skipped.
+Plan items 1-5 shipped as one commit each (`Task: ipc-drift-audit`).
+
+- Main registers every handler, window and close-handshake ack included, through `handleIpc`
+  (`apps/electron/src/ipc-handlers.ts`), which runs `assertAppSender` first.
+  Each module passes a table keyed by its exported channel union (`AiChannel`, `MediaChannel`, `SyncChannel`,
+  `OptimizerChannel`, `DataOnlyChannel`, `WindowChannel`), so a missing, stray, or mistyped handler fails the build.
+- The window payloads (`TitlebarOverlayOptions`, `WindowButtonPositionOptions`) and the `WindowIpc` map live in
+  `@koloda/native-ipc` with every field required; main's dead fallbacks are gone, and `window-ipc.ts` has a unit test.
+- `PushIpc` ties each push channel to its payload; main sends through `sendPush`, the renderer listens through
+  `subscribe` (`electron.ts`); the listener casts and `isAiStreamEvent` are gone.
+- `seed_db` returns `void`.
+- IPC.md states both date directions and names the close deadline by its constants; the contract header and both
+  READMEs list what the package holds.
+
+Verification:
+
+- The audit's probe, by hand and reverted: renaming `cmd_sync_detach`, and adding `cmd_sync_pause` with no handler,
+  each fail main's typecheck (TS2353 and TS2345 in `sync-ipc.ts`).
+  An incremental `tsc --build` in `apps/electron` reported "up to date" after the contract edit until run with
+  `--force`, even under `--skip-nx-cache`; a contract edit can look green on a warm local build.
+- The `handleIpc` test fails with the sender check removed.
+- Main unit tests 58/58, renderer 51/51; `bun run check:push` green on `fdb29609`.
+- No plan item adds or edits e2e cases, so the suite-run rule did not apply.
