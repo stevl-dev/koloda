@@ -228,7 +228,7 @@ does not apply; it is held to the code all the same.
   Commit: Register every main IPC handler through one contract-checked helper
   Depends on: none
 
-- [ ] 2. Declare the window payloads once in the IPC contract
+- [x] 2. Declare the window payloads once in the IPC contract
   Goal: one declaration of each window payload, required fields, and the window handlers on item 1's helper
   (finding 2).
   - In `libs/native-ipc/src/index.ts`, beside the `WINDOW_*` constants, export `TitlebarOverlayOptions`

@@ -4,20 +4,13 @@ import {
   WINDOW_SET_TITLE_BAR_OVERLAY_CHANNEL,
   WINDOW_SET_WINDOW_BUTTON_POSITION_CHANNEL,
 } from "@koloda/native-ipc";
+import type { TitlebarOverlayOptions, WindowButtonPositionOptions } from "@koloda/native-ipc";
 import { syncQueriesAtom } from "@koloda/core-react";
 import { SyncIndicator } from "@koloda/settings-react";
 import { Titlebar as TitlebarContent } from "@koloda/ui";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef } from "react";
-
-type TitlebarOverlayOptions = {
-  color: string;
-  symbolColor: string;
-  height: number;
-};
-
-type WindowButtonPositionOptions = { titlebarHeight: number };
 
 const platform = getAppPlatform();
 

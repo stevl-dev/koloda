@@ -152,6 +152,22 @@ export const WINDOW_SET_TITLE_BAR_OVERLAY_CHANNEL = "window:set-title-bar-overla
 
 export const WINDOW_SET_WINDOW_BUTTON_POSITION_CHANNEL = "window:set-window-button-position";
 
+/** Payload of `WINDOW_SET_TITLE_BAR_OVERLAY_CHANNEL`: Electron's overlay accepts only rgba/hsla/hex colours. */
+export type TitlebarOverlayOptions = { color: string; symbolColor: string; height: number };
+
+/** Payload of `WINDOW_SET_WINDOW_BUTTON_POSITION_CHANNEL`. */
+export type WindowButtonPositionOptions = { titlebarHeight: number };
+
+/** Window and close-handshake commands, registered by `apps/electron/src/window-ipc.ts`. */
+export interface WindowIpc {
+  [APP_SHUTDOWN_ACK_CHANNEL]: { args: undefined; result: void };
+  [WINDOW_MAXIMIZE_CHANNEL]: { args: undefined; result: void };
+  [WINDOW_SET_TITLE_BAR_OVERLAY_CHANNEL]: { args: TitlebarOverlayOptions; result: void };
+  [WINDOW_SET_WINDOW_BUTTON_POSITION_CHANNEL]: { args: WindowButtonPositionOptions; result: void };
+}
+
+export type WindowChannel = keyof WindowIpc;
+
 /**
  * The preload's `window.electronAPI`: `apps/electron/src/preload.ts` `satisfies` it, and the renderer's global uses it.
  * `invoke` is untyped transport for every channel. The renderer's typed `invoke` checks data channels against

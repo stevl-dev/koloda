@@ -26,7 +26,9 @@ Main-to-renderer pushes arrive on `window.electronAPI.on(channel, callback)` sub
   It also covers the push payloads: `AiStreamEvent` on `AI_STREAM_CHANNEL` (`ai:stream`), `SyncEvent` on
   `SYNC_EVENT_CHANNEL` (`sync:event`), and `OptimizerProgressEvent` on `OPTIMIZER_PROGRESS_CHANNEL`
   (`optimizer:progress`).
-  Window-channel args are typed at their `window-ipc.ts` handlers, outside the contract.
+  The window and close-handshake commands are in its `WindowIpc` map, with their payload types.
+- Main registers every handler through `handleIpc` (`src/ipc-handlers.ts`), which checks the sender first.
+  Each module names its channel union, so a channel with no handler, or a handler for no channel, fails the build.
 
 ## Data Commands
 
@@ -147,6 +149,7 @@ Runs queue on that thread in call order.
 
 Channel names below are exported as `WINDOW_*_CHANNEL` constants from `@koloda/native-ipc` — both
 processes import them instead of repeating the literals.
+The `WindowIpc` map there types each command's payload, with every field required.
 
 - `window:maximize` (toggle) — the only window-control channel the renderer invokes;
   native overlay buttons and traffic lights handle minimize and close
