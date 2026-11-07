@@ -274,7 +274,7 @@ Paths are relative to the repo root.
   Commit: Stop allowing apps/web to import wa-sqlite
   Depends on: none
 
-- [ ] 5. Test the workspace tripwire end to end on a fixture tree
+- [x] 5. Test the workspace tripwire end to end on a fixture tree
   Goal: fix finding 4.
   - Add a fixture tree under `tools/workspace-deps/` (for example `fixtures/basic/`) with: a lib `@koloda/ui` whose
     source imports `wa-sqlite` and an `@koloda` package its `package.json` does not declare; an app directory without a

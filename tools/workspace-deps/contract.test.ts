@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
 import {
+  checkWorkspace,
   collectFromSource,
   compareDependencies,
   formatCheckFailures,
@@ -314,5 +318,44 @@ describe("formatCheckFailures", () => {
         "",
       ].join("\n"),
     );
+  });
+});
+
+describe("checkWorkspace", () => {
+  // WHY: the tree is written outside the repo. Under `tools/` it would sit in a `fixtures` dir, which the source scan
+  // skips, and its package.json files would join the real workspace.
+  const root = mkdtempSync(join(tmpdir(), "koloda-workspace-deps-"));
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
+
+  function write(path: string, text: string) {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), text);
+  }
+
+  write("libs/ui/package.json", JSON.stringify({ name: "@koloda/ui" }));
+  write("libs/ui/src/index.ts", "export const ui = 1;\n");
+  write("libs/srs-react/package.json", JSON.stringify({ name: "@koloda/srs-react" }));
+  write("libs/srs-react/src/index.ts", 'import "wa-sqlite";\nimport { ui } from "@koloda/ui";\nexport const x = ui;\n');
+  write("libs/outside/package.json", JSON.stringify({ name: "outside" }));
+  write("libs/outside/src/index.ts", 'import "wa-sqlite";\n');
+  write("apps/web/src/main.ts", 'import { x } from "@koloda/srs-react";\nexport const y = x;\n');
+
+  it("runs every rule on the packages it discovers", () => {
+    const { results } = checkWorkspace(root);
+    const byName = new Map(results.map((result) => [result.name, result]));
+    expect([...byName.keys()]).toEqual(["@koloda/srs-react", "@koloda/ui", "@koloda/web"]);
+
+    const lib = byName.get("@koloda/srs-react");
+    expect(lib?.missing).toEqual(["@koloda/ui"]);
+    expect(lib?.forbidden).toEqual([
+      { dependency: "wa-sqlite", reason: "wa-sqlite is exclusive to @koloda/db-sqlite" },
+    ]);
+
+    // An app without its own package.json is named after its directory, and gets no manifest checks.
+    const app = byName.get("@koloda/web");
+    expect(app?.packageJsonPath).toBe("apps/web");
+    expect(app?.references.map((ref) => ref.packageName)).toEqual(["@koloda/srs-react"]);
+    expect(app?.missing).toEqual([]);
+    expect(app?.forbidden).toEqual([]);
   });
 });
