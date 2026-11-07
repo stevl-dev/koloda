@@ -190,13 +190,13 @@ describe("section pointers", () => {
     return matches.length === 1 ? matches[0] : null;
   }
 
-  // Each name ends at a closing mark, a sentence end, or a comma; `, §` starts another name in the same file.
   // WHY: a comment wrapped mid-heading leaves only the heading's start on the line (`TEMPLATES.md §Deleting`), so a
   // last name that runs to the end of the line may be a prefix of the heading.
   function bareNames(line: string): { name: string; isCut: boolean }[] {
     const names: { name: string; isCut: boolean }[] = [];
     let rest = line;
     while (rest.startsWith("§")) {
+      // A name ends at a closing mark, a sentence end, or a comma; `, §` starts another name in the same file.
       const end = rest.search(/[)(;'"`|]|[.,:](?:\s|$)|\*\/|$/);
       const name = rest.slice(1, end).trim();
       rest = rest.slice(end);
