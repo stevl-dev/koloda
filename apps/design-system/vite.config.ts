@@ -13,7 +13,7 @@ export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/apps/design-system",
   server: {
-    port: 3100,
+    port: 3000,
     host: "localhost",
     fs: {
       allow: [resolve(__dirname, "../..")],
