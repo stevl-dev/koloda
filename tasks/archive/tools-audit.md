@@ -1,6 +1,6 @@
 # Tools audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/MARKDOWN.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/REVIEW.md
 Flow: local
 
@@ -342,4 +342,31 @@ Paths are relative to the repo root.
 
 ## Outcome
 
-<what shipped>
+All 10 findings fixed, one plan item each (`de06d818`..`933c6e66`), plus two self-review commits: a doubled blank
+line in the spec checklist, and the pointer-parsing comment moved inside its loop.
+None skipped; no needs-decision entries.
+`bun run check:push` passed on the pre-archive tip `792686eb`.
+No item added or edited an e2e case, so no suite run was required.
+
+- Finding 1: `waitStep` in `tools/land.ts` decides each poll; a failed poll is unknown, and the start timeout applies
+  only before a run is seen. `land.test.ts` pins it.
+- Finding 2: `bun run check:docs` runs `tools/docs.test.ts` alone; `check:workspace-deps` excludes it; `check:ts` and
+  the CI docs-only path run it. `agents/MARKDOWN.md` (§Checks), `agents/FUNCTIONAL-SPECIFICATIONS.md` (§Checklist), and
+  `README.md` name it and call `check:markdown` advisory.
+- Finding 3: the pointer check reads source files with a `§` (ts, tsx, mts, mjs, js, rs, css, yml) and the
+  `FILE.md §Name` form; a last name running to the line end may be a heading prefix.
+  Deviation: it also flagged four pointers whose prose ran into the heading name (`log.rs`, `backfill.rs`,
+  `cards.test.ts`, `conversation-persistence.ts`), reworded; and a numbered step now resolves by its number
+  (`ADD-COLOR-THEME.md` §4).
+- Finding 4: a `checkWorkspace` test on a sample tree; removing `...compared.external` fails it.
+  Deviation: the tree is written to a temp dir, because under `tools/` its path holds `fixtures` (skipped by the
+  scan) and its `package.json` files would join the workspace.
+- Finding 5: `wa-sqlite` is exclusive to `@koloda/db-sqlite`; web importing it is a rejection case.
+- Finding 6: every Vitest `cacheDir` (tools, 12 libs, `srs` DST, `apps/web`) resolves from its config's directory;
+  a run wrote all `results.json` files under `<repo>/node_modules/.vite/` and none above the checkout.
+- Finding 7: `check-markdown.ts` resolves explicit arguments against the working directory.
+- Findings 8, 9, 10: inventory pin deleted; four comments tagged or removed (the external-specifier rule has one home,
+  the INVARIANT in `contract.ts`); seven surplus exports dropped.
+
+Open, the human's call: `task/mobile-spike` lines 365-366 still say `check:workspace-deps` runs the docs tests; they
+should say `bun run check:docs`.
