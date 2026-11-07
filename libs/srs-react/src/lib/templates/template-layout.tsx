@@ -38,45 +38,48 @@ export const TemplateLayout = withForm({
             }}
           >
             <div className="flex flex-col gap-2">
-              {field.state.value.map((item, i) => (
-                <Draggable id={item.field} index={i} key={item.field}>
-                  <div className="flex flex-row flex-wrap">
-                    <TextField
-                      aria-label={_(msg`template.layout.inputs.field.label.${i + 1}`)}
-                      value={getTemplateFieldTitleById(fieldsValue, field.state.value[i].field)}
-                      isReadOnly
-                      isDisabled
-                    >
-                      <TextField.Input
-                        variants={{ style: "inline", class: "wd:w-72" }}
-                        placeholder={_(msg`template.fields.inputs.title.placeholder`)}
-                      />
-                    </TextField>
-                    <form.Field name={`content.layout[${i}].operation`} key={`operation-${i}`}>
-                      {(operationField) => (
-                        <Select.Root
-                          aria-label={_(msg`template.layout.inputs.operation.label.${i + 1}`)}
-                          value={operationField.state.value}
-                          onChange={(e) => {
-                            if (typeof e === "string") operationField.handleChange(e as TemplateOperation);
-                          }}
-                        >
-                          <Select.Button variants={{ style: "ghost", class: "w-48" }} />
-                          <Select.Popover>
-                            <Select.ListBox>
-                              {TEMPLATE_OPERATIONS_MESSAGES.map(({ id, value }) => (
-                                <Select.ListBoxItem id={id} textValue={_(value)} key={id}>
-                                  {_(value)}
-                                </Select.ListBoxItem>
-                              ))}
-                            </Select.ListBox>
-                          </Select.Popover>
-                        </Select.Root>
-                      )}
-                    </form.Field>
-                  </div>
-                </Draggable>
-              ))}
+              {field.state.value.map((item, i) => {
+                const rowNumber = i + 1;
+                return (
+                  <Draggable id={item.field} index={i} key={item.field}>
+                    <div className="flex flex-row flex-wrap">
+                      <TextField
+                        aria-label={_(msg`template.layout.inputs.field.label.${rowNumber}`)}
+                        value={getTemplateFieldTitleById(fieldsValue, field.state.value[i].field)}
+                        isReadOnly
+                        isDisabled
+                      >
+                        <TextField.Input
+                          variants={{ style: "inline", class: "wd:w-72" }}
+                          placeholder={_(msg`template.fields.inputs.title.placeholder`)}
+                        />
+                      </TextField>
+                      <form.Field name={`content.layout[${i}].operation`} key={`operation-${i}`}>
+                        {(operationField) => (
+                          <Select.Root
+                            aria-label={_(msg`template.layout.inputs.operation.label.${rowNumber}`)}
+                            value={operationField.state.value}
+                            onChange={(e) => {
+                              if (typeof e === "string") operationField.handleChange(e as TemplateOperation);
+                            }}
+                          >
+                            <Select.Button variants={{ style: "ghost", class: "w-48" }} />
+                            <Select.Popover>
+                              <Select.ListBox>
+                                {TEMPLATE_OPERATIONS_MESSAGES.map(({ id, value }) => (
+                                  <Select.ListBoxItem id={id} textValue={_(value)} key={id}>
+                                    {_(value)}
+                                  </Select.ListBoxItem>
+                                ))}
+                              </Select.ListBox>
+                            </Select.Popover>
+                          </Select.Root>
+                        )}
+                      </form.Field>
+                    </div>
+                  </Draggable>
+                );
+              })}
             </div>
           </DragDropProvider>
         )}

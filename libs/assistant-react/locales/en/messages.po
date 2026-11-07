@@ -131,11 +131,9 @@ msgstr "Reset conversation"
 msgid "ai.conversation.recovery.title"
 msgstr "Can't open this conversation"
 
-#. placeholder {0}: blocked.found
-#. placeholder {1}: blocked.supported
 #: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
-msgid "ai.conversation.recovery.unsupported {0} {1}"
-msgstr "This conversation was saved with format version {0}, but this app supports up to version {1}."
+msgid "ai.conversation.recovery.unsupported {found} {supported}"
+msgstr "This conversation was saved with format version {found}, but this app supports up to version {supported}."
 
 #: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx
 msgid "ai.conversation.running"

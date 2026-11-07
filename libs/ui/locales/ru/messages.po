@@ -25,10 +25,9 @@ msgstr "Контроллер перетаскивания"
 msgid "error.details"
 msgstr "Подробности"
 
-#. placeholder {0}: formatTimestamp(timestamp, "date")
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
-msgid "form.created-at {0}"
-msgstr "Создано {0}"
+msgid "form.created-at {date}"
+msgstr "Создано {date}"
 
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.reset"
@@ -38,10 +37,9 @@ msgstr "Сбросить"
 msgid "form.save"
 msgstr "Сохранить"
 
-#. placeholder {0}: formatTimestamp(timestamp, "date")
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
-msgid "form.updated-at {0}"
-msgstr "Обновлено {0}"
+msgid "form.updated-at {date}"
+msgstr "Обновлено {date}"
 
 #: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.accept"

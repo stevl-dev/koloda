@@ -111,9 +111,7 @@ export function AssistantConversationRecovery({
         {/* WHY: Raw zod issue text is English-only diagnostics; keep it behind
             the details toggle so the recovery headline stays translated. */}
         {blocked.status === "unsupportedVersion" ? (
-          <p className="fg-level-2">
-            {_(msg`ai.conversation.recovery.unsupported ${blocked.found} ${blocked.supported}`)}
-          </p>
+          <UnsupportedVersionMessage found={blocked.found} supported={blocked.supported} />
         ) : (
           <ErrorMessage
             message={_(msg`ai.conversation.recovery.corrupt`)}
@@ -171,4 +169,13 @@ export function AssistantConversationRecovery({
       </Dialog.Root>
     </div>
   );
+}
+
+type UnsupportedVersionMessageProps = { found: number; supported: number };
+
+// WHY: Lingui names a placeholder only after a plain identifier; `blocked.found` would extract as a positional `{0}`.
+function UnsupportedVersionMessage({ found, supported }: UnsupportedVersionMessageProps) {
+  const { _ } = useLingui();
+
+  return <p className="fg-level-2">{_(msg`ai.conversation.recovery.unsupported ${found} ${supported}`)}</p>;
 }

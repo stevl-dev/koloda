@@ -287,7 +287,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Declare each shared interface label once
   Depends on: 4
 
-- [ ] 6. Name every message placeholder
+- [x] 6. Name every message placeholder
   Goal: Interpolating anything but a plain identifier makes Lingui name the placeholder `{0}`, `{1}`; reordering two
   of them in source silently swaps the values in every translation, and two plural ids contain `#`, which breaks the
   id rule (finding 5).
@@ -303,6 +303,12 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   number 1"); update unit tests that match the old ids.
   Done when: `rg -n 'msgid ".*\{[0-9]+[,}]|msgid ".*#' libs/*/locales apps/*/locales` finds nothing (plural `#` inside a
   msgstr is fine); `bun run check:push` is green.
+  Added while implementing: `check:i18n` also fails on a positional placeholder in any msgid, and I18N.md states the
+  rule, so an inlined expression cannot bring `{0}` back.
+  The recovery message moved into a small `UnsupportedVersionMessage` component, since `blocked` is a union and its
+  version fields exist only on one branch.
+  Lingui's labeled placeholders (`${{ name: value }}`, `ph`) were not used: the runtime SWC plugin's support for them
+  was not confirmed, and a mismatch would ship raw ids that `check:i18n` cannot see.
   Commit: Name every Lingui placeholder and drop # from two ids
   Depends on: 2
 

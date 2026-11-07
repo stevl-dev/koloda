@@ -13,19 +13,17 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#. placeholder {0}: decks.length
-#: ../../libs/srs-react/src/lib/algorithms/delete-algorithm.tsx
-msgid "{0, plural, other {delete-algorithm.used-by-#-decks}}"
-msgstr "This preset is used by {0, plural, one {# deck} other {# decks}}."
-
-#. placeholder {0}: result.reviewCount
-#: ../../libs/srs-react/src/lib/algorithms/optimize-algorithm.tsx
-msgid "{0, plural, other {optimize-algorithm.review-count.#}}"
-msgstr "Based on {0, plural, one {# review} other {# reviews}}."
-
 #: ../../libs/srs-react/src/lib/decks/delete-deck.tsx
 msgid "{cardCount, plural, other {delete-deck.message}}"
 msgstr "{cardCount, plural, =0 {Are you sure you want to delete this deck?} one {Are you sure you want to delete this deck and its # card with its reviews?} other {Are you sure you want to delete this deck and its # cards with their reviews?}}"
+
+#: ../../libs/srs-react/src/lib/algorithms/delete-algorithm.tsx
+msgid "{deckCount, plural, other {delete-algorithm.used-by-decks}}"
+msgstr "This preset is used by {deckCount, plural, one {# deck} other {# decks}}."
+
+#: ../../libs/srs-react/src/lib/algorithms/optimize-algorithm.tsx
+msgid "{reviewCount, plural, other {optimize-algorithm.review-count}}"
+msgstr "Based on {reviewCount, plural, one {# review} other {# reviews}}."
 
 #: ../../libs/srs-react/src/lib/cards/cards-table-selection-controls.tsx
 msgid "{selectedCount, plural, other {cards-table.selection.label}}"
@@ -156,39 +154,33 @@ msgstr "Weights"
 msgid "algorithm.learning-steps.add"
 msgstr "Add learning step"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.amount.{0}"
-msgstr "Amount for learning step number {0}"
+msgid "algorithm.learning-steps.amount.{stepNumber}"
+msgstr "Amount for learning step number {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.delete.{0}"
-msgstr "Delete learning step number {0}"
+msgid "algorithm.learning-steps.delete.{stepNumber}"
+msgstr "Delete learning step number {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.unit.{0}"
-msgstr "Time period for learning step number {0}"
+msgid "algorithm.learning-steps.unit.{stepNumber}"
+msgstr "Time period for learning step number {stepNumber}"
 
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
 msgid "algorithm.relearning-steps.add"
 msgstr "Add relearning step"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.amount.{0}"
-msgstr "Amount for relearning step number {0}"
+msgid "algorithm.relearning-steps.amount.{stepNumber}"
+msgstr "Amount for relearning step number {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.delete.{0}"
-msgstr "Delete relearning step number {0}"
+msgid "algorithm.relearning-steps.delete.{stepNumber}"
+msgstr "Delete relearning step number {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.unit.{0}"
-msgstr "Time period for relearning step number {0}"
+msgid "algorithm.relearning-steps.unit.{stepNumber}"
+msgstr "Time period for relearning step number {stepNumber}"
 
 #: ../../libs/srs-react/src/lib/cards/card-details.tsx
 msgid "card.action.reset-progress"
@@ -543,10 +535,9 @@ msgstr "Learned today"
 msgid "lesson.init.title"
 msgstr "Study cards"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/lessons/lesson-progress-dots.tsx
-msgid "lesson.progress.label {0} {total}"
-msgstr "Progress: card № {0} of {total} total"
+msgid "lesson.progress.label {position} {total}"
+msgstr "Progress: card № {position} of {total} total"
 
 #: ../../libs/srs-react/src/lib/lessons/lessons-table.tsx
 msgid "lessons.table.columns.title"
@@ -647,25 +638,22 @@ msgstr "Delete field"
 msgid "template.fields.inputs.is-required.label"
 msgstr "Required"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.is-required.label.{0}"
-msgstr "Field {0} required"
+msgid "template.fields.inputs.is-required.label.{fieldNumber}"
+msgstr "Field {fieldNumber} required"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.title.label.{0}"
-msgstr "Field {0} title"
+msgid "template.fields.inputs.title.label.{fieldNumber}"
+msgstr "Field {fieldNumber} title"
 
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
 msgid "template.fields.inputs.title.placeholder"
 msgstr "Untitled"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.type.label.{0}"
-msgstr "Field {0} type"
+msgid "template.fields.inputs.type.label.{fieldNumber}"
+msgstr "Field {fieldNumber} type"
 
 #: ../../libs/srs-react/src/lib/templates/template.tsx
 msgid "template.fields.label"
@@ -679,15 +667,13 @@ msgstr "Notes"
 msgid "template.inputs.title.label"
 msgstr "Title"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
-msgid "template.layout.inputs.field.label.{0}"
-msgstr "Layout item {0} field"
+msgid "template.layout.inputs.field.label.{rowNumber}"
+msgstr "Layout item {rowNumber} field"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
-msgid "template.layout.inputs.operation.label.{0}"
-msgstr "Layout item {0} operation"
+msgid "template.layout.inputs.operation.label.{rowNumber}"
+msgstr "Layout item {rowNumber} operation"
 
 #: ../../libs/srs-react/src/lib/templates/template.tsx
 msgid "template.layout.label"

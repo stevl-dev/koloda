@@ -13,19 +13,17 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#. placeholder {0}: decks.length
-#: ../../libs/srs-react/src/lib/algorithms/delete-algorithm.tsx
-msgid "{0, plural, other {delete-algorithm.used-by-#-decks}}"
-msgstr "{0, plural, one {# колода использует} few {# колоды используют} many {# колод используют} other {# колоды используют} } этот алгоритм"
-
-#. placeholder {0}: result.reviewCount
-#: ../../libs/srs-react/src/lib/algorithms/optimize-algorithm.tsx
-msgid "{0, plural, other {optimize-algorithm.review-count.#}}"
-msgstr "На основе {0, plural, one {# повторения} few {# повторений} many {# повторений} other {# повторения}}."
-
 #: ../../libs/srs-react/src/lib/decks/delete-deck.tsx
 msgid "{cardCount, plural, other {delete-deck.message}}"
 msgstr "{cardCount, plural, =0 {Вы уверены, что хотите удалить эту колоду?} one {Вы уверены, что хотите удалить эту колоду и её # карточку с повторениями?} few {Вы уверены, что хотите удалить эту колоду и её # карточки с повторениями?} many {Вы уверены, что хотите удалить эту колоду и её # карточек с повторениями?} other {Вы уверены, что хотите удалить эту колоду и её # карточки с повторениями?}}"
+
+#: ../../libs/srs-react/src/lib/algorithms/delete-algorithm.tsx
+msgid "{deckCount, plural, other {delete-algorithm.used-by-decks}}"
+msgstr "{deckCount, plural, one {# колода использует} few {# колоды используют} many {# колод используют} other {# колоды используют} } этот алгоритм"
+
+#: ../../libs/srs-react/src/lib/algorithms/optimize-algorithm.tsx
+msgid "{reviewCount, plural, other {optimize-algorithm.review-count}}"
+msgstr "На основе {reviewCount, plural, one {# повторения} few {# повторений} many {# повторений} other {# повторения}}."
 
 #: ../../libs/srs-react/src/lib/cards/cards-table-selection-controls.tsx
 msgid "{selectedCount, plural, other {cards-table.selection.label}}"
@@ -156,39 +154,33 @@ msgstr "Веса"
 msgid "algorithm.learning-steps.add"
 msgstr "Добавить интервал заучивания"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.amount.{0}"
-msgstr "Количество для интервала заучивания номер {0}"
+msgid "algorithm.learning-steps.amount.{stepNumber}"
+msgstr "Количество для интервала заучивания номер {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.delete.{0}"
-msgstr "Удалить интервал заучивания номер {0}"
+msgid "algorithm.learning-steps.delete.{stepNumber}"
+msgstr "Удалить интервал заучивания номер {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.learning-steps.unit.{0}"
-msgstr "Тип временного отрезка для интервала заучивания номер {0}"
+msgid "algorithm.learning-steps.unit.{stepNumber}"
+msgstr "Тип временного отрезка для интервала заучивания номер {stepNumber}"
 
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
 msgid "algorithm.relearning-steps.add"
 msgstr "Добавить интервал переучивания"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.amount.{0}"
-msgstr "Количество для интервала переучивания номер {0}"
+msgid "algorithm.relearning-steps.amount.{stepNumber}"
+msgstr "Количество для интервала переучивания номер {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.delete.{0}"
-msgstr "Удалить интервал переучивания номер {0}"
+msgid "algorithm.relearning-steps.delete.{stepNumber}"
+msgstr "Удалить интервал переучивания номер {stepNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx
-msgid "algorithm.relearning-steps.unit.{0}"
-msgstr "Тип временного отрезка для интервала переучивания номер {0}"
+msgid "algorithm.relearning-steps.unit.{stepNumber}"
+msgstr "Тип временного отрезка для интервала переучивания номер {stepNumber}"
 
 #: ../../libs/srs-react/src/lib/cards/card-details.tsx
 msgid "card.action.reset-progress"
@@ -543,10 +535,9 @@ msgstr "Сегодня"
 msgid "lesson.init.title"
 msgstr "Начать изучение"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/lessons/lesson-progress-dots.tsx
-msgid "lesson.progress.label {0} {total}"
-msgstr "Прогресс: карточка № {0}, всего {total}"
+msgid "lesson.progress.label {position} {total}"
+msgstr "Прогресс: карточка № {position}, всего {total}"
 
 #: ../../libs/srs-react/src/lib/lessons/lessons-table.tsx
 msgid "lessons.table.columns.title"
@@ -647,25 +638,22 @@ msgstr "Удалить поле"
 msgid "template.fields.inputs.is-required.label"
 msgstr "Обязательное"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.is-required.label.{0}"
-msgstr "Обязательное поле {0}"
+msgid "template.fields.inputs.is-required.label.{fieldNumber}"
+msgstr "Обязательное поле {fieldNumber}"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.title.label.{0}"
-msgstr "Название поля {0}"
+msgid "template.fields.inputs.title.label.{fieldNumber}"
+msgstr "Название поля {fieldNumber}"
 
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
 msgid "template.fields.inputs.title.placeholder"
 msgstr "Без названия"
 
-#. placeholder {0}: index + 1
 #: ../../libs/srs-react/src/lib/templates/template-fields-item.tsx
-msgid "template.fields.inputs.type.label.{0}"
-msgstr "Тип поля {0}"
+msgid "template.fields.inputs.type.label.{fieldNumber}"
+msgstr "Тип поля {fieldNumber}"
 
 #: ../../libs/srs-react/src/lib/templates/template.tsx
 msgid "template.fields.label"
@@ -679,15 +667,13 @@ msgstr "Заметки"
 msgid "template.inputs.title.label"
 msgstr "Название"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
-msgid "template.layout.inputs.field.label.{0}"
-msgstr "Поле элемента раскладки {0}"
+msgid "template.layout.inputs.field.label.{rowNumber}"
+msgstr "Поле элемента раскладки {rowNumber}"
 
-#. placeholder {0}: i + 1
 #: ../../libs/srs-react/src/lib/templates/template-layout.tsx
-msgid "template.layout.inputs.operation.label.{0}"
-msgstr "Действие элемента раскладки {0}"
+msgid "template.layout.inputs.operation.label.{rowNumber}"
+msgstr "Действие элемента раскладки {rowNumber}"
 
 #: ../../libs/srs-react/src/lib/templates/template.tsx
 msgid "template.layout.label"

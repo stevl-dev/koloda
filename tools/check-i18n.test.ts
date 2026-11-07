@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { changedCatalogs, snapshotCatalogs } from "./check-i18n.ts";
+import { changedCatalogs, positionalPlaceholders, snapshotCatalogs } from "./check-i18n.ts";
 
 let root: string | null = null;
 
@@ -40,6 +40,30 @@ describe("changedCatalogs", () => {
       "apps/web/src/app/locales/ru.ts",
       "libs/app/locales/en/messages.po",
       "libs/ui/locales/ru/messages.po",
+    ]);
+  });
+});
+
+describe("positionalPlaceholders", () => {
+  it("flags numbered placeholders and plurals in msgids, not named ones or translations", () => {
+    const po = [
+      'msgid "form.created-at {0}"',
+      'msgstr "Created {0}"',
+      'msgid "{0, plural, other {review-count}}"',
+      'msgstr "{0, plural, one {# review} other {# reviews}}"',
+      'msgid "lesson.progress.label {position} {total}"',
+      'msgstr "Card {position} of {total}"',
+      'msgid "{count, plural, other {used-by-decks}}"',
+      'msgstr "Used by {count, plural, one {# deck} other {# decks}}"',
+    ].join("\n");
+    const snapshot = new Map([
+      ["libs/ui/locales/en/messages.po", po],
+      ["apps/web/src/app/locales/en.ts", 'msgid "compiled {0}"'],
+    ]);
+
+    expect(positionalPlaceholders(snapshot)).toEqual([
+      "libs/ui/locales/en/messages.po: form.created-at {0}",
+      "libs/ui/locales/en/messages.po: {0, plural, other {review-count}}",
     ]);
   });
 });

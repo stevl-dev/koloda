@@ -183,7 +183,8 @@ function OptimizationResult({ result }: OptimizationResultProps) {
     case "notEnoughData":
       return <p>{_(msg`optimize-algorithm.not-enough-data`)}</p>;
     case "noImprovement":
-    case "improved":
+    case "improved": {
+      const { reviewCount } = result;
       return (
         <>
           <p>
@@ -191,12 +192,11 @@ function OptimizationResult({ result }: OptimizationResultProps) {
               ? _(msg`optimize-algorithm.improved`)
               : _(msg`optimize-algorithm.no-improvement`)}
           </p>
-          <p className="fg-level-3">
-            {_(msg`${plural(result.reviewCount, { other: "optimize-algorithm.review-count.#" })}`)}
-          </p>
+          <p className="fg-level-3">{_(msg`${plural(reviewCount, { other: "optimize-algorithm.review-count" })}`)}</p>
           <FitScoresTable current={result.current} optimized={result.optimized} />
         </>
       );
+    }
   }
 }
 

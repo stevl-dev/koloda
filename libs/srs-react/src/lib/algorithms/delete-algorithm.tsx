@@ -49,6 +49,7 @@ export function DeleteAlgorithm({ id }: DeleteAlgorithmProps) {
   const filteredAlgorithms = useMemo(() => algorithms?.filter((algorithm) => algorithm.id !== id), [algorithms, id]);
 
   const isDefault = defaultAlgorithm === id;
+  const deckCount = decks?.length ?? 0;
   const isDisabled = (algorithms && algorithms.length < 2) || isDefault;
 
   return (
@@ -69,10 +70,10 @@ export function DeleteAlgorithm({ id }: DeleteAlgorithmProps) {
             </Fade>
           ) : (
             <Fade>
-              {decks && decks.length > 0 ? (
+              {deckCount > 0 ? (
                 <>
                   <div className="flex flex-col gap-6">
-                    <p>{_(msg`${plural(decks.length, { other: "delete-algorithm.used-by-#-decks" })}`)}</p>
+                    <p>{_(msg`${plural(deckCount, { other: "delete-algorithm.used-by-decks" })}`)}</p>
                     <p>{_(msg`delete-algorithm.successor-message`)}</p>
                   </div>
                   <Select

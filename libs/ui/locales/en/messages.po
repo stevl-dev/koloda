@@ -25,10 +25,9 @@ msgstr "Drag handle"
 msgid "error.details"
 msgstr "Details"
 
-#. placeholder {0}: formatTimestamp(timestamp, "date")
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
-msgid "form.created-at {0}"
-msgstr "Created {0}"
+msgid "form.created-at {date}"
+msgstr "Created {date}"
 
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.reset"
@@ -38,10 +37,9 @@ msgstr "Discard"
 msgid "form.save"
 msgstr "Save"
 
-#. placeholder {0}: formatTimestamp(timestamp, "date")
 #: ../../libs/ui/src/lib/primitives/form/form.tsx
-msgid "form.updated-at {0}"
-msgstr "Updated {0}"
+msgid "form.updated-at {date}"
+msgstr "Updated {date}"
 
 #: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.accept"

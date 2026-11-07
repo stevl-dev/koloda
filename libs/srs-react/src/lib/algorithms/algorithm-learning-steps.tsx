@@ -20,67 +20,70 @@ export const AlgorithmLearningSteps = withForm({
       <form.Field name={`content.${type}`} mode="array">
         {(field) => (
           <div className="flex flex-row flex-wrap gap-2">
-            {field.state.value.map((_item, i) => (
-              <FieldGroup variants={{ style: "input" }} key={i}>
-                <form.Field name={`content.${type}[${i}][0]`}>
-                  {(field) => (
-                    <NumberField
-                      variants={{ class: "flex-row w-28" }}
-                      aria-label={_(
-                        type === "learningSteps"
-                          ? msg`algorithm.learning-steps.amount.${i + 1}`
-                          : msg`algorithm.relearning-steps.amount.${i + 1}`,
-                      )}
-                      minValue={1}
-                      formatOptions={WHOLE_NUMBER_FORMAT}
-                      value={field.state.value}
-                      onChange={field.handleChange}
-                    >
-                      <NumberField.Group variants={{ style: "ghost" }} />
-                    </NumberField>
-                  )}
-                </form.Field>
-                <form.Field name={`content.${type}[${i}][1]`}>
-                  {(field) => (
-                    <Select.Root
-                      aria-label={_(
-                        type === "learningSteps"
-                          ? msg`algorithm.learning-steps.unit.${i + 1}`
-                          : msg`algorithm.relearning-steps.unit.${i + 1}`,
-                      )}
-                      value={field.state.value}
-                      onChange={(i) => field.handleChange(i as unknown as "s" | "m" | "h" | "d")}
-                    >
-                      <Select.Button variants={{ style: "ghost" }}>
-                        <Select.Value>{({ selectedText }) => selectedText}</Select.Value>
-                      </Select.Button>
-                      <Select.Popover variants={{ class: "min-w-36" }}>
-                        <Select.ListBox>
-                          {LEARNING_STEPS_UNITS.map(({ id, short, long }) => (
-                            <Select.ListBoxItem id={id} textValue={_(short)} key={id}>
-                              {_(long)}
-                            </Select.ListBoxItem>
-                          ))}
-                        </Select.ListBox>
-                      </Select.Popover>
-                    </Select.Root>
-                  )}
-                </form.Field>
-                <Button
-                  variants={{ style: "ghost", size: "icon" }}
-                  aria-label={_(
-                    type === "learningSteps"
-                      ? msg`algorithm.learning-steps.delete.${i + 1}`
-                      : msg`algorithm.relearning-steps.delete.${i + 1}`,
-                  )}
-                  onClick={() => {
-                    field.removeValue(i);
-                  }}
-                >
-                  <DeleteIcon className="size-5 min-w-5 mx-0.5" strokeWidth={1.75} aria-hidden="true" />
-                </Button>
-              </FieldGroup>
-            ))}
+            {field.state.value.map((_item, i) => {
+              const stepNumber = i + 1;
+              return (
+                <FieldGroup variants={{ style: "input" }} key={i}>
+                  <form.Field name={`content.${type}[${i}][0]`}>
+                    {(field) => (
+                      <NumberField
+                        variants={{ class: "flex-row w-28" }}
+                        aria-label={_(
+                          type === "learningSteps"
+                            ? msg`algorithm.learning-steps.amount.${stepNumber}`
+                            : msg`algorithm.relearning-steps.amount.${stepNumber}`,
+                        )}
+                        minValue={1}
+                        formatOptions={WHOLE_NUMBER_FORMAT}
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                      >
+                        <NumberField.Group variants={{ style: "ghost" }} />
+                      </NumberField>
+                    )}
+                  </form.Field>
+                  <form.Field name={`content.${type}[${i}][1]`}>
+                    {(field) => (
+                      <Select.Root
+                        aria-label={_(
+                          type === "learningSteps"
+                            ? msg`algorithm.learning-steps.unit.${stepNumber}`
+                            : msg`algorithm.relearning-steps.unit.${stepNumber}`,
+                        )}
+                        value={field.state.value}
+                        onChange={(i) => field.handleChange(i as unknown as "s" | "m" | "h" | "d")}
+                      >
+                        <Select.Button variants={{ style: "ghost" }}>
+                          <Select.Value>{({ selectedText }) => selectedText}</Select.Value>
+                        </Select.Button>
+                        <Select.Popover variants={{ class: "min-w-36" }}>
+                          <Select.ListBox>
+                            {LEARNING_STEPS_UNITS.map(({ id, short, long }) => (
+                              <Select.ListBoxItem id={id} textValue={_(short)} key={id}>
+                                {_(long)}
+                              </Select.ListBoxItem>
+                            ))}
+                          </Select.ListBox>
+                        </Select.Popover>
+                      </Select.Root>
+                    )}
+                  </form.Field>
+                  <Button
+                    variants={{ style: "ghost", size: "icon" }}
+                    aria-label={_(
+                      type === "learningSteps"
+                        ? msg`algorithm.learning-steps.delete.${stepNumber}`
+                        : msg`algorithm.relearning-steps.delete.${stepNumber}`,
+                    )}
+                    onClick={() => {
+                      field.removeValue(i);
+                    }}
+                  >
+                    <DeleteIcon className="size-5 min-w-5 mx-0.5" strokeWidth={1.75} aria-hidden="true" />
+                  </Button>
+                </FieldGroup>
+              );
+            })}
             <Button
               variants={{ style: "dashed", size: "icon" }}
               aria-label={_(

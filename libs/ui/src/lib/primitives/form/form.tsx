@@ -27,10 +27,11 @@ function CreatedAt({ timestamp }: FormTimestampProps) {
   const formatTimestamp = useTimestampFormatter();
 
   if (!timestamp) return null;
+  const date = formatTimestamp(timestamp, "date");
 
   return (
     <Timestamp>
-      <Trans>form.created-at {formatTimestamp(timestamp, "date")}</Trans>
+      <Trans>form.created-at {date}</Trans>
     </Timestamp>
   );
 }
@@ -39,10 +40,11 @@ function UpdatedAt({ timestamp }: FormTimestampProps) {
   const formatTimestamp = useTimestampFormatter();
 
   if (!timestamp) return null;
+  const date = formatTimestamp(timestamp, "date");
 
   return (
     <Timestamp>
-      <Trans>form.updated-at {formatTimestamp(timestamp, "date")}</Trans>
+      <Trans>form.updated-at {date}</Trans>
     </Timestamp>
   );
 }

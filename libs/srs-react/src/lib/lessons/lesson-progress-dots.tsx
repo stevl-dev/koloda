@@ -49,11 +49,12 @@ export function LessonProgressDotsView({ dots, index }: LessonProgressDotsViewPr
   const isMotionOn = useMotionSetting();
   const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
   const total = dots.length;
+  const position = index + 1;
 
   return (
     <motion.div
       className="relative w-full h-4"
-      aria-label={_(msg`lesson.progress.label ${index + 1} ${total}`)}
+      aria-label={_(msg`lesson.progress.label ${position} ${total}`)}
       aria-valuenow={index + 1}
       aria-valuemax={total}
       role="progressbar"
