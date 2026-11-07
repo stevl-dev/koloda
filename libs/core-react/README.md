@@ -10,7 +10,7 @@ Consumed by `@koloda/app-react`, `@koloda/srs-react`, `@koloda/assistant-react`,
 `@koloda/ai-react`, `@koloda/ui` (form/overlay/titlebar hotkeys), and the apps.
 Each app sets `queriesAtom` and `aiRuntimeAtom` with its own implementations before the first render.
 Depends on `@koloda/app`, `@koloda/srs`, `@koloda/ai`, and `@koloda/settings`, mostly for types.
-It also takes the hotkey defaults and validation and the timestamp formatting from `@koloda/app`.
+It also takes the hotkey defaults and validation and the timestamp and number formatting from `@koloda/app`.
 Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Electron `invoke` → `koloda`.
 
 ## Architectural Map
@@ -29,6 +29,7 @@ Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Ele
 - Hotkeys: `hooks/use-app-hotkey.ts` — registration via TanStack Hotkeys;
   `use-hotkeys-status.ts` — runtime scope holds; `use-hotkeys-settings.ts` — the user's bindings.
 - Misc: `hooks/use-timestamp-formatter.ts` (dates and times in the user's formats),
+  `hooks/use-number-formatter.ts` (numbers in the interface language),
   `utility.ts` (`dispatchReducerAction`).
 
 ### Does NOT own (prevent scope creep)

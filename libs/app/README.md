@@ -25,6 +25,7 @@ Desktop mirrors live in `crates/koloda/src/domain/` (settings, hotkeys, conversa
   check.
 - Seed ids: `seed-ids.ts` — the fixed ids of the seeded algorithms, templates, and template fields.
 - Timestamps: `timestamp-format.ts` — date and time formatting by the interface settings' formats and locale.
+- Numbers: `number-format.ts` — number formatting by locale, with a fixed count of fraction digits.
 - Shared shapes: `db.ts` (`Timestamps`), `utility.ts` (`DeepPartial`, `deepMerge`, form helpers, id helpers).
 - Sync: `sync.ts` — `SyncStatus` as the desktop sync engine reports it; only the desktop syncs.
 
