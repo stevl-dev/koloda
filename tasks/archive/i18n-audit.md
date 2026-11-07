@@ -1,6 +1,6 @@
 # i18n audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/I18N.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -335,4 +335,36 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
 
 ## Outcome
 
-<what shipped>
+All 7 findings fixed, one plan item each (`7ea4dfbc`..`707c5ce8`), plus one self-review commit listing the number
+formatters in the `app` and `core-react` READMEs (`1d340878`).
+None skipped; no needs-decision entries.
+`bun run check:push` passed on the pre-archive tip `1d340878`.
+No item added or edited an e2e case, so no suite run was required.
+
+- Finding 4: catalog origins carry paths without line numbers (`@lingui/format-po`, `lineNumbers: false`).
+  Deviation: `@lingui/cli` stays a transitive dependency of `@lingui/vite-plugin`; adding it at the root re-hoisted
+  Babel and dropped the top-level `@babel/core` from 7.29 to 7.27.
+- Finding 1: `bun run check:i18n` (in `check:ts`, so `check:push` and CI) runs extract `--clean` and compile
+  `--strict` for web and desktop, and names every catalog or compiled file that changed.
+  Probes: a new message without extract failed and named the lib catalogs; a `msgstr` edit without compile failed and
+  named both apps' compiled files.
+- Finding 2: step amounts, the maximum interval, and learn-ahead hours and minutes report their own code on `NaN`;
+  `DailyLimitCapField` ignores `NaN` and keeps its last number. `NaN` rows in the schema tests, a cap test.
+- Finding 6: the empty `libs/ai` catalog and both references are gone; the design-system list follows the root
+  config's order; `agents/I18N.md` names it.
+- Finding 3: the AI secret labels (`SECRETS_LABELS`, `@koloda/ai-react`), `SCHEMES`, and
+  `COLOR_SCHEME_PICKER_LABEL` are declared once; en "API key", ru empty-key error "API-ключ не может быть пустым".
+- Finding 5: all 17 positional placeholders are named and the two `#` ids renamed; rendering every renamed message
+  from the old and new compiled catalogs gave identical en and ru text.
+  Added: `check:i18n` rejects a positional placeholder in any msgid, and `agents/I18N.md` states the rule.
+- Finding 7: `formatNumber` (`@koloda/app`) and `useNumberFormatter` (`@koloda/core-react`) format the token
+  counts, context percentage, card stability and difficulty, and optimizer scores.
+  Also fixed: the sub-1% label in `learned-today.tsx`.
+
+Found, not fixed (out of scope): `libs/ui/src/lib/primitives/form/number-field.tsx:81-82` calls
+`state.decrementToMin()` when an emptied field loses focus (since `7785e27b`).
+So clearing a field and tabbing away saves its `minValue`: 0 for the daily-limit caps (a hard cap of none), the
+learn-ahead fields, and lesson amounts; 1 for step amounts and the maximum interval.
+Enter commits `NaN` instead, which item 3 now handles, so a cap keeps its last number on Enter but saves 0 on blur.
+The fix needs a decision: restore the last value, stay empty and report the field's error, or keep snapping except
+for the caps.
