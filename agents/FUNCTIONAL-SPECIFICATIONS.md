@@ -162,7 +162,6 @@ Do not write a spec that only makes sense as part of a bundle.
 `bun run check:docs` enforces the opening sections, Title Case headings, no code references, and `§` pointers.
 The rest of this list is for the author and the reviewer.
 
-
 - [ ] Opens with Scope, What it is, and Core model, in that order, under those exact names
 - [ ] Scope states what's in and which sibling owns what's out
 - [ ] Core model is a glossary plus this spec's relationships, not a recap of later sections
