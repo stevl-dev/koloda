@@ -262,7 +262,7 @@ Paths are relative to the repo root.
   Commit: Check section pointers in code comments and the bare FILE.md § form
   Depends on: 2
 
-- [ ] 4. Stop allowing apps/web to import wa-sqlite
+- [x] 4. Stop allowing apps/web to import wa-sqlite
   Goal: fix finding 5, and finding 9's `layers.ts:40-42` comment.
   - `tools/workspace-deps/layers.ts:43`: `"wa-sqlite": ["@koloda/db-sqlite"]`.
   - Rewrite the comment at `:40-42`: drop the web parenthetical; keep only what `contract.ts:65-67`'s INVARIANT does not

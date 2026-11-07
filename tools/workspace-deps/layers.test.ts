@@ -113,16 +113,13 @@ describe("forbiddenImportReason", () => {
   });
 
   it("enforces external exclusive specifiers like wa-sqlite", () => {
-    // The Queries-seam rule: only the @koloda/db-sqlite wrapper (and web) touch
-    // the concrete backend; desktop must never reach for the web SQLite build.
-    expect(forbiddenImportReason("@koloda/srs-react", "wa-sqlite", layers)).toBe(
-      "wa-sqlite is exclusive to @koloda/db-sqlite, @koloda/web",
-    );
-    expect(forbiddenImportReason("@koloda/electron", "wa-sqlite", layers)).toBe(
-      "wa-sqlite is exclusive to @koloda/db-sqlite, @koloda/web",
-    );
+    // The Queries-seam rule: only the @koloda/db-sqlite wrapper touches the
+    // concrete backend; web goes through the wrapper, and desktop must never
+    // reach for the web SQLite build.
+    for (const importer of ["@koloda/srs-react", "@koloda/electron", "@koloda/web"]) {
+      expect(forbiddenImportReason(importer, "wa-sqlite", layers)).toBe("wa-sqlite is exclusive to @koloda/db-sqlite");
+    }
     expect(forbiddenImportReason("@koloda/db-sqlite", "wa-sqlite", layers)).toBeNull();
-    expect(forbiddenImportReason("@koloda/web", "wa-sqlite", layers)).toBeNull();
   });
 
   it("ignores unknown workspace names and self-imports", () => {
