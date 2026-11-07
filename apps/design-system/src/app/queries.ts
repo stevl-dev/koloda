@@ -6,7 +6,7 @@ import { calculateTodaysReviewTotals } from "@koloda/srs";
 import type { LessonFilters, LessonsResult } from "@koloda/srs";
 import { SAMPLE_ALGORITHM } from "./algorithm-samples";
 import { SAMPLE_AI_PROFILE, SAMPLE_CONVERSATIONS } from "./assistant-samples";
-import { SAMPLE_CARDS, SAMPLE_DECK, SAMPLE_REVIEWS } from "./deck-samples";
+import { SAMPLE_CARDS, SAMPLE_DECK, SAMPLE_NEW_DECK, SAMPLE_REVIEWS } from "./deck-samples";
 import { SAMPLE_TEMPLATE } from "./template-samples";
 
 // WHY: `total` is a placeholder; `calculateTodaysReviewTotals` recomputes it from the counted buckets.
@@ -173,11 +173,11 @@ const stubs: Pick<
   }),
   getDecksQuery: () => ({
     queryKey: queryKeys.decks.all(),
-    queryFn: () => [sampleDeck],
+    queryFn: () => [sampleDeck, SAMPLE_NEW_DECK],
   }),
   getDeckQuery: (id) => ({
     queryKey: queryKeys.decks.detail(id),
-    queryFn: () => (id === sampleDeck.id ? sampleDeck : null),
+    queryFn: () => [sampleDeck, SAMPLE_NEW_DECK].find((deck) => deck.id === id) ?? null,
   }),
   updateDeckMutation: () => ({
     mutationFn: async ({ values }) => {

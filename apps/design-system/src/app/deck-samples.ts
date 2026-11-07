@@ -16,6 +16,17 @@ export const SAMPLE_DECK: Deck = {
   updatedAt: new Date("2026-10-05T19:30:00.000Z"),
 };
 
+// WHY: the deck the cards conversation creates with add_deck, so its cards table can resolve the write target.
+export const SAMPLE_NEW_DECK: Deck = {
+  id: "0199a1b0-0000-7000-8000-000000000004",
+  title: "Irregular preterite verbs",
+  notes: "Preterite forms of irregular verbs, one per card.",
+  algorithmId: SAMPLE_ALGORITHM.id,
+  templateId: SAMPLE_TEMPLATE.id,
+  createdAt: new Date("2026-10-28T09:10:08.000Z"),
+  updatedAt: new Date("2026-10-28T09:10:08.000Z"),
+};
+
 function untouchedCard(index: number, front: string, back: string, createdAt: string): Card {
   return {
     id: `0199a1e0-0000-7000-8000-${String(index).padStart(12, "0")}`,

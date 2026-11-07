@@ -1,6 +1,7 @@
 import type { AIModel, AIProfile } from "@koloda/ai";
 import type { Conversation } from "@koloda/app";
-import { SAMPLE_DECK } from "./deck-samples";
+import { SAMPLE_ALGORITHM } from "./algorithm-samples";
+import { SAMPLE_DECK, SAMPLE_NEW_DECK } from "./deck-samples";
 import { SAMPLE_TEMPLATE } from "./template-samples";
 
 export const SAMPLE_AI_PROFILE: AIProfile = {
@@ -60,7 +61,7 @@ const normalState = {
   schemaVersion: 1,
   id: NORMAL_ID,
   createdAt: "2026-10-27T18:00:00.000Z",
-  updatedAt: "2026-10-27T18:03:10.000Z",
+  updatedAt: "2026-10-27T18:05:00.000Z",
   messages: [
     userMessage("run-1", "What's the difference between ser and estar?", "2026-10-27T18:00:00.000Z"),
     assistantMessage(
@@ -91,17 +92,35 @@ const normalState = {
         "3. Estamos cansados después del viaje.",
       ].join("\n"),
     ),
+    userMessage("run-3", "Show me the decks I have.", "2026-10-27T18:04:50.000Z"),
+    assistantMessage("run-3", ""),
   ],
   runs: {
     "run-1": successRun("run-1", "2026-10-27T18:00:01.000Z", 6, 1800),
     "run-2": successRun("run-2", "2026-10-27T18:02:41.000Z", 4, 2600),
+    // WHY: a canceled run needs reason "user" (`conversation-persistence-schema.ts`).
+    "run-3": {
+      ...successRun("run-3", "2026-10-27T18:04:51.000Z", 2, 300),
+      status: "canceled",
+      reason: "user",
+      toolCalls: [
+        {
+          id: "call-1",
+          name: "list_decks",
+          input: {},
+          status: "canceled",
+          startedAt: "2026-10-27T18:04:52.000Z",
+          elapsedSeconds: 1,
+        },
+      ],
+    },
   },
   activeRunId: null,
   dismissedRunErrorId: null,
   profileId: SAMPLE_AI_PROFILE.id,
   modelId: SAMPLE_AI_MODELS[0].id,
   modelParameters: {},
-  lastReadRunId: "run-2",
+  lastReadRunId: "run-3",
   promptInput: "",
 };
 
@@ -124,7 +143,8 @@ const PROPOSED_CARDS = [
   ["traer (yo)", "traje"],
 ];
 
-const PROPOSE_PROMPT = "Make me cards for irregular preterite verbs in my Spanish deck. Skip ones I already have.";
+const PROPOSE_PROMPT = "Make me a new deck of irregular preterite verbs. Skip ones I already have in my Spanish deck.";
+const NEW_DECK_ID = SAMPLE_NEW_DECK.id;
 
 // WHY: one turn with every activity kind — a thought, list and read tools, a failed tool, and propose_cards.
 // The table rows cover each restorable card status: added, failed, and not yet added.
@@ -137,7 +157,7 @@ const cardsState = {
     userMessage("run-1", PROPOSE_PROMPT, "2026-10-28T09:10:00.000Z"),
     assistantMessage(
       "run-1",
-      "I added six preterite forms. I skipped *ir (yo) → fui*, which is already in **Spanish irregular verbs**.",
+      "I created **Irregular preterite verbs** and proposed six preterite forms. I skipped *ir (yo) → fui*, which is already in **Spanish irregular verbs**.",
     ),
   ],
   runs: {
@@ -148,13 +168,13 @@ const cardsState = {
       })),
       cardStatuses: { 0: "success", 1: "success", 2: "error" },
       templateFields: TEMPLATE_FIELDS,
-      writeTargetDeckId: SPANISH_DECK_ID,
+      writeTargetDeckId: NEW_DECK_ID,
       writeTargetTemplateId: SAMPLE_TEMPLATE.id,
       toolCalls: [
         {
           kind: "reasoning",
           id: "run-1-reasoning-1",
-          text: "The user wants new **preterite** cards. Find the Spanish deck, read its cards, then propose the missing forms.",
+          text: "The user wants a new **preterite** deck. Read the Spanish deck to skip what it has, create the deck, then propose the missing forms.",
           status: "done",
           startedAt: "2026-10-28T09:10:01.000Z",
           elapsedSeconds: 3,
@@ -221,15 +241,31 @@ const cardsState = {
         },
         {
           id: "call-4",
+          name: "add_deck",
+          input: { title: "Irregular preterite verbs", templateId: SAMPLE_TEMPLATE.id },
+          status: "success",
+          output: {
+            deckId: NEW_DECK_ID,
+            title: "Irregular preterite verbs",
+            templateId: SAMPLE_TEMPLATE.id,
+            templateTitle: SAMPLE_TEMPLATE.title,
+            fieldTitles: TEMPLATE_FIELDS.map((field) => field.title),
+            algorithmId: SAMPLE_ALGORITHM.id,
+          },
+          startedAt: "2026-10-28T09:10:08.000Z",
+          elapsedSeconds: 1,
+        },
+        {
+          id: "call-5",
           name: "propose_cards",
           input: {
-            deckId: SPANISH_DECK_ID,
-            cards: [...PROPOSED_CARDS, ["ir (yo)", "fui"]].map(([Front, Back]) => ({ fields: { Front, Back } })),
+            deckId: NEW_DECK_ID,
+            cards: [...PROPOSED_CARDS, ["ir (nosotros)", ""]].map(([Front, Back]) => ({ fields: { Front, Back } })),
           },
           status: "success",
           output: {
-            deckId: SPANISH_DECK_ID,
-            deckTitle: "Spanish irregular verbs",
+            deckId: NEW_DECK_ID,
+            deckTitle: "Irregular preterite verbs",
             templateId: SAMPLE_TEMPLATE.id,
             templateFields: TEMPLATE_FIELDS,
             cards: PROPOSED_CARDS.map(([Front, Back]) => ({ fields: { Front, Back } })),
