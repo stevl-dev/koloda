@@ -1,3 +1,4 @@
+import { SECRETS_LABELS } from "@koloda/ai-react";
 import type { ZodIssue } from "@koloda/app";
 import { Label, TextField } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -36,11 +37,7 @@ export function AIProfileFormFields({ form, fields, mode, hasSecrets = false }: 
           : undefined;
 
     const label =
-      fieldConfig.type === "title"
-        ? _(msg`settings.ai.profiles.title.label`)
-        : fieldConfig.type === "baseUrl"
-          ? _(msg`settings.ai.profiles.base-url.label`)
-          : _(msg`settings.ai.profiles.api-key.label`);
+      fieldConfig.type === "title" ? _(msg`settings.ai.profiles.title.label`) : _(SECRETS_LABELS[fieldConfig.type]);
 
     return (
       <form.Field key={fieldConfig.type} name={fieldConfig.type}>

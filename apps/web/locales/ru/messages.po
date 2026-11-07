@@ -13,22 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/web-setup.tsx
-msgid "color-scheme-picker.label"
-msgstr "Цветовая схема"
-
-#: src/components/web-setup.tsx
-msgid "scheme.dark"
-msgstr "Тёмная"
-
-#: src/components/web-setup.tsx
-msgid "scheme.light"
-msgstr "Светлая"
-
-#: src/components/web-setup.tsx
-msgid "scheme.system"
-msgstr "Системная"
-
 #: src/components/web-incompatible-data.tsx
 msgid "web.incompatible-data.clear"
 msgstr "Удалить данные"

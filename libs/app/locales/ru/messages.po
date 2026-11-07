@@ -603,7 +603,7 @@ msgstr "ID модели не может быть пустым"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.providers.api-key"
-msgstr "API key не может быть пустым"
+msgstr "API-ключ не может быть пустым"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.providers.base-url"

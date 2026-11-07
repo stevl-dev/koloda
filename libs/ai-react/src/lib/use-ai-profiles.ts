@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 
-const SECRETS_LABELS: Record<SecretField, MessageDescriptor> = {
+export const SECRETS_LABELS: Record<SecretField, MessageDescriptor> = {
   apiKey: msg`settings.ai.profiles.api-key.label`,
   baseUrl: msg`settings.ai.profiles.base-url.label`,
 };

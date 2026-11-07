@@ -13,22 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/web-setup.tsx
-msgid "color-scheme-picker.label"
-msgstr "Color scheme"
-
-#: src/components/web-setup.tsx
-msgid "scheme.dark"
-msgstr "Dark"
-
-#: src/components/web-setup.tsx
-msgid "scheme.light"
-msgstr "Light"
-
-#: src/components/web-setup.tsx
-msgid "scheme.system"
-msgstr "System"
-
 #: src/components/web-incompatible-data.tsx
 msgid "web.incompatible-data.clear"
 msgstr "Clear data"

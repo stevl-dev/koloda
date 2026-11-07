@@ -7,7 +7,7 @@ export { SettingsSync } from "./lib/sync/settings-sync";
 export { SYNC_JOIN_MUTATION_KEY } from "./lib/sync/settings-sync-join";
 export { SyncFirstRunJoin } from "./lib/sync/sync-first-run-join";
 export { SyncIndicator } from "./lib/sync/sync-indicator";
-export { ColorSchemePicker } from "./lib/interface-controls/color-scheme-picker";
+export { COLOR_SCHEME_PICKER_LABEL, ColorSchemePicker } from "./lib/interface-controls/color-scheme-picker";
 export { LanguagePicker } from "./lib/interface-controls/language-picker";
 export { useInterfaceSettingWrite } from "./lib/interface-controls/use-interface-setting-write";
 export { wireUiPreferences } from "./lib/wire-ui-preferences";

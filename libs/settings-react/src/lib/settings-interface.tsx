@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, formatAppError, MOTION_SETTINGS } from "@koloda/app";
+import { ERROR_MESSAGES, formatAppError, MOTION_SETTINGS, SCHEMES } from "@koloda/app";
 import { schemeAtom } from "@koloda/core-react";
 import { motionSettingAtom } from "@koloda/ui";
 import { ErrorMessage, FormLayout, ToggleGroup } from "@koloda/ui";
@@ -40,9 +40,9 @@ export function SettingsInterface() {
           selectedKeys={[scheme]}
           onSelectionChange={([value]) => write("scheme", value.toString())}
         >
-          <ToggleGroup.Item id="light">{_(msg`scheme.light`)}</ToggleGroup.Item>
-          <ToggleGroup.Item id="dark">{_(msg`scheme.dark`)}</ToggleGroup.Item>
-          <ToggleGroup.Item id="system">{_(msg`scheme.system`)}</ToggleGroup.Item>
+          <ToggleGroup.Item id="light">{_(SCHEMES.light)}</ToggleGroup.Item>
+          <ToggleGroup.Item id="dark">{_(SCHEMES.dark)}</ToggleGroup.Item>
+          <ToggleGroup.Item id="system">{_(SCHEMES.system)}</ToggleGroup.Item>
         </ToggleGroup>
       </FormLayout.Section>
       <LightThemePicker variants={{ layout: "form" }} />

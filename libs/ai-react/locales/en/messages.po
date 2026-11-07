@@ -269,7 +269,7 @@ msgstr "Search models"
 
 #: ../../libs/ai-react/src/lib/use-ai-profiles.ts
 msgid "settings.ai.profiles.api-key.label"
-msgstr "API Key"
+msgstr "API key"
 
 #: ../../libs/ai-react/src/lib/use-ai-profiles.ts
 msgid "settings.ai.profiles.base-url.label"

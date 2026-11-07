@@ -1,5 +1,5 @@
-import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { LanguagePicker } from "@koloda/settings-react";
+import { ERROR_MESSAGES, formatAppError, SCHEMES } from "@koloda/app";
+import { COLOR_SCHEME_PICKER_LABEL, LanguagePicker } from "@koloda/settings-react";
 import { langAtom, queryKeys, schemeAtom } from "@koloda/core-react";
 import {
   Button,
@@ -43,9 +43,9 @@ const setupPrefs = tv({
 });
 
 const SCHEME_ITEMS = [
-  { id: "system", label: msg`scheme.system`, Icon: SystemThemeIcon },
-  { id: "light", label: msg`scheme.light`, Icon: SunIcon },
-  { id: "dark", label: msg`scheme.dark`, Icon: MoonIcon },
+  { id: "system", label: SCHEMES.system, Icon: SystemThemeIcon },
+  { id: "light", label: SCHEMES.light, Icon: SunIcon },
+  { id: "dark", label: SCHEMES.dark, Icon: MoonIcon },
 ] as const;
 
 const DIFFS = [
@@ -149,7 +149,7 @@ export function WebSetup() {
       </section>
       <div className={setupPrefs({ isDisabled: isPending })}>
         <ToggleGroup
-          aria-label={_(msg`color-scheme-picker.label`)}
+          aria-label={_(COLOR_SCHEME_PICKER_LABEL)}
           disallowEmptySelection
           isDisabled={isPending}
           selectedKeys={[scheme]}

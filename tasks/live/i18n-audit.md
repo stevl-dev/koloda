@@ -266,7 +266,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Drop the empty AI catalog and document the design-system catalog list
   Depends on: 2
 
-- [ ] 5. Declare each shared label once
+- [x] 5. Declare each shared label once
   Goal: Some labels are written as `msg` in several packages, so extraction puts one id in several catalogs with
   different text, and which one ships depends on merge order (finding 3).
   Export the AI secret field labels from `libs/ai-react/src/lib/use-ai-profiles.ts` (`SECRETS_LABELS` or a named

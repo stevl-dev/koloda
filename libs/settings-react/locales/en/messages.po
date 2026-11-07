@@ -70,18 +70,6 @@ msgstr "Language"
 msgid "light-theme-picker.label"
 msgstr "Light theme"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
-msgid "scheme.dark"
-msgstr "Dark"
-
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
-msgid "scheme.light"
-msgstr "Light"
-
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
-msgid "scheme.system"
-msgstr "System"
-
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.add"
 msgstr "Add profile"
@@ -171,14 +159,6 @@ msgstr "Models"
 #: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.trigger"
 msgstr "Models"
-
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
-msgid "settings.ai.profiles.api-key.label"
-msgstr "API key"
-
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
-msgid "settings.ai.profiles.base-url.label"
-msgstr "Base URL"
 
 #: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.profiles.delete.trigger"

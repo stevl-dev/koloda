@@ -14,7 +14,7 @@ export { AIModelProfilePicker } from "./lib/ai-model-profile-picker";
 export { AIToolActivity } from "./lib/ai-tool-activity";
 export { useAIChatInput } from "./lib/use-ai-chat-input";
 export { useAIChatValidation } from "./lib/use-ai-chat-validation";
-export { useAIProfiles } from "./lib/use-ai-profiles";
+export { SECRETS_LABELS, useAIProfiles } from "./lib/use-ai-profiles";
 export { useAIProfilesModels } from "./lib/use-ai-profiles-models";
 export { useAutoScroll } from "./lib/use-auto-scroll";
 export type { UseAutoScrollReturn } from "./lib/use-auto-scroll";

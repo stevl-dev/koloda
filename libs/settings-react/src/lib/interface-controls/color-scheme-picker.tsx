@@ -12,6 +12,8 @@ const ITEMS = [
   { id: "system", Icon: SystemThemeIcon },
 ] as const;
 
+export const COLOR_SCHEME_PICKER_LABEL = msg`color-scheme-picker.label`;
+
 type ColorSchemePickerProps = Partial<SelectProps<(typeof ITEMS)[number]>>;
 
 export function ColorSchemePicker(props: ColorSchemePickerProps) {
@@ -21,7 +23,7 @@ export function ColorSchemePicker(props: ColorSchemePickerProps) {
   return (
     <Select
       popoverVariants={{ class: "min-w-48 w-[var(--trigger-width)]" }}
-      aria-label={_(msg`color-scheme-picker.label`)}
+      aria-label={_(COLOR_SCHEME_PICKER_LABEL)}
       items={ITEMS}
       value={scheme}
       onChange={(key) => {
