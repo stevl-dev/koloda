@@ -207,7 +207,7 @@ Paths are relative to the repo root.
 
 ## Plan
 
-- [ ] 1. Keep waiting for checks through a failed poll after the run appeared
+- [x] 1. Keep waiting for checks through a failed poll after the run appeared
   Goal: fix finding 1. In `tools/land.ts`, a failed `gh api` poll is unknown, not missing.
   - Add a pure step beside `checkState`, for example
     `nextWait({ runs, shown, waited }): "keep" | "done" | { fail: string }` (name and shape free), that takes the

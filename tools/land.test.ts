@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkState, landingBranch, taskGateProblems, taskSlug } from "./land.ts";
+import { checkState, landingBranch, taskGateProblems, taskSlug, waitStep } from "./land.ts";
 import type { CheckRun, TaskCommit } from "./land.ts";
 
 const sha = "0123456789abcdef0123456789abcdef01234567";
@@ -120,6 +120,42 @@ describe("checkState", () => {
       kind: "failure",
       url: "https://github.com/o/r/runs/1",
       conclusion: "cancelled",
+    });
+  });
+});
+
+describe("waitStep", () => {
+  const minute = 60_000;
+  const pending = { kind: "pending", url: "https://github.com/o/r/runs/1" } as const;
+
+  it("keeps waiting through a failed poll after the run appeared", () => {
+    expect(waitStep(null, true, 4 * minute, sha)).toEqual({ kind: "wait" });
+    expect(waitStep({ kind: "missing" }, true, 4 * minute, sha)).toEqual({ kind: "wait" });
+  });
+
+  it("fails when no run appeared within three minutes, failed polls included", () => {
+    expect(waitStep(null, false, 3 * minute, sha)).toEqual({ kind: "wait" });
+    for (const state of [null, { kind: "missing" } as const]) {
+      expect(waitStep(state, false, 3 * minute + 1, sha)).toEqual({
+        kind: "fail",
+        message: expect.stringContaining("no `checks` run appeared for 01234567"),
+      });
+    }
+  });
+
+  it("fails a run still going after thirty minutes", () => {
+    expect(waitStep(pending, true, 30 * minute, sha)).toEqual({ kind: "wait" });
+    expect(waitStep(pending, true, 30 * minute + 1, sha)).toEqual({
+      kind: "fail",
+      message: expect.stringContaining("still running on 01234567"),
+    });
+  });
+
+  it("ends on the run's conclusion", () => {
+    expect(waitStep({ kind: "success", url: pending.url }, true, 0, sha)).toEqual({ kind: "done" });
+    expect(waitStep({ kind: "failure", url: pending.url, conclusion: "cancelled" }, true, 0, sha)).toEqual({
+      kind: "fail",
+      message: `\`checks\` cancelled on 01234567: ${pending.url}`,
     });
   });
 });

@@ -36,6 +36,8 @@ export type CheckState =
   | { kind: "success"; url: string }
   | { kind: "failure"; url: string; conclusion: string };
 
+export type WaitStep = { kind: "wait" } | { kind: "done" } | { kind: "fail"; message: string };
+
 // changes: one `git show --name-status` line per file, as "A tasks/live/x.md".
 export type TaskCommit = {
   trailers: readonly string[];
@@ -58,6 +60,22 @@ export function checkState(runs: readonly CheckRun[]): CheckState {
   if (checkRun.status !== "completed") return { kind: "pending", url };
   if (checkRun.conclusion === "success") return { kind: "success", url };
   return { kind: "failure", url, conclusion: checkRun.conclusion ?? "unknown" };
+}
+
+// WHY: a null state is a failed poll. It is unknown, not missing: once a run was seen, an API error must not end the
+// wait as "no run appeared".
+export function waitStep(state: CheckState | null, hasSeenRun: boolean, waited: number, sha: string): WaitStep {
+  if (state?.kind === "success") return { kind: "done" };
+  if (state?.kind === "failure") {
+    return { kind: "fail", message: `\`${CHECK}\` ${state.conclusion} on ${short(sha)}: ${state.url}` };
+  }
+  if (!hasSeenRun && waited > START_TIMEOUT_MS) {
+    return { kind: "fail", message: `no \`${CHECK}\` run appeared for ${short(sha)}; check the CI workflow triggers.` };
+  }
+  if (waited > RUN_TIMEOUT_MS) {
+    return { kind: "fail", message: `\`${CHECK}\` still running on ${short(sha)} after 30 minutes.` };
+  }
+  return { kind: "wait" };
 }
 
 export function taskSlug(current: string | null, commits: readonly TaskCommit[]): string | null {
@@ -175,18 +193,14 @@ async function waitForChecks(sha: string): Promise<void> {
   let shown = false;
   for (;;) {
     const runs = fetchCheckRuns(sha);
-    const state: CheckState = runs == null ? { kind: "missing" } : checkState(runs);
-    if (state.kind !== "missing" && !shown) {
+    const state = runs == null ? null : checkState(runs);
+    if (state != null && state.kind !== "missing" && !shown) {
       console.log(`land: waiting for \`${CHECK}\` on ${short(sha)}: ${state.url}`);
       shown = true;
     }
-    if (state.kind === "success") return;
-    if (state.kind === "failure") fail(`\`${CHECK}\` ${state.conclusion} on ${short(sha)}: ${state.url}`);
-    const waited = Date.now() - started;
-    if (state.kind === "missing" && waited > START_TIMEOUT_MS) {
-      fail(`no \`${CHECK}\` run appeared for ${short(sha)}; check the CI workflow triggers.`);
-    }
-    if (waited > RUN_TIMEOUT_MS) fail(`\`${CHECK}\` still running on ${short(sha)} after 30 minutes.`);
+    const step = waitStep(state, shown, Date.now() - started, sha);
+    if (step.kind === "done") return;
+    if (step.kind === "fail") fail(step.message);
     await sleep(POLL_MS);
   }
 }
