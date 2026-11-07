@@ -1,6 +1,6 @@
 # i18n audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/I18N.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -156,7 +156,7 @@ Classification and severity are the report's.
      a placeholder name is lost on any refactor of the expression.
    - `delete-algorithm.used-by-#-decks` and `optimize-algorithm.review-count.#` break I18N.md's id rule
      (dot-separated kebab-case segments).
-   - Decision: fixed by item 6, all 17 placeholders and both ids (open question below).
+   - Decision: fixed by item 6, all 17 placeholders and both ids (human, 2026-11-07).
 6. **Improvement, Later.** An empty catalog is still loaded, and the second catalog list is undocumented.
    - `libs/ai` has had no messages since it was added (`e8130441`); its README keeps the root barrel free of Lingui
      macros (`libs/ai/README.md:52-56`), and its two catalogs hold only the PO header.
@@ -181,10 +181,9 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
 
 ## Open questions
 
-- [ ] Finding 5's scope: name all 17 positional placeholders (default; after it, no msgid has `{0}`), or only the
-  report's six? Smallest option: only the two-value recovery message plus the two `#` ids. — open
-- [ ] `task/mobile-spike` item 2: should it add `apps/mobile` to `check:i18n` and to I18N.md's catalog lists once both
-  tasks have landed? Human's call; this task does not edit that branch. — open
+- [x] Finding 5's scope: name all 17 positional placeholders, or only the report's six? — all 17 (human, 2026-11-07).
+- [x] `task/mobile-spike` item 2: should it add `apps/mobile` to `check:i18n` and to I18N.md's catalog lists? — ignored
+  here; that task is a draft (human, 2026-11-07).
 
 ## Plan
 
