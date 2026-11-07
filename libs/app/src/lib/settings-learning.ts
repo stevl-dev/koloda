@@ -136,9 +136,10 @@ const learningDefaultsValidation = z.object({
 const LEARN_AHEAD_HOURS_RANGE = { message: "validation.settings-learning.learn-ahead-limit.hours-range" };
 const LEARN_AHEAD_MINUTES_RANGE = { message: "validation.settings-learning.learn-ahead-limit.minutes-range" };
 
+// WHY: the type check carries the range code too, so a cleared NumberField's `NaN` names its field.
 const learnAheadLimitValidation = z.tuple([
-  z.int().min(0, LEARN_AHEAD_HOURS_RANGE).max(48, LEARN_AHEAD_HOURS_RANGE),
-  z.int().min(0, LEARN_AHEAD_MINUTES_RANGE).max(59, LEARN_AHEAD_MINUTES_RANGE),
+  z.int(LEARN_AHEAD_HOURS_RANGE).min(0, LEARN_AHEAD_HOURS_RANGE).max(48, LEARN_AHEAD_HOURS_RANGE),
+  z.int(LEARN_AHEAD_MINUTES_RANGE).min(0, LEARN_AHEAD_MINUTES_RANGE).max(59, LEARN_AHEAD_MINUTES_RANGE),
 ]);
 
 export const learningSettingsValidation = z.object({

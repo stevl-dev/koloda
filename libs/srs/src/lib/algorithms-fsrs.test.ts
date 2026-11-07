@@ -302,6 +302,11 @@ describe("algorithmFSRSValidation", () => {
       code: "validation.algorithm.fsrs.learning-steps.amount",
     },
     {
+      name: "learning step cleared amount (NaN)",
+      payload: { ...validPayload(), learningSteps: [[Number.NaN, "m"]] },
+      code: "validation.algorithm.fsrs.learning-steps.amount",
+    },
+    {
       name: "learning step invalid unit",
       payload: { ...validPayload(), learningSteps: [[10, "x"]] },
       code: "validation.algorithm.fsrs.learning-steps.unit",
@@ -314,6 +319,11 @@ describe("algorithmFSRSValidation", () => {
     {
       name: "relearning step fractional amount",
       payload: { ...validPayload(), relearningSteps: [[2.5, "m"]] },
+      code: "validation.algorithm.fsrs.relearning-steps.amount",
+    },
+    {
+      name: "relearning step cleared amount (NaN)",
+      payload: { ...validPayload(), relearningSteps: [[Number.NaN, "m"]] },
       code: "validation.algorithm.fsrs.relearning-steps.amount",
     },
     {
@@ -334,6 +344,11 @@ describe("algorithmFSRSValidation", () => {
     {
       name: "maximum interval fractional",
       payload: { ...validPayload(), maximumInterval: 10.5 },
+      code: "validation.algorithm.fsrs.maximum-interval",
+    },
+    {
+      name: "maximum interval cleared (NaN)",
+      payload: { ...validPayload(), maximumInterval: Number.NaN },
       code: "validation.algorithm.fsrs.maximum-interval",
     },
     {

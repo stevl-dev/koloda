@@ -31,7 +31,16 @@ const WEIGHT_DECIMAL_PATTERN = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
 // WHY: the whole-number check lives in the refinement below, so a fraction reports its list's code.
 // The Rust twin stores step amounts as i64, so on desktop a fraction fails serde before `validate()`;
 // the 2^53 gap is an accepted divergence (docs/decisions/TS-RUST-DOMAIN-MIRRORING.md).
-const learningStepValidation = z.tuple([z.number(), z.string()]);
+// The type check carries the list's code too: a cleared NumberField commits `NaN`, which fails here, and the
+// refinement never runs after a type failure.
+const learningStepValidation = z.tuple([
+  z.number({ message: "validation.algorithm.fsrs.learning-steps.amount" }),
+  z.string(),
+]);
+const relearningStepValidation = z.tuple([
+  z.number({ message: "validation.algorithm.fsrs.relearning-steps.amount" }),
+  z.string(),
+]);
 
 const algorithmFSRSBaseValidation = z.object({
   type: z.literal("fsrs"),
@@ -39,10 +48,11 @@ const algorithmFSRSBaseValidation = z.object({
   weights: z.string(),
   isFuzzEnabled: z.boolean(),
   learningSteps: z.array(learningStepValidation),
-  relearningSteps: z.array(learningStepValidation),
+  relearningSteps: z.array(relearningStepValidation),
   // WHY: whole numbers are checked in the refinement, so a fraction reports the field's code. Rust
   // `maximum_interval: i64` fails serde on a fraction before validation runs.
-  maximumInterval: z.number(),
+  // The type check carries the code for a cleared field's `NaN`, as the step amounts do.
+  maximumInterval: z.number({ message: "validation.algorithm.fsrs.maximum-interval" }),
 });
 
 export const algorithmFSRSValidation = algorithmFSRSBaseValidation.superRefine((data, ctx) => {

@@ -62,6 +62,9 @@ export function DailyLimitCapField({
         isDisabled={isUnlimited}
         value={isUnlimited ? lastNumber.current : value}
         onChange={(next) => {
+          // WHY: a cleared field commits `NaN`, and a cap has no error code to report it with.
+          // Ignoring it keeps the last number: a controlled NumberField puts that value back in the input.
+          if (Number.isNaN(next)) return;
           lastNumber.current = next;
           onChange(next);
         }}

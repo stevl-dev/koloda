@@ -225,7 +225,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Fail the push gate on stale Lingui catalogs
   Depends on: 1
 
-- [ ] 3. Name the field when a cleared number field fails
+- [x] 3. Name the field when a cleared number field fails
   Goal: React Aria commits a cleared NumberField as `NaN`; Zod's type check then fails with its own English text,
   which the form shows as "An error occurred" without naming the field (finding 2).
   Pass each number's own code to its type check, as the schema's `message`/`error` option (match the style already
@@ -244,6 +244,9 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Constraints: no Rust change (serde rejects a non-number before validation); no change to `ERROR_MESSAGES` or the
   error parity test; leave lesson amounts and the retention slider alone.
   Done when: the new rows pass and fail without the fix; `bun run check:push` is green.
+  Found while implementing: `libs/ui` NumberField snaps an emptied field to its minimum on blur, so `NaN` reaches the
+  form only through an Enter commit (or the submit hotkey while focused); the cap test presses Enter.
+  `libs/settings-react/src/test-setup.ts` now stubs NumberFlow, which throws in jsdom on any NumberField update.
   Commit: Report the field's error when a number field is cleared
   Depends on: none
 

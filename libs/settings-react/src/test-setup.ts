@@ -8,6 +8,15 @@ global.ResizeObserver ??= class ResizeObserver {
   disconnect() {}
 };
 
+// WORKAROUND: NumberFlow (the NumberField display) calls custom-element methods jsdom lacks on every update.
+// The stub lives here, not in a file, because these files share one module registry (isolate: false).
+vi.mock("@number-flow/react", async () => {
+  const { createElement } = await import("react");
+  return {
+    default: (props: { value?: unknown }) => createElement("span", null, String(props.value)),
+  };
+});
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();

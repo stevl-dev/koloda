@@ -311,6 +311,17 @@ describe("learn-ahead and default id codes", () => {
       patch: { learnAheadLimit: [0, -1] },
       code: "validation.settings-learning.learn-ahead-limit.minutes-range",
     },
+    // A cleared NumberField commits NaN; JSON cannot carry it, so these two rows have no Rust twin.
+    {
+      name: "hours NaN",
+      patch: { learnAheadLimit: [Number.NaN, 0] },
+      code: "validation.settings-learning.learn-ahead-limit.hours-range",
+    },
+    {
+      name: "minutes NaN",
+      patch: { learnAheadLimit: [0, Number.NaN] },
+      code: "validation.settings-learning.learn-ahead-limit.minutes-range",
+    },
     {
       name: "a non-uuid algorithm",
       patch: { defaults: { ...defaults, algorithm: "simple" } },
