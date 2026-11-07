@@ -203,7 +203,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Drop line numbers from Lingui catalog origins
   Depends on: none
 
-- [ ] 2. Fail the push gate on stale catalogs
+- [x] 2. Fail the push gate on stale catalogs
   Goal: Nothing checks that catalogs and compiled files match the source, so a skipped extract ships a raw id and a
   skipped compile ships old text (finding 1).
   Add `bun run check:i18n`: it runs `lingui extract --clean` and then `lingui compile --strict` from `apps/web` and

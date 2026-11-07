@@ -15,6 +15,7 @@
     "test:rust": "nx run koloda:test && nx run koloda-sync-proto:test && nx run koloda-server:test && nx run koloda-sync:test",
     "check:workspace-deps": "bunx vitest run --config tools/vitest.config.mjs --configLoader runner --exclude tools/docs.test.ts && bun run tools/check-workspace-deps.ts",
     "check:docs": "bunx vitest run --config tools/vitest.config.mjs --configLoader runner tools/docs.test.ts",
+    "check:i18n": "bun run tools/check-i18n.ts",
     "lint": "oxlint --max-warnings=0",
     "typecheck": "tsc -b --pretty false",
     "check:commit": "bun run lint && nx run koloda:lint",
@@ -24,7 +25,7 @@
     "land": "bun run tools/land.ts",
     "check:rust": "nx run koloda:lint",
     "check:rust-push": "nx run koloda:lint && nx run koloda:test && nx run koloda-sync-proto:test && nx run koloda-server:test && nx run koloda-sync:test && nx run @koloda/electron:test-rust",
-    "check:ts": "bun run lint && bun run typecheck && bun run test:libs && bun run test:app-unit && bun run check:workspace-deps && bun run check:docs",
+    "check:ts": "bun run lint && bun run typecheck && bun run test:libs && bun run test:app-unit && bun run check:workspace-deps && bun run check:docs && bun run check:i18n",
     "check:web-all": "bun run check:ts && nx run web-e2e:e2e",
     "prepare": "git config core.hooksPath tools/hooks"
   },
