@@ -5,7 +5,7 @@ import type { Plugin } from "vite";
 
 const themeBootPath = resolve(dirname(fileURLToPath(import.meta.url)), "../libs/settings-react/public/theme-boot.js");
 
-/** Serves and copies theme-boot.js so last-used theme can paint before CSS. */
+// WHY: theme-boot.js lives in settings-react, outside each app's public dir, so dev serves it and the build copies it.
 export function themeBootPlugin(): Plugin {
   return {
     name: "koloda-theme-boot",

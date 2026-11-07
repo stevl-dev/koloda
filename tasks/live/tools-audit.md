@@ -319,7 +319,7 @@ Paths are relative to the repo root.
   Commit: Drop the exclusive-package inventory pin
   Depends on: 4
 
-- [ ] 9. Tag or drop the untagged comments in tools
+- [x] 9. Tag or drop the untagged comments in tools
   Goal: fix finding 9's other three comments.
   - `tools/land.ts:196`: tag as `// WHY:`.
   - `tools/workspace-deps/contract.ts:186-187`: delete it, leaving `contract.ts:65-67` as the one home; extend that

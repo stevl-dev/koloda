@@ -64,7 +64,8 @@ export function normalizeKolodaPackage(specifier: string): string | null {
 
 // INVARIANT: non-@koloda roots listed in EXCLUSIVE_CONSUMERS are tracked so the
 // exclusivity rule fires on the concrete backend specifier, not only on the
-// @koloda wrapper package.
+// @koloda wrapper package. They feed the direction check only: as ordinary npm
+// dependencies they never count as missing or phantom.
 const EXTERNAL_SPECIFIER_ROOTS = Object.keys(EXCLUSIVE_CONSUMERS).filter((name) => !name.startsWith(KOLODA_PREFIX));
 
 function normalizeExternalSpecifier(specifier: string): string | null {
@@ -184,8 +185,6 @@ export function compareDependencies(args: {
   const declaredKoloda = Object.entries(args.declared).filter(([name]) => name.startsWith(KOLODA_PREFIX));
   const declaredNames = new Set(declaredKoloda.map(([name]) => name));
 
-  // External exclusive specifiers (e.g. wa-sqlite) feed the direction check only;
-  // they are ordinary npm dependencies, so they never count as missing or phantom.
   const imported = new Set(
     args.references
       .map((ref) => ref.packageName)

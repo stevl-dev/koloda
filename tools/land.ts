@@ -207,7 +207,7 @@ async function waitForChecks(sha: string): Promise<void> {
 
 function finish(branch: string, current: string | null, sha: string): void {
   run("git", ["push", "--quiet", "origin", "--delete", branch]);
-  // Moves a local main that is not checked out anywhere; harmless when it cannot.
+  // WHY: moves a local main that is not checked out anywhere; harmless when it cannot.
   if (current !== "main") run("git", ["fetch", "--quiet", "origin", "main:main"]);
   console.log(`land: main is at ${short(sha)}`);
 }
