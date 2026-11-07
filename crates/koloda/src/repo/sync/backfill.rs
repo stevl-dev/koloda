@@ -489,7 +489,7 @@ fn holds_head(conn: &Connection, id: &str, payload: &Payload) -> Result<bool, Ap
 }
 
 // INVARIANT: no envelope reaches the outbox before the rows it names. While backfill runs, a write that names an
-// unstamped row backfills it first, in the same commit and in PROTOCOL.md §Backfill order: algorithms, templates,
+// unstamped row backfills it first, in the same commit and in the order of PROTOCOL.md §Backfill: algorithms, templates,
 // the parent chain from the root down, then the written entity itself. A delete never gets here: a tombstone for
 // an id the server does not hold is accepted as a fence.
 pub(super) fn touch(

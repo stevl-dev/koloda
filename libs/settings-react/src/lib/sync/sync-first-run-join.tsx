@@ -16,7 +16,7 @@ export type SyncFirstRunJoinProps = {
 };
 
 // INVARIANT: a blank database that joined opens the app only once its first download ends; before that it has no
-// algorithm or template for the screens that need one (`SYNC.md` §First run).
+// algorithm or template for the screens that need one (`SYNC.md` §First Run).
 export function SyncFirstRunJoin({ sync, onJoined, onReady, onCancel }: SyncFirstRunJoinProps) {
   const [hasJoined, setHasJoined] = useState(false);
 

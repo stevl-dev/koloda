@@ -217,7 +217,7 @@ describe("getCardContentValidation", () => {
   ];
 
   // Missing optional field keys: twin of koloda `test_insert_card_content_optional_field_missing_fails`.
-  // CARDS.md §Card Content requires every template field to be present.
+  // CARDS.md (§Card Content) requires every template field to be present.
   it.each([
     {
       scenario: "empty text on a required field",

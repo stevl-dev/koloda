@@ -340,7 +340,7 @@ pub(crate) fn known(conn: &Connection, kind: Kind, id: &str) -> Result<Option<Kn
     Ok(live.map(|()| KnownState::Live))
 }
 
-/// Why a write may not apply, checked in the order `PROTOCOL.md` §Cascades by ancestry and header refs lists.
+/// Why a write may not apply, checked in the order of `PROTOCOL.md` §Cascades by ancestry and header refs.
 fn refusal(tx: &Connection, header: &Header, class: Class) -> Result<Option<Outcome>, ApiError> {
     if is_fenced(tx, header.kind, &header.id)? {
         return Ok(Some(Outcome::Fenced));

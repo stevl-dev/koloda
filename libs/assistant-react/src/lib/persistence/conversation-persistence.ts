@@ -28,7 +28,7 @@ function snapshotStreamingElapsed(run: AssistantRun, now: number): AssistantRun 
 /**
  * DB-writable conversation fields.
  * No `revertState` — revert is in-memory only
- * (ASSISTANT-CONVERSATIONS.md §Revert / §Persistence).
+ * (ASSISTANT-CONVERSATIONS.md §Revert, §Persistence).
  * `promptInput` is persisted with the rest of the conversation; typing it
  * schedules a save and does not stamp `updatedAt`. While a revert is active it
  * holds the pre-revert draft, so a reload acts like Restore.

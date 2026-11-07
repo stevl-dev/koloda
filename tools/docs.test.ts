@@ -34,13 +34,17 @@ function pathSpans(markdown: string): string[] {
 
 const skippedDirs = new Set(["node_modules", "target", "dist", "tmp", "tasks"]);
 
-function allMarkdown(dir = ""): string[] {
+function allFiles(isWanted: (name: string) => boolean, dir = ""): string[] {
   return readdirSync(join(root, dir), { withFileTypes: true }).flatMap((entry) => {
     if (entry.name.startsWith(".") || skippedDirs.has(entry.name)) return [];
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return allMarkdown(path);
-    return entry.name.endsWith(".md") ? [path] : [];
+    if (entry.isDirectory()) return allFiles(isWanted, path);
+    return isWanted(entry.name) ? [path] : [];
   });
+}
+
+function allMarkdown(): string[] {
+  return allFiles((name) => name.endsWith(".md"));
 }
 
 function withoutFences(markdown: string): string {
@@ -55,10 +59,15 @@ function headingsAndLabels(markdown: string): string[] {
 }
 
 // WHY: a pointer names a heading by its text, and a longer heading may continue after a colon or a parenthesis
-// (`§Self-review` for "Self-review (agent, before the human's ask)").
+// (`§Self-review` for "Self-review (agent, before the human's ask)"). A numbered step goes by its number
+// (`§4` for "4. Add Electron titlebar colors").
 function resolvesTo(headings: string[], name: string): boolean {
   return headings.some(
-    (heading) => heading === name || heading.startsWith(`${name}:`) || heading.startsWith(`${name} (`),
+    (heading) =>
+      heading === name ||
+      heading.startsWith(`${name}:`) ||
+      heading.startsWith(`${name} (`) ||
+      (/^\d+$/.test(name) && heading.startsWith(`${name}. `)),
   );
 }
 
@@ -163,9 +172,16 @@ describe("section pointers", () => {
     byName.set(name, [...(byName.get(name) ?? []), file]);
   }
 
+  // WHY: code comments point into the docs too. This file is skipped: its strings show the syntax.
+  const sources = allFiles((name) => /\.(ts|tsx|mts|mjs|js|rs|css|yml)$/.test(name)).filter(
+    (file) => file !== "tools/docs.test.ts" && read(file).includes("§"),
+  );
+
   // `FILE.md (§Heading)` points into FILE.md; a bare `(§Heading)` points into the file it is written in.
   // WHY: a placeholder such as `FILE.md (§Section)` or `(§…)` documents the syntax and points at nothing.
   const pointer = /(?:([\w./-]+\.md)`?\s*)?\((§[^)\n]*)\)/g;
+  // `FILE.md §Heading` or `FILE.md §One, §Two`; the names are read from the rest of the line.
+  const barePointer = /([\w./-]+\.md)`?[ \t]+(?=§)/g;
 
   function targetFile(from: string, named: string | undefined): string | null {
     if (!named) return from;
@@ -174,10 +190,29 @@ describe("section pointers", () => {
     return matches.length === 1 ? matches[0] : null;
   }
 
+  // Each name ends at a closing mark, a sentence end, or a comma; `, §` starts another name in the same file.
+  // WHY: a comment wrapped mid-heading leaves only the heading's start on the line (`TEMPLATES.md §Deleting`), so a
+  // last name that runs to the end of the line may be a prefix of the heading.
+  function bareNames(line: string): { name: string; isCut: boolean }[] {
+    const names: { name: string; isCut: boolean }[] = [];
+    let rest = line;
+    while (rest.startsWith("§")) {
+      const end = rest.search(/[)(;'"`|]|[.,:](?:\s|$)|\*\/|$/);
+      const name = rest.slice(1, end).trim();
+      rest = rest.slice(end);
+      names.push({ name, isCut: /^\s*(\*\/)?\s*$/.test(rest) });
+      if (!/^,\s*§/.test(rest)) break;
+      rest = rest.replace(/^,\s*/, "");
+    }
+    return names;
+  }
+
   function unresolved(file: string): string[] {
     const problems: string[] = [];
-    for (const match of withoutFences(read(file)).matchAll(pointer)) {
-      if (match[1] === "FILE.md" || match[2].includes("…")) continue;
+    const isMarkdown = file.endsWith(".md");
+    const text = isMarkdown ? withoutFences(read(file)) : read(file);
+    for (const match of text.matchAll(pointer)) {
+      if (match[1] === "FILE.md" || match[2].includes("…") || (!isMarkdown && !match[1])) continue;
       const target = targetFile(file, match[1]);
       if (!target) {
         problems.push(`${match[1]} does not name exactly one file`);
@@ -192,10 +227,25 @@ describe("section pointers", () => {
         if (missing.length > 0) problems.push(`${match[1] ?? "this file"} has no section ${missing.join(", ")}`);
       }
     }
+    for (const match of text.matchAll(barePointer)) {
+      if (match[1] === "FILE.md") continue;
+      const target = targetFile(file, match[1]);
+      if (!target) {
+        problems.push(`${match[1]} does not name exactly one file`);
+        continue;
+      }
+      const known = headingsAndLabels(read(target));
+      const line = text.slice((match.index ?? 0) + match[0].length).split("\n")[0];
+      for (const { name, isCut } of bareNames(line)) {
+        if (!name || name.includes("…") || resolvesTo(known, name)) continue;
+        if (isCut && known.some((heading) => heading.startsWith(name))) continue;
+        problems.push(`${match[1]} has no section ${name}`);
+      }
+    }
     return problems;
   }
 
-  it.each(files)("%s points only at sections that exist", (file) => {
+  it.each([...files, ...sources])("%s points only at sections that exist", (file) => {
     expect(unresolved(file)).toEqual([]);
   });
 });

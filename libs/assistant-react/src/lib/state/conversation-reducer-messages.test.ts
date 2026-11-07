@@ -385,8 +385,7 @@ describe("conversationReducer", () => {
     });
 
     // WHY: the preserve-vs-reset distinction between the two actions is
-    // load-bearing for the profile→model dependency (see
-    // ASSISTANT-CHAT-REFACTOR.md §E). `setAIModel` must NOT touch
+    // load-bearing for the profile→model dependency. `setAIModel` must NOT touch
     // profileId; `setAIProfile` resets it. Pins the shared `applyAIConfig`
     // helper against accidentally zeroing profile on a model change.
     it("preserves the existing profileId (does not reset profile)", () => {

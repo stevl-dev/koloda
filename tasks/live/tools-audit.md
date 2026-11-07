@@ -246,7 +246,7 @@ Paths are relative to the repo root.
   Commit: Run the docs tests as check:docs and name it in the guides
   Depends on: none
 
-- [ ] 3. Check section pointers in code comments and the bare FILE.md § form
+- [x] 3. Check section pointers in code comments and the bare FILE.md § form
   Goal: fix finding 3.
   - Extend the "section pointers" block in `tools/docs.test.ts` to read tracked source files (`git ls-files` for
     `*.ts`, `*.tsx`, `*.rs`, `*.mjs`, and the like; skip `tasks/` and the test itself) as well as markdown.
