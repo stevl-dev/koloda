@@ -29,7 +29,7 @@ jobs:
 
       # Main only moves to checked commits, so a branch whose diff against main
       # is all markdown has checked code. Then only the format check and the
-      # workspace tests (docs.test.ts reads the docs) need to run.
+      # docs tests (check:docs) need to run.
       # An empty diff, or a failed fetch, runs the full check.
       - name: Classify changes
         id: scope
@@ -108,7 +108,7 @@ jobs:
         run: |
           if [[ "$DOCS_ONLY" == "true" ]]; then
             bun run check:format
-            bun run check:workspace-deps
+            bun run check:docs
           else
             bun run check:push
           fi

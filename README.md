@@ -62,8 +62,10 @@ nx run @koloda/electron:test:e2e
 # Web Playwright e2e (also runs on the pages deploy)
 nx run web-e2e:e2e
 
-# Repo checks: format (dprint), markdown line length, workspace layers, TS and Rust gates
+# Repo checks: format (dprint), docs rules (paths, spec shape, § pointers), markdown line length (advisory),
+# workspace layers, TS and Rust gates
 bun run check:format
+bun run check:docs
 bun run check:markdown
 bun run check:workspace-deps
 bun run check:ts

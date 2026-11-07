@@ -1,6 +1,6 @@
 /**
  * Push gate. Runs the TypeScript, Rust, and format tracks together and waits for all of them.
- * TypeScript is `check:ts` (oxlint, tsc -b, lib tests, app unit tests, workspace-deps).
+ * TypeScript is `check:ts` (oxlint, tsc -b, lib tests, app unit tests, workspace-deps, docs).
  * Rust is clippy, then the crates' tests and the desktop addon's, sharing dist/target/koloda.
  * Format is `dprint check`, including rustfmt on `.rs`.
  * Any failure fails the run after every track has finished.

@@ -224,7 +224,7 @@ Paths are relative to the repo root.
   Commit: Keep waiting for checks when a poll fails after the run appeared
   Depends on: none
 
-- [ ] 2. Run the docs tests as check:docs and name it in the guides
+- [x] 2. Run the docs tests as check:docs and name it in the guides
   Goal: fix finding 2.
   - `package.json`: add `"check:docs": "bunx vitest run --config tools/vitest.config.mjs --configLoader runner
     tools/docs.test.ts"`. Make `check:workspace-deps` exclude `tools/docs.test.ts` (Vitest `--exclude`), and add

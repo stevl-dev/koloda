@@ -75,6 +75,16 @@ Prefer a short clause around them rather than a long run-on sentence.
 Prefer reference-style or short inline links when a long URL would blow past the line limit.
 Readable link text matters more than packing the full URL into the paragraph.
 
+## Checks
+
+`bun run check:docs` runs `tools/docs.test.ts`, the markdown rules that can fail.
+It checks that repo paths in guides exist, the spec shape and headings, decision reachability,
+the task archive shape, and that `§` pointers name an existing heading.
+A plan item that edits markdown uses it as a Done-when.
+
+`bun run check:markdown` only reports prose lines over the limit in changed files.
+It always exits 0, so it is advisory and never a Done-when.
+
 ## Scope
 
 Follow this guide for new markdown and when you substantially edit existing markdown.
