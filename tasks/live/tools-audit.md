@@ -331,7 +331,7 @@ Paths are relative to the repo root.
   Commit: Tag or drop the untagged comments in tools
   Depends on: 4
 
-- [ ] 10. Drop surplus exports in tools
+- [x] 10. Drop surplus exports in tools
   Goal: fix finding 10. Remove `export` from `land` and `CheckState` in `tools/land.ts`, and from `ReferenceKind`,
   `WorkspaceReference`, `UnresolvableReference`, `ManifestIssue`, and `WorkspaceCheckResult` in
   `tools/workspace-deps/contract.ts`. Re-run the search first; keep any that item 1 or 5 now imports from a test.

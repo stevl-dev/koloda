@@ -4,9 +4,9 @@ import ts from "typescript";
 import { EXCLUSIVE_CONSUMERS, LAYER_TABLE_PATH, buildLayerMap, compareDirection, staleLayerEntries } from "./layers.ts";
 import type { DirectionIssue, Layer, PackageKind } from "./layers.ts";
 
-export type ReferenceKind = "import" | "export" | "import-equals" | "dynamic-import" | "require";
+type ReferenceKind = "import" | "export" | "import-equals" | "dynamic-import" | "require";
 
-export type WorkspaceReference = {
+type WorkspaceReference = {
   packageName: string;
   specifier: string;
   file: string;
@@ -15,7 +15,7 @@ export type WorkspaceReference = {
   kind: ReferenceKind;
 };
 
-export type UnresolvableReference = {
+type UnresolvableReference = {
   file: string;
   line: number;
   column: number;
@@ -23,7 +23,7 @@ export type UnresolvableReference = {
   detail: string;
 };
 
-export type ManifestIssue = {
+type ManifestIssue = {
   packageName: string;
   dependency: string;
   version: string;
@@ -41,7 +41,7 @@ export type LibraryCheckResult = {
   unresolvable: UnresolvableReference[];
 };
 
-export type WorkspaceCheckResult = {
+type WorkspaceCheckResult = {
   results: LibraryCheckResult[];
   staleLayers: string[];
 };

@@ -30,13 +30,13 @@ export type CheckRun = {
   app: { slug: string } | null;
 };
 
-export type CheckState =
+type CheckState =
   | { kind: "missing" }
   | { kind: "pending"; url: string }
   | { kind: "success"; url: string }
   | { kind: "failure"; url: string; conclusion: string };
 
-export type WaitStep = { kind: "wait" } | { kind: "done" } | { kind: "fail"; message: string };
+type WaitStep = { kind: "wait" } | { kind: "done" } | { kind: "fail"; message: string };
 
 // changes: one `git show --name-status` line per file, as "A tasks/live/x.md".
 export type TaskCommit = {
@@ -212,7 +212,7 @@ function finish(branch: string, current: string | null, sha: string): void {
   console.log(`land: main is at ${short(sha)}`);
 }
 
-export async function land(): Promise<void> {
+async function land(): Promise<void> {
   if (git("status", "--porcelain", "--untracked-files=no") !== "") {
     fail("the working tree has uncommitted changes; commit or stash them first.");
   }
