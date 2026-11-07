@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // WHY: ICU reads the timezone when the process starts. A fork is a new process
 // that starts with TZ already set; a thread keeps the parent timezone.
 export default defineConfig({
-  cacheDir: "../../node_modules/.vite/libs/srs-dst",
+  cacheDir: resolve(__dirname, "../../node_modules/.vite/libs/srs-dst"),
   resolve: {
     tsconfigPaths: true,
     alias: {

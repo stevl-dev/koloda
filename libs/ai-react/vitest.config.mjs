@@ -5,7 +5,7 @@ import { defineConfig } from "vitest/config";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  cacheDir: "../../node_modules/.vite/libs/ai-react",
+  cacheDir: resolve(__dirname, "../../node_modules/.vite/libs/ai-react"),
   resolve: {
     tsconfigPaths: true,
     alias: {

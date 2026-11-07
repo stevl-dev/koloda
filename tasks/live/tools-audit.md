@@ -289,7 +289,7 @@ Paths are relative to the repo root.
   Commit: Test the workspace tripwire end to end on a fixture tree
   Depends on: 4
 
-- [ ] 6. Keep Vitest caches inside the checkout
+- [x] 6. Keep Vitest caches inside the checkout
   Goal: fix finding 6.
   - In `tools/vitest.config.mjs`, all 12 `libs/*/vitest.config.mjs`, `libs/srs/vitest.dst.config.mjs`, and
     `apps/web/vitest.config.mjs`, resolve `cacheDir` from the config's own directory
