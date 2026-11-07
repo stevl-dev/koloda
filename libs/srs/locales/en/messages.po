@@ -13,94 +13,94 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:16
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.grades.again"
 msgstr "Again"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:19
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.grades.easy"
 msgstr "Easy"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:18
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.grades.good"
 msgstr "Good"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:17
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.grades.hard"
 msgstr "Hard"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:12
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.days.long"
 msgstr "days"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:12
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.days.short"
 msgstr "d"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:11
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.hours.long"
 msgstr "hours"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:11
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.hours.short"
 msgstr "h"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:10
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.minutes.long"
 msgstr "minutes"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:10
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.minutes.short"
 msgstr "m"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:9
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.seconds.long"
 msgstr "seconds"
 
-#: ../../libs/srs/src/lib/algorithms-fsrs.ts:9
+#: ../../libs/srs/src/lib/algorithms-fsrs.ts
 msgid "fsrs.learning-steps.units.seconds.short"
 msgstr "s"
 
-#: ../../libs/srs/src/lib/lessons.ts:15
+#: ../../libs/srs/src/lib/lessons.ts
 msgid "lesson.init.labels.learn"
 msgstr "Learn"
 
-#: ../../libs/srs/src/lib/lessons.ts:16
+#: ../../libs/srs/src/lib/lessons.ts
 msgid "lesson.init.labels.review"
 msgstr "Review"
 
-#: ../../libs/srs/src/lib/lessons.ts:17
+#: ../../libs/srs/src/lib/lessons.ts
 msgid "lesson.init.labels.total"
 msgstr "Total"
 
-#: ../../libs/srs/src/lib/lessons.ts:14
+#: ../../libs/srs/src/lib/lessons.ts
 msgid "lesson.init.labels.untouched"
 msgstr "New"
 
-#: ../../libs/srs/src/lib/templates.ts:142
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.default-fields.back"
 msgstr "Back"
 
-#: ../../libs/srs/src/lib/templates.ts:141
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.default-fields.front"
 msgstr "Front"
 
-#: ../../libs/srs/src/lib/templates.ts:16
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.field-types.markdown"
 msgstr "Markdown"
 
-#: ../../libs/srs/src/lib/templates.ts:15
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.field-types.text"
 msgstr "Text"
 
-#: ../../libs/srs/src/lib/templates.ts:20
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.operations.display"
 msgstr "Display"
 
-#: ../../libs/srs/src/lib/templates.ts:21
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.operations.reveal"
 msgstr "Reveal"
 
-#: ../../libs/srs/src/lib/templates.ts:22
+#: ../../libs/srs/src/lib/templates.ts
 msgid "templates.operations.type"
 msgstr "Type"

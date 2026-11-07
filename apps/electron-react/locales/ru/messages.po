@@ -13,27 +13,27 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/app/setup.ts:19
+#: src/app/setup.ts
 msgid "app.setup.default-title"
 msgstr "По умолчанию"
 
-#: src/components/setup.tsx:61
+#: src/components/setup.tsx
 msgid "app.setup.fresh-message"
 msgstr "Новая база данных на этом устройстве"
 
-#: src/components/setup.tsx:48
+#: src/components/setup.tsx
 msgid "app.setup.header"
 msgstr "Как вы хотите начать?"
 
-#: src/components/setup.tsx:48
-#: src/components/setup.tsx:67
+#: src/components/setup.tsx
+#: src/components/setup.tsx
 msgid "app.setup.join"
 msgstr "Подключиться к пространству"
 
-#: src/components/setup.tsx:68
+#: src/components/setup.tsx
 msgid "app.setup.join-message"
 msgstr "Нужен код подключения с устройства, которое уже в пространстве"
 
-#: src/components/setup.tsx:60
+#: src/components/setup.tsx
 msgid "app.setup.submit"
 msgstr "Старт с нуля"

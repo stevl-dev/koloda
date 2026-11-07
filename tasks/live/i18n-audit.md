@@ -187,12 +187,13 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
 
 ## Plan
 
-- [ ] 1. Drop line numbers from catalog origins
+- [x] 1. Drop line numbers from catalog origins
   Goal: Extraction rewrites every `#: path:line` origin whenever source lines move, which buries real changes and
   blocks a diff check (finding 4).
   In the root `lingui.config.ts`, set `format: formatter({ lineNumbers: false })` from `@lingui/format-po`.
-  Add `@lingui/format-po` and `@lingui/cli` as root devDependencies at the installed `5.6.0`; both come in today only
-  through `@lingui/vite-plugin`, and item 2's check runs the CLI.
+  Add `@lingui/format-po` as a root devDependency at the installed `5.6.0`.
+  `@lingui/cli` stays a transitive dependency of `@lingui/vite-plugin`: adding it at the root made Bun re-hoist Babel
+  and drop the top-level `@babel/core` from 7.29 to 7.27 (a 500-line lock diff).
   Re-extract once for both apps (`nx run @koloda/web:lingui-extract --clean`, then
   `nx run @koloda/electron-react:lingui-extract --clean`) and compile both.
   Constraints: the diff under `libs/*/locales` and `apps/*/locales` is `#:` lines only, and the compiled

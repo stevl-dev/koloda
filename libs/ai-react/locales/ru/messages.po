@@ -13,264 +13,264 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:374
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{algorithmCount, plural, other {ai.chat.tool-activity.algorithms}}"
 msgstr "{algorithmCount, plural, one {# алгоритм} few {# алгоритма} many {# алгоритмов} other {# алгоритма}}"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:391
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:397
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{cardCount, plural, other {ai.chat.tool-activity.cards}}"
 msgstr "{cardCount, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}}"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:363
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{deckCount, plural, other {ai.chat.tool-activity.decks}}"
 msgstr "{deckCount, plural, one {# колода} few {# колоды} many {# колод} other {# колоды}}"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:401
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{rejectedCount, plural, other {ai.chat.tool-activity.skipped}}"
 msgstr "{rejectedCount, plural, one {# пропущена} few {# пропущены} many {# пропущено} other {# пропущены}}"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:368
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{templateCount, plural, other {ai.chat.tool-activity.templates}}"
 msgstr "{templateCount, plural, one {# шаблон} few {# шаблона} many {# шаблонов} other {# шаблона}}"
 
-#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx:15
-#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx:18
+#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx
+#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx
 msgid "ai.chat.cancel.label"
 msgstr "Отменить"
 
-#: ../../libs/ai-react/src/lib/ai-chat-context-usage.tsx:30
-#: ../../libs/ai-react/src/lib/ai-chat-context-usage.tsx:40
+#: ../../libs/ai-react/src/lib/ai-chat-context-usage.tsx
+#: ../../libs/ai-react/src/lib/ai-chat-context-usage.tsx
 msgid "ai.chat.context-usage.tokens"
 msgstr "токенов"
 
-#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx:39
+#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx
 msgid "ai.chat.elapsed-time.periods.hours"
 msgstr "ч"
 
-#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx:38
+#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx
 msgid "ai.chat.elapsed-time.periods.minutes"
 msgstr "м"
 
-#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx:37
+#: ../../libs/ai-react/src/lib/ai-chat-elapsed-time.tsx
 msgid "ai.chat.elapsed-time.periods.seconds"
 msgstr "с"
 
-#: ../../libs/ai-react/src/lib/ai-chat-error.tsx:41
+#: ../../libs/ai-react/src/lib/ai-chat-error.tsx
 msgid "ai.chat.error.close"
 msgstr "Скрыть ошибки"
 
-#: ../../libs/ai-react/src/lib/ai-chat-error.tsx:35
+#: ../../libs/ai-react/src/lib/ai-chat-error.tsx
 msgid "ai.chat.error.retry-save"
 msgstr "Повторить сохранение"
 
-#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx:39
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
 msgid "ai.chat.input.label"
 msgstr "Поле ввода сообщения"
 
-#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx:46
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
 msgid "ai.chat.input.placeholder"
 msgstr "Введите сообщение"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:81
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.retry"
 msgstr "Повторить"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:115
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.canceled"
 msgstr "Отменено"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:114
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.canceled-in"
 msgstr "Отменено через"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:137
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.failed"
 msgstr "Не удалось выполнить запрос"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:127
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.interrupted"
 msgstr "Прервано"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:126
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.interrupted-in"
 msgstr "Прервано через"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:84
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.pending"
 msgstr "Обработка"
 
-#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx:106
+#: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.status.step-budget"
 msgstr "Остановлено на лимите шагов с инструментами"
 
-#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx:40
+#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx
 msgid "ai.chat.messages.label"
 msgstr "Поток сообщений"
 
-#: ../../libs/ai-react/src/lib/ai-chat-missing-secrets.tsx:19
+#: ../../libs/ai-react/src/lib/ai-chat-missing-secrets.tsx
 msgid "ai.chat.profile-data-missing"
 msgstr "У выбранного профиля отсутствуют необходимые данные"
 
-#: ../../libs/ai-react/src/lib/ai-chat-missing-secrets.tsx:21
+#: ../../libs/ai-react/src/lib/ai-chat-missing-secrets.tsx
 msgid "ai.chat.profile-data-missing.hint"
 msgstr "Перейдите в настройки, чтобы отредактировать профиль и добавить недостающие данные"
 
-#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx:65
-#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx:68
+#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx
+#: ../../libs/ai-react/src/lib/ai-chat-messages.tsx
 msgid "ai.chat.scroll-to-latest.label"
 msgstr "К последнему сообщению"
 
-#: ../../libs/ai-react/src/lib/ai-chat-settings-toggle.tsx:14
-#: ../../libs/ai-react/src/lib/ai-chat-settings-toggle.tsx:21
+#: ../../libs/ai-react/src/lib/ai-chat-settings-toggle.tsx
+#: ../../libs/ai-react/src/lib/ai-chat-settings-toggle.tsx
 msgid "ai.chat.settings.toggle"
 msgstr "Настройки"
 
-#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx:25
-#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx:28
+#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx
+#: ../../libs/ai-react/src/lib/ai-chat-submit.tsx
 msgid "ai.chat.submit.label"
 msgstr "Отправить"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:348
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.add-deck"
 msgstr "Создать колоду"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:357
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.canceled"
 msgstr "Отменено"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:238
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:293
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:356
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.failed"
 msgstr "ошибка"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:345
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.get-deck"
 msgstr "Колода"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:347
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.get-deck-cards"
 msgstr "Карточки колоды"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:346
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.get-template"
 msgstr "Шаблон"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:225
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.input"
 msgstr "Ввод"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:225
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.input-truncated"
 msgstr "Ввод (сокращён)"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:107
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.label"
 msgstr "Вызовы инструментов"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:344
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.list-algorithms"
 msgstr "Список алгоритмов"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:342
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.list-decks"
 msgstr "Список колод"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:343
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.list-templates"
 msgstr "Список шаблонов"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:233
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.output"
 msgstr "Результат"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:233
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.output-truncated"
 msgstr "Результат (сокращён)"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:349
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.propose-cards"
 msgstr "Предложить карточки"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:157
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:304
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.running"
 msgstr "Выполняется"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:147
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.thinking"
 msgstr "Размышляет"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:147
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.thought"
 msgstr "Размышление"
 
-#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx:221
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.tool"
 msgstr "Инструмент"
 
-#: ../../libs/ai-react/src/lib/ai-model-parameters.tsx:38
+#: ../../libs/ai-react/src/lib/ai-model-parameters.tsx
 msgid "ai.model-parameters.reasoning-effort.default"
 msgstr "По умолчанию"
 
-#: ../../libs/ai-react/src/lib/ai-model-parameters.tsx:28
+#: ../../libs/ai-react/src/lib/ai-model-parameters.tsx
 msgid "ai.model-parameters.reasoning-effort.label"
 msgstr "Интеллект"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:156
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:159
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.empty-models"
 msgstr "Нет моделей"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:177
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:204
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.error.label"
 msgstr "Ошибка"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:182
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:185
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.error.retry"
 msgstr "Обновить"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:115
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.label"
 msgstr "Выбор языковой модели"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:102
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:176
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:200
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.loading.label"
 msgstr "Загрузка"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:133
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.no-profiles.add"
 msgstr "Добавить профиль"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:132
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.no-profiles.empty"
 msgstr "Нет профилей ИИ"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:104
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.not-selected"
 msgstr "Не выбрана"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:105
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.placeholder"
 msgstr "Выберите модель"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:117
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.search.label"
 msgstr "Поиск по моделям"
 
-#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx:118
+#: ../../libs/ai-react/src/lib/ai-model-profile-picker.tsx
 msgid "ai.model-picker.search.placeholder"
 msgstr "Поиск по моделям"
 
-#: ../../libs/ai-react/src/lib/use-ai-profiles.ts:13
+#: ../../libs/ai-react/src/lib/use-ai-profiles.ts
 msgid "settings.ai.profiles.api-key.label"
 msgstr "API-ключ"
 
-#: ../../libs/ai-react/src/lib/use-ai-profiles.ts:14
+#: ../../libs/ai-react/src/lib/use-ai-profiles.ts
 msgid "settings.ai.profiles.base-url.label"
 msgstr "Базовый URL"

@@ -13,640 +13,640 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:189
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{cards, plural, other {settings.sync.join.preview.cards}}"
 msgstr "{cards, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:188
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{decks, plural, other {settings.sync.join.preview.decks}}"
 msgstr "{decks, plural, one {# колода} few {# колоды} many {# колод} other {# колоды}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:49
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{fetches, plural, other {settings.sync.fetches}}"
 msgstr "{fetches, plural, one {# изображение ждёт загрузки} few {# изображения ждут загрузки} many {# изображений ждут загрузки} other {# изображения ждут загрузки}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:42
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:51
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "{left, plural, other {settings.sync.download-left}}"
 msgstr "{left, plural, one {Осталось загрузить # изменение} few {Осталось загрузить # изменения} many {Осталось загрузить # изменений} other {Осталось загрузить # изменения}}"
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:35
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{minutes, plural, other {settings.sync.stop.clock-skew}}"
 msgstr "Часы этого устройства расходятся с часами сервера синхронизации на {minutes, plural, one {# минуту} few {# минуты} many {# минут} other {# минуты}}. Исправьте время, и синхронизация продолжится сама."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{pending, plural, other {settings.sync.pending}}"
 msgstr "{pending, plural, one {# изменение ждёт отправки} few {# изменения ждут отправки} many {# изменений ждут отправки} other {# изменения ждут отправки}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:190
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{reviews, plural, other {settings.sync.join.preview.reviews}}"
 msgstr "{reviews, plural, one {# повторение} few {# повторения} many {# повторений} other {# повторения}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:48
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{uploads, plural, other {settings.sync.uploads}}"
 msgstr "{uploads, plural, one {# изображение ждёт отправки} few {# изображения ждут отправки} many {# изображений ждут отправки} other {# изображения ждут отправки}}"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-scheme-picker.tsx:29
+#: ../../libs/settings-react/src/lib/interface-controls/color-scheme-picker.tsx
 msgid "color-scheme-picker.label"
 msgstr "Цветовая схема"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:81
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "dark-theme-picker.label"
 msgstr "Тёмная тема"
 
-#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx:35
+#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx
 msgid "hotkey-recorder.delete-button.label"
 msgstr "Удалить сочетание клавиш"
 
-#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx:29
+#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx
 msgid "hotkey-recorder.edit-button.label"
 msgstr "Сменить сочетание клавиш"
 
-#: ../../libs/settings-react/src/lib/interface-controls/language-picker.tsx:26
+#: ../../libs/settings-react/src/lib/interface-controls/language-picker.tsx
 msgid "language-picker.label"
 msgstr "Язык интерфейса"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:66
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "light-theme-picker.label"
 msgstr "Светлая тема"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:49
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.dark"
 msgstr "Тёмная"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:48
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.light"
 msgstr "Светлая"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:50
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.system"
 msgstr "Системная"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:31
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.add"
 msgstr "Добавить профиль"
 
-#: ../../libs/settings-react/src/lib/ai-providers/add-ai-profile-form.tsx:48
+#: ../../libs/settings-react/src/lib/ai-providers/add-ai-profile-form.tsx
 msgid "settings.ai.add.submit"
 msgstr "Добавить"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:77
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.add.title"
 msgstr "Добавить ИИ профиль"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:25
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.browser-cors.note"
 msgstr "Некоторые провайдеры отключены из-за ограничений платформы."
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:53
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.browser-cors.profile"
 msgstr "Этот провайдер нельзя использовать в браузере."
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:57
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.cancel"
 msgstr "Отмена"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:54
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.confirm"
 msgstr "Удалить"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:52
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.message"
 msgstr "Вы уверены, что хотите удалить этот профиль?"
 
-#: ../../libs/settings-react/src/lib/ai-providers/edit-ai-profile-form.tsx:67
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:147
+#: ../../libs/settings-react/src/lib/ai-providers/edit-ai-profile-form.tsx
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.edit.submit"
 msgstr "Сохранить"
 
-#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx:55
+#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx
 msgid "settings.ai.edit.title"
 msgstr "Редактировать ИИ профиль"
 
-#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx:46
+#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx
 msgid "settings.ai.edit.trigger"
 msgstr "Редактировать профиль"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:122
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.empty"
 msgstr "Нет моделей"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:110
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.error"
 msgstr "Ошибка"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:106
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.loading"
 msgstr "Загрузка"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:100
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.all"
 msgstr "Все"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:91
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.label"
 msgstr "Список моделей"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:101
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.selected"
 msgstr "Выбранные"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:113
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:117
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.retry"
 msgstr "Обновить"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:78
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.search.label"
 msgstr "Поиск по моделям"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:85
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.search.placeholder"
 msgstr "Поиск по моделям"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:72
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.title"
 msgstr "Модели"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:65
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.trigger"
 msgstr "Модели"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:43
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.api-key.label"
 msgstr "API key"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:42
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.base-url.label"
 msgstr "Базовый URL"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:43
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.profiles.delete.trigger"
 msgstr "Удалить профиль"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:27
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.empty"
 msgstr "Нет профилей"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:83
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Провайдер"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-secrets-field.tsx:48
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-secrets-field.tsx
 msgid "settings.ai.profiles.replace"
 msgstr "Заменить"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:22
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.title"
 msgstr "Профили ИИ"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:40
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.title.label"
 msgstr "Название"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:33
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:37
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.title.placeholder"
 msgstr "Без названия"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:80
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "settings.interface.dark-theme"
 msgstr "Тёмная тема"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:73
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format"
 msgstr "Формат даты"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:75
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.custom"
 msgstr "Свой формат"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:74
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.locale"
 msgstr "По умолчанию"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:76
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.preview {value}"
 msgstr "Пример: {value}"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:38
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.language"
 msgstr "Язык интерфейса"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:65
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "settings.interface.light-theme"
 msgstr "Светлая тема"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:55
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.motion"
 msgstr "Анимации"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:39
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.scheme"
 msgstr "Цветовая схема"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:81
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format"
 msgstr "Формат времени"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:17
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.12-hour"
 msgstr "12-часовой"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:18
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.24-hour"
 msgstr "24-часовой"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:82
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.locale"
 msgstr "По умолчанию"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:83
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.preview {value}"
 msgstr "Пример: {value}"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:246
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.day-starts-at"
 msgstr "Начало дня"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:152
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.defaults.algorithm"
 msgstr "Алгоритм по умолчанию"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:162
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.defaults.template"
 msgstr "Шаблон по умолчанию"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:206
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit"
 msgstr "Лимит изучения наперёд"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:212
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.hours.label"
 msgstr "Часы"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:220
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.hours.suffix"
 msgstr "ч"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:228
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.minutes.label"
 msgstr "Минуты"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:236
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.minutes.suffix"
 msgstr "м"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:168
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits"
 msgstr "Дневные лимиты"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:199
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.counts-towards-total"
 msgstr "Идёт в счёт всего"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:127
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn"
 msgstr "Заучивание"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:129
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn.counts-towards-total"
 msgstr "Заучивание: в счёт всего"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:128
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn.unlimited"
 msgstr "Заучивание: неограниченно"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:133
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review"
 msgstr "Повтор"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:135
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review.counts-towards-total"
 msgstr "Повтор: в счёт всего"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:134
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review.unlimited"
 msgstr "Повтор: неограниченно"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:172
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.total"
 msgstr "Всего"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:174
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.total.unlimited"
 msgstr "Всего: неограниченно"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:117
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.unlimited"
 msgstr "Неограниченно"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:121
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched"
 msgstr "Новые"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:123
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched.counts-towards-total"
 msgstr "Новые: в счёт всего"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:122
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched.unlimited"
 msgstr "Новые: неограниченно"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:155
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:196
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:50
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.back"
 msgstr "Назад"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:101
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:91
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.cancel"
 msgstr "Отмена"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:20
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create"
 msgstr "Создать пространство"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:99
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create.submit"
 msgstr "Создать"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:25
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create.title"
 msgstr "Новое пространство"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:63
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:119
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.device-name.label"
 msgstr "Имя этого устройства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:29
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices"
 msgstr "Устройства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:45
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.last-seen {lastSeen}"
 msgstr "Был в сети {lastSeen}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:90
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove"
 msgstr "Удалить"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:98
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.confirm"
 msgstr "Удалить"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:94
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.message {name}"
 msgstr "Удалить {name} из пространства? Устройство перестанет синхронизироваться, его данные останутся на нём."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:42
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.this-device"
 msgstr "Это устройство"
 
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:49
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "settings.sync.first-run.downloading"
 msgstr "Загружаем пространство. Приложение откроется, когда загрузка закончится."
 
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:50
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "settings.sync.first-run.safe-to-close"
 msgstr "Закрыть приложение можно безопасно. Загрузка продолжится при следующем запуске."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.corrupt {lane} {seq}"
 msgstr "В пространстве есть повреждённое изменение, которое приложение не может прочитать ({lane} {seq}), поэтому загрузка остановилась на нём. Отправка продолжается. Чтобы удалить изменение, выполните на сервере синхронизации:"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:49
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.corrupt.spaces"
 msgstr "koloda-server spaces показывает идентификаторы пространств сервера."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:44
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.update-required"
 msgstr "Другое устройство синхронизировало изменение, которое эта версия приложения не может прочитать, поэтому загрузка остановилась на нём. Обновите приложение, и синхронизация продолжится с этого места. Отправка продолжается."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:67
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.add"
 msgstr "Добавить"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:59
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.copy"
 msgstr "Данные этого устройства похожи на копию данных, которые уже есть в пространстве. Замените их данными пространства. При добавлении останутся обе копии, и скопированные колоды появятся дважды."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:59
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.message"
 msgstr "На этом устройстве уже есть данные. Добавьте их в пространство или замените данными пространства."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:74
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace"
 msgstr "Заменить"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:47
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.confirm"
 msgstr "Удалить и заменить"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:43
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.message"
 msgstr "Колоды, карточки, прогресс, шаблоны и алгоритмы этого устройства будут удалены и заменены данными пространства."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:74
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.recommended"
 msgstr "Заменить (рекомендуется)"
 
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:48
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.indicator.choice"
 msgstr "Синхронизация ждёт, пока вы выберете «Добавить» или «Заменить». Откройте настройки синхронизации."
 
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:50
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.indicator.held"
 msgstr "Загрузка остановилась на изменении, которое это приложение не может прочитать. Откройте настройки синхронизации."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:27
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite"
 msgstr "Пригласить устройство"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:79
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:118
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.invite.code"
 msgstr "Код подключения"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:81
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.copy-code"
 msgstr "Скопировать код подключения"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:86
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.copy-server-url"
 msgstr "Скопировать адрес сервера"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:65
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.expired"
 msgstr "Срок действия кода истёк."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:88
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.expires-in {timeLeft}"
 msgstr "Код действует ещё {timeLeft}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:77
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.message"
 msgstr "На другом устройстве откройте Настройки → Синхронизация, выберите «Подключиться к пространству» и введите:"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:44
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:67
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.new-code"
 msgstr "Новый код"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:32
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.title"
 msgstr "Пригласить устройство"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:23
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join"
 msgstr "Подключиться к пространству"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:160
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.continue"
 msgstr "Продолжить"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:191
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.preview.size {size}"
 msgstr "Нужно загрузить около {size}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:187
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.preview.space {name}"
 msgstr "Пространство «{name}»"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:200
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.submit"
 msgstr "Подключиться"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:28
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.title"
 msgstr "Подключиться к пространству"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:45
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:59
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.last-sync {lastSync}"
 msgstr "Последняя синхронизация: {lastSync}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:45
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.last-sync.none"
 msgstr "Синхронизации ещё не было с запуска приложения"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:36
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave"
 msgstr "Выйти из пространства"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:44
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave.confirm"
 msgstr "Выйти"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:40
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave.message"
 msgstr "Это устройство перестанет синхронизироваться. Его данные останутся, а позже оно сможет снова подключиться к пространству."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:38
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.left"
 msgstr "Это устройство не в пространстве: оно вышло из него, или его удалило другое устройство. Данные остались здесь. Подключитесь к пространству, чтобы снова синхронизироваться."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync.tsx:30
+#: ../../libs/settings-react/src/lib/sync/settings-sync.tsx
 msgid "settings.sync.not-in-space"
 msgstr "Это устройство не синхронизируется. Создайте пространство на своём сервере синхронизации или подключитесь к пространству, созданному на другом устройстве."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:32
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:52
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.over-quota"
 msgstr "Пространство заполнено, поэтому новые изменения ждут отправки. Удаление колод или карточек освобождает место."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:33
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.push-waits {resumesAt}"
 msgstr "Часы этого устройства спешили относительно сервера, поэтому его изменения ждут отправки до {resumesAt}."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:88
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.confirm"
 msgstr "Заменить"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:80
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.continue"
 msgstr "Продолжить"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:84
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.message"
 msgstr "Заменить данные этого устройства данными из резервной копии? Изменения, сделанные здесь после копии, будут потеряны."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:60
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:84
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:117
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.server-url.label"
 msgstr "Адрес сервера"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:61
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.setup-token.label"
 msgstr "Токен настройки"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:62
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.space-name.label"
 msgstr "Название пространства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:13
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:56
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.bootstrapping"
 msgstr "Загрузка пространства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:14
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:58
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.idle"
 msgstr "Всё синхронизировано"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:12
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.import-pending"
 msgstr "Ждёт вашего выбора"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:11
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.not-enrolled"
 msgstr "Синхронизация выключена"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:16
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.stopped"
 msgstr "Синхронизация остановлена"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:15
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:54
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.syncing"
 msgstr "Синхронизация"
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:44
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.authoritative-restore"
 msgstr "Сервер синхронизации восстановлен из резервной копии, которая заменяет данные этого устройства. Изменения, сделанные здесь после копии, будут потеряны."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:60
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.error"
 msgstr "Синхронизация остановилась из-за ошибки и повторится сама."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:48
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.low-disk {needed} {free}"
 msgstr "Для загрузки пространства нужно {needed} свободного места на диске, а свободно {free}. Освободите место; синхронизация повторится сама."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:42
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.pair-again"
 msgstr "Сервер синхронизации больше не знает это устройство — например, после восстановления из копии, сделанной до его подключения. Подключитесь к пространству снова с новым кодом. Данные этого устройства останутся."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:52
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.push-refused {code}"
 msgstr "Сервер синхронизации отклонил изменения этого устройства ({code}). Синхронизация повторится сама."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:40
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.unknown-device"
 msgstr "Сервер синхронизации больше не знает это устройство. Выйдите здесь из пространства, а затем подключитесь к нему снова с новым кодом. Данные этого устройства останутся."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:55
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.unreachable"
 msgstr "Сервер синхронизации недоступен. Синхронизация повторится сама."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:57
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.update-required"
 msgstr "Сервер синхронизации новее этой версии приложения. Обновите приложение, и синхронизация возобновится."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:36
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.sync-now"
 msgstr "Синхронизировать"

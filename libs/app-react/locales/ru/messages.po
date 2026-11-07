@@ -13,139 +13,139 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/app-react/src/lib/routes/_.algorithms.tsx:32
+#: ../../libs/app-react/src/lib/routes/_.algorithms.tsx
 msgid "algorithms.title"
 msgstr "Алгоритмы"
 
-#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx:26
+#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx
 msgid "deck.tabs.cards"
 msgstr "Карточки"
 
-#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx:27
+#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx
 msgid "deck.tabs.details"
 msgstr "Параметры"
 
-#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx:46
+#: ../../libs/app-react/src/lib/routes/_.decks.$deckId.tsx
 msgid "deck.tabs.label"
 msgstr "Вкладки колоды"
 
-#: ../../libs/app-react/src/lib/routes/_.decks.tsx:32
+#: ../../libs/app-react/src/lib/routes/_.decks.tsx
 msgid "decks.title"
 msgstr "Колоды"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:16
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.ai"
 msgstr "Ассистент"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:14
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.algorithms"
 msgstr "Алгоритмы"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:13
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.decks"
 msgstr "Колоды"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:12
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.home"
 msgstr "Главная"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:19
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.settings"
 msgstr "Настройки"
 
-#: ../../libs/app-react/src/lib/components/app.tsx:15
+#: ../../libs/app-react/src/lib/components/app.tsx
 msgid "nav.templates"
 msgstr "Шаблоны"
 
-#: ../../libs/app-react/src/lib/components/route-error.tsx:16
+#: ../../libs/app-react/src/lib/components/route-error.tsx
 msgid "route-error.message"
 msgstr "Произошла ошибка"
 
-#: ../../libs/app-react/src/lib/components/route-error.tsx:27
+#: ../../libs/app-react/src/lib/components/route-error.tsx
 msgid "route-error.reload"
 msgstr "Перезагрузить приложение"
 
-#: ../../libs/app-react/src/lib/components/route-error.tsx:24
+#: ../../libs/app-react/src/lib/components/route-error.tsx
 msgid "route-error.retry"
 msgstr "Попробовать снова"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.ai.tsx:31
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:19
+#: ../../libs/app-react/src/lib/routes/_.settings.ai.tsx
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.ai"
 msgstr "ИИ"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.hotkeys.tsx:32
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:18
+#: ../../libs/app-react/src/lib/routes/_.settings.hotkeys.tsx
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.hotkeys"
 msgstr "Горячие клавиши"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.interface.tsx:26
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:16
+#: ../../libs/app-react/src/lib/routes/_.settings.interface.tsx
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.interface"
 msgstr "Интерфейс"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.learning.tsx:32
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:17
+#: ../../libs/app-react/src/lib/routes/_.settings.learning.tsx
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.learning"
 msgstr "Изучение"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.sync.tsx:35
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:22
+#: ../../libs/app-react/src/lib/routes/_.settings.sync.tsx
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.sync"
 msgstr "Синхронизация"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:36
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "settings.title"
 msgstr "Настройки"
 
-#: ../../libs/app-react/src/lib/routes/_.templates.tsx:32
+#: ../../libs/app-react/src/lib/routes/_.templates.tsx
 msgid "templates.title"
 msgstr "Шаблоны"
 
-#: ../../libs/app-react/src/lib/routes/_.ai.tsx:31
+#: ../../libs/app-react/src/lib/routes/_.ai.tsx
 msgid "title.ai"
 msgstr "Ассистент"
 
-#: ../../libs/app-react/src/lib/routes/_.algorithms.tsx:16
+#: ../../libs/app-react/src/lib/routes/_.algorithms.tsx
 msgid "title.algorithms"
 msgstr "Алгоритмы"
 
-#: ../../libs/app-react/src/lib/routes/_.tsx:12
+#: ../../libs/app-react/src/lib/routes/_.tsx
 msgid "title.base"
 msgstr "Koloda"
 
-#: ../../libs/app-react/src/lib/routes/_.dashboard.tsx:15
+#: ../../libs/app-react/src/lib/routes/_.dashboard.tsx
 msgid "title.dashboard"
 msgstr "Главная"
 
-#: ../../libs/app-react/src/lib/routes/_.decks.tsx:16
+#: ../../libs/app-react/src/lib/routes/_.decks.tsx
 msgid "title.decks"
 msgstr "Колоды"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.tsx:11
+#: ../../libs/app-react/src/lib/routes/_.settings.tsx
 msgid "title.settings"
 msgstr "Настройки"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.ai.tsx:16
+#: ../../libs/app-react/src/lib/routes/_.settings.ai.tsx
 msgid "title.settings.ai"
 msgstr "ИИ"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.hotkeys.tsx:17
+#: ../../libs/app-react/src/lib/routes/_.settings.hotkeys.tsx
 msgid "title.settings.hotkeys"
 msgstr "Горячие клавиши"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.interface.tsx:13
+#: ../../libs/app-react/src/lib/routes/_.settings.interface.tsx
 msgid "title.settings.interface"
 msgstr "Интерфейс"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.learning.tsx:17
+#: ../../libs/app-react/src/lib/routes/_.settings.learning.tsx
 msgid "title.settings.learning"
 msgstr "Изучение"
 
-#: ../../libs/app-react/src/lib/routes/_.settings.sync.tsx:13
+#: ../../libs/app-react/src/lib/routes/_.settings.sync.tsx
 msgid "title.settings.sync"
 msgstr "Настройки синхронизации"
 
-#: ../../libs/app-react/src/lib/routes/_.templates.tsx:16
+#: ../../libs/app-react/src/lib/routes/_.templates.tsx
 msgid "title.templates"
 msgstr "Шаблоны"

@@ -13,27 +13,27 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/app/setup.ts:19
+#: src/app/setup.ts
 msgid "app.setup.default-title"
 msgstr "Default"
 
-#: src/components/setup.tsx:61
+#: src/components/setup.tsx
 msgid "app.setup.fresh-message"
 msgstr "A new database on this device"
 
-#: src/components/setup.tsx:48
+#: src/components/setup.tsx
 msgid "app.setup.header"
 msgstr "How do you want to start?"
 
-#: src/components/setup.tsx:48
-#: src/components/setup.tsx:67
+#: src/components/setup.tsx
+#: src/components/setup.tsx
 msgid "app.setup.join"
 msgstr "Join a space"
 
-#: src/components/setup.tsx:68
+#: src/components/setup.tsx
 msgid "app.setup.join-message"
 msgstr "Use a pairing code from a device already in the space"
 
-#: src/components/setup.tsx:60
+#: src/components/setup.tsx
 msgid "app.setup.submit"
 msgstr "Start fresh"

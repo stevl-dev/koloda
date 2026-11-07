@@ -13,112 +13,112 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx:20
+#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx
 msgid "drag-handle.description"
 msgstr "Drag to reorder this item"
 
-#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx:19
+#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx
 msgid "drag-handle.label"
 msgstr "Drag handle"
 
-#: ../../libs/ui/src/lib/ui/error-message.tsx:44
+#: ../../libs/ui/src/lib/ui/error-message.tsx
 msgid "error.details"
 msgstr "Details"
 
 #. placeholder {0}: formatTimestamp(timestamp, "date")
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:34
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.created-at {0}"
 msgstr "Created {0}"
 
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:109
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.reset"
 msgstr "Discard"
 
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:88
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.save"
 msgstr "Save"
 
 #. placeholder {0}: formatTimestamp(timestamp, "date")
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:46
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.updated-at {0}"
 msgstr "Updated {0}"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:52
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.accept"
 msgstr "Accept this hotkey"
 
-#: ../../libs/ui/src/lib/ui/add-hotkey-button.tsx:19
+#: ../../libs/ui/src/lib/ui/add-hotkey-button.tsx
 msgid "hotkey-recorder.add-button.label"
 msgstr "Add another hotkey"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:60
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.cancel"
 msgstr "Cancel"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:47
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.input.placeholder"
 msgstr "Expecting input"
 
-#: ../../libs/ui/src/lib/layout/drawer.tsx:77
+#: ../../libs/ui/src/lib/layout/drawer.tsx
 msgid "layout.drawer.label"
 msgstr "Navigation"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:18
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.back"
 msgstr "Go back"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:15
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.message"
 msgstr "Content you're trying to access doesn't exist"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:14
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.title"
 msgstr "Not found"
 
-#: ../../libs/ui/src/lib/ui/query-error.tsx:41
+#: ../../libs/ui/src/lib/ui/query-error.tsx
 msgid "query-error.message"
 msgstr "Something went wrong"
 
-#: ../../libs/ui/src/lib/ui/query-error.tsx:69
+#: ../../libs/ui/src/lib/ui/query-error.tsx
 msgid "query-error.retry"
 msgstr "Retry"
 
-#: ../../libs/ui/src/lib/ui/query-loading.tsx:13
+#: ../../libs/ui/src/lib/ui/query-loading.tsx
 msgid "query-loading.message"
 msgstr "Loading"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:65
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.first"
 msgstr "Go to first page"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:87
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.last"
 msgstr "Go to last page"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:80
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.next"
 msgstr "Go to next page"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:72
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.previous"
 msgstr "Go to previous page"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:101
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.page-size.label"
 msgstr "Per page:"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:58
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.records.label"
 msgstr "of"
 
-#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx:48
+#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx
 msgid "titlebar.navigation.back"
 msgstr "Go back"
 
-#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx:56
+#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx
 msgid "titlebar.navigation.forward"
 msgstr "Go forward"
 
-#: ../../libs/ui/src/lib/ui/titlebar-sidebar-controls.tsx:46
+#: ../../libs/ui/src/lib/ui/titlebar-sidebar-controls.tsx
 msgid "titlebar.sidebar-controls.label"
 msgstr "Toggle navigation panel"

@@ -13,128 +13,128 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/web-setup.tsx:152
+#: src/components/web-setup.tsx
 msgid "color-scheme-picker.label"
 msgstr "Color scheme"
 
-#: src/components/web-setup.tsx:48
+#: src/components/web-setup.tsx
 msgid "scheme.dark"
 msgstr "Dark"
 
-#: src/components/web-setup.tsx:47
+#: src/components/web-setup.tsx
 msgid "scheme.light"
 msgstr "Light"
 
-#: src/components/web-setup.tsx:46
+#: src/components/web-setup.tsx
 msgid "scheme.system"
 msgstr "System"
 
-#: src/components/web-incompatible-data.tsx:29
+#: src/components/web-incompatible-data.tsx
 msgid "web.incompatible-data.clear"
 msgstr "Clear data"
 
-#: src/components/web-incompatible-data.tsx:23
+#: src/components/web-incompatible-data.tsx
 msgid "web.incompatible-data.message"
 msgstr "This browser holds data from a version that can no longer open it. Clear it to start again; the data cannot be recovered."
 
-#: src/components/web-setup.tsx:147
+#: src/components/web-setup.tsx
 msgid "web.setup.browser"
 msgstr "Works best in Chrome, Edge, or another Chromium-based browser."
 
-#: src/components/web-setup.tsx:91
-#: src/components/web-startup-error.tsx:25
+#: src/components/web-setup.tsx
+#: src/components/web-startup-error.tsx
 msgid "web.setup.demo"
 msgstr "DEMO"
 
-#: src/components/web-setup.tsx:54
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.ai.detail"
 msgstr "OpenRouter, Ollama, and LM Studio work here. OpenAI, DeepSeek, and the rest are desktop only."
 
-#: src/components/web-setup.tsx:54
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.ai.term"
 msgstr "AI providers"
 
-#: src/components/web-setup.tsx:110
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.close"
 msgstr "Close"
 
-#: src/components/web-setup.tsx:57
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.hotkeys.detail"
 msgstr "The browser keeps some shortcuts for itself, such as Ctrl W."
 
-#: src/components/web-setup.tsx:57
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.hotkeys.term"
 msgstr "Hotkeys"
 
-#: src/components/web-setup.tsx:56
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.images.detail"
 msgstr "Saving an image from a pasted link is desktop only."
 
-#: src/components/web-setup.tsx:56
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.images.term"
 msgstr "Images"
 
-#: src/components/web-setup.tsx:101
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.link"
 msgstr "See what’s different"
 
-#: src/components/web-setup.tsx:55
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.optimization.detail"
 msgstr "Fitting an algorithm to your reviews is desktop only."
 
-#: src/components/web-setup.tsx:55
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.optimization.term"
 msgstr "Optimization"
 
-#: src/components/web-setup.tsx:52
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.storage.term"
 msgstr "Storage"
 
-#: src/components/web-setup.tsx:53
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.sync.detail"
 msgstr "Syncing between devices is desktop only."
 
-#: src/components/web-setup.tsx:53
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.sync.term"
 msgstr "Sync"
 
-#: src/components/web-setup.tsx:107
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.title"
 msgstr "What’s different from the desktop app"
 
-#: src/components/web-setup.tsx:99
+#: src/components/web-setup.tsx
 msgid "web.setup.diff.trigger"
 msgstr "The web version has some limitations compared to the desktop app."
 
-#: src/components/web-setup.tsx:145
+#: src/components/web-setup.tsx
 msgid "web.setup.loading"
 msgstr "Creating sample decks…"
 
-#: src/components/web-setup.tsx:52
-#: src/components/web-setup.tsx:97
+#: src/components/web-setup.tsx
+#: src/components/web-setup.tsx
 msgid "web.setup.storage"
 msgstr "All the data stays only in this browser, and clearing site data deletes it."
 
-#: src/components/web-setup.tsx:145
+#: src/components/web-setup.tsx
 msgid "web.setup.submit"
 msgstr "Get started"
 
-#: src/components/web-setup.tsx:94
+#: src/components/web-setup.tsx
 msgid "web.setup.title"
 msgstr "This is the web demo"
 
-#: src/components/web-startup-error.tsx:28
+#: src/components/web-startup-error.tsx
 msgid "web.startup.failed.title"
 msgstr "Couldn’t start the demo"
 
-#: src/components/web-startup-error.tsx:36
+#: src/components/web-startup-error.tsx
 msgid "web.startup.reload"
 msgstr "Reload"
 
-#: src/components/web-startup-error.tsx:40
+#: src/components/web-startup-error.tsx
 msgid "web.startup.unsupported"
 msgstr "It needs IndexedDB and WebAssembly. Open this page in a recent Chromium-based browser, such as Chrome or Edge."
 
-#: src/components/web-startup-error.tsx:28
+#: src/components/web-startup-error.tsx
 msgid "web.startup.unsupported.title"
 msgstr "This browser can’t run the demo"

@@ -1,4 +1,5 @@
 import type { LinguiConfig } from "@lingui/conf";
+import { formatter } from "@lingui/format-po";
 
 const config: LinguiConfig = {
   locales: ["en", "ru"],
@@ -44,6 +45,8 @@ const config: LinguiConfig = {
     },
   ],
   compileNamespace: "ts",
+  // WHY: line numbers churn every catalog whenever source lines move, which hides real changes from `check:i18n`.
+  format: formatter({ lineNumbers: false }),
 };
 
 export default config;

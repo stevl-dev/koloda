@@ -13,640 +13,640 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:189
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{cards, plural, other {settings.sync.join.preview.cards}}"
 msgstr "{cards, plural, one {# card} other {# cards}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:188
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{decks, plural, other {settings.sync.join.preview.decks}}"
 msgstr "{decks, plural, one {# deck} other {# decks}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:49
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{fetches, plural, other {settings.sync.fetches}}"
 msgstr "{fetches, plural, one {# image waits to download} other {# images wait to download}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:42
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:51
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "{left, plural, other {settings.sync.download-left}}"
 msgstr "{left, plural, one {# change left to download} other {# changes left to download}}"
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:35
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{minutes, plural, other {settings.sync.stop.clock-skew}}"
 msgstr "This device's clock is {minutes, plural, one {# minute} other {# minutes}} off the sync server's. Correct the clock, and sync resumes on its own."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{pending, plural, other {settings.sync.pending}}"
 msgstr "{pending, plural, one {# change waits to upload} other {# changes wait to upload}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:190
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "{reviews, plural, other {settings.sync.join.preview.reviews}}"
 msgstr "{reviews, plural, one {# review} other {# reviews}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:48
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "{uploads, plural, other {settings.sync.uploads}}"
 msgstr "{uploads, plural, one {# image waits to upload} other {# images wait to upload}}"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-scheme-picker.tsx:29
+#: ../../libs/settings-react/src/lib/interface-controls/color-scheme-picker.tsx
 msgid "color-scheme-picker.label"
 msgstr "Color scheme"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:81
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "dark-theme-picker.label"
 msgstr "Dark theme"
 
-#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx:35
+#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx
 msgid "hotkey-recorder.delete-button.label"
 msgstr "Delete hotkey"
 
-#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx:29
+#: ../../libs/settings-react/src/lib/settings-hotkeys-hotkey.tsx
 msgid "hotkey-recorder.edit-button.label"
 msgstr "Change hotkey"
 
-#: ../../libs/settings-react/src/lib/interface-controls/language-picker.tsx:26
+#: ../../libs/settings-react/src/lib/interface-controls/language-picker.tsx
 msgid "language-picker.label"
 msgstr "Language"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:66
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "light-theme-picker.label"
 msgstr "Light theme"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:49
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.dark"
 msgstr "Dark"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:48
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.light"
 msgstr "Light"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:50
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "scheme.system"
 msgstr "System"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:31
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.add"
 msgstr "Add profile"
 
-#: ../../libs/settings-react/src/lib/ai-providers/add-ai-profile-form.tsx:48
+#: ../../libs/settings-react/src/lib/ai-providers/add-ai-profile-form.tsx
 msgid "settings.ai.add.submit"
 msgstr "Add"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:77
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.add.title"
 msgstr "Add AI Profile"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:25
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.browser-cors.note"
 msgstr "Some providers are disabled due to platform limitations."
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:53
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.browser-cors.profile"
 msgstr "This provider cannot be used in the browser."
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:57
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.cancel"
 msgstr "Cancel"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:54
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.confirm"
 msgstr "Delete"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:52
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.delete.message"
 msgstr "Are you sure you want to delete this profile?"
 
-#: ../../libs/settings-react/src/lib/ai-providers/edit-ai-profile-form.tsx:67
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:147
+#: ../../libs/settings-react/src/lib/ai-providers/edit-ai-profile-form.tsx
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.edit.submit"
 msgstr "Save"
 
-#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx:55
+#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx
 msgid "settings.ai.edit.title"
 msgstr "Edit AI profile"
 
-#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx:46
+#: ../../libs/settings-react/src/lib/settings-ai-edit-profile.tsx
 msgid "settings.ai.edit.trigger"
 msgstr "Edit profile"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:122
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.empty"
 msgstr "No models"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:110
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.error"
 msgstr "Error"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:106
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.loading"
 msgstr "Loading"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:100
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.all"
 msgstr "All"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:91
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.label"
 msgstr "Model list"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:101
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.mode.selected"
 msgstr "Selected"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:113
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:117
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.retry"
 msgstr "Retry"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:78
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.search.label"
 msgstr "Search models"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:85
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.search.placeholder"
 msgstr "Search models"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:72
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.title"
 msgstr "Models"
 
-#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx:65
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.trigger"
 msgstr "Models"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:43
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.api-key.label"
 msgstr "API key"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:42
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.base-url.label"
 msgstr "Base URL"
 
-#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx:43
+#: ../../libs/settings-react/src/lib/settings-ai-delete-profile.tsx
 msgid "settings.ai.profiles.delete.trigger"
 msgstr "Delete profile"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:27
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.empty"
 msgstr "No profiles"
 
-#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx:83
+#: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Provider"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-secrets-field.tsx:48
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-secrets-field.tsx
 msgid "settings.ai.profiles.replace"
 msgstr "Replace with a new value"
 
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:22
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.title"
 msgstr "AI Profiles"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:40
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
 msgid "settings.ai.profiles.title.label"
 msgstr "Title"
 
-#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx:33
-#: ../../libs/settings-react/src/lib/settings-ai.tsx:37
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+#: ../../libs/settings-react/src/lib/settings-ai.tsx
 msgid "settings.ai.profiles.title.placeholder"
 msgstr "Untitled"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:80
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "settings.interface.dark-theme"
 msgstr "Dark theme"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:73
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format"
 msgstr "Date format"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:75
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.custom"
 msgstr "Custom pattern"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:74
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.locale"
 msgstr "Default"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:76
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.date-format.preview {value}"
 msgstr "Preview: {value}"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:38
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.language"
 msgstr "Language"
 
-#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx:65
+#: ../../libs/settings-react/src/lib/interface-controls/color-theme-picker.tsx
 msgid "settings.interface.light-theme"
 msgstr "Light theme"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:55
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.motion"
 msgstr "Animations"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:39
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.scheme"
 msgstr "Color scheme"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:81
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format"
 msgstr "Time format"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:17
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.12-hour"
 msgstr "12-hour"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:18
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.24-hour"
 msgstr "24-hour"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:82
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.locale"
 msgstr "Default"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx:83
+#: ../../libs/settings-react/src/lib/settings-interface.tsx
 msgid "settings.interface.time-format.preview {value}"
 msgstr "Preview: {value}"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:246
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.day-starts-at"
 msgstr "Start of the day"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:152
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.defaults.algorithm"
 msgstr "Default algorithm"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:162
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.defaults.template"
 msgstr "Default template"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:206
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit"
 msgstr "Learn ahead limit"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:212
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.hours.label"
 msgstr "Hours"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:220
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.hours.suffix"
 msgstr "h"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:228
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.minutes.label"
 msgstr "Minutes"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:236
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.learn-ahead-limit.minutes.suffix"
 msgstr "m"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:168
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits"
 msgstr "Daily limits"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:199
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.counts-towards-total"
 msgstr "Counts towards total"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:127
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn"
 msgstr "Learn"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:129
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn.counts-towards-total"
 msgstr "Learn counts towards total"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:128
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.learn.unlimited"
 msgstr "Learn unlimited"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:133
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review"
 msgstr "Review"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:135
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review.counts-towards-total"
 msgstr "Review counts towards total"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:134
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.review.unlimited"
 msgstr "Review unlimited"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:172
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.total"
 msgstr "Total"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:174
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.total.unlimited"
 msgstr "Total unlimited"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:117
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.unlimited"
 msgstr "Unlimited"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:121
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched"
 msgstr "New"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:123
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched.counts-towards-total"
 msgstr "New counts towards total"
 
-#: ../../libs/settings-react/src/lib/settings-learning.tsx:122
+#: ../../libs/settings-react/src/lib/settings-learning.tsx
 msgid "settings.learning.limits.untouched.unlimited"
 msgstr "New unlimited"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:155
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:196
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:50
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.back"
 msgstr "Back"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:101
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:91
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.cancel"
 msgstr "Cancel"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:20
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create"
 msgstr "Create a space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:99
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create.submit"
 msgstr "Create"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:25
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.create.title"
 msgstr "Create a space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:63
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:119
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.device-name.label"
 msgstr "This device's name"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:29
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices"
 msgstr "Devices"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:45
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.last-seen {lastSeen}"
 msgstr "Last seen {lastSeen}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:90
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove"
 msgstr "Remove"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:98
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.confirm"
 msgstr "Remove"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:94
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.message {name}"
 msgstr "Remove {name} from the space? It stops syncing and keeps its data."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx:42
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.this-device"
 msgstr "This device"
 
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:49
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "settings.sync.first-run.downloading"
 msgstr "Downloading the space. The app opens when it's done."
 
-#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx:50
+#: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
 msgid "settings.sync.first-run.safe-to-close"
 msgstr "Closing the app is safe. The download picks up next time."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:47
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.corrupt {lane} {seq}"
 msgstr "The space holds a damaged change this app can't read ({lane} {seq}), so downloads wait at it. Uploads go on. To drop the change, run on the sync server:"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:49
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.corrupt.spaces"
 msgstr "koloda-server spaces lists the server's space ids."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:44
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.hold.update-required"
 msgstr "Another device synced a change this version of the app can't read, so downloads wait at it. Update the app, and sync resumes from there. Uploads go on."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:67
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.add"
 msgstr "Add"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:59
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.copy"
 msgstr "This device's data looks like a copy of data already in the space. Replace it with the space's data. Add keeps both, so the copied decks show twice."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:59
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.message"
 msgstr "This device already has data. Add it to the space, or replace it with the space's data."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:74
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace"
 msgstr "Replace"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:47
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.confirm"
 msgstr "Delete and replace"
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:43
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.message"
 msgstr "This device's decks, cards, progress, templates, and algorithms will be deleted and replaced with the space's."
 
-#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx:74
+#: ../../libs/settings-react/src/lib/sync/sync-import-choice.tsx
 msgid "settings.sync.import.replace.recommended"
 msgstr "Replace (recommended)"
 
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:48
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.indicator.choice"
 msgstr "Sync waits for you to choose Add or Replace. Open Sync settings."
 
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:50
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.indicator.held"
 msgstr "Downloads wait at a change this app can't read. Open Sync settings."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:27
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite"
 msgstr "Invite a device"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:79
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:118
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.invite.code"
 msgstr "Pairing code"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:81
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.copy-code"
 msgstr "Copy the pairing code"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:86
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.copy-server-url"
 msgstr "Copy the server address"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:65
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.expired"
 msgstr "This code has expired."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:88
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.expires-in {timeLeft}"
 msgstr "The code expires in {timeLeft}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:77
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.message"
 msgstr "On the other device, open Settings → Sync, choose Join a space, and enter:"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:44
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:67
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.new-code"
 msgstr "New code"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:32
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
 msgid "settings.sync.invite.title"
 msgstr "Invite a device"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:23
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join"
 msgstr "Join a space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:160
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.continue"
 msgstr "Continue"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:191
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.preview.size {size}"
 msgstr "About {size} to download"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:187
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.preview.space {name}"
 msgstr "Space “{name}”"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:200
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.submit"
 msgstr "Join"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:28
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.join.title"
 msgstr "Join a space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:45
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:59
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.last-sync {lastSync}"
 msgstr "Last synced {lastSync}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:45
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.last-sync.none"
 msgstr "Not synced since the app started"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:36
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave"
 msgstr "Leave the space"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:44
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave.confirm"
 msgstr "Leave"
 
-#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx:40
+#: ../../libs/settings-react/src/lib/sync/sync-leave-space.tsx
 msgid "settings.sync.leave.message"
 msgstr "This device stops syncing. Its data stays, and it can join a space again later."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:38
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.left"
 msgstr "This device is in no space: it left its space, or another device removed it. Its data stays here. Join a space to sync again."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync.tsx:30
+#: ../../libs/settings-react/src/lib/sync/settings-sync.tsx
 msgid "settings.sync.not-in-space"
 msgstr "This device doesn't sync. Create a space on your sync server, or join a space another device created."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:32
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:52
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.over-quota"
 msgstr "The space is full, so new changes wait to upload. Deleting decks or cards frees room."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:33
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.push-waits {resumesAt}"
 msgstr "This device's clock was ahead of the server's, so its changes wait to upload until {resumesAt}."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:88
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.confirm"
 msgstr "Replace"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:80
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.continue"
 msgstr "Continue"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx:84
+#: ../../libs/settings-react/src/lib/sync/settings-sync-problems.tsx
 msgid "settings.sync.restore.message"
 msgstr "Replace this device's data with the backup's? Changes made here since the backup are lost."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:60
-#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx:84
-#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx:117
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-invite.tsx
+#: ../../libs/settings-react/src/lib/sync/settings-sync-join.tsx
 msgid "settings.sync.server-url.label"
 msgstr "Server address"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:61
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.setup-token.label"
 msgstr "Setup token"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx:62
+#: ../../libs/settings-react/src/lib/sync/settings-sync-create-space.tsx
 msgid "settings.sync.space-name.label"
 msgstr "Space name"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:13
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:56
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.bootstrapping"
 msgstr "Downloading the space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:14
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:58
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.idle"
 msgstr "Up to date"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:12
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.import-pending"
 msgstr "Waiting for your choice"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:11
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.not-enrolled"
 msgstr "Not syncing"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:16
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.state.stopped"
 msgstr "Sync stopped"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:15
-#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx:54
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
 msgid "settings.sync.state.syncing"
 msgstr "Syncing"
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:44
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.authoritative-restore"
 msgstr "The sync server was restored from a backup that replaces this device's data. Changes made here since the backup will be lost."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:60
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.error"
 msgstr "Sync stopped because of an error and retries on its own."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:48
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.low-disk {needed} {free}"
 msgstr "Downloading the space needs {needed} of free disk space, and {free} is free. Free some space; sync retries on its own."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:42
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.pair-again"
 msgstr "The sync server no longer knows this device, as after a restore from a backup made before it joined. Join the space again with a new pairing code. This device's data stays."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:52
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.push-refused {code}"
 msgstr "The sync server refused this device's changes ({code}). Sync retries on its own."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:40
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.unknown-device"
 msgstr "The sync server no longer knows this device. Leave the space here, then join it again with a new pairing code. This device's data stays."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:55
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.unreachable"
 msgstr "The sync server can't be reached. Sync retries on its own."
 
-#: ../../libs/settings-react/src/lib/sync/sync-messages.ts:57
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.stop.update-required"
 msgstr "The sync server is newer than this version of the app. Update the app, and sync resumes."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx:36
+#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 msgid "settings.sync.sync-now"
 msgstr "Sync now"

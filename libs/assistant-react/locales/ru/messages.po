@@ -13,186 +13,186 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx:13
-#: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx:20
+#: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx
+#: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx
 msgid "ai.chat.message.copy.tooltip"
 msgstr "Копировать сообщение"
 
-#: ../../libs/assistant-react/src/lib/ui/revert-banner.tsx:22
+#: ../../libs/assistant-react/src/lib/ui/revert-banner.tsx
 msgid "ai.chat.message.restore.label"
 msgstr "Восстановить"
 
-#: ../../libs/assistant-react/src/lib/ui/revert-banner.tsx:20
+#: ../../libs/assistant-react/src/lib/ui/revert-banner.tsx
 msgid "ai.chat.message.revert.indicator"
 msgstr "Сообщения сброшены"
 
-#: ../../libs/assistant-react/src/lib/ui/revert-message-button.tsx:13
-#: ../../libs/assistant-react/src/lib/ui/revert-message-button.tsx:20
+#: ../../libs/assistant-react/src/lib/ui/revert-message-button.tsx
+#: ../../libs/assistant-react/src/lib/ui/revert-message-button.tsx
 msgid "ai.chat.message.revert.tooltip"
 msgstr "Сбросить до этого сообщения"
 
-#: ../../libs/assistant-react/src/lib/ui/message-timestamp.tsx:14
+#: ../../libs/assistant-react/src/lib/ui/message-timestamp.tsx
 msgid "ai.chat.message.timestamp.today {time}"
 msgstr "Сегодня в {time}"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-new-conversation-button.tsx:23
-#: ../../libs/assistant-react/src/lib/ui/assistant-new-conversation-button.tsx:28
+#: ../../libs/assistant-react/src/lib/ui/assistant-new-conversation-button.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-new-conversation-button.tsx
 msgid "ai.chat.new-conversation.label"
 msgstr "Новый диалог"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx:15
+#: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx
 msgid "ai.chat.no-profiles"
 msgstr "У вас нет ни одного профиля ИИ"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx:11
+#: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx
 msgid "ai.chat.no-profiles.add"
 msgstr "Добавить профиль"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx:203
+#: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
 msgid "ai.chat.restoring"
 msgstr "Загрузка"
 
-#: ../../libs/assistant-react/src/lib/ui/clone-conversation-button.tsx:30
+#: ../../libs/assistant-react/src/lib/ui/clone-conversation-button.tsx
 msgid "ai.conversation.clone.action"
 msgstr "Клонировать"
 
-#: ../../libs/assistant-react/src/lib/ui/delete-conversation-menu-action.tsx:15
+#: ../../libs/assistant-react/src/lib/ui/delete-conversation-menu-action.tsx
 msgid "ai.conversation.delete.action"
 msgstr "Удалить"
 
-#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx:39
+#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx
 msgid "ai.conversation.delete.cancel"
 msgstr "Отмена"
 
-#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx:36
+#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx
 msgid "ai.conversation.delete.confirm"
 msgstr "Удалить"
 
-#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx:31
+#: ../../libs/assistant-react/src/lib/ui/delete-conversation-confirm-dialog.tsx
 msgid "ai.conversation.delete.message"
 msgstr "Удалить этот диалог? Действие нельзя отменить."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:134
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:137
-#: ../../libs/assistant-react/src/lib/ui/delete-conversation-button.tsx:48
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
+#: ../../libs/assistant-react/src/lib/ui/delete-conversation-button.tsx
 msgid "ai.conversation.delete.trigger"
 msgstr "Удалить диалог"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx:63
+#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx
 msgid "ai.conversation.list.time.days {count}"
 msgstr "{count}д"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx:62
+#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx
 msgid "ai.conversation.list.time.hours {count}"
 msgstr "{count}ч"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx:61
+#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx
 msgid "ai.conversation.list.time.minutes {count}"
 msgstr "{count}м"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx:64
+#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx
 msgid "ai.conversation.list.time.months {count}"
 msgstr "{count}мес"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx:65
+#: ../../libs/assistant-react/src/lib/ui/conversation-list-timestamp.tsx
 msgid "ai.conversation.list.time.years {count}"
 msgstr "{count}г"
 
-#: ../../libs/assistant-react/src/lib/ui/conversation-header-menu.tsx:51
+#: ../../libs/assistant-react/src/lib/ui/conversation-header-menu.tsx
 msgid "ai.conversation.menu.trigger"
 msgstr "Действия с диалогом"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:119
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.corrupt"
 msgstr "Данные этого диалога повреждены"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:160
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.reset.cancel"
 msgstr "Отмена"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:157
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.reset.confirm"
 msgstr "Сбросить"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:146
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.reset.failed"
 msgstr "Не удалось сбросить диалог. Попробуйте ещё раз."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:148
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.reset.message"
 msgstr "Сбросить этот диалог? Сохранённые данные будут удалены без возможности восстановления."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:127
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:130
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.reset.trigger"
 msgstr "Сбросить диалог"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:110
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.title"
 msgstr "Не удалось открыть диалог"
 
 #. placeholder {0}: blocked.found
 #. placeholder {1}: blocked.supported
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx:115
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversation-recovery.tsx
 msgid "ai.conversation.recovery.unsupported {0} {1}"
 msgstr "Этот диалог сохранён в формате версии {0}, а это приложение поддерживает версии до {1}."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx:20
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx
 msgid "ai.conversation.running"
 msgstr "Выполняется"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx:21
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx
 msgid "ai.conversation.unread"
 msgstr "Не прочитано"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx:19
+#: ../../libs/assistant-react/src/lib/ui/assistant-conversations-list.tsx
 msgid "ai.conversation.untitled"
 msgstr "Диалог без названия"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx:63
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx
 msgid "assistant.add"
 msgstr "Добавить карточки"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx:55
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx
 msgid "assistant.deck-unavailable"
 msgstr "Колода не доступна"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx:100
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx
 msgid "assistant.settings.system-prompt.label"
 msgstr "Системный промпт"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx:45
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx
 msgid "assistant.settings.system-prompt.mode.custom"
 msgstr "Свой"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx:44
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx
 msgid "assistant.settings.system-prompt.mode.default"
 msgstr "По умолчанию"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx:32
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings-prompt-editor.tsx
 msgid "assistant.settings.system-prompt.mode.label"
 msgstr "Источник системного промпта"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx:112
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx
 msgid "assistant.settings.temperature.label"
 msgstr "Температура"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx:79
+#: ../../libs/assistant-react/src/lib/ui/assistant-settings.tsx
 msgid "assistant.settings.title"
 msgstr "Настройки ассистента"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx:56
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx
 msgid "assistant.table.columns.status.error"
 msgstr "Ошибка"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx:38
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx
 msgid "assistant.table.columns.status.pending"
 msgstr "В обработке"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx:47
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table-select-cell.tsx
 msgid "assistant.table.columns.status.success"
 msgstr "Успешно"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx:55
+#: ../../libs/assistant-react/src/lib/ui/assistant-cards-table.tsx
 msgid "assistant.template-unavailable"
 msgstr "Шаблон не доступен"

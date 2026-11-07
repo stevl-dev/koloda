@@ -13,112 +13,112 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx:20
+#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx
 msgid "drag-handle.description"
 msgstr "Перетащите для изменения порядка расположения элементов"
 
-#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx:19
+#: ../../libs/ui/src/lib/primitives/dnd/drag-handle.tsx
 msgid "drag-handle.label"
 msgstr "Контроллер перетаскивания"
 
-#: ../../libs/ui/src/lib/ui/error-message.tsx:44
+#: ../../libs/ui/src/lib/ui/error-message.tsx
 msgid "error.details"
 msgstr "Подробности"
 
 #. placeholder {0}: formatTimestamp(timestamp, "date")
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:34
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.created-at {0}"
 msgstr "Создано {0}"
 
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:109
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.reset"
 msgstr "Сбросить"
 
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:88
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.save"
 msgstr "Сохранить"
 
 #. placeholder {0}: formatTimestamp(timestamp, "date")
-#: ../../libs/ui/src/lib/primitives/form/form.tsx:46
+#: ../../libs/ui/src/lib/primitives/form/form.tsx
 msgid "form.updated-at {0}"
 msgstr "Обновлено {0}"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:52
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.accept"
 msgstr "Сохранить эту комбинацию клавиш"
 
-#: ../../libs/ui/src/lib/ui/add-hotkey-button.tsx:19
+#: ../../libs/ui/src/lib/ui/add-hotkey-button.tsx
 msgid "hotkey-recorder.add-button.label"
 msgstr "Добавить комбинацию клавиш"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:60
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.cancel"
 msgstr "Отменить"
 
-#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx:47
+#: ../../libs/ui/src/lib/ui/hotkey-recorder.tsx
 msgid "hotkey-recorder.input.placeholder"
 msgstr "Ожидание ввода"
 
-#: ../../libs/ui/src/lib/layout/drawer.tsx:77
+#: ../../libs/ui/src/lib/layout/drawer.tsx
 msgid "layout.drawer.label"
 msgstr "Панель навигации"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:18
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.back"
 msgstr "Назад"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:15
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.message"
 msgstr "Запрашиваемые данные не существуют"
 
-#: ../../libs/ui/src/lib/ui/not-found.tsx:14
+#: ../../libs/ui/src/lib/ui/not-found.tsx
 msgid "not-found.title"
 msgstr "Не найдено"
 
-#: ../../libs/ui/src/lib/ui/query-error.tsx:41
+#: ../../libs/ui/src/lib/ui/query-error.tsx
 msgid "query-error.message"
 msgstr "Ошибка загрузки"
 
-#: ../../libs/ui/src/lib/ui/query-error.tsx:69
+#: ../../libs/ui/src/lib/ui/query-error.tsx
 msgid "query-error.retry"
 msgstr "Повторить"
 
-#: ../../libs/ui/src/lib/ui/query-loading.tsx:13
+#: ../../libs/ui/src/lib/ui/query-loading.tsx
 msgid "query-loading.message"
 msgstr "Загрузка..."
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:65
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.first"
 msgstr "Перейти на первую страницу"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:87
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.last"
 msgstr "Перейти на последнюю страницу"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:80
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.next"
 msgstr "Перейти на следующую страницу"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:72
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.buttons.previous"
 msgstr "Перейти на предыдущую страницу"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:101
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.page-size.label"
 msgstr "На странице:"
 
-#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx:58
+#: ../../libs/ui/src/lib/primitives/table/table-pagination.tsx
 msgid "table.pagination.records.label"
 msgstr "из"
 
-#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx:48
+#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx
 msgid "titlebar.navigation.back"
 msgstr "Назад"
 
-#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx:56
+#: ../../libs/ui/src/lib/ui/titlebar-navigation.tsx
 msgid "titlebar.navigation.forward"
 msgstr "Вперёд"
 
-#: ../../libs/ui/src/lib/ui/titlebar-sidebar-controls.tsx:46
+#: ../../libs/ui/src/lib/ui/titlebar-sidebar-controls.tsx
 msgid "titlebar.sidebar-controls.label"
 msgstr "Переключить боковую панель"
