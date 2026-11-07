@@ -50,10 +50,7 @@ describe("policy table", () => {
   it("lists exclusive packages in the layer table", () => {
     // External exclusive specifiers (e.g. wa-sqlite) are raw npm names, not
     // workspace packages, so only @koloda keys must sit in the layer table.
-    const packageNames = Object.keys(EXCLUSIVE_CONSUMERS)
-      .filter((name) => name.startsWith("@koloda/"))
-      .sort();
-    expect(packageNames).toEqual(["@koloda/db-sqlite", "@koloda/e2e", "@koloda/native-ipc"]);
+    const packageNames = Object.keys(EXCLUSIVE_CONSUMERS).filter((name) => name.startsWith("@koloda/"));
     for (const name of packageNames) {
       expect(PACKAGE_LAYERS[name]).toBeDefined();
     }

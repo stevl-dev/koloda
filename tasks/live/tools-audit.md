@@ -312,7 +312,7 @@ Paths are relative to the repo root.
   Commit: Resolve check-markdown arguments against the working directory
   Depends on: none
 
-- [ ] 8. Drop the exclusive-package inventory pin
+- [x] 8. Drop the exclusive-package inventory pin
   Goal: fix finding 8. Delete the `toEqual` at `tools/workspace-deps/layers.test.ts:56`; keep the loop.
   Constraints: that test only.
   Done when: `bun run check:workspace-deps` passes.
