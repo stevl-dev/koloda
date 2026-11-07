@@ -302,7 +302,7 @@ Paths are relative to the repo root.
   Commit: Keep Vitest caches inside the checkout
   Depends on: none
 
-- [ ] 7. Resolve check-markdown arguments against the working directory
+- [x] 7. Resolve check-markdown arguments against the working directory
   Goal: fix finding 7.
   - `tools/check-markdown.ts`: resolve explicit arguments against `process.cwd()`; keep `root` for the git-derived list.
     Print paths relative to `root` as now.

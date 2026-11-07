@@ -11,7 +11,7 @@
  *   plus uncommitted edits.
  */
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const LIMIT = 120;
@@ -59,7 +59,8 @@ function longProseLines(file: string): { line: number; length: number }[] {
   return found;
 }
 
-const files = process.argv.length > 2 ? process.argv.slice(2) : changedMarkdown();
+const files =
+  process.argv.length > 2 ? process.argv.slice(2).map((file) => relative(root, resolve(file))) : changedMarkdown();
 let warnings = 0;
 for (const file of files) {
   for (const { line, length } of longProseLines(file)) {
