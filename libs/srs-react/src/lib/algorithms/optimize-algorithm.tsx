@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { optimizerQueriesAtom, queryKeys } from "@koloda/core-react";
+import { optimizerQueriesAtom, queryKeys, useNumberFormatter } from "@koloda/core-react";
 import type { OptimizationProgress, OptimizerQueries } from "@koloda/core-react";
 import type { Algorithm, AlgorithmFitScores, AlgorithmOptimization } from "@koloda/srs";
 import { BrainIcon, Button, Dialog, ErrorMessage } from "@koloda/ui";
@@ -204,6 +204,7 @@ type FitScoresTableProps = { current: AlgorithmFitScores; optimized: AlgorithmFi
 
 function FitScoresTable({ current, optimized }: FitScoresTableProps) {
   const { _ } = useLingui();
+  const formatNumber = useNumberFormatter();
   const rows = [
     { label: _(msg`optimize-algorithm.scores.current`), scores: current },
     { label: _(msg`optimize-algorithm.scores.found`), scores: optimized },
@@ -223,8 +224,8 @@ function FitScoresTable({ current, optimized }: FitScoresTableProps) {
         {rows.map(({ label, scores }) => (
           <tr key={label}>
             <th className="text-left font-normal">{label}</th>
-            <td className="text-right px-2 tabular-nums">{scores.logLoss.toFixed(4)}</td>
-            <td className="text-right px-2 tabular-nums">{scores.rmse.toFixed(4)}</td>
+            <td className="text-right px-2 tabular-nums">{formatNumber(scores.logLoss, 4)}</td>
+            <td className="text-right px-2 tabular-nums">{formatNumber(scores.rmse, 4)}</td>
           </tr>
         ))}
       </tbody>

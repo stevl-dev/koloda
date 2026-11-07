@@ -93,5 +93,7 @@ export type {
   SyncStatus,
   SyncStop,
 } from "./lib/sync";
+export { formatNumber } from "./lib/number-format";
+export type { NumberFormatter } from "./lib/number-format";
 export { dateFnsLocale, formatTimestamp, timeFieldFormatOptions } from "./lib/timestamp-format";
 export type { TimestampFormatter, TimestampKind } from "./lib/timestamp-format";

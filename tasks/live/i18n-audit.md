@@ -312,7 +312,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Name every Lingui placeholder and drop # from two ids
   Depends on: 2
 
-- [ ] 7. Format numbers in the interface language
+- [x] 7. Format numbers in the interface language
   Goal: A few numbers use the OS locale (`toLocaleString()`) or always write "." (`toFixed`), not the interface
   language (finding 7).
   Format through `Intl.NumberFormat(lang, …)` with `lang` from `langAtom`, as `useFormatBytes` does
@@ -326,6 +326,10 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Constraints: no catalog change; `useFormatBytes` stays as is.
   Done when: a unit test per component (or for the hook) renders `1234.5` / `0.1234` with `ru` and gets a "," decimal
   separator and locale grouping; `bun run check:push` is green.
+  As built: `formatNumber(value, fractionDigits, locale)` in `@koloda/app` (beside `formatTimestamp`, table-tested in
+  `number-format.test.ts`) and `useNumberFormatter()` in `@koloda/core-react` (beside `useTimestampFormatter`).
+  Also found and fixed: the sub-1% label in `libs/srs-react/src/lib/components/learned-today.tsx` used `toFixed(1)`.
+  `optimize-algorithm.test.tsx` now sets `langAtom`, as `card-details.test.tsx` already did.
   Commit: Format numbers in the interface language
   Depends on: none
 

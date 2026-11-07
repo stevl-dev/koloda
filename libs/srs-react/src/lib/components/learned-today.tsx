@@ -1,4 +1,5 @@
-import { queriesAtom } from "@koloda/core-react";
+import type { NumberFormatter } from "@koloda/app";
+import { queriesAtom, useNumberFormatter } from "@koloda/core-react";
 import { LESSON_TYPE_LABELS } from "@koloda/srs";
 import type { LessonType } from "@koloda/srs";
 import { Layout, QueryState } from "@koloda/ui";
@@ -46,6 +47,7 @@ const learnedTodayProgressPercentage = tv({
 
 export function LearnedToday() {
   const { _ } = useLingui();
+  const formatNumber = useNumberFormatter();
   const { getTodayReviewTotalsQuery } = useAtomValue(queriesAtom);
   const query = useQuery(getTodayReviewTotalsQuery());
 
@@ -69,7 +71,7 @@ export function LearnedToday() {
                       : 0
                     : (data.reviewTotals[type] / limit) * 100;
                 const progressWidth = Math.min(Math.max(percentage, 0), 100);
-                const progressLabel = formatProgressLabel(progressWidth, isInfinity);
+                const progressLabel = formatProgressLabel(progressWidth, isInfinity, formatNumber);
 
                 return (
                   <div className="flex flex-col gap-2 leading-6 border-b-2 border-main py-2 px-4" key={type}>
@@ -104,9 +106,9 @@ export function LearnedToday() {
   );
 }
 
-function formatProgressLabel(progressWidth: number, isInfinity: boolean): string {
+function formatProgressLabel(progressWidth: number, isInfinity: boolean, formatNumber: NumberFormatter): string {
   if (isInfinity) return "–";
   if (progressWidth === 0) return "0%";
-  if (progressWidth < 1) return `${progressWidth.toFixed(1)}%`;
+  if (progressWidth < 1) return `${formatNumber(progressWidth, 1)}%`;
   return `${Math.round(progressWidth)}%`;
 }

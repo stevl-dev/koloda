@@ -1,6 +1,6 @@
 import type { ZodIssue } from "@koloda/app";
 import { ERROR_MESSAGES, formatAppError, toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys, useTimestampFormatter } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useNumberFormatter, useTimestampFormatter } from "@koloda/core-react";
 import type { Card, UpdateCardValues } from "@koloda/srs";
 import { getUpdateCardSchema, updateCardSchema as schema } from "@koloda/srs";
 import {
@@ -32,6 +32,7 @@ export function CardDetails({ card }: CardDetailsProps) {
   const queryClient = useQueryClient();
   const { _ } = useLingui();
   const formatTimestamp = useTimestampFormatter();
+  const formatNumber = useNumberFormatter();
   const { getTemplateQuery, updateCardMutation, resetCardProgressMutation } = useAtomValue(queriesAtom);
   const query = useQuery(getTemplateQuery(card.templateId));
   const template = query.data;
@@ -124,14 +125,14 @@ export function CardDetails({ card }: CardDetailsProps) {
           {!!card.state && (
             <FormLayout.Section term={_(msg`card.labels.stability`)}>
               <FormLayout.Section.Content variants={{ class: "numbers-text" }}>
-                {card.stability.toFixed(2)}
+                {formatNumber(card.stability, 2)}
               </FormLayout.Section.Content>
             </FormLayout.Section>
           )}
           {!!card.state && (
             <FormLayout.Section term={_(msg`card.labels.difficulty`)}>
               <FormLayout.Section.Content variants={{ class: "numbers-text" }}>
-                {card.difficulty.toFixed(2)}
+                {formatNumber(card.difficulty, 2)}
               </FormLayout.Section.Content>
             </FormLayout.Section>
           )}

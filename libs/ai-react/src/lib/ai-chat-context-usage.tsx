@@ -1,4 +1,5 @@
 import type { StreamUsage } from "@koloda/ai";
+import { useNumberFormatter } from "@koloda/core-react";
 import { CircularProgress, Tooltip } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -10,14 +11,15 @@ export type AIChatContextUsageProps = {
 
 export function AIChatContextUsage({ usage, contextLength }: AIChatContextUsageProps) {
   const { _ } = useLingui();
+  const formatNumber = useNumberFormatter();
 
   if (!usage) return null;
 
   const percentage = contextLength > 0 ? (usage.totalTokens / contextLength) * 100 : 0;
   const clampedPercentage = Math.min(percentage, 100);
 
-  const formattedTotal = usage.totalTokens.toLocaleString();
-  const formattedContext = contextLength.toLocaleString();
+  const formattedTotal = formatNumber(usage.totalTokens);
+  const formattedContext = formatNumber(contextLength);
 
   const content = (
     <div className="whitespace-nowrap">
@@ -30,7 +32,7 @@ export function AIChatContextUsage({ usage, contextLength }: AIChatContextUsageP
             <span className="fg-level-3">{_(msg`ai.chat.context-usage.tokens`)}</span>
           </span>
           <span className="flex flex-row gap-0.5">
-            <span>{clampedPercentage.toFixed(1)}</span>
+            <span>{formatNumber(clampedPercentage, 1)}</span>
             <span>%</span>
           </span>
         </span>

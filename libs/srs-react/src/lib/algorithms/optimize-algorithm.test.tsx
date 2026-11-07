@@ -1,5 +1,5 @@
 import { AppError } from "@koloda/app";
-import { optimizerQueriesAtom, queryKeys } from "@koloda/core-react";
+import { langAtom, optimizerQueriesAtom, queryKeys } from "@koloda/core-react";
 import type { OptimizeAlgorithmOptions, OptimizerQueries } from "@koloda/core-react";
 import type * as CoreReact from "@koloda/core-react";
 import type { Algorithm, AlgorithmOptimization, ApplyAlgorithmOptimizationData } from "@koloda/srs";
@@ -60,6 +60,7 @@ function optimizerResolving(result: AlgorithmOptimization | null): Optimizer {
 function renderWith(element: ReactElement, optimizer: OptimizerQueries | null) {
   const store = createStore();
   store.set(optimizerQueriesAtom, optimizer);
+  store.set(langAtom, "en");
   const queryClient = createQueryClient();
 
   function Wrapper({ children }: PropsWithChildren) {
