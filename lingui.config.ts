@@ -36,10 +36,6 @@ const config: LinguiConfig = {
       include: ["../../libs/ui/src"],
     },
     {
-      path: "../../libs/ai/locales/{locale}/messages",
-      include: ["../../libs/ai/src"],
-    },
-    {
       path: "../../libs/ai-react/locales/{locale}/messages",
       include: ["../../libs/ai-react/src"],
     },

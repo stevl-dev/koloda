@@ -250,7 +250,7 @@ Not checked by the audit, and left to "Dead code": whether every Rust `error_cod
   Commit: Report the field's error when a number field is cleared
   Depends on: none
 
-- [ ] 4. Drop the empty AI catalog and document the second catalog list
+- [x] 4. Drop the empty AI catalog and document the second catalog list
   Goal: `libs/ai` has never had messages, yet the root Lingui config and the design-system app still load its empty
   catalogs; and the design-system app's hand-written catalog list is not documented, so a new lib could be missed
   there (finding 6).
