@@ -76,6 +76,11 @@ Whichever task lands second re-exports what it needs.
 - [x] Does item 7 need the e2e suite run before Archive? — no (human, at approval, 2026-11-08).
   It edits no case; typecheck and lint cover the mock transports and the profile helper.
 
+- [ ] Item 2: accept the Babel re-hoist that removing the six root dependencies causes in `bun.lock`? — open.
+  Every consumer still gets a version in its range (bun nests 7.28 copies where needed), but the hoisted Babel
+  packages move back a minor version.
+  The alternative is to leave the six in place, or to remove them in a separate dependency task.
+
 ## Plan
 
 - [x] 1. Drop the extra `last_insert_rowid` statement from web `db.run`
@@ -113,6 +118,11 @@ Whichever task lands second re-exports what it needs.
   `bun run check:push` is green.
   Commit: Remove six unused root dependencies
   Depends on: none
+  Result: stopped, per Constraints; not committed.
+  At `3b4491dc`, removing the six and running `bun install` also re-hoists Babel in `bun.lock`: the hoisted
+  `@babel/generator` goes from 7.28.5 to 7.27.5, `@babel/parser` from 7.28.5 to 7.27.7, and `@jridgewell/gen-mapping`
+  from 0.3.13 to 0.3.8, with nested 7.28 copies for the consumers that need them (`bun.lock`: 25 lines in, 349 out).
+  See Open questions.
 
 - [x] 3. Delete the unread lesson layout fieldId on both hosts
   Goal: Finding 12.
@@ -137,6 +147,8 @@ Whichever task lands second re-exports what it needs.
   `nx run @koloda/db-sqlite:test`, and `bun run typecheck` pass.
   Commit: Drop the unread fieldId from lesson template layouts
   Depends on: none
+  Result: `lesson-card-field-markdown.test.tsx:27` stays: its `fieldId` is the field component prop (from `field.id`),
+  not the layout item's.
 
 - [x] 4. Render only text parts in chat messages
   Goal: Finding 11.
@@ -208,6 +220,9 @@ Whichever task lands second re-exports what it needs.
   `nx run @koloda/settings-react:test`, and `bun run typecheck` pass.
   Commit: Remove hook returns that no consumer reads
   Depends on: none
+  Result: `provider` and `hasProfiles` were locals only the return read, so they went too; `defaultProfileId` stays as
+  a local the hook uses.
+  The fallback test now waits for `profiles` (which `AssistantChat` reads) instead of `selectedProfile`.
 
 - [x] 7. Drop e2e helper options that no spec passes
   Goal: Finding 9.
