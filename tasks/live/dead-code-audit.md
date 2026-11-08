@@ -294,7 +294,7 @@ Whichever task lands second re-exports what it needs.
   `template-layout.tsx`: their inferred component types name `Errors`, so the barrel must export it.
   The export now carries the same TS2883 WHY as `ButtonProps` and `FormTextField`.
 
-- [ ] 12. List the design-system seeding exports in the assistant-react README
+- [x] 12. List the design-system seeding exports in the assistant-react README
   Goal: Finding 6.
   `libs/assistant-react/src/index.ts:1,5` export `coerceConversationState` and `upsertConversationAtom`.
   `libs/assistant-react/README.md` §Public surface lists neither, and says not to re-export

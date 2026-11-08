@@ -78,11 +78,13 @@ App shells may import only:
   `newConversationAtom` stays internal to the recovery screen.
 - Persistence host: `useConversationSaveHost` (application shell, not the AI route)
 - Engine host: `useAssistantEngineHost`, `shutdownAssistantGracefully` (application shell)
+- Sample seeding: `coerceConversationState`, `upsertConversationAtom` (`apps/design-system` only, not product shells)
 
 Conversation state internals stay inside the package lib folder:
 `state/conversation-store.ts`, `state/conversation-selectors.ts`, and `state/conversation-actions.ts`.
 Import those directly inside the package lib folder.
 Do not re-export them, or hooks, the reducer, or orchestration, from the package entry.
+The one exception is `upsertConversationAtom`, which the design-system app needs to seed a sample conversation.
 
 ## Read next
 
