@@ -264,7 +264,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Delete two unused types
   Depends on: none
 
-- [ ] 10. Import ReviewFSRS from ts-fsrs instead of re-exporting it
+- [x] 10. Import ReviewFSRS from ts-fsrs instead of re-exporting it
   Goal: Finding 3, CODE-STYLE §Avoid Reexports.
   `libs/srs/src/lib/reviews.ts:27` (`export type { ReviewLog as ReviewFSRS } from "ts-fsrs";`) is the only
   `export … from` in any lib outside `src/index.ts`.

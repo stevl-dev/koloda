@@ -24,8 +24,6 @@ type ReviewRefinementValues = ProgressFieldValues & {
   time: number;
 };
 
-export type { ReviewLog as ReviewFSRS } from "ts-fsrs";
-
 // INVARIANT: no zod defaults — a missing key must reject the way serde does on desktop
 // `Review` / `InsertReviewData`. Card scheduling fields stay defaulted (`./cards`).
 const reviewFieldsSchema = z.object({

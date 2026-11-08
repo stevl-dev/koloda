@@ -1,12 +1,11 @@
 import type { ObjectPropertiesMapping, UpdateData } from "@koloda/app";
 import { mapObjectProperties, mapObjectPropertiesReverse, timestampsValidation } from "@koloda/app";
 import { createEmptyCard, Rating } from "ts-fsrs";
-import type { Card as CardFSRS } from "ts-fsrs";
+import type { Card as CardFSRS, ReviewLog as ReviewFSRS } from "ts-fsrs";
 import { z } from "zod";
 import type { Algorithm, LessonAlgorithm } from "./algorithms";
 import { createFSRSAlgorithm } from "./algorithms-fsrs";
 import { deckValidation } from "./decks";
-import type { ReviewFSRS } from "./reviews";
 import type { Template, TemplateFields } from "./templates";
 import type { ProgressFieldValues } from "./progress";
 import { CARDS_PROGRESS_FIELD_CODES, validateProgressFields } from "./progress";
