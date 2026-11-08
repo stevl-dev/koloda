@@ -1,6 +1,6 @@
 # Guides and docs audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md
 Flow: local
 
@@ -217,3 +217,28 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
 - Item 6: `agents/DB.md` also moves `#### Schema Change Workflow` to `##`, so its hierarchy stays one level apart.
 
 ## Outcome
+
+All 11 findings fixed in six plan items (`4037d6b8`..`08ff56b5`), plus one commit of implementation notes
+(`8352a0f9`).
+None skipped; no needs-decision entries left.
+`bun run check:push` passed on `08ff56b5`; the commit after it changes only this file.
+No item added or edited an e2e case.
+
+- Findings 1 and 6: `bun run check:docs` checks repo paths in every markdown file outside `docs/specs/` and `tasks/`,
+  skipping `dist` and `target` build outputs (392 to 428 cases).
+  `agents/TESTING.md` and the two sync README pointers in `agents/REVIEW.md` use the `§` form, so the gate resolves them.
+  The citation-format examples in `agents/REVIEW.md` (§Every comment cites a rule, §How to write a comment) stay as
+  they were, by the human's decision; later audits should not raise them again.
+  `agents/MARKDOWN.md` (§Checks) describes the wider path check.
+- Finding 2: `libs/ai/README.md` names the host execution port instead of `useAssistantClient`; the ASSISTANT-MAP
+  root row names `use-assistant-runtime-config` and drops "client".
+- Finding 3: INDEX routes any Rust edit to `agents/CODE-DOCUMENTATION.md`.
+- Finding 4: `agents/ADD-AI-PROVIDER.md` step 3 names the web `redactSecrets`; step 8 lists the provider in
+  `docs/specs/AI-PROVIDERS.md` (§Platform Availability); both join §Key Files Reference.
+- Finding 5: `agents/ADD-COLOR-THEME.md` step 7, its checklist, and its references name the spec's theme lists.
+- Finding 7: `libs/e2e/README.md` has "Where it sits" and "Does NOT own".
+- Finding 8: `agents/ADD-ASSISTANT-TOOL.md` puts the activity label in the `libs/ai-react` catalogs.
+- Finding 9: `agents/TESTING.md` scopes `bun run test:rust` to the four workspace crates and names the addon target.
+- Finding 10: INDEX loads `agents/DECISIONS.md` when a change edits `docs/decisions/`.
+- Finding 11: `agents/I18N.md` and `agents/DB.md` open with `#`; the `agents/LAYOUT.md` and
+  `agents/BACKWARDS-COMPATIBILITY.md` typos and line breaks are fixed.
