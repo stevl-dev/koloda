@@ -95,8 +95,6 @@ export const lessonTemplateRowSchema = templateValidation.pick({ id: true, conte
 
 export type Template = z.infer<typeof templateRowSchema>;
 
-export type LessonTemplateRow = z.infer<typeof lessonTemplateRowSchema>;
-
 export type TemplateFields = Template["content"]["fields"];
 
 export type TemplateField = TemplateFields[number];

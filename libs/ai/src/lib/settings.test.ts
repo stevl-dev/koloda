@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { z } from "zod";
 import {
   aiProfileValidation,
   aiSettingsValidation,
@@ -8,7 +9,8 @@ import {
   resolveChatPromptMode,
   resolveEffectiveChatPromptTemplate,
 } from "./settings";
-import type { AISettings } from "./settings";
+
+type AISettings = z.input<typeof aiSettingsValidation>;
 
 const secrets = { provider: "openrouter" as const, apiKey: null };
 

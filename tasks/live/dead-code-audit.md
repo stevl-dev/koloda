@@ -249,7 +249,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Delete the test-only pendingSaveAtom
   Depends on: none
 
-- [ ] 9. Delete the dead LessonTemplateRow and test-only AISettings types
+- [x] 9. Delete the dead LessonTemplateRow and test-only AISettings types
   Goal: Finding 2.
   - `LessonTemplateRow` (`libs/srs/src/lib/templates.ts:98`) has no reference.
     `lessonTemplateRowSchema` (`:94`) stays; `libs/db-sqlite/src/lib/lessons.ts` uses it.
