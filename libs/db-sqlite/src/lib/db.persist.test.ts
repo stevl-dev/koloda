@@ -18,8 +18,8 @@ describe("db-sqlite persist/reload", () => {
   it("writes a row to IndexedDB koloda and reads it back after close and reopen", async () => {
     const db = await openDb();
     await db.exec("CREATE TABLE scratch (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
-    const inserted = await db.run("INSERT INTO scratch (name) VALUES (?)", ["kept"]);
-    expect(inserted.lastInsertRowid).toBe(1);
+    await db.run("INSERT INTO scratch (name) VALUES (?)", ["kept"]);
+    expect(await db.get("SELECT id, name FROM scratch")).toEqual({ id: 1, name: "kept" });
 
     const [{ foreign_keys }] = await db.all("PRAGMA foreign_keys");
     expect(foreign_keys).toBe(1);

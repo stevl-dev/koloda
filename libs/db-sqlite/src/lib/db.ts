@@ -9,7 +9,6 @@ export type SqlValue = SQLiteCompatibleType;
 export type SqlRow = Record<string, SqlValue>;
 
 export type RunResult = {
-  lastInsertRowid: number;
   changes: number;
 };
 
@@ -233,13 +232,7 @@ function createApi(sqlite3: SQLiteAPI, conn: Conn, idbName: string, locked: bool
     run(sql, params) {
       return wrap(async () => {
         await sqlite3.run(conn.handle, sql, bindParams(params));
-        const { columns, rows } = await sqlite3.execWithParams(
-          conn.handle,
-          "SELECT last_insert_rowid() AS id",
-          undefined,
-        );
-        const [{ id }] = toRows(columns, rows);
-        return { lastInsertRowid: Number(id), changes: sqlite3.changes(conn.handle) };
+        return { changes: sqlite3.changes(conn.handle) };
       });
     },
     all(sql, params) {

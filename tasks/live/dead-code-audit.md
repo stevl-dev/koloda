@@ -78,7 +78,7 @@ Whichever task lands second re-exports what it needs.
 
 ## Plan
 
-- [ ] 1. Drop the extra `last_insert_rowid` statement from web `db.run`
+- [x] 1. Drop the extra `last_insert_rowid` statement from web `db.run`
   Goal: Finding 4.
   `libs/db-sqlite/src/lib/db.ts:233-243`: after every `sqlite3.run`, `run` executes
   `SELECT last_insert_rowid() AS id` and returns `{ lastInsertRowid, changes }` (`RunResult`, `:11-14`).
