@@ -15,8 +15,7 @@ describe("computeConversationTitle", () => {
     expect(computeConversationTitle({ messages: [], promptInput: "  hello   world  " })).toBe("hello world");
   });
 
-  it("stores a null title when the prompt is missing, empty, or whitespace-only", () => {
-    expect(computeConversationTitle({ messages: [] })).toBeNull();
+  it("stores a null title when the prompt is empty or whitespace-only", () => {
     expect(computeConversationTitle({ messages: [], promptInput: "" })).toBeNull();
     expect(computeConversationTitle({ messages: [], promptInput: "  \n\t  " })).toBeNull();
   });
@@ -26,8 +25,10 @@ describe("computeConversationTitle", () => {
     const overLimit = "a".repeat(256);
     expect(computeConversationTitle({ messages: [], promptInput: atLimit })).toBe(atLimit);
     expect(computeConversationTitle({ messages: [], promptInput: overLimit })).toBe(`${"a".repeat(254)}…`);
-    expect(computeConversationTitle({ messages: [userMessage(atLimit)] })).toBe(atLimit);
-    expect(computeConversationTitle({ messages: [userMessage(overLimit)] })).toBe(`${"a".repeat(254)}…`);
+    expect(computeConversationTitle({ messages: [userMessage(atLimit)], promptInput: "" })).toBe(atLimit);
+    expect(computeConversationTitle({ messages: [userMessage(overLimit)], promptInput: "" })).toBe(
+      `${"a".repeat(254)}…`,
+    );
   });
 
   it("keeps the first user message after later prompt edits", () => {

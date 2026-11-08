@@ -159,7 +159,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Render only text parts in chat messages
   Depends on: none
 
-- [ ] 5. Remove optional parameters that no caller passes
+- [x] 5. Remove optional parameters that no caller passes
   Goal: Finding 8, the future-proof residue CODE-STYLE §Change Discipline forbids.
   - `pathPrefix` in `validateProgressFields`, `validateReviewRating`, and `validateReviewTime`
     (`libs/srs/src/lib/progress.ts:58,85,91`).

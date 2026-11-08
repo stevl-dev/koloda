@@ -13,7 +13,7 @@ const COLLAPSE_WHITESPACE = /\s+/g;
 
 export type ConversationLike = {
   messages: UIMessage[];
-  promptInput?: string;
+  promptInput: string;
 };
 
 function formatConversationTitle(raw: string): string | null {
@@ -29,5 +29,5 @@ function formatConversationTitle(raw: string): string | null {
 export function computeConversationTitle(state: ConversationLike): string | null {
   const firstUser = state.messages.find((m) => m.role === "user");
   if (firstUser) return formatConversationTitle(getTextMessageContent(firstUser));
-  return formatConversationTitle(state.promptInput ?? "");
+  return formatConversationTitle(state.promptInput);
 }

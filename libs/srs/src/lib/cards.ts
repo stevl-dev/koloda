@@ -1,7 +1,7 @@
 import type { ObjectPropertiesMapping, UpdateData } from "@koloda/app";
 import { mapObjectProperties, mapObjectPropertiesReverse, timestampsValidation } from "@koloda/app";
 import { createEmptyCard, Rating } from "ts-fsrs";
-import type { Card as CardFSRS, DateInput } from "ts-fsrs";
+import type { Card as CardFSRS } from "ts-fsrs";
 import { z } from "zod";
 import type { Algorithm, LessonAlgorithm } from "./algorithms";
 import { createFSRSAlgorithm } from "./algorithms-fsrs";
@@ -152,8 +152,8 @@ const FSRS_CARD_PROPERTIES: ObjectPropertiesMapping<Card, CardFSRS> = {
   scheduledDays: "scheduled_days",
 } as const;
 
-function createFSRSCard(card: Card, time: DateInput = Date.now()): CardFSRS {
-  return createEmptyCard(time, (handlerCard: CardFSRS) => {
+function createFSRSCard(card: Card): CardFSRS {
+  return createEmptyCard(Date.now(), (handlerCard: CardFSRS) => {
     const mapped = mapObjectProperties(card, FSRS_CARD_PROPERTIES);
     // WHY: null dueAt/lastReviewedAt (untouched rows) must not override the due/last_review defaults createEmptyCard just set.
     const filtered = Object.fromEntries(Object.entries(mapped).filter(([_, v]) => v !== null));

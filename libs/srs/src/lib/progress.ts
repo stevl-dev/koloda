@@ -51,45 +51,38 @@ function addFieldIssue(ctx: z.RefinementCtx, path: (string | number)[], code: st
 }
 
 /** Shared FSRS progress-field bounds — callers supply entity-specific error codes. */
-export function validateProgressFields(
-  data: ProgressFieldValues,
-  codes: ProgressFieldCodes,
-  ctx: z.RefinementCtx,
-  pathPrefix: (string | number)[] = [],
-) {
-  const fieldPath = (field: string) => [...pathPrefix, field];
-
+export function validateProgressFields(data: ProgressFieldValues, codes: ProgressFieldCodes, ctx: z.RefinementCtx) {
   if (data.state < CARD_STATE_MIN || data.state > CARD_STATE_MAX) {
-    addFieldIssue(ctx, fieldPath("state"), codes.state);
+    addFieldIssue(ctx, ["state"], codes.state);
   }
   if (data.stability < 0) {
-    addFieldIssue(ctx, fieldPath("stability"), codes.stability);
+    addFieldIssue(ctx, ["stability"], codes.stability);
   }
   if (data.difficulty < DIFFICULTY_MIN || data.difficulty > DIFFICULTY_MAX) {
-    addFieldIssue(ctx, fieldPath("difficulty"), codes.difficulty);
+    addFieldIssue(ctx, ["difficulty"], codes.difficulty);
   }
   if (data.scheduledDays < 0) {
-    addFieldIssue(ctx, fieldPath("scheduledDays"), codes.scheduledDays);
+    addFieldIssue(ctx, ["scheduledDays"], codes.scheduledDays);
   }
   if (data.learningSteps < 0) {
-    addFieldIssue(ctx, fieldPath("learningSteps"), codes.learningSteps);
+    addFieldIssue(ctx, ["learningSteps"], codes.learningSteps);
   }
   if (codes.reps !== undefined && data.reps !== undefined && data.reps < 0) {
-    addFieldIssue(ctx, fieldPath("reps"), codes.reps);
+    addFieldIssue(ctx, ["reps"], codes.reps);
   }
   if (codes.lapses !== undefined && data.lapses !== undefined && data.lapses < 0) {
-    addFieldIssue(ctx, fieldPath("lapses"), codes.lapses);
+    addFieldIssue(ctx, ["lapses"], codes.lapses);
   }
 }
 
-export function validateReviewRating(rating: number, ctx: z.RefinementCtx, pathPrefix: (string | number)[] = []) {
+export function validateReviewRating(rating: number, ctx: z.RefinementCtx) {
   if (rating < RATING_MIN || rating > RATING_MAX) {
-    addFieldIssue(ctx, [...pathPrefix, "rating"], "validation.reviews.rating");
+    addFieldIssue(ctx, ["rating"], "validation.reviews.rating");
   }
 }
 
-export function validateReviewTime(time: number, ctx: z.RefinementCtx, pathPrefix: (string | number)[] = []) {
+export function validateReviewTime(time: number, ctx: z.RefinementCtx) {
   if (time < 0) {
-    addFieldIssue(ctx, [...pathPrefix, "time"], "validation.reviews.time");
+    addFieldIssue(ctx, ["time"], "validation.reviews.time");
   }
 }

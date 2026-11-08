@@ -33,8 +33,6 @@ export type CreateConversationSaveQueueOptions = {
    */
   write: () => Promise<void>;
   isStreaming: () => boolean;
-  throttleMs?: number;
-  debounceMs?: number;
   /** Injected for deterministic backoff tests. Defaults to `Math.random`. */
   random?: () => number;
   /** Injected for assertions; defaults to the structured logger (silent unless overridden). */
@@ -122,8 +120,6 @@ export function createConversationSaveQueue({
   conversationId,
   write,
   isStreaming,
-  throttleMs = STREAM_SAVE_THROTTLE_MS,
-  debounceMs = IDLE_SAVE_DEBOUNCE_MS,
   random = Math.random,
   logSaveFailure = defaultLogSaveFailure,
 }: CreateConversationSaveQueueOptions): ConversationSaveQueue {
@@ -207,8 +203,8 @@ export function createConversationSaveQueue({
 
   const scheduler = createSaveScheduler({
     flush: runFlush,
-    throttleMs,
-    debounceMs,
+    throttleMs: STREAM_SAVE_THROTTLE_MS,
+    debounceMs: IDLE_SAVE_DEBOUNCE_MS,
     isStreaming,
   });
 

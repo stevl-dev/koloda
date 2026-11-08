@@ -18,9 +18,9 @@ export function getAIHttpErrorCode(status: number): string {
 
 const MAX_ERROR_BODY = 800;
 
-function truncate(text: string, max = MAX_ERROR_BODY): string {
-  if (text.length <= max) return text;
-  return `${text.slice(0, max)}…`;
+function truncate(text: string): string {
+  if (text.length <= MAX_ERROR_BODY) return text;
+  return `${text.slice(0, MAX_ERROR_BODY)}…`;
 }
 
 /** Prefer provider response bodies over bare status text (e.g. "Forbidden"). */
