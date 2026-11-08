@@ -4,7 +4,7 @@ import {
   assistantConversationStateAtom,
   conversationsAtom,
   markReadIfCurrentOnStore,
-  pendingSaveAtom,
+  pendingSaveByConversationAtom,
   setCurrentConversationIdAtom,
   upsertConversationAtom,
 } from "./conversation-store";
@@ -244,11 +244,11 @@ describe("setCurrentConversationIdAtom mark-read side effect", () => {
   it("bumps the pending-save counter so the refreshed lastReadRunId is persisted", () => {
     const store = createStore();
     store.set(upsertConversationAtom, makeConversation("A", { runs: { r1: makeRun("r1", "success") } }));
-    expect(store.get(pendingSaveAtom)).toBe(0);
+    expect(store.get(pendingSaveByConversationAtom)["A"] ?? 0).toBe(0);
 
     store.set(setCurrentConversationIdAtom, "A");
 
-    expect(store.get(pendingSaveAtom)).toBe(1);
+    expect(store.get(pendingSaveByConversationAtom)["A"] ?? 0).toBe(1);
   });
 
   it("does not bump the save when the conversation is already up-to-date", () => {
@@ -257,11 +257,11 @@ describe("setCurrentConversationIdAtom mark-read side effect", () => {
       upsertConversationAtom,
       makeConversation("A", { runs: { r1: makeRun("r1", "success") }, lastReadRunId: "r1" }),
     );
-    expect(store.get(pendingSaveAtom)).toBe(0);
+    expect(store.get(pendingSaveByConversationAtom)["A"] ?? 0).toBe(0);
 
     store.set(setCurrentConversationIdAtom, "A");
 
-    expect(store.get(pendingSaveAtom)).toBe(0);
+    expect(store.get(pendingSaveByConversationAtom)["A"] ?? 0).toBe(0);
   });
 
   it("is a no-op for an unknown conversation id", () => {
@@ -271,7 +271,7 @@ describe("setCurrentConversationIdAtom mark-read side effect", () => {
     store.set(setCurrentConversationIdAtom, "UNKNOWN");
 
     expect(store.get(conversationsAtom)["UNKNOWN"]).toBeUndefined();
-    expect(store.get(pendingSaveAtom)).toBe(0);
+    expect(store.get(pendingSaveByConversationAtom)).toEqual({});
   });
 
   it("leaves the unread set intact when switching to a conversation with a streaming run", () => {

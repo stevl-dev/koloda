@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assistantConversationStateAtom,
   conversationsAtom,
-  pendingSaveAtom,
+  pendingSaveByConversationAtom,
   setCurrentConversationIdAtom,
   upsertConversationAtom,
 } from "./conversation-store";
@@ -342,10 +342,7 @@ describe("cloneConversationAtom", () => {
 
     // The pending-save counter for the new id is bumped, so
     // useConversationPersistence fires its flush.
-    expect(store.get(pendingSaveAtom)).toBeGreaterThan(0);
-    // Switch to the new id and confirm the counter is the bumped one.
-    store.set(setCurrentConversationIdAtom, newId);
-    expect(store.get(pendingSaveAtom)).toBeGreaterThan(0);
+    expect(store.get(pendingSaveByConversationAtom)[newId]).toBeGreaterThan(0);
   });
 
   it("does not bump the source conversation's pending-save counter", () => {
@@ -365,14 +362,10 @@ describe("cloneConversationAtom", () => {
       }),
     );
     store.set(setCurrentConversationIdAtom, "A");
-    const before = store.get(pendingSaveAtom);
+    const before = store.get(pendingSaveByConversationAtom)["A"] ?? 0;
 
     store.set(cloneConversationAtom, { sourceId: "A" });
-    // Switch back to A — its counter is unchanged.
-    // Pending-save count for A is unchanged (it was 0 before the clone,
-    // and switching back to A reads from the A counter).
-    store.set(setCurrentConversationIdAtom, "A");
-    expect(store.get(pendingSaveAtom)).toBe(before);
+    expect(store.get(pendingSaveByConversationAtom)["A"] ?? 0).toBe(before);
   });
 
   it("returns null when the source conversation is unknown", () => {

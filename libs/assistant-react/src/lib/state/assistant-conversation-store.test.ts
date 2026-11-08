@@ -5,7 +5,6 @@ import {
   touchAtom,
   touchConversationAtom,
   conversationsAtom,
-  pendingSaveAtom,
   pendingSaveByConversationAtom,
   setCurrentConversationIdAtom,
   upsertConversationAtom,
@@ -305,36 +304,31 @@ describe("assistantConversationStateAtom (per-conversation store)", () => {
   });
 });
 
-describe("pendingSaveAtom (per-conversation counter)", () => {
-  it("bumps the current conversation's counter when no current is set, the bump is a no-op", () => {
+describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
+  const pendingSave = (store: ReturnType<typeof createStore>, id: string) =>
+    store.get(pendingSaveByConversationAtom)[id] ?? 0;
+
+  it("does nothing when no conversation is current", () => {
     const store = createStore();
     store.set(touchAtom);
-    expect(store.get(pendingSaveAtom)).toBe(0);
+    expect(store.get(pendingSaveByConversationAtom)).toEqual({});
   });
 
-  it("bumps the current conversation's counter and re-derives correctly", () => {
+  it("bumps only the current conversation's counter", () => {
     const store = createStore();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(upsertConversationAtom, makeConversation("B"));
 
     store.set(setCurrentConversationIdAtom, "A");
-    expect(store.get(pendingSaveAtom)).toBe(0);
-
     store.set(touchAtom);
     store.set(touchAtom);
-    expect(store.get(pendingSaveAtom)).toBe(2);
+    expect(pendingSave(store, "A")).toBe(2);
+    expect(pendingSave(store, "B")).toBe(0);
 
-    // Switch to B — its counter is 0
     store.set(setCurrentConversationIdAtom, "B");
-    expect(store.get(pendingSaveAtom)).toBe(0);
-
-    // Bump B
     store.set(touchAtom);
-    expect(store.get(pendingSaveAtom)).toBe(1);
-
-    // Switch back to A — its counter is still 2
-    store.set(setCurrentConversationIdAtom, "A");
-    expect(store.get(pendingSaveAtom)).toBe(2);
+    expect(pendingSave(store, "A")).toBe(2);
+    expect(pendingSave(store, "B")).toBe(1);
   });
 
   it("touchConversationAtom dirties a specific id without depending on current", () => {
@@ -349,8 +343,6 @@ describe("pendingSaveAtom (per-conversation counter)", () => {
     const pending = store.get(pendingSaveByConversationAtom);
     expect(pending["A"]).toBe(2);
     expect(pending["B"] ?? 0).toBe(0);
-    // Viewing B — derived pendingSave still reflects B only.
-    expect(store.get(pendingSaveAtom)).toBe(0);
   });
 
   it("setAssistantCardStatusAtom writes and dirties the originating conversation, not the current one", () => {
@@ -404,16 +396,12 @@ describe("pendingSaveAtom (per-conversation counter)", () => {
     store.set(setCurrentConversationIdAtom, "A");
     store.set(setAssistantAIProfileAtom, { profileId: "p1", modelId: "m1" });
     store.set(setAssistantAIProfileAtom, { profileId: "p2", modelId: "m2" });
-    expect(store.get(pendingSaveAtom)).toBe(2);
+    expect(pendingSave(store, "A")).toBe(2);
 
-    // Switch to B and bump its counter
     store.set(setCurrentConversationIdAtom, "B");
     store.set(setAssistantAIProfileAtom, { profileId: "p7", modelId: "m7" });
-    expect(store.get(pendingSaveAtom)).toBe(1);
-
-    // Switch back to A — A's counter still shows 2, B's shows 1
-    store.set(setCurrentConversationIdAtom, "A");
-    expect(store.get(pendingSaveAtom)).toBe(2);
+    expect(pendingSave(store, "A")).toBe(2);
+    expect(pendingSave(store, "B")).toBe(1);
   });
 
   it("setAssistantPromptInputAtom bumps the pending-save counter", () => {
@@ -422,14 +410,14 @@ describe("pendingSaveAtom (per-conversation counter)", () => {
     store.set(setCurrentConversationIdAtom, "A");
 
     store.set(setAssistantPromptInputAtom, "draft");
-    expect(store.get(pendingSaveAtom)).toBe(1);
+    expect(pendingSave(store, "A")).toBe(1);
     expect(store.get(assistantConversationStateAtom).promptInput).toBe("draft");
 
     store.set(setAssistantPromptInputAtom, "draft");
-    expect(store.get(pendingSaveAtom)).toBe(1);
+    expect(pendingSave(store, "A")).toBe(1);
 
     store.set(setAssistantPromptInputAtom, "draft two");
-    expect(store.get(pendingSaveAtom)).toBe(2);
+    expect(pendingSave(store, "A")).toBe(2);
   });
 });
 

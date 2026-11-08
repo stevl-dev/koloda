@@ -136,12 +136,6 @@ export const dismissSaveStatusAtom = atom(null, (_get, set) => {
 // INVARIANT: Per-conversation pending-save counters — exported for remove/clone actions.
 export const pendingSaveByConversationAtom = atom<Record<string, number>>({});
 
-export const pendingSaveAtom = atom((get) => {
-  const id = get(currentConversationIdAtom);
-  if (!id) return 0;
-  return get(pendingSaveByConversationAtom)[id] ?? 0;
-});
-
 // INVARIANT: Marks a specific conversation dirty by id — used for background
 // run events so completion on A does not dirty currently-viewed B.
 export const touchConversationAtom = atom(null, (_get, set, conversationId: string) => {

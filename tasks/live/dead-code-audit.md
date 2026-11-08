@@ -232,7 +232,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Drop e2e mock options that no spec passes
   Depends on: none
 
-- [ ] 8. Delete the test-only pendingSaveAtom
+- [x] 8. Delete the test-only pendingSaveAtom
   Goal: Finding 1.
   `libs/assistant-react/src/lib/state/conversation-store.ts:139-143` derives the current conversation's pending-save
   count from `pendingSaveByConversationAtom`.

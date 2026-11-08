@@ -6,7 +6,7 @@ import { assistantPromptInputAtom } from "./conversation-selectors";
 import {
   conversationsAtom,
   currentConversationIdAtom,
-  pendingSaveAtom,
+  pendingSaveByConversationAtom,
   setCurrentConversationIdAtom,
   upsertConversationAtom,
 } from "./conversation-store";
@@ -35,7 +35,7 @@ describe("mint conversation id on first non-whitespace prompt", () => {
     expect(state.modelParameters).toEqual({ reasoning_effort: "high" });
     expect(state.updatedAt).toBe(state.createdAt);
     expect(state.updatedAt).not.toBeNull();
-    expect(store.get(pendingSaveAtom)).toBe(1);
+    expect(store.get(pendingSaveByConversationAtom)[mintedId!]).toBe(1);
   });
 
   it("does not mint on whitespace-only edits and keeps that text on the param-less composer", () => {
