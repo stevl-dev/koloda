@@ -1,6 +1,6 @@
 # Dead code audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, apps/web-e2e/README.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/VERIFY.md, agents/MARKDOWN.md
 Flow: local
 
@@ -398,4 +398,36 @@ Whichever task lands second re-exports what it needs.
 
 ## Outcome
 
-<filled at Archive>
+12 findings fixed and one partly fixed, one plan item each (`5bb355e1`..`36306bab`, then item 2 as `d1f245b8`), plus
+one commit of implementation notes (`836a28a9`).
+None skipped; no needs-decision entries left.
+`bun run check:push` passed on the pre-archive tip `d1f245b8`.
+No item added or edited an e2e case; the human dropped the suite run for item 7 at approval.
+
+- Finding 4: web `db.run` returns `{ changes }` and no longer runs `SELECT last_insert_rowid()` after each write.
+- Finding 5: the six unused root dependencies are gone.
+  `bun.lock` re-hoisted Babel (top-level `@babel/generator` 7.28.5 to 7.27.5, `@babel/parser` 7.28.5 to 7.27.7);
+  the human accepted it.
+- Finding 12: `fieldId`/`field_id` is gone from the lesson template layout on both hosts, with the Rust serde test,
+  the db-sqlite wire-key test, and two srs-react fixtures.
+- Finding 11: `MessagePart` renders text parts and returns `null` for every other kind.
+- Finding 8: `pathPrefix`, `createFSRSCard`'s `time`, `truncate`'s `max`, and the save queue's `throttleMs` and
+  `debounceMs` are gone; `ConversationLike.promptInput` is required.
+- Finding 10: `useAIProfilesModels` returns only `byProfileId`, and its state has no `error`;
+  `useAssistantProfileSelection` drops `selectedProfile`, `defaultProfileId`, `provider`, and `hasProfiles`;
+  the cards table columns no longer carry `templateId`.
+- Finding 9: `errorBody`, `modelId`, the tool-call `id`, and `addLmStudioProfile`'s `title` are gone from `libs/e2e`
+  and both transports.
+- Finding 1: `pendingSaveAtom` is deleted; its tests read `pendingSaveByConversationAtom` by conversation id.
+- Finding 2: `LessonTemplateRow` and `AISettings` are deleted.
+- Finding 3: `cards.ts` imports `ReviewLog as ReviewFSRS` from `ts-fsrs`; no lib re-exports outside its entry.
+- Finding 7, partly fixed: the three `AssistantTool*` types left the `@koloda/ai` entry.
+  `Errors` stays in the `@koloda/ui` entry: without it, `tsc` fails with TS2883 in `srs-react`'s
+  `template-fields-item.tsx`, `template-fields.tsx`, and `template-layout.tsx`.
+  It now carries the same TS2883 WHY as `ButtonProps` and `FormTextField`, so later audits should not raise it again.
+- Finding 6: `libs/assistant-react/README.md` §Public surface lists `coerceConversationState` and
+  `upsertConversationAtom` as design-system seeding only.
+- Finding 13: all 103 symbols are now local; none became unused.
+  The export probe re-run on the tip finds no new self-only exports outside the excluded groups.
+
+Handoffs left open: `deepMerge` (`app-audit` Open question 7), and the untyped `apps/electron-react` tests.
