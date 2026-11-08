@@ -1,13 +1,6 @@
 export { createAssistantToolExecutor } from "./lib/assistant-tool-executor";
 export { ASSISTANT_TOOL_SPECS, generatedCardsFromProposeOutput, isProposeCardsOutput } from "./lib/assistant-tools";
-export type {
-  AssistantToolAlgorithm,
-  AssistantToolCard,
-  AssistantToolEvent,
-  AssistantToolName,
-  AssistantToolTemplate,
-  OnToolEvent,
-} from "./lib/assistant-tools";
+export type { AssistantToolEvent, AssistantToolName, OnToolEvent } from "./lib/assistant-tools";
 export { computeConversationTitle, getTextMessageContent } from "./lib/conversations";
 export { AIError, isAIError, toAIError, wrapAIError } from "./lib/error";
 export { chatInputSchema } from "./lib/generation";

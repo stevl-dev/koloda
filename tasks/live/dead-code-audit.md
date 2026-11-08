@@ -276,7 +276,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Import ReviewFSRS from ts-fsrs in cards
   Depends on: none
 
-- [ ] 11. Remove entry exports with no consumer
+- [x] 11. Remove entry exports with no consumer
   Goal: Finding 7.
   - `libs/ai/src/index.ts:4,5,8` export the types `AssistantToolAlgorithm`, `AssistantToolCard`, and
     `AssistantToolTemplate`.
@@ -287,8 +287,12 @@ Whichever task lands second re-exports what it needs.
   Check the `libs/ai` and `libs/ui` READMEs and remove any mention of them as public surface.
   Constraints: Entries and READMEs only.
   Done when: `bun run typecheck`, `bun run check:workspace-deps`, and `bun run check:docs` pass.
-  Commit: Remove four entry exports with no consumer
+  Commit: Remove three ai entry exports with no consumer
   Depends on: none
+  Result: `Errors` stays in the `ui` entry.
+  Removing it fails `tsc` with TS2883 in `srs-react`'s `template-fields-item.tsx`, `template-fields.tsx`, and
+  `template-layout.tsx`: their inferred component types name `Errors`, so the barrel must export it.
+  The export now carries the same TS2883 WHY as `ButtonProps` and `FormTextField`.
 
 - [ ] 12. List the design-system seeding exports in the assistant-react README
   Goal: Finding 6.

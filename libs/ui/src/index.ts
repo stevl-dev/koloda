@@ -61,6 +61,7 @@ export { Button } from "./lib/primitives/form/button";
 export type { ButtonProps } from "./lib/primitives/form/button";
 export { Checkbox } from "./lib/primitives/form/checkbox";
 export { FieldGroup } from "./lib/primitives/form/field-group";
+// WHY: TS2883: referenced by srs-react's public component types, must stay nameable via the barrel.
 export { Errors } from "./lib/primitives/form/errors";
 export { useAppForm, withForm } from "./lib/primitives/form/form";
 export { useFieldContext } from "./lib/primitives/form/form-context";
