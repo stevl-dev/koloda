@@ -20,7 +20,7 @@ export async function mockOpenAICompatibleProvider(
   page: Page,
   options: MockOpenAICompatibleOptions = {},
 ): Promise<MockOpenAICompatibleHandle> {
-  const modelId = options.modelId ?? E2E_LM_STUDIO_MODEL_ID;
+  const modelId = E2E_LM_STUDIO_MODEL_ID;
   const queue: MockChatCompletionOptions[] = [];
   let defaultCompletion: MockChatCompletionOptions = {
     text: "Hello from the mock assistant.",
@@ -88,7 +88,7 @@ export async function mockOpenAICompatibleProvider(
         await route.fulfill({
           status,
           contentType: "application/json",
-          body: JSON.stringify(next.errorBody ?? { error: { message: "Mock provider error" } }),
+          body: JSON.stringify({ error: { message: "Mock provider error" } }),
         });
       } catch {
         // Request may have been aborted (cancel).

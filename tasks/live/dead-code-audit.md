@@ -209,7 +209,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Remove hook returns that no consumer reads
   Depends on: none
 
-- [ ] 7. Drop e2e helper options that no spec passes
+- [x] 7. Drop e2e helper options that no spec passes
   Goal: Finding 9.
   - `errorBody?` (`libs/e2e/src/ai-mock.ts:57`), read by both transports
     (`apps/web-e2e/src/mock-openai-compatible.ts:91`, `apps/electron-e2e/src/mock-openai-compatible.ts:58`).

@@ -17,7 +17,7 @@ import type { MockChatCompletionOptions, MockOpenAICompatibleHandle, MockOpenAIC
 export async function mockOpenAICompatibleProvider(
   options: MockOpenAICompatibleOptions = {},
 ): Promise<MockOpenAICompatibleHandle> {
-  const modelId = options.modelId ?? E2E_LM_STUDIO_MODEL_ID;
+  const modelId = E2E_LM_STUDIO_MODEL_ID;
   const queue: MockChatCompletionOptions[] = [];
   let defaultCompletion: MockChatCompletionOptions = {
     text: "Hello from the mock assistant.",
@@ -55,7 +55,7 @@ export async function mockOpenAICompatibleProvider(
       if (status >= 400) {
         if (res.writableEnded) return;
         res.writeHead(status, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(next.errorBody ?? { error: { message: "Mock provider error" } }));
+        res.end(JSON.stringify({ error: { message: "Mock provider error" } }));
         return;
       }
 

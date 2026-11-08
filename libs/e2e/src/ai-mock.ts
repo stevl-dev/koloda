@@ -39,12 +39,6 @@ export type MockChatCompletionOptions = {
   toolCall?: {
     name: string;
     arguments: Record<string, unknown>;
-    /**
-     * WHY: the app dedupes a run's tool calls by id, so two tool-call
-     * responses in one run must not share an id; defaults to a unique
-     * per-response `call_e2e_tool_N`.
-     */
-    id?: string;
   };
   /**
    * Hold the response without fulfilling until `release()` is called.
@@ -53,8 +47,6 @@ export type MockChatCompletionOptions = {
   shouldHold?: boolean;
   /** HTTP status for the completions response (non-2xx for failure tests). */
   status?: number;
-  /** JSON error body when `status` is not OK. */
-  errorBody?: unknown;
 };
 
 /**
@@ -95,7 +87,6 @@ export type MockOpenAICompatibleHandle = {
 };
 
 export type MockOpenAICompatibleOptions = {
-  modelId?: string;
   defaultCompletion?: MockChatCompletionOptions;
   /**
    * Completions behavior computed from the raw request body when the FIFO queue
@@ -155,11 +146,11 @@ export function buildOpenAIChatCompletionSSE(
 
 export function buildOpenAIToolCallSSE(
   modelId: string,
-  toolCall: { name: string; arguments: Record<string, unknown>; id?: string },
+  toolCall: { name: string; arguments: Record<string, unknown> },
 ): string {
   const id = "chatcmpl-e2e";
   const created = Math.floor(Date.now() / 1000);
-  const callId = nextToolCallId(toolCall);
+  const callId = nextToolCallId();
   const args = JSON.stringify(toolCall.arguments);
 
   const chunks = [
@@ -216,7 +207,7 @@ export function buildOpenAIToolCallSSE(
 
 export function buildOpenAIToolCallJSON(
   modelId: string,
-  toolCall: { name: string; arguments: Record<string, unknown>; id?: string },
+  toolCall: { name: string; arguments: Record<string, unknown> },
 ) {
   return {
     id: "chatcmpl-e2e",
@@ -231,7 +222,7 @@ export function buildOpenAIToolCallJSON(
           content: null,
           tool_calls: [
             {
-              id: nextToolCallId(toolCall),
+              id: nextToolCallId(),
               type: "function",
               function: { name: toolCall.name, arguments: JSON.stringify(toolCall.arguments) },
             },
@@ -245,11 +236,11 @@ export function buildOpenAIToolCallJSON(
 
 let toolCallIdCounter = 0;
 
-function nextToolCallId(toolCall: { name: string; arguments: Record<string, unknown>; id?: string }): string {
+function nextToolCallId(): string {
   // WHY: a unique id per response — the app's reducer dedupes tool calls by id
   // within a run, so a shared hardcoded id would collapse two tool calls in
   // one run into a single tool row.
-  return toolCall.id ?? `call_e2e_tool_${++toolCallIdCounter}`;
+  return `call_e2e_tool_${++toolCallIdCounter}`;
 }
 
 export function buildOpenAIChatCompletionJSON(
