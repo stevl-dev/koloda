@@ -82,7 +82,8 @@ This README owns the package boundary.
 
 Shared React never builds provider clients or holds usable API keys.
 Hosts inject `aiRuntimeAtom` (`libs/core-react`).
-Assistant chat uses that runtime through `useAssistantClient`.
+Assistant chat reaches that runtime through the host execution port.
+The port lives in `libs/assistant-react/src/lib/runs/assistant-execution-port.ts`.
 The application-shell engine host builds one `AssistantExecutionPort`.
 That port calls `AIRuntime` with the command's `profileId`.
 Do not reintroduce a module-level generator slot or optional `execution` / stream-generator getters.

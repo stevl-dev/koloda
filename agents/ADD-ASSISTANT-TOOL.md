@@ -151,7 +151,7 @@ A request that lists tools without an executor must fail fast.
 - Activity row only: add a translated label (and icon/summary if useful)
   in `libs/ai-react/src/lib/ai-tool-activity.tsx`.
 - Unknown names already fall back to the protocol id; still add a label for shipped tools.
-- Add Lingui strings in both apps per `agents/I18N.md`.
+- Add the label to the `libs/ai-react` catalogs per `agents/I18N.md`.
 
 **`propose_*` tools**
 

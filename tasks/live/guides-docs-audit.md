@@ -140,7 +140,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Check paths in all docs and write navigational pointers in § form
   Depends on: none
 
-- [ ] 2. Fix stale names in the ai README and three guides
+- [x] 2. Fix stale names in the ai README and three guides
   Goal: Correct the references that name deleted code or the wrong place (findings 2, 8, 9).
   `libs/ai/README.md:85`: replace the `useAssistantClient` sentence; assistant chat reaches the runtime through the
   host execution port in `libs/assistant-react/src/lib/runs/assistant-execution-port.ts`, which calls

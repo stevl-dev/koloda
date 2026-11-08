@@ -14,7 +14,7 @@ Add a sibling only when the task crosses that spec.
 | `runs/` | Session (`RunController`), orchestration, engine host, command prep (`prepare-run-request` / `build-stream-request`), thin `engine.dispatch` adapter |
 | `persistence/` | Restore/saver hooks, coerce/normalize, `schemaVersion` check, save host adapter |
 | `ui/` | Chat shell, lists, settings, message/card renderers (incl. tool-activity wiring), chrome |
-| *(root)* | Profile cascade hooks (`use-assistant-profile-selection`, `use-global-ai-profile-state`), runtime config, client, prompt templates |
+| *(root)* | Profile cascade hooks (`use-assistant-profile-selection`, `use-global-ai-profile-state`), runtime config (`use-assistant-runtime-config`, resolves the effective prompt template) |
 
 Stream execution, AbortControllers, serial queues, and save scheduling live in `@koloda/assistant`, not in `runs/`.
 `use-conversation-runs.ts` only returns `engine.dispatch`.

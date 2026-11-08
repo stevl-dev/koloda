@@ -213,7 +213,8 @@ A full `bun run test:libs` is not required to justify a unit change.
   The integration harness is self-contained (in-memory SQLite); no external services.
 - Sync crates: `cargo test -p koloda-sync-proto`, `-p koloda-server`, or `-p koloda-sync`.
   The engine tests run against `koloda` and `koloda-server`, so a change in either also runs `-p koloda-sync`.
-- All Rust crates: `bun run test:rust`.
+- The four workspace crates (`koloda`, `koloda-sync-proto`, `koloda-server`, `koloda-sync`): `bun run test:rust`.
+  The desktop addon is not among them: `nx run @koloda/electron:test-rust`.
 
 ### Runner constraints
 
