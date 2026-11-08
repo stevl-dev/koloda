@@ -1,6 +1,6 @@
 # Guides and docs audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md
 Flow: local
 
@@ -34,12 +34,12 @@ In: all 11 findings, numbered as in the report.
 | 3 Rust authors not routed to CODE-DOCUMENTATION | Should-fix | `agents/INDEX.md:39` | Fix | 3 |
 | 4 AI provider playbook misses two layers | Should-fix | `agents/ADD-AI-PROVIDER.md:79-89`, `:292-300` | Fix | 4 |
 | 5 Color theme playbook misses the spec's theme lists | Should-fix | `agents/ADD-COLOR-THEME.md:129-158`, `:184-202` | Fix | 4 |
-| 6 Docs gate narrower than MARKDOWN.md says | Should-fix | `tools/docs.test.ts:83-90`, `agents/MARKDOWN.md:80-82`, `agents/REVIEW.md:76,78` | Fix; citation examples need a decision | 1 |
+| 6 Docs gate narrower than MARKDOWN.md says | Should-fix | `tools/docs.test.ts:83-90`, `agents/MARKDOWN.md:80-82`, `agents/REVIEW.md:76,78` | Fix; citation examples stay | 1 |
 | 7 `libs/e2e/README.md` lacks boundary sections | Later | `libs/e2e/README.md:8-9` | Fix | 5 |
 | 8 Assistant tool playbook says "both apps" | Later | `agents/ADD-ASSISTANT-TOOL.md:154` | Fix | 2 |
 | 9 "All Rust crates" leaves one out | Later | `agents/TESTING.md:216` | Fix | 2 |
 | 10 No routing rule for edits to a decision | Later | `agents/INDEX.md:25` | Fix | 3 |
-| 11 Guide hygiene | Later | `agents/I18N.md:1`, `agents/DB.md:1`, `agents/LAYOUT.md:3,18`, `agents/BACKWARDS-COMPATIBILITY.md:3` | Fix as its own item; needs a decision | 6 |
+| 11 Guide hygiene | Later | `agents/I18N.md:1`, `agents/DB.md:1`, `agents/LAYOUT.md:3,18`, `agents/BACKWARDS-COMPATIBILITY.md:3` | Fix as its own item | 6 |
 
 Evidence, restated from the report and re-checked at `109641eb`:
 
@@ -82,7 +82,7 @@ Evidence, restated from the report and re-checked at `109641eb`:
      example at `agents/REVIEW.md:154` (`agents/CSS.md (Conditional styling, defaultVariants)`).
      Two cannot become `§` pointers as written: "Fix streaming" is a table row in ASSISTANT-MAP.md, and the CSS.md
      heading is "Conditional styling with `tailwind-variants`", which the gate would not match.
-     See Open questions.
+     Decided at approval: they stay.
    - The same path rule run at triage over every markdown file outside `agents/`, `docs/specs/`, and `tasks/`
      (36 tracked files) flags only `dist/main.cjs` in `apps/electron/README.md`, a build output.
 7. `agents/INDEX.md:81` and `:105` say each package README gives "Where it sits" and "Does NOT own".
@@ -109,12 +109,10 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
 
 ## Open questions
 
-- [ ] Finding 6: the citation examples in `agents/REVIEW.md:43-48` and `:154` — open.
-  Triage choice: leave them as they are, since they show a review comment's citation format, not doc navigation;
-  item 1 rewrites only the navigational pointers (TESTING.md:44, REVIEW.md:76, :78).
-  The alternative switches the review citation format to `§` and rewords the two that cannot resolve.
-- [ ] Finding 11: keep it as its own docs-only commit (item 6), or drop it and leave the hygiene for later edits — open.
-  Triage choice: keep item 6; this task is the guides audit, and no later task is known to touch these files.
+- [x] Finding 6: the citation examples in `agents/REVIEW.md:43-48` and `:154` — leave them as they are; they show a
+  review comment's citation format, not doc navigation.
+  Item 1 rewrites only the navigational pointers (TESTING.md:44, REVIEW.md:76, :78) (human, at approval).
+- [x] Finding 11: keep it as its own docs-only commit (item 6) (human, at approval).
 
 ## Plan
 
@@ -132,7 +130,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   `agents/TESTING.md:44` to `agents/RUST.md` (§Per-task notes, Entity CRUD);
   `agents/REVIEW.md:76` to `crates/koloda/src/repo/sync/README.md` (§Sync capture);
   `agents/REVIEW.md:78` to the same README (§Remote apply).
-  Leave `agents/REVIEW.md:43-48` and `:154` unless the open question says otherwise.
+  Leave `agents/REVIEW.md:43-48` and `:154` as they are (citation-format examples).
   Update `agents/MARKDOWN.md:80-82` so it says the path check covers markdown outside `docs/specs/` and `tasks/`.
   Constraints: `tools/docs.test.ts`, `agents/TESTING.md`, `agents/REVIEW.md`, `agents/MARKDOWN.md` only.
   Do not change how pointers resolve.
