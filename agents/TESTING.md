@@ -41,7 +41,7 @@ When the answer is non-obvious, record it in the change description or task note
   This is the only check that catches SQL↔struct column-mapping drift — validators and unit tests never see it.
   Trimming CRUD permutations must never remove an entity's last roundtrip.
 - Do not add a unit test that shadows a Playwright spec; the flow belongs to e2e.
-- Rust file pairs follow `agents/RUST.md` (Entity CRUD notes).
+- Rust file pairs follow `agents/RUST.md` (§Per-task notes, Entity CRUD).
   New files go under `tests/domain/` or `tests/integration/`
   and must be listed in `tests/domain/main.rs` or `tests/integration/main.rs`.
 

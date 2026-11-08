@@ -19,6 +19,9 @@ function read(relPath: string): string {
 // (`@lingui/react`). Only spans that start with a top-level repo entry are repo paths.
 const topLevel = new Set(readdirSync(root));
 
+// WHY: build outputs exist only after a build, so a path into them would pass or fail by machine.
+const buildOutputs = new Set(["dist", "target"]);
+
 // WHY: placeholders (`<slug>`, `…`), globs (`*`), and ranges (`..`) are not literal paths.
 function pathSpans(markdown: string): string[] {
   const spans = [...markdown.matchAll(/`([^`\n]+)`/g)].map((match) => match[1]);
@@ -26,6 +29,7 @@ function pathSpans(markdown: string): string[] {
     (span) =>
       span.includes("/") &&
       topLevel.has(span.split("/")[0]) &&
+      !buildOutputs.has(span.split("/")[0]) &&
       !/\s/.test(span) &&
       !/[<>*{}§|…]/.test(span) &&
       !span.includes(".."),
@@ -80,11 +84,12 @@ function sectionBody(markdown: string, heading: string): string | null {
   return (end === -1 ? rest : rest.slice(0, end)).join("\n").trim();
 }
 
-describe("agents guides", () => {
-  const guides = listMarkdown("agents");
+describe("markdown paths", () => {
+  // WHY: specs never name code; the "functional specs" block rejects paths in them.
+  const docs = allMarkdown().filter((file) => !file.startsWith("docs/specs/"));
 
-  it.each(guides)("%s names only paths that exist", (guide) => {
-    const missing = pathSpans(read(guide)).filter((span) => !existsSync(join(root, span)));
+  it.each(docs)("%s names only paths that exist", (doc) => {
+    const missing = pathSpans(read(doc)).filter((span) => !existsSync(join(root, span)));
     expect(missing).toEqual([]);
   });
 });

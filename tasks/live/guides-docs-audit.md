@@ -116,7 +116,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
 
 ## Plan
 
-- [ ] 1. Check paths in all docs and write the navigational pointers in `§` form
+- [x] 1. Check paths in all docs and write the navigational pointers in `§` form
   Goal: Make `bun run check:docs` check what `agents/MARKDOWN.md` (§Checks) says it checks (findings 1 and 6).
   In `tools/docs.test.ts`, widen the path check (`describe("agents guides")`, `:83-90`) from `listMarkdown("agents")`
   to every file from `allMarkdown()` except those under `docs/specs/` (specs never name code; their own block checks

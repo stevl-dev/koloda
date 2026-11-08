@@ -73,9 +73,9 @@ Raise Blocking for:
   - `domain/` importing `rusqlite` or `repo/`: `agents/RUST.md` (§Non-negotiables).
   - A new review writer that does not go through `insert_review`: `agents/RUST.md` (§Per-task notes, Review writes).
   - A product write path that does not open `Capture::begin` in its transaction:
-    `crates/koloda/src/repo/sync/README.md` (Sync capture).
+    `crates/koloda/src/repo/sync/README.md` (§Sync capture).
   - Remote apply writing through a capturing repo path instead of its own SQL:
-    `crates/koloda/src/repo/sync/README.md` (Remote apply).
+    `crates/koloda/src/repo/sync/README.md` (§Remote apply).
   - An `unsafe` block with no `// SAFETY:` comment directly above it:
     `agents/CODE-DOCUMENTATION.md` (§4. Rust `// SAFETY:` Comments).
 - Missing `// WHY` / `// INVARIANT` / `// WORKAROUND` on non-obvious inline code (see `agents/CODE-DOCUMENTATION.md`).

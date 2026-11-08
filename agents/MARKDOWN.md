@@ -78,8 +78,9 @@ Readable link text matters more than packing the full URL into the paragraph.
 ## Checks
 
 `bun run check:docs` runs `tools/docs.test.ts`, the markdown rules that can fail.
-It checks that repo paths in guides exist, the spec shape and headings, decision reachability,
-the task archive shape, and that `§` pointers name an existing heading.
+It checks that repo paths in markdown outside `docs/specs/` and `tasks/` exist.
+It also checks the spec shape and headings, decision reachability, the task archive shape,
+and that `§` pointers name an existing heading.
 A plan item that edits markdown uses it as a Done-when.
 
 `bun run check:markdown` only reports prose lines over the limit in changed files.
