@@ -1,6 +1,6 @@
 # Dead code audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/BACKWARDS-COMPATIBILITY.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, apps/web-e2e/README.md, apps/electron-e2e/README.md, libs/e2e/README.md, agents/VERIFY.md, agents/MARKDOWN.md
 Flow: local
 
@@ -16,8 +16,7 @@ Every finding was re-checked there and holds; line numbers below are as of `3b44
 The audit's export probe (TypeScript language service `findReferences` on every export in `libs/*/src`) was re-run
 there and gives the same 103 surplus exports as at `4b1f2911` (finding 13).
 
-Done when: every finding below is fixed, `bun run check:push` is green on the tip, and both e2e suites pass on the
-tip being archived (item 7 edits the mock transports every AI case goes through).
+Done when: every finding below is fixed and `bun run check:push` is green on the tip.
 
 No finding is a Must-fix, a spec violation, a risk, or a product decision.
 No user-visible behavior changes, except one fewer SQL statement per web write (item 1).
@@ -74,8 +73,8 @@ Whichever task lands second re-exports what it needs.
 - [x] Finding 13: how much, and how split? — all 103 in one commit (human, 2026-11-08).
 - [x] Finding 6: document the two exports, or reroute the design-system seeding? — document them (human, 2026-11-08).
 - [x] Finding 2: delete or keep `AISettings`? — delete (human, 2026-11-08).
-- [x] Does item 7 need the e2e suite run before Archive? — yes (triage choice, open for edit at approval).
-  It edits no case, but it edits the mock transports and the profile helper every AI case uses.
+- [x] Does item 7 need the e2e suite run before Archive? — no (human, at approval, 2026-11-08).
+  It edits no case; typecheck and lint cover the mock transports and the profile helper.
 
 ## Plan
 
@@ -230,7 +229,6 @@ Whichever task lands second re-exports what it needs.
   Update `libs/e2e/README.md` only if it names one of the options.
   Done when: `git grep -n -w errorBody -- libs apps` finds nothing.
   `bun run typecheck` and `bun run lint` pass.
-  Both suites run before Archive (Open questions).
   Commit: Drop e2e mock options that no spec passes
   Depends on: none
 
