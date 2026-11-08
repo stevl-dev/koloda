@@ -114,7 +114,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Remove six unused root dependencies
   Depends on: none
 
-- [ ] 3. Delete the unread lesson layout fieldId on both hosts
+- [x] 3. Delete the unread lesson layout fieldId on both hosts
   Goal: Finding 12.
   `LessonTemplateLayoutItem.fieldId` (TS `libs/srs/src/lib/lessons.ts:64-72`, set at `:108` in
   `convertTemplateToLessonTemplate`) and its Rust twin `field_id` (`crates/koloda/src/domain/lessons.rs:61`, set at

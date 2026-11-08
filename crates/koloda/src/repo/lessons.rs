@@ -205,7 +205,6 @@ fn lesson_layout(content: &crate::domain::templates::TemplateContent) -> Vec<Les
             LessonTemplateLayoutItem {
                 field,
                 operation: item.operation.clone(),
-                field_id: item.field.clone(),
             }
         })
         .collect()

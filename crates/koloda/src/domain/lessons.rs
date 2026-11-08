@@ -58,7 +58,6 @@ impl LessonAmounts {
 pub struct LessonTemplateLayoutItem {
     pub field: Option<TemplateField>,
     pub operation: String,
-    pub field_id: String,
 }
 
 // The lesson session consumes `layout` only; title and timestamps stay on the admin template.

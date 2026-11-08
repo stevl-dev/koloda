@@ -546,7 +546,7 @@ describe("createLessonCardForm", () => {
   const textField = { id: testId(12), title: "Answer", type: "text", isRequired: true } as const;
 
   function typeItem(field: typeof markdownField | typeof textField): LessonTemplate["layout"][number] {
-    return { field, fieldId: field.id, operation: "type" };
+    return { field, operation: "type" };
   }
 
   it.each([

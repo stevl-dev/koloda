@@ -61,15 +61,7 @@ export function validateLessonAmounts({ untouched, learn, review }: LessonAmount
   }
 }
 
-export type LessonTemplateLayoutItem = Modify<
-  TemplateLayoutItem,
-  {
-    field: TemplateField | undefined;
-    // INVARIANT: `fieldId` survives even when the referenced field is gone (`field` undefined).
-    // Twin of Rust `LessonTemplateLayoutItem.field_id`.
-    fieldId: TemplateLayoutItem["field"];
-  }
->;
+export type LessonTemplateLayoutItem = Modify<TemplateLayoutItem, { field: TemplateField | undefined }>;
 
 // The lesson session consumes `layout` only; title and timestamps stay on the admin `Template`.
 // Twin of Rust `LessonTemplate` (`domain/lessons.rs`).
@@ -105,7 +97,6 @@ export function parseLessonResult({ card, review }: LessonResultData): LessonRes
 export function convertTemplateToLessonTemplate(template: Pick<Template, "id" | "content">): LessonTemplate {
   const layout: LessonTemplateLayoutItem[] = template.content.layout.map((entry) => ({
     ...entry,
-    fieldId: entry.field,
     field: template.content.fields.find((x) => x.id === entry.field),
   }));
   return { id: template.id, layout };

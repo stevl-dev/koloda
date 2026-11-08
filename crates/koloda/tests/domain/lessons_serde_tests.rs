@@ -40,7 +40,7 @@ fn test_lessons_result_serializes_wire_shape() {
 }
 
 /// Pins the lesson-template projection: slim lesson DTO (`id` + `layout` only) whose
-/// layout items keep `fieldId` always and `field` null when the referenced field is gone.
+/// layout items carry `field` null when the referenced field is gone.
 #[test]
 fn test_lesson_template_layout_allows_missing_field() {
     let template = LessonTemplate {
@@ -54,12 +54,10 @@ fn test_lesson_template_layout_allows_missing_field() {
                     is_required: true,
                 }),
                 operation: "display".to_string(),
-                field_id: "01900000-0000-7000-8000-000000000001".to_string(),
             },
             LessonTemplateLayoutItem {
                 field: None,
                 operation: "reveal".to_string(),
-                field_id: "01900000-0000-7000-8000-000000000002".to_string(),
             },
         ],
     };
@@ -74,9 +72,8 @@ fn test_lesson_template_layout_allows_missing_field() {
                 {
                     "field": { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
                     "operation": "display",
-                    "fieldId": "01900000-0000-7000-8000-000000000001",
                 },
-                { "field": null, "operation": "reveal", "fieldId": "01900000-0000-7000-8000-000000000002" },
+                { "field": null, "operation": "reveal" },
             ],
         })
     );

@@ -241,7 +241,7 @@ describe("lessons repository integration", () => {
     // Wire shape twin: lesson data carries slim DTOs on both hosts. Rust pins the same keys in
     // lessons_serde_tests / lessons_integration_tests.
     expect(Object.keys(lessonData?.templates[0] ?? {}).sort()).toEqual(["id", "layout"]);
-    expect(Object.keys(lessonData?.templates[0]?.layout[0] ?? {}).sort()).toEqual(["field", "fieldId", "operation"]);
+    expect(Object.keys(lessonData?.templates[0]?.layout[0] ?? {}).sort()).toEqual(["field", "operation"]);
     expect(Object.keys(lessonData?.algorithms[0] ?? {}).sort()).toEqual(["content", "id"]);
   });
 

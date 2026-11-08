@@ -10,7 +10,7 @@ import { LessonCardField } from "./lesson-card-field";
 
 function renderField(operation: TemplateOperation, type: TemplateFieldType, isSubmitted: boolean) {
   const field = { id: testId(11), title: "Answer", type, isRequired: true };
-  const item: LessonTemplateLayoutItem = { field, fieldId: field.id, operation };
+  const item: LessonTemplateLayoutItem = { field, operation };
   const store = createStore();
   store.set(queriesAtom, { getAttachmentQuery: () => ({ queryKey: ["attachment"] }) } as unknown as Queries);
 
