@@ -138,7 +138,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Drop the unread fieldId from lesson template layouts
   Depends on: none
 
-- [ ] 4. Render only text parts in chat messages
+- [x] 4. Render only text parts in chat messages
   Goal: Finding 11.
   `libs/ai-react/src/lib/ai-chat-message.tsx:79-81` (`getMessageParts`) filters out `step-start` and `reasoning`
   parts.

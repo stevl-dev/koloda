@@ -13,12 +13,11 @@ export type AIChatMessageProps = {
 // references stable, so streamed chunks skip this message's text. It covers the
 // text only; a caller that adds rows around it memoizes the whole turn.
 export const AIChatMessage = memo(function AIChatMessage({ role, parts, renderText }: AIChatMessageProps) {
-  const filteredParts = getMessageParts(parts);
   const textRenderer = role === "user" ? undefined : renderText;
 
   return (
     <AIChatMessageLayout role={role}>
-      {filteredParts.map((part, index) => (
+      {parts.map((part, index) => (
         <MessagePart key={index} part={part} renderText={textRenderer} />
       ))}
     </AIChatMessageLayout>
@@ -53,29 +52,9 @@ type MessagePartProps = {
 };
 
 function MessagePart({ part, renderText }: MessagePartProps) {
-  switch (part.type) {
-    case "text":
-      if (renderText) return renderText(part.text);
-      return <p className="whitespace-pre-wrap leading-6">{part.text}</p>;
-    case "reasoning":
-      // WHY: thinking renders as an activity row on the run, not as a
-      // dimmed paragraph after the answer. Skip leftover legacy parts.
-      return null;
-    case "source-url":
-      return <p className="fg-level-3">{part.title || part.url}</p>;
-    case "source-document":
-      return <p className="fg-level-3">{part.title}</p>;
-    case "file":
-      return <p className="fg-level-3">{part.filename || part.mediaType}</p>;
-    case "dynamic-tool":
-      return <p className="fg-level-3">{part.toolName}</p>;
-    default:
-      if (part.type.startsWith("tool-")) return <p className="fg-level-3">{part.type}</p>;
-      if (part.type.startsWith("data-")) return <p className="fg-level-3">{part.type}</p>;
-      return null;
-  }
-}
-
-function getMessageParts(parts: UIMessagePart<any, any>[]) {
-  return parts.filter((part) => part.type !== "step-start" && part.type !== "reasoning");
+  // WHY: the app stores only text parts. Reasoning and tool calls render as
+  // activity rows on the run, not as message parts.
+  if (part.type !== "text") return null;
+  if (renderText) return renderText(part.text);
+  return <p className="whitespace-pre-wrap leading-6">{part.text}</p>;
 }
