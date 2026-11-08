@@ -78,9 +78,10 @@ function NumberFieldInput(props: NumberFieldInputProps) {
     queueMicrotask(() => setIsAnimated(true));
   };
 
-  const handleBlur: React.ChangeEventHandler<HTMLInputElement> = ({ currentTarget: { value } }) => {
-    if (value === "") state?.decrementToMin();
-  };
+  // WHY: an emptied field commits NaN on blur as on Enter, so its owner reports or ignores it.
+  // Snapping to `minValue` on blur silently saved the minimum instead of the field's error.
+  const numberValue = state?.numberValue ?? Number.NaN;
+  const isEmpty = Number.isNaN(numberValue);
 
   return (
     <div className="relative grid [grid-template-areas:'overlap'] *:[grid-area:overlap]">
@@ -89,12 +90,11 @@ function NumberFieldInput(props: NumberFieldInputProps) {
         style={{ fontKerning: "none" }}
         ref={inputRef}
         onChange={handleInputChange}
-        onBlur={handleBlur}
         {...props}
       />
       <AnimatedNumber
-        className={numberFieldInput({ layer: "display" })}
-        value={state?.numberValue || 0}
+        className={numberFieldInput({ layer: "display", class: isEmpty && "invisible" })}
+        value={isEmpty ? 0 : numberValue}
         format={{ useGrouping: false }}
         aria-hidden="true"
         animated={isAnimated}

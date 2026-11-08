@@ -134,9 +134,30 @@ describe("DailyLimitCapField", () => {
     );
     const input = screen.getByRole("textbox", { name: "Total" }) as HTMLInputElement;
 
-    // WHY: Enter commits the empty field as NaN; a blur would snap it to the minimum first (libs/ui NumberField).
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(input.value).toBe("8");
+  });
+
+  it("keeps the last number when a cleared field loses focus, not the minimum 0 that means none today", () => {
+    const onChange = vi.fn();
+    render(
+      <DailyLimitCapField
+        label="Total"
+        unlimitedLabel="Unlimited"
+        unlimitedName="Total unlimited"
+        unlimitedOffValue={200}
+        value={8}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByRole("textbox", { name: "Total" }) as HTMLInputElement;
+
+    input.focus();
+    fireEvent.change(input, { target: { value: "" } });
+    input.blur();
 
     expect(onChange).not.toHaveBeenCalled();
     expect(input.value).toBe("8");
