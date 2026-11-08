@@ -6,7 +6,7 @@ import { closeLessonStateAtom } from "./lesson-actions";
 import { filtersFromRequest } from "./lesson-reducer";
 import { lessonRequestAtom, lessonSetupAtom } from "./lesson-selectors";
 
-export type UseLessonCloseResult = {
+type UseLessonCloseResult = {
   closeLesson: () => void;
 };
 

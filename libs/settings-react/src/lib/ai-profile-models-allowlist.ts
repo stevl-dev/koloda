@@ -1,13 +1,13 @@
 import type { AIModel } from "@koloda/ai";
 
-export type AllowlistMode = "all" | "selected";
+type AllowlistMode = "all" | "selected";
 
 export type AllowlistDraft = {
   mode: AllowlistMode;
   selectedIds: string[];
 };
 
-export type SettingsModelRow = {
+type SettingsModelRow = {
   id: string;
   name: string;
 };
@@ -41,7 +41,7 @@ export function toWhitelistModelIdsUpdate(draft: AllowlistDraft): string[] | nul
   return draft.mode === "all" ? null : draft.selectedIds;
 }
 
-export function modelMatchesQuery(name: string, id: string, query: string): boolean {
+function modelMatchesQuery(name: string, id: string, query: string): boolean {
   const needle = query.trim().toLowerCase();
   if (!needle) return true;
 

@@ -1,6 +1,6 @@
 export const UI_PREFERENCES_STORAGE_KEY = "koloda-ui-prefs";
 
-export type UiPreferencesCache = {
+type UiPreferencesCache = {
   scheme?: string;
   lightTheme?: string;
   darkTheme?: string;

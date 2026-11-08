@@ -95,7 +95,7 @@ export type GetReviewTotalsProps = {
   to: DateInput;
 };
 
-export type ReviewTotals = Record<LessonType, number>;
+type ReviewTotals = Record<LessonType, number>;
 
 export const reviewTotalsSchema = z.object({
   untouched: z.coerce.number(),

@@ -6,7 +6,7 @@ import { produce } from "immer";
 import { createLessonCardForm } from "../lessons/lesson-reducer";
 import type { LessonContent } from "../lessons/lesson-reducer";
 
-export type CardPreviewReducerState = {
+type CardPreviewReducerState = {
   card?: Card;
   template?: Template;
   content?: LessonContent;
@@ -59,7 +59,7 @@ function cardSubmitted(draft: CardPreviewReducerState) {
   if (draft.content && !draft.content?.form.isSubmitted) draft.content.form.isSubmitted = true;
 }
 
-export type CardPreviewReducerAction = ReducerAction<typeof actions, CardPreviewReducerState>;
+type CardPreviewReducerAction = ReducerAction<typeof actions, CardPreviewReducerState>;
 
 export function cardPreviewReducer(state: CardPreviewReducerState, action: CardPreviewReducerAction) {
   return produce(state, (draft) => {

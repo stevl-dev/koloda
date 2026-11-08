@@ -12,7 +12,7 @@ const LOCALE_OPTION = "locale";
 // WHY: underscore fails the token whitelist, so this id can never collide with a storable pattern.
 const CUSTOM_OPTION = "__custom";
 
-export type TimestampFormatPreset = {
+type TimestampFormatPreset = {
   value: string;
   /** Displayed instead of the raw pattern when present. */
   label?: MessageDescriptor;

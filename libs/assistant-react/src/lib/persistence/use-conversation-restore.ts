@@ -28,7 +28,7 @@ export type UseConversationRestoreOptions = {
   conversationId: string | undefined;
 };
 
-export type UseConversationRestoreReturn = {
+type UseConversationRestoreReturn = {
   isRestoring: boolean;
   isDeleted: boolean;
   loadError: Error | null;

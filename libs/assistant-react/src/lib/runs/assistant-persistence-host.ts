@@ -60,7 +60,7 @@ export function ensureAssistantPersistenceHost(store: AssistantJotaiStore): Conv
 }
 
 /** Tests only: drop the persistence host singleton and its write adapter slot. */
-export function resetAssistantPersistenceHostForTests(): void {
+function resetAssistantPersistenceHostForTests(): void {
   persistenceHostInstance = null;
   persistenceWriteAdapter = null;
 }

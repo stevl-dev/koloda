@@ -1,14 +1,14 @@
 import type { z } from "zod";
 
 /** Mirrors `koloda` `domain/progress.rs` bounds. */
-export const DIFFICULTY_MIN = 0;
-export const DIFFICULTY_MAX = 10;
-export const CARD_STATE_MIN = 0;
-export const CARD_STATE_MAX = 3;
-export const RATING_MIN = 1;
-export const RATING_MAX = 4;
+const DIFFICULTY_MIN = 0;
+const DIFFICULTY_MAX = 10;
+const CARD_STATE_MIN = 0;
+const CARD_STATE_MAX = 3;
+const RATING_MIN = 1;
+const RATING_MAX = 4;
 
-export type ProgressFieldCodes = {
+type ProgressFieldCodes = {
   state: string;
   stability: string;
   difficulty: string;

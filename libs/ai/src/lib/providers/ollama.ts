@@ -29,7 +29,7 @@ function ollamaModelIsGptOss(modelId: string): boolean {
 // string effort; other thinking models only accept a boolean think flag — sending
 // low/medium/high to those models fails the request. Omit fields when the tag is
 // missing so the picker stays hidden — no /api/show.
-export function ollamaThinkingReasoningLevels(
+function ollamaThinkingReasoningLevels(
   modelId: string,
   capabilities: unknown,
 ): Pick<AIModel, "supported_reasoning_levels" | "default_reasoning_level"> | undefined {

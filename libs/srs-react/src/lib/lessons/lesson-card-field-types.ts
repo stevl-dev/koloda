@@ -15,7 +15,7 @@ export type FieldComponentProps = {
   onSubmit: () => void;
 };
 
-export type FieldTypeComponentsMap = Record<TemplateFieldType, ComponentType<FieldComponentProps>>;
+type FieldTypeComponentsMap = Record<TemplateFieldType, ComponentType<FieldComponentProps>>;
 
 export const fieldTypeComponents: FieldTypeComponentsMap = {
   text: LessonCardFieldText,

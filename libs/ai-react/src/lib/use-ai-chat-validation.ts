@@ -8,7 +8,7 @@ export type UseAIChatValidationOptions = {
   isModelsError: boolean;
 };
 
-export type UseAIChatValidationReturn = {
+type UseAIChatValidationReturn = {
   canSubmit: boolean;
   canCancel: boolean;
   showMissingSecretsWarning: boolean;

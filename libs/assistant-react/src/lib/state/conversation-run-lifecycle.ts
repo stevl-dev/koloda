@@ -13,7 +13,7 @@ import { clearActiveIfRun, finishRunningReasoning, finishRunningTools, stampElap
 // INVARIANT: Legal run lifecycle transitions:
 // streaming → success | failed | canceled(reason:user) | interrupted(reason);
 // restart (from failed | canceled | interrupted) → streaming.
-export function transitionRun(draft: ConversationReducerState, runId: string, event: RunLifecycleEvent): boolean {
+function transitionRun(draft: ConversationReducerState, runId: string, event: RunLifecycleEvent): boolean {
   const run = draft.runs[runId];
   if (!run) return false;
 

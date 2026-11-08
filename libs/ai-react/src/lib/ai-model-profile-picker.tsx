@@ -11,7 +11,7 @@ import { decodeAIModelProfileKey, encodeAIModelProfileKey } from "./ai-model-pro
 import { filterProfileModelsForPicker } from "./filter-profile-models";
 import { useAIProfilesModels } from "./use-ai-profiles-models";
 
-export type AIModelProfileChange = {
+type AIModelProfileChange = {
   profileId: string;
   modelId: string;
 };

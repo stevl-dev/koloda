@@ -13,7 +13,7 @@ export type SaveStatus = {
   isDismissed: boolean;
 };
 
-export type ConversationStore = Readonly<Record<string, ConversationReducerState>>;
+type ConversationStore = Readonly<Record<string, ConversationReducerState>>;
 
 export const conversationsAtom = atom<ConversationStore>({});
 
@@ -104,7 +104,7 @@ export function dispatchToConversation(
 
 // WHY: Mark a run read only when it finishes in the conversation the user is viewing.
 // Call after terminal run dispatches from stream hooks — background completions stay unread.
-export function markReadIfCurrent(id: string, runId: string): (get: Getter, set: Setter) => void {
+function markReadIfCurrent(id: string, runId: string): (get: Getter, set: Setter) => void {
   return (get, set) => {
     if (get(currentConversationIdAtom) !== id) return;
     dispatchToConversation(id, ["markRead", { runId }])(get, set);

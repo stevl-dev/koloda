@@ -16,7 +16,7 @@ import { useAtomValue, useStore } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useCallback } from "react";
 
-export type InterfaceField = keyof InterfaceSettings;
+type InterfaceField = keyof InterfaceSettings;
 
 const FIELD_ATOMS: Record<InterfaceField, PrimitiveAtom<string>> = {
   language: langAtom,

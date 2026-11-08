@@ -11,7 +11,7 @@ import type { GeneratedCard } from "./generation";
  */
 
 /** One deck's structural summary — the `list_decks` row, also the `get_deck` payload. */
-export type DeckSummaryOutput = {
+type DeckSummaryOutput = {
   deckId: string;
   title: string;
   cardCount: number;
@@ -28,11 +28,11 @@ export type DeckSummaryOutput = {
   notesTruncated?: boolean;
 };
 
-export type ListDecksOutput = {
+type ListDecksOutput = {
   decks: DeckSummaryOutput[];
 };
 
-export type ListTemplatesOutput = {
+type ListTemplatesOutput = {
   templates: Array<{
     templateId: string;
     title: string;
@@ -47,7 +47,7 @@ export type ListTemplatesOutput = {
   }>;
 };
 
-export type ListAlgorithmsOutput = {
+type ListAlgorithmsOutput = {
   algorithms: Array<{
     algorithmId: string;
     title: string;
@@ -58,7 +58,7 @@ export type ListAlgorithmsOutput = {
 };
 
 /** `fields` maps template field titles to card text, not field ids. */
-export type GetDeckCardsOutput = {
+type GetDeckCardsOutput = {
   deckTitle: string;
   totalCards: number;
   /** True when fewer cards are returned than the deck holds (per-deck cap or char budget). */
@@ -67,9 +67,9 @@ export type GetDeckCardsOutput = {
 };
 
 /** Host field type — mirrors SRS `"text" | "markdown"` without importing `@koloda/srs`. */
-export type AssistantToolFieldType = "text" | "markdown";
+type AssistantToolFieldType = "text" | "markdown";
 
-export type GetTemplateOutput = {
+type GetTemplateOutput = {
   templateId: string;
   title: string;
   fields: Array<{ id: string; title: string; type: AssistantToolFieldType; isRequired: boolean }>;
@@ -78,7 +78,7 @@ export type GetTemplateOutput = {
 };
 
 /** `algorithmId` is the id actually stored, including when the caller omitted one. */
-export type AddDeckOutput = {
+type AddDeckOutput = {
   deckId: string;
   title: string;
   templateId: string;
@@ -104,7 +104,7 @@ export const ASSISTANT_TOOL_MAX_CARDS_PER_DECK = 200;
 
 // WHY: character ceiling keeps the serialized card list near ~2k tokens, so a tool
 // result never crowds out the conversation in smaller context windows.
-export const ASSISTANT_TOOL_CARD_LIST_CHAR_BUDGET = 8_000;
+const ASSISTANT_TOOL_CARD_LIST_CHAR_BUDGET = 8_000;
 
 // WHY: list_decks and list_templates carry a preview-length note so a long list with
 // long notes cannot crowd the context; get_deck and get_template return the note whole.
@@ -112,7 +112,7 @@ export const ASSISTANT_TOOL_CARD_LIST_CHAR_BUDGET = 8_000;
 export const ASSISTANT_TOOL_NOTE_PREVIEW_CHAR_BUDGET = 150;
 
 /** The host resolves `cardCount`. This module does not read cards. */
-export type AssistantDeckSummarySource = {
+type AssistantDeckSummarySource = {
   id: string;
   title: string;
   templateId: string;
@@ -131,7 +131,7 @@ export type AssistantToolTemplate = {
 };
 
 /** FSRS content subset — mirrors SRS `AlgorithmFSRS` without importing `@koloda/srs`. */
-export type AssistantToolAlgorithmContent = {
+type AssistantToolAlgorithmContent = {
   type: "fsrs";
   retention: number;
   weights: string;
@@ -150,7 +150,7 @@ export type AssistantToolAlgorithm = {
 };
 
 /** Shared source for `get_deck_cards` and `propose_cards`. Do not fork per tool. */
-export type AssistantDeckCardsSource = {
+type AssistantDeckCardsSource = {
   id: string;
   title: string;
   template: AssistantToolTemplate;
@@ -161,7 +161,7 @@ export type AssistantToolCard = {
   content: Record<string, { text: string }>;
 };
 
-export type AssistantToolSpec = {
+type AssistantToolSpec = {
   name: string;
   description: string;
   inputSchema: z.ZodType;

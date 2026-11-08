@@ -20,7 +20,7 @@ import type {
  * Data access the assistant tools need. Injected by the host so this module
  * stays I/O-free (libs/ai holds shaping and budgets only — hosts bind the DB).
  */
-export type AssistantToolDataSource = {
+type AssistantToolDataSource = {
   getDecks: () => Promise<Array<{ id: string; title: string; templateId: string; notes?: string | null }>>;
   getTemplates: () => Promise<AssistantToolTemplate[]>;
   getAlgorithms: () => Promise<AssistantToolAlgorithm[]>;

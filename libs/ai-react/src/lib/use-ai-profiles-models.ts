@@ -4,7 +4,7 @@ import { useQueries } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 
-export type AIProfileModelsState = {
+type AIProfileModelsState = {
   profileId: string;
   models: AIModel[];
   isLoading: boolean;

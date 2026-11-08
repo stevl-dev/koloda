@@ -10,7 +10,7 @@ export type UseAIChatInputOptions = {
   scroll: UseAutoScrollReturn;
 };
 
-export type UseAIChatInputReturn = {
+type UseAIChatInputReturn = {
   inputValue: string;
   setInputValue: (value: string) => void;
   submit: () => void;

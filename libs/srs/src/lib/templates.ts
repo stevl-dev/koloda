@@ -5,8 +5,8 @@ import { msg } from "@lingui/core/macro";
 import { z } from "zod";
 import { optionalEntityNotesSchema, requiredEntityTitleSchema } from "@koloda/app";
 
-export const TEMPLATE_FIELD_TYPES = ["text", "markdown"] as const;
-export const TEMPLATE_OPERATIONS = ["display", "reveal", "type"] as const;
+const TEMPLATE_FIELD_TYPES = ["text", "markdown"] as const;
+const TEMPLATE_OPERATIONS = ["display", "reveal", "type"] as const;
 
 export type TemplateFieldType = (typeof TEMPLATE_FIELD_TYPES)[number];
 export type TemplateOperation = (typeof TEMPLATE_OPERATIONS)[number];
@@ -99,7 +99,7 @@ export type TemplateFields = Template["content"]["fields"];
 
 export type TemplateField = TemplateFields[number];
 
-export type TemplateLayout = Template["content"]["layout"];
+type TemplateLayout = Template["content"]["layout"];
 
 export type TemplateLayoutItem = TemplateLayout[number];
 

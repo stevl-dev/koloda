@@ -135,7 +135,7 @@ export const setAssistantCardStatusAtom = atom(
   },
 );
 
-export type CloneConversationPayload = {
+type CloneConversationPayload = {
   sourceId: string;
 };
 

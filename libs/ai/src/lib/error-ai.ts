@@ -11,7 +11,7 @@ import { toAIError } from "./error";
 import type { ErrorCode } from "@koloda/app";
 import type { I18nContext } from "@lingui/react";
 
-export type FormattedError = { message: string; details?: string };
+type FormattedError = { message: string; details?: string };
 
 export function formatGenerateError(
   error: Error | { message: string; details?: string } | null | undefined,

@@ -1,6 +1,6 @@
 import type { Attachment } from "@koloda/srs";
 
-export type TextInsertion = { value: string; cursor: number };
+type TextInsertion = { value: string; cursor: number };
 
 export type PastedUrl = { url: string; start: number };
 

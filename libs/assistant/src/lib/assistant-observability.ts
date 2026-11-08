@@ -19,9 +19,9 @@ export type AssistantStructuredLog = {
   errorCategory?: string;
 };
 
-export type LogAssistantStructured = (entry: AssistantStructuredLog) => void;
+type LogAssistantStructured = (entry: AssistantStructuredLog) => void;
 
-export function defaultLogAssistantStructured(_entry: AssistantStructuredLog): void {}
+function defaultLogAssistantStructured(_entry: AssistantStructuredLog): void {}
 
 let logImpl: LogAssistantStructured = defaultLogAssistantStructured;
 

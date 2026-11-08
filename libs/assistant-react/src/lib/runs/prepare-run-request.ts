@@ -15,12 +15,12 @@ import { buildStreamRequest } from "./build-stream-request";
  * provider request, and snapshot execution identity. React/Jotai stay out —
  * hooks only project UI state and dispatch the resulting command.
  */
-export type PreparedRun = StreamRequestResult & {
+type PreparedRun = StreamRequestResult & {
   modelName: string | undefined;
   execution: AssistantExecutionIdentity;
 };
 
-export function createExecutionIdentity(cfg: AssistantConversationConfig): AssistantExecutionIdentity {
+function createExecutionIdentity(cfg: AssistantConversationConfig): AssistantExecutionIdentity {
   return { profileId: cfg.profileId };
 }
 

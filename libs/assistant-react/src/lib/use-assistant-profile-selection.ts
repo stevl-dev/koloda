@@ -18,7 +18,7 @@ import {
 import { currentConversationIdAtom } from "./state/conversation-store";
 import { useSetGlobalAIProfileState } from "./use-global-ai-profile-state";
 
-export type UseAssistantProfileSelectionReturn = {
+type UseAssistantProfileSelectionReturn = {
   profileId: string;
   modelId: string;
   modelName: string | undefined;

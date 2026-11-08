@@ -13,7 +13,7 @@ import { lessonIsOpenAtom, lessonPhaseAtom, lessonRequestAtom, lessonSetupAtom }
 import { useLessonUploader } from "./lesson-uploader";
 import { useLessonClose } from "./use-lesson-close";
 
-export type UseLessonSessionResult = {
+type UseLessonSessionResult = {
   closeLesson: () => void;
 };
 

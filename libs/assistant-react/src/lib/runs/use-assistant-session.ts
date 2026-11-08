@@ -18,7 +18,7 @@ export type UseAssistantSessionOptions = {
   modelParameters: ModelParameter[];
 };
 
-export type UseAssistantSessionReturn = {
+type UseAssistantSessionReturn = {
   controller: RunController;
 };
 

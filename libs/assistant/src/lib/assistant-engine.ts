@@ -13,7 +13,7 @@ import type {
 import { createRunControllerRegistry } from "./run-controller-registry";
 import type { QueueCancelReason } from "./serial-queue";
 
-export type AssistantEngineLifecycle = "running" | "closing" | "closed";
+type AssistantEngineLifecycle = "running" | "closing" | "closed";
 
 export type AssistantEngineOptions = ConversationRuntimeCallbacks & ConversationRuntimeTransports;
 

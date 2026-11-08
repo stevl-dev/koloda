@@ -21,13 +21,13 @@ export type AIProfileProviderField = {
   defaultValue: string;
 };
 
-export type AIProfileFormValues = {
+type AIProfileFormValues = {
   title?: string;
   baseUrl?: string;
   apiKey?: string;
 };
 
-export type AIProviderFormConfig = {
+type AIProviderFormConfig = {
   fields: AIProfileProviderField[];
   schema: ZodObject<ZodRawShape>;
   toSecrets: (values: AIProfileFormValues) => AISecrets;

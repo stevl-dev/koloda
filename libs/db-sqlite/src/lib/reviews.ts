@@ -20,7 +20,7 @@ export async function getReviews(db: DB, { cardId }: GetReviewsData) {
   });
 }
 
-export async function getReviewTotals(db: DB, { from, to }: GetReviewTotalsProps) {
+async function getReviewTotals(db: DB, { from, to }: GetReviewTotalsProps) {
   return throwKnownError("db.get", async () => {
     // WHY: Today's totals are a created_at log for the learning-day window, not cards due now.
     // due_at on a review row is the next schedule after that grade; it is often after `to`.

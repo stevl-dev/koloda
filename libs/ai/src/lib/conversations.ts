@@ -11,7 +11,7 @@ export function getTextMessageContent(message: UIMessage): string {
 const TITLE_MAX_LENGTH = 255;
 const COLLAPSE_WHITESPACE = /\s+/g;
 
-export type ConversationLike = {
+type ConversationLike = {
   messages: UIMessage[];
   promptInput: string;
 };

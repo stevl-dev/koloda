@@ -1,6 +1,6 @@
 import type { Template, TemplateField } from "@koloda/srs";
 
-export type CardsTableContentColumn = {
+type CardsTableContentColumn = {
   index: number;
   header: string;
   getFieldId: (template: Template | undefined) => TemplateField["id"] | undefined;

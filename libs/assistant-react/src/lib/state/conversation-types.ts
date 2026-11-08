@@ -12,7 +12,7 @@ export type RunTerminationReason = "user" | "app_shutdown" | "crash_recovery";
 
 export type InterruptedReason = Exclude<RunTerminationReason, "user">;
 
-export type ToolCallStatus = "running" | "success" | "error" | "canceled";
+type ToolCallStatus = "running" | "success" | "error" | "canceled";
 
 /**
  * Tool activity recorded on the run — mirrors `cards`/`cardStatuses` on the
@@ -35,7 +35,7 @@ export type RunToolCall = {
  * Chain-of-thought recorded on the same activity list as tools so think →
  * tool → think stays in arrival order. Not a protocol tool call.
  */
-export type RunReasoningActivity = {
+type RunReasoningActivity = {
   kind: "reasoning";
   id: string;
   text: string;

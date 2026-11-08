@@ -8,7 +8,7 @@ export type CreateSaveSchedulerOptions = {
   isStreaming: () => boolean;
 };
 
-export type SaveScheduler = {
+type SaveScheduler = {
   schedule: () => void;
   flushNow: () => void;
   /** Drop a coalesced timer without flushing — used when delete tombstones a queue. */

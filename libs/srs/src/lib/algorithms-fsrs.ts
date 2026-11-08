@@ -19,8 +19,8 @@ export const FSRS_GRADES = [
   msg`fsrs.grades.easy`,
 ];
 
-export const LEARNING_STEP_UNITS = LEARNING_STEPS_UNITS.map(({ id }) => id);
-export const FSRS6_WEIGHT_COUNT = 21;
+const LEARNING_STEP_UNITS = LEARNING_STEPS_UNITS.map(({ id }) => id);
+const FSRS6_WEIGHT_COUNT = 21;
 
 // Decimal float grammar mirroring Rust `str::parse::<f64>()` (finite values):
 // optional sign, digits with optional fraction or leading-dot fraction,

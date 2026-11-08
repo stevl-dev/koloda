@@ -45,7 +45,7 @@ const MAX_REVIEW_TIME_MS = 60 * 60 * 1000;
 
 export type LessonResultUploadStatus = "success" | "error";
 
-export type LessonPhase = "closed" | "preparing" | "configuring" | "loading-cards" | "studying" | "finished";
+type LessonPhase = "closed" | "preparing" | "configuring" | "loading-cards" | "studying" | "finished";
 
 export type LessonContent = {
   index: number;
@@ -65,7 +65,7 @@ export type LessonProgress = {
   pending: LessonAmounts;
 };
 
-export type LessonSetup = {
+type LessonSetup = {
   filters: LessonFilters;
   available: LessonsResult["total"];
   reviewTotals: TodaysReviewTotals["reviewTotals"];
@@ -74,7 +74,7 @@ export type LessonSetup = {
   learnAheadLimit: LearningSettings["learnAheadLimit"] | undefined;
 };
 
-export type LessonSession = {
+type LessonSession = {
   learnAheadLimit: LearningSettings["learnAheadLimit"] | undefined;
   data: LessonData;
   content: LessonContent | null;
@@ -101,7 +101,7 @@ export type LessonReducerState = {
   };
 };
 
-export type LessonAmounts = Record<LessonType, number>;
+type LessonAmounts = Record<LessonType, number>;
 
 /** Session-only stand-in when loaders return no cards (`null` / `None`). Not a persistence payload. */
 export const EMPTY_LESSON_DATA: LessonData = {

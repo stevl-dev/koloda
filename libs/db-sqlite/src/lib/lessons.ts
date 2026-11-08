@@ -128,7 +128,7 @@ export async function getLessonCards(db: DB, dueAt: Date, filters: LessonFilters
   });
 }
 
-export async function getLessonAlgorithms(db: DB, deckIds: Deck["id"][]) {
+async function getLessonAlgorithms(db: DB, deckIds: Deck["id"][]) {
   return throwKnownError("db.get", async () => {
     if (!deckIds.length) return [];
 
@@ -146,7 +146,7 @@ export async function getLessonAlgorithms(db: DB, deckIds: Deck["id"][]) {
 
 // INVARIANT: lesson templates are the cards' own, not their decks' current ones (CARDS.md §Relationships).
 // A deck's template can change after its cards were added. Twin of Rust `get_lesson_templates`.
-export async function getLessonTemplates(db: DB, templateIds: Template["id"][]) {
+async function getLessonTemplates(db: DB, templateIds: Template["id"][]) {
   return throwKnownError("db.get", async () => {
     if (!templateIds.length) return [];
 

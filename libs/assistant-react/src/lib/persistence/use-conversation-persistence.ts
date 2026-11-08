@@ -9,7 +9,7 @@ export type UseConversationPersistenceOptions = {
   conversationId: string | undefined;
 };
 
-export type UseConversationPersistenceReturn = {
+type UseConversationPersistenceReturn = {
   handleDismissSave: () => void;
   retrySave: () => void;
   isRestoring: boolean;

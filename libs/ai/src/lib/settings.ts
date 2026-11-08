@@ -26,7 +26,7 @@ export const aiProfileValidation = z.object({
 
 export type AIProfile = z.output<typeof aiProfileValidation>;
 
-export const chatPromptModeSchema = z.enum(["default", "custom"]);
+const chatPromptModeSchema = z.enum(["default", "custom"]);
 
 export type ChatPromptMode = z.infer<typeof chatPromptModeSchema>;
 
@@ -51,7 +51,7 @@ export const assistantSettingsFormSchema = z.object({
   chatPromptMode: chatPromptModeSchema,
 });
 
-export type ChatPromptSettings = {
+type ChatPromptSettings = {
   chatPromptMode?: ChatPromptMode;
   chatPromptTemplate?: string | null;
 };

@@ -13,7 +13,7 @@ export type UseAssistantRuntimeConfigOptions = {
   reasoningEffort: string;
 };
 
-export type UseAssistantRuntimeConfigReturn = {
+type UseAssistantRuntimeConfigReturn = {
   configRef: RefObject<AssistantConversationConfig>;
 };
 

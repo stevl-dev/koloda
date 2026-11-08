@@ -6,7 +6,7 @@ import { activityTiming, finishRunningReasoning, stampActivityElapsed } from "./
 
 type AddCardPayload = { runId: string; card: GeneratedCard };
 
-export function addCard(draft: ConversationReducerState, payload: AddCardPayload) {
+function addCard(draft: ConversationReducerState, payload: AddCardPayload) {
   const run = draft.runs[payload.runId];
   if (!run) return;
   run.cards.push(payload.card);
@@ -72,7 +72,7 @@ const MAX_TOOL_OUTPUT_CHARS = 2000;
 const MAX_TOOL_OUTPUT_PREVIEW_CHARS = 400;
 const LIST_OUTPUT_KEYS = ["decks", "templates", "algorithms"] as const;
 
-export function boundToolOutput(output: unknown): unknown {
+function boundToolOutput(output: unknown): unknown {
   if (output === null || typeof output !== "object") return output;
   const serialized = JSON.stringify(output);
   if (serialized === undefined || serialized.length <= MAX_TOOL_OUTPUT_CHARS) return output;
@@ -104,7 +104,7 @@ const MAX_TOOL_ERROR_CHARS = 2000;
 // on the browser path, a pre-flattened string over Electron IPC. Store a
 // bounded string so a tool failure cannot grow the persisted blob with an
 // unbounded error object.
-export function boundToolError(error: unknown): string {
+function boundToolError(error: unknown): string {
   let text: string;
   if (typeof error === "string") {
     text = error;

@@ -309,7 +309,7 @@ Whichever task lands second re-exports what it needs.
   Commit: List the design-system seeding exports in the assistant-react README
   Depends on: none
 
-- [ ] 13. Drop export from 103 symbols used only in their own file
+- [x] 13. Drop export from 103 symbols used only in their own file
   Goal: Finding 13.
   These exports have no reference outside their own file, tests included.
   `noUnusedLocals` cannot see an exported symbol, so they can go dead silently; findings 2 and 10 hid that way.

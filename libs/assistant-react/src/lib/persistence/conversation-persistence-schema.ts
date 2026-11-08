@@ -268,7 +268,7 @@ export type RestoreIssue = {
  *   fails parsing — explicit reset/export/delete recovery.
  * - `ok`: normalized, validated live state.
  */
-export type ConversationRestoreResult =
+type ConversationRestoreResult =
   | { status: "ok"; state: ConversationReducerState }
   | { status: "missing" }
   | { status: "unsupportedVersion"; found: number; supported: number }

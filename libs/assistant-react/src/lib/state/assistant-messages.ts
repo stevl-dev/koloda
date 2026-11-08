@@ -3,7 +3,7 @@ import type { GeneratedCard, Message } from "@koloda/ai";
 import type { TemplateFields } from "@koloda/srs";
 import type { TextUIPart, UIMessage } from "ai";
 
-export type AssistantMessageMetadata = { kind: "chat-text"; runId: string };
+type AssistantMessageMetadata = { kind: "chat-text"; runId: string };
 
 // INVARIANT: User message `createdAt` is an ISO string, as `submitTurn`
 // writes it; restore does not repair other shapes.

@@ -27,7 +27,7 @@ type QueueEntry<T> = {
   isSettled: boolean;
 };
 
-export type SerialQueue<T = void> = {
+type SerialQueue<T = void> = {
   enqueue: (runId: string, task: () => Promise<T>) => Promise<T>;
   cancel: (runId: string, reason: QueueCancelReason) => boolean;
   close: (reason: QueueCancelReason) => string[];

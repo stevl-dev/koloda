@@ -1,6 +1,6 @@
 import type { Attachment, AttachmentContent } from "@koloda/srs";
 
-export type AttachmentImage = Pick<Attachment, "width" | "height"> & { url: string };
+type AttachmentImage = Pick<Attachment, "width" | "height"> & { url: string };
 
 export type AttachmentImageLease = {
   image: Promise<AttachmentImage | null>;

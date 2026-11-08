@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { AIChatElapsedTimeDisplay } from "./ai-chat-elapsed-time";
 import { AIChatMessageStatusPending } from "./ai-chat-message-status-pending";
 
-export type AIChatMessageStatusState = "pending" | "success" | "canceled" | "interrupted" | "failed";
+type AIChatMessageStatusState = "pending" | "success" | "canceled" | "interrupted" | "failed";
 
 type AIChatMessageStatusSharedProps = {
   modelName?: string;

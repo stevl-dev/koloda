@@ -1,7 +1,7 @@
 import { AIError, throwForAIResponse } from "../error";
 import type { AIModel } from "../models";
 
-export type OpenAICompatibleModelData = {
+type OpenAICompatibleModelData = {
   id: string;
   name?: string;
   context_length?: number;
@@ -10,7 +10,7 @@ export type OpenAICompatibleModelData = {
   default_reasoning_level?: string;
 };
 
-export type OpenAICompatibleModelsResponse = {
+type OpenAICompatibleModelsResponse = {
   data: OpenAICompatibleModelData[];
 };
 

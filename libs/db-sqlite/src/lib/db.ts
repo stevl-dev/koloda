@@ -8,7 +8,7 @@ export const IDB_DATABASE_NAME = "koloda";
 export type SqlValue = SQLiteCompatibleType;
 export type SqlRow = Record<string, SqlValue>;
 
-export type RunResult = {
+type RunResult = {
   changes: number;
 };
 

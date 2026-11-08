@@ -15,7 +15,7 @@ export type AIProfileStateUpdater = {
   modelParameters?: Partial<Record<ModelParameter["type"], string | null>>;
 };
 
-export const aiProfileStateStorageValidation = z.object({
+const aiProfileStateStorageValidation = z.object({
   profileId: z.string().nullable(),
   modelId: z.string().nullable(),
   modelParameters: z.record(z.string(), z.string()),

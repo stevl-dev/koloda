@@ -78,7 +78,7 @@ export type AIToolCallRecord = {
   elapsedSeconds?: number | null;
 };
 
-export type AIReasoningRecord = {
+type AIReasoningRecord = {
   kind: "reasoning";
   id: string;
   text: string;
@@ -87,9 +87,9 @@ export type AIReasoningRecord = {
   elapsedSeconds?: number | null;
 };
 
-export type AIActivityRecord = AIToolCallRecord | AIReasoningRecord;
+type AIActivityRecord = AIToolCallRecord | AIReasoningRecord;
 
-export function isReasoningRecord(entry: AIActivityRecord): entry is AIReasoningRecord {
+function isReasoningRecord(entry: AIActivityRecord): entry is AIReasoningRecord {
   return "kind" in entry && entry.kind === "reasoning";
 }
 

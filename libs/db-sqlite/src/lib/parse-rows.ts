@@ -29,7 +29,7 @@ function asNumber(value: SqlValue): number {
   return Number(value);
 }
 
-export function mapSqliteRow(row: SqlRow): Record<string, unknown> {
+function mapSqliteRow(row: SqlRow): Record<string, unknown> {
   const mapped: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(row)) {
     if (value == null) {

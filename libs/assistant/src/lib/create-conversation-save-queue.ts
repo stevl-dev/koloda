@@ -4,9 +4,9 @@ import { logAssistantStructured } from "./assistant-observability";
 export const SAVE_RETRY_BASE_DELAY_MS = 250;
 export const SAVE_RETRY_MAX_DELAY_MS = 30_000;
 
-export type SaveErrorCategory = "aborted" | "network" | "storage" | "unknown";
+type SaveErrorCategory = "aborted" | "network" | "storage" | "unknown";
 
-export type SaveFailureLog = {
+type SaveFailureLog = {
   conversationId: string;
   generation: number;
   attempt: number;
