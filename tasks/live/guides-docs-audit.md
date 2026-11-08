@@ -206,4 +206,14 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Fix heading levels and typos in four agent guides
   Depends on: none
 
+## Implementation notes
+
+- Item 1: `bun run check:docs` went from 392 to 428 cases (one path case per markdown file outside `docs/specs/`
+  and `tasks/`); the widened check found no broken path besides the `dist/main.cjs` build output.
+- Item 4: the theme step and checklist line write `INTERFACE-SETTINGS.md` (§Light Themes, §Dark Themes).
+  `(§Light Themes) or (§Dark Themes)` fails the gate: a bare second pointer points into the playbook itself.
+- Item 5: the boundary section is `### Does NOT own (prevent scope creep)` under the map, the shape the other package
+  READMEs use, not a `##` section; it points at (§What stays per-suite) for the reasons.
+- Item 6: `agents/DB.md` also moves `#### Schema Change Workflow` to `##`, so its hierarchy stays one level apart.
+
 ## Outcome
