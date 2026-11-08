@@ -23,6 +23,7 @@ Load one primary spec, not a cluster.
 If the task crosses that spec's stated out-of-scope, add the sibling it names.
 Do not add the rest of the area by default.
 When the change edits a file under `docs/specs/`, also include `agents/FUNCTIONAL-SPECIFICATIONS.md`.
+When the change edits a file under `docs/decisions/`, also include `agents/DECISIONS.md`.
 
 The listed files are relative to the repo root.
 
@@ -37,6 +38,7 @@ When a row names the file without a section, find the headings that match the ch
 | Change type | Include in the prompt |
 | --- | --- |
 | Any TS or React edit | `agents/CODE-STYLE.md`, `agents/CODE-DOCUMENTATION.md` |
+| Any Rust edit | `agents/CODE-DOCUMENTATION.md` |
 | Change adds or edits tests | add `agents/TESTING.md` |
 | Edit touches `className` | add `agents/CSS.md` |
 | Split multi-commit work into a plan (feature, audit report) | `agents/IMPLEMENTATION-PLAN.md`, `agents/TASKS.md`, plus the area guides the work needs |

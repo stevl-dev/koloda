@@ -156,7 +156,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Fix stale names in the ai README and agent guides
   Depends on: none
 
-- [ ] 3. Route Rust edits to the comment rules and decision edits to DECISIONS.md
+- [x] 3. Route Rust edits to the comment rules and decision edits to DECISIONS.md
   Goal: Show authors the guides reviewers hold them to (findings 3 and 10).
   In `agents/INDEX.md` §Authoring, add a row after "Any TS or React edit" (`:39`):
   "Any Rust edit" → `agents/CODE-DOCUMENTATION.md`.
