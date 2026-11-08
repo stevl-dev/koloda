@@ -1,6 +1,7 @@
 # Backwards Compatibility Policy
 
-This project is currently in pre-release. Do not maintain backwards compatibility. 
+This project is currently in pre-release.
+Do not maintain backwards compatibility.
 
 When modifying an existing feature:
 

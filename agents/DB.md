@@ -1,4 +1,4 @@
-### Database Migrations
+# Database Migrations
 
 Who owns persistence on each host, and why: `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Persistence owners).
 
@@ -23,7 +23,7 @@ Who owns persistence on each host, and why: `docs/decisions/TS-RUST-DOMAIN-MIRRO
 - Sync bookkeeping tables (`sync_*`) live in this series too, so web databases create them.
   Only the desktop store writes them (`crates/koloda-sync-proto/PROTOCOL.md` §Client state).
 
-#### Schema Change Workflow
+## Schema Change Workflow
 
 When modifying database schema:
 

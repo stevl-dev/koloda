@@ -194,7 +194,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Add the boundary sections to the e2e README
   Depends on: none
 
-- [ ] 6. Fix heading levels and typos in four guides
+- [x] 6. Fix heading levels and typos in four guides
   Goal: Guide hygiene (finding 11).
   `agents/I18N.md:1` and `agents/DB.md:1` open with a `#` heading.
   Check that no `§` pointer or INDEX row depends on their old heading levels.
