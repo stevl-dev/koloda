@@ -167,7 +167,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Route Rust edits to CODE-DOCUMENTATION and decision edits to DECISIONS
   Depends on: none
 
-- [ ] 4. Add the missed layers to the AI provider and color theme playbooks
+- [x] 4. Add the missed layers to the AI provider and color theme playbooks
   Goal: The next provider or theme updates every layer the last one had to touch (findings 4 and 5).
   `agents/ADD-AI-PROVIDER.md` step 3: add that the web host has a TS twin of `redact_secrets`,
   `redactSecrets` in `apps/web/src/app/ai.ts`, which needs a case for the new provider (tsc flags a missing one).

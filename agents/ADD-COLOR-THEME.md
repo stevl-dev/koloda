@@ -157,6 +157,10 @@ Zod and Rust validation both reject unknown theme ids.
 `libs/app/src/lib/settings-interface-parity.test.ts` fails when the registries, the defaults, the theme files'
 `--color-bg` and `--titlebar-overlay-color`, or `theme-boot.js` `SURFACE` disagree.
 
+**Spec** — `docs/specs/INTERFACE-SETTINGS.md` (§Light Themes, §Dark Themes) lists every theme by name.
+Add the display name to its scheme's list.
+The parity test does not read the spec, so nothing else catches a missing name.
+
 ### 8. Hand off a Manual verify block
 
 Do not start the app to check the theme yourself; see `agents/VERIFY.md`.
@@ -192,6 +196,7 @@ Do not change app `store.ts` seed values unless that is requested.
 - [ ] `@import` in `global.css`
 - [ ] Entry in TS `LIGHT_THEMES` or `DARK_THEMES`
 - [ ] Matching entry in Rust `LIGHT_THEMES` or `DARK_THEMES`
+- [ ] Display name in `docs/specs/INTERFACE-SETTINGS.md` (§Light Themes, §Dark Themes)
 - [ ] Manual verify block for the light/dark scheme with the new theme selected
 
 ## References
@@ -200,3 +205,4 @@ Do not change app `store.ts` seed values unless that is requested.
 - `libs/ui/src/lib/styles/scheme-light.css` / `scheme-dark.css`
 - `libs/app/src/lib/settings-interface.ts`
 - `crates/koloda/src/domain/settings_interface.rs`
+- `docs/specs/INTERFACE-SETTINGS.md`

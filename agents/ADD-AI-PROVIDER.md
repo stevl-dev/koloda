@@ -88,6 +88,10 @@ AISecrets::MyProvider { .. } => AISecrets::MyProvider { api_key: None },
 AISecrets::MyProvider { .. } => AISecrets::MyProvider { api_key: Some(api_key) },
 ```
 
+The web host has a TS twin of `redact_secrets`: `redactSecrets` in `apps/web/src/app/ai.ts`.
+Add a case for the new provider there too.
+Its `AISecrets` return type makes tsc flag a missing case.
+
 ### 4. Provider module (`libs/ai/src/lib/providers/`)
 
 Add one file per provider (e.g. `my-provider.ts`) that owns fetchModels, createClient, and the `AIProviderEntry`.
@@ -291,13 +295,17 @@ Check that the add dialog renders the new fields and the edit dialog prefills th
 
 ### 8. Host enablement
 
-Do not edit app stores.
+Do not edit the app stores (`apps/*/src/app/store.ts`); they read the catalog.
 Desktop uses `AI_PROVIDERS` from `@koloda/ai` (`provider-catalog.ts`); web uses `listProvidersThatWorkInBrowser()`.
 
 Set `worksInBrowser: true` only if the provider’s HTTP API can be called from a browser page origin (CORS headers).
 Use `false` when it cannot — the provider stays in the catalog and still works in Electron
 (provider HTTP runs in the main process, where CORS does not apply),
 and is listed but disabled in web’s add-profile picker.
+
+List the provider in `docs/specs/AI-PROVIDERS.md` (§Platform Availability).
+It goes under the browser list when `worksInBrowser` is `true`, and under the desktop-only list otherwise.
+Nothing checks that list.
 
 ### 9. Add Tests
 
@@ -321,6 +329,7 @@ and is listed but disabled in web’s add-profile picker.
 | Secrets | `libs/ai/src/lib/provider-secrets.ts` | Per-provider zod schemas, `AISecrets` |
 | Rust Domain | `crates/koloda/src/domain/ai.rs` | Provider enum, validation |
 | Rust Repo | `crates/koloda/src/repo/ai.rs` | Secret redaction/reconstruction |
+| Web Redaction | `apps/web/src/app/ai.ts` | `redactSecrets`, the TS twin of the Rust redaction |
 | Registry | `libs/ai/src/lib/providers/<provider>.ts` + `provider-registry.ts` | Per-provider client/fetch; types + wiring table |
 | Streaming | `libs/ai/src/lib/chat-stream.ts` | Chat stream implementation |
 | Form Config | `libs/settings-react/src/lib/ai-providers/ai-provider-form-config.ts` | Per-provider fields, schema, secrets mapping |
@@ -328,3 +337,4 @@ and is listed but disabled in web’s add-profile picker.
 | Edit Form | `libs/settings-react/src/lib/ai-providers/edit-ai-profile-form.tsx` | Generic edit form (renders the config) |
 | Settings | `libs/settings-react/src/lib/settings-ai-*-profile.tsx` | Add/edit dialogs (provider picker, wiring) |
 | App Stores | `apps/*/src/app/store.ts` | Desktop: `AI_PROVIDERS` from `@koloda/ai` (`provider-catalog.ts`). Web: `listProvidersThatWorkInBrowser()` |
+| Spec | `docs/specs/AI-PROVIDERS.md` | §Platform Availability lists each provider as browser or desktop-only |
