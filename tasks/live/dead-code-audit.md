@@ -76,10 +76,10 @@ Whichever task lands second re-exports what it needs.
 - [x] Does item 7 need the e2e suite run before Archive? — no (human, at approval, 2026-11-08).
   It edits no case; typecheck and lint cover the mock transports and the profile helper.
 
-- [ ] Item 2: accept the Babel re-hoist that removing the six root dependencies causes in `bun.lock`? — open.
-  Every consumer still gets a version in its range (bun nests 7.28 copies where needed), but the hoisted Babel
-  packages move back a minor version.
-  The alternative is to leave the six in place, or to remove them in a separate dependency task.
+- [x] Item 2: accept the Babel re-hoist that removing the six root dependencies causes in `bun.lock`? — yes
+  (human, 2026-11-08).
+  Every consumer still gets a version in its range (bun nests 7.28 copies where needed); the hoisted Babel packages
+  move back a minor version.
 
 ## Plan
 
@@ -101,7 +101,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Stop selecting last_insert_rowid after every web write
   Depends on: none
 
-- [ ] 2. Remove root dependencies that nothing imports
+- [x] 2. Remove root dependencies that nothing imports
   Goal: Finding 5.
   Root `package.json` `dependencies`: `@dnd-kit/helpers` (`:36`), `@lingui/macro` (`:41`), `@tanstack/devtools-vite`
   (`:52`), `@tanstack/react-devtools` (`:54`), `@tanstack/react-query-devtools` (`:58`),
@@ -118,11 +118,11 @@ Whichever task lands second re-exports what it needs.
   `bun run check:push` is green.
   Commit: Remove six unused root dependencies
   Depends on: none
-  Result: stopped, per Constraints; not committed.
+  Result: committed after the human accepted the Babel re-hoist (2026-11-08).
   At `3b4491dc`, removing the six and running `bun install` also re-hoists Babel in `bun.lock`: the hoisted
   `@babel/generator` goes from 7.28.5 to 7.27.5, `@babel/parser` from 7.28.5 to 7.27.7, and `@jridgewell/gen-mapping`
   from 0.3.13 to 0.3.8, with nested 7.28 copies for the consumers that need them (`bun.lock`: 25 lines in, 349 out).
-  See Open questions.
+  Every consumer still gets a version in its range.
 
 - [x] 3. Delete the unread lesson layout fieldId on both hosts
   Goal: Finding 12.
