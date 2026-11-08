@@ -152,7 +152,7 @@ describe("useAssistantProfileSelection model fallback", () => {
     });
 
     await waitFor(() => expect(result.current.models).toHaveLength(2));
-    await waitFor(() => expect(result.current.selectedProfile?.id).toBe("profile-a"));
+    await waitFor(() => expect(result.current.profiles).toHaveLength(1));
     expect(result.current.modelId).toBe(expected);
   });
 });

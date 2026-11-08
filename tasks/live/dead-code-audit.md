@@ -187,7 +187,7 @@ Whichever task lands second re-exports what it needs.
   Commit: Remove optional parameters that no caller passes
   Depends on: none
 
-- [ ] 6. Remove hook returns and fields that no consumer reads
+- [x] 6. Remove hook returns and fields that no consumer reads
   Goal: Finding 10.
   - `useAIProfilesModels` (`libs/ai-react/src/lib/use-ai-profiles-models.ts`) returns `states` (`:18,56`).
     All three callers destructure only `byProfileId`: `ai-model-profile-picker.tsx:65`,

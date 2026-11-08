@@ -13,16 +13,16 @@ export function getCardsTableContentColumns(templates: Template[]): CardsTableCo
   const columns: CardsTableContentColumn[] = [];
 
   for (let i = 0; i < maxLength; i++) {
-    const fieldsAtPosition: Array<{ templateId: Template["id"]; field: TemplateField }> = [];
+    const fieldsAtPosition: TemplateField[] = [];
 
     for (const template of templates) {
       const field = template.content.fields[i];
-      if (field) fieldsAtPosition.push({ templateId: template.id, field });
+      if (field) fieldsAtPosition.push(field);
     }
 
     if (fieldsAtPosition.length === 0) continue;
 
-    const uniqueTitles = [...new Set(fieldsAtPosition.map((f) => f.field.title))];
+    const uniqueTitles = [...new Set(fieldsAtPosition.map((f) => f.title))];
     const header = uniqueTitles.length === 1 ? uniqueTitles[0] : `#${i + 1}`;
 
     columns.push({

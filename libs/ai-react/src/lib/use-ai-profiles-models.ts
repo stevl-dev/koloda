@@ -9,13 +9,11 @@ export type AIProfileModelsState = {
   models: AIModel[];
   isLoading: boolean;
   isError: boolean;
-  error: Error | null;
   refetch: () => void;
 };
 
 export function useAIProfilesModels(profileIds: string[]): {
   byProfileId: Record<string, AIProfileModelsState>;
-  states: AIProfileModelsState[];
 } {
   const aiRuntime = useAtomValue(aiRuntimeAtom);
   const idsKey = profileIds.join("\0");
@@ -42,7 +40,6 @@ export function useAIProfilesModels(profileIds: string[]): {
           models: query?.data ?? [],
           isLoading: query?.isLoading ?? false,
           isError: query?.isError ?? false,
-          error: (query?.error as Error | null) ?? null,
           refetch: () => {
             void query?.refetch();
           },
@@ -53,5 +50,5 @@ export function useAIProfilesModels(profileIds: string[]): {
 
   const byProfileId = useMemo(() => Object.fromEntries(states.map((state) => [state.profileId, state])), [states]);
 
-  return { byProfileId, states };
+  return { byProfileId };
 }

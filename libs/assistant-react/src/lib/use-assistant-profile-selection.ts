@@ -1,5 +1,5 @@
 import type { ModelParameter } from "@koloda/ai";
-import type { AIModel, AISecrets } from "@koloda/ai";
+import type { AIModel } from "@koloda/ai";
 import { useAIProfiles, useAIProfilesModels } from "@koloda/ai-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
@@ -26,13 +26,9 @@ export type UseAssistantProfileSelectionReturn = {
   isModelsLoading: boolean;
   isModelsError: boolean;
   areProfilesLoading: boolean;
-  selectedProfile: ReturnType<typeof useAIProfiles>["selectedProfile"];
   profiles: ReturnType<typeof useAIProfiles>["profiles"];
-  defaultProfileId: string | null;
   missingSecretFieldLabels: string[];
-  provider: AISecrets["provider"] | null;
   modelParameters: ModelParameter[];
-  hasProfiles: boolean;
   handleModelProfileChange: (next: { profileId: string; modelId: string }) => void;
   handleModelParameterChange: (type: ModelParameter["type"], value: string) => void;
 };
@@ -80,8 +76,6 @@ export function useAssistantProfileSelection(): UseAssistantProfileSelectionRetu
   const models = modelsState?.models ?? noModels;
   const isModelsLoading = modelsState?.isLoading ?? false;
   const isModelsError = modelsState?.isError ?? false;
-  const provider = selectedProfile?.secrets.provider ?? null;
-  const hasProfiles = profiles.length > 0;
 
   useEffect(() => {
     if (hasConversation) {
@@ -176,13 +170,9 @@ export function useAssistantProfileSelection(): UseAssistantProfileSelectionRetu
     isModelsLoading,
     isModelsError,
     areProfilesLoading,
-    selectedProfile,
     profiles,
-    defaultProfileId,
     missingSecretFieldLabels,
-    provider,
     modelParameters,
-    hasProfiles,
     handleModelProfileChange,
     handleModelParameterChange,
   };
