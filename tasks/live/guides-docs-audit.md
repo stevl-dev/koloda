@@ -184,7 +184,7 @@ that no item otherwise edits (`agents/MARKDOWN.md` §Scope).
   Commit: Add the missed web and spec layers to the provider and theme playbooks
   Depends on: none
 
-- [ ] 5. Add the boundary sections to the e2e README
+- [x] 5. Add the boundary sections to the e2e README
   Goal: `libs/e2e/README.md` gives "Where it sits" and "Does NOT own" like every other package README (finding 7).
   Put the `type:e2e` paragraph (`:8-9`) under `## Where it sits`.
   Add `## Does NOT own`: suite launch, the AI-mock transport, and first setup, each pointing at

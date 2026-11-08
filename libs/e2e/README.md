@@ -5,6 +5,8 @@ Shared Playwright support code for the two e2e suites, `apps/web-e2e` (web) and
 page flows and the AI-mock wire format are defined once here; only the platform
 differences live in the suites themselves.
 
+## Where it sits
+
 Tagged `type:e2e`: only the e2e apps import it, nothing runtime depends on it,
 and it must never gain runtime dependencies.
 
@@ -18,6 +20,14 @@ and it must never gain runtime dependencies.
 - AI mock protocol: `src/ai-mock.ts` — the `Mock*Options`/`Handle` contracts and
   the OpenAI-compatible SSE/JSON builders, transport-independent.
 - Barrel: `src/index.ts` — the only public door.
+
+### Does NOT own (prevent scope creep)
+
+- Suite launch (`playwright.config.ts`, web server, Electron shell) — each suite
+- The AI-mock transport — each suite; only the wire format lives here
+- First setup — each suite's `helpers.ts`
+
+The reasons are under (§What stays per-suite).
 
 ## What stays per-suite (on purpose)
 
