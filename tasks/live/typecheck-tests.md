@@ -165,6 +165,8 @@ Out:
   references it back.
   It moved to `apps/electron/tsconfig.app.json` (build info renamed to `dist/tsconfig.app.tsbuildinfo`),
   and `apps/electron/tsconfig.json` is now a solution file like `apps/web`'s.
+  Once the split exists, nx's TypeScript sync manages `tsconfig.app.json` and points its references at each lib's
+  `tsconfig.lib.json`, as `apps/web` does; a follow-up commit records that.
 - Item 1: 13 errors fixed, none in production code, no test deleted:
   unused `React` imports in four `libs/ui` tests; zod v4's `z.ZodSafeParseResult` in `libs/srs`;
   a `prompt` field `ChatInput` no longer has in `libs/ai`; a typed `it.each` table of `RegisterableHotkey` in

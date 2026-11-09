@@ -35,22 +35,22 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../libs/srs"
+      "path": "../../libs/assistant/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/settings"
+      "path": "../../libs/srs/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/app"
+      "path": "../../libs/settings/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/native-ipc"
+      "path": "../../libs/app/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/ai"
+      "path": "../../libs/native-ipc/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/assistant"
+      "path": "../../libs/ai/tsconfig.lib.json"
     }
   ]
 }
