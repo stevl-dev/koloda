@@ -11,6 +11,8 @@ Everything else is routed from `agents/INDEX.md`; run that routing yourself.
   - Exception: task branches commit and push as `agents/TASKS.md` says.
 - Do not open pull requests.
 - Commit subjects are one short line; add a body only when the why is not obvious from the diff.
+- A commit that fixes a bug in work already on `main` carries a body line `Escapes: <commit or task slug>`,
+  naming the change that introduced the bug.
 
 ## Session start
 

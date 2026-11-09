@@ -133,7 +133,8 @@ Gate: the branch lands only if all of these hold.
 - The oldest commit on `origin/main..HEAD` is the Add commit.
   It adds `tasks/live/<slug>.md`.
 - The newest commit on `origin/main..HEAD` is the Archive commit.
-  It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled.
+  It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled,
+  including its `Review:` and `Change rounds:` lines (§File).
 - Every commit carries `Task: <slug>`.
 - The tip is green: its CI job `checks` (`bun run check:push`) passed.
 - If any plan item adds or edits e2e cases, Outcome records a run of both suites on the tip being archived.
@@ -215,6 +216,9 @@ Out: <explicit non-goals>
 ## Outcome
 
 <what shipped>
+
+Review: <findings by tier with the rule each cites, none, or not run>
+Change rounds: <N>
 ```
 
 `Guides:` sits on the line right under `Status:`.
@@ -222,6 +226,13 @@ It is one line of comma-separated repo paths, the set `agents/INDEX.md` routed f
 It is not an open question: do not record "area guides?" there.
 When scope changes the set, update the line in the same commit.
 `Flow:` sits under `Guides:`, as described in §Flow.
+
+Outcome ends with two fixed lines, so later sessions can count them across the archive.
+
+- `Review:` lists the independent review's findings by tier, each with the rule it cites (`agents/REVIEW.md`).
+  Example: `Review: blocking 2 (CODE-DOCUMENTATION §Strict Commenting Rules, TESTING §One home per behavior), nit 1`.
+  Write `none` when the review found nothing, and `not run` when there was no review.
+- `Change rounds:` counts how many times the human asked for changes after the self-review report (§Self-review).
 
 Omit `Green` unless the item is red.
 Then add `Green: no — restored by item N`.
@@ -244,8 +255,10 @@ It would add a second file under `live/` that the Archive gate does not move.
 
 - Intent names the audited commit and the report path, for provenance only.
 - Scope or Plan carries every finding, numbered as in the report.
-  - Each entry has its classification, severity, `file:line`,
-    and the decision: fixed, skipped with reason, or needs-decision.
+  - Each entry starts with one line in this shape, so entries can be counted across the archive:
+    `- <number>. <classification>, <severity>: <the finding in one sentence>`.
+    Classification and severity use the exact words in `agents/AUDIT.md` (§Finding rules).
+  - Under it go `file:line` evidence and `Decision:` fixed, skipped with reason, or needs-decision.
   - Skipped and needs-decision entries stay in the file after Archive, under Outcome.
 - Restate evidence in the task file, not as a pointer to `tmp/`.
   - The next session and the archive reader must not need the report.
