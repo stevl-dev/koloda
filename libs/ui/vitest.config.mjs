@@ -17,6 +17,6 @@ export default defineConfig({
     maxWorkers: 2,
     environment: "jsdom",
     include: ["libs/ui/src/**/*.test.ts", "libs/ui/src/**/*.test.tsx"],
-    setupFiles: ["libs/ui/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
   },
 });

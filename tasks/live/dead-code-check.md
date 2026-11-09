@@ -65,7 +65,6 @@ In:
   Code that is unused is deleted, per `agents/BACKWARDS-COMPATIBILITY.md`.
   A knip ignore is allowed only for intentional surface, with a comment giving the reason.
 - `cargo machete` in the Rust track, and its CI install.
-- The `agents/CODE-STYLE.md` §Props Types example, so it does not export a props type the check would flag.
 - The `tools/check-push.ts` header and any README that lists what the push gate runs.
 
 Out:
@@ -101,8 +100,10 @@ Out:
     Every one is used in its own file, so the fix is dropping `export`, not deleting the type.
   - The repo already holds 238 unexported `*Props` types beside 222 exported ones, so unexported props are not new.
   - Libs build with `composite: true`; declaration emit already handles unexported props types in exported signatures.
-  - `agents/CODE-STYLE.md` §Props Types shows `export type SelectProps` as the good example;
-    it changes so the guide and the check agree.
+  - Superseded by the pinned knip, 6.43.0: it does not report a type that a used export's signature names,
+    so the 116 drop out and only 7 types are reported (Plan item 2).
+    Dropping `export` from the 116 and changing the `agents/CODE-STYLE.md` §Props Types example are not needed;
+    a guide example that exports `SelectProps` beside an exported `Select` passes the check.
 - [x] `cargo machete` is a cargo binary, not a bun dependency.
   CI can install a pinned version with a prebuilt binary.
   Locally, should `check:push` require it, or skip it when it is not installed, as the pre-commit hook does for dprint?
@@ -110,7 +111,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Configure knip for the workspace
+- [x] 1. Configure knip for the workspace
   Goal: Add a knip config at the repo root that knows the workspace's entry points and tools,
   so its report holds only real findings.
   It covers the Nx, Vite, Vitest, Playwright, and Lingui setups; CSS entry points and Tailwind's CSS `@plugin` loads;
@@ -125,15 +126,31 @@ Out:
   and the findings it still reports are listed in this file's Plan item 2.
   Commit: Configure knip for the workspace
   Depends on: none
+  Notes: the lib `vitest.config.mjs` files resolve `setupFiles` from their own directory, as `libs/db-sqlite` already
+  did, so knip finds `test-setup.ts` without an entry or ignore; vitest runs the same files.
+  `check:dead-code` takes about 3.0 s locally (three runs).
 
 - [ ] 2. Remove the dead code knip reports
   Goal: Fix every finding item 1 leaves: delete unused exports, files, and dependencies,
-  or make a symbol local when its own file uses it.
-  Resolve the duplicate export in `libs/srs/src/lib/reviews.ts`.
-  The 21 `libs/ui` primitives and the unused exported types are used in their own files:
-  drop `export` and keep the code, as Open questions records.
-  Change the `agents/CODE-STYLE.md` §Props Types good example so it does not export the props type.
+  make a symbol local when its own file uses it, and declare imported packages the root does not list.
   Where a symbol is intentional surface, add a knip ignore with the reason instead.
+  Findings of `bun run check:dead-code` after item 1:
+  - Unused devDependencies: `@nx/web` (nothing names it; `@nx/react` still depends on it),
+    `@types/web` (only `"types": ["*"]` pulls it in).
+    Delete both; if typecheck needs `@types/web`, keep it with a knip ignore giving the reason.
+  - Unlisted dependencies, imported but resolved only through hoisting: `@lingui/conf` (the three
+    `lingui.config.ts`), `@ai-sdk/provider-utils`, `ollama`, `@internationalized/date`, `@dnd-kit/abstract`,
+    `react-aria`, `@react-types/shared`, `react-stately`.
+    Add each to the root `package.json` at the version `bun.lock` already resolves.
+  - Unused exports, 27: the 21 `libs/ui` primitives in Open questions, plus the recipes `textFieldTextArea` and
+    `selectRoot`; drop `export` and keep the code.
+    Also `TITLEBAR_HEIGHT` (`apps/electron/src/window.ts`), `useReportLayoutHeaderScroll`
+    (`libs/ui/src/lib/layout/header-scroll.tsx`), and `createQueryClientWrapper` in the `assistant-react` and
+    `srs-react` test helpers: make local if the file uses it, otherwise delete.
+  - Unused exported types, 7: `RenderAddProfileDialogProps` (`libs/assistant-react/src/lib/ui/assistant-chat.tsx`),
+    and `NumberFieldGroupProps`, `SliderTrackProps`, `SliderThumbProps`, `SearchFieldGroupProps`,
+    `SearchFieldInputProps`, `SearchFieldClearButtonProps` in `libs/ui`; drop `export`.
+  - Duplicate export: `reviewValidation` and `reviewRowSchema` in `libs/srs/src/lib/reviews.ts`; keep one name.
   Constraints: Follow `agents/BACKWARDS-COMPATIBILITY.md`; do not keep a symbol "in case".
   No behavior changes.
   Done when: `bun run check:dead-code` exits 0, and `bun run check:push` passes.

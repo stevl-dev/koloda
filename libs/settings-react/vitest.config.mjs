@@ -20,6 +20,6 @@ export default defineConfig({
     maxWorkers: 2,
     environment: "jsdom",
     include: ["libs/settings-react/src/**/*.test.ts", "libs/settings-react/src/**/*.test.tsx"],
-    setupFiles: ["libs/settings-react/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
   },
 });

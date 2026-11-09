@@ -21,6 +21,6 @@ export default defineConfig({
     maxWorkers: 2,
     environment: "jsdom",
     include: ["libs/ai-react/src/**/*.test.ts", "libs/ai-react/src/**/*.test.tsx"],
-    setupFiles: ["libs/ai-react/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
   },
 });

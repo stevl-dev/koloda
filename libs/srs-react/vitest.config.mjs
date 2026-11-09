@@ -17,6 +17,6 @@ export default defineConfig({
     maxWorkers: 2,
     environment: "jsdom",
     include: ["libs/srs-react/src/**/*.test.ts", "libs/srs-react/src/**/*.test.tsx"],
-    setupFiles: ["libs/srs-react/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
   },
 });

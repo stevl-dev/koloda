@@ -20,6 +20,6 @@ export default defineConfig({
     maxWorkers: 2,
     environment: "node",
     include: ["libs/app/src/**/*.test.ts"],
-    setupFiles: ["libs/app/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
   },
 });

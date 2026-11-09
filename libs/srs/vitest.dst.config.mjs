@@ -19,7 +19,7 @@ export default defineConfig({
     maxWorkers: 1,
     environment: "node",
     include: ["libs/srs/src/lib/reviews.dst.test.ts"],
-    setupFiles: ["libs/srs/src/test-setup.ts"],
+    setupFiles: [resolve(__dirname, "src/test-setup.ts")],
     env: {
       TZ: "America/New_York",
     },
