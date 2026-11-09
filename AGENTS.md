@@ -22,7 +22,7 @@ What you remember about a library may describe a different version from the one 
 Before relying on how a library behaves (a default, an option's meaning, an error case),
 read the installed version: its types and doc comments in `node_modules`, its bundled docs, or its source.
 For crates, the source is under `~/.cargo/registry/src`.
-Upgrading a dependency follows `agents/UPGRADE-DEPENDENCY.md`.
+Adding or upgrading a dependency follows `agents/DEPENDENCIES.md`.
 
 ## Verification
 
