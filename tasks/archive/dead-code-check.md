@@ -1,6 +1,6 @@
 # Check for dead code on every push
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/BACKWARDS-COMPATIBILITY.md
 Flow: local
 
@@ -199,3 +199,28 @@ Out:
   An unused `itoa` added to `crates/koloda/Cargo.toml` made `check:rust-deps` exit 1.
 
 ## Outcome
+
+All four plan items shipped (`b6224d69`..`1fa9ab6c`).
+`bun run check:push` passed on `1fa9ab6c`; the Archive commit after it changes only this file.
+No item added or edited an e2e case.
+
+- `check:ts` runs `check:dead-code` (knip 6.43.0, `knip.ts`) right after oxlint.
+  It fails on an unused file, export, exported type, duplicate export, or dependency, and on a package imported
+  but not declared.
+  Every ignore in `knip.ts` carries its reason; none hides an unused symbol.
+- `check:rust-push` runs `check:rust-deps` (`cargo machete` over the Cargo workspace members) first.
+  Locally it skips with an install hint when `cargo machete` is missing; with `CI` set it fails instead.
+  CI installs 0.9.2.
+- Removed: 27 unused exports and 7 unused exported types (the symbols stay file-local where their file uses them),
+  both `createQueryClientWrapper` test helpers, the `reviewValidation` alias, and the `@nx/web` and `@types/web`
+  devDependencies.
+  Added: eight packages the code imported without declaring.
+- Timings, local: knip about 3.0 s, `cargo machete` about 0.2 s.
+  CI timings unrecorded: with `Flow: local`, the first CI run is `land`'s, after this Archive commit.
+- Heads-up: knip 6 does not report a type that a used export's signature names, so the 116 exported `*Props` and
+  `*Options` types that knip 5 reported stay exported (Open questions).
+- Heads-up: `task/mobile-spike` adds `apps/mobile`; whichever task lands second fits it into `knip.ts`.
+  Its Rust crate is checked without changes, since `check:rust-deps` reads the members from `Cargo.toml`.
+- Heads-up: the first `check:push` run on item 2 failed twice in code this task does not touch
+  (`ai-model-profile-picker.test.tsx` in `ai-react`, and `koloda-server`'s
+  `serve_removes_staged_uploads_before_it_listens`); both passed alone and on the re-run.
