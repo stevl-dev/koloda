@@ -1,6 +1,6 @@
 # Check for dead code on every push
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/BACKWARDS-COMPATIBILITY.md
 Flow: local
 
@@ -36,7 +36,7 @@ knip with no config on `main` at `265f6d48` reports 350 lines, most of them nois
 | Unused dependencies | 3 | Root: `@tailwindcss/typography`, `tailwindcss-react-aria-components`, `tw-animate-css` |
 | Unused devDependencies | 5 | Root: `@lingui/format-po`, `@lingui/swc-plugin`, `@nx/web`, `@swc/helpers`, `@types/web` |
 | Unused exports | 26 in 13 files | Mixed; see below |
-| Unused exported types | 105 | Not triaged |
+| Unused exported types | 105 | `*Props` and `*Options` types used only in their own file; see Open questions |
 | Duplicate exports | 1 | `libs/srs/src/lib/reviews.ts`: `reviewValidation` and `reviewRowSchema` |
 
 The dependency rows may be false too: Tailwind plugins load from CSS `@plugin`, and Lingui and SWC from config.
@@ -65,6 +65,7 @@ In:
   Code that is unused is deleted, per `agents/BACKWARDS-COMPATIBILITY.md`.
   A knip ignore is allowed only for intentional surface, with a comment giving the reason.
 - `cargo machete` in the Rust track, and its CI install.
+- The `agents/CODE-STYLE.md` §Props Types example, so it does not export a props type the check would flag.
 - The `tools/check-push.ts` header and any README that lists what the push gate runs.
 
 Out:
@@ -76,13 +77,36 @@ Out:
 
 ## Open questions
 
-- [ ] Are the 21 `libs/ui` primitive exports intentional design-system surface, kept for apps to compose,
-  or dead? — open
-- [ ] Should knip check exported types too (105 reports), or only values, files, and dependencies? — open
-- [ ] `cargo machete` is a cargo binary, not a bun dependency.
+- [x] Are the 21 `libs/ui` primitive exports intentional design-system surface, kept for apps to compose,
+  or dead? — Dead as exports; drop the `export` keyword and keep the code. No knip ignores.
+  Evidence, on `335d7cc4`:
+  - `libs/ui/src/index.ts` is the package's only entry and re-exports by name.
+    None of the 21 is in it, so no other package can import them.
+  - 9 are compound-component members, still used through the parent:
+    `FormLayout.Section` and its `Term` and `Content`, `Slider.Container`, `Slider.Track`, `Slider.Thumb`,
+    `TextField.TextArea`, `ToggleGroup.Item`, `SearchField.Input`.
+    The `Parent.Member = Member` assignment keeps them reachable without the export.
+  - 11 are `tv()` style recipes used only in their own file:
+    `numberField`, `numberFieldGroup`, `sliderRoot`, `timeField`, `timeFieldSegment`, `toggleGroup`,
+    `toggleGroupItem`, `dialogClose`, `searchField`, `searchFieldGroup`, `searchFieldInput`.
+    Recipes with outside users (`formLayout`, `link`, `overlayFrame`) are re-exported from the index; these are not.
+  - `TableBodyRow` is used only in `table-body.tsx`.
+- [x] Should knip check exported types too (105 reports), or only values, files, and dependencies? —
+  Check types. Ignore the generated `libs/app-react/src/lib/routeTree.gen.ts`.
+  Evidence: knip 5.88.1 with `--include types` on `335d7cc4` reports 121 types
+  (the Intent table's 105 came from an earlier run; the difference was not traced).
+  - 5 are in the generated TanStack Router file `routeTree.gen.ts`.
+  - The other 116 are 92 `*Props`, 20 `*Options`, and `WindowState`, `NavigationDecision`,
+    `WindowCloseCoordinatorHooks`, `WebBoot`.
+    Every one is used in its own file, so the fix is dropping `export`, not deleting the type.
+  - The repo already holds 238 unexported `*Props` types beside 222 exported ones, so unexported props are not new.
+  - Libs build with `composite: true`; declaration emit already handles unexported props types in exported signatures.
+  - `agents/CODE-STYLE.md` §Props Types shows `export type SelectProps` as the good example;
+    it changes so the guide and the check agree.
+- [x] `cargo machete` is a cargo binary, not a bun dependency.
   CI can install a pinned version with a prebuilt binary.
   Locally, should `check:push` require it, or skip it when it is not installed, as the pre-commit hook does for dprint?
-  `land` waits for CI either way. — open
+  `land` waits for CI either way. — Skip locally when not installed.
 
 ## Plan
 
@@ -92,6 +116,7 @@ Out:
   It covers the Nx, Vite, Vitest, Playwright, and Lingui setups; CSS entry points and Tailwind's CSS `@plugin` loads;
   `test-setup.ts` files; Electron's `preload.ts`; generated locale files; and `tools/`.
   It leaves `@koloda/*` imports to `check:workspace-deps`.
+  It checks unused exported types, and ignores the generated `libs/app-react/src/lib/routeTree.gen.ts`.
   Pin knip as a root dev dependency.
   Add a `check:dead-code` script that runs it; do not wire it into `check:ts` yet.
   Constraints: Config and `package.json` only; no source changes.
@@ -105,7 +130,10 @@ Out:
   Goal: Fix every finding item 1 leaves: delete unused exports, files, and dependencies,
   or make a symbol local when its own file uses it.
   Resolve the duplicate export in `libs/srs/src/lib/reviews.ts`.
-  Where a symbol is intentional surface, as decided in Open questions, add a knip ignore with the reason instead.
+  The 21 `libs/ui` primitives and the unused exported types are used in their own files:
+  drop `export` and keep the code, as Open questions records.
+  Change the `agents/CODE-STYLE.md` §Props Types good example so it does not export the props type.
+  Where a symbol is intentional surface, add a knip ignore with the reason instead.
   Constraints: Follow `agents/BACKWARDS-COMPATIBILITY.md`; do not keep a symbol "in case".
   No behavior changes.
   Done when: `bun run check:dead-code` exits 0, and `bun run check:push` passes.
@@ -124,7 +152,8 @@ Out:
   Goal: Run `cargo machete` over the Cargo workspace in `check:rust-push`, and install a pinned version in CI.
   Fix what it reports, or add a `[package.metadata.cargo-machete]` ignore with the reason
   for a dependency used only through a macro or a build script.
-  Local behavior follows the answer in Open questions.
+  Locally, skip the step when `cargo machete` is not installed, and print that it was skipped and how to install it.
+  In CI (`CI` set), a missing binary fails the step, so a broken install cannot pass silently.
   Constraints: Do not change Rust code beyond removing unused dependencies.
   Done when: `bun run check:push` passes; adding an unused dependency to `crates/koloda/Cargo.toml` makes it fail;
   and Outcome records the step's time on CI.
