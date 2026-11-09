@@ -49,7 +49,7 @@ export function useLayoutHeaderScroll(): LayoutHeaderScrollContextValue | null {
   return useContext(LayoutHeaderScrollContext);
 }
 
-export function useReportLayoutHeaderScroll(isScrolled: boolean) {
+function useReportLayoutHeaderScroll(isScrolled: boolean) {
   const ctx = useContext(LayoutHeaderScrollContext);
   const id = useId();
   const reportScroll = ctx?.reportScroll;

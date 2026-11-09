@@ -5,7 +5,7 @@ import { tv } from "tailwind-variants";
 import type { TWVProps } from "../../types";
 import { formLayoutSection } from "../form/form-layout";
 
-export const selectRoot = tv({
+const selectRoot = tv({
   base: "flex flex-col items-start select-none",
   variants: { layout: { form: formLayoutSection() } },
 });

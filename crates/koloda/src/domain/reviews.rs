@@ -1,4 +1,4 @@
-//! Review rows and learning-day totals — mirrors `@koloda/srs` `reviewValidation`.
+//! Review rows and learning-day totals — mirrors `@koloda/srs` `reviewRowSchema`.
 
 use serde::{Deserialize, Serialize};
 

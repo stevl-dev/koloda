@@ -48,11 +48,9 @@ function refineReview(data: ReviewRefinementValues, ctx: z.RefinementCtx) {
   validateReviewTime(data.time, ctx);
 }
 
-export const reviewValidation = reviewFieldsSchema.superRefine(refineReview);
+export const reviewRowSchema = reviewFieldsSchema.superRefine(refineReview);
 
-export const reviewRowSchema = reviewValidation;
-
-export type Review = z.infer<typeof reviewValidation>;
+export type Review = z.infer<typeof reviewRowSchema>;
 
 export type GetReviewsData = { cardId: Card["id"] };
 

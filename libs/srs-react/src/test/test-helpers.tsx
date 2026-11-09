@@ -12,8 +12,7 @@ import type {
   Template,
   TodaysReviewTotals,
 } from "@koloda/srs";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { PropsWithChildren } from "react";
+import { QueryClient } from "@tanstack/react-query";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
 
@@ -29,12 +28,6 @@ export function createQueryClient() {
       mutations: { retry: false },
     },
   });
-}
-
-export function createQueryClientWrapper(queryClient = createQueryClient()) {
-  return function QueryClientWrapper({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
 }
 
 export function createAlgorithm(overrides: DeepPartial<Algorithm> = {}): Algorithm {

@@ -56,7 +56,7 @@ function DialogModal(props: DialogModalProps) {
   return <Modal ref={ref} {...props} />;
 }
 
-export const dialogClose = tv({
+const dialogClose = tv({
   extend: button,
   base: "z-10 size-8",
   defaultVariants: {

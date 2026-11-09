@@ -3,8 +3,7 @@ import { deepMerge, SEED_TEMPLATE_TYPE_BACK_FIELD_ID, SEED_TEMPLATE_TYPE_FRONT_F
 import type { DeepPartial } from "@koloda/app";
 import { DEFAULT_TEMPLATE } from "@koloda/srs";
 import type { Template } from "@koloda/srs";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { PropsWithChildren } from "react";
+import { QueryClient } from "@tanstack/react-query";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
 const DEFAULT_AI_PROFILE_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -21,12 +20,6 @@ export function createQueryClient() {
       mutations: { retry: false },
     },
   });
-}
-
-export function createQueryClientWrapper(queryClient = createQueryClient()) {
-  return function QueryClientWrapper({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
 }
 
 export function createTemplate(overrides: DeepPartial<Template> = {}): Template {

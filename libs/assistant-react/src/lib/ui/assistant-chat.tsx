@@ -44,7 +44,7 @@ import { useAssistantProfileSelection } from "../use-assistant-profile-selection
 import { useAssistantSession } from "../runs/use-assistant-session";
 import { useConversationPersistence } from "../persistence/use-conversation-persistence";
 
-export type RenderAddProfileDialogProps = {
+type RenderAddProfileDialogProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 };

@@ -8,7 +8,7 @@ import { Label } from "./label";
 import { formLayoutSection } from "./form-layout";
 import { textFieldInput } from "./text-field";
 
-export const timeField = tv({
+const timeField = tv({
   base: "",
   variants: {
     layout: {
@@ -32,7 +32,7 @@ export function TimeField({ variants, label, children, ...props }: TimeFieldProp
   );
 }
 
-export const timeFieldSegment = tv({
+const timeFieldSegment = tv({
   base: [textFieldInput({ content: "number" }), "flex items-center justify-center"],
   variants: {
     segment: {

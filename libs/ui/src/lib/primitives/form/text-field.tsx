@@ -60,7 +60,7 @@ export function TextFieldInput({ variants, ...props }: TextFieldInputProps) {
   return <Input className={textFieldInput(variants)} {...props} />;
 }
 
-export const textFieldTextArea = tv({ extend: textFieldInput, base: "h-auto" });
+const textFieldTextArea = tv({ extend: textFieldInput, base: "h-auto" });
 
 export type TextFieldTextAreaProps = ComponentProps<typeof TextArea> &
   TWVProps<typeof textFieldTextArea> & {
@@ -68,7 +68,7 @@ export type TextFieldTextAreaProps = ComponentProps<typeof TextArea> &
     maxRows?: number;
   };
 
-export function TextFieldTextArea({
+function TextFieldTextArea({
   variants,
   canAutoResize,
   maxRows,

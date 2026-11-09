@@ -41,7 +41,7 @@ type SliderState = SliderThumbRenderProps["state"];
 // renders a NumberFlow digit instead of the formatted label. Thread it down here.
 const SliderFormatContext = createContext<Intl.NumberFormatOptions | undefined>(undefined);
 
-export const sliderRoot = tv({
+const sliderRoot = tv({
   base: "group flex flex-col gap-2",
   variants: {
     layout: {
@@ -62,13 +62,13 @@ export function Slider<T extends number | number[]>({ variants, formatOptions, .
   );
 }
 
-export function SliderContainer({ children }: PropsWithChildren) {
+function SliderContainer({ children }: PropsWithChildren) {
   return <div className="grow flex flex-row mx-4 pt-13.5">{children}</div>;
 }
 
-export type SliderTrackProps = ReactAriaSliderTrackProps & PropsWithChildren;
+type SliderTrackProps = ReactAriaSliderTrackProps & PropsWithChildren;
 
-export function SliderTrack({ children, ...props }: SliderTrackProps) {
+function SliderTrack({ children, ...props }: SliderTrackProps) {
   return (
     <ReactAriaSliderTrack
       className="relative flex flex-row items-center h-1.5 w-full rounded-full bg-slider-track"
@@ -84,9 +84,9 @@ const sliderThumbVisual = [
   "group-data-[dragging]:scale-110 motion:transition-transform duration-150 ease-in-out",
 ].join(" ");
 
-export type SliderThumbProps = ReactAriaSliderThumbProps;
+type SliderThumbProps = ReactAriaSliderThumbProps;
 
-export function SliderThumb({ index = 0, children, style, ...props }: SliderThumbProps) {
+function SliderThumb({ index = 0, children, style, ...props }: SliderThumbProps) {
   const canAnimate = useMotionSetting();
   // WHY: Match thumb motion to NumberFlow's duration/easing so value bubble and digits land on the same frame.
   const transitionValue = canAnimate

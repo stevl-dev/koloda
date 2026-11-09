@@ -11,7 +11,7 @@ import { FieldGroup, fieldGroup } from "./field-group";
 import { TextFieldInput, textField, textFieldInput } from "./text-field";
 import type { TextFieldInputProps } from "./text-field";
 
-export const numberField = tv({ extend: textField });
+const numberField = tv({ extend: textField });
 
 export type NumberFieldProps = ReactAriaNumberFieldProps & TWVProps<typeof numberField>;
 
@@ -19,7 +19,7 @@ export function NumberField({ variants, ...props }: NumberFieldProps) {
   return <ReactAriaNumberField className={numberField(variants)} formatOptions={{ useGrouping: false }} {...props} />;
 }
 
-export const numberFieldGroup = tv({
+const numberFieldGroup = tv({
   extend: fieldGroup,
   base: "overflow-hidden",
   variants: {
@@ -30,7 +30,7 @@ export const numberFieldGroup = tv({
   defaultVariants: { size: "default", style: "input", isFocusable: true },
 });
 
-export type NumberFieldGroupProps = Omit<TextFieldInputProps, "variants"> & TWVProps<typeof numberFieldGroup>;
+type NumberFieldGroupProps = Omit<TextFieldInputProps, "variants"> & TWVProps<typeof numberFieldGroup>;
 
 function NumberFieldGroup({ variants, ...props }: NumberFieldGroupProps) {
   return (

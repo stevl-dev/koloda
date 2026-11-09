@@ -25,7 +25,7 @@ export function TableBody({ table }: TableBodyProps) {
 
 type TableBodyRowProps = { row: any };
 
-export function TableBodyRow({ row }: TableBodyRowProps) {
+function TableBodyRow({ row }: TableBodyRowProps) {
   return (
     <tr key={row.id}>
       {row.getVisibleCells().map((cell: any) => {

@@ -5,7 +5,7 @@ import { tv } from "tailwind-variants";
 import type { TWVProps } from "../../types";
 import { button } from "./button";
 
-export const toggleGroup = tv({
+const toggleGroup = tv({
   base: "flex flex-row items-center gap-1 h-10 rounded-lg bg-toggle-group",
 });
 
@@ -15,7 +15,7 @@ export function ToggleGroup({ variants, ...props }: ToggleGroupProps) {
   return <ToggleButtonGroup className={toggleGroup(variants)} {...props} />;
 }
 
-export const toggleGroupItem = tv({
+const toggleGroupItem = tv({
   extend: button,
   base: "relative fg-level-3 aria-checked:fg-level-1 hover:fg-level-1 focus:z-2",
 });
@@ -27,7 +27,7 @@ const toggleGroupIndicator = [
 
 type ToggleGroupItemProps = ToggleButtonProps & PropsWithChildren & TWVProps<typeof toggleGroupItem>;
 
-export function ToggleGroupItem({ variants, children, ...props }: ToggleGroupItemProps) {
+function ToggleGroupItem({ variants, children, ...props }: ToggleGroupItemProps) {
   return (
     <ToggleButton className={toggleGroupItem(variants)} {...props}>
       <SelectionIndicator className={toggleGroupIndicator} />

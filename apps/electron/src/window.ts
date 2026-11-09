@@ -11,7 +11,7 @@ import { sendPush } from "./ipc-handlers";
 import { createWindowCloseCoordinator } from "./window-close-coordinator";
 import type { WindowCloseCoordinator } from "./window-close-coordinator";
 
-export const TITLEBAR_HEIGHT = 40;
+const TITLEBAR_HEIGHT = 40;
 const WINDOW_BUTTON_X = 12;
 const MACOS_WINDOW_BUTTON_HEIGHT = 12;
 

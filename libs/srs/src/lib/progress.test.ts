@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { cardRowSchema, cardValidation, insertCardSchema } from "./cards";
-import { insertReviewSchema, reviewValidation } from "./reviews";
+import { insertReviewSchema, reviewRowSchema } from "./reviews";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
 
@@ -133,7 +133,7 @@ describe("card progress validation", () => {
 
 describe("review validation", () => {
   it("accepts a canonical valid review payload", () => {
-    expect(reviewValidation.safeParse(validReview()).success).toBe(true);
+    expect(reviewRowSchema.safeParse(validReview()).success).toBe(true);
     expect(insertReviewSchema.safeParse(validInsertReview()).success).toBe(true);
   });
 
@@ -186,13 +186,13 @@ describe("review validation", () => {
   });
 
   it("rejects null dueAt", () => {
-    expect(reviewValidation.safeParse(validReview({ dueAt: null })).success).toBe(false);
+    expect(reviewRowSchema.safeParse(validReview({ dueAt: null })).success).toBe(false);
     expect(insertReviewSchema.safeParse(validInsertReview({ dueAt: null })).success).toBe(false);
   });
 
   it("rejects omitted dueAt", () => {
     const { dueAt: _rowDueAt, ...rowWithout } = validReview();
-    expect(reviewValidation.safeParse(rowWithout).success).toBe(false);
+    expect(reviewRowSchema.safeParse(rowWithout).success).toBe(false);
 
     const { dueAt: _insertDueAt, ...insertWithout } = validInsertReview();
     expect(insertReviewSchema.safeParse(insertWithout).success).toBe(false);
@@ -203,7 +203,7 @@ describe("review validation", () => {
     "rejects omitted %s",
     (field) => {
       const { [field]: _rowOmitted, ...rowWithout } = validReview();
-      expect(reviewValidation.safeParse(rowWithout).success).toBe(false);
+      expect(reviewRowSchema.safeParse(rowWithout).success).toBe(false);
 
       const { [field]: _insertOmitted, ...insertWithout } = validInsertReview();
       expect(insertReviewSchema.safeParse(insertWithout).success).toBe(false);

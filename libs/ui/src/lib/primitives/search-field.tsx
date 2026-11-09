@@ -10,7 +10,7 @@ import type { ButtonProps } from "./form/button";
 import { FieldGroup, fieldGroup } from "./form/field-group";
 import type { FieldGroupProps } from "./form/field-group";
 
-export const searchField = tv({ base: "flex" });
+const searchField = tv({ base: "flex" });
 
 export type SearchFieldProps = ReactAriaSearchFieldProps & TWVProps<typeof searchField>;
 
@@ -18,7 +18,7 @@ export function SearchField({ variants, ...props }: SearchFieldProps) {
   return <ReactAriaSearchField className={searchField(variants)} {...props} />;
 }
 
-export const searchFieldGroup = tv({
+const searchFieldGroup = tv({
   extend: fieldGroup,
   base: "w-full px-2",
   defaultVariants: {
@@ -28,19 +28,19 @@ export const searchFieldGroup = tv({
   },
 });
 
-export type SearchFieldGroupProps = TWVProps<typeof searchFieldGroup> & FieldGroupProps;
+type SearchFieldGroupProps = TWVProps<typeof searchFieldGroup> & FieldGroupProps;
 
 function SearchFieldGroup({ variants, ...props }: SearchFieldGroupProps) {
   return <FieldGroup className={searchFieldGroup(variants)} role="group" {...props} />;
 }
 
-export const searchFieldInput = tv({
+const searchFieldInput = tv({
   base: "w-full min-w-0 px-2 border-0 bg-transparent outline-none",
 });
 
-export type SearchFieldInputProps = ComponentProps<typeof Input> & TWVProps<typeof searchFieldInput>;
+type SearchFieldInputProps = ComponentProps<typeof Input> & TWVProps<typeof searchFieldInput>;
 
-export function SearchFieldInput({ variants, ...props }: SearchFieldInputProps) {
+function SearchFieldInput({ variants, ...props }: SearchFieldInputProps) {
   return <Input className={searchFieldInput(variants)} {...props} />;
 }
 
@@ -50,7 +50,7 @@ function SearchFieldIcon() {
   return <SearchIcon className={searchFieldIcon} strokeWidth={2} aria-hidden="true" />;
 }
 
-export type SearchFieldClearButtonProps = ButtonProps & {
+type SearchFieldClearButtonProps = ButtonProps & {
   isHidden: boolean;
 };
 

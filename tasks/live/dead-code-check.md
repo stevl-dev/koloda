@@ -130,7 +130,7 @@ Out:
   did, so knip finds `test-setup.ts` without an entry or ignore; vitest runs the same files.
   `check:dead-code` takes about 3.0 s locally (three runs).
 
-- [ ] 2. Remove the dead code knip reports
+- [x] 2. Remove the dead code knip reports
   Goal: Fix every finding item 1 leaves: delete unused exports, files, and dependencies,
   make a symbol local when its own file uses it, and declare imported packages the root does not list.
   Where a symbol is intentional surface, add a knip ignore with the reason instead.
@@ -156,6 +156,14 @@ Out:
   Done when: `bun run check:dead-code` exits 0, and `bun run check:push` passes.
   Commit: Remove the dead code knip reports
   Depends on: 1
+  Notes: `reviewRowSchema` stays, like `cardRowSchema` and `deckRowSchema`; `reviewValidation` is gone, and the
+  `koloda` reviews module doc names the kept schema.
+  `react-aria` and `react-stately` are pinned exactly, as `react-aria-components` pins them, so one copy installs.
+  Typecheck passes without `@types/web`, so it is deleted with no ignore.
+  Both `createQueryClientWrapper` helpers had no caller and are deleted.
+  The first `check:push` run failed two timing-sensitive tests no file here touches:
+  `ai-model-profile-picker.test.tsx` (`ai-react`) and `serve_removes_staged_uploads_before_it_listens`
+  (`koloda-server`); both passed alone and on the rerun.
 
 - [ ] 3. Run knip in the push gate
   Goal: Add `check:dead-code` to `check:ts`, and update the `tools/check-push.ts` header that lists the TS track.
