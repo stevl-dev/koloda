@@ -1,6 +1,7 @@
 import type { SyncDevice, SyncStatus } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
+import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
@@ -15,7 +16,7 @@ vi.mock("@lingui/react", () => ({
 }));
 
 vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof CoreReact>();
   return {
     ...actual,
     useAppHotkey: () => {},

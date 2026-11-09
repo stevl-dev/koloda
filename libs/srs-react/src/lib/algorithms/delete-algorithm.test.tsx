@@ -25,7 +25,7 @@ const ALGORITHM_ID = testId(1);
 const SUCCESSOR_ID = testId(2);
 
 function buildQueries(): Queries {
-  return {
+  const queries: Partial<Queries> = {
     getSettingsQuery: (name) => ({
       queryKey: queryKeys.settings.detail(name),
       queryFn: async () => null,
@@ -45,7 +45,8 @@ function buildQueries(): Queries {
     deleteAlgorithmMutation: () => ({
       mutationFn: async () => undefined,
     }),
-  } as unknown as Queries;
+  };
+  return queries as Queries;
 }
 
 describe("DeleteAlgorithm", () => {

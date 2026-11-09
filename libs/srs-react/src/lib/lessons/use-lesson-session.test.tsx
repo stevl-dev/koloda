@@ -45,7 +45,7 @@ const TOTAL_TODAY_REVIEW_TOTALS = createTodaysReviewTotals({
 const REQUEST = { type: "total" as const, deckId: testId(7) };
 
 function buildQueries(overrides: Partial<Queries> = {}): Queries {
-  return {
+  const queries: Partial<Queries> = {
     getSettingsQuery: (name) => ({
       queryKey: queryKeys.settings.detail(name),
       queryFn: async () => null,
@@ -66,7 +66,8 @@ function buildQueries(overrides: Partial<Queries> = {}): Queries {
       mutationFn: async () => undefined,
     }),
     ...overrides,
-  } as unknown as Queries;
+  };
+  return queries as Queries;
 }
 
 function createWrapper(options?: { queries?: Queries }) {

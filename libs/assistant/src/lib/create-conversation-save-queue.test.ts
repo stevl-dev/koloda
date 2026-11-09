@@ -174,7 +174,7 @@ describe("createConversationSaveQueue", () => {
       .fn<() => Promise<void>>()
       .mockRejectedValueOnce(new Error("db down"))
       .mockRejectedValueOnce(new Error("db down"))
-      .mockResolvedValueOnce(true);
+      .mockResolvedValueOnce(undefined);
 
     const queue = createConversationSaveQueue({
       conversationId: "conv-1",

@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { APP_SHUTDOWN_ACK_CHANNEL, APP_SHUTDOWN_REQUEST_CHANNEL } from "@koloda/native-ipc";
+import type { ElectronBridge } from "@koloda/native-ipc";
 
-const shutdownAssistantGracefully = vi.fn(async () => {});
+const shutdownAssistantGracefully = vi.fn(async (_store: unknown) => {});
 
 vi.mock("@koloda/assistant-react", () => ({
-  shutdownAssistantGracefully: (...args: unknown[]) => shutdownAssistantGracefully(...args),
+  shutdownAssistantGracefully: (store: unknown) => shutdownAssistantGracefully(store),
 }));
 
 import { installElectronCloseCoordination } from "./electron-close-coordination";
@@ -26,7 +27,7 @@ beforeEach(() => {
   shutdownAssistantGracefully.mockClear();
   shutdownAssistantGracefully.mockResolvedValue(undefined);
   const electronAPI = {
-    invoke: invokeMock as Window["electronAPI"]["invoke"],
+    invoke: invokeMock as ElectronBridge["invoke"],
     on: (channel: string, callback: (...args: unknown[]) => void) => {
       const set = listeners.get(channel) ?? new Set();
       set.add(callback);

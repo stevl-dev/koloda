@@ -23,7 +23,7 @@ import {
   lessonReducer,
   lessonReducerDefault,
 } from "./lesson-reducer";
-import type { LessonReducerState } from "./lesson-reducer";
+import type { LessonAtomValue, LessonReducerState } from "./lesson-reducer";
 
 type LessonAction = Parameters<typeof lessonReducer>[1];
 
@@ -86,7 +86,7 @@ function reduceLesson(actions: LessonAction[], initial: LessonReducerState = str
 }
 
 function startLesson(options?: {
-  request?: { type: "total" | "untouched" | "learn" | "review"; deckId?: number | null };
+  request?: LessonAtomValue;
   learnAheadLimit?: LearningSettings["learnAheadLimit"];
   lessons?: ReturnType<typeof createLessonsResult>;
   todayReviewTotals?: ReturnType<typeof createTodaysReviewTotals>;
@@ -134,7 +134,7 @@ function queuedUploadItem() {
       lastReviewedAt: null,
     },
     review: {
-      cardId: 1,
+      cardId: testId(1),
       rating: 3,
       state: 1,
       dueAt: new Date("2024-01-01T00:10:00.000Z"),

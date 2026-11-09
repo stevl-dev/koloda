@@ -1,6 +1,7 @@
 import { AppError } from "@koloda/app";
 import type { IssuedPairing } from "@koloda/app";
 import type { SyncQueries } from "@koloda/core-react";
+import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
@@ -14,7 +15,7 @@ vi.mock("@lingui/react", () => ({
 }));
 
 vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof CoreReact>();
   return {
     ...actual,
     useAppHotkey: () => {},

@@ -104,7 +104,7 @@ Out:
   Commit: Type-check test files in ten packages
   Depends on: none
 
-- [ ] 2. Type-check tests in the settings, srs, and assistant packages
+- [x] 2. Type-check tests in the settings, srs, and assistant packages
   Goal: Apply item 1's config to `libs/settings-react`, `libs/srs-react`, `libs/assistant`, and `apps/electron-react`,
   and fix the errors it reports.
   Expected errors: 47 (`libs/settings-react` 14, `apps/electron-react` 12, `libs/assistant` 11, `libs/srs-react` 10).
@@ -170,5 +170,15 @@ Out:
   a `prompt` field `ChatInput` no longer has in `libs/ai`; a typed `it.each` table of `RegisterableHotkey` in
   `libs/core-react`; an explicit `<"ai">` on one `patchSettings` call (see Open questions);
   and in `libs/db-sqlite/src/test/setup.ts`, a `typeof … === "function"` lock guard and an `Array.from` without a cast.
+- Item 2: 47 errors fixed, none in production code, no test deleted.
+  `apps/electron-react/src/app/ai-runtime.test.ts` emitted string stream chunks; the IPC event now carries a
+  `ChatStreamChunk` object, so the fixtures and assertions use `{ kind: "text", text }`.
+  The same file and `libs/assistant/src/lib/assistant-engine.test.ts` dropped the removed `ChatInput.prompt`.
+  The electron-react tests type the bridge mock as `ElectronBridge["invoke"]`:
+  the `Window` augmentation in `electron.ts` is not in the declarations the tests import.
+  `libs/settings-react` types 11 `importOriginal` calls as `typeof CoreReact`, as `settings-learning.test.tsx` did,
+  and builds `AIProfile.createdAt` as a `Date`.
+  `libs/srs-react` uses string ids (`testId`) in the lesson reducer fixtures and builds two `Queries` fakes as
+  `Partial<Queries>`, which drops their `as unknown as` casts.
 
 ## Outcome

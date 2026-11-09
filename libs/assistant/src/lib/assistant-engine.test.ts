@@ -1,4 +1,4 @@
-import type { AssistantToolEvent, ChatStreamRequest, StreamUsage } from "@koloda/ai";
+import type { AssistantToolEvent, ChatStreamChunk, ChatStreamRequest, StreamUsage } from "@koloda/ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AssistantDuplicateRunError, AssistantEngineClosedError, createAssistantEngine } from "./assistant-engine";
 import type {
@@ -10,7 +10,7 @@ import type { AssistantEvent } from "./assistant-protocol";
 
 type TestChatTransport = (
   request: AssistantChatExecutionInput["request"],
-  onChunk: (chunk: string) => void,
+  onChunk: (chunk: ChatStreamChunk) => void,
   onToolEvent: (event: AssistantToolEvent) => void,
   signal: AbortSignal,
 ) => Promise<StreamUsage | undefined>;
@@ -247,7 +247,7 @@ describe("createAssistantEngine", () => {
 
     const execution = { profileId: "profile-a" };
     const request: ChatStreamRequest = {
-      input: { modelId: "model-a", prompt: "prompt-a" },
+      input: { modelId: "model-a" },
       messages: [{ role: "user", content: "history-a" }],
       systemPromptTemplate: "system-a",
     };
@@ -275,7 +275,7 @@ describe("createAssistantEngine", () => {
       runId: "run-a",
       identity: { profileId: "profile-a" },
       request: {
-        input: { modelId: "model-a", prompt: "prompt-a" },
+        input: { modelId: "model-a" },
         messages: [{ content: "history-a" }],
         systemPromptTemplate: "system-a",
       },

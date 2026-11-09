@@ -1,6 +1,7 @@
-import type { AIRuntime, AssistantToolEvent } from "@koloda/ai";
+import type { AIRuntime, AssistantToolEvent, ChatStreamChunk } from "@koloda/ai";
 import { AIError } from "@koloda/ai";
 import { AI_STREAM_CHANNEL } from "@koloda/native-ipc";
+import type { ElectronBridge } from "@koloda/native-ipc";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createElectronAIRuntime } from "./ai-runtime";
 
@@ -18,7 +19,7 @@ beforeEach(() => {
   listeners.clear();
   invokeMock.mockReset();
   const electronAPI = {
-    invoke: invokeMock as Window["electronAPI"]["invoke"],
+    invoke: invokeMock as ElectronBridge["invoke"],
     on: (channel: string, callback: (...args: unknown[]) => void) => {
       const set = listeners.get(channel) ?? new Set();
       set.add(callback);
@@ -44,8 +45,8 @@ describe("createElectronAIRuntime", () => {
       if (cmd !== "cmd_ai_chat_stream") return undefined;
       const { requestId } = args as { requestId: string };
       queueMicrotask(() => {
-        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: "Hel" });
-        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: "lo" });
+        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: { kind: "text", text: "Hel" } });
+        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: { kind: "text", text: "lo" } });
         emit(AI_STREAM_CHANNEL, {
           requestId,
           type: "done",
@@ -55,15 +56,18 @@ describe("createElectronAIRuntime", () => {
     });
 
     const runtime = createElectronAIRuntime();
-    const chunks: string[] = [];
+    const chunks: ChatStreamChunk[] = [];
     const usage = await runtime.chat(
       "profile-1",
-      { messages: [], input: { modelId: "m", prompt: "hi" } },
+      { messages: [], input: { modelId: "m" } },
       (chunk) => chunks.push(chunk),
       new AbortController().signal,
     );
 
-    expect(chunks).toEqual(["Hel", "lo"]);
+    expect(chunks).toEqual([
+      { kind: "text", text: "Hel" },
+      { kind: "text", text: "lo" },
+    ]);
     expect(usage).toEqual({ promptTokens: 1, completionTokens: 2, totalTokens: 3 });
   });
 
@@ -79,7 +83,7 @@ describe("createElectronAIRuntime", () => {
     const runtime = createElectronAIRuntime();
     await runtime.chat(
       "profile-1",
-      { messages: [], input: { modelId: "m", prompt: "hi" } },
+      { messages: [], input: { modelId: "m" } },
       () => {},
       new AbortController().signal,
       "host-req-chat",
@@ -88,7 +92,7 @@ describe("createElectronAIRuntime", () => {
     expect(invokeMock).toHaveBeenCalledWith("cmd_ai_chat_stream", {
       requestId: "host-req-chat",
       profileId: "profile-1",
-      request: { messages: [], input: { modelId: "m", prompt: "hi" } },
+      request: { messages: [], input: { modelId: "m" } },
     });
   });
 
@@ -106,7 +110,7 @@ describe("createElectronAIRuntime", () => {
       "profile-1",
       {
         messages: [],
-        input: { modelId: "m", prompt: "hi" },
+        input: { modelId: "m" },
         tools: ["list_decks"],
         onToolEvent: () => {},
       },
@@ -118,7 +122,7 @@ describe("createElectronAIRuntime", () => {
     expect(invokeMock).toHaveBeenCalledWith("cmd_ai_chat_stream", {
       requestId: "host-req-chat",
       profileId: "profile-1",
-      request: { messages: [], input: { modelId: "m", prompt: "hi" }, tools: ["list_decks"] },
+      request: { messages: [], input: { modelId: "m" }, tools: ["list_decks"] },
     });
   });
 
@@ -134,19 +138,19 @@ describe("createElectronAIRuntime", () => {
         });
         emit(AI_STREAM_CHANNEL, { requestId, type: "toolResult", callId: "call-1", output: { decks: [] } });
         emit(AI_STREAM_CHANNEL, { requestId, type: "toolResult", callId: "call-2", error: "Deck not found: 9" });
-        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: "ok" });
+        emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: { kind: "text", text: "ok" } });
         emit(AI_STREAM_CHANNEL, { requestId, type: "done" });
       });
     });
 
     const runtime = createElectronAIRuntime();
     const events: AssistantToolEvent[] = [];
-    const chunks: string[] = [];
+    const chunks: ChatStreamChunk[] = [];
     await runtime.chat(
       "profile-1",
       {
         messages: [],
-        input: { modelId: "m", prompt: "hi" },
+        input: { modelId: "m" },
         tools: ["list_decks"],
         onToolEvent: (event) => events.push(event),
       },
@@ -159,7 +163,7 @@ describe("createElectronAIRuntime", () => {
       { kind: "toolResult", callId: "call-1", output: { decks: [] } },
       { kind: "toolResult", callId: "call-2", error: "Deck not found: 9" },
     ]);
-    expect(chunks).toEqual(["ok"]);
+    expect(chunks).toEqual([{ kind: "text", text: "ok" }]);
   });
 
   it("aborts an in-flight chat by requestId", async () => {
@@ -179,7 +183,7 @@ describe("createElectronAIRuntime", () => {
     const controller = new AbortController();
     const pending = runtime.chat(
       "profile-1",
-      { messages: [], input: { modelId: "m", prompt: "hi" } },
+      { messages: [], input: { modelId: "m" } },
       () => {},
       controller.signal,
       "host-req-chat",
@@ -200,7 +204,7 @@ describe("createElectronAIRuntime", () => {
 
     const runtime = createElectronAIRuntime();
     await expect(
-      runtime.chat("profile-1", { messages: [], input: { modelId: "m", prompt: "hi" } }, () => {}, controller.signal),
+      runtime.chat("profile-1", { messages: [], input: { modelId: "m" } }, () => {}, controller.signal),
     ).rejects.toMatchObject({ name: "AbortError" });
 
     expect(invokeMock).not.toHaveBeenCalledWith("cmd_ai_chat_stream", expect.anything());
@@ -227,12 +231,7 @@ describe("createElectronAIRuntime", () => {
 
     const runtime = createElectronAIRuntime();
     const controller = new AbortController();
-    const pending = runtime.chat(
-      "profile-1",
-      { messages: [], input: { modelId: "m", prompt: "hi" } },
-      () => {},
-      controller.signal,
-    );
+    const pending = runtime.chat("profile-1", { messages: [], input: { modelId: "m" } }, () => {}, controller.signal);
 
     await Promise.resolve();
     controller.abort();
@@ -255,12 +254,7 @@ describe("createElectronAIRuntime", () => {
 
     const runtime: AIRuntime = createElectronAIRuntime();
     await expect(
-      runtime.chat(
-        "profile-1",
-        { messages: [], input: { modelId: "m", prompt: "hi" } },
-        () => {},
-        new AbortController().signal,
-      ),
+      runtime.chat("profile-1", { messages: [], input: { modelId: "m" } }, () => {}, new AbortController().signal),
     ).rejects.toEqual(new AIError("ai.http.401", "Unauthorized"));
   });
 
@@ -292,12 +286,7 @@ describe("createElectronAIRuntime", () => {
 
     const runtime = createElectronAIRuntime();
     await expect(
-      runtime.chat(
-        "profile-1",
-        { messages: [], input: { modelId: "m", prompt: "hi" } },
-        () => {},
-        new AbortController().signal,
-      ),
+      runtime.chat("profile-1", { messages: [], input: { modelId: "m" } }, () => {}, new AbortController().signal),
     ).rejects.toEqual(new AIError("not-found.ai-profile", "No secrets loaded for AI profile"));
   });
 });
