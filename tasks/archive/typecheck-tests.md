@@ -1,6 +1,6 @@
 # Type-check TypeScript test files
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md
 Flow: local
 
@@ -76,7 +76,8 @@ Out:
 
 - [x] Type-check `tools/` here or in its own task? — Here, as item 4.
 - [x] Add a check that keeps every package's tests inside `tsc -b`? — Yes, as item 5.
-- [ ] Should `SetSettingsData` and `PatchSettingsData` (`libs/settings/src/index.ts:47-55`) type `name` as `T`? — open.
+- [ ] Should `SetSettingsData` and `PatchSettingsData` (`libs/settings/src/index.ts:47-55`) type `name` as `T`? —
+  open at landing; no production change was made.
   Both type it as `SettingsName`, so `T` is never inferred from `name`.
   A call can pair one setting's name with another setting's content,
   and the result's `content` is the union of all four.
@@ -208,3 +209,20 @@ Out:
   `agents/TESTING.md` (§Running) and the root `README.md` say tests are type-checked and how a new package joins.
 
 ## Outcome
+
+All five plan items shipped (`e6efeb35`..`6037adfa`), plus one follow-up commit (`be9f01fb`)
+that records the nx sync rewrite of `apps/electron/tsconfig.app.json`.
+`bun run check:push` passed on `be9f01fb`; the Archive commit after it changes only this file.
+No item added or edited an e2e case.
+
+- `bun run typecheck` checks every test file in `libs/*/src` and `apps/*/src` through one `tsconfig.spec.json` per
+  package with tests, and every `.ts` file in `tools/` through `tools/tsconfig.json`.
+- 158 test-code errors fixed (13, 47, and 98 across items 1–3); `tools/` needed none once `@types/bun` `1.4.2` was in.
+  No production code changed and no test was deleted.
+- `bun run check:workspace-deps` fails, naming the package, when a package with `*.test.ts(x)` files has no test config,
+  its `tsconfig.json` does not reference it, the root `tsconfig.json` does not reference the package or `tools/`,
+  or the test config's `include` misses a kind of test file the package has.
+- Left open: the settings-data typing question above.
+- Heads-up: the first `check:push` run on `6037adfa` failed once in `koloda-server`
+  (`attachments_tests::serve_removes_staged_uploads_before_it_listens`, which this task does not touch);
+  it passed three runs alone and the full gate passed on re-run, so it looks flaky.
