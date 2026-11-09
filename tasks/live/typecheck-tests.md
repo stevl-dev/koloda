@@ -43,7 +43,14 @@ The kinds seen:
 
 `libs/srs/tsconfig.spec.json` and `libs/db-sqlite/tsconfig.spec.json` exist, but no config references them.
 
-Done when `bun run typecheck` checks every TypeScript test file in `libs/` and `apps/`, and passes.
+`tools/` has no tsconfig at all, so its scripts and tests are never type-checked either.
+A trial check with `.ts` import paths allowed reports 5 errors, all Bun globals with no types:
+`Bun` in `tools/check-i18n.ts` and `tools/check-markdown.ts`,
+and `import.meta.main` in `tools/check-i18n.ts`, `tools/check-push.ts`, and `tools/land.ts`.
+No Bun type package is installed.
+
+Done when `bun run typecheck` checks every TypeScript file in `libs/*/src`, `apps/*/src`, and `tools/`, and passes,
+and a check fails when a package's test files fall outside that.
 
 ## Scope
 
@@ -55,6 +62,8 @@ In:
   The fix makes the test build the shape production builds.
   Where an error shows that a test no longer checks behavior, apply `agents/TESTING.md` (§The survival question):
   rewrite it or delete it, and list each such test in Outcome.
+- A tsconfig for `tools/` that `tsc -b` builds, and the fixes it needs.
+- A workspace check that keeps every package's test files inside `tsc -b`.
 
 Out:
 
@@ -62,15 +71,11 @@ Out:
 - Production code, except where a test error exposes a real production type bug.
   Record that as an open question before fixing it.
 - Reviewing the 67 `as unknown as` casts in test code, beyond those the fixes touch.
-- `tools/`: see Open questions.
 
 ## Open questions
 
-- [ ] `tools/` has no tsconfig, so its scripts and tests are never type-checked either.
-  A trial check reports 12 errors, mostly setup: no Bun types, `import.meta.main`, and `.ts` import paths.
-  Fold it into this task as a last item, or give it its own task? — open
-- [ ] Add a check that every package with test files has them in a referenced test config,
-  so a new package cannot reopen the gap? `tools/workspace-deps/contract.test.ts` is the likely home. — open
+- [x] Type-check `tools/` here or in its own task? — Here, as item 4.
+- [x] Add a check that keeps every package's tests inside `tsc -b`? — Yes, as item 5.
 
 ## Plan
 
@@ -111,5 +116,32 @@ Out:
   Done when: As item 1, for this package.
   Commit: Type-check test files in assistant-react
   Depends on: 1
+
+- [ ] 4. Type-check tools
+  Goal: Add a tsconfig for `tools/` and reference it from the root `tsconfig.json`, so `tsc -b` checks
+  every `.ts` file under `tools/`: scripts, tests, `workspace-deps/`, `test/mocks/`, and `vite-plugin-theme-boot.ts`.
+  The scripts run under Bun and import with `.ts` paths, so the config allows `.ts` imports and loads Bun's types.
+  Bun's types need a dev dependency (`@types/bun`), pinned to match the Bun version the repo runs.
+  Expected errors once that is in place: none of the 5 above; fix any the new check reports.
+  Constraints: As item 1.
+  Do not change what any script does.
+  Done when: `bun run typecheck` and `bun run check:workspace-deps` pass,
+  and adding a type error to `tools/land.test.ts` makes `bun run typecheck` fail.
+  Commit: Type-check the tools scripts and tests
+  Depends on: none
+
+- [ ] 5. Fail when test files fall outside the type check
+  Goal: Add a check to `tools/workspace-deps/`, run by `bun run check:workspace-deps`,
+  that fails when a package under `libs/` or `apps/` has `*.test.ts(x)` files
+  and its test config is missing or not reachable from the root `tsconfig.json`
+  through the package's `tsconfig.json`.
+  It also fails when the root `tsconfig.json` no longer references the `tools/` config.
+  The failure names the package and the missing link.
+  Constraints: Follow item 1's config shape; do not invent a second convention.
+  Keep the check in TypeScript beside `contract.ts`, with its own tests.
+  Done when: `bun run check:workspace-deps` passes,
+  and removing the test-config reference from one package's `tsconfig.json` makes it fail with that package named.
+  Commit: Check that every package's test files are type-checked
+  Depends on: 1, 2, 3, 4
 
 ## Outcome
