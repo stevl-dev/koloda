@@ -16,6 +16,14 @@ Everything else is routed from `agents/INDEX.md`; run that routing yourself.
 
 On a `task/*` branch, read `tasks/live/<slug>.md` and `agents/TASKS.md` first, and follow its session protocol.
 
+## Libraries
+
+What you remember about a library may describe a different version from the one installed.
+Before relying on how a library behaves (a default, an option's meaning, an error case),
+read the installed version: its types and doc comments in `node_modules`, its bundled docs, or its source.
+For crates, the source is under `~/.cargo/registry/src`.
+Upgrading a dependency follows `agents/UPGRADE-DEPENDENCY.md`.
+
 ## Verification
 
 Never start the app or Playwright unless the human asks for that command.
