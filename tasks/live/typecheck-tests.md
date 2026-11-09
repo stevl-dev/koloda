@@ -136,7 +136,7 @@ Out:
   Commit: Type-check the tools scripts and tests
   Depends on: none
 
-- [ ] 5. Fail when test files fall outside the type check
+- [x] 5. Fail when test files fall outside the type check
   Goal: Add a check to `tools/workspace-deps/`, run by `bun run check:workspace-deps`,
   that fails when a package under `libs/` or `apps/` has `*.test.ts(x)` files
   and its test config is missing or not reachable from the root `tsconfig.json`
@@ -199,5 +199,10 @@ Out:
   With it, the check reports no errors; with `types: []` it reports the 5 Bun-global errors from Intent.
   `bun-types` brings its own nested `@types/node` 24; the root `@types/node` 20 is unchanged.
   `libs/e2e/tsconfig.lib.json` inherits the base `types: ["*"]`, so it now also sees the Bun globals; it still passes.
+- Item 5: `tools/workspace-deps/test-typecheck.ts` also fails when a test config's `include` lacks
+  `src/**/*.test.ts` or `src/**/*.test.tsx` for a kind of test file the package has,
+  so tests cannot sit outside a config that is wired up.
+  Packages without `*.test.ts(x)` files (the e2e suites, `libs/settings`, `libs/native-ipc`) need no test config.
+  `agents/TESTING.md` (§Running) and the root `README.md` say tests are type-checked and how a new package joins.
 
 ## Outcome
