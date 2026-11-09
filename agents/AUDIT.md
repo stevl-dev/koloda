@@ -131,6 +131,7 @@ State the fix direction in one or two sentences.
 The direction stays local: the cited lines, or the twin that must move with them.
 Do not recommend rewriting a module.
 If only a redesign would help, say so as Later or as a Product decision and stop.
+Redesign is weighed only in an architecture review (`agents/ARCHITECTURE-REVIEW.md`), when the human asks for one.
 
 An audit recommends; it does not implement.
 

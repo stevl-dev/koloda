@@ -97,6 +97,10 @@ It lists the other guides an audit loads and how to bound its target: `agents/AU
 
 Planning work from a finished audit report is still the Authoring row for a multi-commit plan.
 
+For an architecture review of one area, which may propose structural change, include `agents/ARCHITECTURE-REVIEW.md`
+instead of `agents/AUDIT.md`.
+It runs only when the human asks for one.
+
 ## Always-available background
 
 Read these only when the task touches them.
