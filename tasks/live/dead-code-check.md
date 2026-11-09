@@ -165,13 +165,16 @@ Out:
   `ai-model-profile-picker.test.tsx` (`ai-react`) and `serve_removes_staged_uploads_before_it_listens`
   (`koloda-server`); both passed alone and on the rerun.
 
-- [ ] 3. Run knip in the push gate
+- [x] 3. Run knip in the push gate
   Goal: Add `check:dead-code` to `check:ts`, and update the `tools/check-push.ts` header that lists the TS track.
   Constraints: Do not change what any other check runs.
   Done when: `bun run check:push` passes; adding an unused export to a lib makes it fail;
   and Outcome records knip's run time locally and the TS track time on the CI run of the tip.
   Commit: Run knip in the push gate
   Depends on: 2
+  Notes: knip runs right after oxlint in `check:ts`, so a dead export fails before the slow steps.
+  An unused `export const` added to `libs/srs/src/lib/decks.ts` made `check:dead-code` exit 1.
+  The root `README.md` check list names `check:dead-code`.
 
 - [ ] 4. Check for unused Rust dependencies
   Goal: Run `cargo machete` over the Cargo workspace in `check:rust-push`, and install a pinned version in CI.

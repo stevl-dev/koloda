@@ -63,11 +63,12 @@ nx run @koloda/electron:test:e2e
 nx run web-e2e:e2e
 
 # Repo checks: format (dprint), docs rules (paths, spec shape, § pointers), markdown line length (advisory),
-# workspace layers and test type-check coverage, TS and Rust gates
+# workspace layers and test type-check coverage, unused exports, files, and dependencies (knip), TS and Rust gates
 bun run check:format
 bun run check:docs
 bun run check:markdown
 bun run check:workspace-deps
+bun run check:dead-code
 bun run check:ts
 bun run check:rust
 
