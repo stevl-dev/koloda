@@ -123,7 +123,7 @@ Out:
   Commit: Type-check test files in assistant-react
   Depends on: 1
 
-- [ ] 4. Type-check tools
+- [x] 4. Type-check tools
   Goal: Add a tsconfig for `tools/` and reference it from the root `tsconfig.json`, so `tsc -b` checks
   every `.ts` file under `tools/`: scripts, tests, `workspace-deps/`, `test/mocks/`, and `vite-plugin-theme-boot.ts`.
   The scripts run under Bun and import with `.ts` paths, so the config allows `.ts` imports and loads Bun's types.
@@ -193,5 +193,11 @@ Out:
   it lacked the three attachment members, and several entries returned `undefined` or numeric ids.
   Members the chat flows never call now reject when called;
   settings return `null`, as on a fresh install, so the assistant uses its defaults.
+- Item 4: `tools/tsconfig.json` extends `tsconfig.base.json`, includes every `.ts` under `tools/`,
+  allows `.ts` imports, loads `types: ["bun"]`, and emits declarations to `tools/dist` (gitignored).
+  `@types/bun` is pinned to `1.4.2`, the `packageManager` Bun version.
+  With it, the check reports no errors; with `types: []` it reports the 5 Bun-global errors from Intent.
+  `bun-types` brings its own nested `@types/node` 24; the root `@types/node` 20 is unchanged.
+  `libs/e2e/tsconfig.lib.json` inherits the base `types: ["*"]`, so it now also sees the Bun globals; it still passes.
 
 ## Outcome

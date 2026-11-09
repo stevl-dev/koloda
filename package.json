@@ -89,6 +89,7 @@
     "@swc/helpers": "0.5.23",
     "@tanstack/router-plugin": "^1.136.5",
     "@testing-library/react": "^16.3.2",
+    "@types/bun": "1.4.2",
     "@types/node": "^20.0.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
