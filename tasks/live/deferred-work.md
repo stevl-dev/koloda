@@ -1,7 +1,7 @@
 # Keep deferred work in one place
 
 Status: draft
-Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/AUDIT.md, agents/MARKDOWN.md
+Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/AUDIT.md, agents/ARCHITECTURE-REVIEW.md, agents/MARKDOWN.md
 Flow: local
 
 ## Intent
@@ -35,13 +35,13 @@ In:
 - `tasks/DEFERRED.md`: purpose, entry shape, and the seeded entries.
 - `agents/TASKS.md`: what goes into the file, when entries are added and removed, and when they are read.
 - `agents/AUDIT.md`: an audit reads the entries for its target and does not raise them as new findings.
+- `agents/ARCHITECTURE-REVIEW.md`: a review reads the entries for its area instead of searching the archive.
 
 Out:
 
 - Deciding or fixing any entry.
 - Changing archived task files; they stay as they were landed.
-- An architecture-review audit mode that may recommend redesign.
-  It was discussed alongside this; its notes would land here as entries, but the mode itself is separate.
+- Changing how an architecture review works, beyond the input it reads.
 
 ## Open questions
 
@@ -73,6 +73,8 @@ Out:
   `agents/AUDIT.md` rule: an audit reads the entries for its target.
   A finding that matches an entry is reported as known, citing it, not as new; an entry that no longer holds is
   reported as resolved.
+  `agents/ARCHITECTURE-REVIEW.md` (§Target and inputs) reads the area's entries in place of
+  the skipped and needs-decision findings, open questions, and handoffs it now reads from `tasks/archive/`.
   Constraints: Follow `agents/MARKDOWN.md`.
   Keep the rules in `agents/TASKS.md`; the file's header points there and does not restate them.
   Done when: `bun run check:docs` and `bun run check:markdown` pass.
