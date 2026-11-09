@@ -145,7 +145,7 @@ describe("settings and review totals integration", () => {
       },
     });
 
-    const result = await patchSettings(db, {
+    const result = await patchSettings<"ai">(db, {
       name: "ai",
       content: {
         profiles: [

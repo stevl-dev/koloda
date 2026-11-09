@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from "@testing-library/react";
+import type { RegisterableHotkey } from "@tanstack/react-hotkeys";
 import { createStore, Provider } from "jotai";
 import { createElement } from "react";
 import type { PropsWithChildren } from "react";
@@ -108,7 +109,7 @@ describe("useAppHotkey in a text field", () => {
     return isNotPrevented;
   }
 
-  it.each([
+  it.each<{ binding: RegisterableHotkey; ignoreInputs: boolean | undefined; init: KeyboardEventInit; fires: boolean }>([
     { binding: "N", ignoreInputs: false, init: { key: "n", code: "KeyN" }, fires: false },
     { binding: "Mod+N", ignoreInputs: false, init: { key: "n", code: "KeyN", ctrlKey: true }, fires: true },
     { binding: "Alt+N", ignoreInputs: false, init: { key: "n", code: "KeyN", altKey: true }, fires: true },

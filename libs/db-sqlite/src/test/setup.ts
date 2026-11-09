@@ -50,7 +50,7 @@ function installWebLocks() {
   };
 
   const navigator = globalThis.navigator as Navigator | undefined;
-  if (navigator && "locks" in navigator && navigator.locks?.request) return;
+  if (navigator && "locks" in navigator && typeof navigator.locks?.request === "function") return;
 
   if (navigator) {
     Object.defineProperty(navigator, "locks", { configurable: true, value: locks });
@@ -75,7 +75,7 @@ const originalTransaction = IDBDatabase.prototype.transaction;
 IDBDatabase.prototype.transaction = function (storeNames, mode, options) {
   const names =
     storeNames != null && typeof storeNames === "object" && !Array.isArray(storeNames) && "length" in storeNames
-      ? Array.from(storeNames as ArrayLike<string>)
+      ? Array.from(storeNames)
       : storeNames;
   return originalTransaction.call(this, names, mode, options);
 };

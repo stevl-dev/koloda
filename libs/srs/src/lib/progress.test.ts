@@ -5,7 +5,7 @@ import { insertReviewSchema, reviewValidation } from "./reviews";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
 
-function firstIssueMessage<T>(result: z.SafeParseReturnType<T, T>): string | undefined {
+function firstIssueMessage<T>(result: z.ZodSafeParseResult<T>): string | undefined {
   if (result.success) return undefined;
   return result.error.issues[0]?.message;
 }

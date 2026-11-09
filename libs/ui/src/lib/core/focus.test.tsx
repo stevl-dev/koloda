@@ -1,7 +1,6 @@
 import { ToggleGroup } from "../primitives/form/toggle-group";
 import { focusNext, focusPrev, goToNextTab, goToPrevTab } from "./focus";
 import { act, render, screen } from "@testing-library/react";
-import * as React from "react";
 import { describe, expect, it } from "vitest";
 
 function createHotkeyEvent() {

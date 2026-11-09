@@ -1,6 +1,5 @@
 import { Button, Tooltip } from "@koloda/ui";
 import { fireEvent, render, screen } from "@testing-library/react";
-import * as React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 async function openTooltipOnFocus(name: string) {

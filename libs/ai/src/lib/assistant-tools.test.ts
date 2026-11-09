@@ -62,7 +62,7 @@ function streamOf(chunks: MockStreamChunk[]): MockStreamResult {
 function createChatRequest(overrides: Partial<ChatStreamRequest> = {}): ChatStreamRequest {
   return {
     messages: [{ role: "user", content: "List my decks" }],
-    input: { modelId: "llama3", prompt: "List my decks" },
+    input: { modelId: "llama3" },
     ...overrides,
   };
 }
@@ -1278,7 +1278,7 @@ describe("chat request prompt and temperature", () => {
     fakeModelSlot.model = model;
 
     await streamChatWithOllama(
-      createChatRequest({ input: { modelId: "llama3", prompt: "List my decks", temperature } }),
+      createChatRequest({ input: { modelId: "llama3", temperature } }),
       () => {},
       new AbortController().signal,
       OLLAMA_OPTIONS,

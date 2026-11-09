@@ -76,10 +76,16 @@ Out:
 
 - [x] Type-check `tools/` here or in its own task? — Here, as item 4.
 - [x] Add a check that keeps every package's tests inside `tsc -b`? — Yes, as item 5.
+- [ ] Should `SetSettingsData` and `PatchSettingsData` (`libs/settings/src/index.ts:47-55`) type `name` as `T`? — open.
+  Both type it as `SettingsName`, so `T` is never inferred from `name`.
+  A call can pair one setting's name with another setting's content,
+  and the result's `content` is the union of all four.
+  Item 1 passes `<"ai">` explicitly in `libs/db-sqlite/src/lib/settings-reviews.integration.test.ts` instead of
+  changing the production type.
 
 ## Plan
 
-- [ ] 1. Type-check tests in the packages with few errors
+- [x] 1. Type-check tests in the packages with few errors
   Goal: Give each package that has tests a test config that `tsc -b` builds, then fix the errors it reports.
   Packages: `libs/ai`, `libs/ai-react`, `libs/app`, `libs/app-react`, `libs/core-react`, `libs/db-sqlite`, `libs/srs`,
   `libs/ui`, `apps/web`, `apps/electron`.
@@ -143,5 +149,26 @@ Out:
   and removing the test-config reference from one package's `tsconfig.json` makes it fail with that package named.
   Commit: Check that every package's test files are type-checked
   Depends on: 1, 2, 3, 4
+
+## Implementation notes
+
+- Item 1: the test config is `tsconfig.spec.json`, one per package, beside `tsconfig.lib.json` or `tsconfig.app.json`.
+  It extends `tsconfig.base.json`, includes `src/**/*.test.ts` (and `.test.tsx` where the package has JSX),
+  `src/test-setup.ts`, and `src/test/**`, emits declarations to `dist/spec`, and references the lib or app config.
+  Its `types` copy the lib or app config's, so tests see the same ambient types as the code.
+  The package's `tsconfig.json` references it.
+- Item 1: the config does not load `vitest/globals`.
+  No vitest config sets `globals: true` and every test imports from `vitest`,
+  so the globals types would hide a missing import that fails at runtime.
+  No package uses jest-dom.
+- Item 1: `apps/electron/tsconfig.json` was the app project itself, so it could not reference a test config that
+  references it back.
+  It moved to `apps/electron/tsconfig.app.json` (build info renamed to `dist/tsconfig.app.tsbuildinfo`),
+  and `apps/electron/tsconfig.json` is now a solution file like `apps/web`'s.
+- Item 1: 13 errors fixed, none in production code, no test deleted:
+  unused `React` imports in four `libs/ui` tests; zod v4's `z.ZodSafeParseResult` in `libs/srs`;
+  a `prompt` field `ChatInput` no longer has in `libs/ai`; a typed `it.each` table of `RegisterableHotkey` in
+  `libs/core-react`; an explicit `<"ai">` on one `patchSettings` call (see Open questions);
+  and in `libs/db-sqlite/src/test/setup.ts`, a `typeof … === "function"` lock guard and an `Array.from` without a cast.
 
 ## Outcome
