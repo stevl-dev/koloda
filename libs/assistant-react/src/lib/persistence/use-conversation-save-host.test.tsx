@@ -113,7 +113,14 @@ describe("useConversationSaveHost", () => {
 
   it("title-stable autosave upserts the list cache without a refetch", async () => {
     const seededList: ConversationListItem[] = [
-      { id: "A", title: "hello", createdAt: new Date("2026-07-01T11:00:00.000Z"), updatedAt: null, hasTurns: true },
+      {
+        id: "A",
+        title: "hello",
+        createdAt: new Date("2026-07-01T11:00:00.000Z"),
+        updatedAt: null,
+        hasTurns: true,
+        isUnread: false,
+      },
     ];
     const { store, queryClient, Wrapper } = createTestWrapper();
     queryClient.setQueryData(queryKeys.conversations.all(), seededList);
@@ -160,6 +167,7 @@ describe("useConversationSaveHost", () => {
         createdAt: new Date("2026-07-01T11:00:00.000Z"),
         updatedAt: new Date("2026-07-01T11:00:00.000Z"),
         hasTurns: false,
+        isUnread: false,
       },
     ];
     const { store, queryClient, Wrapper } = createTestWrapper();
@@ -199,6 +207,7 @@ describe("useConversationSaveHost", () => {
         createdAt: new Date("2026-07-01T11:00:00.000Z"),
         updatedAt: new Date("2026-07-01T11:00:00.000Z"),
         hasTurns: false,
+        isUnread: false,
       },
     ];
     const { store, queryClient, Wrapper } = createTestWrapper();
@@ -235,8 +244,8 @@ describe("useConversationSaveHost", () => {
 
   it("moves a saved row to the top when its save stamps a newer timestamp", async () => {
     const seededList: ConversationListItem[] = [
-      { id: "B", title: "beta", createdAt: new Date(1), updatedAt: new Date(2000), hasTurns: true },
-      { id: "A", title: "hello", createdAt: new Date(1), updatedAt: new Date(1000), hasTurns: true },
+      { id: "B", title: "beta", createdAt: new Date(1), updatedAt: new Date(2000), hasTurns: true, isUnread: false },
+      { id: "A", title: "hello", createdAt: new Date(1), updatedAt: new Date(1000), hasTurns: true, isUnread: false },
     ];
     const { store, queryClient, Wrapper } = createTestWrapper();
     queryClient.setQueryData(queryKeys.conversations.all(), seededList);

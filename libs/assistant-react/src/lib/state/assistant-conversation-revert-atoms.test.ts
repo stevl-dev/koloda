@@ -16,6 +16,7 @@ describe("revert state in-memory lifecycle", () => {
       status: "success",
       cards: [],
       cardStatuses: {},
+      toolCalls: [],
       templateFields: null,
       startedAt: new Date(1),
       elapsedSeconds: 1,

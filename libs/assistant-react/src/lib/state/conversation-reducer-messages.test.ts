@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { conversationReducer } from "./conversation-reducer";
 import { initialConversationState } from "./conversation-types";
+import type { ConversationReducerState } from "./conversation-types";
 import { getVisibleMessages } from "./conversation-run-helpers";
 import { reduce } from "./conversation-reducer.fixtures";
 
@@ -284,6 +285,7 @@ describe("conversationReducer", () => {
             status: "success",
             cards: [],
             cardStatuses: {},
+            toolCalls: [],
             templateFields: null,
             startedAt: new Date(1),
             elapsedSeconds: 1,

@@ -189,6 +189,7 @@ describe("assistantConversationStateAtom (per-conversation store)", () => {
           status: "streaming",
           cards: [],
           cardStatuses: {},
+          toolCalls: [],
           templateFields: null,
           startedAt: new Date(),
           elapsedSeconds: null,

@@ -42,7 +42,8 @@ function createHarness() {
   const originalTouch = conversationStore.touchConversationOnStore;
 
   vi.spyOn(conversationStore, "dispatchToConversationOnStore").mockImplementation((s, id, action) => {
-    dispatchToMap.push({ id, action });
+    // WHY: the save adapter also dispatches updater functions; these tests assert on reducer actions only.
+    if (typeof action !== "function") dispatchToMap.push({ id, action });
     return originalDispatch(s, id, action);
   });
   vi.spyOn(conversationStore, "touchConversationOnStore").mockImplementation((s, conversationId) => {
@@ -455,6 +456,7 @@ describe("useConversationRuns", () => {
             status: "failed",
             cards: [],
             cardStatuses: {},
+            toolCalls: [],
             error: { message: "boom" },
             startedAt: new Date(1),
             elapsedSeconds: null,
@@ -560,12 +562,7 @@ describe("useConversationRuns", () => {
     );
 
     const identity = { profileId: result.current.profileId };
-    const runA = result.current.executeChatRun(
-      "A",
-      "run-a",
-      { input: { modelId: "model-a", prompt: "a" }, messages: [] },
-      identity,
-    );
+    const runA = result.current.executeChatRun("A", "run-a", { input: { modelId: "model-a" }, messages: [] }, identity);
 
     // This mirrors the route/profile render that previously replaced the
     // module-level transport closure while A waited in the serial queue.

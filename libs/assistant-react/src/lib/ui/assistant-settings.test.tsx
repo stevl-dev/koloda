@@ -1,6 +1,7 @@
 import type { AssistantSettings as AssistantSettingsType } from "@koloda/ai";
 import { queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
+import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
@@ -11,7 +12,7 @@ import { AssistantSettings } from "./assistant-settings";
 import type { AssistantSettingsProps } from "./assistant-settings";
 
 vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal();
+  const actual = await importOriginal<typeof CoreReact>();
   return {
     ...actual,
     useAppHotkey: () => {},
@@ -44,7 +45,7 @@ function buildQueries({
   onPatch?: (payload: PatchPayload) => void;
 } = {}): Queries {
   return {
-    getSettingsQuery: (name) => ({
+    getSettingsQuery: (name: Parameters<typeof queryKeys.settings.detail>[0]) => ({
       queryKey: queryKeys.settings.detail(name),
       queryFn: async () => ({ content: { assistant: saved } }),
     }),

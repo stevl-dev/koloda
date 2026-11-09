@@ -62,7 +62,7 @@ describe("add_deck query invalidation", () => {
       input: {
         kind: "chat",
         runId: "run-1",
-        request: { messages: [], input: { modelId: "m", prompt: "hi" }, tools: ["add_deck", "list_decks"] },
+        request: { messages: [], input: { modelId: "m" }, tools: ["add_deck", "list_decks"] },
         execution: { profileId: "profile-1" },
       },
     });

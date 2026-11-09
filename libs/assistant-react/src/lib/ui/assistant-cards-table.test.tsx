@@ -56,8 +56,8 @@ function renderTable(cards: GeneratedCard[], cardStatuses: Record<number, CardSt
       cards={cards}
       cardStatuses={cardStatuses}
       templateFields={templateFields}
-      deckId={1}
-      templateId={1}
+      deckId={testId(1)}
+      templateId={testId(1)}
       canAdd={true}
       isGenerating={false}
     />,
@@ -83,8 +83,8 @@ describe("AssistantCardsTable selection", () => {
         cards={[makeCard("Front A"), makeCard("Front B")]}
         cardStatuses={{ 0: "idle", 1: "idle" }}
         templateFields={templateFields}
-        deckId={1}
-        templateId={1}
+        deckId={testId(1)}
+        templateId={testId(1)}
         canAdd={true}
         isGenerating={false}
       />,
@@ -119,8 +119,8 @@ describe("AssistantCardsTable selection", () => {
         cards={[makeCard("Front A")]}
         cardStatuses={{ 0: "idle" }}
         templateFields={templateFields}
-        deckId={1}
-        templateId={1}
+        deckId={testId(1)}
+        templateId={testId(1)}
         canAdd={true}
         isGenerating={false}
         unavailableTarget={target}

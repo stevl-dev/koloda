@@ -16,7 +16,6 @@ function makeConfig(overrides: Partial<AssistantConversationConfig> = {}): Assis
     temperature: 0.5,
     reasoningEffort: "",
     chatPromptTemplate: null,
-    _: ((m: unknown) => m) as never,
     ...overrides,
   };
 }

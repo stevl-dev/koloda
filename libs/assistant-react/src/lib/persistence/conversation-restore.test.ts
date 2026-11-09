@@ -575,7 +575,7 @@ describe("coerceConversationState", () => {
 
     it("keeps toolCalls intact across a save→restore roundtrip (JSON wire shape)", () => {
       const state: ConversationReducerState = {
-        ...storedRow,
+        ...initialConversationState,
         id: "conv-1",
         runs: {
           r1: {
@@ -682,7 +682,7 @@ describe("coerceConversationState", () => {
         },
       ];
       const state: ConversationReducerState = {
-        ...storedRow,
+        ...initialConversationState,
         id: "conv-1",
         runs: {
           r1: {
@@ -793,7 +793,7 @@ describe("coerceConversationState", () => {
       "keeps $field intact across a save→restore roundtrip (JSON wire shape)",
       ({ roundtrip, expected }) => {
         const state: ConversationReducerState = {
-          ...storedRow,
+          ...initialConversationState,
           id: "conv-1",
           runs: {
             r1: {
@@ -1051,6 +1051,7 @@ describe("normalizeRestoredConversation", () => {
   });
 
   it("marks in-flight toolCalls as error when converting a streaming run", () => {
+    const timing = { startedAt: new Date(5000), elapsedSeconds: 1 };
     const state: ConversationReducerState = {
       ...initialConversationState,
       id: "conv-1",
@@ -1062,8 +1063,8 @@ describe("normalizeRestoredConversation", () => {
           cards: [],
           cardStatuses: {},
           toolCalls: [
-            { id: "call-1", name: "list_decks", input: {}, status: "success", output: { decks: [] } },
-            { id: "call-2", name: "get_deck_cards", input: { deckId: 3 }, status: "running" },
+            { id: "call-1", name: "list_decks", input: {}, status: "success", output: { decks: [] }, ...timing },
+            { id: "call-2", name: "get_deck_cards", input: { deckId: 3 }, status: "running", ...timing },
           ],
           templateFields: null,
           startedAt: new Date(5000),
@@ -1074,12 +1075,13 @@ describe("normalizeRestoredConversation", () => {
 
     const next = normalizeRestoredConversation(state)!;
     expect(next.runs["r1"]?.toolCalls).toEqual([
-      { id: "call-1", name: "list_decks", input: {}, status: "success", output: { decks: [] } },
-      { id: "call-2", name: "get_deck_cards", input: { deckId: 3 }, status: "error" },
+      { id: "call-1", name: "list_decks", input: {}, status: "success", output: { decks: [] }, ...timing },
+      { id: "call-2", name: "get_deck_cards", input: { deckId: 3 }, status: "error", ...timing },
     ]);
   });
 
   it("marks in-flight reasoning rows as done when converting a streaming run", () => {
+    const timing = { startedAt: new Date(5000), elapsedSeconds: 1 };
     const state: ConversationReducerState = {
       ...initialConversationState,
       id: "conv-1",
@@ -1090,7 +1092,9 @@ describe("normalizeRestoredConversation", () => {
           status: "streaming",
           cards: [],
           cardStatuses: {},
-          toolCalls: [{ kind: "reasoning", id: "r1-reasoning-0", text: "partial thought", status: "running" }],
+          toolCalls: [
+            { kind: "reasoning", id: "r1-reasoning-0", text: "partial thought", status: "running", ...timing },
+          ],
           templateFields: null,
           startedAt: new Date(5000),
           elapsedSeconds: null,
@@ -1100,7 +1104,7 @@ describe("normalizeRestoredConversation", () => {
 
     const next = normalizeRestoredConversation(state)!;
     expect(next.runs["r1"]?.toolCalls).toEqual([
-      { kind: "reasoning", id: "r1-reasoning-0", text: "partial thought", status: "done" },
+      { kind: "reasoning", id: "r1-reasoning-0", text: "partial thought", status: "done", ...timing },
     ]);
   });
 

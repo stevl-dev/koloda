@@ -1,6 +1,7 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
 import { assistantContextUsageAtom } from "./conversation-selectors";
+import type { ConversationReducerAction } from "./conversation-reducer";
 import {
   assistantConversationStateAtom,
   currentConversationIdAtom,
@@ -19,7 +20,7 @@ function createStoreWithConversation() {
   return store;
 }
 
-function dispatch(store: ReturnType<typeof createStore>, action: Parameters<typeof store.set>[1]) {
+function dispatch(store: ReturnType<typeof createStore>, action: ConversationReducerAction) {
   store.set(assistantConversationStateAtom, action);
 }
 

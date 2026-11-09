@@ -1,11 +1,11 @@
-import type { AIModel, AIProfile, AIRuntime, ChatStreamRequest, StreamUsage } from "@koloda/ai";
+import type { AIModel, AIProfile, AIRuntime, ChatStreamChunk, ChatStreamRequest, StreamUsage } from "@koloda/ai";
+import type { SetConversationData } from "@koloda/app";
 import { aiRuntimeAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type { Template } from "@koloda/srs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider, useAtomValue } from "jotai";
-import * as React from "react";
 import type { PropsWithChildren } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createAIModel, createAIProfile, createTemplate } from "../../test/test-helpers";
@@ -47,8 +47,8 @@ const wire = vi.hoisted(() => {
     // Stream controls — AIRuntime.chat reads these.
     chatStream: {
       started: 0,
-      onChunk: null as null | ((chunk: string) => void),
-      onStart: null as null | ((request: ChatStreamRequest, onChunk: (chunk: string) => void) => void),
+      onChunk: null as null | ((chunk: ChatStreamChunk) => void),
+      onStart: null as null | ((request: ChatStreamRequest, onChunk: (chunk: ChatStreamChunk) => void) => void),
       // Deferred promise controls for concurrent in-flight chats.
       pending: [] as PendingChat[],
       resolveNext: null as null | (() => void),
@@ -61,18 +61,22 @@ const wire = vi.hoisted(() => {
     setConversationCalls: [] as Array<{
       id: string;
       title: string | null;
-      state: { runs: Record<string, { status: string }> } | null;
+      state: { runs: Record<string, { status: string; reason?: string }> } | null;
     }>,
   };
 });
 
+// WHY: a fake for a query or mutation the chat flows never call; a call fails the test instead of passing a wrong shape.
+function unused(): Promise<never> {
+  return Promise.reject(new Error("not used by the chat tests"));
+}
+
 function buildQueries(): Queries {
   return {
+    // WHY: no saved settings, as on a fresh install; the assistant falls back to its defaults.
     getSettingsQuery: (name) => ({
       queryKey: queryKeys.settings.detail(name),
-      queryFn: async () => ({
-        content: { assistant: { temperature: 0.2, chatPromptTemplate: null } },
-      }),
+      queryFn: async () => null,
     }),
     setSettingsMutation: () => ({ mutationFn: async () => undefined }),
     patchSettingsMutation: () => ({ mutationFn: async () => undefined }),
@@ -87,7 +91,7 @@ function buildQueries(): Queries {
           id,
           createdAt: new Date(1).toISOString(),
         },
-        createdAt: new Date(1).toISOString(),
+        createdAt: new Date(1),
         updatedAt: null,
       }),
     }),
@@ -96,61 +100,61 @@ function buildQueries(): Queries {
       queryFn: async () => [],
     }),
     setConversationMutation: () => ({
-      mutationFn: async (data: { id: string; title?: string | null }) => {
+      mutationFn: async (data: SetConversationData) => {
         wire.setConversationCalls.push({
           id: data.id,
           title: data.title ?? null,
-          state: (data.state as { runs: Record<string, { status: string }> } | undefined) ?? null,
+          state: (data.state as { runs: Record<string, { status: string; reason?: string }> } | undefined) ?? null,
         });
         return {
           id: data.id,
           title: data.title ?? null,
           state: {},
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         };
       },
     }),
     deleteConversationMutation: () => ({ mutationFn: async () => undefined }),
     getAlgorithmsQuery: () => ({ queryKey: queryKeys.algorithms.all(), queryFn: async () => [] }),
     getAlgorithmQuery: (id) => ({ queryKey: queryKeys.algorithms.detail(id), queryFn: async () => null }),
-    addAlgorithmMutation: () => ({ mutationFn: async () => undefined }),
-    cloneAlgorithmMutation: () => ({ mutationFn: async () => undefined }),
-    updateAlgorithmMutation: () => ({ mutationFn: async () => undefined }),
+    addAlgorithmMutation: () => ({ mutationFn: unused }),
+    cloneAlgorithmMutation: () => ({ mutationFn: unused }),
+    updateAlgorithmMutation: () => ({ mutationFn: unused }),
     deleteAlgorithmMutation: () => ({ mutationFn: async () => undefined }),
     getAlgorithmDecksQuery: (id) => ({ queryKey: queryKeys.algorithms.decks(id), queryFn: async () => [] }),
     getDecksQuery: () => ({ queryKey: queryKeys.decks.all(), queryFn: async () => [] }),
-    getDeckQuery: (id: number) => ({
+    getDeckQuery: (id: string) => ({
       queryKey: queryKeys.decks.detail(id),
       queryFn: async () => ({
         id,
         title: "Test deck",
-        algorithmId: 1,
+        algorithmId: "01900000-0000-7000-8000-000000000002",
         templateId: wire.template.id,
-        createdAt: new Date(1).toISOString(),
+        createdAt: new Date(1),
         updatedAt: null,
       }),
     }),
-    addDeckMutation: () => ({ mutationFn: async () => undefined }),
-    updateDeckMutation: () => ({ mutationFn: async () => undefined }),
+    addDeckMutation: () => ({ mutationFn: unused }),
+    updateDeckMutation: () => ({ mutationFn: unused }),
     deleteDeckMutation: () => ({ mutationFn: async () => undefined }),
     getTemplatesQuery: () => ({ queryKey: queryKeys.templates.all(), queryFn: async () => [wire.template] }),
     getTemplateQuery: (id) => ({
       queryKey: queryKeys.templates.detail(id),
       queryFn: async () => wire.template,
     }),
-    addTemplateMutation: () => ({ mutationFn: async () => undefined }),
-    cloneTemplateMutation: () => ({ mutationFn: async () => undefined }),
-    updateTemplateMutation: () => ({ mutationFn: async () => undefined }),
+    addTemplateMutation: () => ({ mutationFn: unused }),
+    cloneTemplateMutation: () => ({ mutationFn: unused }),
+    updateTemplateMutation: () => ({ mutationFn: unused }),
     deleteTemplateMutation: () => ({ mutationFn: async () => undefined }),
     getTemplateDecksQuery: (id) => ({
       queryKey: queryKeys.templates.decks(id),
       queryFn: async () => [],
     }),
     getCardsQuery: (params) => ({ queryKey: queryKeys.cards.deck(params), queryFn: async () => [] }),
-    addCardMutation: () => ({ mutationFn: async () => undefined }),
+    addCardMutation: () => ({ mutationFn: unused }),
     addCardsMutation: () => ({ mutationFn: async (cards) => cards.map(() => ({})) }),
-    updateCardMutation: () => ({ mutationFn: async () => undefined }),
+    updateCardMutation: () => ({ mutationFn: unused }),
     deleteCardMutation: () => ({ mutationFn: async () => undefined }),
     deleteCardsMutation: () => ({ mutationFn: async () => undefined }),
     resetCardProgressMutation: () => ({ mutationFn: async () => undefined }),
@@ -160,7 +164,7 @@ function buildQueries(): Queries {
     }),
     getTodayReviewTotalsQuery: () => ({
       queryKey: queryKeys.lessons.todayReviewTotals(),
-      queryFn: async () => undefined,
+      queryFn: unused,
     }),
     getLessonDataQuery: (params) => ({
       queryKey: queryKeys.lessons.data(params),
@@ -175,6 +179,9 @@ function buildQueries(): Queries {
       queryKey: queryKeys.ai.profiles(),
       queryFn: async () => wire.profiles,
     }),
+    getAttachmentQuery: (id) => ({ queryKey: queryKeys.attachments.detail(id), queryFn: unused }),
+    addAttachmentMutation: () => ({ mutationFn: unused }),
+    sweepAttachmentsMutation: () => ({ mutationFn: unused }),
   };
 }
 

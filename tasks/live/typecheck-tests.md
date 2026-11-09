@@ -113,7 +113,7 @@ Out:
   Commit: Type-check test files in four more packages
   Depends on: 1
 
-- [ ] 3. Type-check tests in assistant-react
+- [x] 3. Type-check tests in assistant-react
   Goal: Apply item 1's config to `libs/assistant-react` and fix the errors it reports.
   Expected errors: 98.
   Most are conversation-reducer and conversation-restore fixtures that lack fields the reducer state and runs now require.
@@ -180,5 +180,18 @@ Out:
   and builds `AIProfile.createdAt` as a `Date`.
   `libs/srs-react` uses string ids (`testId`) in the lesson reducer fixtures and builds two `Queries` fakes as
   `Partial<Queries>`, which drops their `as unknown as` casts.
+- Item 3: the assistant-react test config also includes `src/**/*.fixtures.ts`,
+  which its lib config excludes as test-only.
+  98 errors fixed, none in production code, no test deleted, no new shared builder needed.
+  Runs gained `toolCalls: []` and tool and reasoning activities gained `startedAt` and `elapsedSeconds`.
+  Restore tests that round-trip live state through `toPersistedState` now start from `initialConversationState`,
+  not the stored row, which has no `revertState`.
+  `conversation-reducer-runs.test.ts` reads the first activity through a helper that narrows it to a tool call.
+  `assistant-execution-port.test.ts` moves the prompt text into `messages`,
+  so its log check still fails if the request leaks into the log.
+  `assistant-chat-integration.test.tsx` built a complete `Queries` fake that had drifted:
+  it lacked the three attachment members, and several entries returned `undefined` or numeric ids.
+  Members the chat flows never call now reject when called;
+  settings return `null`, as on a fresh install, so the assistant uses its defaults.
 
 ## Outcome

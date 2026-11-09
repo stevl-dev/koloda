@@ -18,6 +18,9 @@ import { useAssistantMessageRenderer } from "./use-assistant-message-renderer";
 import { testId } from "../../test/test-helpers";
 
 // Records which run's activity row or card table rendered, for the render-count test.
+const runningActivityTiming = { startedAt: new Date(1), elapsedSeconds: null };
+const settledActivityTiming = { startedAt: new Date(1), elapsedSeconds: 1 };
+
 const stubRenders = vi.hoisted(() => vi.fn<(widget: "activity" | "cards", key: string | undefined) => void>());
 
 vi.mock("@koloda/ai-react", () => ({
@@ -191,7 +194,9 @@ describe("useAssistantMessageRenderer", () => {
   it("renders tool activity on a streaming chat message", () => {
     const run = {
       ...makeRun("r1", "streaming"),
-      toolCalls: [{ id: "call-1", name: "list_decks", input: {}, status: "running" as const }],
+      toolCalls: [
+        { id: "call-1", name: "list_decks", input: {}, status: "running" as const, ...runningActivityTiming },
+      ],
     };
     mountRenderer({ r1: run }, { assistantText: "" });
     expect(screen.getByTestId("tool-activity").textContent).toBe("list_decks");
@@ -201,7 +206,15 @@ describe("useAssistantMessageRenderer", () => {
   it("renders thinking activity on a streaming chat message without pending", () => {
     const run = {
       ...makeRun("r1", "streaming"),
-      toolCalls: [{ kind: "reasoning" as const, id: "r1-reasoning-0", text: "plan", status: "running" as const }],
+      toolCalls: [
+        {
+          kind: "reasoning" as const,
+          id: "r1-reasoning-0",
+          text: "plan",
+          status: "running" as const,
+          ...runningActivityTiming,
+        },
+      ],
     };
     mountRenderer({ r1: run }, { assistantText: "" });
     expect(screen.getByTestId("tool-activity").textContent).toBe("thinking");
@@ -212,7 +225,16 @@ describe("useAssistantMessageRenderer", () => {
   it("shows pending after settled tools when the stream still has no text", () => {
     const run = {
       ...makeRun("r1", "streaming"),
-      toolCalls: [{ id: "call-1", name: "list_decks", input: {}, status: "success" as const, output: { decks: [] } }],
+      toolCalls: [
+        {
+          id: "call-1",
+          name: "list_decks",
+          input: {},
+          status: "success" as const,
+          output: { decks: [] },
+          ...settledActivityTiming,
+        },
+      ],
     };
     mountRenderer({ r1: run }, { assistantText: "", activeRunId: "r1" });
     const tool = screen.getByTestId("tool-activity");
@@ -223,7 +245,15 @@ describe("useAssistantMessageRenderer", () => {
   it("shows pending after settled thinking when the stream still has no text", () => {
     const run = {
       ...makeRun("r1", "streaming"),
-      toolCalls: [{ kind: "reasoning" as const, id: "r1-reasoning-0", text: "plan", status: "done" as const }],
+      toolCalls: [
+        {
+          kind: "reasoning" as const,
+          id: "r1-reasoning-0",
+          text: "plan",
+          status: "done" as const,
+          ...settledActivityTiming,
+        },
+      ],
     };
     mountRenderer({ r1: run }, { assistantText: "", activeRunId: "r1" });
     const tool = screen.getByTestId("tool-activity");
@@ -235,7 +265,16 @@ describe("useAssistantMessageRenderer", () => {
   it("renders tool activity above streaming text", () => {
     const run = {
       ...makeRun("r1", "streaming"),
-      toolCalls: [{ id: "call-1", name: "list_decks", input: {}, status: "success" as const, output: { decks: [] } }],
+      toolCalls: [
+        {
+          id: "call-1",
+          name: "list_decks",
+          input: {},
+          status: "success" as const,
+          output: { decks: [] },
+          ...settledActivityTiming,
+        },
+      ],
     };
     mountRenderer({ r1: run });
     expect(screen.getByTestId("tool-activity").textContent).toBe("list_decks");
@@ -252,6 +291,7 @@ describe("useAssistantMessageRenderer", () => {
           input: {},
           status: "success" as const,
           output: { decks: [{ deckId: testId(1) }] },
+          ...settledActivityTiming,
         },
       ],
     };
@@ -289,6 +329,7 @@ describe("useAssistantMessageRenderer", () => {
           input: {},
           status: "success" as const,
           output: { cards: [sampleCard] },
+          ...settledActivityTiming,
         },
       ],
     };
@@ -321,7 +362,9 @@ describe("useAssistantMessageRenderer", () => {
       cards: [sampleCard],
       templateFields: sampleFields,
       writeTargetDeckId: testId(5),
-      toolCalls: [{ id: "call-1", name: "propose_cards", input: {}, status: "running" as const }],
+      toolCalls: [
+        { id: "call-1", name: "propose_cards", input: {}, status: "running" as const, ...runningActivityTiming },
+      ],
     };
     mountRenderer({ r1: run }, { assistantText: "", activeRunId: "r1" });
     expect(screen.getByTestId("cards-table")).toBeTruthy();
@@ -470,6 +513,7 @@ describe("useAssistantMessageRenderer", () => {
                 input: {},
                 status: "success" as const,
                 output: { cards: [sampleCard] },
+                ...settledActivityTiming,
                 startedAt: new Date(0),
                 elapsedSeconds: 1,
               },

@@ -1,13 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 import { conversationReducer } from "./conversation-reducer";
-import { initialConversationState } from "./conversation-types";
+import { initialConversationState, isReasoningActivity } from "./conversation-types";
 import { findLatestErroredRun, hasRetryableTurn } from "./conversation-run-helpers";
 import type { ConversationReducerAction } from "./conversation-reducer";
-import type { ConversationReducerState } from "./conversation-types";
+import type { ConversationReducerState, RunToolCall } from "./conversation-types";
 import { reduce } from "./conversation-reducer.fixtures";
 
 function testId(n: number): string {
   return `01900000-0000-7000-8000-${n.toString(16).padStart(12, "0")}`;
+}
+
+function firstToolCall(state: ConversationReducerState): RunToolCall {
+  const entry = state.runs["r1"]?.toolCalls[0];
+  if (!entry || isReasoningActivity(entry)) throw new Error("expected a tool call first on run r1");
+  return entry;
 }
 
 const proposeOutput = {
@@ -146,7 +152,7 @@ describe("conversationReducer", () => {
         { runId: "r1", call: { id: "call-1", name: "propose_cards", input } },
       ]);
 
-      expect(state.runs["r1"].toolCalls?.[0]?.input).toEqual(input);
+      expect(firstToolCall(state).input).toEqual(input);
     });
 
     it("bounds inputs one char past the persist cap to a summary + preview", () => {
@@ -161,7 +167,7 @@ describe("conversationReducer", () => {
         { runId: "r1", call: { id: "call-1", name: "propose_cards", input } },
       ]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.input as {
+      const stored = firstToolCall(state).input as {
         isTruncated: boolean;
         itemCount: number;
         preview: string;
@@ -234,7 +240,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      expect(state.runs["r1"].toolCalls?.[0]?.output).toEqual(output);
+      expect(firstToolCall(state).output).toEqual(output);
     });
 
     it("bounds a list_decks output one char past the persist cap and keeps its deck count", () => {
@@ -254,7 +260,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.output as {
+      const stored = firstToolCall(state).output as {
         isTruncated: boolean;
         itemCount: number;
         preview: string;
@@ -275,7 +281,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.output as { isTruncated: boolean; title?: string };
+      const stored = firstToolCall(state).output as { isTruncated: boolean; title?: string };
       expect(stored.isTruncated).toBe(true);
       expect(stored.title).toBe("Spanish verbs");
     });
@@ -296,7 +302,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.output as {
+      const stored = firstToolCall(state).output as {
         isTruncated: boolean;
         itemCount: number;
         totalCards?: number;
@@ -321,7 +327,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.output as { totalCards?: unknown };
+      const stored = firstToolCall(state).output as { totalCards?: unknown };
       expect("totalCards" in stored).toBe(false);
     });
 
@@ -345,7 +351,7 @@ describe("conversationReducer", () => {
 
       state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
 
-      const stored = state.runs["r1"].toolCalls?.[0]?.output as {
+      const stored = firstToolCall(state).output as {
         isTruncated: boolean;
         acceptedCount?: number;
         rejectedCount?: number;
