@@ -176,7 +176,7 @@ Out:
   An unused `export const` added to `libs/srs/src/lib/decks.ts` made `check:dead-code` exit 1.
   The root `README.md` check list names `check:dead-code`.
 
-- [ ] 4. Check for unused Rust dependencies
+- [x] 4. Check for unused Rust dependencies
   Goal: Run `cargo machete` over the Cargo workspace in `check:rust-push`, and install a pinned version in CI.
   Fix what it reports, or add a `[package.metadata.cargo-machete]` ignore with the reason
   for a dependency used only through a macro or a build script.
@@ -187,5 +187,15 @@ Out:
   and Outcome records the step's time on CI.
   Commit: Check for unused Rust dependencies
   Depends on: none
+  Notes: `tools/check-rust-deps.ts` runs `cargo machete` on the workspace members listed in the root `Cargo.toml`
+  (a recursive scan would reach scratch crates under `tmp/`), skips with an install hint when it is missing,
+  and fails when `CI` is set; `check:rust-push` runs it first.
+  CI installs 0.9.2 with `taiki-e/install-action`.
+  It reported two dependencies, both used through macros, so both are ignored with the reason:
+  `strum` in `koloda` (the `strum_macros::EnumString` derive expands to `::strum::ParseError`;
+  `koloda` does not compile without it) and `serde_bytes` in `koloda-sync-proto` (named only in
+  `#[serde(with = "serde_bytes")]`).
+  The step takes about 0.2 s locally.
+  An unused `itoa` added to `crates/koloda/Cargo.toml` made `check:rust-deps` exit 1.
 
 ## Outcome

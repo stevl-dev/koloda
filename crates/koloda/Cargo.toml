@@ -48,3 +48,7 @@ windows-sys = { version = "0.61.2", features = ["Win32_Security_Credentials"] }
 chrono-tz = "0.10"
 ciborium = "0.2"
 rusqlite = { version = "0.33", features = ["bundled", "backup"] }
+
+[package.metadata.cargo-machete]
+# WHY: the `strum_macros::EnumString` derive expands to `::strum::ParseError`; no source names `strum` itself.
+ignored = ["strum"]

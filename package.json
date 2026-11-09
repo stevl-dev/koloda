@@ -25,7 +25,8 @@
     "check:push": "bun run tools/check-push.ts",
     "land": "bun run tools/land.ts",
     "check:rust": "nx run koloda:lint",
-    "check:rust-push": "nx run koloda:lint && nx run koloda:test && nx run koloda-sync-proto:test && nx run koloda-server:test && nx run koloda-sync:test && nx run @koloda/electron:test-rust",
+    "check:rust-deps": "bun run tools/check-rust-deps.ts",
+    "check:rust-push": "bun run check:rust-deps && nx run koloda:lint && nx run koloda:test && nx run koloda-sync-proto:test && nx run koloda-server:test && nx run koloda-sync:test && nx run @koloda/electron:test-rust",
     "check:ts": "bun run lint && bun run check:dead-code && bun run typecheck && bun run test:libs && bun run test:app-unit && bun run check:workspace-deps && bun run check:docs && bun run check:i18n",
     "check:web-all": "bun run check:ts && nx run web-e2e:e2e",
     "prepare": "git config core.hooksPath tools/hooks"

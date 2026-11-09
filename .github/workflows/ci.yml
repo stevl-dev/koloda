@@ -55,6 +55,13 @@ jobs:
       - name: Set up Rust
         run: rustup toolchain install && rustc --version
 
+      # A prebuilt binary; the version matches MACHETE_VERSION in tools/check-rust-deps.ts.
+      - name: Install cargo-machete
+        if: steps.scope.outputs.docs_only != 'true'
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-machete@0.9.2
+
       # WHY: rust-cache keeps dependencies only. Checkout gives every source a new
       # mtime, so cargo rebuilds each workspace crate whatever the cache holds.
       - name: Cache Cargo
