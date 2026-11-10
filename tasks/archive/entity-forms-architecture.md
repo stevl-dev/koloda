@@ -1,6 +1,6 @@
 # Entity forms: one refresh table, one submit shape
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/specs/CARDS.md, docs/specs/SYNC.md
 Flow: local
 
@@ -313,3 +313,33 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Depends on: 6
 
 ## Outcome
+
+All seven plan items shipped (`b0b73f1f`..`6752cfc4`), plus two self-review commits (`56621bb6`, `40d760bd`).
+`bun run check:push` passed on `40d760bd`; the Archive commit after it changes only this file.
+No item added or edited an e2e case.
+
+- One table, `DATA_KIND_QUERY_KEYS` in `libs/core-react/src/lib/cache-refresh.ts`, maps a changed kind to the
+  query prefixes that read it.
+  Local writes (through `useWriteMutation`), the lesson close, the assistant, and desktop sync refresh through
+  `refreshKinds`.
+  The refresh runs from mutation-level `onSuccess`, so it survives an unmount.
+  `invalidateDeckQueriesAfterAddDeck` is gone.
+- Fixed: a card's review list now shows a review made in a lesson without a reload (`Escapes: 711fa83f`).
+- Fixed: text typed into an open card editor survives a change to that card from another device
+  (`Escapes: sync-desktop-ui`).
+  After a save, the card editor writes the saved row into the deck's list query before it resets,
+  since a card has no detail entry; `docs/decisions/CACHE-REFRESH.md` allows that.
+- The five edit forms await their write, so Save is held while it is pending.
+- The five add and clone dialogs share `use-create-entity-dialog.ts` and behave as the deck dialog did after a
+  success.
+  The two clone dialogs are one component, `clone-entity.tsx`, behind thin wrappers.
+  The clone merge saved 8 lines net, not the review's estimate of 80: item 6 had already trimmed both files.
+- The three card delete controls lost their `deckId` prop; only the old key lists used it.
+- Docs: `docs/decisions/CACHE-REFRESH.md` with its `agents/INDEX.md` row, and a form section in `libs/ui/README.md`.
+- Manual verify paths were handed to the human with the self-review report; the agent did not walk them.
+- Heads-up: `ai-model-profile-picker.test.tsx` in `ai-react` failed on the first `check:ts` after a change
+  five times during items 1 to 4, then passed on every rerun, in isolation, and on clean `main`.
+  The task does not touch it.
+
+Review: not run
+Change rounds: 0
