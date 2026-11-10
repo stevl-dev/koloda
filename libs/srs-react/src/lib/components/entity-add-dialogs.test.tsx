@@ -98,6 +98,20 @@ describe("add and clone dialogs", () => {
     await waitFor(() => expect(document.activeElement).toBe(title));
   });
 
+  it.each(DIALOGS)("$name clears what was typed when it is reopened", async (row) => {
+    const { title } = await openDialog(row, async () => ({ id: testId(9) }));
+    fireEvent.change(title, { target: { value: "Abandoned" } });
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    fireEvent.click(screen.getByRole("button", { name: `${row.messagePrefix}.trigger` }));
+
+    const reopened = await screen.findByRole("textbox", {
+      name: new RegExp(`${row.messagePrefix}.inputs.title.label`),
+    });
+    expect((reopened as HTMLInputElement).value).toBe("");
+  });
+
   it.each(DIALOGS)("$name reports a success and takes no second add until the form changes", async (row) => {
     const write = vi.fn(async (_data: unknown) => ({ id: testId(9) }));
     const { title, form } = await openDialog(row, write);
