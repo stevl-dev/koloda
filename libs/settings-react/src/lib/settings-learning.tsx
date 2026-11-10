@@ -90,25 +90,24 @@ export function SettingsLearning({ data }: SettingsLearningProps) {
   const { setSettingsMutation } = useAtomValue(queriesAtom);
   const timeFormat = useAtomValue(timeFormatAtom);
   const timeFieldOptions = timeFieldFormatOptions(timeFormat);
-  const { mutate } = useWriteMutation(setSettingsMutation<"learning">(), ["settings.learning"]);
+  const { mutateAsync } = useWriteMutation(setSettingsMutation<"learning">(), ["settings.learning"]);
 
   const form = useAppForm({
     defaultValues: data,
     validators: { onSubmit: resolvedLearningSettingsValidation },
     onSubmit: async ({ formApi, value }) => {
-      mutate(
-        { name: "learning", content: value },
-        {
-          onSuccess: (returning) => {
-            queryClient.setQueryData(queryKeys.settings.detail("learning"), returning);
-            // WHY: reset must receive the saved values; a bare reset() restores the values from before the save.
-            formApi.reset(value);
-          },
-          onError: (error) => {
-            formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-          },
-        },
-      );
+      // WHY: await the save so the form stays submitting until it settles; canSubmit stays
+      // false meanwhile, so a second press cannot save twice.
+      let returning;
+      try {
+        returning = await mutateAsync({ name: "learning", content: value });
+      } catch (error) {
+        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
+        return;
+      }
+      queryClient.setQueryData(queryKeys.settings.detail("learning"), returning);
+      // WHY: reset must receive the saved values; a bare reset() restores the values from before the save.
+      formApi.reset(value);
     },
   });
   useRefreshPristineFields(form, data, LEARNING_SYNC_GROUPS);

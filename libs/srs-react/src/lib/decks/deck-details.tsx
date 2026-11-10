@@ -21,25 +21,24 @@ export function DeckDetails({ id }: DeckDetailsProps) {
   const { _ } = useLingui();
   const { getDeckQuery, updateDeckMutation } = useAtomValue(queriesAtom);
   const { data } = useQuery(getDeckQuery(id));
-  const { mutate } = useWriteMutation(updateDeckMutation(), ["decks"]);
+  const { mutateAsync } = useWriteMutation(updateDeckMutation(), ["decks"]);
   const form = useAppForm({
     defaultValues: data as UpdateDeckValues,
     validators: { onSubmit: schema },
     onSubmit: async ({ formApi, value }) => {
-      mutate(
-        { id, values: schema.parse(value) },
-        {
-          onSuccess: (returning) => {
-            queryClient.setQueryData(queryKeys.decks.detail(id), returning);
-            // WHY: reset must receive the saved values — a bare reset() restores the original
-            // defaults, so Discard would revert to those instead of the last save.
-            formApi.reset(returning);
-          },
-          onError: (error) => {
-            formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-          },
-        },
-      );
+      // WHY: await the save so the form stays submitting until it settles; canSubmit stays
+      // false meanwhile, so a second press cannot save twice.
+      let returning;
+      try {
+        returning = await mutateAsync({ id, values: schema.parse(value) });
+      } catch (error) {
+        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
+        return;
+      }
+      queryClient.setQueryData(queryKeys.decks.detail(id), returning);
+      // WHY: reset must receive the saved values — a bare reset() restores the original
+      // defaults, so Discard would revert to those instead of the last save.
+      formApi.reset(returning);
     },
   });
   useRefreshPristineFields(form, data, DECK_SYNC_GROUPS);

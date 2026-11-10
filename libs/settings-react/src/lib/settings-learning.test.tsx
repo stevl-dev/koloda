@@ -4,7 +4,7 @@ import { queriesAtom, queryKeys } from "@koloda/core-react";
 import type * as CoreReact from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -67,6 +67,19 @@ describe("SettingsLearning", () => {
 
     await waitFor(() => expect(setSettings).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(queryClient.getQueryState(totalsKey)?.isInvalidated).toBe(true));
+  });
+
+  it("does not start a second save while the first is pending", async () => {
+    const { container, setSettings } = renderSettingsLearning(DEFAULT_LEARNING_SETTINGS);
+    setSettings.mockImplementation(() => new Promise<never>(() => {}));
+    const form = container.querySelector("form")!;
+
+    fireEvent.submit(form);
+    await waitFor(() => expect(setSettings).toHaveBeenCalledTimes(1));
+    fireEvent.submit(form);
+    await act(async () => {});
+
+    expect(setSettings).toHaveBeenCalledTimes(1);
   });
 });
 

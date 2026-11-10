@@ -33,23 +33,22 @@ export function Template({ id }: TemplateProps) {
   const { _ } = useLingui();
   const { getTemplateQuery, updateTemplateMutation } = useAtomValue(queriesAtom);
   const { data, isSuccess } = useQuery(getTemplateQuery(id));
-  const { mutate } = useWriteMutation(updateTemplateMutation(), ["templates"]);
+  const { mutateAsync } = useWriteMutation(updateTemplateMutation(), ["templates"]);
   const form = useAppForm({
     defaultValues: data as UpdateTemplateValues,
     validators: { onSubmit: schema },
     onSubmit: async ({ formApi, value }) => {
-      mutate(
-        { id, values: schema.parse(value) },
-        {
-          onSuccess: (returning) => {
-            queryClient.setQueryData(queryKeys.templates.detail(id), returning);
-            formApi.reset(returning);
-          },
-          onError: (error) => {
-            formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-          },
-        },
-      );
+      // WHY: await the save so the form stays submitting until it settles; canSubmit stays
+      // false meanwhile, so a second press cannot save twice.
+      let returning;
+      try {
+        returning = await mutateAsync({ id, values: schema.parse(value) });
+      } catch (error) {
+        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
+        return;
+      }
+      queryClient.setQueryData(queryKeys.templates.detail(id), returning);
+      formApi.reset(returning);
     },
   });
   useRefreshPristineFields(form, data, TEMPLATE_SYNC_GROUPS);

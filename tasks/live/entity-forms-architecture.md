@@ -225,7 +225,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Refresh after deck, template, algorithm, and learning settings writes from the write itself
   Depends on: 2
 
-- [ ] 4. Hold Save while an edit form's write is pending
+- [x] 4. Hold Save while an edit form's write is pending
   Goal: The five edit forms await their write, as the add dialogs do:
   `deck-details.tsx`, `algorithm.tsx`, `template.tsx`, `card-details.tsx`, and `settings-learning.tsx`.
   `onSubmit` awaits `mutateAsync` in a `try`; the `catch` sets the form's `onSubmit` error map.

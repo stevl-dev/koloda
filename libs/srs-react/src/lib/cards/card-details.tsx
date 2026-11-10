@@ -35,21 +35,20 @@ export function CardDetails({ card }: CardDetailsProps) {
   const { getTemplateQuery, updateCardMutation, resetCardProgressMutation } = useAtomValue(queriesAtom);
   const query = useQuery(getTemplateQuery(card.templateId));
   const template = query.data;
-  const { mutate } = useWriteMutation(updateCardMutation(), ["cards"]);
+  const { mutateAsync } = useWriteMutation(updateCardMutation(), ["cards"]);
   const resetProgressMutation = useWriteMutation(resetCardProgressMutation(), ["cards", "reviews"]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const form = useAppForm({
     defaultValues: card as UpdateCardValues,
     validators: { onSubmit: template ? getUpdateCardSchema(template) : schema },
     onSubmit: async ({ formApi, value }) => {
-      mutate(
-        { id: card.id, values: value },
-        {
-          onError: (error) => {
-            formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-          },
-        },
-      );
+      // WHY: await the save so the form stays submitting until it settles; canSubmit stays
+      // false meanwhile, so a second press cannot save twice.
+      try {
+        await mutateAsync({ id: card.id, values: value });
+      } catch (error) {
+        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
+      }
     },
   });
 
