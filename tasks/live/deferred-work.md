@@ -109,7 +109,7 @@ Out:
   Commit: Add a home for deferred work
   Depends on: none
 
-- [ ] 2. Seed deferred work from the archive
+- [x] 2. Seed deferred work from the archive
   Goal: For every task file in `tasks/archive/` on `origin/main` when this item starts,
   read each skipped or needs-decision finding, unchecked open question, and handoff.
   Read every file, not a list of known ones.
@@ -132,3 +132,93 @@ Out:
   Depends on: 1
 
 ## Outcome
+
+Item 2 read all 72 task files in `tasks/archive/` at `1c0661bb` and re-checked each item against the code there.
+`tasks/DEFERRED.md` holds 33 entries.
+
+How items were judged:
+
+- A handoff is work an Outcome (or a Scope Out that the Outcome points at) names as left for later.
+  Manual verify paths handed to the human are checks of shipped work, not undone work, so none became an entry.
+- Scope Out non-goals that no Outcome names as left work, such as media's audio and video, are not entries.
+- An item that several tasks left is one entry; its `Source:` names the first, and the others are named in it.
+  `agents/TASKS.md` (§Deferred work) now says so, and allows `question <n>` in `Source:`.
+- `ci-audit` used its own classifications (Waste, Contention, Size); the entries keep them.
+  `sync-audit-fixes` gave R findings no severity; R2 enters as Later.
+- Flaky tests that could not be reproduced on demand stay as handoffs when the test is unchanged since.
+
+Entries added, by source file (33):
+
+- `algorithms-audit` 2, `app-audit` 2, `assistant-conversation-list-audit` 2,
+  `assistant-data-access-card-generation-audit` 1, `assistant-settings-providers-audit` 1, `cards-audit` 1,
+  `ci-audit` 3, `core-react-audit` 1, `e2e-suites-audit` 1, `entity-forms-architecture` 3, `fsrs-optimizer` 2,
+  `learning-settings-audit` 1, `media-audit` 1, `sync-apply` 1, `sync-audit-fixes` 3, `sync-late-images` 1,
+  `templates-audit` 3, `tools-audit` 1, `typecheck-tests` 1, `ui-audit` 2.
+
+Items resolved or not deferred, with what settled each:
+
+- `algorithms-audit`: `e2e_secrets.rs` unread by any audit, read by `electron-main-audit`;
+  `host-desync.md` finding 2, fixed by `host-desync-audit` HD2.
+- `app-audit`: #11's `isAbortError`, not dead: it has a caller (`libs/app/src/lib/error.ts:207`, used by
+  `libs/assistant/src/lib/conversation-runtime.ts`).
+- `assistant-conversation-list-audit`: untyped test files, closed by `typecheck-tests`.
+- `assistant-conversations-audit`: the shuffled-order failure of `assistant-conversations-list.test.tsx` no longer
+  reproduces (`assistant-react` passes `--sequence.shuffle.files` seeds 1–8 at `1c0661bb`);
+  the stale `mode` cast, closed by `typecheck-tests`; the legacy `dataAccess` snapshot, fixed by its own audit (D7);
+  the error-marker spec, fixed by `assistant-messages-audit` finding 3;
+  the `@koloda/ai-react` file mocks, merged into the `libs/assistant-react` entry.
+- `assistant-data-access-card-generation-audit`: the `add-card.tsx` per-call refresh, fixed by
+  `entity-forms-architecture` (`useWriteMutation`, awaited submit).
+- `assistant-messages-audit`: the `ai-chat-error.test.tsx` order failure, fixed by `assistant-settings-providers-audit`
+  item 2 (`ai-react` passes seeds 2–6 at `1c0661bb`); fixtures missing activity fields, closed by `typecheck-tests`.
+- `assistant-settings-providers-audit`: P18, decided correct (question 7), not deferred.
+- `cards-audit`: the left-out hotkeys, host-desync, and editor-twin findings, fixed by `hotkeys-audit`,
+  `host-desync-audit`, and the decks, algorithms, learning-settings, and media audits;
+  the other per-call `mutate` paths, fixed by `entity-forms-architecture`.
+- `core-react-audit`: untyped lib tests, closed by `typecheck-tests`.
+- `dead-code-audit`: `deepMerge`, merged into the `app-audit` entry; the untyped `apps/electron-react` tests, closed by
+  `typecheck-tests`; finding 7's `Errors` export, kept with a WHY, not deferred.
+- `decks-audit`: its left-out findings, fixed by the algorithms, learning-settings, templates, media, and e2e-suites
+  audits; the per-call `mutate` saves and deletes, fixed by `entity-forms-architecture`.
+- `electron-react-audit`: the `apps/web` twins, fixed by `web-audit`; `"lib": ["dom"]` is gone from
+  `apps/web/tsconfig.app.json`; untyped renderer tests, closed by `typecheck-tests`.
+- `i18n-audit`: the number field snapping to its minimum on blur, fixed by `eda03c7a`.
+- `interface-settings-audit`: the `hotkeys.md` finding 12 twin, fixed by `hotkeys-audit`.
+- `ipc-drift-audit`, `mirror-desync-audit`: notes for other reports' triages, which have landed.
+- `ipc-typed-contract`: the open question on window and lifecycle channels, settled by `electron-main-audit` finding 10
+  (`WindowIpc` in `libs/native-ipc`).
+- `koloda-audit`: `agents/ADD-AI-PROVIDER.md` now names `require_base_url`, which exists.
+- `lessons-audit`: cards finding 9, fixed by `cards-audit` C9; the `add-card.tsx` refresh, fixed by
+  `entity-forms-architecture`; the hotkeys findings, fixed by `hotkeys-audit`.
+- `media-audit`: image sync, shipped by `sync-attachments`; metadata stripping and header parsing, decided
+  (questions 3 and 4); audio, video, and other markdown images, Scope Out non-goals.
+- `sync-capture`: `cards.reviews_reset_at`, decided: no column until a feature shows reset time.
+- `sync-desktop-audit`: finding 10, done by `sync-e2e`.
+- `sync-desktop-ui`: e2e tests (question 5), done by `sync-e2e`.
+- `sync-e2e`, `sync-late-images`: the unrun full desktop suite, run by `e2e-suites-audit`.
+- `sync-e2e-audit`: finding 4, tested by `sync-late-images` item 2; finding 7, decided (question 2).
+- `sync-engine-audit`: `due_transfers` reading the whole queue, fixed by `sync-repo-followups` (`7cca0324`).
+- `sync-followups`: the push wait that started no cycle, fixed by `f654c6a8`; the runner-poll test flake, fixed by
+  `a6f19882`; the wa-sqlite purge after close, fixed by `cea0de69`.
+- `sync-holds`: its three follow-ups, fixed by `sync-followups` (`space.attachment_bytes`,
+  `release_deferred_uploads`, `EnvelopeError::UnknownKey`).
+- `sync-proto-audit`: 4, 5, and 10 to 15, fixed by `sync-proto-followups`; 16, done by `sync-unknown-codes`.
+- `sync-recovery`: the re-attach URL, fixed by `sync-server-restore` (question 10); the `fixed` cohort stamped ahead,
+  fixed by `sync-followups` (question 2); metered re-bootstrap, done by `sync-transport`.
+- `sync-repo-audit`: 4 to 7, fixed by `sync-repo-followups`.
+- `sync-repo-followups`: the conformance cases, added by `8dd6eb57`; the unverified empty-cohort delete does not
+  happen: capture keeps its own commit's cohort (`crates/koloda/src/repo/sync/capture.rs:149-155`).
+- `sync-review-fixes`: the blank join retry and the leftover detach token, fixed by `sync-audit-fixes` F1 and F2.
+- `sync-server-audit`: 4 and 6 to 13, fixed by `sync-server-followups`; 14, accepted for v1.
+- `sync-server-core`: the pinned-bytes cap, covered by `sync-holds` quotas (a space over quota opens no lease).
+- `sync-server-restore`: `data_dir::init`, fixed by `sync-holds` item 7.
+- `tools-audit`: the `task/mobile-spike` Done-when question; that file now says `bun run check:docs`.
+- `typecheck-tests`: the `koloda-server` flake heads-up, merged into the `templates-audit` entry.
+
+Nothing deferred:
+
+- `algorithm-history`, `card-media`, `conversation-reducer-split`, `dead-code-check`, `electron-main-audit`,
+  `entity-notes`, `guides-docs-audit`, `host-desync-audit`, `hotkeys-audit`, `new-conversation-rework`,
+  `schema-baseline`, `sync-attachments`, `sync-backfill`, `sync-engine-core`, `sync-join`, `sync-protocol`,
+  `sync-proto-followups`, `sync-server-followups`, `sync-transport`, `sync-unknown-codes`,
+  `timestamp-display-formats`, `unlimited-daily-limits`, `web-audit`, `web-sqlite`.

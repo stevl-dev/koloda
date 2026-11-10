@@ -10,3 +10,290 @@ An entry leaves when a change resolves it, or when it is dropped with a reason.
 
 Entries are grouped under one heading per package directory.
 `agents/TASKS.md` (§Deferred work) holds the rules for the entry shape and for adding, reading, and removing entries.
+
+## apps/electron
+
+- Handoff: the optimizer host reads the algorithm's whole review history before `optimize` checks the abort flag.
+  Evidence: at `1c0661bb`, `apps/electron/src-rust/src/optimizer.rs:61` calls `get_optimization_input` first;
+  the abort check is inside `optimize` (`crates/koloda/src/domain/optimizer.rs:196`).
+  The outcome is right; only the read is wasted.
+  Kind: handoff
+  Source: `tasks/archive/algorithms-audit.md`
+  Deferred because: seen in passing and not planned; no user sees it.
+
+## crates/koloda
+
+- Improvement, Should-fix: no test cancels an optimizer run during training or scoring.
+  Evidence: at `1c0661bb`, `crates/koloda/tests/domain/optimizer_tests.rs:287` tests only an abort set before the run.
+  Kind: skipped
+  Source: `tasks/archive/algorithms-audit.md`, finding A9
+  Deferred because: the `fsrs` crate has no hook between batches.
+  A test would order the abort by sleeping or polling, which `agents/TESTING.md` bans.
+
+- Improvement, Later: the desktop today-totals repo test reads the real clock.
+  Evidence: at `1c0661bb`, `get_todays_review_totals` reaches `Local::now()`
+  (`crates/koloda/src/domain/learning_day.rs:43`), and
+  `crates/koloda/tests/integration/reviews_integration_tests.rs:13-15` takes the current timestamp.
+  Kind: skipped
+  Source: `tasks/archive/learning-settings-audit.md`, finding LS5
+  Deferred because: the domain DST suites on both hosts pin the window.
+  A repo clock seam only for this test is not worth it.
+
+- Risk, Should-fix: no test interleaves a template update with a write between the lock check and the update.
+  Evidence: at `1c0661bb`, the check runs inside the transaction (`crates/koloda/src/repo/templates.rs:233-246`,
+  web twin `libs/db-sqlite/src/lib/templates.ts`), and `templates_integration_tests.rs` has no interleaving case.
+  Kind: skipped
+  Source: `tasks/archive/templates-audit.md`, finding T4
+  Deferred because: neither repo has a seam between its read and its write, and the delete twin has no such test either.
+
+- Handoff: Rust `update_template` keeps a `let Some(stored) = stored else` branch that cannot run.
+  Evidence: at `1c0661bb`, `crates/koloda/src/repo/templates.rs:248` reads the row that `:236` already found in the same
+  transaction, so the `else` at `:263-265` is unreachable.
+  Kind: handoff
+  Source: `tasks/archive/templates-audit.md`
+  Deferred because: seen in passing and not planned.
+
+- Handoff: sync apply stores card content as received, without dropping keys outside the card's template.
+  Evidence: at `1c0661bb`, local writes keep only template fields
+  (`template_content`, `crates/koloda/src/repo/cards.rs:233`, `:291`; CARDS.md §Card Content).
+  Apply writes the payload's content as is (`crates/koloda/src/repo/sync/apply.rs:704`).
+  Kind: handoff
+  Source: `tasks/archive/cards-audit.md`
+  Deferred because: the cards audit changed only local writes.
+
+- Handoff: `join_mode` reads a file with sync state but no settings rows as blank.
+  Evidence: at `1c0661bb`, `crates/koloda/src/repo/sync/join.rs:81-83` returns `JoinMode::Blank` when `settings`
+  is empty.
+  Real files always have settings.
+  Kind: handoff
+  Source: `tasks/archive/sync-audit-fixes.md`
+  Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
+
+## crates/koloda-server
+
+- Handoff: ending a lease scans `versions` once per lease.
+  Evidence: at `1c0661bb`, `end_lease` (`crates/koloda-server/src/log.rs:565-570`) runs `LEASE_ONLY_VERSIONS`
+  (`:44-51`), a `DELETE FROM versions WHERE EXISTS (…)` over the whole table.
+  It is linear since `sync-audit-fixes` R1, no longer quadratic.
+  Kind: handoff
+  Source: `tasks/archive/sync-audit-fixes.md`
+  Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
+
+- Handoff: `serve_removes_staged_uploads_before_it_listens` failed once in a full `check:push` run.
+  Evidence: at `1c0661bb`, `crates/koloda-server/tests/server/attachments_tests.rs:553`.
+  It failed once during `templates-audit` and once during `typecheck-tests`, and passed on re-run and alone.
+  Kind: handoff
+  Source: `tasks/archive/templates-audit.md`
+  Deferred because: seen, not fixed; neither task touched the test.
+
+## crates/koloda-sync
+
+- Risk, Later: a bootstrap under a bounded tick restarts each tick, so a snapshot past one tick's budget never ends.
+  Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:1375-1377` states the limit;
+  the desktop host does not call `Engine::tick`.
+  The report gave R findings no severity.
+  Kind: skipped
+  Source: `tasks/archive/sync-audit-fixes.md`, finding R2
+  Deferred because: deferred to the mobile host, whose background ticks are usually further apart than the lease TTL.
+
+- Handoff: no test forces an upload nudge to land between a fetch's `404` and its deferral.
+  Evidence: at `1c0661bb`, the engine releases waiting fetches after a running cycle ends
+  (`crates/koloda-sync/src/attachments.rs:136`); the harness has no hook between the `404` and the deferral.
+  Kind: handoff
+  Source: `tasks/archive/sync-late-images.md`
+  Deferred because: listed under Not checked; the harness lacks the seam.
+
+## crates/koloda-sync-proto
+
+- Handoff: deletes cascade in one transaction; chunked `sync_delete_jobs` are a later optimization.
+  Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:474`, `:528`, and `:1869` say chunked deletes may come
+  later; until then a space below its disk reserve refuses every push, deletes included (`sync-holds` Outcome).
+  Kind: handoff
+  Source: `tasks/archive/sync-apply.md`
+  Deferred because: a later scale task; v1 accepts the cost under the writer lock.
+
+- Handoff: a per-device download policy for images (always, on unmetered networks, on demand).
+  Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:1757-1758`: "Until device policy exists, every queued
+  fetch runs."
+  Kind: handoff
+  Source: `tasks/archive/media-audit.md`
+  Deferred because: left for the mobile phase (`sync-transport` Out).
+
+## libs/ai
+
+- Improvement, Later: the `chat tool streaming` tests live in `assistant-tools.test.ts`, not `chat-stream.test.ts`.
+  Evidence: at `1c0661bb`, the block is at `libs/ai/src/lib/assistant-tools.test.ts:968`.
+  Kind: skipped
+  Source: `tasks/archive/assistant-data-access-card-generation-audit.md`, finding D8
+  Deferred because: the fake-model harness lives there, and a second file-level mock of `ai-sdk-ollama` would leak under
+  `isolate: false`; revisit only together with the harness.
+
+## libs/ai-react
+
+- Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
+  Evidence: at `1c0661bb`, `libs/ai-react/src/lib/ai-model-profile-picker.test.tsx`; it passed on every rerun,
+  in isolation, and on clean `main`.
+  Kind: handoff
+  Source: `tasks/archive/entity-forms-architecture.md`
+  Deferred because: seen during the task, which does not touch the test.
+
+## libs/app
+
+- Open question: where should `deepMerge` live?
+  Evidence: at `1c0661bb`, `libs/app/src/lib/utility.ts:25` exports it; its callers are the `libs/srs-react` and
+  `libs/assistant-react` test helpers and its own test.
+  `libs/app/README.md:29` lists it without saying it serves test fixtures.
+  Recommended: keep it in `@koloda/app` and describe it in the README as the test fixtures' merge.
+  Kind: open question
+  Source: `tasks/archive/app-audit.md`, question 7
+  Deferred because: the human has not answered; `dead-code-audit` handed it on too.
+
+## libs/app-react
+
+- Risk, Later: the boot language is activated twice, once by each host store and once by `AppProviders`.
+  Evidence: at `1c0661bb`, `apps/web/src/app/store.ts:18-23` and `apps/electron-react/src/app/store.ts:32-35`
+  activate at module load; `libs/app-react/src/lib/app-providers.tsx:96` activates again to learn when it is ready.
+  Kind: skipped
+  Source: `tasks/archive/app-audit.md`, finding 2
+  Deferred because: the second call only re-runs `i18n.load` and `activate` on cached messages, and removing it needs a
+  new `AppProviders` API or a reorder in both host stores.
+
+## libs/assistant-react
+
+- Handoff: test files mock `@koloda/core-react` and `@koloda/ai-react` at file level under `isolate: false`.
+  Evidence: at `1c0661bb`, `libs/assistant-react/src/lib/ui/use-assistant-chat-hotkeys.test.tsx:26` and
+  `assistant-settings.test.tsx:14` mock `@koloda/core-react`; `use-assistant-message-renderer.test.tsx:26` mocks
+  `@koloda/ai-react`.
+  `agents/TESTING.md` (§Runner constraints) calls such a mock a bug when a sibling imports the package for real.
+  The suite passed with `--maxWorkers=1 --sequence.shuffle.files`, seeds 1–8.
+  Kind: handoff
+  Source: `tasks/archive/assistant-conversation-list-audit.md`
+  Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape.
+
+## libs/e2e
+
+- Improvement, Later: the two AI-mock transports repeat the response decision, and hold differently after a cancel.
+  Evidence: at `1c0661bb`, `apps/web-e2e/src/mock-openai-compatible.ts` and
+  `apps/electron-e2e/src/mock-openai-compatible.ts` each decide the response.
+  Only the desktop hold ends on a client abort (`waitForHoldOrAbort`, `:116`), so `isHolding()` differs after a cancel
+  (web `:172`, desktop `:148`).
+  Kind: skipped
+  Source: `tasks/archive/e2e-suites-audit.md`, finding 17
+  Deferred because: no test reads `isHolding()` after a cancel; then move the decision into `libs/e2e`.
+
+## libs/settings
+
+- Open question: should `SetSettingsData` and `PatchSettingsData` type `name` as `T`?
+  Evidence: at `1c0661bb`, both type it as `SettingsName` (`libs/settings/src/index.ts:47-55`), so `T` is never inferred
+  from `name`, a call can pair one setting's name with another's content, and `content` is the union of all four.
+  Kind: open question
+  Source: `tasks/archive/typecheck-tests.md`
+  Deferred because: open at landing; the task changed no production code.
+
+## libs/settings-react
+
+- Handoff: the `settings-react` suite fails in some shuffled file orders.
+  Evidence: at `1c0661bb`, `--maxWorkers=1 --sequence.shuffle.files --sequence.seed=5` fails three cases in
+  `libs/settings-react/src/lib/sync/settings-sync-devices.test.tsx` ("Unable to find an element with the text: laptop");
+  seeds 2, 3, 4, and 6 pass.
+  Kind: handoff
+  Source: `tasks/archive/assistant-settings-providers-audit.md`
+  Deferred because: seen during self-review; the leak needs a wider set of files and belongs to a sync or
+  settings-react task.
+
+## libs/srs-react
+
+- Handoff: the four editors' `*_SYNC_GROUPS` lists mirror the Rust field-group registry with nothing that ties them.
+  Evidence: at `1c0661bb`, `libs/srs-react/src/lib/cards/card-details.tsx:39`, `algorithms/algorithm.tsx:29`,
+  `decks/deck-details.tsx:17`, and `templates/template.tsx:29`; no test reads them.
+  Kind: handoff
+  Source: `tasks/archive/entity-forms-architecture.md`, finding F5
+  Deferred because: the review proposed nothing here; the host-persistence review's shared case tables are the place.
+
+- Handoff: the whole-number format is one value written in two packages.
+  Evidence: at `1c0661bb`, `WHOLE_NUMBER_FORMAT` (`libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx:11`)
+  and `wholeNumberFormatOptions` (`libs/settings-react/src/lib/settings-learning.tsx:18`).
+  Kind: handoff
+  Source: `tasks/archive/entity-forms-architecture.md`, finding F5
+  Deferred because: audit-sized; left for the next audit of either package.
+
+## libs/ui
+
+- Improvement, Later: the tooltip surface measures itself after every render.
+  Evidence: at `1c0661bb`, `libs/ui/src/lib/primitives/overlay/tooltip/tooltip-surface.tsx:42-44` has a layout effect
+  with no dependency list, and no comment says why.
+  Kind: skipped
+  Source: `tasks/archive/ui-audit.md`, finding 17
+  Deferred because: React Aria moves the arrow by re-rendering with a new offset, which a dependency list or the
+  `ResizeObserver` would miss; it runs only while a tooltip is open.
+
+- Improvement, Later: `motionSettingAtom` is typed `string`, with `""` as a sentinel.
+  Evidence: at `1c0661bb`, `libs/ui/src/lib/hooks/use-motion-settings.ts:5` is `atom("")`.
+  Any value but `"on"` or `"off"` means System, and `libs/settings-react/src/lib/wire-ui-preferences.ts:75` relies on
+  `""` as "not wired yet".
+  Kind: skipped
+  Source: `tasks/archive/ui-audit.md`, finding 25
+  Deferred because: `@koloda/app` has no motion union to type it with, its sibling atoms are untyped too, and moving it
+  to `core-react` has no concrete payoff.
+
+## Repository
+
+- Waste, Medium: the per-crate Rust test targets could run as one `cargo test --workspace`.
+  Evidence: at `1c0661bb`, `package.json:15` (`test:rust`) runs `koloda`, `koloda-sync-proto`, `koloda-server`, and
+  `koloda-sync` as separate Nx targets.
+  Kind: skipped
+  Source: `tasks/archive/ci-audit.md`, finding 2
+  Deferred because: one target loses per-crate Nx caching and the check that each crate builds with its own features.
+
+- Contention, Medium: the ts and rust tracks share one 4-core runner in one CI job.
+  Evidence: at `1c0661bb`, `.github/workflows/ci.yml:24` defines the single `checks` job, and `tools/check-push.ts` runs
+  the tracks at once.
+  The proposed split is a rust job and a ts-and-format job, plus a final `checks` job that needs both with
+  `if: always()`.
+  Kind: needs-decision
+  Source: `tasks/archive/ci-audit.md`, finding 3
+  Deferred because: decide from a task branch run on warm caches after `ci-audit` landed (its question 5).
+
+- Size, Low–Medium: `CARGO_PROFILE_DEV_DEBUG=line-tables-only` for workspace crates in CI.
+  Evidence: at `1c0661bb`, `Cargo.toml:12-13` gives dependencies `debug = 1`; workspace crates keep full debuginfo, and
+  `.github/workflows/ci.yml` does not set the variable.
+  Kind: skipped
+  Source: `tasks/archive/ci-audit.md`, finding 4
+  Deferred because: unmeasured.
+
+- Handoff: three prose lines run past the 120-character guide limit.
+  Evidence: at `1c0661bb`, `tools/check-markdown.ts` reports `agents/INDEX.md:31` (145 characters),
+  `:34` (123), and `libs/ui/README.md:30` (148).
+  Kind: handoff
+  Source: `tasks/archive/tools-audit.md`
+  Deferred because: handed to the guides and docs audit, which did not take them.
+
+- Handoff: `task/mobile-spike` item 4 gives a stale reason for not setting `queriesAtom`.
+  Evidence: at `478a9753` on `task/mobile-spike`, its task file line 174: "whose contract check needs every method".
+  That check is gone since `core-react-audit`.
+  Kind: handoff
+  Source: `tasks/archive/core-react-audit.md`
+  Deferred because: that branch is in flight; the reason needs rewording when it resumes.
+
+- Risk, Later: the conversation list query loads every conversation's full state on both hosts.
+  Evidence: at `1c0661bb`, web selects and parses `state` per row (`libs/db-sqlite/src/lib/conversations.ts:20-28`), and
+  desktop derives `hasTurns` in the renderer from every full row (`apps/electron-react/src/app/queries.ts:70`).
+  Kind: skipped
+  Source: `tasks/archive/assistant-conversation-list-audit.md`, finding 10
+  Deferred because: no cost is measured, and a summary column should cover `hasTurns` and `isUnread` at once, with a
+  schema change on both hosts (question 3).
+
+- Handoff: move to FSRS-7 once ts-fsrs 6 is stable.
+  Evidence: at `1c0661bb`, `package.json:79` pins `ts-fsrs` `5.2.3`, and `crates/koloda/Cargo.toml:33` pins `fsrs`
+  `=6.6.2`, both FSRS-6 (21 weights).
+  It changes the weight count on both sides and needs a migration for stored algorithms.
+  Kind: handoff
+  Source: `tasks/archive/fsrs-optimizer.md`
+  Deferred because: a separate task once ts-fsrs 6 is stable.
+
+- Handoff: recompute stored stability and difficulty of existing cards when optimized weights are applied.
+  Evidence: at `1c0661bb`, `docs/specs/ALGORITHMS.md:144`: applied weights affect later grades like any other
+  parameter change.
+  Kind: handoff
+  Source: `tasks/archive/fsrs-optimizer.md`
+  Deferred because: the human chose later (2026-10-12).

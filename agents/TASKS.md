@@ -302,7 +302,8 @@ These lines follow, indented under it, in this order:
 
 - `Evidence:` as of a named commit: `file:line`, a measurement, or a quote.
 - `Kind:` one of the four kinds (§Kinds).
-- `Source:` the archived task file's repo path in backticks, then `finding <n>` if the item has a number.
+- `Source:` the archived task file's repo path in backticks, then `finding <n>` or `question <n>` if the item has one.
+  When several tasks left the same item, it names the first; the others go in `Evidence:` or `Deferred because:`.
 - `Deferred because:` the reason, in one line.
 
 ```markdown
