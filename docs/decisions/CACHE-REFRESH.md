@@ -10,7 +10,8 @@
   whether or not its component is still mounted.
 - Desktop sync refreshes through the same table, with the kinds the engine reports.
 - A component does not list query keys for a write.
-  It may set or remove the detail entry of the row it wrote.
+  It may put the row it wrote into the cache or remove it: the row's detail entry,
+  or its place in a list when the row has no detail entry, as a card has none.
 - A lesson refreshes once, when it closes, not per grade.
 
 ## Why
