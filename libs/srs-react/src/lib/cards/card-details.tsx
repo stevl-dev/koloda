@@ -1,6 +1,12 @@
 import type { ZodIssue } from "@koloda/app";
 import { ERROR_MESSAGES, formatAppError, toFormErrors } from "@koloda/app";
-import { queriesAtom, useNumberFormatter, useTimestampFormatter, useWriteMutation } from "@koloda/core-react";
+import {
+  queriesAtom,
+  queryKeys,
+  useNumberFormatter,
+  useTimestampFormatter,
+  useWriteMutation,
+} from "@koloda/core-react";
 import type { Card, UpdateCardValues } from "@koloda/srs";
 import { getUpdateCardSchema, updateCardSchema as schema } from "@koloda/srs";
 import {
@@ -14,12 +20,13 @@ import {
   TextField,
   UndoIcon,
   useAppForm,
+  useRefreshPristineFields,
 } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CardContentTextArea } from "./card-content-text-area";
 import { CardPreview } from "./card-preview";
 import { CardReviews } from "./card-reviews";
@@ -28,7 +35,11 @@ import { DeleteCard } from "./delete-card";
 
 type CardDetailsProps = { card: Card };
 
+// INVARIANT: one path per card sync group (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
+const CARD_SYNC_GROUPS = ["content"] as const;
+
 export function CardDetails({ card }: CardDetailsProps) {
+  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const formatTimestamp = useTimestampFormatter();
   const formatNumber = useNumberFormatter();
@@ -44,17 +55,23 @@ export function CardDetails({ card }: CardDetailsProps) {
     onSubmit: async ({ formApi, value }) => {
       // WHY: await the save so the form stays submitting until it settles; canSubmit stays
       // false meanwhile, so a second press cannot save twice.
+      let returning: Card;
       try {
-        await mutateAsync({ id: card.id, values: value });
+        returning = await mutateAsync({ id: card.id, values: value });
       } catch (error) {
         formApi.setErrorMap({ onSubmit: toFormErrors(error) });
+        return;
       }
+      // WHY: the editor reads its card from the deck's list; a card has no detail entry. The saved row goes
+      // there before the reset, or the form takes the list's old row as its defaults until the refetch lands.
+      queryClient.setQueryData<Card[]>(queryKeys.cards.deck({ deckId: card.deckId }), (cards) =>
+        cards?.map((item) => (item.id === returning.id ? returning : item)),
+      );
+      // WHY: reset must receive the saved values; a bare reset() restores the values from before the save.
+      formApi.reset(returning as UpdateCardValues);
     },
   });
-
-  useEffect(() => {
-    form.reset();
-  }, [card.id, card.updatedAt, form]);
+  useRefreshPristineFields(form, card, CARD_SYNC_GROUPS);
 
   const handleProgressReset = () => {
     resetProgressMutation.mutate({ id: card.id });

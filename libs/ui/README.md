@@ -39,6 +39,20 @@ Do not "fix" it by splitting widgets or injecting binders unless a new decision 
 - Settings schema or preference wiring — `@koloda/app`, `@koloda/app-react`
 - Data fetching — `@koloda/core-react` + app `Queries`
 
+## Edit forms over synced data
+
+Rules for an edit form built on `useAppForm` whose data a sync can change:
+the deck, preset, template, and card editors and the learning settings form.
+
+- The form follows its data through `useRefreshPristineFields` (`primitives/form/`), with one path per sync group.
+  It never resets on a data change.
+- After a save it resets to the saved values.
+  The saved row goes into the query cache first, so the form's defaults already hold it.
+- The form awaits its write, so Save is held until the write settles.
+
+Why: resetting on a data change discards typed text when another device edits the row,
+and a whole-form check cannot tell an edited group from an untouched one (`docs/specs/SYNC.md`, an open edit form).
+
 ## Read next
 
 - `agents/LAYOUT.md` — narrow/wide breakpoint behavior

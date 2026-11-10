@@ -241,7 +241,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Hold Save while an edit form's write is pending
   Depends on: 3
 
-- [ ] 5. Keep typed card text when the card changes underneath
+- [x] 5. Keep typed card text when the card changes underneath
   Goal: The card editor follows its data as the other four editors do.
   First write the failing test in `card-details.test.tsx`: type into a field, then rerender with the same card,
   a new `updatedAt`, and unchanged content; the typed text must stay.
@@ -249,6 +249,9 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Then call `useRefreshPristineFields(form, card, ["content"])`; card content is one sync group
   (`crates/koloda-sync-proto/PROTOCOL.md`, Field groups and merge).
   After a save, reset the form to the saved card.
+  Found while implementing: the card comes from the deck's list query and has no detail entry,
+  so the saved row is written into that list before the reset.
+  Without it the untouched form takes the list's old row as its defaults until the refetch lands.
   Remove the effect at `card-details.tsx:60-62`.
   A different card must still give a fresh form: `cards-stack.tsx:62` keys `CardDetails` by card id,
   and `cards-table-cell-edit-card.tsx:30` does not, so key it there or keep a reset on `card.id`.

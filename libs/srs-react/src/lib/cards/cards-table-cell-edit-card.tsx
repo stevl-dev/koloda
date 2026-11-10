@@ -27,7 +27,7 @@ export function CardsTableCellEditCard({ card }: CardsTableCellEditCardProps) {
             <Dialog.Content>
               <div className="relative fg-level-1">
                 <Dialog.Close variants={{ class: "absolute top-0 right-0" }} slot="close" />
-                <CardDetails card={card} />
+                <CardDetails card={card} key={card.id} />
               </div>
             </Dialog.Content>
           </Dialog.Body>
