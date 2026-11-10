@@ -298,7 +298,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Share the add and clone dialog machinery in one hook
   Depends on: 3
 
-- [ ] 7. Merge the two clone dialogs into one component
+- [x] 7. Merge the two clone dialogs into one component
   Goal: `clone-algorithm.tsx` and `clone-template.tsx` differ only in names, route, and message ids.
   Put the dialog in one component that takes the entity's write, kinds, route link, and messages.
   `CloneAlgorithm` and `CloneTemplate` stay as thin wrappers that pass those in, so callers do not change.
