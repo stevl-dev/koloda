@@ -135,6 +135,7 @@ Gate: the branch lands only if all of these hold.
 - The newest commit on `origin/main..HEAD` is the Archive commit.
   It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled,
   including its `Review:` and `Change rounds:` lines (§File).
+  It adds to `tasks/DEFERRED.md` an entry for each item the task leaves undone (§Deferred work).
 - Every commit carries `Task: <slug>`.
 - The tip is green: its CI job `checks` (`bun run check:push`) passed.
 - If any plan item adds or edits e2e cases, Outcome records a run of both suites on the tip being archived.
@@ -149,8 +150,9 @@ On the task branch, once self-review has passed and the tip is green:
 
 1. Fill Outcome.
 2. Flip Status to `done`.
-3. Move `tasks/live/<slug>.md` to `tasks/archive/<slug>.md` and commit it as Archive.
-4. Run `bun run land`.
+3. Add an entry to `tasks/DEFERRED.md` for each item the task leaves undone (§Deferred work).
+4. Move `tasks/live/<slug>.md` to `tasks/archive/<slug>.md` and commit it with the entries as Archive.
+5. Run `bun run land`.
    - It rebases onto `origin/main`, pushes the branch, and waits for `checks` on that exact tip.
    - For `local`, this is the branch's first push.
    - Then it fast-forwards `main` to the tip and deletes the remote branch.
@@ -260,8 +262,92 @@ It would add a second file under `live/` that the Archive gate does not move.
     Classification and severity use the exact words in `agents/AUDIT.md` (§Finding rules).
   - Under it go `file:line` evidence and `Decision:` fixed, skipped with reason, or needs-decision.
   - Skipped and needs-decision entries stay in the file after Archive, under Outcome.
+    The Archive commit also adds them to `tasks/DEFERRED.md`, as §Deferred work says.
 - Restate evidence in the task file, not as a pointer to `tmp/`.
   - The next session and the archive reader must not need the report.
+- The Archive commit removes each `tasks/DEFERRED.md` entry that the report lists as resolved.
+
+## Deferred work
+
+`tasks/DEFERRED.md` holds the work that finished tasks left undone, so the next audit or task in the area sees it.
+It is not a backlog: nothing in it is promised or ranked.
+Its header points here and does not restate these rules.
+
+### Kinds
+
+An entry has one of four kinds.
+
+- `skipped`: a finding the task chose not to fix, or the skipped part of a finding it fixed only in part.
+- `needs-decision`: a finding left for the human to decide.
+- `open question`: a question still unchecked in Open questions at Archive.
+- `handoff`: work the task found or caused that its Outcome names as left for a later task,
+  and that is not a numbered finding or an open question.
+
+A redesign note has no kind of its own.
+An audit records one as a Later or Product decision finding (`agents/AUDIT.md` (§Finding rules)),
+so it enters as `skipped`.
+
+### Entry shape
+
+An entry is a top-level list item.
+Its first line states the item:
+
+- A finding uses the line shape of §Audit-sourced tasks without the number:
+  `- <classification>, <severity>: <the finding in one sentence>`.
+  When only part of a finding was skipped, the sentence states the skipped part.
+- An open question uses `- Open question: <the question>`.
+- A handoff uses `- Handoff: <the work in one sentence>`.
+
+These lines follow, indented under it, in this order:
+
+- `Evidence:` as of a named commit: `file:line`, a measurement, or a quote.
+- `Kind:` one of the four kinds (§Kinds).
+- `Source:` the archived task file's repo path in backticks, then `finding <n>` if the item has a number.
+- `Deferred because:` the reason, in one line.
+
+```markdown
+## crates/koloda-server
+
+- Risk, Later: <the finding in one sentence>.
+  Evidence: at `<commit>`, `crates/koloda-server/src/<file>.rs:<line>`.
+  Kind: skipped
+  Source: `tasks/archive/<slug>.md`, finding <n>
+  Deferred because: <the reason>.
+```
+
+`bun run check:docs` fails when an entry has no `Source:` line, or names a file that is not in `tasks/archive/`.
+
+### Grouping and lookup
+
+Entries sit under one `##` heading per package directory, named by its path, such as `crates/koloda-server` or `tools`.
+An entry that belongs to no single package goes under `## Repository`.
+Headings are sorted by path, and `## Repository` comes last.
+
+Lookup is by path, not by heading name.
+The entries for a target are those whose heading or `Evidence:` names a path inside the target.
+
+### Adding
+
+The Archive commit adds an entry for each item the task leaves undone (§Done):
+skipped and needs-decision findings, the skipped part of a partly fixed finding,
+unchecked open questions, and handoffs.
+An item that matches an entry already in the file updates that entry instead of adding a second one.
+A task that leaves nothing undone adds nothing.
+
+### Removing
+
+- A change that resolves an entry removes it in the same change.
+- A task that triages an audit report removes the entries the report lists as resolved (§Audit-sourced tasks).
+- Dropping an entry without resolving it gives the reason in the commit body.
+
+A fix made without a task file does not load this guide, so it may leave its entry behind.
+The next audit of the area reports that entry as resolved.
+
+### Reading
+
+- Scheduled work lists the entries for its area to the human, in step 1 of §Session protocol.
+- An audit reads the entries for its target (`agents/AUDIT.md` (§Target and inputs)).
+- An architecture review reads the entries for its area (`agents/ARCHITECTURE-REVIEW.md` (§Target and inputs)).
 
 ## Session protocol
 
@@ -276,6 +362,8 @@ It would add a second file under `live/` that the Archive gate does not move.
    - In-flight files are not there.
    - For the task you pick up, read its `Guides:` line and load those guides;
      route again in `agents/INDEX.md` only if scope changed.
+   - When work is scheduled in an area, list the area's entries in `tasks/DEFERRED.md` to the human
+     with the overlap check (§Deferred work).
 2. Record open questions as they appear.
    - Do not guess answers.
 3. Before ending a session, update Open questions and Plan on the task branch.

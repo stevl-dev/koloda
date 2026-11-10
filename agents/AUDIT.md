@@ -43,6 +43,9 @@ If those are missing, ask for them before starting.
 Do not load specs the target does not need.
 If you have not loaded a spec, you cannot raise a spec-violation finding against it.
 
+Read the entries in `tasks/DEFERRED.md` for the target: those whose heading or `Evidence:` names a path inside it.
+They are work earlier tasks left undone on purpose (`agents/TASKS.md` (§Deferred work)).
+
 Read the README of each package in scope (`Where it sits`, `Does NOT own`).
 Read the owning specs before the code.
 Code is judged against its spec, not against taste.
@@ -137,6 +140,9 @@ An audit recommends; it does not implement.
 
 A finding whose only basis is taste is not a finding.
 
+A finding that matches a deferred entry is reported as known, citing the entry's `Source:`, not as new.
+A deferred entry for the target that no longer holds is reported as resolved, with what resolved it.
+
 ## Noise: do not raise
 
 Apply the noise list in `agents/REVIEW.md` (§Project-specific noise), with these changes:
@@ -170,7 +176,10 @@ Structure, in this order:
 4. Strengths — what is good and should be kept as-is.
 5. Findings grouped by classification, ordered by severity inside each group.
    Each finding has `file:line` evidence, a classification, a severity, and a local fix direction.
-6. Prioritized recommendations — a table: number, action (with § references), severity, effort, impact.
+   A known finding cites its deferred entry (§Finding rules).
+6. Resolved deferred entries — a list of its own: each entry that no longer holds, and what resolved it.
+   Write `none` when every entry for the target still holds.
+7. Prioritized recommendations — a table: number, action (with § references), severity, effort, impact.
 
 The verdict is required.
 An audit that is only a complaint list is a bad audit; the strengths section is not decoration.
@@ -186,7 +195,8 @@ The human triages each finding: fix, skip, or needs-decision.
 ## Checklist
 
 - [ ] Scope restated and bounded; split asked for if the target spanned more than one primary spec.
-- [ ] Standing guides loaded; specs read before code.
+- [ ] Standing guides loaded; deferred entries for the target read; specs read before code.
+- [ ] Known findings cite their deferred entry; resolved entries listed on their own.
 - [ ] Every finding cites `file:line`, a classification, and a severity.
 - [ ] Spec-violation findings cite the spec section.
 - [ ] Architecture findings cite a README, map row, or decision.

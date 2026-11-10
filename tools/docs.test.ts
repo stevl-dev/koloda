@@ -169,6 +169,31 @@ describe("archived tasks", () => {
   });
 });
 
+describe("deferred work", () => {
+  const markdown = read("tasks/DEFERRED.md");
+  const firstHeading = markdown.search(/^## /m);
+  // INVARIANT: an entry is a top-level list item under a `##` heading; its field lines are indented under it.
+  const entries =
+    firstHeading === -1
+      ? []
+      : markdown
+          .slice(firstHeading)
+          .split(/^(?=- )/m)
+          .filter((entry) => entry.startsWith("- "));
+
+  // WHY: one test over all entries, because the file may hold none and Vitest fails a suite with no tests.
+  it("names an archived task file in every entry's Source line", () => {
+    const problems = entries.flatMap((entry) => {
+      const title = entry.split("\n")[0];
+      const source = entry.match(/^ +Source: `([^`]+)`/m)?.[1];
+      if (!source) return [`${title} has no Source line`];
+      const isArchived = source.startsWith("tasks/archive/") && existsSync(join(root, source));
+      return isArchived ? [] : [`${title} names ${source}, which is not in tasks/archive/`];
+    });
+    expect(problems).toEqual([]);
+  });
+});
+
 describe("section pointers", () => {
   const files = allMarkdown();
   const byName = new Map<string, string[]>();

@@ -18,7 +18,8 @@ Load `agents/DECISIONS.md` and `agents/BACKWARDS-COMPATIBILITY.md`.
 Then read, for the area:
 
 - its primary spec, its decisions, and the README of each package in it (`Where it sits`, `Does NOT own`);
-- its archived audit tasks in `tasks/archive/`: the skipped and needs-decision findings, open questions, and handoffs;
+- its entries in `tasks/DEFERRED.md`: the skipped and needs-decision findings, open questions, and handoffs
+  that earlier tasks left undone (`agents/TASKS.md` (§Deferred work));
 - its git history since the area's last architecture review, or for the whole area if there was none.
 
 From the history, measure:
@@ -71,7 +72,7 @@ Write the report to `tmp/audits/<slug>-architecture.md`, creating the directory 
 Structure, in this order:
 
 1. Title, the area, and the reviewed commit hash.
-2. Scope read: specs, decisions, packages, archived tasks, and the history range.
+2. Scope read: specs, decisions, packages, deferred entries, and the history range.
 3. The map: the area as it is (§What to look for).
 4. Findings for items 2–4, each with evidence.
 5. Proposals, at most three, each with its options.
@@ -90,7 +91,7 @@ The human decides each proposal.
 ## Checklist
 
 - [ ] Area restated and bounded.
-- [ ] Archived findings and git history for the area read; measurements cited.
+- [ ] Deferred entries and git history for the area read; measurements cited.
 - [ ] The map describes the code as it is.
 - [ ] At most three proposals, each a draft decision.
 - [ ] Every proposal has a seriously argued "do nothing" option.

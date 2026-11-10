@@ -62,7 +62,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Define deferred work
+- [x] 1. Define deferred work
   Goal: Add `tasks/DEFERRED.md` with a short header and no entries,
   and write the rules for it into `agents/TASKS.md`, `agents/AUDIT.md`, and `agents/ARCHITECTURE-REVIEW.md`.
   The file's header says what it holds and that it is not a backlog.
