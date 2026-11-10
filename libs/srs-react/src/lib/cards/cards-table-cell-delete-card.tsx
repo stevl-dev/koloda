@@ -1,24 +1,21 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
-import type { Card, Deck } from "@koloda/srs";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import type { Card } from "@koloda/srs";
 import { Button, DeleteIcon, Dialog, ErrorMessage, Fade } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 
 type CardsTableCellDeleteCardProps = {
   id: Card["id"];
-  deckId: Deck["id"];
 };
 
-export function CardsTableCellDeleteCard({ id, deckId }: CardsTableCellDeleteCardProps) {
+export function CardsTableCellDeleteCard({ id }: CardsTableCellDeleteCardProps) {
   const { _ } = useLingui();
-  const queryClient = useQueryClient();
   const { deleteCardMutation } = useAtomValue(queriesAtom);
-  const { mutate, error, reset } = useMutation(deleteCardMutation());
+  const { mutate, error, reset } = useWriteMutation(deleteCardMutation(), ["cards", "reviews"]);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenChange = (value: boolean) => {
@@ -32,10 +29,6 @@ export function CardsTableCellDeleteCard({ id, deckId }: CardsTableCellDeleteCar
       {
         onSuccess: () => {
           setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId }) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
         },
       },
     );

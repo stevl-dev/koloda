@@ -49,7 +49,8 @@ function setup() {
   const store = createStore();
   store.set(queriesAtom, queries);
   const queryClient = createQueryClient();
-  const invalidateQueries = vi.spyOn(queryClient, "invalidateQueries");
+  const deckCards = queryKeys.cards.deck({ deckId: deck.id });
+  queryClient.setQueryData(deckCards, []);
 
   render(
     <I18nProvider i18n={i18n}>
@@ -67,7 +68,7 @@ function setup() {
     resolveAdd: () => act(async () => resolveAdd()),
     addAttachment,
     resolveAttachment: () => act(async () => resolveAttachment()),
-    invalidateQueries,
+    isDeckStale: () => queryClient.getQueryState(deckCards)?.isInvalidated,
   };
 }
 
@@ -84,7 +85,7 @@ function submit() {
 
 describe("AddCard", () => {
   it("refreshes the deck after an add that settles once the dialog is closed", async () => {
-    const { deck, addCard, resolveAdd, invalidateQueries } = setup();
+    const { addCard, resolveAdd, isDeckStale } = setup();
     await openAndFill();
     submit();
     await waitFor(() => expect(addCard).toHaveBeenCalledTimes(1));
@@ -93,11 +94,7 @@ describe("AddCard", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await resolveAdd();
 
-    await waitFor(() =>
-      expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.cards.deck({ deckId: deck.id }) }),
-    );
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.all() });
-    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.templates.all() });
+    await waitFor(() => expect(isDeckStale()).toBe(true));
   });
 
   it("does not start a second add while the first is pending", async () => {

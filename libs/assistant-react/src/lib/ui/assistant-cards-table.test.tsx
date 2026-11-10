@@ -19,6 +19,8 @@ import type { CardStatus, ConversationReducerState } from "../state/conversation
 import { testId } from "../../test/test-helpers";
 
 const templateFields: TemplateFields = [{ id: testId(1), title: "Front", type: "text", isRequired: true }];
+// The cards list of the deck the table adds to.
+const DECK_CARDS = queryKeys.cards.deck({ deckId: testId(1) });
 
 function makeCard(text: string): GeneratedCard {
   return { content: { [testId(1)]: { text } } };
@@ -146,16 +148,16 @@ describe("AssistantCardsTable selection", () => {
 
   it("refreshes deck cards and lessons after add, not AI settings", async () => {
     const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    const aiSettings = queryKeys.settings.detail("ai");
+    for (const queryKey of [DECK_CARDS, aiSettings]) queryClient.setQueryData(queryKey, []);
     const mutate = vi.fn(addAll);
     mountProbe([makeCard("Front A")], { 0: "idle" }, mutate, queryClient);
 
     fireEvent.click(screen.getByTestId("add"));
     await waitFor(() => expect(screen.getByTestId("has-selection").textContent).toBe("false"));
 
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.cards.deck({ deckId: testId(1) }) });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.all() });
-    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: queryKeys.settings.detail("ai") });
+    expect(queryClient.getQueryState(DECK_CARDS)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(aiSettings)?.isInvalidated).toBe(false);
   });
 
   it("does not re-add persisted success cards when Add is invoked", async () => {
@@ -217,7 +219,7 @@ describe("AssistantCardsTable selection", () => {
       B: makeConversation("B"),
     });
     const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    queryClient.setQueryData(DECK_CARDS, []);
     const { unmount } = renderProbeOn(store, queryClient);
 
     fireEvent.click(screen.getByTestId("add"));
@@ -232,8 +234,7 @@ describe("AssistantCardsTable selection", () => {
     await waitFor(() => {
       expect(store.get(conversationsAtom)["A"]?.runs["r1"]?.cardStatuses[0]).toBe("success");
     });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.cards.deck({ deckId: testId(1) }) });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.all() });
+    expect(queryClient.getQueryState(DECK_CARDS)?.isInvalidated).toBe(true);
     expect(store.get(conversationsAtom)["B"]?.runs["r1"]).toBeUndefined();
   });
 
@@ -252,7 +253,7 @@ describe("AssistantCardsTable selection", () => {
       }),
     });
     const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    queryClient.setQueryData(DECK_CARDS, []);
     renderProbeOn(store, queryClient);
 
     fireEvent.click(screen.getByTestId("add"));
@@ -262,7 +263,7 @@ describe("AssistantCardsTable selection", () => {
     dispatchToConversationOnStore(store, "A", ["restartRun", { runId: "r1" }]);
     add.resolve([{}]);
 
-    await waitFor(() => expect(invalidate).toHaveBeenCalled());
+    await waitFor(() => expect(queryClient.getQueryState(DECK_CARDS)?.isInvalidated).toBe(true));
     expect(store.get(conversationsAtom)["A"]?.runs["r1"]?.cardStatuses).toEqual({});
   });
 });

@@ -236,11 +236,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
         <Table.Pagination table={table} pageSizes={PAGE_SIZES} />
         <AnimatePresence>
           {selectedIds.length > 0 && (
-            <CardsTableSelectionControls
-              selectedIds={selectedIds}
-              deckId={deckId}
-              onClearSelection={() => setRowSelection({})}
-            />
+            <CardsTableSelectionControls selectedIds={selectedIds} onClearSelection={() => setRowSelection({})} />
           )}
         </AnimatePresence>
       </div>

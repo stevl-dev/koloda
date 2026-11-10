@@ -1,40 +1,27 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
-import type { Card, Deck } from "@koloda/srs";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import type { Card } from "@koloda/srs";
 import { DeleteDialog, ErrorMessage, Fade } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
 
 type DeleteCardProps = {
   id: Card["id"];
-  deckId: Deck["id"];
 };
 
-export function DeleteCard({ id, deckId }: DeleteCardProps) {
-  const queryClient = useQueryClient();
+export function DeleteCard({ id }: DeleteCardProps) {
   const { _ } = useLingui();
   const { deleteCardMutation } = useAtomValue(queriesAtom);
-  const { mutate, error, reset } = useMutation(deleteCardMutation());
+  const { mutate, error, reset } = useWriteMutation(deleteCardMutation(), ["cards", "reviews"]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) reset();
   };
 
   const handleConfirm = () => {
-    mutate(
-      { id },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId }) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
-        },
-      },
-    );
+    mutate({ id });
   };
 
   return (

@@ -26,7 +26,7 @@ export function CardsTableCell({ cell }: CardsTableCellProps) {
   if (id === "select") return <CardsTableCellSelect row={cell.row} />;
   if (id === "preview") return <CardsTableCellPreviewCard card={card} />;
   if (id === "edit") return <CardsTableCellEditCard card={card} />;
-  if (id === "delete") return <CardsTableCellDeleteCard id={card.id} deckId={card.deckId} />;
+  if (id === "delete") return <CardsTableCellDeleteCard id={card.id} />;
 
   if (id === "state") {
     return (

@@ -19,6 +19,7 @@ export { useHotkeysSettings } from "./lib/hooks/use-hotkeys-settings";
 export { hotkeysScopesAtom, useHotkeyScope } from "./lib/hooks/use-hotkeys-status";
 export { useNumberFormatter } from "./lib/hooks/use-number-formatter";
 export { useTimestampFormatter } from "./lib/hooks/use-timestamp-formatter";
+export { useWriteMutation } from "./lib/hooks/use-write-mutation";
 export { invalidateDeckQueriesAfterAddDeck } from "./lib/invalidate-deck-queries";
 export { optimizerQueriesAtom } from "./lib/optimizer";
 export type { OptimizationProgress, OptimizeAlgorithmOptions, OptimizerQueries } from "./lib/optimizer";

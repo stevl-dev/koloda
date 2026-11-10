@@ -1,8 +1,7 @@
 import type { GeneratedCard } from "@koloda/ai";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import type { Deck, InsertCardsResponse, Template, TemplateFields } from "@koloda/srs";
 import { Table, createSelectionColumnHelper, useSelectionTable } from "@koloda/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { AssistantCardsTableSelectCell } from "./assistant-cards-table-select-cell";
@@ -27,9 +26,8 @@ type UseAssistantCardsTableOptions = {
 
 export function useAssistantCardsTable(options: UseAssistantCardsTableOptions) {
   const { runId, cards, cardStatuses, templateFields, deckId, templateId, isSelectionEnabled = true } = options;
-  const queryClient = useQueryClient();
   const { addCardsMutation } = useAtomValue(queriesAtom);
-  const mutation = useMutation(addCardsMutation());
+  const mutation = useWriteMutation(addCardsMutation(), ["cards"]);
   const setCardStatus = useSetAtom(setAssistantCardStatusAtom);
   const conversationId = useAtomValue(currentConversationIdAtom);
   const store = useStore();
@@ -135,7 +133,7 @@ export function useAssistantCardsTable(options: UseAssistantCardsTableOptions) {
 
     // WHY: settle from the promise, not per-call `mutate` callbacks. TanStack
     // drops those once the table unmounts (conversation switch, route change),
-    // which left rows pending and the deck caches stale.
+    // which left rows pending.
     let response: InsertCardsResponse;
     try {
       response = await mutation.mutateAsync(cardsToCreate);
@@ -146,9 +144,6 @@ export function useAssistantCardsTable(options: UseAssistantCardsTableOptions) {
       for (const entry of sent) settle(entry, "idle");
       return;
     }
-    queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId }) });
-    queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-    queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
     for (const [i, entry] of sent.entries()) {
       settle(entry, response[i]?.error ? "error" : "success");
     }
@@ -164,7 +159,6 @@ export function useAssistantCardsTable(options: UseAssistantCardsTableOptions) {
     deckId,
     templateId,
     mutation,
-    queryClient,
     setCardStatus,
     store,
     table,

@@ -163,7 +163,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Refresh by changed kind from one table in core-react
   Depends on: none
 
-- [ ] 2. Refresh after card writes from the write itself
+- [x] 2. Refresh after card writes from the write itself
   Goal: Add `useWriteMutation(options, kinds)` in `libs/core-react/src/lib/hooks/use-write-mutation.ts`.
   It returns `useMutation` over the host's options with a mutation-level `onSuccess`
   that calls `refreshKinds(queryClient, kinds)`.

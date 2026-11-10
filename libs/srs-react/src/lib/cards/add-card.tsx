@@ -2,13 +2,13 @@ import type { ZodIssue } from "@koloda/app";
 import { toFormErrors } from "@koloda/app";
 import { useAppHotkey } from "@koloda/core-react";
 import { useHotkeysSettings } from "@koloda/core-react";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import type { Deck, InsertCardData, Template } from "@koloda/srs";
 import { getInsertCardSchema, insertCardSchema as schema } from "@koloda/srs";
 import { AddIcon, Button, Dialog, Label, QueryState, TextField, Tooltip, useAppForm } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardContentTextArea } from "./card-content-text-area";
@@ -19,13 +19,12 @@ type AddCardProps = {
 };
 
 export function AddCard({ deckId, templateId }: AddCardProps) {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { ui } = useHotkeysSettings();
   const { getTemplateQuery, addCardMutation } = useAtomValue(queriesAtom);
   const query = useQuery(getTemplateQuery(templateId));
   const template = query.data;
-  const { mutateAsync, error, reset } = useMutation(addCardMutation());
+  const { mutateAsync, error, reset } = useWriteMutation(addCardMutation(), ["cards"]);
   const content = useMemo(
     () => (template ? template.content.fields.reduce((acc, x) => ({ ...acc, [`${x.id}`]: { text: "" } }), {}) : {}),
     [template],
@@ -54,9 +53,6 @@ export function AddCard({ deckId, templateId }: AddCardProps) {
         // WHY: the dialog renders the failure from the mutation's `error`.
         return;
       }
-      queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId }) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
       formApi.reset();
       firstFieldRef.current?.focus();
     },

@@ -1,29 +1,22 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
-import type { Card, Deck } from "@koloda/srs";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import type { Card } from "@koloda/srs";
 import { AnimatedNumber, Button, CloseIcon, DeleteIcon, Dialog, ErrorMessage, Fade } from "@koloda/ui";
 import { msg, plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 
 type CardsTableSelectionControlsProps = {
   selectedIds: Card["id"][];
-  deckId: Deck["id"];
   onClearSelection: () => void;
 };
 
-export function CardsTableSelectionControls({
-  selectedIds,
-  deckId,
-  onClearSelection,
-}: CardsTableSelectionControlsProps) {
+export function CardsTableSelectionControls({ selectedIds, onClearSelection }: CardsTableSelectionControlsProps) {
   const { _ } = useLingui();
-  const queryClient = useQueryClient();
   const { deleteCardsMutation } = useAtomValue(queriesAtom);
-  const { mutate, error, reset } = useMutation(deleteCardsMutation());
+  const { mutate, error, reset } = useWriteMutation(deleteCardsMutation(), ["cards", "reviews"]);
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedCount = selectedIds.length;
@@ -38,10 +31,6 @@ export function CardsTableSelectionControls({
       { ids: selectedIds },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId }) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
           setIsOpen(false);
           onClearSelection();
         },

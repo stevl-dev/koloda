@@ -1,6 +1,6 @@
 import type { ZodIssue } from "@koloda/app";
 import { ERROR_MESSAGES, formatAppError, toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys, useNumberFormatter, useTimestampFormatter } from "@koloda/core-react";
+import { queriesAtom, useNumberFormatter, useTimestampFormatter, useWriteMutation } from "@koloda/core-react";
 import type { Card, UpdateCardValues } from "@koloda/srs";
 import { getUpdateCardSchema, updateCardSchema as schema } from "@koloda/srs";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { CardContentTextArea } from "./card-content-text-area";
@@ -29,15 +29,14 @@ import { DeleteCard } from "./delete-card";
 type CardDetailsProps = { card: Card };
 
 export function CardDetails({ card }: CardDetailsProps) {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const formatTimestamp = useTimestampFormatter();
   const formatNumber = useNumberFormatter();
   const { getTemplateQuery, updateCardMutation, resetCardProgressMutation } = useAtomValue(queriesAtom);
   const query = useQuery(getTemplateQuery(card.templateId));
   const template = query.data;
-  const { mutate } = useMutation(updateCardMutation());
-  const resetProgressMutation = useMutation(resetCardProgressMutation());
+  const { mutate } = useWriteMutation(updateCardMutation(), ["cards"]);
+  const resetProgressMutation = useWriteMutation(resetCardProgressMutation(), ["cards", "reviews"]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const form = useAppForm({
     defaultValues: card as UpdateCardValues,
@@ -46,9 +45,6 @@ export function CardDetails({ card }: CardDetailsProps) {
       mutate(
         { id: card.id, values: value },
         {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId: card.deckId }) });
-          },
           onError: (error) => {
             formApi.setErrorMap({ onSubmit: toFormErrors(error) });
           },
@@ -62,17 +58,7 @@ export function CardDetails({ card }: CardDetailsProps) {
   }, [card.id, card.updatedAt, form]);
 
   const handleProgressReset = () => {
-    resetProgressMutation.mutate(
-      { id: card.id },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId: card.deckId }) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.reviews.card({ cardId: card.id }) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
-        },
-      },
-    );
+    resetProgressMutation.mutate({ id: card.id });
   };
 
   return (
@@ -171,7 +157,7 @@ export function CardDetails({ card }: CardDetailsProps) {
                     {_(msg`card.action.reset-progress`)}
                   </Button>
                 )}
-                <DeleteCard id={card.id} deckId={card.deckId} />
+                <DeleteCard id={card.id} />
                 {resetProgressMutation.error && (
                   <ErrorMessage
                     layout="inline"
