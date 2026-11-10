@@ -1,7 +1,6 @@
-import { toFormErrors } from "@koloda/app";
-import { defaultAlgorithmAtom, defaultTemplateAtom, queriesAtom, useWriteMutation } from "@koloda/core-react";
+import { defaultAlgorithmAtom, defaultTemplateAtom, queriesAtom } from "@koloda/core-react";
 import { insertDeckSchema as schema } from "@koloda/srs";
-import type { Deck, InsertDeckData } from "@koloda/srs";
+import type { InsertDeckData } from "@koloda/srs";
 import {
   AddIcon,
   Button,
@@ -18,10 +17,9 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { AlgorithmPicker } from "../algorithms/algorithm-picker";
 import { TemplatePicker } from "../templates/template-picker";
-import { useEntityCreatedLink } from "../components/use-entity-created-link";
+import { useCreateEntityDialog } from "../components/use-create-entity-dialog";
 
 export function AddDeck() {
   const { _ } = useLingui();
@@ -29,37 +27,19 @@ export function AddDeck() {
   const isMotionOn = useMotionSetting();
   const defaultAlgorithm = useAtomValue(defaultAlgorithmAtom);
   const defaultTemplate = useAtomValue(defaultTemplateAtom);
-  const { mutateAsync, isSuccess } = useWriteMutation(addDeckMutation(), ["decks"]);
-  const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Deck["id"]>(isSuccess);
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, listeners, submit, linkRef, newId, isLinkVisible } = useCreateEntityDialog(
+    addDeckMutation(),
+    ["decks"],
+  );
   const form = useAppForm({
     defaultValues: { title: "", algorithmId: defaultAlgorithm, templateId: defaultTemplate } as InsertDeckData,
     validators: { onSubmit: schema },
-    listeners: {
-      onChange: () => {
-        clearNewId();
-      },
-    },
+    listeners,
     onSubmit: async ({ value, formApi }) => {
-      // WHY: await the add so the form stays submitting until it settles; canSubmit stays
-      // false meanwhile, so a second press cannot add twice.
-      let returning;
-      try {
-        returning = await mutateAsync(schema.parse(value));
-      } catch (error) {
-        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-        return;
-      }
-      formApi.reset();
-      handleCreated(returning);
+      await submit(schema.parse(value), formApi);
     },
   });
   const formErrorMap = useStore(form.store, (state) => state.errorMap);
-
-  useEffect(() => {
-    clearNewId();
-    form.reset();
-  }, [isOpen, form, clearNewId]);
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={setIsOpen}>

@@ -1,7 +1,7 @@
-import { generateUuidv7, toFormErrors } from "@koloda/app";
-import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import { generateUuidv7 } from "@koloda/app";
+import { queriesAtom } from "@koloda/core-react";
 import { DEFAULT_TEMPLATE, insertTemplateSchema as schema, translateDefaultTemplateContent } from "@koloda/srs";
-import type { InsertTemplateData, Template } from "@koloda/srs";
+import type { InsertTemplateData } from "@koloda/srs";
 import {
   AddIcon,
   Button,
@@ -18,24 +18,20 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { useEntityCreatedLink } from "../components/use-entity-created-link";
+import { useCreateEntityDialog } from "../components/use-create-entity-dialog";
 
 export function AddTemplate() {
   const { _ } = useLingui();
   const { addTemplateMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useWriteMutation(addTemplateMutation(), ["templates"]);
-  const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Template["id"]>(isSuccess);
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, listeners, submit, linkRef, newId, isLinkVisible } = useCreateEntityDialog(
+    addTemplateMutation(),
+    ["templates"],
+  );
   const form = useAppForm({
     defaultValues: { ...DEFAULT_TEMPLATE, title: "" } as InsertTemplateData,
     validators: { onSubmit: schema },
-    listeners: {
-      onChange: () => {
-        clearNewId();
-      },
-    },
+    listeners,
     onSubmit: async ({ value, formApi }) => {
       // WHY: the default fields are built per add, in the current language and with their own ids.
       // `defaultValues` holds the seed ids, and the reset after a success restores them, so ids minted
@@ -46,26 +42,11 @@ export function AddTemplate() {
         fields: defaults.fields.map((field) => ({ ...field, id: fieldIds.get(field.id) ?? field.id })),
         layout: defaults.layout.map((item) => ({ ...item, field: fieldIds.get(item.field) ?? item.field })),
       };
-      // WHY: await the add so the form stays submitting until it settles; canSubmit stays
-      // false meanwhile, so a second press cannot add twice.
-      let returning;
-      try {
-        returning = await mutateAsync(schema.parse({ ...value, content }));
-      } catch (error) {
-        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-        return;
-      }
-      formApi.reset();
-      handleCreated(returning);
+      await submit(schema.parse({ ...value, content }), formApi);
     },
   });
 
   const formErrorMap = useStore(form.store, (state) => state.errorMap);
-
-  useEffect(() => {
-    clearNewId();
-    form.reset();
-  }, [isOpen, form, clearNewId]);
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -121,7 +102,7 @@ export function AddTemplate() {
               <form.Subscribe selector={(state) => [state.canSubmit]}>
                 {([canSubmit]) => (
                   <Button variants={{ style: "primary" }} type="submit" isDisabled={!canSubmit || isLinkVisible}>
-                    {_(msg`add-template.submit`)}
+                    {isLinkVisible ? _(msg`add-template.success`) : _(msg`add-template.submit`)}
                   </Button>
                 )}
               </form.Subscribe>

@@ -271,7 +271,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Keep typed card text when the card changes underneath
   Depends on: 4
 
-- [ ] 6. Share the add and clone dialog machinery in one hook
+- [x] 6. Share the add and clone dialog machinery in one hook
   Goal: Grow `libs/srs-react/src/lib/components/use-entity-created-link.ts` into one hook for the five dialogs:
   `add-algorithm.tsx`, `clone-algorithm.tsx`, `add-template.tsx`, `clone-template.tsx`, and `add-deck.tsx`.
   The hook owns the open state, the write (through `useWriteMutation` with the dialog's kinds),

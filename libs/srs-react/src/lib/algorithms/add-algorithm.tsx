@@ -1,7 +1,5 @@
-import { toFormErrors } from "@koloda/app";
-import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import { DEFAULT_FSRS_ALGORITHM, insertAlgorithmSchema as schema } from "@koloda/srs";
-import type { Algorithm } from "@koloda/srs";
 import {
   AddIcon,
   Button,
@@ -18,45 +16,26 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { useEntityCreatedLink } from "../components/use-entity-created-link";
+import { useCreateEntityDialog } from "../components/use-create-entity-dialog";
 
 export function AddAlgorithm() {
   const { _ } = useLingui();
   const { addAlgorithmMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useWriteMutation(addAlgorithmMutation(), ["algorithms"]);
-  const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Algorithm["id"]>(isSuccess);
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, listeners, submit, linkRef, newId, isLinkVisible } = useCreateEntityDialog(
+    addAlgorithmMutation(),
+    ["algorithms"],
+  );
   const form = useAppForm({
     defaultValues: { title: "", content: DEFAULT_FSRS_ALGORITHM },
     validators: { onSubmit: schema },
-    listeners: {
-      onChange: () => {
-        clearNewId();
-      },
-    },
+    listeners,
     onSubmit: async ({ value, formApi }) => {
-      // WHY: await the add so the form stays submitting until it settles; canSubmit stays
-      // false meanwhile, so a second press cannot add twice.
-      let returning;
-      try {
-        returning = await mutateAsync(schema.parse(value));
-      } catch (error) {
-        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-        return;
-      }
-      formApi.reset();
-      handleCreated(returning);
+      await submit(schema.parse(value), formApi);
     },
   });
 
   const formErrorMap = useStore(form.store, (state) => state.errorMap);
-
-  useEffect(() => {
-    clearNewId();
-    form.reset();
-  }, [isOpen, form, clearNewId]);
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -85,6 +64,7 @@ export function AddAlgorithm() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e)}
+                    autoFocus
                   >
                     <Label>{_(msg`add-algorithm.inputs.title.label`)}</Label>
                     <TextField.Input />
@@ -111,8 +91,8 @@ export function AddAlgorithm() {
               <div className="grow" />
               <form.Subscribe selector={(state) => [state.canSubmit]}>
                 {([canSubmit]) => (
-                  <Button variants={{ style: "primary" }} type="submit" isDisabled={!canSubmit}>
-                    {_(msg`add-algorithm.submit`)}
+                  <Button variants={{ style: "primary" }} type="submit" isDisabled={!canSubmit || isLinkVisible}>
+                    {isLinkVisible ? _(msg`add-algorithm.success`) : _(msg`add-algorithm.submit`)}
                   </Button>
                 )}
               </form.Subscribe>

@@ -43,6 +43,10 @@ msgid "add-algorithm.submit"
 msgstr "Create"
 
 #: ../../libs/srs-react/src/lib/algorithms/add-algorithm.tsx
+msgid "add-algorithm.success"
+msgstr "Done"
+
+#: ../../libs/srs-react/src/lib/algorithms/add-algorithm.tsx
 msgid "add-algorithm.title"
 msgstr "New preset"
 
@@ -100,6 +104,10 @@ msgstr "Go to the new template"
 #: ../../libs/srs-react/src/lib/templates/add-template.tsx
 msgid "add-template.submit"
 msgstr "Create"
+
+#: ../../libs/srs-react/src/lib/templates/add-template.tsx
+msgid "add-template.success"
+msgstr "Done"
 
 #: ../../libs/srs-react/src/lib/templates/add-template.tsx
 msgid "add-template.title"

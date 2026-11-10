@@ -1,5 +1,4 @@
-import { toFormErrors } from "@koloda/app";
-import { queriesAtom, useWriteMutation } from "@koloda/core-react";
+import { queriesAtom } from "@koloda/core-react";
 import { cloneTemplateSchema as schema } from "@koloda/srs";
 import type { Template } from "@koloda/srs";
 import { Button, CloneIcon, Dialog, Label, Link, link, TextField, useAppForm, useMotionSetting } from "@koloda/ui";
@@ -7,8 +6,7 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { useEntityCreatedLink } from "../components/use-entity-created-link";
+import { useCreateEntityDialog } from "../components/use-create-entity-dialog";
 
 type CloneTemplateProps = { id: Template["id"] };
 
@@ -16,37 +14,19 @@ export function CloneTemplate({ id }: CloneTemplateProps) {
   const { _ } = useLingui();
   const { cloneTemplateMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useWriteMutation(cloneTemplateMutation(), ["templates"]);
-  const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Template["id"]>(isSuccess);
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, listeners, submit, linkRef, newId, isLinkVisible } = useCreateEntityDialog(
+    cloneTemplateMutation(),
+    ["templates"],
+  );
   const form = useAppForm({
     defaultValues: { title: "", sourceId: id },
     validators: { onSubmit: schema },
-    listeners: {
-      onChange: () => {
-        clearNewId();
-      },
-    },
+    listeners,
     onSubmit: async ({ value, formApi }) => {
-      // WHY: await the clone so the form stays submitting until it settles; canSubmit stays
-      // false meanwhile, so a second press cannot clone twice.
-      let returning;
-      try {
-        returning = await mutateAsync(schema.parse(value));
-      } catch (error) {
-        formApi.setErrorMap({ onSubmit: toFormErrors(error) });
-        return;
-      }
-      formApi.reset();
-      handleCreated(returning);
+      await submit(schema.parse(value), formApi);
     },
   });
   const formErrorMap = useStore(form.store, (state) => state.errorMap);
-
-  useEffect(() => {
-    clearNewId();
-    form.reset();
-  }, [isOpen, form, clearNewId]);
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={setIsOpen}>
