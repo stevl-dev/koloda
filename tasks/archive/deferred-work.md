@@ -1,6 +1,6 @@
 # Keep deferred work in one place
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/AUDIT.md, agents/ARCHITECTURE-REVIEW.md, agents/MARKDOWN.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md
 Flow: local
 
@@ -222,3 +222,6 @@ Nothing deferred:
   `schema-baseline`, `sync-attachments`, `sync-backfill`, `sync-engine-core`, `sync-join`, `sync-protocol`,
   `sync-proto-followups`, `sync-server-followups`, `sync-transport`, `sync-unknown-codes`,
   `timestamp-display-formats`, `unlimited-daily-limits`, `web-audit`, `web-sqlite`.
+
+Review: none
+Change rounds: 0
