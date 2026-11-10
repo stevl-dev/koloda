@@ -33,7 +33,12 @@ describe("add_deck query invalidation", () => {
     const store = createStore();
     store.set(aiRuntimeAtom, createRuntime(chat));
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    // A mounted decks list and a deck-usage count that feeds the template delete guard.
+    const decks = queryKeys.decks.all();
+    const templateDecks = queryKeys.templates.decks("template-1");
+    for (const queryKey of [decks, templateDecks]) queryClient.setQueryData(queryKey, []);
+    const areDeckCachesStale = () =>
+      [decks, templateDecks].map((queryKey) => queryClient.getQueryState(queryKey)?.isInvalidated ?? false);
 
     const view = renderHook(() => useAssistantEngineHost(), {
       wrapper: function Wrapper({ children }: PropsWithChildren) {
@@ -45,7 +50,7 @@ describe("add_deck query invalidation", () => {
       },
     });
 
-    return { store, invalidate, unmount: view.unmount };
+    return { store, areDeckCachesStale, unmount: view.unmount };
   }
 
   async function runChat(store: ReturnType<typeof createStore>, seedRun: boolean) {
@@ -69,7 +74,7 @@ describe("add_deck query invalidation", () => {
   }
 
   it("invalidates deck caches only after a recorded add_deck success", async () => {
-    const { store, invalidate, unmount } = mount(async (_profileId, request: ChatStreamRequest) => {
+    const { store, areDeckCachesStale, unmount } = mount(async (_profileId, request: ChatStreamRequest) => {
       const onToolEvent = request.onToolEvent;
       if (!onToolEvent) throw new Error("expected onToolEvent");
       onToolEvent({ kind: "toolCall", call: { id: "list-1", name: "list_decks", input: {} } });
@@ -86,12 +91,7 @@ describe("add_deck query invalidation", () => {
 
     await runChat(store, true);
 
-    expect(invalidate.mock.calls.map((call) => call[0])).toEqual([
-      { queryKey: queryKeys.decks.all() },
-      { queryKey: queryKeys.lessons.all({}) },
-      { queryKey: queryKeys.algorithms.decksAll() },
-      { queryKey: queryKeys.templates.decksAll() },
-    ]);
+    expect(areDeckCachesStale()).toEqual([true, true]);
     unmount();
   });
 
@@ -100,7 +100,7 @@ describe("add_deck query invalidation", () => {
     const isWriting = new Promise<void>((resolve) => {
       markWriting = resolve;
     });
-    const { store, invalidate, unmount } = mount(
+    const { store, areDeckCachesStale, unmount } = mount(
       async (_profileId, request: ChatStreamRequest, _onChunk, abortSignal) => {
         const onToolEvent = request.onToolEvent;
         if (!onToolEvent) throw new Error("expected onToolEvent");
@@ -116,24 +116,19 @@ describe("add_deck query invalidation", () => {
 
     void runChat(store, true);
     await isWriting;
-    expect(invalidate).not.toHaveBeenCalled();
+    expect(areDeckCachesStale()).toEqual([false, false]);
 
     await getAssistantEngine().dispatch({ type: "cancel", conversationId: "conv-1", runId: "run-1" });
 
     await vi.waitFor(() => {
-      expect(invalidate.mock.calls.map((call) => call[0])).toEqual([
-        { queryKey: queryKeys.decks.all() },
-        { queryKey: queryKeys.lessons.all({}) },
-        { queryKey: queryKeys.algorithms.decksAll() },
-        { queryKey: queryKeys.templates.decksAll() },
-      ]);
+      expect(areDeckCachesStale()).toEqual([true, true]);
     });
     expect(store.get(conversationsAtom)["conv-1"]?.runs["run-1"]?.status).toBe("canceled");
     unmount();
   });
 
   it("does not invalidate when the tool result never lands on a run", async () => {
-    const { store, invalidate, unmount } = mount(async (_profileId, request: ChatStreamRequest) => {
+    const { store, areDeckCachesStale, unmount } = mount(async (_profileId, request: ChatStreamRequest) => {
       const onToolEvent = request.onToolEvent;
       if (!onToolEvent) throw new Error("expected onToolEvent");
       onToolEvent({ kind: "toolCall", call: { id: "add-ok", name: "add_deck", input: { title: "Spanish" } } });
@@ -146,7 +141,7 @@ describe("add_deck query invalidation", () => {
 
     await runChat(store, false);
 
-    expect(invalidate).not.toHaveBeenCalled();
+    expect(areDeckCachesStale()).toEqual([false, false]);
     unmount();
   });
 });

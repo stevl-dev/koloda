@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { fetchedAttachmentsAtom, queryKeys } from "@koloda/core-react";
+import { DATA_KIND_QUERY_KEYS, fetchedAttachmentsAtom, queryKeys } from "@koloda/core-react";
 import { QueryClient } from "@tanstack/react-query";
 import type { QueryKey } from "@tanstack/react-query";
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import { applySyncEvent, SYNC_KIND_QUERY_KEYS } from "./sync-events";
+import { applySyncEvent } from "./sync-events";
 
 // WHY: the kinds come from the Rust registry, parsed at test time like `libs/app` error parity,
 // so a kind added there fails here until its rows refresh the screens that show them.
@@ -37,7 +37,7 @@ function isInvalidated(queryClient: QueryClient, queryKey: QueryKey) {
 describe("applySyncEvent", () => {
   it("knows every kind the engine syncs", () => {
     expect(registryKinds()).not.toHaveLength(0);
-    expect(Object.keys(SYNC_KIND_QUERY_KEYS).sort()).toEqual(registryKinds().sort());
+    expect(Object.keys(DATA_KIND_QUERY_KEYS).sort()).toEqual(registryKinds().sort());
   });
 
   it("refreshes the screens that show a changed kind and leaves the others", () => {

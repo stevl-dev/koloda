@@ -12,6 +12,8 @@ export {
   schemeAtom,
   timeFormatAtom,
 } from "./lib/atoms";
+export { DATA_KIND_QUERY_KEYS, refreshKinds } from "./lib/cache-refresh";
+export type { DataKind } from "./lib/cache-refresh";
 export { useAppHotkey } from "./lib/hooks/use-app-hotkey";
 export { useHotkeysSettings } from "./lib/hooks/use-hotkeys-settings";
 export { hotkeysScopesAtom, useHotkeyScope } from "./lib/hooks/use-hotkeys-status";

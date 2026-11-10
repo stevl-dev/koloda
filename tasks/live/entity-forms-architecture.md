@@ -134,7 +134,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
 
 ## Plan
 
-- [ ] 1. Refresh by changed kind from one table in core-react
+- [x] 1. Refresh by changed kind from one table in core-react
   Goal: Move the kind table from `apps/electron-react/src/app/sync-events.ts` to a new
   `libs/core-react/src/lib/cache-refresh.ts`.
   It exports a `DataKind` union, the table `DATA_KIND_QUERY_KEYS: Record<DataKind, readonly QueryKey[]>`,

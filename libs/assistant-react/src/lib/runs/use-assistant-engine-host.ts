@@ -2,7 +2,7 @@ import { registerAddDeckQueryInvalidator } from "./add-deck-query-invalidation";
 import { ensureAssistantEngine } from "./assistant-engine-instance";
 import type { AssistantJotaiStore } from "./assistant-engine-instance";
 import { SHUTDOWN_FLUSH_TIMEOUT_MS } from "@koloda/assistant";
-import { invalidateDeckQueriesAfterAddDeck } from "@koloda/core-react";
+import { refreshKinds } from "@koloda/core-react";
 import {
   conversationsAtom,
   dispatchToConversationOnStore,
@@ -60,7 +60,7 @@ export function useAssistantEngineHost(): void {
   });
   useLayoutEffect(() => {
     return registerAddDeckQueryInvalidator(() => {
-      invalidateDeckQueriesAfterAddDeck(queryClientRef.current);
+      refreshKinds(queryClientRef.current, ["decks"]);
     });
   }, []);
 

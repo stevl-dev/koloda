@@ -401,9 +401,14 @@ describe("useLessonSession", () => {
     expect(getLessonData).toHaveBeenCalledTimes(2);
   });
 
-  it("invalidates lesson queries from the explicit close path", async () => {
+  it("marks what a lesson's grades changed stale on close", async () => {
     const { store, queryClient, Wrapper } = createWrapper();
-    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+    // Screens under the lesson dialog: a deck's cards, one card's reviews, and a list no grade touches.
+    const deckCards = queryKeys.cards.deck({ deckId: testId(7) });
+    const cardReviews = queryKeys.reviews.card({ cardId: testId(1) });
+    const decks = queryKeys.decks.all();
+    for (const queryKey of [deckCards, cardReviews, decks]) queryClient.setQueryData(queryKey, []);
+    const isStale = (queryKey: readonly unknown[]) => queryClient.getQueryState(queryKey)?.isInvalidated;
     const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
 
     act(() => {
@@ -418,9 +423,11 @@ describe("useLessonSession", () => {
     });
 
     expect(store.get(lessonStateAtom).phase).toBe("closed");
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.all({ deckIds: [testId(7)] }) });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.all() });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.lessons.todayReviewTotals() });
+    expect(isStale(queryKeys.lessons.all({ deckIds: [testId(7)] }))).toBe(true);
+    expect(isStale(queryKeys.lessons.todayReviewTotals())).toBe(true);
+    expect(isStale(deckCards)).toBe(true);
+    expect(isStale(cardReviews)).toBe(true);
+    expect(isStale(decks)).toBe(false);
   });
 
   it("holds navigation off and grades on while open, and gives navigation back on close", async () => {
