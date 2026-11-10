@@ -1,6 +1,6 @@
 # Entity forms: one refresh table, one submit shape
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/specs/CARDS.md, docs/specs/SYNC.md
 Flow: local
 
@@ -125,13 +125,12 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
 
 ## Open questions
 
-- [ ] `task/mobile-spike` (draft, local) overlaps: its item 7 copies the table in
+- [x] `task/mobile-spike` (draft, local) overlaps: its item 7 copies the table in
   `apps/electron-react/src/app/sync-events.ts` into the mobile app.
-  If this task lands first, the spike imports the table from `@koloda/core-react` and needs no copy.
-  Which lands first? — open
-- [ ] Item 3 broadens refresh.
+  Which lands first? — ignore the spike; this task does not wait for it or adapt to it.
+- [x] Item 3 broadens refresh.
   The cards table is where a refetch replaces row identities, since card rows carry `Date` fields.
-  Is the Manual verify of item 3 enough, or does the human want a measured check first? — open
+  Is the Manual verify of item 3 enough, or does the human want a measured check first? — the Manual verify is enough.
 
 ## Plan
 
