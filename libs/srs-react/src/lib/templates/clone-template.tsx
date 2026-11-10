@@ -1,12 +1,11 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import { cloneTemplateSchema as schema } from "@koloda/srs";
 import type { Template } from "@koloda/srs";
 import { Button, CloneIcon, Dialog, Label, Link, link, TextField, useAppForm, useMotionSetting } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useEntityCreatedLink } from "../components/use-entity-created-link";
@@ -14,11 +13,10 @@ import { useEntityCreatedLink } from "../components/use-entity-created-link";
 type CloneTemplateProps = { id: Template["id"] };
 
 export function CloneTemplate({ id }: CloneTemplateProps) {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { cloneTemplateMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useMutation(cloneTemplateMutation());
+  const { mutateAsync, isSuccess } = useWriteMutation(cloneTemplateMutation(), ["templates"]);
   const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Template["id"]>(isSuccess);
   const [isOpen, setIsOpen] = useState(false);
   const form = useAppForm({
@@ -41,7 +39,6 @@ export function CloneTemplate({ id }: CloneTemplateProps) {
       }
       formApi.reset();
       handleCreated(returning);
-      queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
     },
   });
   const formErrorMap = useStore(form.store, (state) => state.errorMap);

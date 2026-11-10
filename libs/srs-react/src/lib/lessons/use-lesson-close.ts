@@ -17,7 +17,7 @@ export function useLessonClose(): UseLessonCloseResult {
   const closeLesson = useCallback(() => {
     closeLessonState();
     // WHY: grades are written while the lesson is open and refreshed here, once. A refresh per grade would
-    // refetch the lesson list and the cards table under the open lesson.
+    // refetch the lesson list and the cards table under the open lesson (docs/decisions/CACHE-REFRESH.md).
     refreshKinds(queryClient, ["cards", "reviews"]);
   }, [closeLessonState, queryClient]);
 

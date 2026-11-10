@@ -1,11 +1,11 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
 import { defaultAlgorithmAtom } from "@koloda/core-react";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Algorithm } from "@koloda/srs";
 import { DeleteDialog, ErrorMessage, Fade, Select, Tooltip } from "@koloda/ui";
 import { msg, plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
@@ -21,7 +21,8 @@ export function DeleteAlgorithm({ id }: DeleteAlgorithmProps) {
   const { getAlgorithmsQuery, getAlgorithmDecksQuery, deleteAlgorithmMutation } = useAtomValue(queriesAtom);
   const { data: algorithms } = useQuery(getAlgorithmsQuery());
   const { data: decks } = useQuery(getAlgorithmDecksQuery(id));
-  const { mutate, reset, error } = useMutation(deleteAlgorithmMutation());
+  // WHY: a successor delete rewrites decks.algorithm_id in the database.
+  const { mutate, reset, error } = useWriteMutation(deleteAlgorithmMutation(), ["algorithms", "decks"]);
   const [successorId, setSuccessorId] = useState<Algorithm["id"] | null>(null);
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -33,13 +34,7 @@ export function DeleteAlgorithm({ id }: DeleteAlgorithmProps) {
       { id, successorId: successorId ?? filteredAlgorithms?.[0]?.id },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.all() });
           queryClient.removeQueries({ queryKey: queryKeys.algorithms.detail(id) });
-          // WHY: a successor delete rewrites decks.algorithm_id in the database.
-          // The deck list and preset deck-counts stay stale for staleTime unless
-          // these queries are invalidated here.
-          queryClient.invalidateQueries({ queryKey: queryKeys.decks.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.decksAll() });
           navigate({ to: "/algorithms" });
         },
       },

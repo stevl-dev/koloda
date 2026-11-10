@@ -55,7 +55,8 @@ describe("DeleteAlgorithm", () => {
     store.set(queriesAtom, buildQueries());
     store.set(defaultAlgorithmAtom, testId(3));
     const queryClient = createQueryClient();
-    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    // The decks list, which shows each deck's preset and so the successor after the delete.
+    queryClient.setQueryData(queryKeys.decks.all(), []);
 
     function Wrapper({ children }: PropsWithChildren) {
       return (
@@ -73,9 +74,8 @@ describe("DeleteAlgorithm", () => {
     fireEvent.click(screen.getByRole("button", { name: "delete-algorithm.confirm" }));
 
     await waitFor(() => {
-      expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.decks.all() });
+      expect(queryClient.getQueryState(queryKeys.decks.all())?.isInvalidated).toBe(true);
     });
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.algorithms.decksAll() });
     expect(navigate).toHaveBeenCalledWith({ to: "/algorithms" });
   });
 });

@@ -1,11 +1,11 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Deck, UpdateDeckValues } from "@koloda/srs";
 import { updateDeckSchema as schema } from "@koloda/srs";
 import { FormLayout, formLayout, Label, TextField, useAppForm, useRefreshPristineFields } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AlgorithmPicker } from "../algorithms/algorithm-picker";
 import { TemplatePicker } from "../templates/template-picker";
@@ -21,7 +21,7 @@ export function DeckDetails({ id }: DeckDetailsProps) {
   const { _ } = useLingui();
   const { getDeckQuery, updateDeckMutation } = useAtomValue(queriesAtom);
   const { data } = useQuery(getDeckQuery(id));
-  const { mutate } = useMutation(updateDeckMutation());
+  const { mutate } = useWriteMutation(updateDeckMutation(), ["decks"]);
   const form = useAppForm({
     defaultValues: data as UpdateDeckValues,
     validators: { onSubmit: schema },
@@ -30,12 +30,6 @@ export function DeckDetails({ id }: DeckDetailsProps) {
         { id, values: schema.parse(value) },
         {
           onSuccess: (returning) => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.decks.all() });
-            // WHY: the Dashboard's lesson rows carry the deck title.
-            queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-            // WHY: deck usage counts feed the delete guards on presets and templates.
-            queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.decksAll() });
-            queryClient.invalidateQueries({ queryKey: queryKeys.templates.decksAll() });
             queryClient.setQueryData(queryKeys.decks.detail(id), returning);
             // WHY: reset must receive the saved values — a bare reset() restores the original
             // defaults, so Discard would revert to those instead of the last save.

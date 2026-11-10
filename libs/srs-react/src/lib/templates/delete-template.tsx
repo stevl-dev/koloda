@@ -1,11 +1,11 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
 import { defaultTemplateAtom } from "@koloda/core-react";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Template } from "@koloda/srs";
 import { DeleteDialog, ErrorMessage, Fade, Tooltip } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
@@ -22,7 +22,7 @@ export function DeleteTemplate({ id, isLocked }: DeleteTemplateProps) {
   const defaultTemplate = useAtomValue(defaultTemplateAtom);
   const { deleteTemplateMutation, getTemplateDecksQuery } = useAtomValue(queriesAtom);
   const { data } = useQuery(getTemplateDecksQuery(id));
-  const { mutate, error, reset } = useMutation(deleteTemplateMutation());
+  const { mutate, error, reset } = useWriteMutation(deleteTemplateMutation(), ["templates"]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) reset();
@@ -33,7 +33,6 @@ export function DeleteTemplate({ id, isLocked }: DeleteTemplateProps) {
       { id },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
           queryClient.removeQueries({ queryKey: queryKeys.templates.detail(id) });
           navigate({ to: "/templates" });
         },

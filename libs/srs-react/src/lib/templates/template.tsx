@@ -1,5 +1,5 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Template as TemplateType, UpdateTemplateValues } from "@koloda/srs";
 import { updateTemplateSchema as schema } from "@koloda/srs";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { CloneTemplate } from "./clone-template";
 import { DeleteTemplate } from "./delete-template";
@@ -33,7 +33,7 @@ export function Template({ id }: TemplateProps) {
   const { _ } = useLingui();
   const { getTemplateQuery, updateTemplateMutation } = useAtomValue(queriesAtom);
   const { data, isSuccess } = useQuery(getTemplateQuery(id));
-  const { mutate } = useMutation(updateTemplateMutation());
+  const { mutate } = useWriteMutation(updateTemplateMutation(), ["templates"]);
   const form = useAppForm({
     defaultValues: data as UpdateTemplateValues,
     validators: { onSubmit: schema },
@@ -42,7 +42,6 @@ export function Template({ id }: TemplateProps) {
         { id, values: schema.parse(value) },
         {
           onSuccess: (returning) => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
             queryClient.setQueryData(queryKeys.templates.detail(id), returning);
             formApi.reset(returning);
           },

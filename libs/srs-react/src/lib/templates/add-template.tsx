@@ -1,5 +1,5 @@
 import { generateUuidv7, toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import { DEFAULT_TEMPLATE, insertTemplateSchema as schema, translateDefaultTemplateContent } from "@koloda/srs";
 import type { InsertTemplateData, Template } from "@koloda/srs";
 import {
@@ -17,17 +17,15 @@ import {
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useEntityCreatedLink } from "../components/use-entity-created-link";
 
 export function AddTemplate() {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { addTemplateMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useMutation(addTemplateMutation());
+  const { mutateAsync, isSuccess } = useWriteMutation(addTemplateMutation(), ["templates"]);
   const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Template["id"]>(isSuccess);
   const [isOpen, setIsOpen] = useState(false);
   const form = useAppForm({
@@ -59,7 +57,6 @@ export function AddTemplate() {
       }
       formApi.reset();
       handleCreated(returning);
-      queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
     },
   });
 

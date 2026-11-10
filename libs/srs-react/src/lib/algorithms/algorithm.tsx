@@ -1,5 +1,5 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Algorithm as AlgorithmType, UpdateAlgorithmValues } from "@koloda/srs";
 import { updateAlgorithmSchema as schema } from "@koloda/srs";
 import { NotFound } from "@koloda/ui";
@@ -16,7 +16,7 @@ import {
 } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AlgorithmLearningSteps, WHOLE_NUMBER_FORMAT } from "./algorithm-learning-steps";
 import { CloneAlgorithm } from "./clone-algorithm";
@@ -33,7 +33,7 @@ export function Algorithm({ id }: AlgorithmProps) {
   const { _ } = useLingui();
   const { getAlgorithmQuery, updateAlgorithmMutation } = useAtomValue(queriesAtom);
   const { data, isSuccess } = useQuery(getAlgorithmQuery(id));
-  const { mutate } = useMutation(updateAlgorithmMutation());
+  const { mutate } = useWriteMutation(updateAlgorithmMutation(), ["algorithms"]);
   const form = useAppForm({
     defaultValues: data as UpdateAlgorithmValues,
     validators: { onSubmit: schema },
@@ -42,7 +42,6 @@ export function Algorithm({ id }: AlgorithmProps) {
         { id, values: schema.parse(value) },
         {
           onSuccess: (returning) => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.all() });
             queryClient.setQueryData(queryKeys.algorithms.detail(id), returning);
             formApi.reset(returning);
           },

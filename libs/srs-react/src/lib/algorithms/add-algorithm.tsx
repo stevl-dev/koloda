@@ -1,5 +1,5 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import { DEFAULT_FSRS_ALGORITHM, insertAlgorithmSchema as schema } from "@koloda/srs";
 import type { Algorithm } from "@koloda/srs";
 import {
@@ -17,17 +17,15 @@ import {
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useEntityCreatedLink } from "../components/use-entity-created-link";
 
 export function AddAlgorithm() {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { addAlgorithmMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useMutation(addAlgorithmMutation());
+  const { mutateAsync, isSuccess } = useWriteMutation(addAlgorithmMutation(), ["algorithms"]);
   const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Algorithm["id"]>(isSuccess);
   const [isOpen, setIsOpen] = useState(false);
   const form = useAppForm({
@@ -50,7 +48,6 @@ export function AddAlgorithm() {
       }
       formApi.reset();
       handleCreated(returning);
-      queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.all() });
     },
   });
 

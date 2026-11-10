@@ -1,10 +1,5 @@
 import { toFormErrors } from "@koloda/app";
-import {
-  defaultAlgorithmAtom,
-  defaultTemplateAtom,
-  invalidateDeckQueriesAfterAddDeck,
-  queriesAtom,
-} from "@koloda/core-react";
+import { defaultAlgorithmAtom, defaultTemplateAtom, queriesAtom, useWriteMutation } from "@koloda/core-react";
 import { insertDeckSchema as schema } from "@koloda/srs";
 import type { Deck, InsertDeckData } from "@koloda/srs";
 import {
@@ -22,7 +17,6 @@ import {
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { AlgorithmPicker } from "../algorithms/algorithm-picker";
@@ -30,13 +24,12 @@ import { TemplatePicker } from "../templates/template-picker";
 import { useEntityCreatedLink } from "../components/use-entity-created-link";
 
 export function AddDeck() {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { addDeckMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
   const defaultAlgorithm = useAtomValue(defaultAlgorithmAtom);
   const defaultTemplate = useAtomValue(defaultTemplateAtom);
-  const { mutateAsync, isSuccess } = useMutation(addDeckMutation());
+  const { mutateAsync, isSuccess } = useWriteMutation(addDeckMutation(), ["decks"]);
   const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Deck["id"]>(isSuccess);
   const [isOpen, setIsOpen] = useState(false);
   const form = useAppForm({
@@ -59,7 +52,6 @@ export function AddDeck() {
       }
       formApi.reset();
       handleCreated(returning);
-      invalidateDeckQueriesAfterAddDeck(queryClient);
     },
   });
   const formErrorMap = useStore(form.store, (state) => state.errorMap);

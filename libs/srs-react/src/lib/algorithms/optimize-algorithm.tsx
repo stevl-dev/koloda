@@ -1,11 +1,11 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { optimizerQueriesAtom, queryKeys, useNumberFormatter } from "@koloda/core-react";
+import { optimizerQueriesAtom, queryKeys, useNumberFormatter, useWriteMutation } from "@koloda/core-react";
 import type { OptimizationProgress, OptimizerQueries } from "@koloda/core-react";
 import type { Algorithm, AlgorithmFitScores, AlgorithmOptimization } from "@koloda/srs";
 import { BrainIcon, Button, Dialog, ErrorMessage } from "@koloda/ui";
 import { msg, plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { progressBarTrack } from "../components/progress-bar-track";
@@ -35,7 +35,7 @@ type OptimizeAlgorithmDialogProps = OptimizeAlgorithmProps & { optimizer: Optimi
 function OptimizeAlgorithmDialog({ id, isDisabled, onApplied, optimizer }: OptimizeAlgorithmDialogProps) {
   const queryClient = useQueryClient();
   const { _ } = useLingui();
-  const { mutate, isPending } = useMutation(optimizer.applyOptimizationMutation());
+  const { mutate, isPending } = useWriteMutation(optimizer.applyOptimizationMutation(), ["algorithms"]);
   const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState<OptimizationState>({ phase: "running", progress: null });
   const runRef = useRef<AbortController | null>(null);
@@ -81,7 +81,6 @@ function OptimizeAlgorithmDialog({ id, isDisabled, onApplied, optimizer }: Optim
       { id, basedOn, weights },
       {
         onSuccess: (returning) => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.all() });
           queryClient.setQueryData(queryKeys.algorithms.detail(id), returning);
           onApplied(returning);
           handleOpenChange(false);

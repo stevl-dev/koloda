@@ -173,9 +173,10 @@ Follow `add_deck`:
   or a missing default algorithm fails the call and does not create a deck.
 - When the caller omits the algorithm, store `getDefaultAlgorithmId()`, the same default as manual deck create.
 - Do not map the result onto run cards or write targets.
-- On recorded success, invalidate the same query keys as the hand-created mutation.
-- `add_deck` does that in `invalidateDeckQueriesAfterAddDeck` (`add-deck-query-invalidation.ts`),
-  called from `useAssistantEngineHost` after the reducer records the tool result.
+- On recorded success, refresh the kinds the write changed, as the hand-created mutation does
+  (`docs/decisions/CACHE-REFRESH.md`).
+- `add_deck` does that with `refreshKinds` in `useAssistantEngineHost`,
+  registered through `add-deck-query-invalidation.ts` and called after the reducer records the tool result.
 - Host binders and `libs/ai` have no `QueryClient` — Electron runs the write in the main process.
 - Activity row shows the translated label and, on success, the created title.
 

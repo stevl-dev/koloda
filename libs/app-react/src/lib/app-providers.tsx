@@ -56,7 +56,7 @@ export function AppProviders({ store, basepath, history, activateLanguage, getLa
             retry: false,
             // WHY: all data lives in a local database and changes only through
             // explicit mutations or, on the desktop, sync, and both invalidate the
-            // affected queries (sync per kind, `libs/core-react` `cache-refresh.ts`). Without
+            // affected queries per changed kind (docs/decisions/CACHE-REFRESH.md). Without
             // a staleTime every (re)mounting observer considers data stale and
             // refetches, replacing cached object identities and triggering
             // re-render cascades across consumers of the same query.

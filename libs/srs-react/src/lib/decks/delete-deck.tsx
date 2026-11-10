@@ -1,10 +1,10 @@
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, queryKeys, useWriteMutation } from "@koloda/core-react";
 import type { Deck } from "@koloda/srs";
 import { DeleteDialog, ErrorMessage, Fade } from "@koloda/ui";
 import { msg, plural } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
@@ -16,7 +16,8 @@ export function DeleteDeck({ id }: DeleteDeckProps) {
   const { _ } = useLingui();
   const navigate = useNavigate({ from: "/decks/$deckId" });
   const { deleteDeckMutation, getCardsQuery } = useAtomValue(queriesAtom);
-  const { mutate, error, reset } = useMutation(deleteDeckMutation());
+  // WHY: deleting the deck deletes its cards and their reviews.
+  const { mutate, error, reset } = useWriteMutation(deleteDeckMutation(), ["decks", "cards", "reviews"]);
   const { data: cards } = useQuery(getCardsQuery({ deckId: id }));
   const cardCount = cards?.length ?? 0;
 
@@ -29,14 +30,6 @@ export function DeleteDeck({ id }: DeleteDeckProps) {
       { id },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: queryKeys.decks.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
-          // WHY: deck usage counts feed the delete guards on presets and templates.
-          queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.decksAll() });
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.decksAll() });
-          // WHY: deleting the deck deletes its cards, which can unlock their templates.
-          queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() });
           queryClient.removeQueries({ queryKey: queryKeys.decks.detail(id) });
           navigate({ to: "/decks" });
         },

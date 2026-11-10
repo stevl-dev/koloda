@@ -2,14 +2,14 @@ import { parseTime } from "@internationalized/date";
 import { timeFieldFormatOptions, toFormErrors } from "@koloda/app";
 import { resolvedLearningSettingsValidation } from "@koloda/app";
 import type { ResolvedLearningSettings } from "@koloda/app";
-import { queriesAtom, queryKeys, timeFormatAtom } from "@koloda/core-react";
+import { queriesAtom, queryKeys, timeFormatAtom, useWriteMutation } from "@koloda/core-react";
 import { AlgorithmPicker } from "@koloda/srs-react";
 import { TemplatePicker } from "@koloda/srs-react";
 import { formLayout, Label, NumberField, Switch, TimeField, useAppForm, useRefreshPristineFields } from "@koloda/ui";
 import { FormLayout } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useRef } from "react";
 
@@ -90,7 +90,7 @@ export function SettingsLearning({ data }: SettingsLearningProps) {
   const { setSettingsMutation } = useAtomValue(queriesAtom);
   const timeFormat = useAtomValue(timeFormatAtom);
   const timeFieldOptions = timeFieldFormatOptions(timeFormat);
-  const { mutate } = useMutation(setSettingsMutation<"learning">());
+  const { mutate } = useWriteMutation(setSettingsMutation<"learning">(), ["settings.learning"]);
 
   const form = useAppForm({
     defaultValues: data,
@@ -100,10 +100,6 @@ export function SettingsLearning({ data }: SettingsLearningProps) {
         { name: "learning", content: value },
         {
           onSuccess: (returning) => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.settings.detail("learning") });
-            // WHY: today's totals carry the daily limits and the learning-day window; the desktop sync
-            // `settings.learning` entry refreshes them too (apps/electron-react/src/app/sync-events.ts).
-            queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
             queryClient.setQueryData(queryKeys.settings.detail("learning"), returning);
             // WHY: reset must receive the saved values; a bare reset() restores the values from before the save.
             formApi.reset(value);

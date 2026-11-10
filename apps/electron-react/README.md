@@ -30,7 +30,7 @@ Normally booted by `nx run @koloda/electron:serve`.
 - Sync: `src/app/sync-queries.ts` — the sync queries; the status query starts the engine (`createSyncStart`).
   `src/app/use-sync-engine.ts` provides the starter once the database status is known, prefetches the status, and
   nudges the engine on focus and when the network returns; `src/app/sync-events.ts` refreshes the queries each synced
-  kind feeds.
+  kind feeds, through the kind table in `@koloda/core-react` (`docs/decisions/CACHE-REFRESH.md`).
 - Queries: `src/app/queries.ts` — the `Queries` contract as `cmd_*` invokes against the Rust core.
 - Attachment bytes: `src/app/base64.ts` — base64 encoding for attachment bytes over IPC, in bounded chunks.
 - Optimizer: `src/app/optimizer-queries.ts` — FSRS optimization runs with progress and cancel, set as

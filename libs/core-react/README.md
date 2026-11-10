@@ -20,7 +20,8 @@ Web implements `Queries` with `@koloda/db-sqlite`; desktop implements it via Ele
 - Query keys: `query-keys.ts` — centralized key builders, their invalidation prefixes, and `AppStatus`;
   `cache-refresh.ts` — `DataKind`, the table from a changed kind to the query prefixes that read it, and
   `refreshKinds`, which desktop sync, the lesson close, and the assistant call;
-  `invalidate-deck-queries.ts` — the refresh after a deck is added in the add dialog.
+  `hooks/use-write-mutation.ts` — `useWriteMutation`, a mutation that refreshes its kinds when it succeeds
+  (`docs/decisions/CACHE-REFRESH.md`).
 - Atoms: `atoms.ts` — scheme, themes, date and time formats, language, default algorithm and template,
   `aiProvidersAtom`, `appEntryAtom`;
   `ai-runtime.ts` — `aiRuntimeAtom` (host-injected `AIRuntime`; the AIRuntime seam);

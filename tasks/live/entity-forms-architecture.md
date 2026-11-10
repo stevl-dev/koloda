@@ -188,7 +188,7 @@ Evidence is as of `99e4fdf2` unless a line says otherwise.
   Commit: Refresh after card writes from the write itself
   Depends on: 1
 
-- [ ] 3. Refresh after deck, template, algorithm, and learning settings writes from the write itself
+- [x] 3. Refresh after deck, template, algorithm, and learning settings writes from the write itself
   Goal: Move the remaining write sites onto `useWriteMutation` and delete their key lists:
   - add, clone, and edit algorithm, and apply optimization (`optimize-algorithm.tsx`): `["algorithms"]`;
   - delete algorithm: `["algorithms", "decks"]`, since a successor reassigns decks;

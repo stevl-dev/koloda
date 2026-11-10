@@ -1,12 +1,11 @@
 import { toFormErrors } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { queriesAtom, useWriteMutation } from "@koloda/core-react";
 import { cloneAlgorithmSchema as schema } from "@koloda/srs";
 import type { Algorithm } from "@koloda/srs";
 import { Button, CloneIcon, Dialog, Label, Link, link, TextField, useAppForm, useMotionSetting } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useStore } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useEntityCreatedLink } from "../components/use-entity-created-link";
@@ -14,11 +13,10 @@ import { useEntityCreatedLink } from "../components/use-entity-created-link";
 type CloneAlgorithmProps = { id: Algorithm["id"] };
 
 export function CloneAlgorithm({ id }: CloneAlgorithmProps) {
-  const queryClient = useQueryClient();
   const { _ } = useLingui();
   const { cloneAlgorithmMutation } = useAtomValue(queriesAtom);
   const isMotionOn = useMotionSetting();
-  const { mutateAsync, isSuccess } = useMutation(cloneAlgorithmMutation());
+  const { mutateAsync, isSuccess } = useWriteMutation(cloneAlgorithmMutation(), ["algorithms"]);
   const { linkRef, newId, clearNewId, handleCreated, isLinkVisible } = useEntityCreatedLink<Algorithm["id"]>(isSuccess);
   const [isOpen, setIsOpen] = useState(false);
   const form = useAppForm({
@@ -41,7 +39,6 @@ export function CloneAlgorithm({ id }: CloneAlgorithmProps) {
       }
       formApi.reset();
       handleCreated(returning);
-      queryClient.invalidateQueries({ queryKey: queryKeys.algorithms.all() });
     },
   });
   const formErrorMap = useStore(form.store, (state) => state.errorMap);
