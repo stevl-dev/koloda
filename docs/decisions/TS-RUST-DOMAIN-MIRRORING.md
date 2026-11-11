@@ -40,7 +40,8 @@ Fitting FSRS weights is that decision: `docs/decisions/FSRS-OPTIMIZER.md`.
 ### Rule cases
 
 - A rule that both sides enforce has its boundary cases in one JSON file under `crates/koloda/tests/cases/`.
-- Each case is an input and the expected result: accepted, or the error code.
+- Each case is an input and the expected result.
+  The result shapes are in `crates/koloda/tests/cases/README.md`.
 - Vitest and `cargo test` both read the file.
   Neither side keeps its own copy of a shared row.
 - A case the sides answer differently on purpose carries both answers and names the accepted divergence.

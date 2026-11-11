@@ -155,6 +155,12 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
 - [x] `task/mobile-spike` (draft, local) edits §Persistence owners of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`;
   this task adds two other sections to the same file.
   Which lands first? — ignore the spike; this task does not wait for it or adapt to it.
+- [ ] A negative or fractional daily limit fails Zod with its built-in message
+  ("Too small: expected number to be >=0", "Invalid input: expected int, received number"),
+  not a `validation.settings-learning.*` code as the learn-ahead parts do.
+  Should those checks carry a code, so a form never shows untranslated text? — open
+  Seen at `abfa2d66` on both `learningSettingsValidation` and `resolvedLearningSettingsValidation`
+  (`libs/app/src/lib/settings-learning.ts`); product code is out of this task's scope.
 
 ## Plan
 
@@ -385,4 +391,21 @@ Items 10 to 13 answer the review of items 1 to 9.
   Commit: Move the negative learning limits onto shared cases
   Depends on: 7
 
+- [x] 13. Point the rule cases ruling at the result shapes
+  Goal: §Rule cases of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` says a result is "accepted, or the error code".
+  The readers also know `{ "allowed": ... }` and the code-less `{ "accepted": false }`.
+  Replace that bullet's list with a pointer to `crates/koloda/tests/cases/README.md`, which holds every shape.
+  Constraints: Markdown only.
+  Done when: `bun run check:docs` passes.
+  Commit: Point the rule cases ruling at the result shapes
+  Depends on: 2
+
 ## Outcome
+
+The case files differ from the shape item 2 planned.
+A file is a list of `{ "rule", "cases" }` tables, not one table, so one file can hold several rules of an entity.
+`{ "accepted": false }` was added for a payload serde refuses before `validate()` runs.
+`crates/koloda/tests/cases/README.md` documents both.
+
+Review: nit 3 (TESTING §Repetition and tables, TS-RUST-DOMAIN-MIRRORING §Rule cases, DECISIONS §Rules)
+Change rounds: 1
