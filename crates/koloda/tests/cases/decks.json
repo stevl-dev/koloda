@@ -1,0 +1,49 @@
+[
+  {
+    "rule": "references",
+    "cases": [
+      {
+        "name": "well-formed ids",
+        "input": {
+          "algorithmId": "01900000-0000-7000-8000-0000000f423f",
+          "templateId": "01900000-0000-7000-8000-0000000f4240"
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "nil and max uuid literals",
+        "input": {
+          "algorithmId": "00000000-0000-0000-0000-000000000000",
+          "templateId": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "malformed algorithmId",
+        "input": { "algorithmId": "not-a-uuid" },
+        "expect": { "code": "validation.decks.algorithm" }
+      },
+      {
+        "name": "non-uuid templateId",
+        "input": { "templateId": "simple" },
+        "expect": { "code": "validation.decks.template" }
+      },
+      {
+        "name": "hyphenless algorithmId",
+        "input": { "algorithmId": "01900000000070008000000000000001" },
+        "expect": { "code": "validation.decks.algorithm" }
+      },
+      { "name": "empty templateId", "input": { "templateId": "" }, "expect": { "code": "validation.decks.template" } },
+      {
+        "name": "version-0 algorithmId",
+        "input": { "algorithmId": "01a08376-dc00-0001-8000-000000000100" },
+        "expect": { "code": "validation.decks.algorithm" }
+      },
+      {
+        "name": "variant-0 templateId",
+        "input": { "templateId": "01a08376-dc00-7001-0000-000000000100" },
+        "expect": { "code": "validation.decks.template" }
+      }
+    ]
+  }
+]

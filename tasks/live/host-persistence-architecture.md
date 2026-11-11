@@ -226,7 +226,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Hold the title and notes rules with one shared case table
   Depends on: none
 
-- [ ] 3. Move the deck reference rules onto shared cases
+- [x] 3. Move the deck reference rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/decks.json` in the shape item 2 defines.
   It holds the rows of the TS `deckValidation references` table (`libs/srs/src/lib/decks.test.ts:10`) and of
   `test_deck_malformed_ids_fail_with_dedicated_codes` (`crates/koloda/tests/domain/decks_validation_tests.rs:29`):
