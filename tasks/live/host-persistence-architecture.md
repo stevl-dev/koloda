@@ -312,7 +312,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the learning settings rules onto shared cases
   Depends on: 2
 
-- [ ] 8. Move the interface settings rules onto shared cases
+- [x] 8. Move the interface settings rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/settings-interface.json`.
   It holds the reject table of `libs/app/src/lib/settings-interface.test.ts:38-61` and the accept table at `:63-74`,
   with their Rust twins in `crates/koloda/tests/domain/settings_interface_tests.rs`:

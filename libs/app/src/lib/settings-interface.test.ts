@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getLanguageCode, interfaceSettingsValidation } from "./settings-interface";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
 describe("interfaceSettingsValidation", () => {
   it("provides defaults when parsing an empty object", () => {
@@ -35,42 +36,11 @@ describe("interfaceSettingsValidation", () => {
     });
   });
 
-  // WHY: enum fields pin against loosening to z.string(); the pattern fields pin the four
-  // structural rejects (empty, unescaped letter, over-cap, literal-only) that the Rust
-  // mirror enforces with the same codes, so every rejection row has a twin in
-  // `crates/koloda/tests/domain/settings_interface_tests.rs`.
-  const OVER_LONG_PATTERN = "y".repeat(65);
-  it.each([
-    ["language", "fr", "validation.settings-interface.language"],
-    ["scheme", "blue", "validation.settings-interface.scheme"],
-    ["lightTheme", "solarized", "validation.settings-interface.light-theme"],
-    ["darkTheme", "solarized", "validation.settings-interface.dark-theme"],
-    ["motion", "slow", "validation.settings-interface.motion"],
-    ["dateFormat", "", "validation.settings-interface.date-format"],
-    ["dateFormat", "hello", "validation.settings-interface.date-format"],
-    ["dateFormat", OVER_LONG_PATTERN, "validation.settings-interface.date-format"],
-    ["dateFormat", "'noon'", "validation.settings-interface.date-format"],
-    ["timeFormat", "", "validation.settings-interface.time-format"],
-    ["timeFormat", "hello", "validation.settings-interface.time-format"],
-    ["timeFormat", OVER_LONG_PATTERN, "validation.settings-interface.time-format"],
-    ["timeFormat", "'noon'", "validation.settings-interface.time-format"],
-  ] as const)("rejects invalid %s with %s", (field, value, code) => {
-    const result = interfaceSettingsValidation.safeParse({ [field]: value });
-    expect(result.success, `${field} must reject ${value}`).toBe(false);
-    expect(result.error?.issues[0]?.message).toBe(code);
-  });
-
-  // WHY: the accept twin of the reject rows (Rust: `test_timestamp_patterns_accepted`) — quoted text, an escaped
-  // quote, an unclosed quote that runs to the end (INTERFACE-SETTINGS.md §Date and Time Format), and the length cap.
-  const PATTERN_AT_LIMIT = "y".repeat(64);
-  it.each(
-    ["d 'of' MMMM", "HH'h'mm", "h:mm a ''", "dd'MM", PATTERN_AT_LIMIT].flatMap((pattern) => [
-      ["dateFormat", pattern],
-      ["timeFormat", pattern],
-    ]),
-  )("accepts %s %s", (field, value) => {
-    const result = interfaceSettingsValidation.safeParse({ [field]: value });
-    expect(result.success, `${field} must accept ${value}`).toBe(true);
+  // WHY: enum fields pin against loosening to z.string(); the pattern rows pin the structural scan's rejects and
+  // the quoting rules of INTERFACE-SETTINGS.md (§Date and Time Format).
+  it.each(readRuleCases("settings-interface.json", "fields"))("$name", (ruleCase) => {
+    const result = interfaceSettingsValidation.safeParse(ruleCase.input);
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
 });
 

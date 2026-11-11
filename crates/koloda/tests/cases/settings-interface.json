@@ -1,0 +1,146 @@
+[
+  {
+    "rule": "fields",
+    "cases": [
+      {
+        "name": "language fr",
+        "input": { "language": "fr" },
+        "expect": { "code": "validation.settings-interface.language" }
+      },
+      {
+        "name": "language invalid",
+        "input": { "language": "invalid" },
+        "expect": { "code": "validation.settings-interface.language" }
+      },
+      {
+        "name": "language empty",
+        "input": { "language": "" },
+        "expect": { "code": "validation.settings-interface.language" }
+      },
+      {
+        "name": "language EN",
+        "input": { "language": "EN" },
+        "expect": { "code": "validation.settings-interface.language" }
+      },
+      {
+        "name": "scheme blue",
+        "input": { "scheme": "blue" },
+        "expect": { "code": "validation.settings-interface.scheme" }
+      },
+      {
+        "name": "scheme empty",
+        "input": { "scheme": "" },
+        "expect": { "code": "validation.settings-interface.scheme" }
+      },
+      {
+        "name": "scheme Light",
+        "input": { "scheme": "Light" },
+        "expect": { "code": "validation.settings-interface.scheme" }
+      },
+      {
+        "name": "lightTheme solarized",
+        "input": { "lightTheme": "solarized" },
+        "expect": { "code": "validation.settings-interface.light-theme" }
+      },
+      {
+        "name": "darkTheme solarized",
+        "input": { "darkTheme": "solarized" },
+        "expect": { "code": "validation.settings-interface.dark-theme" }
+      },
+      {
+        "name": "motion slow",
+        "input": { "motion": "slow" },
+        "expect": { "code": "validation.settings-interface.motion" }
+      },
+      {
+        "name": "motion partial",
+        "input": { "motion": "partial" },
+        "expect": { "code": "validation.settings-interface.motion" }
+      },
+      {
+        "name": "motion empty",
+        "input": { "motion": "" },
+        "expect": { "code": "validation.settings-interface.motion" }
+      },
+      {
+        "name": "motion On",
+        "input": { "motion": "On" },
+        "expect": { "code": "validation.settings-interface.motion" }
+      },
+      {
+        "name": "dateFormat empty",
+        "input": { "dateFormat": "" },
+        "expect": { "code": "validation.settings-interface.date-format" }
+      },
+      {
+        "name": "dateFormat with an unescaped letter",
+        "input": { "dateFormat": "hello" },
+        "expect": { "code": "validation.settings-interface.date-format" }
+      },
+      {
+        "name": "dateFormat over the 64-unit cap",
+        "input": { "dateFormat": { "repeat": "y", "times": 65 } },
+        "expect": { "code": "validation.settings-interface.date-format" }
+      },
+      {
+        "name": "dateFormat with literal text only",
+        "input": { "dateFormat": "'noon'" },
+        "expect": { "code": "validation.settings-interface.date-format" }
+      },
+      {
+        "name": "timeFormat empty",
+        "input": { "timeFormat": "" },
+        "expect": { "code": "validation.settings-interface.time-format" }
+      },
+      {
+        "name": "timeFormat with an unescaped letter",
+        "input": { "timeFormat": "hello" },
+        "expect": { "code": "validation.settings-interface.time-format" }
+      },
+      {
+        "name": "timeFormat over the 64-unit cap",
+        "input": { "timeFormat": { "repeat": "y", "times": 65 } },
+        "expect": { "code": "validation.settings-interface.time-format" }
+      },
+      {
+        "name": "timeFormat with literal text only",
+        "input": { "timeFormat": "'noon'" },
+        "expect": { "code": "validation.settings-interface.time-format" }
+      },
+      {
+        "name": "dateFormat with quoted text",
+        "input": { "dateFormat": "d 'of' MMMM" },
+        "expect": { "accepted": true }
+      },
+      { "name": "dateFormat with quoted letter", "input": { "dateFormat": "HH'h'mm" }, "expect": { "accepted": true } },
+      {
+        "name": "dateFormat with escaped quote",
+        "input": { "dateFormat": "h:mm a ''" },
+        "expect": { "accepted": true }
+      },
+      { "name": "dateFormat with unclosed quote", "input": { "dateFormat": "dd'MM" }, "expect": { "accepted": true } },
+      {
+        "name": "dateFormat at the 64-unit cap",
+        "input": { "dateFormat": { "repeat": "y", "times": 64 } },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "timeFormat with quoted text",
+        "input": { "timeFormat": "d 'of' MMMM" },
+        "expect": { "accepted": true }
+      },
+      { "name": "timeFormat with quoted letter", "input": { "timeFormat": "HH'h'mm" }, "expect": { "accepted": true } },
+      {
+        "name": "timeFormat with escaped quote",
+        "input": { "timeFormat": "h:mm a ''" },
+        "expect": { "accepted": true }
+      },
+      { "name": "timeFormat with unclosed quote", "input": { "timeFormat": "dd'MM" }, "expect": { "accepted": true } },
+      {
+        "name": "timeFormat at the 64-unit cap",
+        "input": { "timeFormat": { "repeat": "y", "times": 64 } },
+        "expect": { "accepted": true }
+      }
+    ]
+  }
+]

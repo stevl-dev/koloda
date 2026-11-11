@@ -1,5 +1,8 @@
 use koloda::domain::settings::SettingsName;
 use koloda::domain::settings_interface::InterfaceSettings;
+use serde_json::Value;
+
+use crate::common::cases::rule_cases;
 
 #[test]
 fn test_valid_interface_settings_full() {
@@ -49,166 +52,6 @@ fn test_extra_fields_ignored() {
 }
 
 #[test]
-fn test_invalid_language_fails() {
-    // WHY: validate() does a plain membership check against LANGUAGES, so unknown, empty, and
-    // wrong-case spellings all funnel through the same rejection path and error code.
-    for language in ["invalid", "", "EN"] {
-        let content = serde_json::json!({
-            "language": language,
-            "scheme": "system",
-            "motion": "system"
-        });
-
-        let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-        let result = settings.validate();
-        assert_eq!(
-            result.expect_err("Should fail with invalid language").code,
-            "validation.settings-interface.language",
-            "language {language:?} must be rejected"
-        );
-    }
-}
-
-#[test]
-fn test_invalid_scheme_fails() {
-    // WHY: same membership check as language, so one table covers unknown, empty, and
-    // capitalized spellings of scheme.
-    for scheme in ["blue", "", "Light"] {
-        let content = serde_json::json!({
-            "language": "en",
-            "scheme": scheme,
-            "motion": "system"
-        });
-
-        let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-        let result = settings.validate();
-        assert_eq!(
-            result.expect_err("Should fail with invalid scheme").code,
-            "validation.settings-interface.scheme",
-            "scheme {scheme:?} must be rejected"
-        );
-    }
-}
-
-#[test]
-fn test_invalid_light_theme_fails() {
-    let json = r#"{
-        "language": "en",
-        "scheme": "system",
-        "lightTheme": "solarized",
-        "motion": "system"
-    }"#;
-
-    let settings: InterfaceSettings = serde_json::from_str(json).expect("Should deserialize");
-    let result = settings.validate();
-    assert_eq!(
-        result.expect_err("Should fail with invalid light theme").code,
-        "validation.settings-interface.light-theme"
-    );
-}
-
-#[test]
-fn test_invalid_dark_theme_fails() {
-    let json = r#"{
-        "language": "en",
-        "scheme": "system",
-        "darkTheme": "solarized",
-        "motion": "system"
-    }"#;
-
-    let settings: InterfaceSettings = serde_json::from_str(json).expect("Should deserialize");
-    let result = settings.validate();
-    assert_eq!(
-        result.expect_err("Should fail with invalid dark theme").code,
-        "validation.settings-interface.dark-theme"
-    );
-}
-
-#[test]
-fn test_invalid_motion_fails() {
-    // WHY: motion joins the same membership-check family; unknown, empty, and capitalized
-    // values share one rejection path and error code.
-    for motion in ["partial", "", "On"] {
-        let content = serde_json::json!({
-            "language": "en",
-            "scheme": "system",
-            "motion": motion
-        });
-
-        let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-        let result = settings.validate();
-        assert_eq!(
-            result.expect_err("Should fail with invalid motion").code,
-            "validation.settings-interface.motion",
-            "motion {motion:?} must be rejected"
-        );
-    }
-}
-
-#[test]
-fn test_invalid_date_format_fails() {
-    // WHY: the structural scan mirrors the TS date-fns probe row for row — empty, an
-    // unescaped letter, over the length cap, and a literal-only pattern funnel through
-    // the same rejection path and error code as `settings-interface.test.ts`.
-    let over_long = "y".repeat(65);
-    for date_format in ["", "hello", over_long.as_str(), "'noon'"] {
-        let content = serde_json::json!({
-            "language": "en",
-            "scheme": "system",
-            "motion": "system",
-            "dateFormat": date_format
-        });
-
-        let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-        let result = settings.validate();
-        assert_eq!(
-            result.expect_err("Should fail with invalid date format").code,
-            "validation.settings-interface.date-format",
-            "dateFormat {date_format:?} must be rejected"
-        );
-    }
-}
-
-#[test]
-fn test_invalid_time_format_fails() {
-    // WHY: timeFormat runs through the identical structural scan, so it carries the same
-    // four reject rows under its own error code.
-    let over_long = "y".repeat(65);
-    for time_format in ["", "hello", over_long.as_str(), "'noon'"] {
-        let content = serde_json::json!({
-            "language": "en",
-            "scheme": "system",
-            "motion": "system",
-            "timeFormat": time_format
-        });
-
-        let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-        let result = settings.validate();
-        assert_eq!(
-            result.expect_err("Should fail with invalid time format").code,
-            "validation.settings-interface.time-format",
-            "timeFormat {time_format:?} must be rejected"
-        );
-    }
-}
-
-#[test]
-fn test_timestamp_patterns_accepted() {
-    // WHY: the accept twin of the reject rows (TS: "accepts %s %s" in `settings-interface.test.ts`) — quoted
-    // text, an escaped quote, an unclosed quote that runs to the end (INTERFACE-SETTINGS.md §Date and Time
-    // Format), and the length cap.
-    let at_limit = "y".repeat(64);
-    for pattern in ["d 'of' MMMM", "HH'h'mm", "h:mm a ''", "dd'MM", at_limit.as_str()] {
-        for field in ["dateFormat", "timeFormat"] {
-            let content = serde_json::json!({ field: pattern });
-
-            let settings: InterfaceSettings = serde_json::from_value(content).expect("Should deserialize");
-            assert!(settings.validate().is_ok(), "{field} {pattern:?} must be accepted");
-        }
-    }
-}
-
-#[test]
 fn test_settings_name_interface_validation_with_non_object_content() {
     let content = serde_json::json!("not an object");
 
@@ -240,5 +83,17 @@ fn test_settings_name_interface_all_valid_combinations() {
                 );
             }
         }
+    }
+}
+
+#[test]
+fn test_interface_field_rules() {
+    // WHY: validate() checks the enum fields by plain membership, so unknown, empty, and wrong-case spellings share
+    // one rejection path; the pattern rows pin the structural scan that mirrors the date-fns probe on the Zod side.
+    for case in rule_cases("settings-interface.json", "fields") {
+        let observed = case.parse_and_observe(case.input.clone().unwrap(), |settings: InterfaceSettings| {
+            settings.validate().map(|()| Value::Null)
+        });
+        assert_eq!(observed, case.expect, "{}", case.name);
     }
 }
