@@ -32,7 +32,7 @@ mod settings_hotkeys_tests;
 mod settings_interface_tests;
 mod settings_learning_tests;
 mod settings_serde_tests;
-mod templates_insert_tests;
+mod templates_content_tests;
 mod templates_serde_tests;
 mod templates_update_tests;
 mod time_tests;

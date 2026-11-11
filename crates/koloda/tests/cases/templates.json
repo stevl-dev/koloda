@@ -1,0 +1,241 @@
+[
+  {
+    "rule": "content",
+    "cases": [
+      {
+        "name": "valid content",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "type operation",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "type" }
+          ]
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "no fields",
+        "input": {
+          "fields": [],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.fields.too-few" }
+      },
+      {
+        "name": "no layout items",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": []
+        },
+        "expect": { "code": "validation.templates.layout.too-few" }
+      },
+      {
+        "name": "non-uuid field id",
+        "input": {
+          "fields": [
+            { "id": "not-a-uuid", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "not-a-uuid", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.fields.id" }
+      },
+      {
+        "name": "unsupported field type",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "html", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.fields.type" }
+      },
+      {
+        "name": "empty field type",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.fields.type" }
+      },
+      {
+        "name": "hyphenless layout field",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000000070008000000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.layout.field" }
+      },
+      {
+        "name": "unsupported operation",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "hide" },
+            { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.layout.operation" }
+      },
+      {
+        "name": "two fields share an id",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [{ "field": "01900000-0000-7000-8000-000000000001", "operation": "display" }]
+        },
+        "expect": { "code": "validation.templates.fields.duplicate-id" }
+      },
+      {
+        "name": "two layout items for one field",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "reveal" }
+          ]
+        },
+        "expect": { "code": "validation.templates.layout.duplicate-field" }
+      },
+      {
+        "name": "layout item for a missing field",
+        "input": {
+          "fields": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "layout": [
+            { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+            { "field": "01900000-0000-7000-8000-0000000003e7", "operation": "type" }
+          ]
+        },
+        "expect": { "code": "validation.templates.layout.missing-field" }
+      }
+    ]
+  },
+  {
+    "rule": "locked-update",
+    "cases": [
+      {
+        "name": "a field title",
+        "input": {
+          "original": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "updated": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Prompt", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ]
+        },
+        "expect": { "allowed": true }
+      },
+      {
+        "name": "an added field",
+        "input": {
+          "original": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "updated": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false },
+            { "id": "01900000-0000-7000-8000-000000000003", "title": "Extra", "type": "text", "isRequired": false }
+          ]
+        },
+        "expect": { "allowed": true }
+      },
+      {
+        "name": "a removed field",
+        "input": {
+          "original": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "updated": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true }
+          ]
+        },
+        "expect": { "allowed": false }
+      },
+      {
+        "name": "a field type",
+        "input": {
+          "original": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "updated": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "markdown", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ]
+        },
+        "expect": { "allowed": false }
+      },
+      {
+        "name": "a required flag",
+        "input": {
+          "original": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "updated": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": false },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ]
+        },
+        "expect": { "allowed": false }
+      }
+    ]
+  }
+]

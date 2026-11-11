@@ -1,90 +1,42 @@
 use koloda::app::error::error_codes;
 use koloda::domain::templates::{TemplateContent, TemplateField, TemplateLayoutItem, UpdateTemplateValues};
 
-fn create_original_template_content() -> TemplateContent {
-    TemplateContent {
-        fields: vec![
-            TemplateField {
-                id: "01900000-0000-7000-8000-000000000001".to_string(),
-                title: "Front".to_string(),
-                field_type: "markdown".to_string(),
-                is_required: true,
-            },
-            TemplateField {
-                id: "01900000-0000-7000-8000-000000000002".to_string(),
-                title: "Back".to_string(),
-                field_type: "text".to_string(),
-                is_required: false,
-            },
-        ],
-        layout: vec![
-            TemplateLayoutItem {
-                field: "01900000-0000-7000-8000-000000000001".to_string(),
-                operation: "display".to_string(),
-            },
-            TemplateLayoutItem {
-                field: "01900000-0000-7000-8000-000000000002".to_string(),
-                operation: "reveal".to_string(),
-            },
-        ],
-    }
+use crate::common::cases::{rule_cases, Outcome};
+
+fn content(fields: Vec<TemplateField>) -> TemplateContent {
+    let layout = fields
+        .iter()
+        .map(|field| TemplateLayoutItem {
+            field: field.id.clone(),
+            operation: "display".to_string(),
+        })
+        .collect();
+    TemplateContent { fields, layout }
 }
 
-// Twin: "locked template update with $change is allowed: $isAllowed" in libs/srs/src/lib/templates.test.ts;
-// the rows match.
 #[test]
-fn locked_template_keeps_every_field_with_its_type_and_required_flag() {
-    type Edit = fn(&mut Vec<TemplateField>);
-    let cases: [(&str, Edit, bool); 5] = [
-        ("a field title", |fields| fields[0].title = "Prompt".to_string(), true),
-        (
-            "an added field",
-            |fields| {
-                fields.push(TemplateField {
-                    id: "01900000-0000-7000-8000-000000000003".to_string(),
-                    title: "Extra".to_string(),
-                    field_type: "text".to_string(),
-                    is_required: false,
-                })
-            },
-            true,
-        ),
-        (
-            "a removed field",
-            |fields| {
-                fields.remove(1);
-            },
-            false,
-        ),
-        (
-            "a field type",
-            |fields| fields[0].field_type = "text".to_string(),
-            false,
-        ),
-        ("a required flag", |fields| fields[0].is_required = false, false),
-    ];
-
-    for (change, edit, is_allowed) in cases {
-        let original = create_original_template_content();
-        let mut content = original.clone();
-        edit(&mut content.fields);
-        content
-            .layout
-            .retain(|item| content.fields.iter().any(|field| field.id == item.field));
+fn test_locked_template_update_rules() {
+    for case in rule_cases("templates.json", "locked-update") {
+        let input = case.input.clone().unwrap();
+        let original = content(serde_json::from_value(input["original"].clone()).unwrap());
         let values = UpdateTemplateValues {
             title: "Updated Template".to_string(),
-            content,
+            content: content(serde_json::from_value(input["updated"].clone()).unwrap()),
             notes: None,
         };
 
-        let result = values.validate(Some(&original));
-
-        if is_allowed {
-            assert!(result.is_ok(), "{change} is allowed on a locked template");
-        } else {
-            let err = result.expect_err(change);
-            assert_eq!(err.code, error_codes::VALIDATION_TEMPLATES_UPDATE_LOCKED, "{change}");
-            assert_eq!(err.details, None, "{change}: the message alone explains the rejection");
-        }
+        let observed = match values.validate(Some(&original)) {
+            Ok(()) => Outcome::Allowed(true),
+            Err(error) if error.code == error_codes::VALIDATION_TEMPLATES_UPDATE_LOCKED => {
+                assert_eq!(
+                    error.details, None,
+                    "{}: the message alone explains the rejection",
+                    case.name
+                );
+                Outcome::Allowed(false)
+            }
+            Err(error) => Outcome::Rejected { code: error.code },
+        };
+        assert_eq!(observed, case.expect, "{}", case.name);
     }
 }

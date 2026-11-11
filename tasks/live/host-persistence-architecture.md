@@ -239,7 +239,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the deck reference rules onto shared cases
   Depends on: 2
 
-- [ ] 4. Move the template content rules onto shared cases
+- [x] 4. Move the template content rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/templates.json` with two rule tables.
   The first is content validation: the "rejects ..." cases of `libs/srs/src/lib/templates.test.ts`
   (duplicate field id, two layout items for one field, a field id that is not a UUID, and the rest of that block)

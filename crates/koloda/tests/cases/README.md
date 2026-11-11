@@ -15,7 +15,8 @@ A case is `{ "name", "input", "expect" }`.
 - `{ "repeat": "<text>", "times": <n> }` anywhere in `input` stands for that text repeated `n` times.
 - `expect` is one of:
   - `{ "accepted": true }`, optionally with `"stored"` for the normalized value (`null` for absent);
-  - `{ "code": "<error code>" }`.
+  - `{ "code": "<error code>" }`;
+  - `{ "allowed": true | false }`, for a rule that allows or refuses a change rather than validating a value.
 - A case the sides answer differently on purpose has `"expect": { "ts": ..., "rust": ... }`.
   It also has a `"divergence"` string naming the entry in the decision's Accepted divergences list.
 

@@ -6,201 +6,49 @@ import {
   updateTemplateSchema,
   validateLockedTemplateFields,
 } from "./templates";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
-const FRONT_ID = "01900000-0000-7000-8000-000000000001";
-const BACK_ID = "01900000-0000-7000-8000-000000000002";
-
-const FRONT: TemplateField = { id: FRONT_ID, title: "Front", type: "text", isRequired: true };
-const BACK: TemplateField = { id: BACK_ID, title: "Back", type: "markdown", isRequired: false };
-const EXTRA: TemplateField = {
-  id: "01900000-0000-7000-8000-000000000003",
-  title: "Extra",
+const FRONT: TemplateField = {
+  id: "01900000-0000-7000-8000-000000000001",
+  title: "Front",
   type: "text",
-  isRequired: false,
+  isRequired: true,
 };
-const ORIGINAL_FIELDS = [FRONT, BACK];
+const BACK: TemplateField = { ...FRONT, id: "01900000-0000-7000-8000-000000000002", title: "Back" };
+
+const CONTENT_CASES = readRuleCases("templates.json", "content");
 
 describe("templates", () => {
   it("returns the matching field title by id", () => {
-    expect(getTemplateFieldTitleById(ORIGINAL_FIELDS, BACK_ID)).toBe("Back");
-    expect(getTemplateFieldTitleById(ORIGINAL_FIELDS, "01900000-0000-7000-8000-0000000003e7")).toBeUndefined();
+    expect(getTemplateFieldTitleById([FRONT, BACK], BACK.id)).toBe("Back");
+    expect(getTemplateFieldTitleById([FRONT, BACK], "01900000-0000-7000-8000-0000000003e7")).toBeUndefined();
   });
 
-  // Twin: `locked_template_keeps_every_field_with_its_type_and_required_flag`
-  // (crates/koloda/tests/domain/templates_update_tests.rs); the rows match.
-  it.each<{ change: string; fields: TemplateField[]; isAllowed: boolean }>([
-    { change: "a field title", fields: [{ ...FRONT, title: "Prompt" }, BACK], isAllowed: true },
-    { change: "an added field", fields: [FRONT, BACK, EXTRA], isAllowed: true },
-    { change: "a removed field", fields: [FRONT], isAllowed: false },
-    { change: "a field type", fields: [{ ...FRONT, type: "markdown" }, BACK], isAllowed: false },
-    { change: "a required flag", fields: [{ ...FRONT, isRequired: false }, BACK], isAllowed: false },
-  ])("locked template update with $change is allowed: $isAllowed", ({ fields, isAllowed }) => {
-    expect(validateLockedTemplateFields(ORIGINAL_FIELDS, fields)).toBe(isAllowed);
+  it.each(readRuleCases("templates.json", "locked-update"))("locked update with $name", (ruleCase) => {
+    const { original, updated } = ruleCase.input as { original: TemplateField[]; updated: TemplateField[] };
+    expect({ allowed: validateLockedTemplateFields(original, updated) }).toEqual(ruleCase.expect);
   });
+});
 
-  it("accepts an insert template whose layout items reference existing fields", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [
-          { field: FRONT_ID, operation: "display" },
-          { field: BACK_ID, operation: "type" },
-        ],
-      },
-    });
-
-    expect(result.success).toBe(true);
+describe.each([
+  { name: "insertTemplateSchema", schema: insertTemplateSchema },
+  { name: "updateTemplateSchema", schema: updateTemplateSchema },
+])("$name content", ({ schema }) => {
+  it.each(CONTENT_CASES)("$name", (ruleCase) => {
+    const result = schema.safeParse({ title: "Basic", content: ruleCase.input });
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
+});
 
-  it("rejects an insert template whose layout item references a missing field", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [
-          { field: FRONT_ID, operation: "display" },
-          { field: "01900000-0000-7000-8000-0000000003e7", operation: "type" },
-        ],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success
-      ? undefined
-      : result.error.issues.find((x) => x.message === "validation.templates.layout.missing-field");
-    expect(issue?.path).toEqual(["content", "layout", 1, "field"]);
-  });
-
-  // Twins: the "duplicate field id" and "two layout items for one field" rows of
-  // `test_invalid_template_fails_with_its_code` (crates/koloda/tests/domain/templates_insert_tests.rs).
+// WHY: the content refine writes these issue paths by hand, and a form shows each issue on the input its path names.
+describe("insertTemplateSchema refine paths", () => {
   it.each([
-    {
-      shape: "two fields share an id",
-      content: {
-        fields: [FRONT, { ...BACK, id: FRONT_ID }],
-        layout: [{ field: FRONT_ID, operation: "display" }],
-      },
-      code: "validation.templates.fields.duplicate-id",
-      path: ["content", "fields", 1, "id"],
-    },
-    {
-      shape: "a field has two layout items",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [
-          { field: FRONT_ID, operation: "display" },
-          { field: FRONT_ID, operation: "reveal" },
-        ],
-      },
-      code: "validation.templates.layout.duplicate-field",
-      path: ["content", "layout", 1, "field"],
-    },
-  ])("rejects an insert template where $shape", ({ content, code, path }) => {
-    const result = insertTemplateSchema.safeParse({ title: "Basic", content });
-
-    expect(result.success ? [] : result.error.issues.map(({ message, path }) => ({ message, path }))).toEqual([
-      { message: code, path },
-    ]);
-  });
-
-  it("rejects an insert template whose content has no fields", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: [],
-        layout: [{ field: FRONT_ID, operation: "display" }],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success
-      ? undefined
-      : result.error.issues.find((x) => x.message === "validation.templates.fields.too-few");
-    expect(issue?.path).toEqual(["content", "fields"]);
-  });
-
-  it("rejects an insert template whose content has no layout items", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success
-      ? undefined
-      : result.error.issues.find((x) => x.message === "validation.templates.layout.too-few");
-    expect(issue?.path).toEqual(["content", "layout"]);
-  });
-
-  it("rejects an insert template whose field type is not supported", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: [{ ...ORIGINAL_FIELDS[0], type: "html" }, ORIGINAL_FIELDS[1]],
-        layout: [
-          { field: FRONT_ID, operation: "display" },
-          { field: BACK_ID, operation: "type" },
-        ],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success ? undefined : result.error.issues.find((x) => x.code === "invalid_value");
-    expect(issue?.path).toEqual(["content", "fields", 0, "type"]);
-    expect(issue?.message).toBe("validation.templates.fields.type");
-  });
-
-  it("rejects an update template whose layout operation is not supported", () => {
-    const result = updateTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [{ field: FRONT_ID, operation: "hide" }],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success ? undefined : result.error.issues.find((x) => x.code === "invalid_value");
-    expect(issue?.path).toEqual(["content", "layout", 0, "operation"]);
-    expect(issue?.message).toBe("validation.templates.layout.operation");
-  });
-
-  it("rejects a non-uuid field id with the registered code", () => {
-    // Twin: test_field_id_not_uuid_fails_with_fields_id_code
-    // (crates/koloda/tests/domain/templates_insert_tests.rs) — `z.uuid()` and
-    // `validate_uuid` must agree on shape and code.
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: [{ id: "not-a-uuid", title: "Front", type: "text", isRequired: true }],
-        layout: [{ field: "not-a-uuid", operation: "display" }],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success
-      ? undefined
-      : result.error.issues.find((x) => x.path.join(".") === "content.fields.0.id");
-    expect(issue?.message).toBe("validation.templates.fields.id");
-  });
-
-  it("rejects a non-uuid layout reference with the registered code", () => {
-    const result = insertTemplateSchema.safeParse({
-      title: "Basic",
-      content: {
-        fields: ORIGINAL_FIELDS,
-        layout: [{ field: "01900000000070008000000000000001", operation: "display" }],
-      },
-    });
-
-    expect(result.success).toBe(false);
-    const issue = result.success
-      ? undefined
-      : result.error.issues.find((x) => x.path.join(".") === "content.layout.0.field");
-    expect(issue?.message).toBe("validation.templates.layout.field");
+    { name: "two fields share an id", path: ["content", "fields", 1, "id"] },
+    { name: "two layout items for one field", path: ["content", "layout", 1, "field"] },
+    { name: "layout item for a missing field", path: ["content", "layout", 1, "field"] },
+  ])("reports $name at its path", ({ name, path }) => {
+    const ruleCase = CONTENT_CASES.find((candidate) => candidate.name === name);
+    const result = insertTemplateSchema.safeParse({ title: "Basic", content: ruleCase?.input });
+    expect(result.error?.issues[0]?.path).toEqual(path);
   });
 });

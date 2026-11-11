@@ -21,6 +21,8 @@ pub enum Outcome {
     Rejected {
         code: String,
     },
+    /// The answer of a rule that allows or refuses a change rather than validating a value.
+    Allowed(bool),
 }
 
 #[derive(Deserialize)]
@@ -54,6 +56,7 @@ struct RawOutcome {
     #[serde(default, deserialize_with = "present")]
     stored: Option<Value>,
     code: Option<String>,
+    allowed: Option<bool>,
 }
 
 // WHY: `Option<Value>` alone reads both a missing key and `null` as `None`; the cases need them apart.
@@ -99,16 +102,17 @@ fn into_case(raw: RawCase) -> RuleCase {
 }
 
 fn into_outcome(name: &str, raw: RawOutcome) -> Outcome {
-    let is_accepted = raw.accepted == Some(true) && raw.code.is_none();
-    let is_rejected = raw.accepted.is_none() && raw.code.is_some() && raw.stored.is_none();
+    let outcome = match (raw.accepted, raw.code, raw.allowed) {
+        (Some(true), None, None) => Some(Outcome::Accepted { stored: raw.stored }),
+        (None, Some(code), None) if raw.stored.is_none() => Some(Outcome::Rejected { code }),
+        (None, None, Some(allowed)) if raw.stored.is_none() => Some(Outcome::Allowed(allowed)),
+        _ => None,
+    };
     assert!(
-        is_accepted || is_rejected,
-        "{name}: expect is `accepted: true` or a `code`"
+        outcome.is_some(),
+        "{name}: expect is `accepted: true`, a `code`, or `allowed`"
     );
-    match raw.code {
-        Some(code) => Outcome::Rejected { code },
-        None => Outcome::Accepted { stored: raw.stored },
-    }
+    outcome.expect("checked above")
 }
 
 fn expand(value: Value) -> Value {
