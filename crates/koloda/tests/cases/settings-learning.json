@@ -426,6 +426,56 @@
         "input": { "learnAheadLimit": [0, 60] },
         "expect": { "code": "validation.settings-learning.learn-ahead-limit.minutes-range" }
       },
+      { "name": "learn ahead -1h", "input": { "learnAheadLimit": [-1, 0] }, "expect": { "accepted": false } },
+      { "name": "learn ahead -1m", "input": { "learnAheadLimit": [0, -1] }, "expect": { "accepted": false } },
+      {
+        "name": "negative total",
+        "input": {
+          "dailyLimits": {
+            "total": -1,
+            "untouched": { "value": 0, "counts": false },
+            "learn": { "value": 0, "counts": false },
+            "review": { "value": 0, "counts": false }
+          }
+        },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "negative untouched cap",
+        "input": {
+          "dailyLimits": {
+            "total": 100,
+            "untouched": { "value": -1, "counts": true },
+            "learn": { "value": 30, "counts": true },
+            "review": { "value": 50, "counts": true }
+          }
+        },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "negative learn cap",
+        "input": {
+          "dailyLimits": {
+            "total": 100,
+            "untouched": { "value": 20, "counts": true },
+            "learn": { "value": -1, "counts": true },
+            "review": { "value": 50, "counts": true }
+          }
+        },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "negative review cap",
+        "input": {
+          "dailyLimits": {
+            "total": 100,
+            "untouched": { "value": 20, "counts": true },
+            "learn": { "value": 30, "counts": true },
+            "review": { "value": -1, "counts": true }
+          }
+        },
+        "expect": { "accepted": false }
+      },
       {
         "name": "fractional total",
         "input": {

@@ -371,4 +371,18 @@ Items 10 to 13 answer the review of items 1 to 9.
   Commit: Move the fractional FSRS amounts onto shared cases
   Depends on: 6
 
+- [x] 12. Move the negative learning limits onto shared cases
+  Goal: Negative daily limits and negative learn-ahead parts had tests on the TS side only.
+  Rust stores them as `u32`, so serde refuses a negative, and no Rust test pinned that.
+  Add them to the `rules` table of `crates/koloda/tests/cases/settings-learning.json` as `{ "accepted": false }` rows:
+  a negative total, a negative cap of each type, and -1 for the learn-ahead hours and minutes.
+  Each row breaks nothing but the sign, so a dropped sign check fails it.
+  Delete the TS "negative daily limit values" tests.
+  Keep the TS check of the learn-ahead codes, reading the inputs from the shared rows by name.
+  Constraints: Tests only.
+  The `NaN` rows stay in the TS file.
+  Done when: `cargo test -p koloda --test domain` and the `libs/app` Vitest command pass.
+  Commit: Move the negative learning limits onto shared cases
+  Depends on: 7
+
 ## Outcome

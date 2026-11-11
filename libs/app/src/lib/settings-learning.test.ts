@@ -80,36 +80,29 @@ describe.each([
   );
 });
 
-// WHY: Rust stores the learn-ahead parts as u32, so serde refuses a negative there before any code is assigned;
-// a cleared NumberField commits NaN, which JSON cannot carry.
-describe("learn-ahead codes the form reports", () => {
-  it.each(
-    [
-      {
-        name: "hours -1",
-        learnAheadLimit: [-1, 0],
-        code: "validation.settings-learning.learn-ahead-limit.hours-range",
-      },
-      {
-        name: "minutes -1",
-        learnAheadLimit: [0, -1],
-        code: "validation.settings-learning.learn-ahead-limit.minutes-range",
-      },
-      {
-        name: "hours NaN",
-        learnAheadLimit: [Number.NaN, 0],
-        code: "validation.settings-learning.learn-ahead-limit.hours-range",
-      },
-      {
-        name: "minutes NaN",
-        learnAheadLimit: [0, Number.NaN],
-        code: "validation.settings-learning.learn-ahead-limit.minutes-range",
-      },
-    ].flatMap((testCase) => [
-      { ...testCase, schemaName: "defaulting", schema: learningSettingsValidation },
-      { ...testCase, schemaName: "resolved", schema: resolvedLearningSettingsValidation },
-    ]),
-  )("$schemaName schema rejects $name with its code", ({ schema, learnAheadLimit, code }) => {
+const HOURS_RANGE = "validation.settings-learning.learn-ahead-limit.hours-range";
+const MINUTES_RANGE = "validation.settings-learning.learn-ahead-limit.minutes-range";
+
+describe.each([
+  { name: "defaulting", schema: learningSettingsValidation },
+  { name: "resolved", schema: resolvedLearningSettingsValidation },
+])("learn-ahead codes the form reports on the $name schema", ({ schema }) => {
+  // WHY: Rust stores the learn-ahead parts as u32, so serde refuses a negative there before any code exists, and the
+  // shared rows expect only a rejection. A form shows the issue's code, so the same rows are checked for it here.
+  it.each([
+    { name: "learn ahead -1h", code: HOURS_RANGE },
+    { name: "learn ahead -1m", code: MINUTES_RANGE },
+  ])("reports $name with its code", ({ name, code }) => {
+    const ruleCase = RULE_CASES.find((candidate) => candidate.name === name);
+    const result = schema.safeParse({ ...RULES_BASE, ...(ruleCase?.input as object) });
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual([code]);
+  });
+
+  // WHY: a cleared NumberField commits `NaN`, which JSON cannot carry, so these rows cannot join the shared file.
+  it.each([
+    { name: "hours", learnAheadLimit: [Number.NaN, 0], code: HOURS_RANGE },
+    { name: "minutes", learnAheadLimit: [0, Number.NaN], code: MINUTES_RANGE },
+  ])("rejects cleared $name (NaN) with its code", ({ learnAheadLimit, code }) => {
     const result = schema.safeParse({ ...RULES_BASE, learnAheadLimit });
     expect(result.error?.issues.map((issue) => issue.message)).toEqual([code]);
   });
@@ -149,45 +142,5 @@ describe("resolvedLearningSettingsValidation", () => {
       learnAheadLimit: [0, 30],
     });
     expect(result.dailyLimits.total).toBe(0);
-  });
-});
-
-describe("negative daily limit values", () => {
-  it("rejects negative total", () => {
-    const result = learningSettingsValidation.safeParse({
-      defaults,
-      dailyLimits: { total: -1 },
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects negative untouched value", () => {
-    const result = learningSettingsValidation.safeParse({
-      defaults,
-      dailyLimits: {
-        untouched: { value: -1, counts: true },
-      },
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects negative learn value", () => {
-    const result = learningSettingsValidation.safeParse({
-      defaults,
-      dailyLimits: {
-        learn: { value: -1, counts: true },
-      },
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects negative review value", () => {
-    const result = learningSettingsValidation.safeParse({
-      defaults,
-      dailyLimits: {
-        review: { value: -1, counts: true },
-      },
-    });
-    expect(result.success).toBe(false);
   });
 });
