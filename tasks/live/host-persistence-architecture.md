@@ -174,7 +174,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Record the designs rejected for the host persistence seam
   Depends on: none
 
-- [ ] 2. Hold the title and notes rules with one shared case table
+- [x] 2. Hold the title and notes rules with one shared case table
   Goal: Introduce shared rule cases and move the title and notes rows onto them.
   Add `crates/koloda/tests/cases/titles.json` and `crates/koloda/tests/cases/notes.json`.
   A file is `{ "rule": "<name>", "cases": [...] }`.

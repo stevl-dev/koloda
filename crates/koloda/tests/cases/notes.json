@@ -1,0 +1,29 @@
+[
+  {
+    "rule": "notes",
+    "cases": [
+      { "name": "omitted", "expect": { "accepted": true, "stored": null } },
+      { "name": "null", "input": null, "expect": { "accepted": true, "stored": null } },
+      {
+        "name": "surrounding spaces",
+        "input": "  Use this preset for vocabulary, not cramming  ",
+        "expect": { "accepted": true, "stored": "Use this preset for vocabulary, not cramming" }
+      },
+      { "name": "whitespace only", "input": "   ", "expect": { "accepted": true, "stored": null } },
+      { "name": "U+FEFF only", "input": "\uFEFF", "expect": { "accepted": true, "stored": null } },
+      { "name": "leading U+FEFF", "input": "\uFEFFNote", "expect": { "accepted": true, "stored": "Note" } },
+      { "name": "leading U+0085", "input": "\u0085Note", "expect": { "accepted": true, "stored": "\u0085Note" } },
+      { "name": "1024 ASCII chars", "input": { "repeat": "a", "times": 1024 }, "expect": { "accepted": true } },
+      {
+        "name": "1025 ASCII chars",
+        "input": { "repeat": "a", "times": 1025 },
+        "expect": { "code": "validation.common.notes.too-long" }
+      },
+      {
+        "name": "513 emoji are 1026 UTF-16 units",
+        "input": { "repeat": "🦀", "times": 513 },
+        "expect": { "code": "validation.common.notes.too-long" }
+      }
+    ]
+  }
+]

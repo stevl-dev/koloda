@@ -80,6 +80,9 @@ An intermittent failure is a bug — fix it before merging rather than retrying.
 
 Mirrored domain logic (`docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`) must carry the same boundary tests on both sides.
 A rule tested in only one implementation will regress in the other.
+A boundary case of a rule both sides enforce goes in that rule's file under `crates/koloda/tests/cases/`.
+Vitest and `cargo test` both read it (`docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` (§Rule cases)).
+A case those files do not hold keeps a hand-written twin.
 When you add a boundary case in `libs/srs` or `libs/app`, add its twin in `crates/koloda`, and vice versa.
 
 ## Banned patterns

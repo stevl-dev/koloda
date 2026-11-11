@@ -12,7 +12,8 @@
   },
   "include": [
     "src/**/*.test.ts",
-    "src/test-setup.ts"
+    "src/test-setup.ts",
+    "src/test/**/*.ts"
   ],
   "references": [
     {

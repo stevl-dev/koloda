@@ -37,6 +37,15 @@ Do not remove Rust validation, move FSRS scheduling into Rust, or invent adapter
 unless that is an explicit new decision.
 Fitting FSRS weights is that decision: `docs/decisions/FSRS-OPTIMIZER.md`.
 
+### Rule cases
+
+- A rule that both sides enforce has its boundary cases in one JSON file under `crates/koloda/tests/cases/`.
+- Each case is an input and the expected result: accepted, or the error code.
+- Vitest and `cargo test` both read the file.
+  Neither side keeps its own copy of a shared row.
+- A case the sides answer differently on purpose carries both answers and names the accepted divergence.
+- A test that only one side needs stays in that side's test file.
+
 ### Accepted divergences
 
 These numeric/serde edges are deliberately not mirrored; do not re-flag them as drift.

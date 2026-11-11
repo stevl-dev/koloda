@@ -3,6 +3,7 @@
 use koloda::app::db::Database;
 use serde_json::json;
 
+pub mod cases;
 pub mod fixtures;
 pub mod sync;
 

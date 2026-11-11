@@ -1,0 +1,31 @@
+[
+  {
+    "rule": "title",
+    "cases": [
+      { "name": "empty", "input": "", "expect": { "code": "validation.common.title.too-short" } },
+      { "name": "whitespace only", "input": "   ", "expect": { "code": "validation.common.title.too-short" } },
+      { "name": "U+FEFF only", "input": "\uFEFF", "expect": { "code": "validation.common.title.too-short" } },
+      { "name": "U+0085 only", "input": "\u0085", "expect": { "accepted": true, "stored": "\u0085" } },
+      { "name": "255 ASCII chars", "input": { "repeat": "a", "times": 255 }, "expect": { "accepted": true } },
+      { "name": "255 Cyrillic chars", "input": { "repeat": "ф", "times": 255 }, "expect": { "accepted": true } },
+      {
+        "name": "127 emoji are 254 UTF-16 units",
+        "input": { "repeat": "🦀", "times": 127 },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "128 emoji are 256 UTF-16 units",
+        "input": { "repeat": "🦀", "times": 128 },
+        "expect": { "code": "validation.common.title.too-long" }
+      },
+      {
+        "name": "256 Cyrillic chars",
+        "input": { "repeat": "ф", "times": 256 },
+        "expect": { "code": "validation.common.title.too-long" }
+      },
+      { "name": "surrounding spaces", "input": "  Deck name  ", "expect": { "accepted": true, "stored": "Deck name" } },
+      { "name": "leading U+FEFF", "input": "\uFEFFDeck", "expect": { "accepted": true, "stored": "Deck" } },
+      { "name": "leading U+0085", "input": "\u0085Deck", "expect": { "accepted": true, "stored": "\u0085Deck" } }
+    ]
+  }
+]

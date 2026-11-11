@@ -58,7 +58,7 @@ fn test_every_field_type_and_operation_passes() {
 #[test]
 fn test_invalid_template_fails_with_its_code() {
     // Twins: the TS "rejects ..." cases in libs/srs/src/lib/templates.test.ts assert the same content codes.
-    // The title rules themselves live in decks_title_tests.rs; one row shows templates apply them.
+    // The title rules themselves live in entity_title_notes_tests.rs; one row shows templates apply them.
     // WHY: each row breaks one rule while the others hold. "no fields" keeps layout items that point at the
     // removed fields, so it reports its own code only while the too-few check runs before layout membership.
     // The id rows pin the shape-before-value order that matches zod's issue order.

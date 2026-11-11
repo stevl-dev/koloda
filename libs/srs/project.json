@@ -14,7 +14,8 @@
       },
       "inputs": [
         "default",
-        "^default"
+        "^default",
+        "{workspaceRoot}/crates/koloda/tests/cases/*.json"
       ],
       "cache": true
     }
