@@ -277,7 +277,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the card and review rules onto shared cases
   Depends on: 2
 
-- [ ] 6. Move the FSRS content rules onto shared cases
+- [x] 6. Move the FSRS content rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/algorithms-fsrs.json`.
   It holds the rows both sides assert with the same codes: `libs/srs/src/lib/algorithms-fsrs.test.ts` against
   `crates/koloda/tests/domain/algorithms_fsrs_tests.rs:108` and `:368` (retention, weights, learning and

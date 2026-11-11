@@ -13,6 +13,7 @@ A case is `{ "name", "input", "expect" }`.
 - `input` is whatever the rule's test builds its payload from.
   A case with no `input` key tests an omitted field.
 - `{ "repeat": "<text>", "times": <n> }` anywhere in `input` stands for that text repeated `n` times.
+  An optional `"separator"` goes between the copies.
 - `expect` is one of:
   - `{ "accepted": true }`, optionally with `"stored"` for the normalized value (`null` for absent);
   - `{ "accepted": false }`, for a payload that fails to parse before any rule runs (serde, on the Rust side);

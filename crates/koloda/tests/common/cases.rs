@@ -122,17 +122,25 @@ fn into_outcome(name: &str, raw: RawOutcome) -> Outcome {
 fn expand(value: Value) -> Value {
     match value {
         Value::Object(map) => {
-            if let (2, Some(Value::String(text)), Some(times)) =
-                (map.len(), map.get("repeat"), map.get("times").and_then(Value::as_u64))
-            {
-                let times = usize::try_from(times).expect("repeat count should fit usize");
-                return Value::String(text.repeat(times));
+            if let Some(text) = repeated(&map) {
+                return Value::String(text);
             }
             Value::Object(map.into_iter().map(|(key, value)| (key, expand(value))).collect())
         }
         Value::Array(items) => Value::Array(items.into_iter().map(expand).collect()),
         other => other,
     }
+}
+
+fn repeated(map: &serde_json::Map<String, Value>) -> Option<String> {
+    let text = map.get("repeat")?.as_str()?;
+    let times = usize::try_from(map.get("times")?.as_u64()?).ok()?;
+    let separator = match map.get("separator") {
+        Some(separator) => separator.as_str()?,
+        None => "",
+    };
+    let expected_keys = if map.contains_key("separator") { 3 } else { 2 };
+    (map.len() == expected_keys).then(|| vec![text; times].join(separator))
 }
 
 impl RuleCase {

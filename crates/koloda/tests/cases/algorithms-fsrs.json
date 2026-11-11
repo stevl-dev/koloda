@@ -1,0 +1,155 @@
+[
+  {
+    "rule": "content",
+    "cases": [
+      {
+        "name": "realistic weights and steps",
+        "input": {
+          "weights": "0.4197,1.1869,3.0412,15.2441,7.1434,0.6477,1.0007,0.0754,1.6598,0.1719,1.1178,1.4699,0.134,0.016,1.7101,0.1543,0.9369,2.9664,0.714,0.201,0.0059",
+          "learningSteps": [[10, "m"], [1, "d"]],
+          "relearningSteps": [[10, "m"]]
+        },
+        "expect": { "accepted": true }
+      },
+      { "name": "fuzz off", "input": { "isFuzzEnabled": false }, "expect": { "accepted": true } },
+      { "name": "retention 70", "input": { "retention": 70 }, "expect": { "accepted": true } },
+      { "name": "retention 99", "input": { "retention": 99 }, "expect": { "accepted": true } },
+      {
+        "name": "retention 69",
+        "input": { "retention": 69 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      {
+        "name": "retention 100",
+        "input": { "retention": 100 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      {
+        "name": "retention 69.9",
+        "input": { "retention": 69.9 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      {
+        "name": "retention 99.1",
+        "input": { "retention": 99.1 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      {
+        "name": "retention 90.5",
+        "input": { "retention": 90.5 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      {
+        "name": "retention 70.5",
+        "input": { "retention": 70.5 },
+        "expect": { "code": "validation.algorithm.fsrs.retention" }
+      },
+      { "name": "learning step unit s", "input": { "learningSteps": [[10, "s"]] }, "expect": { "accepted": true } },
+      { "name": "learning step unit m", "input": { "learningSteps": [[10, "m"]] }, "expect": { "accepted": true } },
+      { "name": "learning step unit h", "input": { "learningSteps": [[10, "h"]] }, "expect": { "accepted": true } },
+      { "name": "learning step unit d", "input": { "learningSteps": [[10, "d"]] }, "expect": { "accepted": true } },
+      {
+        "name": "learning step amount 0",
+        "input": { "learningSteps": [[0, "m"]] },
+        "expect": { "code": "validation.algorithm.fsrs.learning-steps.amount" }
+      },
+      {
+        "name": "learning step amount -1",
+        "input": { "learningSteps": [[-1, "m"]] },
+        "expect": { "code": "validation.algorithm.fsrs.learning-steps.amount" }
+      },
+      {
+        "name": "learning step amount 2^63",
+        "input": { "learningSteps": [[9223372036854775808, "m"]] },
+        "expect": { "ts": { "accepted": true }, "rust": { "accepted": false } },
+        "divergence": "FSRS learning-step amounts are `i64` in Rust vs the safe-integer bound (2^53) in Zod"
+      },
+      {
+        "name": "learning step unit x",
+        "input": { "learningSteps": [[10, "x"]] },
+        "expect": { "code": "validation.algorithm.fsrs.learning-steps.unit" }
+      },
+      {
+        "name": "two relearning steps",
+        "input": { "relearningSteps": [[10, "m"], [1, "d"]] },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "relearning step amount 0",
+        "input": { "relearningSteps": [[0, "m"]] },
+        "expect": { "code": "validation.algorithm.fsrs.relearning-steps.amount" }
+      },
+      {
+        "name": "relearning step unit week",
+        "input": { "relearningSteps": [[10, "week"]] },
+        "expect": { "code": "validation.algorithm.fsrs.relearning-steps.unit" }
+      },
+      { "name": "maximum interval 1", "input": { "maximumInterval": 1 }, "expect": { "accepted": true } },
+      { "name": "maximum interval 365000", "input": { "maximumInterval": 365000 }, "expect": { "accepted": true } },
+      {
+        "name": "maximum interval 0",
+        "input": { "maximumInterval": 0 },
+        "expect": { "code": "validation.algorithm.fsrs.maximum-interval" }
+      },
+      {
+        "name": "maximum interval -1",
+        "input": { "maximumInterval": -1 },
+        "expect": { "code": "validation.algorithm.fsrs.maximum-interval" }
+      },
+      {
+        "name": "21 whole weights",
+        "input": { "weights": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21" },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "weights with spaces",
+        "input": { "weights": { "repeat": "0.5", "times": 21, "separator": ", " } },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "3 weights",
+        "input": { "weights": "0.5,0.5,0.5" },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "22 weights",
+        "input": { "weights": { "repeat": "0.5", "times": 22, "separator": "," } },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "non-numeric weight",
+        "input": {
+          "weights": "0.5,invalid,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5"
+        },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "every weight Infinity",
+        "input": { "weights": { "repeat": "Infinity", "times": 21, "separator": "," } },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "-Infinity weight",
+        "input": {
+          "weights": "0.5,-Infinity,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5"
+        },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "NaN weight",
+        "input": { "weights": "0.5,NaN,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5" },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "hexadecimal weight",
+        "input": { "weights": "0.5,0x1f,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5" },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      },
+      {
+        "name": "empty weights",
+        "input": { "weights": "" },
+        "expect": { "code": "validation.algorithm.fsrs.weights" }
+      }
+    ]
+  }
+]

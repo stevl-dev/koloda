@@ -44,11 +44,11 @@ export function readRuleCases(file: string, rule: string): RuleCase[] {
 function expand(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(expand);
   if (value === null || typeof value !== "object") return value;
-  const entries = Object.entries(value);
-  if (entries.length === 2 && "repeat" in value && "times" in value) {
-    return String(value.repeat).repeat(Number(value.times));
+  const { repeat, times, separator = "", ...rest } = value as Record<string, unknown>;
+  if (typeof repeat === "string" && typeof times === "number" && Object.keys(rest).length === 0) {
+    return Array.from({ length: times }, () => repeat).join(String(separator));
   }
-  return Object.fromEntries(entries.map(([key, item]) => [key, expand(item)]));
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, expand(item)]));
 }
 
 type ParseResult = { data?: unknown; error?: { issues: ReadonlyArray<{ message: string }> } };

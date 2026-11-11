@@ -2,6 +2,7 @@ import { createEmptyCard, Rating, State } from "ts-fsrs";
 import { describe, expect, it } from "vitest";
 import { algorithmFSRSValidation, createFSRSAlgorithm, DEFAULT_FSRS_ALGORITHM } from "./algorithms-fsrs";
 import type { AlgorithmFSRS } from "./algorithms-fsrs";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
 function createReviewedCard(now: Date) {
   const card = createEmptyCard(now);
@@ -193,228 +194,40 @@ describe("algorithmFSRSValidation", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts the canonical valid payload", () => {
-    const result = algorithmFSRSValidation.safeParse(validPayload());
-    expect(result.success).toBe(true);
+  it.each(readRuleCases("algorithms-fsrs.json", "content"))("$name", (ruleCase) => {
+    const result = algorithmFSRSValidation.safeParse({ ...validPayload(), ...(ruleCase.input as object) });
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
 
-  it("accepts retention at boundaries", () => {
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), retention: 70 }).success).toBe(true);
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), retention: 99 }).success).toBe(true);
-  });
-
-  it("accepts exactly 21 weights", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...validPayload(),
-      weights: "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("accepts weights with spaces", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...validPayload(),
-      weights:
-        "0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5",
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it.each(["s", "m", "h", "d"])("accepts learning step unit %s", (unit) => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...validPayload(),
-      learningSteps: [[10, unit]],
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("accepts empty learning and relearning step arrays", () => {
-    const result = algorithmFSRSValidation.safeParse(validPayload());
-    expect(result.success).toBe(true);
-  });
-
-  it("accepts valid relearning steps", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...validPayload(),
-      relearningSteps: [
-        [10, "m"],
-        [1, "d"],
-      ],
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("accepts maximum interval at minimum and large values", () => {
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), maximumInterval: 1 }).success).toBe(true);
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), maximumInterval: 365000 }).success).toBe(true);
-  });
-
-  it("accepts isFuzzEnabled true and false", () => {
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), isFuzzEnabled: true }).success).toBe(true);
-    expect(algorithmFSRSValidation.safeParse({ ...validPayload(), isFuzzEnabled: false }).success).toBe(true);
-  });
-
-  // WHY: retention must be whole, so 69.9 and 99.1 fail even with a bound moved by one; 69 and 100 pin the bounds.
+  // WHY: Rust stores these amounts as i64, so serde rejects a fraction there before any code is assigned
+  // (`test_fractional_amounts_fail_deserialization` in `crates/koloda/tests/domain/algorithms_fsrs_tests.rs`).
+  // A cleared NumberField commits `NaN`, which only the renderer can produce.
   it.each([
     {
-      name: "retention one below minimum",
-      payload: { ...validPayload(), retention: 69 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "retention one above maximum",
-      payload: { ...validPayload(), retention: 100 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "retention below minimum",
-      payload: { ...validPayload(), retention: 69.9 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "retention above maximum",
-      payload: { ...validPayload(), retention: 99.1 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "retention non-integer",
-      payload: { ...validPayload(), retention: 90.5 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "retention in-range non-integer",
-      payload: { ...validPayload(), retention: 70.5 },
-      code: "validation.algorithm.fsrs.retention",
-    },
-    {
-      name: "learning step zero amount",
-      payload: { ...validPayload(), learningSteps: [[0, "m"]] },
-      code: "validation.algorithm.fsrs.learning-steps.amount",
-    },
-    {
-      name: "learning step negative amount",
-      payload: { ...validPayload(), learningSteps: [[-1, "m"]] },
-      code: "validation.algorithm.fsrs.learning-steps.amount",
-    },
-    {
       name: "learning step fractional amount",
-      payload: { ...validPayload(), learningSteps: [[1.5, "m"]] },
-      code: "validation.algorithm.fsrs.learning-steps.amount",
+      payload: { learningSteps: [[1.5, "m"]] },
+      field: "learning-steps.amount",
     },
     {
       name: "learning step cleared amount (NaN)",
-      payload: { ...validPayload(), learningSteps: [[Number.NaN, "m"]] },
-      code: "validation.algorithm.fsrs.learning-steps.amount",
-    },
-    {
-      name: "learning step invalid unit",
-      payload: { ...validPayload(), learningSteps: [[10, "x"]] },
-      code: "validation.algorithm.fsrs.learning-steps.unit",
-    },
-    {
-      name: "relearning step zero amount",
-      payload: { ...validPayload(), relearningSteps: [[0, "m"]] },
-      code: "validation.algorithm.fsrs.relearning-steps.amount",
+      payload: { learningSteps: [[Number.NaN, "m"]] },
+      field: "learning-steps.amount",
     },
     {
       name: "relearning step fractional amount",
-      payload: { ...validPayload(), relearningSteps: [[2.5, "m"]] },
-      code: "validation.algorithm.fsrs.relearning-steps.amount",
+      payload: { relearningSteps: [[2.5, "m"]] },
+      field: "relearning-steps.amount",
     },
     {
       name: "relearning step cleared amount (NaN)",
-      payload: { ...validPayload(), relearningSteps: [[Number.NaN, "m"]] },
-      code: "validation.algorithm.fsrs.relearning-steps.amount",
+      payload: { relearningSteps: [[Number.NaN, "m"]] },
+      field: "relearning-steps.amount",
     },
-    {
-      name: "relearning step invalid unit",
-      payload: { ...validPayload(), relearningSteps: [[10, "week"]] },
-      code: "validation.algorithm.fsrs.relearning-steps.unit",
-    },
-    {
-      name: "maximum interval zero",
-      payload: { ...validPayload(), maximumInterval: 0 },
-      code: "validation.algorithm.fsrs.maximum-interval",
-    },
-    {
-      name: "maximum interval negative",
-      payload: { ...validPayload(), maximumInterval: -1 },
-      code: "validation.algorithm.fsrs.maximum-interval",
-    },
-    {
-      name: "maximum interval fractional",
-      payload: { ...validPayload(), maximumInterval: 10.5 },
-      code: "validation.algorithm.fsrs.maximum-interval",
-    },
-    {
-      name: "maximum interval cleared (NaN)",
-      payload: { ...validPayload(), maximumInterval: Number.NaN },
-      code: "validation.algorithm.fsrs.maximum-interval",
-    },
-    {
-      name: "weights too few values",
-      payload: { ...validPayload(), weights: "0.5,0.5,0.5" },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights too many values",
-      payload: {
-        ...validPayload(),
-        weights: "0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights hexadecimal",
-      payload: {
-        ...validPayload(),
-        weights: "0.5,0x1f,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights non-numeric",
-      payload: {
-        ...validPayload(),
-        weights: "0.5,invalid,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights all Infinity",
-      payload: {
-        ...validPayload(),
-        weights:
-          "Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity,Infinity",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights negative Infinity among valid",
-      payload: {
-        ...validPayload(),
-        weights: "0.5,-Infinity,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights NaN among valid",
-      payload: {
-        ...validPayload(),
-        weights: "0.5,NaN,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
-      },
-      code: "validation.algorithm.fsrs.weights",
-    },
-    {
-      name: "weights empty string",
-      payload: { ...validPayload(), weights: "" },
-      code: "validation.algorithm.fsrs.weights",
-    },
-  ])("rejects $name with $code", ({ payload, code }) => {
-    const result = algorithmFSRSValidation.safeParse(payload);
-    expect(result.success).toBe(false);
-    const issues = result.success ? [] : result.error.issues;
-    expect(issues.some((issue) => issue.message === code)).toBe(true);
+    { name: "maximum interval fractional", payload: { maximumInterval: 10.5 }, field: "maximum-interval" },
+    { name: "maximum interval cleared (NaN)", payload: { maximumInterval: Number.NaN }, field: "maximum-interval" },
+  ])("rejects $name with its field code", ({ payload, field }) => {
+    const result = algorithmFSRSValidation.safeParse({ ...validPayload(), ...payload });
+    expect(result.error?.issues[0]?.message).toBe(`validation.algorithm.fsrs.${field}`);
   });
 
   it("rejects non-literal type field", () => {
