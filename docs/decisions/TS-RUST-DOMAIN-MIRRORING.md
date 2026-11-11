@@ -75,3 +75,10 @@ The cost is accepted: every schema or domain change lands in both languages.
 - `agents/ADD-AI-PROVIDER.md` and `agents/DB.md` stay the how-to.
 - A single-file quirk does not need this file.
   UI that only uses the `Queries` contract does not need it either.
+
+## Rejected designs
+
+- No single validator, whether Rust rules compiled to WASM for the renderer or Zod generated from the Rust types —
+  each runtime needs its own rules: forms validate per field in Zod, and sync apply validates in Rust.
+- No shared `.sql` files for repo queries — the reads both hosts run are assembled at run time
+  (deck `IN` lists, FSRS state constants), the hosts bind parameters differently, and the writes differ by sync capture.

@@ -158,7 +158,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
 
 ## Plan
 
-- [ ] 1. Record the designs rejected for the host persistence seam
+- [x] 1. Record the designs rejected for the host persistence seam
   Goal: Add a `## Rejected designs` section at the end of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`,
   in the template of `agents/DECISIONS.md`: one line per design, naming the design and why it lost.
   Two lines:
