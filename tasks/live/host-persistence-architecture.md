@@ -1,6 +1,6 @@
 # Host persistence: rule twins on shared case tables
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/RUST.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md
 Flow: local
 
