@@ -1,6 +1,6 @@
 # Host persistence: rule twins on shared case tables
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/RUST.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md
 Flow: local
 
@@ -155,12 +155,17 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
 - [x] `task/mobile-spike` (draft, local) edits §Persistence owners of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`;
   this task adds two other sections to the same file.
   Which lands first? — ignore the spike; this task does not wait for it or adapt to it.
-- [ ] A negative or fractional daily limit fails Zod with its built-in message
+- [x] A negative or fractional daily limit fails Zod with its built-in message
   ("Too small: expected number to be >=0", "Invalid input: expected int, received number"),
   not a `validation.settings-learning.*` code as the learn-ahead parts do.
-  Should those checks carry a code, so a form never shows untranslated text? — open
+  Should those checks carry a code, so a form never shows untranslated text?
   Seen at `abfa2d66` on both `learningSettingsValidation` and `resolvedLearningSettingsValidation`
   (`libs/app/src/lib/settings-learning.ts`); product code is out of this task's scope.
+  — no, because the form cannot send either value.
+  At `01a3fe74`, each cap's `NumberField` has `minValue={0}` and `maximumFractionDigits: 0`, and `DailyLimitCapField`
+  drops a cleared field's `NaN` (`libs/settings-react/src/lib/settings-learning.tsx:17-18`, `:59-69`).
+  The learn-ahead parts carry codes because their `NaN` reaches Zod.
+  Rust could not return such a code: a `u32` cap makes serde refuse the payload before `validate()` runs.
 
 ## Plan
 
@@ -401,6 +406,19 @@ Items 10 to 13 answer the review of items 1 to 9.
   Depends on: 2
 
 ## Outcome
+
+All thirteen plan items shipped (`cb919e38`..`01a3fe74`).
+`bun run check:push` passed on `01a3fe74`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case.
+
+- Nine JSON files under `crates/koloda/tests/cases/` hold the boundary cases of the title, notes, deck reference,
+  template, card, review, FSRS, learning settings, and interface settings rules.
+  `cargo test -p koloda --test domain` and the `libs/srs` and `libs/app` Vitest suites read them.
+- The hand-written twin tables for those rules and their "Twin of" comments are gone.
+- `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` has §Rule cases and §Rejected designs.
+- Six Rust repo headers now say the module also records the sync groups a write changed; `reviews.rs` keeps "SQL only".
+- Deferred: F3 (skipped) and F4 (needs-decision) are in `tasks/DEFERRED.md`.
+  F2's repo half is part of the F3 entry.
 
 The case files differ from the shape item 2 planned.
 A file is a list of `{ "rule", "cases" }` tables, not one table, so one file can hold several rules of an entity.

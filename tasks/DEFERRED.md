@@ -170,6 +170,19 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/assistant-conversation-list-audit.md`
   Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape.
 
+## libs/db-sqlite
+
+- Improvement, Later: web keeps a second implementation of every repo, and audit after audit finds a host-only defect.
+  Evidence: at `99e4fdf2`, `libs/db-sqlite` has 1,718 source lines and 3,464 test lines.
+  Host-difference findings appear in 12 audits.
+  The web-only defects include templates T5, cards C11, and host-desync HD1.
+  26 of the 80 commits that touch `libs/db-sqlite/src` also touch the Rust side.
+  Kind: skipped
+  Source: `tasks/archive/host-persistence-architecture.md`, finding F3
+  Deferred because: shared `.sql` files fit no read both hosts run (§Rejected designs of
+  `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`), and a WASM `koloda` for web needs a new decision.
+  Rule disagreements are covered by the shared rule cases.
+
 ## libs/e2e
 
 - Improvement, Later: the two AI-mock transports repeat the response decision, and hold differently after a cancel.
@@ -260,6 +273,20 @@ Entries are grouped under one heading per package directory.
   Kind: skipped
   Source: `tasks/archive/ci-audit.md`, finding 4
   Deferred because: unmeasured.
+
+- Improvement, Later: the desktop command path restates the data command list in eight files.
+  Evidence: at `99e4fdf2`, `updateTemplate` is written by hand in ten places; six of them, from
+  `apps/electron-react/src/app/queries.ts:136` to `apps/electron/src-rust/src/lib.rs:482`, forward the same payload.
+  Adding the attachment commands touched all eight files in each of `5cce133d`, `aba158b9`, and `b6714ae7`.
+  Data commands use three argument conventions (`apps/electron/IPC.md:24`), and every NAPI method takes and returns
+  `serde_json::Value`.
+  Options: A, do nothing; B, one argument convention, `KolodaDb` derived from `DataIpc`, and one forwarder in main
+  (about 4 commits, roughly −250 lines); C, one typed dispatch in Rust with TS types generated from it
+  (about 10 commits, a new dependency, reverses `ipc-typed-contract`).
+  Kind: needs-decision
+  Source: `tasks/archive/host-persistence-architecture.md`, finding F4
+  Deferred because: wait for the `task/mobile-spike` verdict; a go adds a second Rust façade over the command list,
+  which is evidence for C that B would have to be redone against.
 
 - Handoff: three prose lines run past the 120-character guide limit.
   Evidence: at `1c0661bb`, `tools/check-markdown.ts` reports `agents/INDEX.md:31` (145 characters),
