@@ -27,8 +27,9 @@ In:
 
 - `crates/koloda/tests/cases/*.json`, a new directory, and a reader for it in `crates/koloda/tests/common`.
 - The domain tests on both sides for titles and notes, deck references, template content, card content and progress,
-  reviews, FSRS content, and learning settings:
-  `libs/srs/src/lib/*.test.ts`, `libs/app/src/lib/settings-learning.test.ts`, `crates/koloda/tests/domain/*_tests.rs`.
+  reviews, FSRS content, learning settings, and interface settings:
+  `libs/srs/src/lib/*.test.ts`, `libs/app/src/lib/settings-learning.test.ts`,
+  `libs/app/src/lib/settings-interface.test.ts`, and `crates/koloda/tests/domain/*_tests.rs`.
 - The Nx test inputs of `libs/srs` and `libs/app`.
 - `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` and `agents/TESTING.md` (§The TS ↔ Rust twin rule).
 - The module headers of seven files in `crates/koloda/src/repo`.
@@ -55,7 +56,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   - Found in triage, at `8e514f5e`: the title tables already differ.
     `crates/koloda/tests/domain/decks_title_tests.rs:33` has a "U+0085 only" accepted row;
     `libs/srs/src/lib/titles.test.ts` has no such row.
-  - Decision: fixed, by plan items 2 to 7 (proposal P1, option B).
+  - Decision: fixed, by plan items 2 to 8 (proposal P1, option B).
 - F2. The twins change together, and a third of that work is alignment found late.
   - 114 commits in `2026-09-07..99e4fdf2` touch the Rust domain, non-sync repos, or app runtime.
     60 of them (53%) also touch `libs/db-sqlite`, `libs/srs`, `libs/app`, or `libs/settings`.
@@ -63,7 +64,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   - 18 of the 60 exist only to make the sides agree.
     Examples: `33bafb70`, `28425311`, `2ad3093d`, `d875c5eb`, `f23153a2`, `c9c6a9c3`, `580d9160`, `8b829e4d`.
   - Per ISO week, commits touching both sides: 15, 11, 5, 4, 0, 3, 8, 9, 4, 1 (weeks 37 to 46).
-  - Decision: fixed for the rule half, by plan items 2 to 7; skipped for the repo half (see F3).
+  - Decision: fixed for the rule half, by plan items 2 to 8; skipped for the repo half (see F3).
 - F3. One host is wrong in audit after audit, and it is usually web.
   - Host-difference findings appear in 12 of the audits read; `host-desync-audit` and `mirror-desync-audit`
     exist only for this question.
@@ -100,7 +101,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
     `settings.rs`, and `templates.rs` in `crates/koloda/src/repo`, each at line 3.
     Six of them also decide which sync groups a write changed (`Capture::begin`); `reviews.rs` does not.
     `crates/koloda/README.md` states this correctly.
-  - Decision: fixed, by plan item 8.
+  - Decision: fixed, by plan item 9.
 
 ### Decisions taken in triage
 
@@ -137,6 +138,9 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   They already fail a build.
 - Shape cases only one side has: a key serde rejects before `validate()`, a `NaN` a cleared field commits.
   They stay in that side's test file.
+- The lesson amount and lesson result twins (`libs/srs/src/lib/lessons.test.ts:5`, `:50` against
+  `lessons_amounts_tests.rs` and `lessons_result_tests.rs`).
+  They are computed results, and the ruling covers accept-or-code rules.
 - AI provider and secrets twins (`ai_tests.rs`, `ai_serde_tests.rs`), the optimizer twins, and attachments.
   The review left the AI runtime, the optimizer, and sync out of its area.
 - Product code: no validator, schema, or error code changes.
@@ -146,17 +150,11 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
 
 ## Open questions
 
-- [ ] Do the interface timestamp-pattern rows and the lesson tables join the shared files?
-  `libs/app/src/lib/settings-interface.test.ts:40` and `crates/koloda/tests/domain/settings_interface_tests.rs:197`
-  twin a reject table with the same codes.
-  `libs/srs/src/lib/lessons.test.ts:5`, `:50` twin `lessons_amounts_tests.rs` and `lessons_result_tests.rs`.
-  The review's list named neither.
-  Recommended: add the timestamp patterns as one more plan item, since they are accept-or-code rules.
-  Leave the lesson amounts out, since they are computed results and the ruling covers accept-or-code rules. — open
-- [ ] `task/mobile-spike` (draft, local) edits §Persistence owners of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`;
+- [x] Do the interface timestamp-pattern rows and the lesson tables join the shared files?
+  The review's list named neither. — the timestamp patterns join, as plan item 8; the lesson tables stay out (see Out).
+- [x] `task/mobile-spike` (draft, local) edits §Persistence owners of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`;
   this task adds two other sections to the same file.
-  The spike shares `@koloda/srs` and `@koloda/app` unchanged, so it meets no other part of this plan.
-  Recommended: no ordering; whichever lands second rebases. — open
+  Which lands first? — ignore the spike; this task does not wait for it or adapt to it.
 
 ## Plan
 
@@ -314,7 +312,29 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the learning settings rules onto shared cases
   Depends on: 2
 
-- [ ] 8. Say what the repo modules do in their headers
+- [ ] 8. Move the interface settings rules onto shared cases
+  Goal: Add `crates/koloda/tests/cases/settings-interface.json`.
+  It holds the reject table of `libs/app/src/lib/settings-interface.test.ts:38-61` and the accept table at `:63-74`,
+  with their Rust twins in `crates/koloda/tests/domain/settings_interface_tests.rs`:
+  `test_invalid_date_format_fails` (`:149`), `test_invalid_time_format_fails` (`:173`), and
+  `test_timestamp_patterns_accepted` (`:196`) for the date and time patterns
+  (empty, an unescaped letter, over the 64-unit cap, literal-only; quoted text, an escaped quote, an unclosed quote,
+  and a pattern at the cap).
+  The enum rejects share the TS table, so they move with it: language, scheme, light theme, dark theme, and motion,
+  against the five `test_invalid_*_fails` tests at `:52-145`.
+  A case's input names the field and the value.
+  The union of rows goes in, so TS gains the empty and capitalized enum rows that only Rust has today.
+  Both suites read the file through the readers from items 2 and 7.
+  Delete the replaced tables and "Twin" comments in this commit.
+  Constraints: As item 2.
+  The default-filling, extra-field, and settings-name tests in the Rust file stay, and so does
+  `libs/app/src/lib/settings-interface-parity.test.ts`.
+  Done when: `cargo test -p koloda --test domain` and the `libs/app` Vitest command of item 7 pass.
+  `bun run typecheck` passes.
+  Commit: Move the interface settings rules onto shared cases
+  Depends on: 7
+
+- [ ] 9. Say what the repo modules do in their headers
   Goal: Seven files in `crates/koloda/src/repo` open with `//! SQL only. Validation lives in domain/<name>.`
   at line 3: `algorithms.rs`, `cards.rs`, `decks.rs`, `lessons.rs`, `reviews.rs`, `settings.rs`, `templates.rs`.
   Six of them also record which sync groups a write changed, through `Capture::begin`; `reviews.rs` does not.
