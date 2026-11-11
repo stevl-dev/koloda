@@ -22,7 +22,7 @@ pub enum Outcome {
     Rejected {
         code: String,
     },
-    /// The payload fails to parse before any rule runs: serde rejects it on this side.
+    /// Serde rejects the payload before `validate()` runs, so there is no code to compare.
     Unparsed,
     /// The answer of a rule that allows or refuses a change rather than validating a value.
     Allowed(bool),
@@ -166,15 +166,19 @@ impl RuleCase {
         payload
     }
 
-    /// Deserializes `payload` and validates it, reporting a payload serde rejects as `Outcome::Unparsed`.
+    /// Deserializes `payload` and runs `check` on it, reporting a payload serde rejects as `Outcome::Unparsed`.
+    /// `check` validates the data and returns the value it would store.
     pub fn parse_and_observe<T: DeserializeOwned>(
         &self,
         payload: Value,
-        validate: impl FnOnce(T) -> Result<(), AppError>,
+        check: impl FnOnce(T) -> Result<Value, AppError>,
     ) -> Outcome {
-        match serde_json::from_value::<T>(payload) {
-            Ok(data) => self.observe(validate(data), || Value::Null),
-            Err(_) => Outcome::Unparsed,
+        let Ok(data) = serde_json::from_value::<T>(payload) else {
+            return Outcome::Unparsed;
+        };
+        match check(data) {
+            Ok(stored) => self.observe(Ok(()), || stored),
+            Err(error) => self.observe(Err(error), || Value::Null),
         }
     }
 

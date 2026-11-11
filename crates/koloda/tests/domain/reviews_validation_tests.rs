@@ -1,5 +1,7 @@
 use koloda::domain::reviews::InsertReviewData;
 
+use serde_json::Value;
+
 use crate::common::cases::rule_cases;
 use crate::common::valid_review_json;
 
@@ -10,7 +12,7 @@ fn test_insert_review_rules() {
     // review-namespace code.
     for case in rule_cases("reviews.json", "insert") {
         let observed = case.parse_and_observe(case.patch(valid_review_json()), |review: InsertReviewData| {
-            review.validate()
+            review.validate().map(|()| Value::Null)
         });
         assert_eq!(observed, case.expect, "{}", case.name);
     }

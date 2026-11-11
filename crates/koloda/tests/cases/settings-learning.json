@@ -1,0 +1,465 @@
+[
+  {
+    "rule": "defaults",
+    "cases": [
+      {
+        "name": "empty daily limits",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": {}
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 50, "counts": true },
+              "learn": { "value": null, "counts": false },
+              "review": { "value": 200, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "empty limit objects",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "untouched": {}, "learn": {}, "review": {} }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 50, "counts": true },
+              "learn": { "value": null, "counts": false },
+              "review": { "value": 200, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "limit objects without counts",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "learn": { "value": 5 }, "untouched": { "value": 5 } }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 5, "counts": true },
+              "learn": { "value": 5, "counts": false },
+              "review": { "value": 200, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "partial limit objects",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "untouched": {}, "learn": { "value": 5 }, "review": { "counts": false } }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 50, "counts": true },
+              "learn": { "value": 5, "counts": false },
+              "review": { "value": 200, "counts": false }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "null limit",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "untouched": null }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 50, "counts": true },
+              "learn": { "value": null, "counts": false },
+              "review": { "value": 200, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "plain number limits",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "untouched": 10, "learn": 5, "review": 20 }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 200,
+              "untouched": { "value": 10, "counts": true },
+              "learn": { "value": 5, "counts": true },
+              "review": { "value": 20, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "plain number limits with a total",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": { "total": 100, "untouched": 20, "learn": 30, "review": 50 }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 100,
+              "untouched": { "value": 20, "counts": true },
+              "learn": { "value": 30, "counts": true },
+              "review": { "value": 50, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      },
+      {
+        "name": "zero total over zero caps",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000-0000-7000-8000-000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          },
+          "dailyLimits": {
+            "total": 0,
+            "untouched": { "value": 0, "counts": true },
+            "learn": { "value": 0, "counts": true },
+            "review": { "value": 0, "counts": true }
+          }
+        },
+        "expect": {
+          "accepted": true,
+          "stored": {
+            "defaults": {
+              "algorithm": "01900000-0000-7000-8000-000000000001",
+              "template": "01900000-0000-7000-8000-000000000002"
+            },
+            "dailyLimits": {
+              "total": 0,
+              "untouched": { "value": 0, "counts": true },
+              "learn": { "value": 0, "counts": true },
+              "review": { "value": 0, "counts": true }
+            },
+            "dayStartsAt": "05:00",
+            "learnAheadLimit": [0, 30]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "rule": "rules",
+    "cases": [
+      {
+        "name": "non-uuid default algorithm",
+        "input": { "defaults": { "algorithm": "simple", "template": "01900000-0000-7000-8000-000000000002" } },
+        "expect": { "code": "validation.settings-learning.defaults.algorithm" }
+      },
+      {
+        "name": "hyphenless default algorithm",
+        "input": {
+          "defaults": {
+            "algorithm": "01900000000070008000000000000001",
+            "template": "01900000-0000-7000-8000-000000000002"
+          }
+        },
+        "expect": { "code": "validation.settings-learning.defaults.algorithm" }
+      },
+      {
+        "name": "non-uuid default template",
+        "input": { "defaults": { "algorithm": "01900000-0000-7000-8000-000000000001", "template": "basic" } },
+        "expect": { "code": "validation.settings-learning.defaults.template" }
+      },
+      {
+        "name": "empty defaults object",
+        "input": { "defaults": {} },
+        "expect": { "code": "validation.settings-learning.defaults.algorithm" }
+      },
+      {
+        "name": "null total under high caps",
+        "input": {
+          "dailyLimits": {
+            "total": null,
+            "untouched": { "value": 999, "counts": true },
+            "learn": { "value": 999, "counts": true },
+            "review": { "value": 999, "counts": true }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "zero total under a counted cap of 1",
+        "input": {
+          "dailyLimits": {
+            "total": 0,
+            "untouched": { "value": 1, "counts": true },
+            "learn": { "value": 0, "counts": false },
+            "review": { "value": 0, "counts": true }
+          }
+        },
+        "expect": { "code": "validation.settings-learning.daily-limits.untouched-exceeds-total" }
+      },
+      {
+        "name": "unlimited cap under a finite total",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": null, "counts": true },
+            "learn": { "value": 5, "counts": true },
+            "review": { "value": 5, "counts": true }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "caps equal to the total",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 10, "counts": true },
+            "learn": { "value": 10, "counts": true },
+            "review": { "value": 10, "counts": true }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "untouched one past the total, counts true",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 11, "counts": true },
+            "learn": { "value": 10, "counts": true },
+            "review": { "value": 10, "counts": true }
+          }
+        },
+        "expect": { "code": "validation.settings-learning.daily-limits.untouched-exceeds-total" }
+      },
+      {
+        "name": "untouched one past the total, counts false",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 11, "counts": false },
+            "learn": { "value": 10, "counts": true },
+            "review": { "value": 10, "counts": true }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "learn one past the total, counts true",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 10, "counts": true },
+            "learn": { "value": 11, "counts": true },
+            "review": { "value": 10, "counts": true }
+          }
+        },
+        "expect": { "code": "validation.settings-learning.daily-limits.learn-exceeds-total" }
+      },
+      {
+        "name": "learn one past the total, counts false",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 10, "counts": true },
+            "learn": { "value": 11, "counts": false },
+            "review": { "value": 10, "counts": true }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "review one past the total, counts true",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 10, "counts": true },
+            "learn": { "value": 10, "counts": true },
+            "review": { "value": 11, "counts": true }
+          }
+        },
+        "expect": { "code": "validation.settings-learning.daily-limits.review-exceeds-total" }
+      },
+      {
+        "name": "review one past the total, counts false",
+        "input": {
+          "dailyLimits": {
+            "total": 10,
+            "untouched": { "value": 10, "counts": true },
+            "learn": { "value": 10, "counts": true },
+            "review": { "value": 11, "counts": false }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      { "name": "day starts at 00:00", "input": { "dayStartsAt": "00:00" }, "expect": { "accepted": true } },
+      { "name": "day starts at 04:59", "input": { "dayStartsAt": "04:59" }, "expect": { "accepted": true } },
+      { "name": "day starts at 23:00", "input": { "dayStartsAt": "23:00" }, "expect": { "accepted": true } },
+      { "name": "day starts at 23:59", "input": { "dayStartsAt": "23:59" }, "expect": { "accepted": true } },
+      {
+        "name": "day starts at 24:00",
+        "input": { "dayStartsAt": "24:00" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at 25:00",
+        "input": { "dayStartsAt": "25:00" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at 04:60",
+        "input": { "dayStartsAt": "04:60" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at 5:00",
+        "input": { "dayStartsAt": "5:00" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at 0400",
+        "input": { "dayStartsAt": "0400" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at 04:00:00",
+        "input": { "dayStartsAt": "04:00:00" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      {
+        "name": "day starts at invalid",
+        "input": { "dayStartsAt": "invalid" },
+        "expect": { "code": "validation.settings-learning.day-starts-at" }
+      },
+      { "name": "learn ahead 0h 0m", "input": { "learnAheadLimit": [0, 0] }, "expect": { "accepted": true } },
+      { "name": "learn ahead 0h 30m", "input": { "learnAheadLimit": [0, 30] }, "expect": { "accepted": true } },
+      { "name": "learn ahead 0h 59m", "input": { "learnAheadLimit": [0, 59] }, "expect": { "accepted": true } },
+      { "name": "learn ahead 48h 0m", "input": { "learnAheadLimit": [48, 0] }, "expect": { "accepted": true } },
+      {
+        "name": "learn ahead 49h 0m",
+        "input": { "learnAheadLimit": [49, 0] },
+        "expect": { "code": "validation.settings-learning.learn-ahead-limit.hours-range" }
+      },
+      {
+        "name": "learn ahead 0h 60m",
+        "input": { "learnAheadLimit": [0, 60] },
+        "expect": { "code": "validation.settings-learning.learn-ahead-limit.minutes-range" }
+      },
+      {
+        "name": "fractional total",
+        "input": {
+          "dailyLimits": {
+            "total": 1.5,
+            "untouched": { "value": 20, "counts": true },
+            "learn": { "value": 30, "counts": true },
+            "review": { "value": 50, "counts": true }
+          }
+        },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "fractional untouched cap",
+        "input": {
+          "dailyLimits": {
+            "total": 100,
+            "untouched": { "value": 1.5, "counts": true },
+            "learn": { "value": 30, "counts": true },
+            "review": { "value": 50, "counts": true }
+          }
+        },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "fractional learn-ahead hours",
+        "input": { "learnAheadLimit": [1.5, 30] },
+        "expect": { "accepted": false }
+      },
+      {
+        "name": "fractional learn-ahead minutes",
+        "input": { "learnAheadLimit": [4, 1.5] },
+        "expect": { "accepted": false }
+      }
+    ]
+  }
+]

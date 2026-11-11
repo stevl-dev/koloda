@@ -95,7 +95,7 @@ fn test_content_rules() {
     // WHY: retention must be whole, so 69.9 and 99.1 fail even with a bound moved by one; 69 and 100 pin the bounds.
     for case in rule_cases("algorithms-fsrs.json", "content") {
         let observed = case.parse_and_observe(case.patch(valid_payload()), |algorithm: AlgorithmFSRS| {
-            algorithm.validate()
+            algorithm.validate().map(|()| Value::Null)
         });
         assert_eq!(observed, case.expect, "{}", case.name);
     }

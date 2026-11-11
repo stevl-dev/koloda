@@ -63,7 +63,13 @@ export function observeRuleOutcome<R extends ParseResult>(
   stored: (data: NonNullable<R["data"]>) => unknown,
 ): RuleOutcome {
   const code = result.error?.issues[0]?.message;
-  if (code !== undefined) return { code };
+  if (code !== undefined) return isRejectedWithoutCode(ruleCase.expect) ? { accepted: false } : { code };
   if (!("stored" in ruleCase.expect)) return { accepted: true };
   return { accepted: true, stored: stored(result.data as NonNullable<R["data"]>) ?? null };
+}
+
+// WHY: `{ accepted: false }` marks a payload serde refuses on the Rust side, where no code exists to share;
+// any Zod issue is the TS side's rejection of it.
+function isRejectedWithoutCode(outcome: RuleOutcome) {
+  return "accepted" in outcome && !outcome.accepted;
 }

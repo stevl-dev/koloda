@@ -90,7 +90,7 @@ fn test_update_card_progress_rules() {
     // field only enforces non-negativity or its declared range, so one offender per row pins the cards-progress code.
     for case in rule_cases("cards.json", "progress") {
         let observed = case.parse_and_observe(case.patch(valid_payload()), |progress: UpdateCardProgress| {
-            progress.validate()
+            progress.validate().map(|()| Value::Null)
         });
         assert_eq!(observed, case.expect, "{}", case.name);
     }

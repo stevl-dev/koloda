@@ -21,7 +21,8 @@
         "{workspaceRoot}/crates/koloda/src/domain/settings_hotkeys.rs",
         "{workspaceRoot}/crates/koloda/src/domain/seed_ids.rs",
         "{workspaceRoot}/libs/settings-react/public/theme-boot.js",
-        "{workspaceRoot}/libs/ui/src/lib/styles/themes/*.css"
+        "{workspaceRoot}/libs/ui/src/lib/styles/themes/*.css",
+        "{workspaceRoot}/crates/koloda/tests/cases/*.json"
       ],
       "cache": true
     }

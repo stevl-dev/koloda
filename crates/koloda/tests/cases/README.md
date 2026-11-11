@@ -16,7 +16,8 @@ A case is `{ "name", "input", "expect" }`.
   An optional `"separator"` goes between the copies.
 - `expect` is one of:
   - `{ "accepted": true }`, optionally with `"stored"` for the normalized value (`null` for absent);
-  - `{ "accepted": false }`, for a payload that fails to parse before any rule runs (serde, on the Rust side);
+  - `{ "accepted": false }`, for a payload serde refuses before `validate()` runs, so no code exists to share;
+    the TS side matches it with any Zod issue;
   - `{ "code": "<error code>" }`;
   - `{ "allowed": true | false }`, for a rule that allows or refuses a change rather than validating a value.
 - A case the sides answer differently on purpose has `"expect": { "ts": ..., "rust": ... }`.
@@ -25,6 +26,6 @@ A case is `{ "name", "input", "expect" }`.
 ## Readers
 
 - Rust: `crates/koloda/tests/common/cases.rs`.
-- TS: `libs/srs/src/test/rule-cases.ts`.
+- TS: `libs/srs/src/test/rule-cases.ts`, and a copy in `libs/app/src/test/rule-cases.ts`.
 
-`libs/srs` lists this directory in its `test` Nx inputs, so a change here reruns its suite.
+`libs/srs` and `libs/app` list this directory in their `test` Nx inputs, so a change here reruns their suites.

@@ -292,7 +292,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the FSRS content rules onto shared cases
   Depends on: 2
 
-- [ ] 7. Move the learning settings rules onto shared cases
+- [x] 7. Move the learning settings rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/settings-learning.json`.
   It holds the rows `libs/app/src/lib/settings-learning.test.ts` and
   `crates/koloda/tests/domain/settings_learning_tests.rs` both assert:
