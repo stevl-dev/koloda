@@ -188,44 +188,41 @@ describe("createFSRSAlgorithm", () => {
   });
 });
 
+const CONTENT_CASES = readRuleCases("algorithms-fsrs.json", "content");
+
 describe("algorithmFSRSValidation", () => {
   it("accepts valid default algorithm data", () => {
     const result = algorithmFSRSValidation.safeParse(DEFAULT_FSRS_ALGORITHM);
     expect(result.success).toBe(true);
   });
 
-  it.each(readRuleCases("algorithms-fsrs.json", "content"))("$name", (ruleCase) => {
+  it.each(CONTENT_CASES)("$name", (ruleCase) => {
     const result = algorithmFSRSValidation.safeParse({ ...validPayload(), ...(ruleCase.input as object) });
     expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
 
-  // WHY: Rust stores these amounts as i64, so serde rejects a fraction there before any code is assigned
-  // (`test_fractional_amounts_fail_deserialization` in `crates/koloda/tests/domain/algorithms_fsrs_tests.rs`).
-  // A cleared NumberField commits `NaN`, which only the renderer can produce.
+  // WHY: Rust stores these amounts as i64, so serde refuses a fraction there before any code exists, and the shared
+  // rows expect only a rejection. A form shows the issue's code, so the same rows are checked for it here.
   it.each([
+    { name: "learning step amount 1.5", field: "learning-steps.amount" },
+    { name: "relearning step amount 2.5", field: "relearning-steps.amount" },
+    { name: "maximum interval 10.5", field: "maximum-interval" },
+  ])("reports $name with its field code", ({ name, field }) => {
+    const ruleCase = CONTENT_CASES.find((candidate) => candidate.name === name);
+    const result = algorithmFSRSValidation.safeParse({ ...validPayload(), ...(ruleCase?.input as object) });
+    expect(result.error?.issues[0]?.message).toBe(`validation.algorithm.fsrs.${field}`);
+  });
+
+  // WHY: a cleared NumberField commits `NaN`, which JSON cannot carry, so these rows cannot join the shared file.
+  it.each([
+    { name: "learning step amount", payload: { learningSteps: [[Number.NaN, "m"]] }, field: "learning-steps.amount" },
     {
-      name: "learning step fractional amount",
-      payload: { learningSteps: [[1.5, "m"]] },
-      field: "learning-steps.amount",
-    },
-    {
-      name: "learning step cleared amount (NaN)",
-      payload: { learningSteps: [[Number.NaN, "m"]] },
-      field: "learning-steps.amount",
-    },
-    {
-      name: "relearning step fractional amount",
-      payload: { relearningSteps: [[2.5, "m"]] },
-      field: "relearning-steps.amount",
-    },
-    {
-      name: "relearning step cleared amount (NaN)",
+      name: "relearning step amount",
       payload: { relearningSteps: [[Number.NaN, "m"]] },
       field: "relearning-steps.amount",
     },
-    { name: "maximum interval fractional", payload: { maximumInterval: 10.5 }, field: "maximum-interval" },
-    { name: "maximum interval cleared (NaN)", payload: { maximumInterval: Number.NaN }, field: "maximum-interval" },
-  ])("rejects $name with its field code", ({ payload, field }) => {
+    { name: "maximum interval", payload: { maximumInterval: Number.NaN }, field: "maximum-interval" },
+  ])("rejects a cleared $name (NaN) with its field code", ({ payload, field }) => {
     const result = algorithmFSRSValidation.safeParse({ ...validPayload(), ...payload });
     expect(result.error?.issues[0]?.message).toBe(`validation.algorithm.fsrs.${field}`);
   });

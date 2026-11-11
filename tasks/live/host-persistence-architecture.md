@@ -358,4 +358,17 @@ Items 10 to 13 answer the review of items 1 to 9.
   Commit: Check that a one-rule row reports one issue
   Depends on: 3, 7
 
+- [x] 11. Move the fractional FSRS amounts onto shared cases
+  Goal: Item 6 left the fractional step amounts and maximum interval (1.5, 2.5, 10.5) as a hand-written twin:
+  `test_fractional_amounts_fail_deserialization` in Rust and three rows of a TS table, tied by comments.
+  Add them to `crates/koloda/tests/cases/algorithms-fsrs.json` as `{ "accepted": false }` rows,
+  the shape `settings-learning.json` uses for its fractional rows, and delete the Rust test.
+  Zod reports each field's code where serde has none.
+  Keep that check in `libs/srs/src/lib/algorithms-fsrs.test.ts`, reading the inputs from the shared rows by name.
+  Constraints: Tests only.
+  The `NaN` rows stay in the TS file; JSON cannot carry `NaN`.
+  Done when: `cargo test -p koloda --test domain` and the `libs/srs` Vitest command pass.
+  Commit: Move the fractional FSRS amounts onto shared cases
+  Depends on: 6
+
 ## Outcome

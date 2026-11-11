@@ -72,27 +72,10 @@ fn test_wrong_typed_fields_fail() {
 }
 
 #[test]
-fn test_fractional_amounts_fail_deserialization() {
-    // WHY: step amounts and `maximum_interval` are i64, so serde rejects a fraction before `validate()` runs.
-    // The TS twin rejects the same values with each field's code (`algorithms-fsrs.test.ts`).
-    let fractional_fields = [
-        ("learningSteps", json!([[1.5, "m"]])),
-        ("relearningSteps", json!([[2.5, "m"]])),
-        ("maximumInterval", json!(10.5)),
-    ];
-
-    for (field, offending) in fractional_fields {
-        let mut payload = valid_payload();
-        payload[field] = offending.clone();
-
-        let result: Result<AlgorithmFSRS, _> = serde_json::from_value(payload);
-        assert!(result.is_err(), "Should fail when {field} is {offending}");
-    }
-}
-
-#[test]
 fn test_content_rules() {
     // WHY: retention must be whole, so 69.9 and 99.1 fail even with a bound moved by one; 69 and 100 pin the bounds.
+    // Step amounts and `maximum_interval` are i64, so serde rejects a fraction before `validate()` runs; those rows
+    // expect a rejection with no code.
     for case in rule_cases("algorithms-fsrs.json", "content") {
         let observed = case.parse_and_observe(case.patch(valid_payload()), |algorithm: AlgorithmFSRS| {
             algorithm.validate().map(|()| Value::Null)
