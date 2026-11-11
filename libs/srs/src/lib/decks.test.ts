@@ -8,6 +8,9 @@ const ID = "01900000-0000-7000-8000-000000000001";
 describe("deckValidation references", () => {
   it.each(readRuleCases("decks.json", "references"))("$name", (ruleCase) => {
     const payload = { id: ID, title: "German", algorithmId: ID, templateId: ID, ...(ruleCase.input as object) };
-    expect(observeRuleOutcome(ruleCase, deckValidation.safeParse(payload), () => undefined)).toEqual(ruleCase.expect);
+    const result = deckValidation.safeParse(payload);
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
+    // WHY: a form shows every issue, so a row that breaks one reference must not flag the other one too.
+    expect(result.error?.issues ?? []).toHaveLength("code" in ruleCase.expect ? 1 : 0);
   });
 });

@@ -345,4 +345,17 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Say what the repo modules do in their headers
   Depends on: none
 
+Items 10 to 13 answer the review of items 1 to 9.
+
+- [x] 10. Check that a one-rule row reports one issue
+  Goal: `observeRuleOutcome` reads only the first Zod issue.
+  The tables it replaced compared the whole issue list for the deck references and the learning settings rules.
+  Assert again that a row breaking one rule reports one issue, in `libs/srs/src/lib/decks.test.ts` and
+  `libs/app/src/lib/settings-learning.test.ts`.
+  Constraints: TS tests only.
+  The "empty defaults object" row lacks both ids and reports two issues; leave it out and say why.
+  Done when: the `libs/srs` and `libs/app` Vitest commands pass.
+  Commit: Check that a one-rule row reports one issue
+  Depends on: 3, 7
+
 ## Outcome

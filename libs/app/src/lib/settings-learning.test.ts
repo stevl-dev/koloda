@@ -34,6 +34,8 @@ const RULES_BASE = {
   learnAheadLimit: [4, 0],
 };
 
+const RULE_CASES = readRuleCases("settings-learning.json", "rules");
+
 describe("learningSettingsValidation", () => {
   it("accepts default preset via DEFAULT_LEARNING_SETTINGS", () => {
     expect(DEFAULT_LEARNING_SETTINGS).toEqual({
@@ -62,10 +64,20 @@ describe.each([
   { name: "defaulting", schema: learningSettingsValidation },
   { name: "resolved", schema: resolvedLearningSettingsValidation },
 ])("$name schema rules", ({ schema }) => {
-  it.each(readRuleCases("settings-learning.json", "rules"))("$name", (ruleCase) => {
+  it.each(RULE_CASES)("$name", (ruleCase) => {
     const result = schema.safeParse({ ...RULES_BASE, ...(ruleCase.input as object) });
     expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
+
+  // WHY: a form shows every issue, so a row that breaks one rule must report that code alone.
+  // "empty defaults object" is left out: it lacks both ids, which is two issues.
+  it.each(RULE_CASES.filter(({ name, expect: answer }) => "code" in answer && name !== "empty defaults object"))(
+    "$name is the only issue",
+    (ruleCase) => {
+      const result = schema.safeParse({ ...RULES_BASE, ...(ruleCase.input as object) });
+      expect(result.error?.issues).toHaveLength(1);
+    },
+  );
 });
 
 // WHY: Rust stores the learn-ahead parts as u32, so serde refuses a negative there before any code is assigned;
