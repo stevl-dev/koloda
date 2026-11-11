@@ -257,7 +257,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the template content rules onto shared cases
   Depends on: 2
 
-- [ ] 5. Move the card and review rules onto shared cases
+- [x] 5. Move the card and review rules onto shared cases
   Goal: Add `crates/koloda/tests/cases/cards.json` and `crates/koloda/tests/cases/reviews.json`.
   Cards: content rules (a required field empty, a missing key reported with the field-empty code,
   a missing optional key) from `libs/srs/src/lib/cards.test.ts:219-260` and

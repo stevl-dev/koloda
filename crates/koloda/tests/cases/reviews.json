@@ -1,0 +1,60 @@
+[
+  {
+    "rule": "insert",
+    "cases": [
+      { "name": "rating 1", "input": { "rating": 1 }, "expect": { "accepted": true } },
+      { "name": "rating 2", "input": { "rating": 2 }, "expect": { "accepted": true } },
+      { "name": "rating 3", "input": { "rating": 3 }, "expect": { "accepted": true } },
+      { "name": "rating 4", "input": { "rating": 4 }, "expect": { "accepted": true } },
+      { "name": "rating 0", "input": { "rating": 0 }, "expect": { "code": "validation.reviews.rating" } },
+      { "name": "rating 5", "input": { "rating": 5 }, "expect": { "code": "validation.reviews.rating" } },
+      { "name": "rating -1", "input": { "rating": -1 }, "expect": { "code": "validation.reviews.rating" } },
+      { "name": "state 0", "input": { "state": 0 }, "expect": { "accepted": true } },
+      { "name": "state 1", "input": { "state": 1 }, "expect": { "accepted": true } },
+      { "name": "state 2", "input": { "state": 2 }, "expect": { "accepted": true } },
+      { "name": "state 3", "input": { "state": 3 }, "expect": { "accepted": true } },
+      { "name": "state -1", "input": { "state": -1 }, "expect": { "code": "validation.reviews.state" } },
+      { "name": "state 4", "input": { "state": 4 }, "expect": { "code": "validation.reviews.state" } },
+      { "name": "stability 0.0", "input": { "stability": 0.0 }, "expect": { "accepted": true } },
+      { "name": "stability 365.0", "input": { "stability": 365.0 }, "expect": { "accepted": true } },
+      {
+        "name": "stability -1.0",
+        "input": { "stability": -1.0 },
+        "expect": { "code": "validation.reviews.stability" }
+      },
+      { "name": "difficulty 0.0", "input": { "difficulty": 0.0 }, "expect": { "accepted": true } },
+      { "name": "difficulty 10.0", "input": { "difficulty": 10.0 }, "expect": { "accepted": true } },
+      {
+        "name": "difficulty -0.1",
+        "input": { "difficulty": -0.1 },
+        "expect": { "code": "validation.reviews.difficulty" }
+      },
+      {
+        "name": "difficulty 10.1",
+        "input": { "difficulty": 10.1 },
+        "expect": { "code": "validation.reviews.difficulty" }
+      },
+      { "name": "scheduledDays 0", "input": { "scheduledDays": 0 }, "expect": { "accepted": true } },
+      {
+        "name": "scheduledDays -1",
+        "input": { "scheduledDays": -1 },
+        "expect": { "code": "validation.reviews.scheduled-days" }
+      },
+      { "name": "learningSteps 0", "input": { "learningSteps": 0 }, "expect": { "accepted": true } },
+      {
+        "name": "learningSteps -1",
+        "input": { "learningSteps": -1 },
+        "expect": { "code": "validation.reviews.learning-steps" }
+      },
+      { "name": "time 0", "input": { "time": 0 }, "expect": { "accepted": true } },
+      { "name": "time 5000", "input": { "time": 5000 }, "expect": { "accepted": true } },
+      { "name": "time -1", "input": { "time": -1 }, "expect": { "code": "validation.reviews.time" } },
+      {
+        "name": "time 2147483648",
+        "input": { "time": 2147483648 },
+        "expect": { "ts": { "accepted": true }, "rust": { "accepted": false } },
+        "divergence": "Rust `i32` upper bounds are not mirrored in Zod"
+      }
+    ]
+  }
+]

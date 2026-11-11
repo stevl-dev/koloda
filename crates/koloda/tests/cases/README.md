@@ -15,6 +15,7 @@ A case is `{ "name", "input", "expect" }`.
 - `{ "repeat": "<text>", "times": <n> }` anywhere in `input` stands for that text repeated `n` times.
 - `expect` is one of:
   - `{ "accepted": true }`, optionally with `"stored"` for the normalized value (`null` for absent);
+  - `{ "accepted": false }`, for a payload that fails to parse before any rule runs (serde, on the Rust side);
   - `{ "code": "<error code>" }`;
   - `{ "allowed": true | false }`, for a rule that allows or refuses a change rather than validating a value.
 - A case the sides answer differently on purpose has `"expect": { "ts": ..., "rust": ... }`.

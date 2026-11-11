@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { z } from "zod";
 import { cardRowSchema, cardValidation, insertCardSchema } from "./cards";
 import { insertReviewSchema, reviewRowSchema } from "./reviews";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
-
-function firstIssueMessage<T>(result: z.ZodSafeParseResult<T>): string | undefined {
-  if (result.success) return undefined;
-  return result.error.issues[0]?.message;
-}
 
 function validCardProgress(overrides: Record<string, unknown> = {}) {
   return {
@@ -57,48 +52,24 @@ function validInsertReview(overrides: Record<string, unknown> = {}) {
   return rest;
 }
 
+describe.each([
+  {
+    name: "cardValidation",
+    parse: (input: Record<string, unknown>) => cardValidation.safeParse(validCardProgress(input)),
+  },
+  {
+    name: "insertCardSchema",
+    parse: (input: Record<string, unknown>) => insertCardSchema.safeParse(validInsertCard(input)),
+  },
+])("$name progress", ({ parse }) => {
+  it.each(readRuleCases("cards.json", "progress"))("$name", (ruleCase) => {
+    expect(observeRuleOutcome(ruleCase, parse(ruleCase.input as Record<string, unknown>), () => undefined)).toEqual(
+      ruleCase.expect,
+    );
+  });
+});
+
 describe("card progress validation", () => {
-  it("accepts a canonical valid card payload", () => {
-    expect(cardValidation.safeParse(validCardProgress()).success).toBe(true);
-    expect(insertCardSchema.safeParse(validInsertCard()).success).toBe(true);
-  });
-
-  it("rejects out-of-bounds progress values with field-specific codes", () => {
-    const cases: Array<[string, unknown, string]> = [
-      ["state", -1, "validation.cards-progress.state"],
-      ["state", 4, "validation.cards-progress.state"],
-      ["stability", -1.0, "validation.cards-progress.stability"],
-      ["difficulty", -0.1, "validation.cards-progress.difficulty"],
-      ["difficulty", 10.1, "validation.cards-progress.difficulty"],
-      ["scheduledDays", -1, "validation.cards-progress.scheduled-days"],
-      ["learningSteps", -1, "validation.cards-progress.learning-steps"],
-      ["reps", -1, "validation.cards-progress.reps"],
-      ["lapses", -1, "validation.cards-progress.lapses"],
-    ];
-
-    for (const [field, offending, code] of cases) {
-      const result = cardValidation.safeParse(validCardProgress({ [field]: offending }));
-      expect(firstIssueMessage(result), `${field} = ${offending}`).toBe(code);
-    }
-  });
-
-  it("accepts boundary progress values", () => {
-    const cases: Array<[string, unknown]> = [
-      ["stability", 0.0],
-      ["difficulty", 0.0],
-      ["difficulty", 10.0],
-      ["scheduledDays", 0],
-      ["learningSteps", 0],
-      ["reps", 0],
-      ["lapses", 0],
-    ];
-
-    for (const [field, value] of cases) {
-      const result = cardValidation.safeParse(validCardProgress({ [field]: value }));
-      expect(result.success, `${field} = ${value}`).toBe(true);
-    }
-  });
-
   it("defaults omitted stability and difficulty to 0", () => {
     const { stability: _s, difficulty: _d, ...insertWithout } = validInsertCard();
     const inserted = insertCardSchema.parse(insertWithout);
@@ -131,60 +102,21 @@ describe("card progress validation", () => {
   });
 });
 
+describe.each([
+  {
+    name: "insertReviewSchema",
+    parse: (input: Record<string, unknown>) => insertReviewSchema.safeParse(validInsertReview(input)),
+  },
+  { name: "reviewRowSchema", parse: (input: Record<string, unknown>) => reviewRowSchema.safeParse(validReview(input)) },
+])("$name", ({ parse }) => {
+  it.each(readRuleCases("reviews.json", "insert"))("$name", (ruleCase) => {
+    expect(observeRuleOutcome(ruleCase, parse(ruleCase.input as Record<string, unknown>), () => undefined)).toEqual(
+      ruleCase.expect,
+    );
+  });
+});
+
 describe("review validation", () => {
-  it("accepts a canonical valid review payload", () => {
-    expect(reviewRowSchema.safeParse(validReview()).success).toBe(true);
-    expect(insertReviewSchema.safeParse(validInsertReview()).success).toBe(true);
-  });
-
-  it("accepts all valid ratings (1..4)", () => {
-    for (let rating = 1; rating <= 4; rating++) {
-      const result = insertReviewSchema.safeParse(validInsertReview({ rating }));
-      expect(result.success, `rating ${rating}`).toBe(true);
-    }
-  });
-
-  it("accepts all valid states (0..3)", () => {
-    for (let state = 0; state <= 3; state++) {
-      const result = insertReviewSchema.safeParse(validInsertReview({ state }));
-      expect(result.success, `state ${state}`).toBe(true);
-    }
-  });
-
-  it("rejects out-of-bounds review values with field-specific codes", () => {
-    const cases: Array<[string, unknown, string]> = [
-      ["rating", 0, "validation.reviews.rating"],
-      ["rating", 5, "validation.reviews.rating"],
-      ["rating", -1, "validation.reviews.rating"],
-      ["state", -1, "validation.reviews.state"],
-      ["state", 4, "validation.reviews.state"],
-      ["stability", -1.0, "validation.reviews.stability"],
-      ["difficulty", -0.1, "validation.reviews.difficulty"],
-      ["difficulty", 10.1, "validation.reviews.difficulty"],
-      ["scheduledDays", -1, "validation.reviews.scheduled-days"],
-      ["learningSteps", -1, "validation.reviews.learning-steps"],
-      ["time", -1, "validation.reviews.time"],
-    ];
-
-    for (const [field, offending, code] of cases) {
-      const result = insertReviewSchema.safeParse(validInsertReview({ [field]: offending }));
-      expect(firstIssueMessage(result), `${field} = ${offending}`).toBe(code);
-    }
-  });
-
-  it.each([
-    ["stability", 0.0],
-    ["difficulty", 0.0],
-    ["difficulty", 10.0],
-    ["stability", 365.0],
-    ["scheduledDays", 0],
-    ["learningSteps", 0],
-    ["time", 0],
-    ["time", 5000],
-  ] as const)("accepts boundary review value %s = %s", (field, value) => {
-    expect(insertReviewSchema.safeParse(validInsertReview({ [field]: value })).success).toBe(true);
-  });
-
   it("rejects null dueAt", () => {
     expect(reviewRowSchema.safeParse(validReview({ dueAt: null })).success).toBe(false);
     expect(insertReviewSchema.safeParse(validInsertReview({ dueAt: null })).success).toBe(false);

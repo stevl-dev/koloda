@@ -236,32 +236,6 @@ pub fn valid_card_content() -> serde_json::Value {
     })
 }
 
-pub fn empty_required_field_content() -> serde_json::Value {
-    json!({
-        "01900000-0000-7000-8000-000000000001": { "text": "" },
-        "01900000-0000-7000-8000-000000000002": { "text": "Back text" }
-    })
-}
-
-pub fn missing_required_field_content() -> serde_json::Value {
-    json!({
-        "01900000-0000-7000-8000-000000000002": { "text": "Back text" }
-    })
-}
-
-pub fn empty_optional_field_content() -> serde_json::Value {
-    json!({
-        "01900000-0000-7000-8000-000000000001": { "text": "Front text" },
-        "01900000-0000-7000-8000-000000000002": { "text": "" }
-    })
-}
-
-pub fn missing_optional_field_content() -> serde_json::Value {
-    json!({
-        "01900000-0000-7000-8000-000000000001": { "text": "Front text" }
-    })
-}
-
 pub fn valid_card_progress_json() -> serde_json::Value {
     json!({
         "id": "01900000-0000-7000-8000-000000000001",

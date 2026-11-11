@@ -175,7 +175,7 @@ Match these files when the shape fits:
 - `apps/electron/src/window-close-coordinator.test.ts` — state-machine race coverage.
 - `libs/ai/src/lib/prompts.test.ts` — prose-prompt guards.
 - `crates/koloda/tests/domain/reviews_validation_tests.rs` —
-  shared-baseline reject/boundary tables asserting per-field error codes.
+  a shared rule case table: a valid baseline patched per case, asserting per-field error codes.
 - `libs/assistant-react/src/lib/state/assistant-conversation-store.test.ts` —
   typed it.each negative-case table with per-row setup hooks.
 - `crates/koloda/tests/domain/cards_serde_tests.rs` — NAPI wire pins: exact JSON shape,

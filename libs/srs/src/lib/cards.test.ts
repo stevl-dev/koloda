@@ -15,6 +15,7 @@ import {
 import type { Card } from "./cards";
 import { DEFAULT_TEMPLATE } from "./templates";
 import type { Template, TemplateFields } from "./templates";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
 const DEFAULT_DATE = new Date("2024-01-01T00:00:00.000Z");
 
@@ -210,62 +211,22 @@ describe("createUpdateCardProgress", () => {
   });
 });
 
+// WHY: CARDS.md (§Card Content) requires every template field to be present; a missing key reports field-empty
+// because the UI catalog translates only that code.
 describe("getCardContentValidation", () => {
-  const fields: TemplateFields = [
-    { id: SEED_TEMPLATE_TYPE_FRONT_FIELD_ID, title: "Front", type: "text", isRequired: true },
-    { id: SEED_TEMPLATE_TYPE_BACK_FIELD_ID, title: "Back", type: "markdown", isRequired: false },
-  ];
+  const contentCases = readRuleCases("cards.json", "content");
 
-  // Missing optional field keys: twin of koloda `test_insert_card_content_optional_field_missing_fails`.
-  // CARDS.md (§Card Content) requires every template field to be present.
-  it.each([
-    {
-      scenario: "empty text on a required field",
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "anything" },
-      },
-      success: false,
-    },
-    {
-      scenario: "non-empty text on required fields",
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "Valid" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Back" },
-      },
-      success: true,
-    },
-    {
-      scenario: "empty text on a non-required field",
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "Valid" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "" },
-      },
-      success: true,
-    },
-    {
-      scenario: "a missing optional field key",
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "Valid" },
-      },
-      success: false,
-    },
-  ])("$scenario", ({ content, success }) => {
-    const { content: contentSchema } = getCardContentValidation(fields);
-    expect(contentSchema.safeParse(content).success).toBe(success);
+  it.each(contentCases)("$name", (ruleCase) => {
+    const { template, content } = ruleCase.input as { template: TemplateFields; content: unknown };
+    const result = getCardContentValidation(template).content.safeParse(content);
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
 
-  it("reports missing keys with the field-empty code like the Rust twin", () => {
-    // Twin of koloda validate_content reusing field-empty for absent keys
-    // (crates/koloda/src/domain/cards.rs) — the UI catalog translates only
-    // that code, so a bare zod invalid_type would surface untranslated.
-    const { content: contentSchema } = getCardContentValidation(fields);
-    const result = contentSchema.safeParse({ [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Back" } });
-
-    expect(result.success).toBe(false);
-    const issue = result.success ? undefined : result.error.issues[0];
-    expect(issue?.message).toBe("validation.cards.content.field-empty");
-    expect(issue?.path).toEqual([SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]);
+  it("reports a missing key at that field's path", () => {
+    const ruleCase = contentCases.find((candidate) => candidate.name === "required field key missing");
+    const { template, content } = ruleCase!.input as { template: TemplateFields; content: unknown };
+    const result = getCardContentValidation(template).content.safeParse(content);
+    expect(result.error?.issues[0]?.path).toEqual([template[0]?.id]);
   });
 });
 

@@ -1,6 +1,7 @@
 //! Reader for the rule cases Vitest also reads. File shape: `tests/cases/README.md`.
 
 use koloda::app::error::AppError;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 
@@ -21,6 +22,8 @@ pub enum Outcome {
     Rejected {
         code: String,
     },
+    /// The payload fails to parse before any rule runs: serde rejects it on this side.
+    Unparsed,
     /// The answer of a rule that allows or refuses a change rather than validating a value.
     Allowed(bool),
 }
@@ -104,13 +107,14 @@ fn into_case(raw: RawCase) -> RuleCase {
 fn into_outcome(name: &str, raw: RawOutcome) -> Outcome {
     let outcome = match (raw.accepted, raw.code, raw.allowed) {
         (Some(true), None, None) => Some(Outcome::Accepted { stored: raw.stored }),
+        (Some(false), None, None) if raw.stored.is_none() => Some(Outcome::Unparsed),
         (None, Some(code), None) if raw.stored.is_none() => Some(Outcome::Rejected { code }),
         (None, None, Some(allowed)) if raw.stored.is_none() => Some(Outcome::Allowed(allowed)),
         _ => None,
     };
     assert!(
         outcome.is_some(),
-        "{name}: expect is `accepted: true`, a `code`, or `allowed`"
+        "{name}: expect is `accepted`, a `code`, or `allowed`"
     );
     outcome.expect("checked above")
 }
@@ -137,6 +141,33 @@ impl RuleCase {
             .as_ref()
             .and_then(Value::as_str)
             .expect("case input should be a string")
+    }
+
+    /// `base` with the case's input object merged over it.
+    pub fn patch(&self, base: Value) -> Value {
+        let mut payload = base;
+        let fields = self
+            .input
+            .as_ref()
+            .and_then(Value::as_object)
+            .expect("case input should be an object");
+        payload
+            .as_object_mut()
+            .expect("base payload should be an object")
+            .extend(fields.clone());
+        payload
+    }
+
+    /// Deserializes `payload` and validates it, reporting a payload serde rejects as `Outcome::Unparsed`.
+    pub fn parse_and_observe<T: DeserializeOwned>(
+        &self,
+        payload: Value,
+        validate: impl FnOnce(T) -> Result<(), AppError>,
+    ) -> Outcome {
+        match serde_json::from_value::<T>(payload) {
+            Ok(data) => self.observe(validate(data), || Value::Null),
+            Err(_) => Outcome::Unparsed,
+        }
     }
 
     /// The outcome a validation produced, in the shape of `self.expect`.

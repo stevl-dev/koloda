@@ -1,7 +1,4 @@
-use crate::common::{
-    empty_optional_field_content, empty_required_field_content, missing_optional_field_content,
-    missing_required_field_content, valid_card_content, valid_template_fields,
-};
+use crate::common::{valid_card_content, valid_template_fields};
 use koloda::domain::cards::InsertCardData;
 use serde_json::{json, Value};
 
@@ -72,95 +69,6 @@ fn test_wrong_typed_fields_fail() {
         let result = serde_json::from_value::<InsertCardData>(payload);
         assert!(result.is_err(), "Should fail when {field} is {offending}");
     }
-}
-
-#[test]
-fn test_insert_card_content_valid_ok() {
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": valid_card_content()
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    card_data.validate(&valid_template_fields()).unwrap();
-}
-
-#[test]
-fn test_insert_card_content_required_field_empty_fails() {
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": empty_required_field_content()
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    let validation_result = card_data.validate(&valid_template_fields());
-    assert_eq!(
-        validation_result.unwrap_err().code,
-        "validation.cards.content.field-empty"
-    );
-}
-
-#[test]
-fn test_insert_card_content_required_field_missing_fails() {
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": missing_required_field_content()
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    let validation_result = card_data.validate(&valid_template_fields());
-    assert_eq!(
-        validation_result.unwrap_err().code,
-        "validation.cards.content.field-empty"
-    );
-}
-
-#[test]
-fn test_insert_card_content_optional_field_empty_ok() {
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": empty_optional_field_content()
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    card_data.validate(&valid_template_fields()).unwrap();
-}
-
-#[test]
-fn test_insert_card_content_optional_field_missing_fails() {
-    // Twin of `@koloda/srs` missing-optional-key test — CARDS.md requires every field present.
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": missing_optional_field_content()
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    let validation_result = card_data.validate(&valid_template_fields());
-    assert_eq!(
-        validation_result.unwrap_err().code,
-        "validation.cards.content.field-empty"
-    );
-}
-
-#[test]
-fn test_insert_card_content_unicode_ok() {
-    let unicode_content = json!({
-        "01900000-0000-7000-8000-000000000001": { "text": "こんにちは世界 🌍" },
-        "01900000-0000-7000-8000-000000000002": { "text": "Привет мир 🎴" }
-    });
-    let data = json!({
-        "deckId": "01900000-0000-7000-8000-000000000001",
-        "templateId": "01900000-0000-7000-8000-000000000001",
-        "content": unicode_content
-    });
-    let result = serde_json::from_value::<InsertCardData>(data);
-    let card_data = result.unwrap();
-    card_data.validate(&valid_template_fields()).unwrap();
 }
 
 fn minimal_insert_card_data() -> serde_json::Value {

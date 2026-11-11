@@ -1,0 +1,130 @@
+[
+  {
+    "rule": "content",
+    "cases": [
+      {
+        "name": "every field filled",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": {
+            "01900000-0000-7000-8000-000000000001": { "text": "Front text" },
+            "01900000-0000-7000-8000-000000000002": { "text": "Back text" }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "non-Latin text and emoji",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": {
+            "01900000-0000-7000-8000-000000000001": { "text": "こんにちは世界 🌍" },
+            "01900000-0000-7000-8000-000000000002": { "text": "Привет мир 🎴" }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "required field empty",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": {
+            "01900000-0000-7000-8000-000000000001": { "text": "" },
+            "01900000-0000-7000-8000-000000000002": { "text": "Back text" }
+          }
+        },
+        "expect": { "code": "validation.cards.content.field-empty" }
+      },
+      {
+        "name": "required field key missing",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": { "01900000-0000-7000-8000-000000000002": { "text": "Back text" } }
+        },
+        "expect": { "code": "validation.cards.content.field-empty" }
+      },
+      {
+        "name": "optional field empty",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": {
+            "01900000-0000-7000-8000-000000000001": { "text": "Front text" },
+            "01900000-0000-7000-8000-000000000002": { "text": "" }
+          }
+        },
+        "expect": { "accepted": true }
+      },
+      {
+        "name": "optional field key missing",
+        "input": {
+          "template": [
+            { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+            { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "markdown", "isRequired": false }
+          ],
+          "content": { "01900000-0000-7000-8000-000000000001": { "text": "Front text" } }
+        },
+        "expect": { "code": "validation.cards.content.field-empty" }
+      }
+    ]
+  },
+  {
+    "rule": "progress",
+    "cases": [
+      { "name": "state 0", "input": { "state": 0 }, "expect": { "accepted": true } },
+      { "name": "state 1", "input": { "state": 1 }, "expect": { "accepted": true } },
+      { "name": "state 2", "input": { "state": 2 }, "expect": { "accepted": true } },
+      { "name": "state 3", "input": { "state": 3 }, "expect": { "accepted": true } },
+      { "name": "state -1", "input": { "state": -1 }, "expect": { "code": "validation.cards-progress.state" } },
+      { "name": "state 4", "input": { "state": 4 }, "expect": { "code": "validation.cards-progress.state" } },
+      { "name": "stability 0.0", "input": { "stability": 0.0 }, "expect": { "accepted": true } },
+      {
+        "name": "stability -1.0",
+        "input": { "stability": -1.0 },
+        "expect": { "code": "validation.cards-progress.stability" }
+      },
+      { "name": "difficulty 0.0", "input": { "difficulty": 0.0 }, "expect": { "accepted": true } },
+      { "name": "difficulty 10.0", "input": { "difficulty": 10.0 }, "expect": { "accepted": true } },
+      {
+        "name": "difficulty -0.1",
+        "input": { "difficulty": -0.1 },
+        "expect": { "code": "validation.cards-progress.difficulty" }
+      },
+      {
+        "name": "difficulty 10.1",
+        "input": { "difficulty": 10.1 },
+        "expect": { "code": "validation.cards-progress.difficulty" }
+      },
+      { "name": "scheduledDays 0", "input": { "scheduledDays": 0 }, "expect": { "accepted": true } },
+      {
+        "name": "scheduledDays -1",
+        "input": { "scheduledDays": -1 },
+        "expect": { "code": "validation.cards-progress.scheduled-days" }
+      },
+      { "name": "learningSteps 0", "input": { "learningSteps": 0 }, "expect": { "accepted": true } },
+      {
+        "name": "learningSteps -1",
+        "input": { "learningSteps": -1 },
+        "expect": { "code": "validation.cards-progress.learning-steps" }
+      },
+      { "name": "reps 0", "input": { "reps": 0 }, "expect": { "accepted": true } },
+      { "name": "reps -1", "input": { "reps": -1 }, "expect": { "code": "validation.cards-progress.reps" } },
+      { "name": "lapses 0", "input": { "lapses": 0 }, "expect": { "accepted": true } },
+      { "name": "lapses -1", "input": { "lapses": -1 }, "expect": { "code": "validation.cards-progress.lapses" } }
+    ]
+  }
+]

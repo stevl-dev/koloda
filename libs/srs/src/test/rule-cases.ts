@@ -6,7 +6,11 @@ import { fileURLToPath } from "node:url";
 // Nx replays a cached pass after one changes. File shape: `crates/koloda/tests/cases/README.md`.
 const CASES_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../crates/koloda/tests/cases");
 
-export type RuleOutcome = { accepted: true; stored?: unknown } | { code: string } | { allowed: boolean };
+export type RuleOutcome =
+  | { accepted: true; stored?: unknown }
+  | { accepted: false }
+  | { code: string }
+  | { allowed: boolean };
 
 export type RuleCase = {
   name: string;
