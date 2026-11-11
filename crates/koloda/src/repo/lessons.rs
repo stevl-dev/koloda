@@ -1,6 +1,6 @@
 //! Lesson SQL — mirrors `@koloda/db-sqlite` `lib/lessons.ts`.
 //!
-//! SQL only. Validation lives in `domain/lessons`.
+//! SQL, plus each write's sync capture of the field groups it changed. Validation lives in `domain/lessons`.
 
 use koloda_sync_proto::payload::Payload;
 use rusqlite::Row;

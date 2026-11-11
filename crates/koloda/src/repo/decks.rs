@@ -1,6 +1,6 @@
 //! Deck SQL — mirrors `@koloda/db-sqlite` `lib/decks.ts`.
 //!
-//! SQL only. Validation lives in `domain/decks`.
+//! SQL, plus each write's sync capture of the field groups it changed. Validation lives in `domain/decks`.
 
 use koloda_sync_proto::payload::{self as wire, InitialProductTs, Payload};
 use koloda_sync_proto::registry::Kind;

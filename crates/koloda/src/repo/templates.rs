@@ -1,6 +1,6 @@
 //! Template SQL — mirrors `@koloda/db-sqlite` `lib/templates.ts`.
 //!
-//! SQL only. Validation lives in `domain/templates`.
+//! SQL, plus each write's sync capture of the field groups it changed. Validation lives in `domain/templates`.
 
 use koloda_sync_proto::payload::{self as wire, InitialProductTs, Payload};
 use koloda_sync_proto::registry::Kind;

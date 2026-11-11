@@ -1,6 +1,6 @@
 //! Settings row SQL — mirrors `@koloda/db-sqlite` `lib/settings.ts`.
 //!
-//! SQL only. Validation lives in `domain/settings`.
+//! SQL, plus sync capture of the field groups a learning-settings write changed. Validation lives in `domain/settings`.
 
 use std::str::FromStr;
 

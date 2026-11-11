@@ -334,7 +334,7 @@ The cited sites were checked again at `8e514f5e` in triage and still hold.
   Commit: Move the interface settings rules onto shared cases
   Depends on: 7
 
-- [ ] 9. Say what the repo modules do in their headers
+- [x] 9. Say what the repo modules do in their headers
   Goal: Seven files in `crates/koloda/src/repo` open with `//! SQL only. Validation lives in domain/<name>.`
   at line 3: `algorithms.rs`, `cards.rs`, `decks.rs`, `lessons.rs`, `reviews.rs`, `settings.rs`, `templates.rs`.
   Six of them also record which sync groups a write changed, through `Capture::begin`; `reviews.rs` does not.

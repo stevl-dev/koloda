@@ -1,6 +1,6 @@
 //! Card SQL — mirrors `@koloda/db-sqlite` `lib/cards.ts`.
 //!
-//! SQL only. Validation lives in `domain/cards`.
+//! SQL, plus each write's sync capture of the field groups it changed. Validation lives in `domain/cards`.
 
 use crate::domain::cards::{AddCardsItemError, AddCardsItemResult, AddCardsResponse};
 use koloda_sync_proto::payload::{self as wire, InitialProductTs, Payload};
