@@ -1,6 +1,6 @@
 # Agentic setup audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/VERIFY.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda-server/README.md, crates/koloda-sync/README.md
 Flow: local
 
