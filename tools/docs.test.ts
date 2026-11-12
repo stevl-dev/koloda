@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -277,5 +278,53 @@ describe("section pointers", () => {
 
   it.each([...files, ...sources])("%s points only at sections that exist", (file) => {
     expect(unresolved(file)).toEqual([]);
+  });
+});
+
+describe("identifiers in guides", () => {
+  const guides = [
+    "AGENTS.md",
+    ...listMarkdown("agents"),
+    ...["libs", "apps", "crates"].flatMap((dir) =>
+      readdirSync(join(root, dir))
+        .map((name) => join(dir, name, "README.md"))
+        .filter((file) => existsSync(join(root, file))),
+    ),
+  ];
+
+  // WHY: these names are absent on purpose. `agents/ASSISTANT-MAP.md` (§Do not reintroduce) and two package READMEs
+  // forbid the first four, and `agents/DEPENDENCIES.md` keeps the `package.json` key `trustedDependencies` out.
+  const absentOnPurpose = new Set([
+    "getChatStreamGenerator",
+    "getStreamGenerator",
+    "resolveDataAccess",
+    "useAssistantChat",
+    "trustedDependencies",
+  ]);
+
+  const tracked = spawnSync("git", ["ls-files", "libs", "apps", "crates", "tools", ".github", "package.json"], {
+    cwd: root,
+    encoding: "utf8",
+  }).stdout.split("\n");
+  // WHY: this file is skipped: it holds the allow-list, which would make every allowed name occur.
+  const sourceWords = new Set(
+    tracked
+      .filter((file) => /\.(ts|tsx|rs|json|mjs|css|toml|yml)$/.test(file) && file !== "tools/docs.test.ts")
+      .filter((file) => existsSync(join(root, file)))
+      .flatMap((file) => read(file).match(/[A-Za-z_$][\w$]*/g) ?? []),
+  );
+
+  function camelCaseSpans(markdown: string): string[] {
+    const spans = [...withoutFences(markdown).matchAll(/`([^`\n]+)`/g)].map((match) => match[1]);
+    return spans.filter((span) => /^[a-z][a-zA-Z0-9]*[A-Z][a-zA-Z0-9]*$/.test(span));
+  }
+
+  it.each(guides)("%s names only identifiers that exist in source", (file) => {
+    const missing = camelCaseSpans(read(file)).filter((name) => !absentOnPurpose.has(name) && !sourceWords.has(name));
+    expect([...new Set(missing)]).toEqual([]);
+  });
+
+  it("allows only names that are still absent from source", () => {
+    expect([...absentOnPurpose].filter((name) => sourceWords.has(name))).toEqual([]);
   });
 });

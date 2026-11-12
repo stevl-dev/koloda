@@ -274,7 +274,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Require a Spec line in the task Outcome
   Depends on: 1
 
-- [ ] 3. Check that identifiers named in guides exist
+- [x] 3. Check that identifiers named in guides exist
   Goal: Make `bun run check:docs` fail when a guide names a code identifier that no longer exists (finding 15c).
   Add a block to `tools/docs.test.ts`.
   It reads `AGENTS.md`, `agents/*.md`, and the `README.md` directly under each of `libs/*`, `apps/*`, and `crates/*`.
