@@ -327,3 +327,10 @@ A triage line says where the review was wrong.
   Depends on: none
 
 ## Outcome
+
+Left for a later task, found in review of item 4:
+`import` and a join's first probe still fail once with `Restored` after a server restore
+(`crates/koloda-sync/src/pairing.rs:339`, `:358`, `:365`).
+Routing `probe` through `call_across_restore` needs a fetch mode, since the cycle calls it too (`cycle.rs:48`).
+`PROTOCOL.md` (§Cycle) names the calls that repeat.
+The Archive commit adds this to `tasks/DEFERRED.md` as a handoff.

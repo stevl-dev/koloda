@@ -1228,8 +1228,11 @@ Across lanes it holds because `cold` is pulled only up to a `max_seq` recorded b
 
 Any call of the cycle may come back `epoch_changed`.
 The device then applies the restore (§Server restore) and starts the cycle again on the new epoch.
-A host call that comes back `epoch_changed` applies it the same way and repeats on the new epoch, at most three times.
-An authoritative restore is held, and only a detach and a re-attach repeat across it; another host call fails.
+A host call that comes back `epoch_changed` applies it the same way.
+The device list, a revoke, a new pairing code, a detach, and a re-attach then repeat on the new epoch, at most three
+times.
+An authoritative restore is held, and only a detach and a re-attach repeat across it; the other three fail.
+Any other host call fails once, and the host may retry.
 A cycle's calls never repeat in place.
 A file waiting for Add or Replace only takes the new epoch: the claim cleared its sync tables, and Add backfills from
 the rows.
