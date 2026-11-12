@@ -170,6 +170,12 @@ Triggers keep its live entities per kind and the bytes of its versions, which th
 - `src/attachments.rs` — attachment bytes by content address: upload checked against the id, download, the ids
   cards link that no device uploaded, card refs,
   and collection of attachments unlinked for 90 days.
+- Errors — hand-written types with a `fmt::Display` impl; the crate uses neither `thiserror` nor `anyhow`.
+  Each module that fails on its own has one enum, `DbError`, `DataDirError`, `BackupError`, or `RestoreError`,
+  which implements `std::error::Error` and converts the errors under it with `From`.
+  `ApiError` in `src/http.rs` is the error reply: a status, an `ErrorCode`, a message, and the restore to apply, if any.
+  `TlsError` in `src/tls.rs` wraps a message.
+  A new error type follows the same pattern.
 
 - `src/db_tests.rs` — a writer's transaction holds the write lock from its start; a unit test, because the openers
   are private to the crate.

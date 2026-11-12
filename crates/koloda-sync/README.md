@@ -82,6 +82,9 @@ A delete that fails then emits `Event::Error` and the call succeeds; a re-attach
 - `src/error.rs` — `SyncError`, and `ending`, the one place that classes how a cycle ended: a limit, a pause, a wait,
   or a fault.
   A new variant states its class there and its `Stop` in `Stop::of` in the same change.
+  `SyncError` is the crate's one error type: a hand-written enum with `fmt::Display` and `std::error::Error`,
+  and `From<AppError>` for local failures; the crate uses neither `thiserror` nor `anyhow`.
+  A new failure is a variant of it, not a new error type.
 
 - `tests/engine/` — one test binary; `common.rs` calls `koloda-server`'s router in process through a `Transport`,
   on a server clock offset from system time; its backup and restore swap the router every device calls.

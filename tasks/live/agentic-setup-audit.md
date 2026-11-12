@@ -314,7 +314,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Check the domain import rules in koloda
   Depends on: none
 
-- [ ] 5. State the error pattern of the server and sync crates
+- [x] 5. State the error pattern of the server and sync crates
   Goal: Write down the error pattern the two crates already share, so a new module follows it (finding 6).
   Both crates report errors with hand-written enums that implement `Display`; neither uses `thiserror` or
   `anyhow`.
