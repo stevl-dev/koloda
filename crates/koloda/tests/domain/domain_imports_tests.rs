@@ -24,7 +24,10 @@ fn domain_imports_neither_rusqlite_nor_repo() {
         for (index, line) in source.lines().enumerate() {
             // WHY: the module docs name `rusqlite` to state the rule; only code outside a comment breaks it.
             let code = line.split("//").next().unwrap_or_default();
-            if code.contains("rusqlite") || code.contains("crate::repo") {
+            // WHY: whole words, not `crate::repo`: a grouped import (`use crate::{app::x, repo::y}`) or a `super::`
+            // path never spells that, and `repository` must not match.
+            let mut words = code.split(|c: char| !c.is_alphanumeric() && c != '_');
+            if words.any(|word| word == "rusqlite" || word == "repo") {
                 violations.push(format!("{}:{}: {}", file.display(), index + 1, line.trim()));
             }
         }

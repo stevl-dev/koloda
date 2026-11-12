@@ -394,4 +394,18 @@ That ask is one change round.
   Commit: Name the second error type of the sync crate
   Depends on: 5
 
+- [x] 11. Catch grouped and relative repo imports in domain
+  Goal: Settle a Blocking review finding against item 4.
+  `agents/RUST.md` (§Non-negotiables) said the test fails on either import, but it matched the text `crate::repo`.
+  `use crate::{app::error::AppError, repo::cards};` and a `super::super::repo` path passed it.
+  In `crates/koloda/tests/domain/domain_imports_tests.rs`, split each line's code into words and fail on the word
+  `rusqlite` or `repo`.
+  Domain code names neither word outside a comment at `0de1d4c8`.
+  Reword the sentence in `agents/RUST.md` to say what the test matches.
+  Constraints: the test file and `agents/RUST.md` only.
+  Done when: `cargo test -p koloda --test domain` passes, and fails when a multi-line `use crate::{…}` that
+  names `repo::lessons` is added to a domain file (tried, then reverted).
+  Commit: Catch grouped and relative repo imports in domain
+  Depends on: 4
+
 ## Outcome
