@@ -236,7 +236,7 @@ A triage line says where the review was wrong.
   Commit: Class a cycle's ending in one place
   Depends on: none
 
-- [ ] 3. Settle a cycle's result once
+- [x] 3. Settle a cycle's result once
   Goal: A cycle's result is settled by `recorded_cycle` (`crates/koloda-sync/src/engine.rs:359`) and, under
   `sync_now` and `tick`, a second time by `Engine::run` (`engine.rs:241`).
   Make `sync_now` and `tick` return the cycle's result without the second `settle_device` pass; every other host

@@ -155,7 +155,7 @@ impl Engine {
 
     /// Runs the sync cycle and returns the kinds whose product rows it changed.
     pub fn sync_now(&self) -> Result<Vec<Kind>, SyncError> {
-        self.run(|shared| async move {
+        self.block_on(|shared| async move {
             let (changed, result) = shared.run_cycle(None).await;
             result.map(|_| changed)
         })
@@ -163,7 +163,7 @@ impl Engine {
 
     /// Runs one cycle within `budget`; the next tick resumes from the cursors.
     pub fn tick(&self, budget: Budget) -> Result<Ticked, SyncError> {
-        self.run(|shared| async move {
+        self.block_on(|shared| async move {
             match shared.run_cycle(Some(budget)).await {
                 (changed, Ok(is_done)) => Ok(Ticked { changed, is_done }),
                 (changed, Err(error)) if error.ending() == Ending::Limit => Ok(Ticked {
@@ -235,11 +235,19 @@ impl Engine {
     where
         F: Future<Output = Result<T, SyncError>>,
     {
-        let shared = Arc::clone(&self.shared);
-        self.runtime.block_on(async move {
+        self.block_on(|shared| async move {
             let result = work(Arc::clone(&shared)).await;
             shared.settle_device(result).await
         })
+    }
+
+    // INVARIANT: a cycle settles its own result (`recorded_cycle`), so `sync_now` and `tick` call this and not `run`;
+    // a second pass would apply a restore past the cap twice.
+    fn block_on<T, F>(&self, work: impl FnOnce(Arc<Shared>) -> F) -> T
+    where
+        F: Future<Output = T>,
+    {
+        self.runtime.block_on(work(Arc::clone(&self.shared)))
     }
 }
 
@@ -306,7 +314,8 @@ impl Shared {
                 self.detach_locally(DetachReason::Revoked).await?;
                 Err(SyncError::Revoked)
             }
-            // WHY: a cycle is settled once inside its host call and once more around it; the file detaches once.
+            // WHY: a re-attach calls the server while the file is still detached, and a restore that drops its new
+            // device answers `PairAgain`; the file keeps the reason it detached for.
             Err(SyncError::PairAgain) => {
                 let is_detached = self
                     .blocking(|shared| sync_state(&shared.db))
