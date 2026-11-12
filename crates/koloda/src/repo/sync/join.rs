@@ -1,5 +1,5 @@
-//! Joining an existing space: the local mode check, the claim, the ids the space is probed for, Add, and Replace
-//! (`crates/koloda-sync-proto/PROTOCOL.md` §Joining). A blank file seeds with `app::init::seed_joiner`.
+//! Joining an existing space: the local mode check, the claim, the ids the space is probed for, a blank file's seed
+//! and enrollment, Add, and Replace (`crates/koloda-sync-proto/PROTOCOL.md` §Joining).
 
 use std::collections::HashMap;
 
@@ -9,9 +9,10 @@ use rusqlite::{params, Connection, OptionalExtension, Params};
 use uuid::Uuid;
 
 use super::apply::{patch_learning, table};
-use super::{backfill, protocol_error, SpaceRole};
+use super::{backfill, enroll, protocol_error, SpaceRole};
 use crate::app::db::Database;
 use crate::app::error::{error_codes, throw_known_error, AppError};
+use crate::app::init::{seed_joiner, SeedSettings};
 use crate::app::utility::generate_uuidv7;
 use crate::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
 use crate::repo::settings::{learning_defaults, LEARNING_SYNC_ID};
@@ -56,6 +57,24 @@ pub(super) const SYNC_TABLES: [&str; 10] = [
     "sync_attachment_queue",
     "sync_heal_cutoffs",
 ];
+
+/// Seeds a blank joiner's settings (`app::init::seed_joiner`) and enrolls it as a joiner.
+///
+/// INVARIANT: the settings and the enrollment commit together. A stop before the commit leaves the file blank with its
+/// claim pending, so the next join with the code joins it as blank on the same device.
+pub fn join_blank(
+    db: &Database,
+    settings: SeedSettings,
+    device_id: Uuid,
+    space_id: Uuid,
+    epoch: Uuid,
+    server_url: &str,
+) -> Result<(), AppError> {
+    db.with_transaction(|tx| {
+        seed_joiner(tx, settings)?;
+        enroll(tx, device_id, space_id, SpaceRole::Joiner, epoch, server_url)
+    })
+}
 
 pub fn join_mode(db: &Database, space_id: Uuid) -> Result<JoinMode, AppError> {
     throw_known_error(error_codes::DB_GET, || {

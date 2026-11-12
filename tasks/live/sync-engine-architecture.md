@@ -307,7 +307,7 @@ A triage line says where the review was wrong.
   Commit: Page pending receipts in one place
   Depends on: 4
 
-- [ ] 6. Move the blank join's transaction into koloda
+- [x] 6. Move the blank join's transaction into koloda
   Goal: `crates/koloda-sync/src/pairing.rs:357-362` opens `db.with_transaction` and calls
   `koloda::app::init::seed_joiner` and `koloda::repo::sync::enroll` inside it: the one transaction the engine
   composes, against `crates/koloda-sync/README.md:12`.

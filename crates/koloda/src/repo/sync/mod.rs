@@ -100,8 +100,8 @@ pub fn enroll_device(
     })
 }
 
-/// `enroll_device` inside the caller's transaction, such as the one that seeds a blank joiner.
-pub fn enroll(
+/// `enroll_device` inside the caller's transaction, such as `join::join_blank`'s.
+fn enroll(
     conn: &Connection,
     device_id: Uuid,
     space_id: Uuid,
