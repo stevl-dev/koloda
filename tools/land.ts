@@ -107,6 +107,10 @@ export function taskGateProblems(slug: string, commits: readonly TaskCommit[], a
     if (!/^Status: done$/m.test(archive)) problems.push(`${archived} must have \`Status: done\``);
     const outcome = archive.split(/^## Outcome$/m)[1]?.trim() ?? "";
     if (outcome === "") problems.push(`${archived} must fill in Outcome`);
+    if (!/^Review:[ \t]+\S/m.test(outcome)) problems.push(`${archived} must have a \`Review:\` line in Outcome`);
+    if (!/^Change rounds: \d+$/m.test(outcome)) {
+      problems.push(`${archived} must have a \`Change rounds: <N>\` line in Outcome`);
+    }
   }
   return problems;
 }

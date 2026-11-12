@@ -234,7 +234,7 @@ All answered by the human at triage, on 2026-11-12.
 
 ## Plan
 
-- [ ] 1. Require the Review and Change rounds lines at landing
+- [x] 1. Require the Review and Change rounds lines at landing
   Goal: Make the land gate check what `agents/TASKS.md` (§Done) already says it checks (finding 16a).
   In `tools/land.ts`, `taskGateProblems` reads the archived task file and takes the text after `## Outcome`.
   Add two problems there.

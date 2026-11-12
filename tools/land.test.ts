@@ -26,6 +26,9 @@ Guides: none
 ## Outcome
 
 Notes shipped.
+
+Review: none
+Change rounds: 0
 `;
 
 function commit(overrides: Partial<TaskCommit>): TaskCommit {
@@ -95,8 +98,38 @@ describe("taskGateProblems", () => {
   it("rejects an archive that is not done or has no Outcome", () => {
     const notDone = archiveDone.replace("Status: done", "Status: ready");
     expect(taskGateProblems(slug, train, notDone)).toEqual([expect.stringContaining("Status: done")]);
-    const noOutcome = archiveDone.replace("Notes shipped.", "");
-    expect(taskGateProblems(slug, train, noOutcome)).toEqual([expect.stringContaining("fill in Outcome")]);
+    const noOutcome = archiveDone.slice(0, archiveDone.indexOf("Notes shipped."));
+    expect(taskGateProblems(slug, train, noOutcome)).toEqual([
+      expect.stringContaining("fill in Outcome"),
+      expect.stringContaining("`Review:`"),
+      expect.stringContaining("`Change rounds: <N>`"),
+    ]);
+  });
+
+  it("requires a Review line with a value in Outcome", () => {
+    const noReview = archiveDone.replace("Review: none\n", "");
+    expect(taskGateProblems(slug, train, noReview)).toEqual([`${archived} must have a \`Review:\` line in Outcome`]);
+    const emptyReview = archiveDone.replace("Review: none", "Review:");
+    expect(taskGateProblems(slug, train, emptyReview)).toEqual([expect.stringContaining("`Review:`")]);
+  });
+
+  it("requires a Change rounds line with a whole number in Outcome", () => {
+    const noRounds = archiveDone.replace("Change rounds: 0\n", "");
+    expect(taskGateProblems(slug, train, noRounds)).toEqual([
+      `${archived} must have a \`Change rounds: <N>\` line in Outcome`,
+    ]);
+    for (const value of ["", "two", "1.5"]) {
+      const badRounds = archiveDone.replace("Change rounds: 0", `Change rounds: ${value}`);
+      expect(taskGateProblems(slug, train, badRounds)).toEqual([expect.stringContaining("`Change rounds: <N>`")]);
+    }
+  });
+
+  it("finds the Review and Change rounds lines anywhere in Outcome", () => {
+    const linesFirst = archiveDone.replace(
+      "Notes shipped.\n\nReview: none\nChange rounds: 0\n",
+      "Review: none\nChange rounds: 2\n\n### Skipped findings\n\n- 3. Risk, Later: kept as is.\n",
+    );
+    expect(taskGateProblems(slug, train, linesFirst)).toEqual([]);
   });
 
   it("rejects a tip without the archive file", () => {
