@@ -378,4 +378,20 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Rewrap three long prose lines
   Depends on: none
 
+Items 10 to 12 settle the review of `origin/main..0de1d4c8`, run in a fresh session on 2026-11-12.
+It raised two Blocking findings and one Nit; the human asked for all three to be fixed.
+That ask is one change round.
+
+- [x] 10. Name the second error type of the sync crate
+  Goal: Settle a Blocking review finding against item 5, whose Goal says to state only what the code does.
+  `crates/koloda-sync/README.md` called `SyncError` the crate's one error type.
+  `TransportError` (`crates/koloda-sync/src/transport.rs`) is a second: a tuple struct around a message, with no
+  `Display` or `std::error::Error` impl, which a `Transport` returns when no complete reply arrived.
+  `src/client.rs` retries it and then reports `SyncError::Transport`.
+  State that in the `src/error.rs` entry, and keep "a new failure is a variant of `SyncError`".
+  Constraints: `crates/koloda-sync/README.md` only.
+  Done when: `bun run check:docs` passes.
+  Commit: Name the second error type of the sync crate
+  Depends on: 5
+
 ## Outcome
