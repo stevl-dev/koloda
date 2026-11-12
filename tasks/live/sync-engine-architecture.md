@@ -253,7 +253,7 @@ A triage line says where the review was wrong.
   Commit: Settle a cycle's result once
   Depends on: 2
 
-- [ ] 4. Carry host calls across a server restore
+- [x] 4. Carry host calls across a server restore
   Goal: `call_across_restore` (`crates/koloda-sync/src/restore.rs:49-76`) repeats a device call on the new epoch
   after each restore, with no bound, and only a detach and a re-attach use it.
   `devices`, `revoke_device`, and `issue_pairing` (`devices.rs:28`, `:55`, `pairing.rs:72`) call the client

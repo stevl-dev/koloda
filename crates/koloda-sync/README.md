@@ -37,7 +37,8 @@ A delete that fails then emits `Event::Error` and the call succeeds; a re-attach
   tolerance stops the push once it is settled.
 - `src/restore.rs` — a server restore the server reported: heal starts the re-push scan; an authoritative restore is
   held until the host calls `accept_restore`, which discards local data so the next cycle bootstraps.
-  A re-attach's and a detach's calls apply a restore they meet and repeat on its epoch.
+  A host call applies a restore it meets and repeats on its epoch, at most three times.
+  Only a re-attach's and a detach's calls repeat across an authoritative restore; another host call fails.
 - `src/fork.rs` — a file behind its own record forks to a new device id: the pending token and nonce, stored before
   the call, receipts, and the switch.
 - `src/pairing.rs` — pairing codes, preview, and joining a space: blank, seed-only, a used file through Add or

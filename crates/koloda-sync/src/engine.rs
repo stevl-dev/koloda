@@ -35,9 +35,9 @@ use crate::status::{RunState, Status, Stop};
 use crate::transport::{Method, Transport};
 
 const RUNTIME_THREAD: &str = "koloda-sync";
-// WHY: each restore the server reports is one more operator action; a cycle that keeps meeting new ones stops and
-// the next trigger resumes.
-const MAX_RESTORES: usize = 3;
+// WHY: each restore the server reports is one more operator action; a cycle or a host call that keeps meeting new ones
+// stops, and the next trigger or call resumes.
+pub(crate) const MAX_RESTORES: usize = 3;
 
 pub struct Engine {
     runtime: Runtime,

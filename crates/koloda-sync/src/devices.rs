@@ -10,6 +10,7 @@ use uuid::Uuid;
 
 use crate::engine::{token_key, Shared};
 use crate::error::SyncError;
+use crate::restore::OnHold;
 use crate::transport::Method;
 
 /// One device of the space as the server records it; `is_self` marks this file's own device.
@@ -26,17 +27,11 @@ pub struct DeviceSummary {
 
 impl Shared {
     pub(crate) async fn devices(self: &Arc<Self>) -> Result<Vec<DeviceSummary>, SyncError> {
-        let session = self.session().await?;
+        let mut session = self.session().await?;
+        let path = format!("/v1/spaces/{}/devices", session.space);
         let list: DeviceList = self
-            .device_client(&session)
-            .call::<(), _>(
-                Method::Get,
-                &format!("/v1/spaces/{}/devices", session.space),
-                Some(&session.token),
-                None,
-            )
-            .await?
-            .ok;
+            .call_across_restore::<(), _>(&mut session, Method::Get, &path, None, OnHold::Fail)
+            .await?;
         Ok(list
             .devices
             .into_iter()
@@ -53,14 +48,9 @@ impl Shared {
     }
 
     pub(crate) async fn revoke_device(self: &Arc<Self>, device: Uuid) -> Result<(), SyncError> {
-        let session = self.session().await?;
-        self.device_client(&session)
-            .call::<(), Empty>(
-                Method::Delete,
-                &format!("/v1/spaces/{}/devices/{device}", session.space),
-                Some(&session.token),
-                None,
-            )
+        let mut session = self.session().await?;
+        let path = format!("/v1/spaces/{}/devices/{device}", session.space);
+        self.call_across_restore::<(), Empty>(&mut session, Method::Delete, &path, None, OnHold::Fail)
             .await?;
         Ok(())
     }
@@ -86,7 +76,7 @@ impl Shared {
         // restore).
         let path = format!("/v1/spaces/{}/devices/{}", session.space, session.device);
         let revoked = self
-            .call_across_restore::<Empty>(&mut session, Method::Delete, &path)
+            .call_across_restore::<(), Empty>(&mut session, Method::Delete, &path, None, OnHold::Repeat)
             .await;
         match revoked {
             // WHY: a device another one revoked first is detached all the same. So is one the server no longer knows

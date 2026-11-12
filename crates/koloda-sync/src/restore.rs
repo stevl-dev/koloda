@@ -7,11 +7,21 @@ use koloda::repo::sync::authoritative::{hold_authoritative, reset_for_authoritat
 use koloda::repo::sync::heal::begin_heal;
 use koloda_sync_proto::transport::{Restore, RestoreMode};
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use uuid::Uuid;
 
-use crate::engine::{Session, Shared};
+use crate::engine::{Session, Shared, MAX_RESTORES};
 use crate::error::SyncError;
 use crate::transport::Method;
+
+/// What a call across restores does after a restore it meets turns out authoritative, which the file then holds.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum OnHold {
+    /// The call repeats on the new epoch, so a re-attach's switch or a detach's revoke can finish.
+    Repeat,
+    /// The call fails with `RestoreHeld`, since a file holding an authoritative restore sends nothing else.
+    Fail,
+}
 
 impl Shared {
     /// Applies a restore the server reported and returns the epoch the file is on now. An authoritative restore is
@@ -43,34 +53,44 @@ impl Shared {
         }
     }
 
-    /// One device call that a re-attach or a detach makes across server restores. A `Restored` answer is applied, the
-    /// session moves to that epoch, and the call is repeated. An authoritative restore is held and the call still
-    /// repeats, so the switch or the revoke can finish.
-    pub(crate) async fn call_across_restore<T: DeserializeOwned>(
+    /// One device call that a host call makes across server restores. A `Restored` answer is applied, the session
+    /// moves to that epoch, and the call is repeated, for at most `MAX_RESTORES` restores; the next `Restored` comes
+    /// back to the caller, as a cycle's does.
+    pub(crate) async fn call_across_restore<B: Serialize, T: DeserializeOwned>(
         self: &Arc<Self>,
         session: &mut Session,
         method: Method,
         path: &str,
+        body: Option<&B>,
+        on_hold: OnHold,
     ) -> Result<T, SyncError> {
+        let mut restores = 0;
         loop {
-            match self
+            let answered = self
                 .device_client(session)
-                .call::<(), T>(method, path, Some(&session.token), None)
-                .await
-            {
-                Ok(reply) => return Ok(reply.ok),
-                Err(SyncError::Restored {
+                .call::<B, T>(method, path, Some(&session.token), body)
+                .await;
+            let Err(SyncError::Restored {
+                restore,
+                last_sender_seq,
+            }) = answered
+            else {
+                return answered.map(|reply| reply.ok);
+            };
+            if restores == MAX_RESTORES {
+                return Err(SyncError::Restored {
                     restore,
                     last_sender_seq,
-                }) => {
-                    let epoch = Uuid::from_bytes(restore.epoch);
-                    match self.apply_restore(restore, last_sender_seq).await {
-                        Ok(_) | Err(SyncError::RestoreHeld) => session.epoch = epoch,
-                        Err(error) => return Err(error),
-                    }
-                }
+                });
+            }
+            restores += 1;
+            let epoch = Uuid::from_bytes(restore.epoch);
+            match self.apply_restore(restore, last_sender_seq).await {
+                Ok(_) => {}
+                Err(SyncError::RestoreHeld) if on_hold == OnHold::Repeat => {}
                 Err(error) => return Err(error),
             }
+            session.epoch = epoch;
         }
     }
 

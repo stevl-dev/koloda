@@ -21,6 +21,7 @@ use uuid::Uuid;
 use crate::client::{local_error, server_url};
 use crate::engine::{pending_token_key, token_key, Credentials, Session, Shared};
 use crate::error::SyncError;
+use crate::restore::OnHold;
 use crate::transport::Method;
 
 /// A code another device claims to join this file's space; the host shows it with the server URL and space id.
@@ -70,17 +71,17 @@ pub enum ImportMode {
 
 impl Shared {
     pub(crate) async fn issue_pairing(self: Arc<Self>, hint: Option<Vec<u8>>) -> Result<IssuedPairing, SyncError> {
-        let session = self.session().await?;
+        let mut session = self.session().await?;
+        let path = format!("/v1/spaces/{}/pairings", session.space);
         let pairing: Pairing = self
-            .device_client(&session)
-            .call(
+            .call_across_restore(
+                &mut session,
                 Method::Post,
-                &format!("/v1/spaces/{}/pairings", session.space),
-                Some(&session.token),
+                &path,
                 Some(&IssuePairing { hint }),
+                OnHold::Fail,
             )
-            .await?
-            .ok;
+            .await?;
         Ok(IssuedPairing {
             code: pairing.code,
             expires_at: pairing.expires_at,
@@ -229,7 +230,7 @@ impl Shared {
         // A call that fails otherwise leaves the claim pending, and the next join with its code resumes here.
         let path = format!("/v1/spaces/{}/devices/{old}", session.space);
         let last_sender_seq = match self
-            .call_across_restore::<DeviceInfo>(&mut session, Method::Get, &path)
+            .call_across_restore::<(), DeviceInfo>(&mut session, Method::Get, &path, None, OnHold::Repeat)
             .await
         {
             Ok(info) => info.last_sender_seq,
@@ -283,13 +284,15 @@ impl Shared {
         while from < last_sender_seq {
             let through = last_sender_seq.min(from + MAX_RECEIPT_RANGE);
             let page = self
-                .call_across_restore::<Receipts>(
+                .call_across_restore::<(), Receipts>(
                     session,
                     Method::Get,
                     &format!(
                         "/v1/spaces/{}/receipts?sender={sender}&after={from}&through={through}",
                         session.space
                     ),
+                    None,
+                    OnHold::Repeat,
                 )
                 .await?;
             receipts.extend(page.receipts);

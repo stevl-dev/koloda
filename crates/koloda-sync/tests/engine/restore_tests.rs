@@ -488,6 +488,124 @@ fn a_cycle_runs_again_across_three_restores_and_stops_at_a_fourth() {
     }
 }
 
+/// A host call A makes in the pair's space, with the method and the path of the request it sends.
+struct HostCall {
+    name: &'static str,
+    call: fn(&Pair) -> Result<(), SyncError>,
+    method: Method,
+    path: fn(&Pair) -> String,
+}
+
+fn b_id(pair: &Pair) -> Uuid {
+    pair.b.state().expect("B is enrolled").device_id
+}
+
+fn host_calls() -> [HostCall; 3] {
+    [
+        HostCall {
+            name: "devices",
+            call: |pair| pair.a().engine.devices().map(|_| ()),
+            method: Method::Get,
+            path: |pair| format!("/v1/spaces/{}/devices", pair.space.space_id()),
+        },
+        HostCall {
+            name: "revoke_device",
+            call: |pair| pair.a().engine.revoke_device(b_id(pair)),
+            method: Method::Delete,
+            path: |pair| format!("/v1/spaces/{}/devices/{}", pair.space.space_id(), b_id(pair)),
+        },
+        HostCall {
+            name: "issue_pairing",
+            call: |pair| pair.a().engine.issue_pairing(None).map(|_| ()),
+            method: Method::Post,
+            path: |pair| format!("/v1/spaces/{}/pairings", pair.space.space_id()),
+        },
+    ]
+}
+
+#[test]
+fn a_host_call_after_a_heal_restore_applies_it_and_succeeds() {
+    for host_call in host_calls() {
+        let pair = pair();
+        let backup = pair.space.server.backup();
+        pair.space.server.restore(&backup, RestoreMode::Heal);
+
+        let result = (host_call.call)(&pair);
+
+        let name = host_call.name;
+        assert!(result.is_ok(), "{name}: {result:?}");
+        let current = pair
+            .space
+            .server
+            .current_epoch(&format!("/v1/spaces/{}/", pair.space.space_id()));
+        assert_eq!(Some(pair.a().epoch()), current, "{name}: A moved to the restored epoch");
+    }
+}
+
+#[test]
+fn a_host_call_after_an_authoritative_restore_holds_it_and_sends_nothing_more() {
+    for host_call in host_calls() {
+        let pair = pair();
+        let a = pair.a();
+        let backup = pair.space.server.backup();
+        pair.space.server.restore(&backup, RestoreMode::Authoritative);
+        let before = a.transport.sent().len();
+
+        let result = (host_call.call)(&pair);
+
+        let name = host_call.name;
+        assert!(matches!(result, Err(SyncError::RestoreHeld)), "{name}: {result:?}");
+        assert!(is_held(a), "{name}: the status shows the held restore");
+        let path = (host_call.path)(&pair);
+        let sent = a.transport.sent();
+        let calls = sent[before..]
+            .iter()
+            .filter(|request| request.method == host_call.method && request.url.ends_with(path.as_str()))
+            .count();
+        assert_eq!(calls, 1, "{name}: the call was not repeated on the held epoch");
+    }
+}
+
+#[test]
+fn a_detach_repeats_across_three_restores_and_stops_at_a_fourth() {
+    for (restores, is_detached) in [(3, true), (4, false)] {
+        let space = Space::new();
+        let a = &space.device;
+        let backup = space.server.backup();
+        let (reached, on_reached) = std::sync::mpsc::channel();
+        let (resume, on_resume) = std::sync::mpsc::channel::<()>();
+        let mut left = restores;
+        a.transport.observe(move |request| {
+            if left > 0 && request.method == Method::Delete && request.url.contains("/devices/") {
+                left -= 1;
+                reached.send(()).expect("the test listens");
+                on_resume.recv().expect("the test resumes the call");
+            }
+        });
+
+        // WHY: each restore lands just before a revoke, so the revoke meets it and repeats on the new epoch.
+        let result = std::thread::scope(|scope| {
+            let detaching = scope.spawn(|| a.engine.detach());
+            for _ in 0..restores {
+                on_reached.recv().expect("the detach sends its revoke");
+                space.server.restore(&backup, RestoreMode::Heal);
+                resume.send(()).expect("the call goes on");
+            }
+            detaching.join().expect("the detach returns")
+        });
+
+        assert_eq!(result.is_ok(), is_detached, "{restores} restores: {result:?}");
+        assert_eq!(
+            a.count("SELECT detached_at IS NOT NULL FROM sync_state") == 1,
+            is_detached,
+            "{restores} restores"
+        );
+        if !is_detached {
+            assert!(matches!(result, Err(SyncError::Restored { .. })), "{result:?}");
+        }
+    }
+}
+
 #[test]
 fn a_held_restore_survives_a_relaunch_and_deletes_nothing() {
     let pair = pair();
