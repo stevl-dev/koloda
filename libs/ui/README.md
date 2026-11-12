@@ -27,7 +27,8 @@ Do not "fix" it by splitting widgets or injecting binders unless a new decision 
 - Core helpers: `core/focus.ts`, `core/hotkeys.ts` — focus and keyboard matching.
 - Icons: `icons/` — the `Icon` shell (`icon.tsx`) and one file per icon.
 - Types: `types.ts` — Tailwind Variants prop helpers (`TWVProp`, `TWVProps`).
-- App chrome widgets and brand art: `ui/` — titlebar, hotkey recorder, query loading/error, delete dialog, not-found, Koloda logo, setup background.
+- App chrome widgets and brand art: `ui/` — titlebar, hotkey recorder, query loading/error, delete dialog,
+  not-found, Koloda logo, setup background.
 - Hooks: `hooks/use-is-wide` (the `--breakpoint-wd` media query), `use-motion-settings`, `use-route-focus`,
   `use-scrolled-past`.
 

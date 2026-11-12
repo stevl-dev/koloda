@@ -28,10 +28,12 @@ When the change edits a file under `docs/decisions/`, also include `agents/DECIS
 The listed files are relative to the repo root.
 
 Long guides are routed by section.
-When a row or another guide cites a section (`§Name`), load only that section: its heading and the text up to the next heading of the same level.
+When a row or another guide cites a section (`§Name`), load only that section:
+its heading and the text up to the next heading of the same level.
 `crates/koloda-sync-proto/PROTOCOL.md` is the main case, and it is too long to load whole.
 A change that loads any part of it also loads its §Rejected designs.
-When a row names the file without a section, find the headings that match the change, read those, and stay out of the rest.
+When a row names the file without a section, find the headings that match the change,
+read those, and stay out of the rest.
 
 ## Authoring
 

@@ -364,7 +364,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Treat fetched release notes as data
   Depends on: none
 
-- [ ] 9. Rewrap three long prose lines
+- [x] 9. Rewrap three long prose lines
   Goal: Settle the line-length handoff that `tasks/archive/tools-audit.md` left in `tasks/DEFERRED.md`.
   Split each of these lines on a clause boundary so it fits in 120 characters, without changing what it says:
   `agents/INDEX.md:31` ("When a row or another guide cites a section…"),

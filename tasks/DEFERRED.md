@@ -321,13 +321,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: wait for the `task/mobile-spike` verdict; a go adds a second Rust façade over the command list,
   which is evidence for C that B would have to be redone against.
 
-- Handoff: three prose lines run past the 120-character guide limit.
-  Evidence: at `1c0661bb`, `tools/check-markdown.ts` reports `agents/INDEX.md:31` (145 characters),
-  `:34` (123), and `libs/ui/README.md:30` (148).
-  Kind: handoff
-  Source: `tasks/archive/tools-audit.md`
-  Deferred because: handed to the guides and docs audit, which did not take them.
-
 - Handoff: `task/mobile-spike` item 4 gives a stale reason for not setting `queriesAtom`.
   Evidence: at `478a9753` on `task/mobile-spike`, its task file line 174: "whose contract check needs every method".
   That check is gone since `core-react-audit`.
