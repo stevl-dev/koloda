@@ -176,7 +176,7 @@ A triage line says where the review was wrong.
 
 ## Plan
 
-- [ ] 1. Record the designs rejected for the sync engine
+- [x] 1. Record the designs rejected for the sync engine
   Goal: Add a `## Rejected designs` section to `crates/koloda-sync/README.md`, after `### Does NOT own` and before
   `## Read next`, in the shape `agents/DECISIONS.md` gives that section: one line per design, naming the design
   and why it lost.

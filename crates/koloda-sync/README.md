@@ -89,6 +89,19 @@ A delete that fails then emits `Event::Error` and the call succeeds; a re-attach
 - What the server stores and decides — `koloda-server`
 - Commands, settings screens, and the join wizard — the native hosts
 
+## Rejected designs
+
+These are prohibitions, not open options; each was weighed in an architecture review and rejected.
+
+- No typed cycle ending in place of the signal variants of `SyncError` (`Behind`, `Restored`, `BudgetSpent`,
+  `Held`, `Metered`).
+  They unwind through pull, push, and bootstrap with `?`; a typed ending needs a match at each of those calls.
+- No `Client` that applies a server restore itself.
+  It borrows a transport and holds no database, and a cycle starts again from the top after a restore.
+- No move of the `repo/sync` modules that only the engine calls into `koloda-sync`.
+  They share private helpers with capture, and migrations stay in `koloda`, so the `sync_*` tables would have two
+  owners.
+
 ## Read next
 
 - `crates/koloda-sync-proto/PROTOCOL.md` — the contract the engine follows
