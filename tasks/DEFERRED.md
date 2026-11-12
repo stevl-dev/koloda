@@ -103,7 +103,40 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-late-images.md`
   Deferred because: listed under Not checked; the harness lacks the seam.
 
+- Handoff: `import` and a join's first probe still fail once with `Restored` after a server restore.
+  Evidence: at `162eced7`, `crates/koloda-sync/src/pairing.rs:339` and `:358` call `probe` with no repeat, and
+  Replace calls the device route directly (`pairing.rs:365`).
+  Routing `probe` through `call_across_restore` needs a fetch mode, since the cycle calls it too (`cycle.rs:48`).
+  Kind: handoff
+  Source: `tasks/archive/sync-engine-architecture.md`
+  Deferred because: found in review of item 4, outside the three host calls the task carried across a restore.
+
+- Improvement, Later: a pending credential is stored two ways.
+  Evidence: at `162eced7`, a claim or a creation keeps its nonce in `sync_enrolling`
+  (`crates/koloda/src/repo/sync/mod.rs:131-229`); a fork keeps it in `sync_state.fork_nonce`
+  (`crates/koloda/src/repo/sync/switch.rs:74-97`, `crates/koloda-sync/src/fork.rs`).
+  Both pair it with `sync.pending_token.<nonce>`.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/sync-engine-architecture.md`, finding 3
+  Deferred because: no archived finding or fix commit traces to the difference, and the review proposed nothing.
+
+- Improvement, Later: `crates/koloda-sync/src/engine.rs` is the hot file.
+  Evidence: at `99e4fdf2`, it changed in 35 of 62 engine-source commits; 12 of those touched 6 or more engine files.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/sync-engine-architecture.md`, finding 5
+  Deferred because: the review proposed nothing; the task took the cycle-ending and restore jobs out of it.
+
 ## crates/koloda-sync-proto
+
+- Improvement, Later: `PROTOCOL.md` moves with nearly every engine change.
+  Evidence: at `99e4fdf2`, 55 of 62 engine-source commits (89%) edit `crates/koloda-sync-proto/PROTOCOL.md`,
+  and 127 of the sync area's 187; the file has 2,050 lines at `162eced7`.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/sync-engine-architecture.md`, finding 6
+  Deferred because: splitting the contract is a protocol-area question, outside the reviewed area.
 
 - Handoff: deletes cascade in one transaction; chunked `sync_delete_jobs` are a later optimization.
   Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:474`, `:528`, and `:1869` say chunked deletes may come

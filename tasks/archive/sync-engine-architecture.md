@@ -1,6 +1,6 @@
 # Sync engine: one reading of cycle endings and server restores
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, crates/koloda-sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, crates/koloda/src/repo/sync/README.md, agents/RUST.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md
 Flow: local
 
@@ -328,9 +328,34 @@ A triage line says where the review was wrong.
 
 ## Outcome
 
+All six plan items shipped (`7339c569`..`b636c69d`), plus one review commit (`162eced7`).
+`bun run check:push` passed on `162eced7`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case.
+
+- `SyncError::ending()` classes a cycle's ending as a limit, a pause, a wait, or a fault, with no wildcard arm.
+  The engine's event, stop, `tick`, the runner's wait, and the events socket's `retarget` read it;
+  `is_waiting` is gone.
+- Behavior change: a bootstrap held on an unreadable envelope (`Held`) is a pause, like `Metered`.
+  It emits no `Event::Error`, and the runner polls instead of backing off.
+- `sync_now` and `tick` settle a cycle's result once.
+- `call_across_restore` applies at most three restores.
+  The device list, a revoke, and a new pairing code go through it, so they succeed across a heal restore.
+  Only a detach and a re-attach repeat across an authoritative restore; the other three fail with `RestoreHeld`.
+  `PROTOCOL.md` (§Cycle) and the `src/restore.rs` entry of `crates/koloda-sync/README.md` name the calls that repeat.
+- One collector pages pending receipts for the fork and the re-attach; the cycle's foreign-receipt check shares its
+  range stepping.
+- `koloda::repo::sync` seeds and enrolls a blank joiner in one transaction; `koloda-sync` opens none.
+- `crates/koloda-sync/README.md` has §Rejected designs with the three designs rejected in triage.
+- Deferred: findings 3, 5, and 6 (skipped) and the handoff below are in `tasks/DEFERRED.md`.
+  Finding 4 is not: its ruling is a rejected design, not undone work.
+  Finding 7 is not: it is an observation with nothing to change.
+
 Left for a later task, found in review of item 4:
 `import` and a join's first probe still fail once with `Restored` after a server restore
 (`crates/koloda-sync/src/pairing.rs:339`, `:358`, `:365`).
 Routing `probe` through `call_across_restore` needs a fetch mode, since the cycle calls it too (`cycle.rs:48`).
 `PROTOCOL.md` (§Cycle) names the calls that repeat.
 The Archive commit adds this to `tasks/DEFERRED.md` as a handoff.
+
+Review: not run
+Change rounds: 0
