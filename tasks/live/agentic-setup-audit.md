@@ -342,7 +342,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Say why agents do not start the app or open pull requests
   Depends on: none
 
-- [ ] 7. Keep standing rules in the repository
+- [x] 7. Keep standing rules in the repository
   Goal: Stop guidance for this project from living in per-user agent memory (finding 15b).
   Add a short section to `AGENTS.md`.
   It says a standing rule, or a fact that later sessions need, goes into the repository: a guide, or the task file.

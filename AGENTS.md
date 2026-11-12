@@ -34,6 +34,11 @@ The human tests the UI themselves and usually has a dev server running already.
 An audit may run the e2e suites, as `agents/AUDIT.md` (§Method) says.
 `agents/VERIFY.md` says how to check a change.
 
+## Standing rules
+
+A standing rule, or a fact later sessions need, goes into the repository: a guide, or the task file.
+It does not go into per-user agent memory, which other machines and other tools cannot read.
+
 ## Scratch
 
 Use `tmp/` (gitignored, ephemeral) for scratch and generated output.
