@@ -13,6 +13,7 @@ use uuid::Uuid;
 use crate::client::{local_error, mint_token};
 use crate::engine::{merge, pending_token_key, token_key, Session, Shared};
 use crate::error::SyncError;
+use crate::restore::OnHold;
 use crate::transport::Method;
 
 impl Shared {
@@ -44,7 +45,10 @@ impl Shared {
         self.blocking(move |shared| shared.secrets.set(&token_key(device), &stored))
             .await?;
 
-        let receipts = self.pending_receipts(session, session.device, last_sender_seq).await?;
+        let old = session.device;
+        let receipts = self
+            .pending_receipts(session, old, last_sender_seq, ReceiptPages::InCycle)
+            .await?;
         let now_ms = u64::try_from(get_current_timestamp()?).map_err(local_error)?;
         let settled = self
             .blocking(move |shared| switch_device(&shared.db, device, &receipts, &shared.starter, now_ms, true, None))
@@ -89,12 +93,14 @@ impl Shared {
         Ok((nonce, token))
     }
 
-    /// `sender`'s receipts for this file's pending seqs at or below `last_sender_seq`.
+    /// `sender`'s receipts for this file's pending seqs at or below `last_sender_seq`, each page fetched as `pages`
+    /// says.
     pub(crate) async fn pending_receipts(
         self: &Arc<Self>,
-        session: &Session,
+        session: &mut Session,
         sender: Uuid,
         last_sender_seq: u64,
+        pages: ReceiptPages,
     ) -> Result<Vec<Receipt>, SyncError> {
         let Some(lowest) = self
             .blocking(|shared| lowest_pending_seq(&shared.db))
@@ -104,16 +110,22 @@ impl Shared {
             return Ok(Vec::new());
         };
         let mut receipts = Vec::new();
-        let mut from = lowest - 1;
-        while from < last_sender_seq {
-            let through = last_sender_seq.min(from + MAX_RECEIPT_RANGE);
-            receipts.extend(self.receipts(session, sender, from, through).await?);
-            from = through;
+        for (after, through) in receipt_ranges(lowest - 1, last_sender_seq) {
+            receipts.extend(match pages {
+                ReceiptPages::InCycle => self.receipts(session, sender, after, through).await?,
+                ReceiptPages::AcrossRestores => {
+                    let path = receipts_path(session, sender, after, through);
+                    self.call_across_restore::<(), Receipts>(session, Method::Get, &path, None, OnHold::Repeat)
+                        .await?
+                        .receipts
+                }
+            });
         }
         Ok(receipts)
     }
 
-    /// `sender`'s receipts for `after < seq <= through`, at most `MAX_RECEIPT_RANGE` of them.
+    /// `sender`'s receipts for `after < seq <= through`, at most `MAX_RECEIPT_RANGE` of them, through the cycle's
+    /// client.
     pub(crate) async fn receipts(
         &self,
         session: &Session,
@@ -121,19 +133,40 @@ impl Shared {
         after: u64,
         through: u64,
     ) -> Result<Vec<Receipt>, SyncError> {
+        let path = receipts_path(session, sender, after, through);
         Ok(self
             .cycle_client(session)
-            .call::<(), Receipts>(
-                Method::Get,
-                &format!(
-                    "/v1/spaces/{}/receipts?sender={sender}&after={after}&through={through}",
-                    session.space
-                ),
-                Some(&session.token),
-                None,
-            )
+            .call::<(), Receipts>(Method::Get, &path, Some(&session.token), None)
             .await?
             .ok
             .receipts)
     }
+}
+
+/// How the receipts collector fetches a page.
+#[derive(Clone, Copy)]
+pub(crate) enum ReceiptPages {
+    /// Through the cycle's client: the tick's budget applies, and a `Restored` answer ends the cycle.
+    InCycle,
+    /// Across restores, repeating across an authoritative hold, as a re-attach's calls do.
+    AcrossRestores,
+}
+
+/// The `(after, through)` pages that cover `after < seq <= last`, each at most `MAX_RECEIPT_RANGE` seqs.
+pub(crate) fn receipt_ranges(mut after: u64, last: u64) -> impl Iterator<Item = (u64, u64)> {
+    std::iter::from_fn(move || {
+        (after < last).then(|| {
+            let through = last.min(after + MAX_RECEIPT_RANGE);
+            let page = (after, through);
+            after = through;
+            page
+        })
+    })
+}
+
+fn receipts_path(session: &Session, sender: Uuid, after: u64, through: u64) -> String {
+    format!(
+        "/v1/spaces/{}/receipts?sender={sender}&after={after}&through={through}",
+        session.space
+    )
 }

@@ -8,19 +8,19 @@ use std::sync::Arc;
 use koloda::app::init::{seed_joiner, SeedSettings};
 use koloda::app::utility::get_current_timestamp;
 use koloda::repo::sync::join::{add_to_space, begin_import, join_mode, probe_ids, replace_with_space, JoinMode, Known};
-use koloda::repo::sync::outbox::lowest_pending_seq;
 use koloda::repo::sync::switch::switch_device;
 use koloda::repo::sync::{clear_enrolling, enroll, sync_state, Enrolling, SpaceRole};
 use koloda_sync_proto::registry::Kind;
 use koloda_sync_proto::transport::{
     code_hash, ClaimPairing, DeviceInfo, EntityId, ErrorCode, IssuePairing, KnownIds, KnownState, Pairing,
-    PairingClaim, PairingPreview, PreviewPairing, Receipt, Receipts, MAX_KNOWN_IDS, MAX_RECEIPT_RANGE,
+    PairingClaim, PairingPreview, PreviewPairing, MAX_KNOWN_IDS,
 };
 use uuid::Uuid;
 
 use crate::client::{local_error, server_url};
 use crate::engine::{pending_token_key, token_key, Credentials, Session, Shared};
 use crate::error::SyncError;
+use crate::fork::ReceiptPages;
 use crate::restore::OnHold;
 use crate::transport::Method;
 
@@ -240,7 +240,9 @@ impl Shared {
             }) => 0,
             Err(error) => return Err(error),
         };
-        let receipts = self.receipts_across_restore(&mut session, old, last_sender_seq).await?;
+        let receipts = self
+            .pending_receipts(&mut session, old, last_sender_seq, ReceiptPages::AcrossRestores)
+            .await?;
         let now_ms = u64::try_from(get_current_timestamp()?).map_err(local_error)?;
         let url = session.base.clone();
         self.blocking(move |shared| {
@@ -263,42 +265,6 @@ impl Shared {
             hint: claim.hint,
             known_ids: 0,
         })
-    }
-
-    /// The old sender's receipts for pending seqs at or below `last_sender_seq`, across a restore on any page.
-    async fn receipts_across_restore(
-        self: &Arc<Self>,
-        session: &mut Session,
-        sender: Uuid,
-        last_sender_seq: u64,
-    ) -> Result<Vec<Receipt>, SyncError> {
-        let Some(lowest) = self
-            .blocking(|shared| lowest_pending_seq(&shared.db))
-            .await?
-            .filter(|lowest| *lowest <= last_sender_seq)
-        else {
-            return Ok(Vec::new());
-        };
-        let mut receipts = Vec::new();
-        let mut from = lowest - 1;
-        while from < last_sender_seq {
-            let through = last_sender_seq.min(from + MAX_RECEIPT_RANGE);
-            let page = self
-                .call_across_restore::<(), Receipts>(
-                    session,
-                    Method::Get,
-                    &format!(
-                        "/v1/spaces/{}/receipts?sender={sender}&after={from}&through={through}",
-                        session.space
-                    ),
-                    None,
-                    OnHold::Repeat,
-                )
-                .await?;
-            receipts.extend(page.receipts);
-            from = through;
-        }
-        Ok(receipts)
     }
 
     async fn preview_at(&self, base: &str, code: &str) -> Result<PairingPreview, SyncError> {

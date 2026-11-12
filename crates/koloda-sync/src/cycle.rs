@@ -14,13 +14,14 @@ use koloda::repo::sync::repair::repair_dangling_defaults;
 use koloda::repo::sync::restamp::restamp_local_cohorts;
 use koloda_sync_proto::hlc::{is_skew_paused, Hlc, SKEW_TOLERANCE_MS};
 use koloda_sync_proto::registry::{Kind, Lane};
-use koloda_sync_proto::transport::{DeviceInfo, DeviceMeta, ErrorCode, PullPage, MAX_RECEIPT_RANGE};
+use koloda_sync_proto::transport::{DeviceInfo, DeviceMeta, ErrorCode, PullPage};
 use uuid::Uuid;
 
 use crate::bootstrap::{Bootstrap, OpenLease};
 use crate::client::{local_error, OK};
 use crate::engine::{merge, Session, Shared};
 use crate::error::SyncError;
+use crate::fork::receipt_ranges;
 use crate::transport::Method;
 
 // WHY: one call does bounded work; whatever is left goes out with the next trigger.
@@ -214,9 +215,7 @@ impl Shared {
             Standing::Behind => return Ok(true),
             Standing::Unaccounted { after } => after,
         };
-        let mut from = after;
-        while from < last_sender_seq {
-            let through = last_sender_seq.min(from + MAX_RECEIPT_RANGE);
+        for (from, through) in receipt_ranges(after, last_sender_seq) {
             let receipts: Vec<(u64, [u8; 32])> = self
                 .receipts(session, session.device, from, through)
                 .await?
@@ -229,7 +228,6 @@ impl Shared {
             {
                 return Ok(true);
             }
-            from = through;
         }
         Ok(false)
     }

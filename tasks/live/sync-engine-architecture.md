@@ -286,7 +286,7 @@ A triage line says where the review was wrong.
   Commit: Carry host calls across a server restore
   Depends on: 3
 
-- [ ] 5. Page pending receipts in one place
+- [x] 5. Page pending receipts in one place
   Goal: Two functions collect a sender's receipts for the file's pending seqs and differ only in how a page is
   fetched: `pending_receipts` (`crates/koloda-sync/src/fork.rs:93-114`, through the cycle's client, no repeat) and
   `receipts_across_restore` (`pairing.rs:268-299`, through `call_across_restore`).
