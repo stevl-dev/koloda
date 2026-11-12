@@ -282,6 +282,16 @@ Entries are grouped under one heading per package directory.
   Deferred because: `@koloda/app` has no motion union to type it with, its sibling atoms are untyped too, and moving it
   to `core-react` has no concrete payoff.
 
+## tools
+
+- Improvement, Later: the land gate does not check the e2e suite-run record.
+  Evidence: at `59aa04f0`, `taskGateProblems` (`tools/land.ts:87`) checks the trailers, the Add and Archive commits,
+  `Status: done`, and the three fixed Outcome lines.
+  `agents/TASKS.md` (§Done) also requires the record when a plan item adds or edits e2e cases.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 17
+  Deferred because: the record has no fixed line shape yet, and few tasks have needed it.
+
 ## Repository
 
 - Waste, Medium: the per-crate Rust test targets could run as one `cargo test --workspace`.
@@ -350,3 +360,51 @@ Entries are grouped under one heading per package directory.
   Kind: handoff
   Source: `tasks/archive/fsrs-optimizer.md`
   Deferred because: the human chose later (2026-10-12).
+
+- Risk, Should-fix: repository behavior that is not validation is kept equal on both hosts only by a written rule.
+  Evidence: at `8c285ffa`, the twin rule is `agents/TESTING.md:79-86`, and the shared cases in
+  `crates/koloda/tests/cases/` cover validation rules only.
+  `tasks/archive/host-desync-audit.md` fixed seven such disagreements (HD1–HD7).
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 5
+  Deferred because: it needs shared repository cases on both hosts, a task of its own.
+
+- Risk, Should-fix: the agent can push branches and call the GitHub API, held back only by written rules.
+  Evidence: at `8c285ffa`, the repository holds no permission rules, a `gh` credential is stored, and not pushing
+  unasked is a written rule (`AGENTS.md:7-9`).
+  The `main` ruleset, read from the GitHub API on 2026-11-12, requires the status check `checks`, blocks
+  non-fast-forward pushes and deletion, and has no bypass actors.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 14a
+  Deferred because: the human chose to skip; the `main` ruleset is verified and the written rules have held.
+
+- Product decision, Later: no commit or task records which agent or model produced a change.
+  Evidence: at `8c285ffa`, `Task:` trailers tie commits to tasks (`tools/hooks/commit-msg` and the land gate enforce
+  them), and nothing names the agent or model.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 7
+  Deferred because: accepted by the human on 2026-11-12.
+
+- Risk, Later: nothing mechanical notices a weakened check, and self-review is not independent of the author.
+  Evidence: at `8c285ffa`, 9 `oxlint-disable` comments, 3 `#[ignore]` with reasons, and no skipped TS test.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 11
+  Deferred because: accepted by the human on 2026-11-12; the human reads most changes before they land.
+
+- Risk, Later: nothing shows whether `task/mobile-spike` is live or abandoned.
+  Evidence: at `478a9753` on `task/mobile-spike`: local only, `Status: draft`, committed 2026-11-07.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 4
+  Deferred because: accepted by the human on 2026-11-12; the branch stays as it is.
+
+- Risk, Later: `Escapes:` lines are a written rule only.
+  Evidence: at `8c285ffa`, `AGENTS.md:14-15`; nothing can tell that a commit fixes a bug that escaped onto `main`.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 16b
+  Deferred because: accepted by the human on 2026-11-12.
+
+- Product decision, Later: spend and the choice of model are not recorded.
+  Evidence: at `8c285ffa`, no task file, commit trailer, or tool records either.
+  Kind: skipped
+  Source: `tasks/archive/agentic-setup-audit.md`, finding 16c
+  Deferred because: accepted by the human on 2026-11-12; reopen when a second person joins or spend is tracked.

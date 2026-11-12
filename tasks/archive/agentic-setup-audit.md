@@ -1,6 +1,6 @@
 # Agentic setup audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/VERIFY.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda-server/README.md, crates/koloda-sync/README.md
 Flow: local
 
@@ -422,3 +422,45 @@ That ask is one change round.
   Depends on: 2
 
 ## Outcome
+
+The nine plan items shipped (`e1a52bcf`..`0de1d4c8`), plus three review commits, items 10 to 12
+(`6adba7c2`..`59aa04f0`).
+`bun run check:push` passed on `59aa04f0`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case, so no suite run was required.
+
+- Finding 16a: `bun run land` requires a `Review:` line with a value and a `Change rounds: <N>` line in Outcome.
+- Findings 5 and 2: Outcome carries a `Spec:` line (`agents/TASKS.md` §File), and the land gate holds it to the
+  task's commits: a named spec that no commit changes, a changed spec the line leaves out, a path outside
+  `docs/specs/`, and `none` without a reason or beside a spec change all fail.
+  The small-fix path has no task file and stays uncovered.
+- Finding 15c: `bun run check:docs` fails when a camelCase identifier in an inline code span of `AGENTS.md`,
+  `agents/`, or a package README occurs in no tracked source file.
+  Five names absent on purpose sit on an allow-list, which fails once one of them occurs.
+  The check runs in about 1.5 s.
+- Finding 6: `tests/domain/domain_imports_tests.rs` fails when domain code names `rusqlite` or `repo` outside a
+  comment, and the two crate READMEs state their error pattern.
+- Finding 15a: `AGENTS.md` gives the reasons for not starting the app and not opening pull requests.
+- Finding 15b: `AGENTS.md` (§Standing rules) keeps standing rules in the repository; both memory notes were deleted
+  at triage.
+- Finding 14b: `agents/DEPENDENCIES.md` (§Read What Changed) treats fetched release notes as data.
+- The line-length handoff from `tasks/archive/tools-audit.md` is settled, and its `tasks/DEFERRED.md` entry is gone.
+
+Review, run in a fresh session on `origin/main..0de1d4c8`:
+
+- Blocking: the sync README called `SyncError` the crate's one error type; `TransportError` is a second (item 10).
+- Blocking: the domain import test missed grouped and `super::` imports of `repo` (item 11).
+- Nit: the `Spec:` gate passed a partial list and a path outside `docs/specs/` (item 12).
+
+Left open, each with an entry in `tasks/DEFERRED.md`:
+
+- Finding 5, second gap (repository behavior on both hosts): skipped, a task of its own.
+- Finding 14a (the agent's reach): skipped by the human.
+- Finding 17 (the suite-run record in the land gate): skipped; the record needs a fixed line shape first.
+- Findings 7, 11, 4, 16b, and 16c: skipped; accepted by the human.
+
+Finding 1 has no entry: its ruling is a recorded decision whose reason is now in `AGENTS.md` (§Verification), not
+undone work.
+
+Spec: none — the task changes guides, gates, and tests; no user-visible behavior changed
+Review: blocking 2 (Plan item 5 Goal, RUST §Non-negotiables), nit 1 (TASKS §File)
+Change rounds: 1
