@@ -196,7 +196,7 @@ A triage line says where the review was wrong.
   Commit: Record the designs rejected for the sync engine
   Depends on: none
 
-- [ ] 2. Class a cycle's ending in one place
+- [x] 2. Class a cycle's ending in one place
   Goal: Give `SyncError` one method, `ending()`, in `crates/koloda-sync/src/error.rs`, that returns how a cycle
   that failed with this error ended.
   Four classes:

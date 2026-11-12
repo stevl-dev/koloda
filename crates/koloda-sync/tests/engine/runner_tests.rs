@@ -9,8 +9,8 @@ use koloda_sync_proto::registry::Kind;
 use koloda_sync_proto::transport::RestoreMode;
 use uuid::Uuid;
 
-use crate::common::{newer_server_reply, system_ms, Device, Fault, Space};
-use crate::fixtures::{review, FRONT};
+use crate::common::{newer_server_reply, system_ms, unreadable_payload, Device, Fault, Space, SERVER_URL};
+use crate::fixtures::{review, seed_settings, FRONT};
 use crate::runner_support::{
     channel_sink, wait_for, ManualTimer, COALESCE, FIRST_BACKOFF, POLL, POLL_LISTENING, SILENT_FOR,
 };
@@ -202,6 +202,33 @@ fn a_file_that_cannot_sync_waits_for_a_trigger_without_errors_or_a_socket() {
             "{name}: no events socket opens"
         );
     }
+}
+
+#[test]
+fn a_bootstrap_held_at_an_unreadable_entry_polls_without_errors() {
+    let space = Space::new();
+    let library = space.device.library();
+    space.device.engine.sync_now().expect("A pushes its library");
+    let at = space.server.version(space.space_id(), "cards", &library.card, "create");
+    space.server.damage(space.space_id(), at, unreadable_payload);
+    let code = space.device.engine.issue_pairing(None).expect("a code is issued").code;
+    let b = space.server.device();
+    b.engine
+        .join(SERVER_URL, &code, "Phone", seed_settings())
+        .expect("B claims the code");
+    let timer = ManualTimer::default();
+    let (sink, events) = channel_sink();
+
+    b.engine
+        .start_runner(sink, Arc::new(timer.clone()))
+        .expect("the runner starts");
+    quiet_cycle(&events, "held");
+
+    // WHY: a backoff would sleep one second here; the poll shows the runner treats the hold as a pause.
+    timer.wait_for_sleep(POLL);
+    // WHY: only a cycle sends statuses, so a second quiet cycle shows the poll ran one.
+    timer.advance(POLL);
+    quiet_cycle(&events, "held");
 }
 
 #[test]

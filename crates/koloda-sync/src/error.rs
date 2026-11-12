@@ -62,8 +62,8 @@ pub enum SyncError {
     ClockSkew {
         skew_ms: i64,
     },
-    /// A bootstrap met an envelope this app cannot read; it released its lease and starts again on the next trigger
-    /// (`PROTOCOL.md` §Corrupt envelopes).
+    /// A bootstrap met an envelope this app cannot read; it released its lease, and the next cycle, at the poll or on
+    /// a trigger, starts again from a new one (`PROTOCOL.md` §Corrupt envelopes).
     Held(Hold),
     /// The file cannot join the code's space in this mode; nothing was claimed.
     CannotJoin(JoinMode),
@@ -82,21 +82,49 @@ pub enum SyncError {
     },
 }
 
-impl SyncError {
+/// How a cycle that failed ended, which decides what the engine and the runner do next.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Ending {
+    /// A tick spent its budget: the host's limit, not a fault. The stop the last cycle recorded stays, no event goes
+    /// out, the tick is not done, and the runner polls.
+    Limit,
+    /// The file waits for something to change on its own, such as the network or the server: the stop clears, the
+    /// status shows the pause, no event goes out, and the runner polls.
+    Pause,
     /// The file cannot sync until the user or the host acts: it is in no space, holds an authoritative restore, the
     /// server no longer knows its device, or the server is newer than this app. Its status says so, and every such act
-    /// fires a trigger.
-    pub(crate) fn is_waiting(&self) -> bool {
-        matches!(
-            self,
+    /// fires a trigger, so the runner neither polls nor backs off, no event goes out, and the events socket closes.
+    Wait,
+    /// Anything else: the stop records it, an `Error` event goes out, and the runner backs off.
+    Fault,
+}
+
+impl SyncError {
+    /// INVARIANT: the match names every variant, so a new variant states its class here and its `Stop` in `Stop::of`
+    /// in the same change; the engine, the runner, `tick`, and the events socket read the class and never the variant.
+    pub(crate) fn ending(&self) -> Ending {
+        match self {
+            SyncError::BudgetSpent => Ending::Limit,
+            SyncError::Metered { .. } | SyncError::Held(_) => Ending::Pause,
             SyncError::NotEnrolled
-                | SyncError::Detached
-                | SyncError::Revoked
-                | SyncError::PairAgain
-                | SyncError::RestoreHeld
-                | SyncError::UnknownDevice
-                | SyncError::UpdateRequired { .. }
-        )
+            | SyncError::Detached
+            | SyncError::Revoked
+            | SyncError::PairAgain
+            | SyncError::RestoreHeld
+            | SyncError::UnknownDevice
+            | SyncError::UpdateRequired { .. } => Ending::Wait,
+            SyncError::Transport { .. }
+            | SyncError::Server { .. }
+            | SyncError::Local(_)
+            | SyncError::AlreadyEnrolled
+            | SyncError::Behind
+            | SyncError::Restored { .. }
+            | SyncError::PushRefused { .. }
+            | SyncError::ClockSkew { .. }
+            | SyncError::CannotJoin(_)
+            | SyncError::InsecureServerUrl(_)
+            | SyncError::LowDisk { .. } => Ending::Fault,
+        }
     }
 }
 

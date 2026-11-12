@@ -26,7 +26,7 @@ use uuid::Uuid;
 use crate::client::{mint_token, server_url, Client, Skew};
 use crate::devices::DeviceSummary;
 use crate::disk::FreeSpace;
-use crate::error::SyncError;
+use crate::error::{Ending, SyncError};
 use crate::events::is_past;
 use crate::metered::{Metered, Network};
 use crate::pairing::{ImportMode, IssuedPairing, Joined, Preview};
@@ -166,7 +166,7 @@ impl Engine {
         self.run(|shared| async move {
             match shared.run_cycle(Some(budget)).await {
                 (changed, Ok(is_done)) => Ok(Ticked { changed, is_done }),
-                (changed, Err(SyncError::BudgetSpent)) => Ok(Ticked {
+                (changed, Err(error)) if error.ending() == Ending::Limit => Ok(Ticked {
                     changed,
                     is_done: false,
                 }),
@@ -335,9 +335,7 @@ impl Shared {
         self.retarget().await;
         self.tell_changed(&changed, &mut told);
         if let Err(error) = &result {
-            // WHY: a spent budget and a metered pause are limits, not faults, and a waiting file's status already
-            // says why it stopped; an error per trigger would repeat it.
-            if !matches!(error, SyncError::BudgetSpent | SyncError::Metered { .. }) && !error.is_waiting() {
+            if error.ending() == Ending::Fault {
                 self.emit(Event::Error(error.to_string()));
             }
         }
@@ -368,14 +366,20 @@ impl Shared {
             match &result {
                 Ok(_) => {
                     run.stop = None;
+                    run.ended_in_wait = false;
                     run.last_success_ms = get_current_timestamp().ok();
                 }
-                // WHY: a spent budget is the host's limit, not a fault; the next tick picks up from the cursors.
-                Err(SyncError::BudgetSpent) => {}
-                // WHY: a held bootstrap is waiting, not stopped; the status shows the hold beside the bootstrap state.
-                // A bootstrap paused on a metered network shows its pause the same way.
-                Err(SyncError::Held(_) | SyncError::Metered { .. }) => run.stop = None,
-                Err(error) => run.stop = Some(Stop::of(error)),
+                Err(error) => match error.ending() {
+                    Ending::Limit => {}
+                    Ending::Pause => {
+                        run.stop = None;
+                        run.ended_in_wait = false;
+                    }
+                    ending @ (Ending::Wait | Ending::Fault) => {
+                        run.stop = Some(Stop::of(error));
+                        run.ended_in_wait = ending == Ending::Wait;
+                    }
+                },
             }
             std::mem::take(&mut run.is_upload_nudged)
         };
@@ -529,11 +533,11 @@ impl Shared {
     /// Whether pushing still waits for server time; the wait ends once `server_now_ms` reaches it.
     pub(crate) fn is_push_waiting(&self, server_now_ms: i64) -> Result<bool, SyncError> {
         let mut run = self.lock(&self.run_state)?;
-        let is_waiting = run.push_waits_until.is_some_and(|until| server_now_ms < until);
-        if !is_waiting {
+        let waits = run.push_waits_until.is_some_and(|until| server_now_ms < until);
+        if !waits {
             run.push_waits_until = None;
         }
-        Ok(is_waiting)
+        Ok(waits)
     }
 
     /// Records the entry a lane stopped at, or clears that lane's hold once a pull of it passes the entry.

@@ -11,7 +11,7 @@ use koloda_sync_proto::registry::Kind;
 use tokio::sync::Notify;
 
 use crate::engine::Shared;
-use crate::error::SyncError;
+use crate::error::{Ending, SyncError};
 use crate::status::Status;
 
 /// Local writes within this window share one cycle.
@@ -166,10 +166,10 @@ impl Shared {
             }
             seen = self.triggers.generation.load(Ordering::SeqCst);
             let (_, result) = self.run_cycle(None).await;
-            let is_cycle_ok = result.is_ok();
-            wait = match result {
-                // WHY: a bootstrap paused on a metered network waits for the host, not for a retry.
-                Ok(_) | Err(SyncError::BudgetSpent | SyncError::Metered { .. }) => {
+            let ending = result.as_ref().err().map(SyncError::ending);
+            wait = match ending {
+                // WHY: a paused bootstrap waits for the network, the host, or the server, not for a retry.
+                None | Some(Ending::Limit | Ending::Pause) => {
                     backoff = FIRST_BACKOFF;
                     let poll = if self.is_listening.load(Ordering::SeqCst) {
                         POLL_LISTENING
@@ -182,7 +182,7 @@ impl Shared {
                     let push_wait = self.push_wait_left().ok().flatten();
                     // WHY: a paused bootstrap ran no transfers, so their due times would wake the runner at once,
                     // again and again.
-                    let transfer_wait = if is_cycle_ok {
+                    let transfer_wait = if ending.is_none() {
                         self.transfer_wait_left().await.ok().flatten()
                     } else {
                         None
@@ -196,11 +196,11 @@ impl Shared {
                 }
                 // WHY: a waiting file fails the same way until the user or the host acts, and each such act fires a
                 // trigger; a poll or a backoff would only call the server, or fail, again (PROTOCOL.md, Cycle).
-                Err(error) if error.is_waiting() => {
+                Some(Ending::Wait) => {
                     backoff = FIRST_BACKOFF;
                     None
                 }
-                Err(_) => {
+                Some(Ending::Fault) => {
                     let after = backoff;
                     backoff = (backoff * 2).min(POLL);
                     Some(after)

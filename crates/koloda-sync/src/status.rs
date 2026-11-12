@@ -97,6 +97,8 @@ impl Stop {
 pub(crate) struct RunState {
     pub(crate) is_syncing: bool,
     pub(crate) stop: Option<Stop>,
+    /// The cycle that recorded `stop` ended in a wait, so the events socket stays closed (`Ending::Wait`).
+    pub(crate) ended_in_wait: bool,
     pub(crate) last_success_ms: Option<i64>,
     pub(crate) heads: Option<(u64, u64)>,
     /// The highest heads nudged during the running cycle, checked once it ends.

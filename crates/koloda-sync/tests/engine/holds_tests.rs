@@ -9,25 +9,13 @@ use koloda::repo::sync::apply::{Hold, HoldReason};
 use koloda::repo::{cards, decks};
 use koloda_sync::error::SyncError;
 use koloda_sync::status::State;
-use koloda_sync_proto::envelope::Envelope;
 use koloda_sync_proto::payload::{Payload, Review};
 use koloda_sync_proto::registry::Lane;
 use koloda_sync_proto::transport::{ErrorCode, RestoreMode};
 use uuid::Uuid;
 
-use crate::common::{error_reply, system_ms, Device, Fault, Space, SERVER_URL};
+use crate::common::{error_reply, system_ms, unreadable_payload, Device, Fault, Space, SERVER_URL};
 use crate::fixtures::{review, seed_settings};
-
-/// The envelope with a payload no app version could have written; its header still reads.
-fn unreadable_payload(bytes: &[u8]) -> Vec<u8> {
-    let envelope = Envelope::decode(bytes).expect("the stored envelope decodes");
-    Envelope {
-        header: envelope.header,
-        payload: vec![0xff, 0x00],
-    }
-    .encode()
-    .expect("the damaged envelope encodes")
-}
 
 fn hold(device: &Device) -> Option<Hold> {
     device.engine.status().expect("status reads").hold

@@ -76,7 +76,9 @@ A delete that fails then emits `Event::Error` and the call succeeds; a re-attach
   retries, the server URL rule, and the epoch and the schemas this app writes, both of which every device call names.
 - `src/transport.rs` — `Transport`, one request and its raw reply, and the events socket; `HttpTransport` sends both
   with reqwest.
-- `src/error.rs` — `SyncError`.
+- `src/error.rs` — `SyncError`, and `ending`, the one place that classes how a cycle ended: a limit, a pause, a wait,
+  or a fault.
+  A new variant states its class there and its `Stop` in `Stop::of` in the same change.
 
 - `tests/engine/` — one test binary; `common.rs` calls `koloda-server`'s router in process through a `Transport`,
   on a server clock offset from system time; its backup and restore swap the router every device calls.

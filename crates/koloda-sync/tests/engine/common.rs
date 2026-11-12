@@ -966,6 +966,17 @@ fn decode<T: DeserializeOwned>(response: &Response) -> Reply<T> {
     ciborium::from_reader(bytes.as_slice()).expect("every response is a CBOR reply")
 }
 
+/// The envelope with a payload no app version could have written; its header still reads.
+pub fn unreadable_payload(bytes: &[u8]) -> Vec<u8> {
+    let envelope = Envelope::decode(bytes).expect("the stored envelope decodes");
+    Envelope {
+        header: envelope.header,
+        payload: vec![0xff, 0x00],
+    }
+    .encode()
+    .expect("the damaged envelope encodes")
+}
+
 /// A reverse proxy's own error page, which is not a sync reply, as nginx sends one.
 pub fn proxy_page(status: u16) -> Response {
     Response {
