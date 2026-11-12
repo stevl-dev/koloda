@@ -134,7 +134,7 @@ Gate: the branch lands only if all of these hold.
   It adds `tasks/live/<slug>.md`.
 - The newest commit on `origin/main..HEAD` is the Archive commit.
   It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled,
-  including its `Review:` and `Change rounds:` lines (§File).
+  including its `Spec:`, `Review:`, and `Change rounds:` lines (§File).
   It adds to `tasks/DEFERRED.md` an entry for each item the task leaves undone (§Deferred work).
 - Every commit carries `Task: <slug>`.
 - The tip is green: its CI job `checks` (`bun run check:push`) passed.
@@ -219,6 +219,7 @@ Out: <explicit non-goals>
 
 <what shipped>
 
+Spec: <comma-separated paths under docs/specs/, or none — reason>
 Review: <findings by tier with the rule each cites, none, or not run>
 Change rounds: <N>
 ```
@@ -229,8 +230,12 @@ It is not an open question: do not record "area guides?" there.
 When scope changes the set, update the line in the same commit.
 `Flow:` sits under `Guides:`, as described in §Flow.
 
-Outcome ends with two fixed lines, so later sessions can count them across the archive.
+Outcome ends with three fixed lines, so later sessions can count them across the archive.
 
+- `Spec:` names the specs the task changed, as comma-separated paths under `docs/specs/`.
+  Write `none — <reason>` when no user-visible behavior changed, or the change is below the grain of a spec.
+  It backs the rule that a spec changes with the code (`agents/FUNCTIONAL-SPECIFICATIONS.md`).
+  `bun run land` fails when a named spec is not changed by a task commit, or when `none` sits beside a spec change.
 - `Review:` lists the independent review's findings by tier, each with the rule it cites (`agents/REVIEW.md`).
   Example: `Review: blocking 2 (CODE-DOCUMENTATION §Strict Commenting Rules, TESTING §One home per behavior), nit 1`.
   Write `none` when the review found nothing, and `not run` when there was no review.

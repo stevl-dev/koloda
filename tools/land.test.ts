@@ -27,6 +27,7 @@ Guides: none
 
 Notes shipped.
 
+Spec: none — notes have no user-visible behavior yet
 Review: none
 Change rounds: 0
 `;
@@ -103,6 +104,7 @@ describe("taskGateProblems", () => {
       expect.stringContaining("fill in Outcome"),
       expect.stringContaining("`Review:`"),
       expect.stringContaining("`Change rounds: <N>`"),
+      expect.stringContaining("`Spec:`"),
     ]);
   });
 
@@ -126,7 +128,7 @@ describe("taskGateProblems", () => {
 
   it("finds the Review and Change rounds lines anywhere in Outcome", () => {
     const linesFirst = archiveDone.replace(
-      "Notes shipped.\n\nReview: none\nChange rounds: 0\n",
+      "Review: none\nChange rounds: 0\n",
       "Review: none\nChange rounds: 2\n\n### Skipped findings\n\n- 3. Risk, Later: kept as is.\n",
     );
     expect(taskGateProblems(slug, train, linesFirst)).toEqual([]);
@@ -134,6 +136,45 @@ describe("taskGateProblems", () => {
 
   it("rejects a tip without the archive file", () => {
     expect(taskGateProblems(slug, train, null)).toEqual([expect.stringContaining("is missing at the tip")]);
+  });
+
+  describe("Spec line", () => {
+    const spec = "docs/specs/NOTES.md";
+    const specCommit = commit({ changes: [`M ${spec}`, "M src/app.ts"] });
+    const specTrain = [addCommit, specCommit, archiveCommit];
+    const withSpec = (value: string) =>
+      archiveDone.replace("Spec: none — notes have no user-visible behavior yet", `Spec: ${value}`);
+
+    it("passes the specs the task changed", () => {
+      const other = "docs/specs/DECKS.md";
+      const twoSpecs = [addCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
+      expect(taskGateProblems(slug, twoSpecs, withSpec(`${spec}, ${other}`))).toEqual([]);
+    });
+
+    it("is required in Outcome", () => {
+      const noSpec = archiveDone.replace(/^Spec: .*\n/m, "");
+      expect(taskGateProblems(slug, train, noSpec)).toEqual([`${archived} must have a \`Spec:\` line in Outcome`]);
+    });
+
+    it("rejects none without a reason", () => {
+      for (const value of ["none", "none —", "none, see the diff"]) {
+        expect(taskGateProblems(slug, train, withSpec(value))).toEqual([
+          expect.stringContaining("must give a reason after `Spec: none —`"),
+        ]);
+      }
+    });
+
+    it("rejects none when a commit changes a spec", () => {
+      expect(taskGateProblems(slug, specTrain, archiveDone)).toEqual([
+        `${archived} says \`Spec: none\`, but the task changes ${spec}`,
+      ]);
+    });
+
+    it("rejects a named spec that no commit changes", () => {
+      expect(taskGateProblems(slug, specTrain, withSpec(`${spec}, docs/specs/DECKS.md`))).toEqual([
+        `${archived} names docs/specs/DECKS.md in \`Spec:\`, but no commit of the task changes it`,
+      ]);
+    });
   });
 });
 

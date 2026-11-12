@@ -111,8 +111,29 @@ export function taskGateProblems(slug: string, commits: readonly TaskCommit[], a
     if (!/^Change rounds: \d+$/m.test(outcome)) {
       problems.push(`${archived} must have a \`Change rounds: <N>\` line in Outcome`);
     }
+    problems.push(...specProblems(archived, outcome, commits));
   }
   return problems;
+}
+
+function specProblems(archived: string, outcome: string, commits: readonly TaskCommit[]): string[] {
+  const value = outcome.match(/^Spec:[ \t]+(\S.*)$/m)?.[1].trim();
+  if (value == null) return [`${archived} must have a \`Spec:\` line in Outcome`];
+  const changedPaths = new Set(
+    commits.flatMap((commit) => commit.changes).map((change) => change.slice(change.indexOf(" ") + 1)),
+  );
+  if (/^none\b/.test(value)) {
+    const problems: string[] = [];
+    if (!/^none — \S/.test(value)) problems.push(`${archived} must give a reason after \`Spec: none —\``);
+    const spec = [...changedPaths].find((path) => path.startsWith("docs/specs/"));
+    if (spec != null) problems.push(`${archived} says \`Spec: none\`, but the task changes ${spec}`);
+    return problems;
+  }
+  return value
+    .split(",")
+    .map((path) => path.trim())
+    .filter((path) => !changedPaths.has(path))
+    .map((path) => `${archived} names ${path} in \`Spec:\`, but no commit of the task changes it`);
 }
 
 function fail(message: string): never {

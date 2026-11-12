@@ -252,7 +252,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Require Review and Change rounds lines at landing
   Depends on: none
 
-- [ ] 2. Require a Spec line in the task Outcome
+- [x] 2. Require a Spec line in the task Outcome
   Goal: Make each task say at Archive whether it changed a spec, and have the land gate check it (findings 5, 2).
   The rule it backs is `agents/FUNCTIONAL-SPECIFICATIONS.md:30`: a spec is updated in the same change as the code.
   In `agents/TASKS.md` (§File), add a fixed `Spec:` line to the Outcome template, above `Review:`.
