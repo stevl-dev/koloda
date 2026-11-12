@@ -37,6 +37,8 @@ Cases closed as "typechecked only" once let a red suite sit on `main` until the 
 
 ## Agents must not
 
+`AGENTS.md` (§Verification) gives the reason for the app rule.
+
 - Start `apps/web`, the Electron shell, or any long-lived app process.
 - Run a command that includes a Playwright suite.
   The exceptions are a human who explicitly asked for that command in this session,

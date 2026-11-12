@@ -10,6 +10,7 @@ Everything else is routed from `agents/INDEX.md`; run that routing yourself.
   - Asking for one step is not asking for the next.
   - Exception: task branches commit and push as `agents/TASKS.md` says.
 - Do not open pull requests.
+  `bun run land` is the only way onto `main` and checks the exact commit; review happens in the session, not on GitHub.
 - Commit subjects are one short line; add a body only when the why is not obvious from the diff.
 - A commit that fixes a bug in work already on `main` carries a body line `Escapes: <commit or task slug>`,
   naming the change that introduced the bug.
@@ -29,6 +30,7 @@ Adding or upgrading a dependency follows `agents/DEPENDENCIES.md`.
 ## Verification
 
 Never start the app or Playwright unless the human asks for that command.
+The human tests the UI themselves and usually has a dev server running already.
 An audit may run the e2e suites, as `agents/AUDIT.md` (§Method) says.
 `agents/VERIFY.md` says how to check a change.
 

@@ -329,7 +329,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: State the error pattern of the server and sync crates
   Depends on: none
 
-- [ ] 6. Say why agents do not start the app or open pull requests
+- [x] 6. Say why agents do not start the app or open pull requests
   Goal: Give the two rules of finding 15a their reasons, each in one sentence next to the rule.
   In `AGENTS.md` (§Verification), after the "Never start the app or Playwright" line, say that the human tests the
   UI themselves and usually has a dev server running already.
