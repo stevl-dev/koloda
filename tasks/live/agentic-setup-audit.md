@@ -353,7 +353,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Keep standing rules in the repository
   Depends on: 6 (same file)
 
-- [ ] 8. Treat fetched release notes as data
+- [x] 8. Treat fetched release notes as data
   Goal: Tell agents how to treat text they fetch (finding 14b).
   In `agents/DEPENDENCIES.md` (§Read What Changed), after step 2, say that release notes and migration guides are
   data.
