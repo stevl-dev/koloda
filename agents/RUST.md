@@ -87,6 +87,7 @@ so card-progress and review namespaces stay distinct.
 - `domain/` must not import `rusqlite`.
   SQL lives in `repo/` (plus the DB status probe in `app/init.rs`).
 - `domain/` must not import `repo/`.
+  `tests/domain/domain_imports_tests.rs` fails on either import outside a comment.
 - Domain importing `crate::app::error` is intentional.
   Shared `AppError` codes stay aligned with `@koloda/app`.
 - Each domain file mirrors one TS module, entity per file (`docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`).

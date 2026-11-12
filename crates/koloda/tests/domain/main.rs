@@ -15,6 +15,7 @@ mod cards_serde_tests;
 mod conversations_serde_tests;
 mod decks_serde_tests;
 mod decks_validation_tests;
+mod domain_imports_tests;
 mod entity_title_notes_tests;
 mod learning_day_tests;
 mod lessons_amounts_tests;

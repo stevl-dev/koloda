@@ -298,7 +298,7 @@ All answered by the human at triage, on 2026-11-12.
   Commit: Check that identifiers named in guides exist
   Depends on: none
 
-- [ ] 4. Check the domain import rules in koloda
+- [x] 4. Check the domain import rules in koloda
   Goal: Enforce two rules of `agents/RUST.md` (§Non-negotiables) that only the guide holds today (finding 6):
   `domain/` must not import `rusqlite`, and `domain/` must not import `repo/`.
   Add a test to the `domain` test binary of `crates/koloda` (`crates/koloda/tests/domain/`, registered in its
