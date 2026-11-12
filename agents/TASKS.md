@@ -235,7 +235,8 @@ Outcome ends with three fixed lines, so later sessions can count them across the
 - `Spec:` names the specs the task changed, as comma-separated paths under `docs/specs/`.
   Write `none — <reason>` when no user-visible behavior changed, or the change is below the grain of a spec.
   It backs the rule that a spec changes with the code (`agents/FUNCTIONAL-SPECIFICATIONS.md`).
-  `bun run land` fails when a named spec is not changed by a task commit, or when `none` sits beside a spec change.
+  `bun run land` fails when the line and the task's commits disagree:
+  a named spec that no commit changes, a changed spec the line leaves out, or `none` beside a spec change.
 - `Review:` lists the independent review's findings by tier, each with the rule it cites (`agents/REVIEW.md`).
   Example: `Review: blocking 2 (CODE-DOCUMENTATION §Strict Commenting Rules, TESTING §One home per behavior), nit 1`.
   Write `none` when the review found nothing, and `not run` when there was no review.

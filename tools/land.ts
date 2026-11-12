@@ -119,21 +119,30 @@ export function taskGateProblems(slug: string, commits: readonly TaskCommit[], a
 function specProblems(archived: string, outcome: string, commits: readonly TaskCommit[]): string[] {
   const value = outcome.match(/^Spec:[ \t]+(\S.*)$/m)?.[1].trim();
   if (value == null) return [`${archived} must have a \`Spec:\` line in Outcome`];
-  const changedPaths = new Set(
-    commits.flatMap((commit) => commit.changes).map((change) => change.slice(change.indexOf(" ") + 1)),
-  );
+  const isSpec = (path: string) => path.startsWith("docs/specs/");
+  const changedSpecs = [
+    ...new Set(commits.flatMap((commit) => commit.changes).map((change) => change.slice(change.indexOf(" ") + 1))),
+  ].filter(isSpec);
   if (/^none\b/.test(value)) {
     const problems: string[] = [];
     if (!/^none — \S/.test(value)) problems.push(`${archived} must give a reason after \`Spec: none —\``);
-    const spec = [...changedPaths].find((path) => path.startsWith("docs/specs/"));
-    if (spec != null) problems.push(`${archived} says \`Spec: none\`, but the task changes ${spec}`);
+    if (changedSpecs.length > 0) {
+      problems.push(`${archived} says \`Spec: none\`, but the task changes ${changedSpecs[0]}`);
+    }
     return problems;
   }
-  return value
-    .split(",")
-    .map((path) => path.trim())
-    .filter((path) => !changedPaths.has(path))
-    .map((path) => `${archived} names ${path} in \`Spec:\`, but no commit of the task changes it`);
+  const named = value.split(",").map((path) => path.trim());
+  return [
+    ...named
+      .filter((path) => !isSpec(path))
+      .map((path) => `${archived} names ${path} in \`Spec:\`, which is not under docs/specs/`),
+    ...named
+      .filter((path) => isSpec(path) && !changedSpecs.includes(path))
+      .map((path) => `${archived} names ${path} in \`Spec:\`, but no commit of the task changes it`),
+    ...changedSpecs
+      .filter((path) => !named.includes(path))
+      .map((path) => `${archived} leaves ${path} out of \`Spec:\`, but the task changes it`),
+  ];
 }
 
 function fail(message: string): never {

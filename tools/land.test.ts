@@ -175,6 +175,20 @@ describe("taskGateProblems", () => {
         `${archived} names docs/specs/DECKS.md in \`Spec:\`, but no commit of the task changes it`,
       ]);
     });
+
+    it("rejects a changed spec that the line leaves out", () => {
+      const other = "docs/specs/DECKS.md";
+      const twoSpecs = [addCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
+      expect(taskGateProblems(slug, twoSpecs, withSpec(spec))).toEqual([
+        `${archived} leaves ${other} out of \`Spec:\`, but the task changes it`,
+      ]);
+    });
+
+    it("rejects a named path outside docs/specs/", () => {
+      expect(taskGateProblems(slug, specTrain, withSpec(`${spec}, src/app.ts`))).toEqual([
+        `${archived} names src/app.ts in \`Spec:\`, which is not under docs/specs/`,
+      ]);
+    });
   });
 });
 

@@ -408,4 +408,17 @@ That ask is one change round.
   Commit: Catch grouped and relative repo imports in domain
   Depends on: 4
 
+- [x] 12. Hold the Spec line to the specs the task changed
+  Goal: Settle a review Nit against item 2.
+  `agents/TASKS.md` (§File) says the line names the specs the task changed, as paths under `docs/specs/`.
+  The gate passed a line that named one of two changed specs, and one that named a changed path outside
+  `docs/specs/`.
+  In `tools/land.ts`, `specProblems` adds a problem for each changed spec the line leaves out, and for each named
+  path that is not under `docs/specs/`.
+  Add a case for each to `tools/land.test.ts`, and state the gate's cases in `agents/TASKS.md` (§File).
+  Constraints: `tools/land.ts`, `tools/land.test.ts`, `agents/TASKS.md`.
+  Done when: the `tools/land.test.ts` command of item 1 passes, and `bun run check:docs` passes.
+  Commit: Hold the Spec line to the specs the task changed
+  Depends on: 2
+
 ## Outcome
