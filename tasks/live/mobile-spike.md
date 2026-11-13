@@ -141,7 +141,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Upgrade React to 19.3
+- [x] 1. Upgrade React to 19.3
   Goal: Move the workspace's `react`, `react-dom`, `@types/react`, and `@types/react-dom` to 19.3, as open question
   8 settles.
   Expo SDK 58 pins `react` 19.3.0, and `react-native` 0.88.1 needs `^19.3.0`; the workspace has 19.2.0 installed.
