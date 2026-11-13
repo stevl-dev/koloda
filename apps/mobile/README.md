@@ -119,7 +119,8 @@ Code copied from another app instead of shared:
 - `src/lesson/use-mobile-lesson-session.ts`, from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and
   `lesson-uploader.tsx`: the session's queries and result uploads, without hotkeys or a setup screen.
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
-- `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its error codes.
+- `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its
+  error codes.
 - `src/host/sync-events.ts`, from `apps/electron-react/src/app/sync-events.ts`: the queries each sync event refreshes.
 
 ## Findings
