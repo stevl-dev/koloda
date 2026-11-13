@@ -244,6 +244,68 @@ mod cache {
     }
 }
 
+/// The store iOS and Android get from `create_secret_store`, before and after the host registers its own.
+mod host {
+    use koloda::app::error::{error_codes, AppError};
+    use koloda::app::secrets::{HostSecretStore, SecretStore};
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex};
+
+    #[derive(Default)]
+    struct MemoryStore {
+        data: Mutex<HashMap<String, String>>,
+    }
+
+    impl SecretStore for MemoryStore {
+        fn get(&self, key: &str) -> Result<Option<String>, AppError> {
+            Ok(self.data.lock().unwrap_or_else(|e| e.into_inner()).get(key).cloned())
+        }
+        fn set(&self, key: &str, value: &str) -> Result<(), AppError> {
+            self.data
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .insert(key.to_string(), value.to_string());
+            Ok(())
+        }
+        fn remove(&self, key: &str) -> Result<(), AppError> {
+            self.data.lock().unwrap_or_else(|e| e.into_inner()).remove(key);
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn every_call_errors_until_the_host_registers_a_store() {
+        let store = HostSecretStore::default();
+
+        let codes = [
+            store.get("k").err().map(|e| e.code),
+            store.set("k", "v").err().map(|e| e.code),
+            store.remove("k").err().map(|e| e.code),
+        ];
+
+        assert_eq!(
+            codes,
+            [Some(error_codes::SECRET_STORE); 3].map(|code| code.map(str::to_string))
+        );
+    }
+
+    #[test]
+    fn a_registered_store_sets_gets_and_removes_a_key() {
+        let store = HostSecretStore::default();
+        let registered = Arc::new(MemoryStore::default());
+        store
+            .register(Arc::clone(&registered) as Arc<dyn SecretStore>)
+            .expect("register host store");
+
+        store.set("k", "v").expect("set");
+        assert_eq!(registered.get("k").expect("read registered"), Some("v".to_string()));
+        assert_eq!(store.get("k").expect("get"), Some("v".to_string()));
+
+        store.remove("k").expect("remove");
+        assert_eq!(store.get("k").expect("get after remove"), None);
+    }
+}
+
 /// Manual purge if this key ever strands: Windows Credential Manager target
 /// "koloda-test-smoke:smoke-key"; other platforms service "koloda-test-smoke",
 /// entry "smoke-key".

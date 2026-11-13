@@ -156,7 +156,7 @@ Out:
   Commit: Upgrade React to 19.3
   Depends on: none
 
-- [ ] 2. Let koloda take a host secret store on mobile
+- [x] 2. Let koloda take a host secret store on mobile
   Goal: On iOS and Android, `create_secret_store` in `crates/koloda/src/app/secrets.rs` returns the store a host
   registered.
   Add a registry for the host's store, with one register call taking an `Arc<dyn SecretStore>`.

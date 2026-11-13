@@ -28,7 +28,9 @@ Rust is the source of truth for the AI provider enum and secrets redaction; `@ko
   `repo/sync/` owns the `sync_*` tables.
   Its module map is the `repo/sync/mod.rs` rustdoc; how each sync path works is in `src/repo/sync/README.md`.
 - App runtime: `app/` — DB connection (`parse_json_column` for JSON TEXT columns),
-  init/seed, keyring secrets, clock/UUID helpers.
+  init/seed, secrets, clock/UUID helpers.
+  Secrets live in the OS vault: `keyring` on macOS and Linux, Credential Manager on Windows.
+  On iOS and Android they live in a store the host registers at startup (`register_host_secret_store`).
 - Shared errors: `app::error` (`AppError` + `error_codes`) is the intentional crate-wide error type.
   Domain validation returns it so codes stay aligned with `@koloda/app`; domain must not import `rusqlite`.
 - Migrations: `migrations/` — owned Refinery SQL embedded via `embed_migrations!`.

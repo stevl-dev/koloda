@@ -1,6 +1,3 @@
-// WHY: only the debug-only test store and the non-Windows keyring backend use `error_codes`;
-// a Windows release build has neither and would warn about an unused import.
-#[cfg(any(debug_assertions, not(target_os = "windows")))]
 use crate::app::error::error_codes;
 use crate::app::error::AppError;
 use std::collections::HashMap;
@@ -127,12 +124,64 @@ impl<B: RawBackend> SecretStore for CachedStore<B> {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+// INVARIANT: on iOS and Android `create_secret_store` returns this store, and the host registers the store it
+// delegates to at startup (`register_host_secret_store`). It compiles on every target so its tests run on desktop.
+#[derive(Default)]
+pub struct HostSecretStore {
+    store: RwLock<Option<Arc<dyn SecretStore>>>,
+}
+
+impl HostSecretStore {
+    pub fn register(&self, store: Arc<dyn SecretStore>) -> Result<(), AppError> {
+        let mut guard = self.store.write().map_err(|_poisoned| host_store_lock_poisoned())?;
+        *guard = Some(store);
+        Ok(())
+    }
+
+    fn registered(&self) -> Result<Arc<dyn SecretStore>, AppError> {
+        let guard = self.store.read().map_err(|_poisoned| host_store_lock_poisoned())?;
+        guard.as_ref().map(Arc::clone).ok_or_else(|| {
+            AppError::new(
+                error_codes::SECRET_STORE,
+                Some("No secret store is set; the host registers one at startup".to_string()),
+            )
+        })
+    }
+}
+
+fn host_store_lock_poisoned() -> AppError {
+    AppError::new(
+        error_codes::SECRET_STORE,
+        Some("Host secret store lock poisoned".to_string()),
+    )
+}
+
+impl SecretStore for HostSecretStore {
+    fn get(&self, key: &str) -> Result<Option<String>, AppError> {
+        self.registered()?.get(key)
+    }
+
+    fn set(&self, key: &str, value: &str) -> Result<(), AppError> {
+        self.registered()?.set(key, value)
+    }
+
+    fn remove(&self, key: &str) -> Result<(), AppError> {
+        self.registered()?.remove(key)
+    }
+}
+
+static HOST_SECRET_STORE: LazyLock<Arc<HostSecretStore>> = LazyLock::new(|| Arc::new(HostSecretStore::default()));
+
+pub fn register_host_secret_store(store: Arc<dyn SecretStore>) -> Result<(), AppError> {
+    HOST_SECRET_STORE.register(store)
+}
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub struct KeyringBackend {
     service: &'static str,
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl KeyringBackend {
     pub fn new(service: &'static str) -> Self {
         Self { service }
@@ -187,7 +236,7 @@ impl KeyringBackend {
     }
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl RawBackend for KeyringBackend {
     fn read(&self, key: &str) -> Result<Option<String>, AppError> {
         self.get_from_keyring(key)
@@ -372,7 +421,13 @@ pub fn create_secret_store(service: &'static str) -> Arc<dyn SecretStore> {
     Arc::new(CachedStore::new(windows_store::WindowsBackend::new(service)))
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub fn create_secret_store(service: &'static str) -> Arc<dyn SecretStore> {
     Arc::new(CachedStore::new(KeyringBackend::new(service)))
+}
+
+// WHY: the host's store keeps its own namespace, so `service` has no use here.
+#[cfg(any(target_os = "ios", target_os = "android"))]
+pub fn create_secret_store(_service: &'static str) -> Arc<dyn SecretStore> {
+    Arc::clone(&*HOST_SECRET_STORE) as Arc<dyn SecretStore>
 }
