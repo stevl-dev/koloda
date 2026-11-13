@@ -138,6 +138,13 @@ Out:
   The follow-up revises it if iOS fails.
   The Archive commit adds the follow-up to `tasks/DEFERRED.md` as a handoff.
   Rejected: holding the decision until iOS is checked, and writing Swift that no machine here can compile.
+- [x] 11. Which dependencies outside open question 9 does item 3 need? — these, approved on 2026-11-13.
+  They are required peers of the approved Expo packages, plus Lingui's Babel plugin and Jest's types:
+  - `expo-router` peers: `react-native-screens`, `react-native-safe-area-context`, `expo-linking`, `expo-constants`,
+    `@expo/metro-runtime`, and `@expo/log-box`, at the versions Expo SDK 58 pins;
+  - `jest-expo` and React Native Testing Library peers: `jest`, `@react-native/jest-preset`, and `test-renderer`;
+  - `@lingui/babel-plugin-lingui-macro` 5.x, since Metro compiles with Babel and cannot run the SWC plugin;
+  - `@types/jest`, so `bun run typecheck` covers the Jest tests.
 
 ## Plan
 
@@ -177,7 +184,7 @@ Out:
   Commit: Let koloda take a host secret store on mobile
   Depends on: none
 
-- [ ] 3. Add the Expo mobile app shell
+- [x] 3. Add the Expo mobile app shell
   Goal: Add `apps/mobile` (`@koloda/mobile`): an Expo app on SDK 58, with the New Architecture and Hermes.
   It runs as a development build through prebuild, not in Expo Go, because item 4 adds native code.
   Expo Router gives a native stack and native tabs: "Lessons" and "Sync", both placeholders for now.
@@ -202,7 +209,7 @@ Out:
   This item's device checks: the app boots, both tabs open, and the debug screen shows four intervals.
   Add the app's row to `docs/decisions/APP-ROLES.md`, as open question 1 settles.
   Constraints: Mobile-only dependencies go in `apps/mobile/package.json`, not the root `package.json`.
-  Add only the dependencies open question 9 approved.
+  Add only the dependencies open questions 9 and 11 approved.
   The app uses the workspace's React version, which item 1 moved to the one the SDK pins.
   If the SDK and the workspace still disagree on React, stop and report it to the human.
   Do not change shared libs.

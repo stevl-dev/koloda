@@ -11,7 +11,7 @@
   "packageManager": "bun@1.4.2",
   "scripts": {
     "test:libs": "nx run-many --target=test --projects=tag:type:lib",
-    "test:app-unit": "nx run @koloda/web:test-unit && nx run @koloda/electron:test:unit",
+    "test:app-unit": "nx run @koloda/web:test-unit && nx run @koloda/electron:test:unit && nx run @koloda/mobile:test",
     "test:rust": "nx run koloda:test && nx run koloda-sync-proto:test && nx run koloda-server:test && nx run koloda-sync:test",
     "check:workspace-deps": "bunx vitest run --config tools/vitest.config.mjs --configLoader runner --exclude tools/docs.test.ts && bun run tools/check-workspace-deps.ts",
     "check:docs": "bunx vitest run --config tools/vitest.config.mjs --configLoader runner tools/docs.test.ts",

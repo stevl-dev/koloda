@@ -9,6 +9,7 @@ Each app has one role:
 | Desktop | `apps/electron`, `apps/electron-react` | Product |
 | Web | `apps/web` | Demo |
 | Design system | `apps/design-system` | Dev tool |
+| Mobile spike | `apps/mobile` | Dev tool |
 
 - A product app is what users are meant to use.
   Product apps set the feature set.

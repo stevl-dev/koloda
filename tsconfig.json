@@ -58,6 +58,9 @@
       "path": "./apps/electron-e2e"
     },
     {
+      "path": "./apps/mobile"
+    },
+    {
       "path": "./libs/assistant"
     },
     {

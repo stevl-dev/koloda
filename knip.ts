@@ -40,6 +40,10 @@ const config: KnipConfig = {
       // WHY: `i18n.ts` loads compiled catalogs through a template-literal `import()`.
       entry: [...appEntry, "src/app/locales/*.ts"],
     },
+    "apps/mobile": {
+      // WHY: Lingui's CLI loads `lingui.config.ts` by path; the app has no stylesheet.
+      entry: ["lingui.config.ts"],
+    },
     "apps/electron": {
       // WHY: swc compiles it standalone and Electron loads it by path.
       entry: ["src/preload.ts"],

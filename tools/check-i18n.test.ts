@@ -26,6 +26,7 @@ describe("changedCatalogs", () => {
     write("apps/web/locales/en/messages.po", "web en");
     write("apps/web/src/app/locales/en.ts", "compiled en");
     write("apps/web/src/app/locales/ru.ts", "compiled ru");
+    write("apps/mobile/src/locales/en.ts", "compiled mobile en");
     const before = snapshotCatalogs(root);
 
     // Extract edits one lib catalog and adds a locale; compile rewrites one file and another goes away.
@@ -33,9 +34,11 @@ describe("changedCatalogs", () => {
     write("libs/app/locales/en/messages.po", "app en");
     write("apps/web/src/app/locales/en.ts", "compiled en, new message");
     rmSync(join(root, "apps/web/src/app/locales/ru.ts"));
+    write("apps/mobile/src/locales/en.ts", "compiled mobile en, new message");
     write("libs/ui/src/form.tsx", "source edited");
 
     expect(changedCatalogs(before, snapshotCatalogs(root))).toEqual([
+      "apps/mobile/src/locales/en.ts",
       "apps/web/src/app/locales/en.ts",
       "apps/web/src/app/locales/ru.ts",
       "libs/app/locales/en/messages.po",

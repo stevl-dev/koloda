@@ -1,0 +1,41 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "jsx": "react-jsx",
+    "lib": [
+      "esnext"
+    ],
+    "types": [],
+    "customConditions": [
+      "@koloda/source",
+      "react-native"
+    ],
+    "rootDir": "src",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "ignoreDeprecations": "6.0"
+  },
+  "exclude": [
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "references": [
+    {
+      "path": "../../libs/app/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/settings/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/srs/tsconfig.lib.json"
+    }
+  ]
+}

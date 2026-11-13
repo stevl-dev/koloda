@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Koloda",
+    "slug": "koloda",
+    "scheme": "koloda",
+    "version": "0.0.1",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "com.koloda.app"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "updates": {
+      "enabled": false
+    }
+  }
+}

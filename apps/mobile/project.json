@@ -1,0 +1,71 @@
+{
+  "name": "@koloda/mobile",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/mobile/src",
+  "projectType": "application",
+  "tags": [
+    "type:app",
+    "platform:mobile"
+  ],
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx expo start",
+        "cwd": "apps/mobile"
+      }
+    },
+    "prebuild": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx expo prebuild --platform android --no-install",
+        "cwd": "apps/mobile"
+      }
+    },
+    "android": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx expo run:android",
+        "cwd": "apps/mobile"
+      }
+    },
+    "build-android": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "prebuild"
+      ],
+      "options": {
+        "command": "./gradlew assembleDebug",
+        "cwd": "apps/mobile/android"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -b apps/mobile --pretty false"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx jest",
+        "cwd": "apps/mobile"
+      },
+      "cache": true
+    },
+    "lingui-extract": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx lingui extract --clean",
+        "cwd": "apps/mobile"
+      }
+    },
+    "lingui-compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bunx lingui compile",
+        "cwd": "apps/mobile"
+      }
+    }
+  }
+}

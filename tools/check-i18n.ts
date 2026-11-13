@@ -1,6 +1,6 @@
 /**
  * Push gate step: the Lingui catalogs and compiled catalogs must match the source.
- * Runs extract (`--clean`) and compile (`--strict`) for web and desktop, then fails if any catalog file changed.
+ * Runs extract (`--clean`) and compile (`--strict`) for web, desktop, and mobile, then fails if any catalog file changed.
  * A message added without extract would ship its id; a `.po` edited without compile would ship old text.
  * The regenerated files stay in place, ready to commit.
  * It also fails on a positional placeholder (`{0}`) in a msgid: interpolate a plain identifier so Lingui names it.
@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const APPS = ["apps/web", "apps/electron-react"];
+const APPS = ["apps/web", "apps/electron-react", "apps/mobile"];
 
 export type Snapshot = Map<string, string>;
 
@@ -31,8 +31,11 @@ function catalogPaths(root: string): string[] {
     }
   }
   for (const app of readDir(root, "apps")) {
-    for (const file of readDir(root, `apps/${app}/src/app/locales`)) {
-      if (file.endsWith(".ts")) paths.push(`apps/${app}/src/app/locales/${file}`);
+    // WHY: Expo Router treats every file under `src/app` as a route, so the mobile app compiles to `src/locales`.
+    for (const dir of [`apps/${app}/src/app/locales`, `apps/${app}/src/locales`]) {
+      for (const file of readDir(root, dir)) {
+        if (file.endsWith(".ts")) paths.push(`${dir}/${file}`);
+      }
     }
   }
   return paths;
