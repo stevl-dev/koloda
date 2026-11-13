@@ -9,6 +9,9 @@ Role: dev tool (see `docs/decisions/APP-ROLES.md`).
 The app runs as an Expo development build on the New Architecture and Hermes, not in Expo Go.
 Routes live in `src/app` (Expo Router): a native stack over native tabs.
 It shares the TypeScript domain libraries with the other apps; Metro resolves them from source.
+Data lives in `koloda`, in-process: `src-rust` (crate `koloda-mobile`) is a thin UniFFI façade over it,
+and `native` (`@koloda/mobile-native`) is the React Native module uniffi-bindgen-react-native generates for it.
+`src/host` turns the façade's JSON payloads into the TS domain types and its errors into `AppError`.
 It targets Android only for now; iOS comes in a follow-up.
 
 ## Platform setup
@@ -32,6 +35,11 @@ The Expo prebuild writes the Gradle project into `android/`, which is generated 
 - `nx run @koloda/mobile:start` — the Metro dev server.
 - `nx run @koloda/mobile:android` — builds the debug app and installs it on a running emulator or phone.
 - `nx run @koloda/mobile:build-android` — compiles the debug app only; it starts no device or emulator.
+  Both first build `koloda-mobile` for each Android target and regenerate its module
+  (`nx run @koloda/mobile-native:build-android`).
+- `nx run @koloda/mobile-native:bindings` — regenerates the TS bindings from a desktop build of `koloda-mobile`;
+  run it and commit `native/src` after changing the façade's API.
+- `nx run @koloda/mobile:test-rust` — the façade's Rust tests; `bun run check:push` runs them.
 - `nx run @koloda/mobile:prebuild` — regenerates `android/` from the app config.
 - `nx run @koloda/mobile:test` — Jest unit tests; `bun run test:app-unit` runs them.
 - `nx run @koloda/mobile:typecheck`
@@ -44,19 +52,24 @@ Run on each platform before the spike's verdict.
 - [ ] The app boots to the Lessons tab.
 - [ ] The Lessons and Sync tabs both open.
 - [ ] "Open the debug screen" on the Lessons tab shows four grades, each with an interval.
+- [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
+  That answer came back from `koloda` through an async UniFFI call.
 
 ## Spike code
 
 Code that exists only to answer a question, replaced by the follow-up:
 
-- `src/app/(tabs)/index.tsx` and `src/app/(tabs)/sync.tsx`: tab placeholders.
+- `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
+- `src/app/(tabs)/sync.tsx`: the Sync tab placeholder.
 - `src/app/debug.tsx` and `src/components/debug-intervals.tsx`: the debug screen.
 
 ## Copies
 
 Code copied from another app instead of shared:
 
-- None yet.
+- `src/host/wire.ts` and its test, from `apps/electron-react/src/app/ipc.ts`: the JSON wire shapes.
+- `src/host/setup.ts`, from `apps/electron-react/src/app/setup.ts`: the starter content and settings.
+- The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 
 ## Findings
 

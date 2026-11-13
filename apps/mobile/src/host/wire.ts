@@ -1,0 +1,143 @@
+/**
+ * Wire format between the app and `koloda-mobile`.
+ *
+ * Copied from `apps/electron-react/src/app/ipc.ts`: the façade takes and returns the desktop addon's JSON shapes.
+ * Use {@link toWire} to coerce domain values into a JSON-safe shape before crossing the boundary,
+ * and {@link fromWire} to rehydrate timestamps from the Rust side.
+ */
+
+// WHY: deep import, as on desktop — the field list is all the wire needs from `@koloda/app`.
+import { TIMESTAMP_FIELD_KEYS } from "@koloda/app/db";
+
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export class WireError extends Error {
+  override readonly name = "WireError";
+  constructor(
+    message: string,
+    public readonly path: string,
+  ) {
+    super(`${message} at ${path || "<root>"}`);
+  }
+}
+
+/**
+ * Coerces a domain value into a JSON-safe shape suitable for IPC.
+ *
+ * - `Date` -> epoch ms (number), or an ISO string inside conversation `state`
+ * - `BigInt` -> number (throws if outside the safe integer range)
+ * - `undefined` -> dropped from objects; `null` stays `null`
+ * - cycles, functions, symbols -> throws {@link WireError}
+ */
+export function toWire(value: unknown): JsonValue {
+  return walkWire(value, new WeakSet(), "");
+}
+
+// WHY: Conversation `state` is an opaque TS blob coerced by assistant-react
+// (`coerceConversationState`), and web stores it as JSON, so its dates are ISO
+// strings on both hosts. Restore rejects anything else as corrupt.
+function isOpaqueState(path: string): boolean {
+  return path === "state" || path.startsWith("state.");
+}
+
+function walkWire(value: unknown, seen: WeakSet<object>, path: string): JsonValue {
+  if (value === null) return null;
+  if (value === undefined) return null;
+  if (value instanceof Date) {
+    const ms = value.getTime();
+    if (Number.isNaN(ms)) throw new WireError("Invalid Date", path);
+    return isOpaqueState(path) ? value.toISOString() : ms;
+  }
+  const t = typeof value;
+  if (t === "string" || t === "number" || t === "boolean") return value as JsonValue;
+  if (t === "bigint") {
+    const big = value as bigint;
+    if (big > BigInt(Number.MAX_SAFE_INTEGER) || big < BigInt(Number.MIN_SAFE_INTEGER)) {
+      throw new WireError(`BigInt out of safe integer range: ${big}`, path);
+    }
+    return Number(big);
+  }
+  if (t === "function" || t === "symbol") {
+    throw new WireError(`Cannot serialize ${t}`, path);
+  }
+  if (Array.isArray(value)) {
+    if (seen.has(value)) throw new WireError("Circular reference", path);
+    seen.add(value);
+    const out: JsonValue[] = Array.from({ length: value.length });
+    for (let i = 0; i < value.length; i++) {
+      out[i] = walkWire(value[i], seen, path ? `${path}[${i}]` : `[${i}]`);
+    }
+    seen.delete(value);
+    return out;
+  }
+  if (t === "object") {
+    const obj = value as Record<string, unknown>;
+    if (seen.has(obj)) throw new WireError("Circular reference", path);
+    seen.add(obj);
+    const out: { [key: string]: JsonValue } = {};
+    for (const k of Object.keys(obj)) {
+      const childPath = path ? `${path}.${k}` : k;
+      const v = obj[k];
+      if (v === undefined) continue;
+      out[k] = walkWire(v, seen, childPath);
+    }
+    seen.delete(obj);
+    return out;
+  }
+  throw new WireError(`Cannot serialize ${t}`, path);
+}
+
+const TIMESTAMP_KEYS: ReadonlySet<string> = new Set(TIMESTAMP_FIELD_KEYS);
+
+function reviveField(path: string, value: unknown): unknown {
+  // WHY: Conversation `state` is an opaque TS blob coerced by assistant-react
+  // (`coerceConversationState`). Reviving ISO strings inside it turns
+  // message metadata `createdAt` (intentionally a string) into a Date;
+  // restore backfill then treats it as missing and writes epoch (1970).
+  if (isOpaqueState(path)) return value;
+  // INVARIANT: revive by field name, matching web's DATE_KEYS conversion
+  // (libs/db-sqlite parse-rows) — both hosts must convert the same fields.
+  // Do not shape-sniff strings here: date-looking titles and card content
+  // ("2024-01-01") would arrive as Dates where the types say string.
+  const lastDot = path.lastIndexOf(".");
+  const key = lastDot === -1 ? path : path.slice(lastDot + 1);
+  if (!TIMESTAMP_KEYS.has(key)) return value;
+  return reviveIsoString(value);
+}
+
+export function fromWire<T = unknown>(value: unknown): T {
+  return revive(value, "") as T;
+}
+
+function revive(value: unknown, path: string): unknown {
+  const r = reviveField(path, value);
+  if (r === null || r === undefined) return r;
+  if (typeof r === "string" || typeof r === "number" || typeof r === "boolean") return r;
+  if (r instanceof Date) return r;
+  if (Array.isArray(r)) {
+    const out = Array.from({ length: r.length });
+    for (let i = 0; i < r.length; i++) {
+      out[i] = revive(r[i], path ? `${path}[${i}]` : `[${i}]`);
+    }
+    return out;
+  }
+  if (typeof r === "object") {
+    const obj = r as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(obj)) {
+      out[k] = revive(obj[k], path ? `${path}.${k}` : k);
+    }
+    return out;
+  }
+  return r;
+}
+
+function reviveIsoString(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  if (value.length < 10) return value;
+  if (value[4] !== "-" || value[7] !== "-") return value;
+  if (value[10] !== "T" && value[10] !== " " && value.length !== 10) return value;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? value : new Date(ms);
+}

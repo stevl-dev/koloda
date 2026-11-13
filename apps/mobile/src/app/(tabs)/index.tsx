@@ -1,19 +1,23 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { LessonsList } from "../../components/lessons-list";
 
 export default function LessonsTab() {
   const { _ } = useLingui();
 
   return (
     <View style={styles.screen}>
-      <Text>{_(msg`mobile.lessons.placeholder`)}</Text>
-      <Link href="/debug">{_(msg`mobile.debug.open`)}</Link>
+      <LessonsList />
+      <Link style={styles.debug} href="/debug">
+        {_(msg`mobile.debug.open`)}
+      </Link>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
+  screen: { flex: 1 },
+  debug: { padding: 16 },
 });

@@ -15,6 +15,7 @@ The schema workflow is `agents/DB.md`.
 | --- | --- |
 | Web (`apps/web`) | `@koloda/db-sqlite`, in-process TypeScript over `wa-sqlite` |
 | Desktop (Electron) | `koloda` over rusqlite, exposed to Electron through NAPI |
+| Mobile (`apps/mobile`, spike) | `koloda` over rusqlite, exposed to the app through UniFFI |
 
 Do not run desktop DB I/O from TypeScript, or web DB I/O through Rust (for example a WASM `koloda`).
 Changing either owner needs a new decision.

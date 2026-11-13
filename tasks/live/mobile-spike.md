@@ -145,6 +145,16 @@ Out:
   - `jest-expo` and React Native Testing Library peers: `jest`, `@react-native/jest-preset`, and `test-renderer`;
   - `@lingui/babel-plugin-lingui-macro` 5.x, since Metro compiles with Babel and cannot run the SWC plugin;
   - `@types/jest`, so `bun run typecheck` covers the Jest tests.
+- [x] 12. How does item 4 package and commit the UniFFI bindings? — decided 2026-11-13.
+  - `@ubjs/core`, the runtime the generated TS imports, is approved, and the `uniffi` crate is pinned to `=0.31`,
+    the version uniffi-bindgen-react-native 0.31 builds against.
+  - The generated React Native module lives in its own workspace package, `apps/mobile/native`
+    (`@koloda/mobile-native`), which the app depends on so autolinking finds it.
+  - The generated TS bindings are committed, so `bun run typecheck` runs on any machine;
+    an Nx target regenerates them.
+    The generated C++ and Android files are not committed.
+  - `expo-file-system` is approved, so the app can pass the documents directory to the façade.
+    `expo` already depends on it; the app lists it directly.
 
 ## Plan
 
@@ -220,7 +230,7 @@ Out:
   Commit: Add the Expo mobile app shell
   Depends on: 1
 
-- [ ] 4. Call koloda from the mobile app through UniFFI
+- [x] 4. Call koloda from the mobile app through UniFFI
   Goal: Add `apps/mobile/src-rust`, crate `koloda-mobile`, as a Cargo workspace member.
   It is a thin façade over `koloda`, exported with UniFFI, like `apps/electron/src-rust` over NAPI.
   It opens `koloda.db` in the app's documents directory, reports its status, runs migrations, and seeds the starter
@@ -228,11 +238,11 @@ Out:
   It also lists decks and lessons, loads lesson data, and submits lesson results.
   Database calls run on one dedicated thread in call order and return Promises, as on desktop.
   Errors reach JS as the `AppError` shape `@koloda/app` defines.
-  uniffi-bindgen-react-native generates the bindings; commit its config for Android.
+  uniffi-bindgen-react-native generates the bindings into `apps/mobile/native`, as open question 12 settles;
+  commit its config for Android.
   Nx targets regenerate the bindings and build the native libraries for Android.
   The `android` and `build-android` targets depend on them, so one command builds the app.
-  Generated code is not committed, unless the TS bindings need a mobile toolchain to generate.
-  Then commit the generated TS, so `bun run typecheck` runs on any machine.
+  Commit the generated TS bindings and not the generated C++ or Android files.
   The app implements the `Queries` methods it calls, typed as a `Pick` of `Queries` from `@koloda/core-react`, with
   its query keys.
   It does not set `queriesAtom`, which is typed as the whole `Queries`.
@@ -247,7 +257,7 @@ Out:
   Constraints: No change to `koloda`'s behavior.
   Copy what the façade needs from `apps/electron/src-rust` instead of refactoring it, and list each copy under
   Copies.
-  Add only the dependencies open question 9 approved.
+  Add only the dependencies open questions 9 and 12 approved.
   Done when: Rust tests on the desktop host open, migrate, and seed a temporary database through the façade and list
   its lessons.
   A Jest test renders the Lessons tab over a mocked façade and shows each deck's due count.

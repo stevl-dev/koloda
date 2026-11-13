@@ -13,6 +13,14 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/host/setup.ts
+msgid "app.setup.default-title"
+msgstr "Default"
+
+#: src/components/boot.tsx
+msgid "mobile.boot.error"
+msgstr "The app could not open its database."
+
 #: src/components/debug-intervals.tsx
 msgid "mobile.debug.intervals"
 msgstr "Intervals for a new card under the starter algorithm"
@@ -25,9 +33,17 @@ msgstr "Open the debug screen"
 msgid "mobile.debug.title"
 msgstr "Debug"
 
-#: src/app/(tabs)/index.tsx
-msgid "mobile.lessons.placeholder"
-msgstr "Lessons will show here."
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.due {untouched} {learn} {review}"
+msgstr "New {untouched} · Learning {learn} · Review {review}"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.empty"
+msgstr "No decks yet."
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.error"
+msgstr "Lessons could not load."
 
 #: src/app/(tabs)/sync.tsx
 msgid "mobile.sync.placeholder"

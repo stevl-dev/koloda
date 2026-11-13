@@ -33,7 +33,8 @@
     "**/locales/*.ts",
     "**/routeTree.gen.ts",
     "**/_journal.json",
-    "**/*_snapshot.json"
+    "**/*_snapshot.json",
+    "apps/mobile/native/src"
   ],
   "plugins": [
     "https://plugins.dprint.dev/oxc-0.28.0.wasm",

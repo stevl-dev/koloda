@@ -1,0 +1,23 @@
+{
+  "name": "@koloda/mobile-native",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "url": "https://github.com/stevl-dev/koloda.git"
+  },
+  "main": "src/index.tsx",
+  "types": "src/index.tsx",
+  "react-native": "src/index.tsx",
+  "codegenConfig": {
+    "name": "KolodaMobileSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.koloda.mobilenative"
+    }
+  },
+  "dependencies": {
+    "@ubjs/core": "0.31.0-7",
+    "uniffi-bindgen-react-native": "0.31.0-7"
+  }
+}

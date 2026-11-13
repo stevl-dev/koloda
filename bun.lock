@@ -116,8 +116,10 @@
       "dependencies": {
         "@expo/log-box": "~58.0.15",
         "@expo/metro-runtime": "~58.0.17",
+        "@koloda/mobile-native": "workspace:*",
         "expo": "~58.0.25",
         "expo-constants": "~58.0.16",
+        "expo-file-system": "~58.0.13",
         "expo-linking": "~58.0.17",
         "expo-router": "~58.0.31",
         "react-native": "0.88.1",
@@ -132,6 +134,14 @@
         "jest": "^30.5.2",
         "jest-expo": "~58.0.14",
         "test-renderer": "^1.3.1",
+      },
+    },
+    "apps/mobile/native": {
+      "name": "@koloda/mobile-native",
+      "version": "0.0.1",
+      "dependencies": {
+        "@ubjs/core": "0.31.0-7",
+        "uniffi-bindgen-react-native": "0.31.0-7",
       },
     },
     "apps/web": {
@@ -901,6 +911,8 @@
 
     "@koloda/mobile": ["@koloda/mobile@workspace:apps/mobile"],
 
+    "@koloda/mobile-native": ["@koloda/mobile-native@workspace:apps/mobile/native"],
+
     "@koloda/native-ipc": ["@koloda/native-ipc@workspace:libs/native-ipc"],
 
     "@koloda/settings": ["@koloda/settings@workspace:libs/settings"],
@@ -1554,6 +1566,8 @@
     "@types/yargs": ["@types/yargs@17.0.33", "", { "dependencies": { "@types/yargs-parser": "*" } }, "sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA=="],
 
     "@types/yargs-parser": ["@types/yargs-parser@21.0.3", "", {}, "sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ=="],
+
+    "@ubjs/core": ["@ubjs/core@0.31.0-7", "", {}, "sha512-a9EqpoYlMpnjvE8H8COIvM7jBDJEi6KC/7MZQakbq9RZlX7ex8wjlCQIp51HGWIRAOuxCo9MOcmm+RQ4c8cfbw=="],
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.4.0", "", {}, "sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ=="],
 
@@ -3260,6 +3274,8 @@
     "unicode-property-aliases-ecmascript": ["unicode-property-aliases-ecmascript@2.1.0", "", {}, "sha512-6t3foTQI9qne+OZoVQB/8x8rk2k1eVy1gRXhV3oFQ5T6R1dqQ1xtin3XqSlx3+ATBkliTaR/hHyJBm+LVPNM8w=="],
 
     "unicorn-magic": ["unicorn-magic@0.3.0", "", {}, "sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA=="],
+
+    "uniffi-bindgen-react-native": ["uniffi-bindgen-react-native@0.31.0-7", "", { "bin": { "ubrn": "bin/cli.cjs", "uniffi-bindgen-react-native": "bin/cli.cjs" } }, "sha512-nby2kXC+heUwtbOwKbJeZoGV5K8nNxp0kxoPhx2bK98k0MT9P6DA73jnbS7AER1eh0du8bR7Eeco7LcxxEs4bA=="],
 
     "union": ["union@0.5.0", "", { "dependencies": { "qs": "^6.4.0" } }, "sha512-N6uOhuW6zO95P3Mel2I2zMsbsanvvtgn6jVqJv4vbVcz/JN0OkL9suomjQGmWtxJQXOCqUJvquc1sMeNz/IwlA=="],
 

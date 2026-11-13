@@ -1,0 +1,24 @@
+[package]
+name = "koloda-mobile"
+version = "0.0.1"
+edition = "2021"
+
+# WHY: `cdylib` is what the Android build links; `lib` lets the tests call the façade directly.
+[lib]
+name = "koloda_mobile"
+crate-type = ["lib", "cdylib"]
+
+[lints]
+workspace = true
+
+[dependencies]
+koloda = { path = "../../../crates/koloda" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["sync"] }
+# WHY: uniffi-bindgen-react-native 0.31 generates bindings for this exact UniFFI version.
+uniffi = "=0.31"
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt"] }

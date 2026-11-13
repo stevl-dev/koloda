@@ -1,0 +1,12 @@
+# uniffi-bindgen-react-native: builds `koloda-mobile` and generates its React Native module here.
+rust:
+  directory: ../../..
+  manifestPath: apps/mobile/src-rust/Cargo.toml
+bindings:
+  cpp: cpp/generated
+  ts: src/generated
+android:
+  directory: android
+  targets:
+    - arm64-v8a
+    - x86_64

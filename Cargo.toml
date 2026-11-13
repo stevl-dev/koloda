@@ -5,6 +5,7 @@ members = [
     "crates/koloda-server",
     "crates/koloda-sync",
     "apps/electron/src-rust",
+    "apps/mobile/src-rust",
 ]
 resolver = "2"
 

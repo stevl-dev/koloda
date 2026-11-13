@@ -53,8 +53,8 @@ const config: KnipConfig = {
       entry: ["public/theme-boot.js"],
     },
   },
-  // WHY: TanStack Router generates it whole, including exported types nothing imports.
-  ignore: ["libs/app-react/src/lib/routeTree.gen.ts"],
+  // WHY: TanStack Router and uniffi-bindgen-react-native generate these whole, including exports nothing imports.
+  ignore: ["libs/app-react/src/lib/routeTree.gen.ts", "apps/mobile/native/src/**"],
   // WHY: `"types": ["*"]` in `tsconfig.base.json` includes every `@types` package; it is not a module.
   ignoreUnresolved: [/^\*$/],
 };

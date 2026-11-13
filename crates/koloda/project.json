@@ -12,6 +12,7 @@
         "rust",
         "{workspaceRoot}/crates/**/*",
         "{workspaceRoot}/apps/electron/src-rust/**/*",
+        "{workspaceRoot}/apps/mobile/src-rust/**/*",
         "!{workspaceRoot}/crates/**/*.md"
       ],
       "options": {

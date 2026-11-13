@@ -221,6 +221,7 @@ A full `bun run test:libs` is not required to justify a unit change.
   The engine tests run against `koloda` and `koloda-server`, so a change in either also runs `-p koloda-sync`.
 - The four workspace crates (`koloda`, `koloda-sync-proto`, `koloda-server`, `koloda-sync`): `bun run test:rust`.
   The desktop addon is not among them: `nx run @koloda/electron:test-rust`.
+  Nor is the mobile façade: `nx run @koloda/mobile:test-rust`. `bun run check:push` runs both.
 
 ### Runner constraints
 
