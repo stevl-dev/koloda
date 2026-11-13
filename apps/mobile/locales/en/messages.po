@@ -93,9 +93,25 @@ msgstr "No decks yet."
 msgid "mobile.lessons.error"
 msgstr "Lessons could not load."
 
+#: src/components/sync-status.tsx
+msgid "mobile.sync.pending {pending}"
+msgstr "Changes waiting to sync: {pending}"
+
 #: src/app/(tabs)/sync.tsx
 msgid "mobile.sync.placeholder"
 msgstr "Sync will show here."
+
+#: src/components/sync-status.tsx
+msgid "mobile.sync.start-failed {message}"
+msgstr "Sync could not start: {message}"
+
+#: src/components/sync-status.tsx
+msgid "mobile.sync.state {stateType}"
+msgstr "Sync state: {stateType}"
+
+#: src/components/sync-status.tsx
+msgid "mobile.sync.stop {reason}"
+msgstr "Stopped because: {reason}"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"

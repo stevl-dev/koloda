@@ -1670,6 +1670,8 @@ name = "koloda-mobile"
 version = "0.0.1"
 dependencies = [
  "koloda",
+ "koloda-sync",
+ "koloda-sync-proto",
  "serde",
  "serde_json",
  "tempfile",

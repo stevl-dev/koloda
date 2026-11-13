@@ -16,6 +16,11 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getTodaysReviewTotals: unexpected,
     seedDb: unexpected,
     submitLessonResult: unexpected,
+    syncJoin: unexpected,
+    syncNudge: () => {},
+    syncPreview: unexpected,
+    syncStart: unexpected,
+    syncStatus: unexpected,
     ...overrides,
   };
 }

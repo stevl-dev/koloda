@@ -5,6 +5,7 @@ rust:
 bindings:
   cpp: cpp/generated
   ts: src/generated
+  uniffiToml: ../src-rust/uniffi.toml
 android:
   directory: android
   # WHY: link the `cdylib` the crate builds anyway, instead of adding a `staticlib` to every desktop build.

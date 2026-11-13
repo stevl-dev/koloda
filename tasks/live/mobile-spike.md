@@ -165,6 +165,18 @@ Out:
 - [x] 15. Which versions does item 7 add? — Expo SDK 58's pins, approved on 2026-11-13.
   Gesture Handler ~3.3.0, Reanimated 4.7.1, `expo-haptics` ~58.0.8, and `react-native-worklets` 0.13.0,
   which Reanimated 4 requires and open question 9 did not name.
+- [x] 16. How does the Kotlin secret store reach `koloda`, given that uniffi-bindgen-react-native's callback
+  interfaces are implemented in TypeScript? — through native Kotlin bindings, decided 2026-11-13.
+  uniffi-bindgen-react-native's `--native-bindings` mode also generates Kotlin bindings, over JNA
+  (`net.java.dev.jna:jna`, approved as a new Android dependency).
+  A local Expo module in Kotlin holds the Keystore store and registers it with Rust; JS only asks it to register.
+  Secrets never reach JS.
+  Rejected: a TypeScript store over `expo-secure-store`, which passes every secret through JS.
+- [x] 17. How does the runner stop in the background, when the engine has no stop and `koloda-sync` must not
+  change? — the OS stops it, decided 2026-11-13.
+  Android freezes a backgrounded app's process, threads included, so the runner stops in practice.
+  On return to the foreground the host nudges the engine.
+  A real pause, if one is needed, belongs to the follow-up.
 
 ## Plan
 
@@ -365,16 +377,16 @@ Out:
   Commit: Add a spike lesson screen on mobile
   Depends on: 6
 
-- [ ] 8. Host the sync engine on mobile
+- [x] 8. Host the sync engine on mobile
   Goal: `koloda-mobile` hosts the `koloda-sync` engine as `SyncHost` in `apps/electron/src-rust/src/sync.rs` does.
   It takes the host's secret store through a UniFFI callback interface and registers it with `koloda` at startup,
   before the engine starts.
-  Implement that store for Android as open question 2 settles, in Kotlin over the Android Keystore.
+  Implement that store for Android as open questions 2 and 16 settle, in Kotlin over the Android Keystore.
   The iOS store is the iOS follow-up's; until then an iOS build has no store, and secret calls return item 2's error.
   The façade starts the engine with the starter content and runs the runner in the foreground.
   It forwards engine events to JS through a UniFFI callback interface.
   Product writes tell it to sync.
-  The runner stops when the app goes to the background and resumes on return, with a nudge.
+  On return to the foreground the host nudges the engine; in the background the OS stops it (open question 17).
   The device claims with platform `ios` or `android`.
   Expose the calls a join needs: preview, join, and status.
   The app refreshes the queries each synced kind feeds, as `apps/electron-react/src/app/sync-events.ts` does.
@@ -385,7 +397,7 @@ Out:
   Do not change `koloda-sync`.
   Write no Swift.
   Done when: Rust tests on the desktop host cover registering the host store before the engine starts.
-  They also cover starting and stopping the engine through the façade, and an event reaching the callback.
+  They also cover starting the engine through the façade, and an event reaching the callback.
   `nx run @koloda/mobile:build-android` succeeds, with the Kotlin store compiled in.
   `bun run check:push` is green.
   Commit: Host the sync engine on mobile

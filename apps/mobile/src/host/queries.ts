@@ -18,6 +18,7 @@ import type {
 import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
 import { call, read, wireArgs } from "./facade";
+import type { SyncStatus } from "./sync-events";
 
 // INVARIANT: the same keys as the other hosts' queries, so cache refreshes after a sync reach these queries too.
 export type MobileQueries = Pick<
@@ -34,6 +35,7 @@ export type MobileQueries = Pick<
 > & {
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
   getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
+  getSyncStatusQuery: () => QueryOptions<SyncStatus> & { queryKey: QueryKey };
 };
 
 export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
@@ -69,6 +71,10 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     addAttachmentMutation: () => ({
       mutationFn: ({ bytes, width, height }: AddAttachmentData) =>
         read<Attachment>(() => facade.addAttachment(bytes.slice().buffer, width, height)),
+    }),
+    getSyncStatusQuery: () => ({
+      queryKey: queryKeys.sync.status(),
+      queryFn: () => read<SyncStatus>(() => facade.syncStatus()),
     }),
     getAttachmentFileQuery: (id: Attachment["id"]) => ({
       queryKey: ["attachment_file", id],

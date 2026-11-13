@@ -172,6 +172,16 @@ interface NativeModuleInterface {
     ptr: bigint,
     uniffi_out_err: UniffiRustCallStatus,
   ): void;
+  ubrn_uniffi_koloda_mobile_fn_init_callback_vtable_secretvault(
+    vtable: UniffiVTableCallbackInterfaceKolodaMobileSecretVault,
+  ): void;
+  ubrn_uniffi_koloda_mobile_fn_init_callback_vtable_synclistener(
+    vtable: UniffiVTableCallbackInterfaceKolodaMobileSyncListener,
+  ): void;
+  ubrn_uniffi_koloda_mobile_fn_func_register_secret_vault(
+    vault: bigint,
+    uniffi_out_err: UniffiRustCallStatus,
+  ): void;
   ubrn_uniffi_koloda_mobile_fn_constructor_kolodamobile_new(
     dbPath: Uint8Array,
     uniffi_out_err: UniffiRustCallStatus,
@@ -224,7 +234,28 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_join(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_nudge(
+    uniffiSelf: bigint,
+    uniffi_out_err: UniffiRustCallStatus,
+  ): void;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_preview(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_start(
+    uniffiSelf: bigint,
+    starter: Uint8Array,
+    listener: bigint,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_status(
+    uniffiSelf: bigint,
+  ): bigint;
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
+  ubrn_uniffi_koloda_mobile_checksum_func_register_secret_vault(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_attachment(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards(): number;
@@ -238,6 +269,11 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_seed_db(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_submit_lesson_result(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_join(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_nudge(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_preview(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_start(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_status(): number;
   ubrn_uniffi_internal_fn_method_kolodamobile_ffi__bless_pointer(
     pointer: bigint,
     uniffi_out_err: UniffiRustCallStatus,
@@ -263,6 +299,47 @@ export type UniffiForeignFutureDroppedCallback = (handle: bigint) => void;
 export type UniffiForeignFutureDroppedCallbackStruct = {
   handle: bigint;
   free: UniffiForeignFutureDroppedCallback;
+};
+type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod0 = (
+  uniffiHandle: bigint,
+  key: Uint8Array,
+) => Uint8Array;
+type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod1 = (
+  uniffiHandle: bigint,
+  key: Uint8Array,
+  value: Uint8Array,
+) => UniffiResult<void>;
+type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod2 = (
+  uniffiHandle: bigint,
+  key: Uint8Array,
+) => UniffiResult<void>;
+type UniffiCallbackInterfaceCloneKolodaMobileSecretVault = (
+  handle: bigint,
+) => UniffiResult<void>;
+type UniffiCallbackInterfaceFreeKolodaMobileSecretVault = (
+  handle: bigint,
+) => void;
+export type UniffiVTableCallbackInterfaceKolodaMobileSecretVault = {
+  uniffi_free: UniffiCallbackInterfaceFreeKolodaMobileSecretVault;
+  uniffi_clone: UniffiCallbackInterfaceCloneKolodaMobileSecretVault;
+  get: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod0;
+  set: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod1;
+  remove: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod2;
+};
+type UniffiCallbackInterfaceKolodaMobileSyncListenerMethod0 = (
+  uniffiHandle: bigint,
+  event: Uint8Array,
+) => UniffiResult<void>;
+type UniffiCallbackInterfaceCloneKolodaMobileSyncListener = (
+  handle: bigint,
+) => UniffiResult<void>;
+type UniffiCallbackInterfaceFreeKolodaMobileSyncListener = (
+  handle: bigint,
+) => void;
+export type UniffiVTableCallbackInterfaceKolodaMobileSyncListener = {
+  uniffi_free: UniffiCallbackInterfaceFreeKolodaMobileSyncListener;
+  uniffi_clone: UniffiCallbackInterfaceCloneKolodaMobileSyncListener;
+  on_event: UniffiCallbackInterfaceKolodaMobileSyncListenerMethod0;
 };
 
 // UniffiRustFutureContinuationCallback is generated as part of the component interface's

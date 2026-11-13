@@ -14,6 +14,9 @@ and `native` (`@koloda/mobile-native`) is the React Native module uniffi-bindgen
 `src/host` turns the façade's JSON payloads into the TS domain types and its errors into `AppError`.
 `src/cards` renders card markdown as native views from the `marked` tokens the desktop parses.
 Card images load from cache files `koloda-mobile` writes from the attachment bytes, under the app's cache directory.
+`koloda-mobile` also hosts the `koloda-sync` engine; `src/host/start-sync.ts` starts it once the database is seeded.
+The engine reads secrets from a vault the host registers first: `modules/koloda-secrets`, a local Expo module in
+Kotlin over the Android Keystore, which calls Rust through the Kotlin bindings, so secrets never reach JS.
 It targets Android only for now; iOS comes in a follow-up.
 
 ## Platform setup
@@ -88,6 +91,7 @@ Run on each platform before the spike's verdict.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
+- [ ] After a fresh install, the Sync tab shows the engine's status (not in a space), not an error.
 
 ## Spike code
 
@@ -108,6 +112,8 @@ Code copied from another app instead of shared:
 - `src/lesson/use-mobile-lesson-session.ts`, from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and
   `lesson-uploader.tsx`: the session's queries and result uploads, without hotkeys or a setup screen.
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
+- `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its error codes.
+- `src/host/sync-events.ts`, from `apps/electron-react/src/app/sync-events.ts`: the queries each sync event refreshes.
 
 ## Findings
 
@@ -123,7 +129,10 @@ What building and running the spike showed:
 - uniffi-bindgen-react-native links a static library by default; `native/ubrn.config.yaml` links the shared library
   the crate builds anyway, through its shared-library setting.
 - The generated module's `build.gradle` names a ProGuard file the generator writes only for native bindings,
-  and AGP 9 fails without it, so an empty one is committed (`native/.gitignore`).
+  and AGP 9 fails without it; the native bindings the vault needs write it.
+- The bindings generator implements callback interfaces in TypeScript, so a Kotlin vault needs its native Kotlin
+  bindings too (`--native-bindings`), which load the library through JNA.
+- The engine has no way to stop its runner; Android freezes a backgrounded app, and the host nudges it on return.
 - Each Expo prebuild writes `react` and an empty `scripts` into `package.json`; both are kept, so builds leave the
   tree clean.
 - Bun installs peer dependencies, so Reanimated and Worklets arrive through `expo-router`'s drawer dependency,
