@@ -1,6 +1,6 @@
 # Mobile spike
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, apps/electron/README.md, crates/koloda-sync/README.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, docs/decisions/APP-ROLES.md, docs/decisions/STORAGE-BUCKETS.md, docs/decisions/MEDIA-STORAGE.md, docs/specs/CARDS.md, docs/specs/MEDIA.md, docs/specs/LESSONS.md, docs/specs/SYNC.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/DEPENDENCIES.md
 Flow: local
 
@@ -177,6 +177,9 @@ Out:
   Android freezes a backgrounded app's process, threads included, so the runner stops in practice.
   On return to the foreground the host nudges the engine.
   A real pause, if one is needed, belongs to the follow-up.
+- [x] 18. Do items 10 and 11 run in this task? — no, decided 2026-11-13.
+  The human deferred the Android device checks to finish the spike's code, so no verdict exists yet.
+  Item 10's checks, the verdict, and item 11's decision record move to the follow-up, beside the iOS port.
 
 ## Plan
 
@@ -426,6 +429,7 @@ Out:
   Depends on: 7, 8
 
 - [ ] 10. Verify the mobile app on Android
+  Deferred: open question 18 moves this item to the follow-up.
   Goal: Run every check in `apps/mobile/README.md` (§Device checks) on Android, with the human.
   The emulator runs all of them except the hands-on ones.
   The Android phone open question 5 names runs those: haptics, swipe feel and frame rate, and cold start, with a
@@ -442,6 +446,7 @@ Out:
   Depends on: 9
 
 - [ ] 11. Record the mobile host decision
+  Deferred: open question 18 moves this item to the follow-up; it needs item 10's verdict.
   Goal: On a go verdict on Android, write `docs/decisions/MOBILE-HOST.md` per `agents/DECISIONS.md`.
   Its Ruling: the mobile host is React Native on Expo, with `koloda` and `koloda-sync` in-process through UniFFI.
   The TypeScript domain libraries are shared, and the UI is native views.
@@ -474,4 +479,39 @@ Out:
 
 ## Outcome
 
-Not started.
+The spike's code is built and committed; its verdict is not in.
+The device checks were deferred (open question 18), so `docs/decisions/MOBILE-HOST.md` is not written.
+
+What shipped, Android only:
+
+- The workspace runs React 19.3, the version Expo SDK 58 pins, and `koloda` takes a host-registered secret store
+  on iOS and Android.
+- `apps/mobile`, a dev-tool Expo app (New Architecture, Hermes, Expo Router native stack and tabs).
+  It shares `@koloda/srs`, `@koloda/app`, `@koloda/core-react`, and the lesson reducer through the new DOM-free
+  `@koloda/srs-react/lesson-state` entry.
+- `koloda-mobile`, a UniFFI façade over `koloda` and `koloda-sync`, and `@koloda/mobile-native`, the React Native
+  module uniffi-bindgen-react-native generates from it; its TS bindings are committed (open question 12).
+- A native card markdown renderer over the `marked` tokens the desktop parses, with card images from cache files.
+- A spike lesson screen with button and swipe grades on the UI thread and haptics, a sample deck on the debug screen,
+  and a Sync tab that previews and joins a space from a pairing code.
+- The sync engine hosted in the app, with secrets in a Kotlin Keystore vault that reaches Rust through the native
+  Kotlin bindings, so they never reach JS (open question 16).
+
+What the spike showed so far:
+
+- On the Android emulator (2026-11-13), item 5's checks pass: the shared libs load under Hermes, async calls cross
+  UniFFI, and the database survives a relaunch.
+- `koloda`, `koloda-sync`, and `koloda-mobile` cross-build for `arm64-v8a` and `x86_64` unchanged.
+- The rest is in `apps/mobile/README.md` (§Findings): the bindings tool's static-library default and Kotlin-callback
+  gap, Expo's light-mode lock, `structuredClone` in the shared reducer, and Jest's limits with Reanimated.
+
+Left for the follow-up, as `tasks/DEFERRED.md` handoffs: the Android device checks and the verdict, the decision
+record, the iOS port, the raw-HTML rule in `docs/specs/CARDS.md`, and background sync.
+`koloda-server`'s `serve_removes_staged_uploads_before_it_listens` failed in 4 full `check:push` runs and passed on
+each re-run; its existing handoff records that.
+The first `land` failed CI on the React 19.3 upgrade: its types give `onInput` an `InputEvent`, which an incremental
+local `tsc -b` had not caught; the textarea input handlers now take that type.
+
+Spec: none — `apps/mobile` is a dev tool, and desktop and web behavior did not change
+Review: blocking 1 (CODE-DOCUMENTATION §Strict Commenting Rules), self-review only
+Change rounds: 0

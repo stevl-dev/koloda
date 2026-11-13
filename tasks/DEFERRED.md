@@ -21,6 +21,41 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/algorithms-audit.md`
   Deferred because: seen in passing and not planned; no user sees it.
 
+## apps/mobile
+
+- Handoff: run the Android device checks and record the mobile host verdict, with its measurements.
+  Evidence: at `abb4c255`, `apps/mobile/README.md` (§Device checks) lists them; only item 5's checks have run,
+  on the emulator.
+  The verdict needs the hands-on checks on a phone: feel, swipe frame rate, and cold start in a release build.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`, question 18
+  Deferred because: the human deferred the checks to finish the spike's code (open question 18).
+
+- Handoff: record the mobile host ruling in `docs/decisions/MOBILE-HOST.md` once the verdict is in.
+  Evidence: at `abb4c255`, no such file exists; `tasks/archive/mobile-spike.md` item 11 says what it holds.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`, question 18
+  Deferred because: a ruling needs the go verdict the deferred checks give.
+
+- Handoff: port the mobile app to iOS: the Swift Keychain vault, the iOS builds, and the device checks on an iPhone.
+  Evidence: at `abb4c255`, `apps/mobile/app.json` lists Android only, and no Swift vault registers on iOS.
+  It also answers whether uniffi-bindgen-react-native's async calls work on iOS.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`, question 10
+  Deferred because: no Mac with Xcode was available.
+
+- Handoff: write the mobile app's raw-HTML rule into `docs/specs/CARDS.md` (§Rendered Markdown).
+  Evidence: at `abb4c255`, `apps/mobile/src/cards/card-markdown.tsx` drops tags and shows their text, a spike rule.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`, question 3
+  Deferred because: the lasting rule belongs to the follow-up that builds the real app.
+
+- Handoff: background sync on mobile through the engine's `tick` (WorkManager, BGTaskScheduler).
+  Evidence: at `abb4c255`, the app syncs only in the foreground; Android freezes the runner in the background.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`, question 4
+  Deferred because: it does not gate the verdict and is the same code under any host.
+
 ## crates/koloda
 
 - Improvement, Should-fix: no test cancels an optimizer run during training or scoring.
@@ -82,6 +117,8 @@ Entries are grouped under one heading per package directory.
 - Handoff: `serve_removes_staged_uploads_before_it_listens` failed once in a full `check:push` run.
   Evidence: at `1c0661bb`, `crates/koloda-server/tests/server/attachments_tests.rs:553`.
   It failed once during `templates-audit` and once during `typecheck-tests`, and passed on re-run and alone.
+  During `mobile-spike` it failed in 4 full `check:push` runs on 2026-11-13, each passing on re-run.
+  The test drops the upload's result (`put(...).await.ok()`), so an upload that fails under load goes unnoticed.
   Kind: handoff
   Source: `tasks/archive/templates-audit.md`
   Deferred because: seen, not fixed; neither task touched the test.
@@ -328,7 +365,8 @@ Entries are grouped under one heading per package directory.
   (about 10 commits, a new dependency, reverses `ipc-typed-contract`).
   Kind: needs-decision
   Source: `tasks/archive/host-persistence-architecture.md`, finding F4
-  Deferred because: wait for the `task/mobile-spike` verdict; a go adds a second Rust façade over the command list,
+  Deferred because: wait for the mobile host verdict, still pending after `mobile-spike`; a go keeps a second Rust
+  façade over the command list,
   which is evidence for C that B would have to be redone against.
 
 - Risk, Later: the conversation list query loads every conversation's full state on both hosts.
@@ -383,12 +421,6 @@ Entries are grouped under one heading per package directory.
   Kind: skipped
   Source: `tasks/archive/agentic-setup-audit.md`, finding 11
   Deferred because: accepted by the human on 2026-11-12; the human reads most changes before they land.
-
-- Risk, Later: nothing shows whether `task/mobile-spike` is live or abandoned.
-  Evidence: at `478a9753` on `task/mobile-spike`: local only, `Status: draft`, committed 2026-11-07.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 4
-  Deferred because: accepted by the human on 2026-11-12; the branch stays as it is.
 
 - Risk, Later: `Escapes:` lines are a written rule only.
   Evidence: at `8c285ffa`, `AGENTS.md:14-15`; nothing can tell that a commit fixes a bug that escaped onto `main`.
