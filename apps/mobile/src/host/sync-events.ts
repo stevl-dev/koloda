@@ -16,7 +16,7 @@ export type SyncStatus = {
   pending: number;
 };
 
-// Copied from `apps/electron-react/src/app/sync-events.ts`. A fetched image refreshes its cache-file query,
+// WHY: copied from `apps/electron-react/src/app/sync-events.ts`, not shared. A fetched image refreshes its cache-file query,
 // since the phone shows card images from files.
 export function applySyncEvent(queryClient: QueryClient, event: SyncEvent) {
   switch (event.type) {

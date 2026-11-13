@@ -177,7 +177,7 @@ impl SecretStore for VaultStore {
 
 static VAULT: OnceLock<Arc<dyn SecretStore>> = OnceLock::new();
 
-/// Called by the host's native code at startup, before JS starts sync.
+// INVARIANT: the host's native code calls this at startup, before JS starts sync.
 #[uniffi::export]
 pub fn register_secret_vault(vault: Box<dyn SecretVault>) -> Result<(), MobileError> {
     let store: Arc<dyn SecretStore> = Arc::new(VaultStore(vault));
@@ -275,7 +275,6 @@ impl KolodaMobile {
         }))
     }
 
-    /// Starts the engine, and its runner when the file is in a space. The host registers its vault first.
     pub async fn sync_start(&self, starter: String, listener: Box<dyn SyncListener>) -> Result<String, MobileError> {
         let secrets = registered_vault()?;
         self.run_sync(move |sync| {
@@ -298,8 +297,8 @@ impl KolodaMobile {
         .await
     }
 
-    /// Whether this database may join a space in the spike: only one that holds just its starter content.
-    /// WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
+    // INVARIANT: only a database that holds just its starter content may join in the spike.
+    // WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
     pub async fn sync_can_join(&self) -> Result<bool, MobileError> {
         self.run(|db| {
             // WHY: the nil id matches no space, so a file in a space reads as attached elsewhere and is refused too.
@@ -325,7 +324,6 @@ impl KolodaMobile {
         .await
     }
 
-    /// The app came to the foreground; the runner syncs now.
     pub fn sync_nudge(&self) {
         self.sync.nudge();
     }
@@ -385,8 +383,6 @@ impl KolodaMobile {
         .await
     }
 
-    /// The path of a card image's file in `cache_dir`, written from the stored bytes on first use;
-    /// none when the attachment or its bytes are missing.
     pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {
         self.run(move |db| cached_image(db, &id, &cache_dir)).await
     }

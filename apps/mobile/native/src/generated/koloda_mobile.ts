@@ -54,9 +54,6 @@ const uniffiIsDebug =
 
 // Public interface members begin here.
 
-/**
- * Called by the host's native code at startup, before JS starts sync.
- */
 export function registerSecretVault(vault: SecretVault): void /*throws*/ {
   uniffiCaller.rustCallWithError(
     /*liftError:*/ FfiConverterTypeMobileError.lift.bind(
@@ -305,10 +302,6 @@ export interface KolodaMobileLike {
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
-  /**
-   * The path of a card image's file in `cache_dir`, written from the stored bytes on first use;
-   * none when the attachment or its bytes are missing.
-   */
   attachmentFile(
     id: string,
     cacheDir: string,
@@ -341,10 +334,6 @@ export interface KolodaMobileLike {
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<void>;
-  /**
-   * Whether this database may join a space in the spike: only one that holds just its starter content.
-   * WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
-   */
   syncCanJoin(asyncOpts_?: {
     signal: AbortSignal;
   }) /*throws*/ : Promise<boolean>;
@@ -352,17 +341,11 @@ export interface KolodaMobileLike {
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
-  /**
-   * The app came to the foreground; the runner syncs now.
-   */
   syncNudge(): void;
   syncPreview(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
-  /**
-   * Starts the engine, and its runner when the file is in a space. The host registers its vault first.
-   */
   syncStart(
     starter: string,
     listener: SyncListener,
@@ -561,10 +544,6 @@ export class KolodaMobile
     }
   }
 
-  /**
-   * The path of a card image's file in `cache_dir`, written from the stored bytes on first use;
-   * none when the attachment or its bytes are missing.
-   */
   async attachmentFile(
     id: string,
     cacheDir: string,
@@ -978,10 +957,6 @@ export class KolodaMobile
     }
   }
 
-  /**
-   * Whether this database may join a space in the spike: only one that holds just its starter content.
-   * WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
-   */
   async syncCanJoin(asyncOpts_?: {
     signal: AbortSignal;
   }): Promise<boolean> /*throws*/ {
@@ -1067,9 +1042,6 @@ export class KolodaMobile
     }
   }
 
-  /**
-   * The app came to the foreground; the runner syncs now.
-   */
   syncNudge(): void {
     uniffiCaller.rustCall(
       /*caller:*/ (callStatus) => {
@@ -1131,9 +1103,6 @@ export class KolodaMobile
     }
   }
 
-  /**
-   * Starts the engine, and its runner when the file is in a space. The host registers its vault first.
-   */
   async syncStart(
     starter: string,
     listener: SyncListener,
@@ -1464,7 +1433,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_func_register_secret_vault() !==
-    29106
+    47226
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_func_register_secret_vault",
@@ -1504,7 +1473,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file() !==
-    63312
+    54987
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file",
@@ -1576,7 +1545,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join() !==
-    8147
+    33714
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join",
@@ -1592,7 +1561,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_nudge() !==
-    17669
+    59828
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_nudge",
@@ -1608,7 +1577,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_start() !==
-    43129
+    17224
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_start",

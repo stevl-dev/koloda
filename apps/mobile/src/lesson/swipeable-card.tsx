@@ -8,7 +8,7 @@ import { scheduleOnRN } from "react-native-worklets";
 
 const SWIPE_DISTANCE = 96;
 
-// Grade indexes in `FSRS_GRADES` order. Left is Again, down is Hard, right is Good, up is Easy.
+// INVARIANT: a grade index in `FSRS_GRADES` order: left is Again, down is Hard, right is Good, up is Easy.
 function swipeGrade(x: number, y: number): number | null {
   "worklet";
   if (Math.max(Math.abs(x), Math.abs(y)) < SWIPE_DISTANCE) return null;
@@ -17,7 +17,7 @@ function swipeGrade(x: number, y: number): number | null {
 }
 
 export type SwipeableCardProps = {
-  // A new key starts a new card: it fades in from the center.
+  // WHY: a new key resets the offsets, so the next card fades in from the center.
   cardKey: number;
   isEnabled: boolean;
   onSwipe: (gradeIndex: number) => void;

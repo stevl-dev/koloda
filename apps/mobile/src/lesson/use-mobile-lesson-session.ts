@@ -17,7 +17,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useEffectEvent } from "react";
 import { useMobileQueries } from "../host/queries-context";
 
-// Copied from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and `lesson-uploader.tsx`.
+// WHY: copied from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and `lesson-uploader.tsx`, not shared.
 // It reads the host's queries from context instead of `queriesAtom`, has no hotkey scopes,
 // and submits the default amounts as soon as setup is ready, since the spike has no setup screen.
 // INVARIANT: mount once, from the lesson screen; a second mount duplicates the queries and the uploader.

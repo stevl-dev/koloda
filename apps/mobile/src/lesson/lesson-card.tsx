@@ -13,7 +13,7 @@ import { CardMarkdown } from "../cards/card-markdown";
 import { useMarkdownColors } from "../cards/markdown-colors";
 import { SwipeableCard } from "./swipeable-card";
 
-// Grade indexes in `FSRS_GRADES` order: Again, Hard, Good, Easy.
+// INVARIANT: in `FSRS_GRADES` order: Again, Hard, Good, Easy.
 const GRADE_HAPTICS = [
   Haptics.ImpactFeedbackStyle.Heavy,
   Haptics.ImpactFeedbackStyle.Medium,

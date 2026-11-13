@@ -5,7 +5,7 @@ import type { I18nContext } from "@lingui/react";
 import type { KolodaFacade } from "./facade";
 import { call, wireArgs } from "./facade";
 
-// Copied from `apps/electron-react/src/app/setup.ts`, so a new phone database starts as a new desktop one does.
+// WHY: copied from `apps/electron-react/src/app/setup.ts`, so a new phone database starts as a new desktop one does.
 // INVARIANT: the same starter content and settings as the desktop seed.
 // INVARIANT: the first-run seed and the rows sync repair creates when none is left are the same starter content.
 export function starterContent(t: I18nContext["_"]) {

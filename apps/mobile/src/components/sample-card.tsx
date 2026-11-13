@@ -6,7 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
 import { useMobileQueries } from "../host/queries-context";
 
-// A 48×48 PNG, small enough to inline.
+// WHY: a 48×48 PNG inlined as bytes, so the debug card needs no asset and no decoding.
 const SAMPLE_PNG = new Uint8Array([
   137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 48, 0, 0, 0, 48, 8, 2, 0, 0, 0, 216, 96, 110,
   208, 0, 0, 0, 79, 73, 68, 65, 84, 120, 218, 237, 215, 177, 13, 0, 32, 8, 4, 64, 6, 99, 18, 103, 103, 18, 43, 71, 80,
