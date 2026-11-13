@@ -42,6 +42,8 @@ export type MobileQueries = Pick<
   joinSpaceMutation: () => UseMutationOptions<unknown, AppError, JoinSpaceData>;
 };
 
+export const CAN_JOIN_KEY = ["mobile-sync-can-join"] as const;
+
 type SpacePreview = { spaceName: string; counts: Record<string, number>; bytes: number };
 type PreviewSpaceData = { serverUrl: string; code: string };
 type JoinSpaceData = PreviewSpaceData & { deviceName: string; settings: unknown };
@@ -81,7 +83,7 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
         read<Attachment>(() => facade.addAttachment(bytes.slice().buffer, width, height)),
     }),
     canJoinQuery: () => ({
-      queryKey: ["mobile-sync-can-join"],
+      queryKey: CAN_JOIN_KEY,
       queryFn: () => call(() => facade.syncCanJoin()),
     }),
     previewSpaceMutation: () => ({

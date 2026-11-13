@@ -127,7 +127,9 @@ Code copied from another app instead of shared:
 
 What building and running the spike showed:
 
-- 2026-11-13, Android emulator (API 36, x86_64, debug build): every device check passes.
+- 2026-11-13, Android emulator (API 36, x86_64, debug build): the first six device checks pass, from booting to the
+  sample deck surviving a relaunch.
+  The checks after them have not run.
   The shared libs load under Hermes, async calls cross UniFFI, and the database survives a relaunch.
 - Jest runs CommonJS, so ESM-only packages the shared libs import (`uuid`, `marked`, `immer`) go through Babel there
   (`jest.config.js`).

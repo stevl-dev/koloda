@@ -101,6 +101,19 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
         !mobile.sync_can_join().await.expect("can join"),
         "a database with a deck of its own is refused"
     );
+    let seed: Value = serde_json::from_str(&starter_seed()).expect("seed json");
+    let join = json!({
+        "serverUrl": "https://sync.example.test",
+        "code": "ABCD-EFGH",
+        "deviceName": "Phone",
+        "settings": seed["settings"],
+    });
+    let err = mobile.sync_join(join.to_string()).await.expect_err("join refused");
+    let MobileError::App { code, .. } = err;
+    assert_eq!(
+        code, "sync.cannot-join",
+        "the join itself refuses it, before the code is used"
+    );
 
     let learning: Value = serde_json::from_str(&mobile.get_settings("learning".to_string()).await.expect("settings"))
         .expect("settings json");
@@ -108,6 +121,17 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
     let totals: Value =
         serde_json::from_str(&mobile.get_todays_review_totals().await.expect("totals")).expect("totals json");
     assert_eq!(totals["reviewTotals"]["untouched"], 0, "nothing studied yet today");
+}
+
+#[tokio::test]
+async fn opening_a_database_file_again_returns_the_instance_that_holds_it() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db").to_string_lossy().into_owned();
+
+    let first = KolodaMobile::new(path.clone()).expect("open");
+    let again = KolodaMobile::new(path).expect("open again");
+
+    assert!(std::sync::Arc::ptr_eq(&first, &again), "a JS reload gets the same host");
 }
 
 #[tokio::test]

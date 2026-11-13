@@ -18,7 +18,8 @@ function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, name: string) => {
     if (name[0] === "#") {
       const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-      return Number.isNaN(code) ? entity : String.fromCodePoint(code);
+      // WHY: `String.fromCodePoint` throws past the last code point; such an entity shows as written.
+      return Number.isNaN(code) || code > 0x10ffff ? entity : String.fromCodePoint(code);
     }
     return ENTITIES[name.toLowerCase()] ?? entity;
   });
@@ -89,7 +90,7 @@ function renderInline(tokens: Token[], context: Context): ReactNode[] {
         );
       }
       case "image":
-        // WHY: a card image is cut out of the run by `renderRuns`; any other image never loads, so its alt shows.
+        // WHY: `renderRuns` lifts a card image out of the run; any other image never loads, so its alt shows.
         return decodeEntities((token as Tokens.Image).text);
       case "html":
         return stripTags((token as Tokens.HTML).text);
@@ -98,6 +99,32 @@ function renderInline(tokens: Token[], context: Context): ReactNode[] {
       default:
         return "text" in token && typeof token.text === "string" ? decodeEntities(token.text) : token.raw;
     }
+  });
+}
+
+// WHY: a card image may sit inside emphasis or a link, where native text cannot hold it.
+// Its parent splits into the part before it and the part after it, so the image reaches the run's top level.
+function liftCardImages(tokens: Token[]): Token[] {
+  return tokens.flatMap((token) => {
+    if (attachmentId(token) || !("tokens" in token) || !token.tokens) return [token];
+    const children = liftCardImages(token.tokens);
+    if (!children.some((child) => attachmentId(child))) return [token];
+    const parts: Token[] = [];
+    let run: Token[] = [];
+    const flush = () => {
+      if (run.length > 0) parts.push({ ...token, tokens: run } as Token);
+      run = [];
+    };
+    for (const child of children) {
+      if (attachmentId(child)) {
+        flush();
+        parts.push(child);
+      } else {
+        run.push(child);
+      }
+    }
+    flush();
+    return parts;
   });
 }
 
@@ -114,7 +141,7 @@ function renderRuns(tokens: Token[], context: Context, style: object): ReactNode
     );
     run = [];
   };
-  for (const token of tokens) {
+  for (const token of liftCardImages(tokens)) {
     const id = attachmentId(token);
     if (!id) {
       run.push(token);
@@ -187,9 +214,9 @@ function renderBlocks(tokens: Token[], context: Context): ReactNode[] {
             {[header, ...rows].map((cells, r) => (
               <View key={r} style={[styles.row, r > 0 && { borderTopColor: colors.border, borderTopWidth: 1 }]}>
                 {cells.map((cell, c) => (
-                  <Text key={c} style={[styles.cell, styles.body, { color: colors.text }, r === 0 && styles.strong]}>
-                    {renderInline(cell.tokens, context)}
-                  </Text>
+                  <View key={c} style={styles.cell}>
+                    {renderRuns(cell.tokens, context, [styles.body, r === 0 && styles.strong])}
+                  </View>
                 ))}
               </View>
             ))}

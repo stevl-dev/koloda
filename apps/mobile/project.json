@@ -91,6 +91,7 @@
         "{workspaceRoot}/clippy.toml",
         "{projectRoot}/src-rust/**/*",
         "{workspaceRoot}/crates/koloda/**/*",
+        "{workspaceRoot}/crates/koloda-sync/**/*",
         "{workspaceRoot}/crates/koloda-sync-proto/**/*",
         "!{workspaceRoot}/crates/**/*.md"
       ],

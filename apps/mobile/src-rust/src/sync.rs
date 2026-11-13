@@ -9,7 +9,7 @@
 
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, OnceLock, RwLock};
 
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
@@ -18,7 +18,7 @@ use koloda::app::secrets::SecretStore;
 use koloda::domain::algorithms::InsertAlgorithmData;
 use koloda::domain::templates::InsertTemplateData;
 use koloda::repo::sync::apply::{Hold, HoldReason};
-use koloda::repo::sync::join::JoinMode;
+use koloda::repo::sync::join::{join_mode, JoinMode};
 use koloda::repo::sync::repair::Starter;
 use koloda_sync::disk::SystemDisk;
 use koloda_sync::engine::Engine;
@@ -28,6 +28,7 @@ use koloda_sync::status::{State, Status, Stop};
 use koloda_sync::transport::HttpTransport;
 use koloda_sync_proto::transport::{ErrorCode, Platform};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 /// Codes a host call fails with; `libs/app` `ERROR_MESSAGES` has a message for each (`error-parity.test.ts`).
 pub mod sync_error_codes {
@@ -88,10 +89,30 @@ pub struct JoinedWire {
     status: StatusWire,
 }
 
+// WHY: the runner keeps the sink it started with, but a JS reload leaves that listener in a runtime that is gone.
+// The runner gets this one, and each start points it at the listener of the runtime that is alive.
+#[derive(Default)]
+struct CurrentSink(RwLock<Option<Arc<dyn EventSink>>>);
+
+impl CurrentSink {
+    fn set(&self, sink: Arc<dyn EventSink>) {
+        *self.0.write().unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(sink);
+    }
+}
+
+impl EventSink for CurrentSink {
+    fn send(&self, event: Event) {
+        let sink = self.0.read().unwrap_or_else(|poisoned| poisoned.into_inner()).clone();
+        if let Some(sink) = sink {
+            sink.send(event);
+        }
+    }
+}
+
 pub struct SyncHost {
     db: Database,
     engine: OnceLock<Engine>,
-    sink: OnceLock<Arc<dyn EventSink>>,
+    sink: Arc<CurrentSink>,
     is_running: AtomicBool,
 }
 
@@ -100,12 +121,13 @@ impl SyncHost {
         SyncHost {
             db,
             engine: OnceLock::new(),
-            sink: OnceLock::new(),
+            sink: Arc::new(CurrentSink::default()),
             is_running: AtomicBool::new(false),
         }
     }
 
     // WHY: a JS reload starts sync again; it must not start a second engine or runner.
+    // `KolodaMobile::new` hands the reloaded JS the host it already built for the file, so this guard holds.
     pub fn start(
         &self,
         starter: StarterWire,
@@ -129,7 +151,7 @@ impl SyncHost {
                 self.engine.get_or_init(|| engine)
             }
         };
-        self.sink.get_or_init(|| sink);
+        self.sink.set(sink);
         let status = engine.status()?;
         if is_in_space(&status) {
             self.start_runner()?;
@@ -146,7 +168,20 @@ impl SyncHost {
         })
     }
 
+    // INVARIANT: only a database that holds just its starter content may join in the spike.
+    // WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
+    pub fn join_mode(&self) -> Result<JoinMode, AppError> {
+        // WHY: the nil id matches no space, so a file in a space reads as attached elsewhere and is refused too.
+        join_mode(&self.db, Uuid::nil())
+    }
+
     pub fn join(&self, data: JoinWire) -> Result<JoinedWire, SyncError> {
+        // INVARIANT: refused here, before the code is claimed; the engine would enroll a used file and wait for an
+        // import the spike cannot give.
+        let mode = self.join_mode()?;
+        if !can_join(mode) {
+            return Err(SyncError::CannotJoin(mode));
+        }
         let engine = self.engine()?;
         let joined = engine.join(&data.server_url, &data.code, &data.device_name, data.settings)?;
         self.sync_soon()?;
@@ -188,14 +223,18 @@ impl SyncHost {
 
     // WHY: a file in no space has nothing to sync; the join that gives it one starts the runner.
     fn start_runner(&self) -> Result<(), SyncError> {
-        let (Some(engine), Some(sink)) = (self.engine.get(), self.sink.get()) else {
+        let Some(engine) = self.engine.get() else {
             return Ok(());
         };
         if !self.is_running.swap(true, Ordering::SeqCst) {
-            engine.start_runner(Arc::clone(sink), Arc::new(TokioTimer))?;
+            engine.start_runner(Arc::clone(&self.sink) as Arc<dyn EventSink>, Arc::new(TokioTimer))?;
         }
         Ok(())
     }
+}
+
+pub fn can_join(mode: JoinMode) -> bool {
+    matches!(mode, JoinMode::Blank | JoinMode::UntouchedSeed)
 }
 
 fn join_mode_wire(mode: JoinMode) -> &'static str {
@@ -290,7 +329,7 @@ pub struct StatusWire {
     push_resumes_at: Option<i64>,
 }
 
-// WHY: no `metered`: the desktop reports an unmetered network, so nothing waits on one.
+// WHY: no `metered`: the spike never reports the phone's network to the engine, so nothing waits on one.
 impl From<Status> for StatusWire {
     fn from(status: Status) -> StatusWire {
         StatusWire {

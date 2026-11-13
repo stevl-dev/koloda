@@ -9,6 +9,7 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Text, View } from "react-native";
+import { CAN_JOIN_KEY } from "../host/queries";
 import { useMobileQueries } from "../host/queries-context";
 
 // WHY: card text is sample data, not interface copy, so it stays out of the catalog.
@@ -55,6 +56,8 @@ export function SampleDeck() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.decks.all() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() }),
+        // WHY: a database with a deck of its own may no longer join, and the Sync tab stays mounted.
+        queryClient.invalidateQueries({ queryKey: CAN_JOIN_KEY }),
       ]),
   });
 

@@ -56,6 +56,30 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`, question 4
   Deferred because: it does not gate the verdict and is the same code under any host.
 
+- Handoff: check on a device whether scrolling a long revealed card grades it on the mobile lesson screen.
+  Evidence: at `43710036`, `apps/mobile/src/lesson/lesson-card.tsx:52` puts a vertical `ScrollView` inside the pan of
+  `apps/mobile/src/lesson/swipeable-card.tsx:42`, where a swipe down is Hard and a swipe up is Easy.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`
+  Deferred because: found in a review after the task was archived; it needs a device, and the lesson screen is spike code.
+
+- Handoff: decide what Android backup restores for the mobile app.
+  Evidence: at `43710036`, the prebuilt manifest sets `android:allowBackup="true"` and `apps/mobile/app.json` does not
+  turn it off.
+  A restore onto another phone would bring back `koloda.db` with its device identity, and the encrypted preferences
+  of `apps/mobile/modules/koloda-secrets` without the Keystore key that decrypts them.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`
+  Deferred because: found in a review after the task was archived; the spike ships nowhere.
+
+- Handoff: `KeystoreVault.key()` can generate the Keystore key twice when two first calls race.
+  Evidence: at `43710036`,
+  `apps/mobile/modules/koloda-secrets/android/src/main/java/expo/modules/kolodasecrets/KeystoreVault.kt:47` reads and
+  then generates the key with no lock; the second key replaces the first, and what the first encrypted is lost.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`
+  Deferred because: found in a review after the task was archived; it cannot be checked without the Android build.
+
 ## crates/koloda
 
 - Improvement, Should-fix: no test cancels an optimizer run during training or scoring.

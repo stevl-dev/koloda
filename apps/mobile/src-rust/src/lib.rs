@@ -13,18 +13,17 @@ use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::settings::SettingsName;
 use koloda::repo;
-use koloda::repo::sync::join::{join_mode, JoinMode};
 use koloda_sync::error::SyncError;
 use koloda_sync::runner::{Event, EventSink};
+use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::panic::{self, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::sync::mpsc::{self, Sender};
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::thread;
 use sync::SyncHost;
 use tokio::sync::oneshot;
-use uuid::Uuid;
 
 mod sync;
 
@@ -261,18 +260,32 @@ impl KolodaMobile {
     }
 }
 
+// INVARIANT: one `KolodaMobile` per database file for the life of the process.
+// WHY: a JS reload opens the file again in the same process; a second instance would run a second engine and
+// runner on it, since nothing stops the first.
+static OPENED: OnceLock<Mutex<HashMap<String, Arc<KolodaMobile>>>> = OnceLock::new();
+
 #[uniffi::export]
 impl KolodaMobile {
     // WHY: open + migrate stays synchronous; it runs once at startup, before any screen reads data.
     #[uniffi::constructor]
     pub fn new(db_path: String) -> Result<Arc<Self>, MobileError> {
-        let db = Database::init(db_path)?;
+        let mut opened = OPENED
+            .get_or_init(Mutex::default)
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        if let Some(mobile) = opened.get(&db_path) {
+            return Ok(Arc::clone(mobile));
+        }
+        let db = Database::init(db_path.clone())?;
         let sync = Arc::new(SyncHost::new(db.clone()));
-        Ok(Arc::new(Self {
+        let mobile = Arc::new(Self {
             jobs: spawn_worker("koloda-db", db)?,
             sync_jobs: spawn_worker("koloda-sync-host", Arc::clone(&sync))?,
             sync,
-        }))
+        });
+        opened.insert(db_path, Arc::clone(&mobile));
+        Ok(mobile)
     }
 
     pub async fn sync_start(&self, starter: String, listener: Box<dyn SyncListener>) -> Result<String, MobileError> {
@@ -297,15 +310,9 @@ impl KolodaMobile {
         .await
     }
 
-    // INVARIANT: only a database that holds just its starter content may join in the spike.
-    // WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
     pub async fn sync_can_join(&self) -> Result<bool, MobileError> {
-        self.run(|db| {
-            // WHY: the nil id matches no space, so a file in a space reads as attached elsewhere and is refused too.
-            let mode = join_mode(db, Uuid::nil())?;
-            Ok(matches!(mode, JoinMode::Blank | JoinMode::UntouchedSeed))
-        })
-        .await
+        let sync = Arc::clone(&self.sync);
+        self.run(move |_db| Ok(sync::can_join(sync.join_mode()?))).await
     }
 
     pub async fn sync_preview(&self, data: String) -> Result<String, MobileError> {
@@ -339,6 +346,8 @@ impl KolodaMobile {
     }
 
     pub async fn seed_db(&self, data: String) -> Result<(), MobileError> {
+        // WHY: `run`, not `run_write`: the database is blank, so it is in no space yet, and joining one backfills
+        // these rows. The engine has nothing to hear about.
         self.run(move |db| {
             let data: SeedData = from_wire(&data)?;
             Ok(init_mod::seed_db(db, data)?)

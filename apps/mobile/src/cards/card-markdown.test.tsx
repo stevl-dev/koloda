@@ -87,6 +87,34 @@ describe("CardMarkdown", () => {
     expect(attachmentFile).toHaveBeenCalledWith(IMAGE_ID, "/cache");
   });
 
+  it("shows a card image nested in emphasis, a link, or a table cell", async () => {
+    const attachmentFile = jest.fn((_id: string, _cacheDir: string) => Promise.resolve(`/cache/${IMAGE_ID}.png`));
+    const image = `![a cat](attachment:${IMAGE_ID})`;
+    await renderCard(
+      [
+        `*before ${image} after*`,
+        "",
+        `[linked ${image}](https://example.com)`,
+        "",
+        "| Picture |",
+        "| --- |",
+        `| ${image} |`,
+      ].join("\n"),
+      attachmentFile,
+    );
+
+    expect(await screen.findAllByTestId("card-image")).toHaveLength(3);
+    expect(screen.getByText("before")).toBeTruthy();
+    expect(screen.getByText("after")).toBeTruthy();
+    expect(screen.getByText("linked")).toBeTruthy();
+  });
+
+  it("shows an entity past the last code point as written", async () => {
+    await renderCard("Bad &#99999999; and &#x110000; stay, &#65; decodes.");
+
+    expect(screen.getByText("Bad &#99999999; and &#x110000; stay, A decodes.")).toBeTruthy();
+  });
+
   it("shows the alt text of a card image the database lacks", async () => {
     await renderCard(`![a missing cat](attachment:${IMAGE_ID})`, () => Promise.resolve(undefined));
 
