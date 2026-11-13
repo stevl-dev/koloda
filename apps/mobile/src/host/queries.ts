@@ -15,7 +15,8 @@ import type {
   LessonsResult,
   TodaysReviewTotals,
 } from "@koloda/srs";
-import type { QueryKey, QueryOptions } from "@tanstack/react-query";
+import type { AppError } from "@koloda/app";
+import type { QueryKey, QueryOptions, UseMutationOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
 import { call, read, wireArgs } from "./facade";
 import type { SyncStatus } from "./sync-events";
@@ -36,7 +37,14 @@ export type MobileQueries = Pick<
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
   getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
   getSyncStatusQuery: () => QueryOptions<SyncStatus> & { queryKey: QueryKey };
+  canJoinQuery: () => QueryOptions<boolean> & { queryKey: QueryKey };
+  previewSpaceMutation: () => UseMutationOptions<SpacePreview, AppError, PreviewSpaceData>;
+  joinSpaceMutation: () => UseMutationOptions<unknown, AppError, JoinSpaceData>;
 };
+
+type SpacePreview = { spaceName: string; counts: Record<string, number>; bytes: number };
+type PreviewSpaceData = { serverUrl: string; code: string };
+type JoinSpaceData = PreviewSpaceData & { deviceName: string; settings: unknown };
 
 export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
   return {
@@ -71,6 +79,16 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     addAttachmentMutation: () => ({
       mutationFn: ({ bytes, width, height }: AddAttachmentData) =>
         read<Attachment>(() => facade.addAttachment(bytes.slice().buffer, width, height)),
+    }),
+    canJoinQuery: () => ({
+      queryKey: ["mobile-sync-can-join"],
+      queryFn: () => call(() => facade.syncCanJoin()),
+    }),
+    previewSpaceMutation: () => ({
+      mutationFn: (data: PreviewSpaceData) => read<SpacePreview>(() => facade.syncPreview(wireArgs(data))),
+    }),
+    joinSpaceMutation: () => ({
+      mutationFn: (data: JoinSpaceData) => read<unknown>(() => facade.syncJoin(wireArgs(data))),
     }),
     getSyncStatusQuery: () => ({
       queryKey: queryKeys.sync.status(),

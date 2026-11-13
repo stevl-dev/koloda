@@ -93,23 +93,59 @@ msgstr "No decks yet."
 msgid "mobile.lessons.error"
 msgstr "Lessons could not load."
 
-#: src/components/sync-status.tsx
+#: src/components/join-space.tsx
+msgid "mobile.sync.back"
+msgstr "Back"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.code"
+msgstr "Pairing code"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.device-name"
+msgstr "Device name"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.join"
+msgstr "Join"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.join-refused"
+msgstr "This phone already has data of its own, so it can't join a space in this test build. Reinstall the app to join."
+
+#: src/components/sync-panel.tsx
+msgid "mobile.sync.lag {hot} {cold}"
+msgstr "Behind — hot lane: {hot}, cold lane: {cold}"
+
+#: src/components/sync-panel.tsx
 msgid "mobile.sync.pending {pending}"
 msgstr "Changes waiting to sync: {pending}"
 
-#: src/app/(tabs)/sync.tsx
-msgid "mobile.sync.placeholder"
-msgstr "Sync will show here."
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview"
+msgstr "Show the space"
 
-#: src/components/sync-status.tsx
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview-counts {decks} {cards} {reviews}"
+msgstr "Decks {decks} · Cards {cards} · Reviews {reviews}"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview-size {megabytes}"
+msgstr "Size: {megabytes} MB"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.server-url"
+msgstr "Server address"
+
+#: src/components/sync-panel.tsx
 msgid "mobile.sync.start-failed {message}"
 msgstr "Sync could not start: {message}"
 
-#: src/components/sync-status.tsx
+#: src/components/sync-panel.tsx
 msgid "mobile.sync.state {stateType}"
 msgstr "Sync state: {stateType}"
 
-#: src/components/sync-status.tsx
+#: src/components/sync-panel.tsx
 msgid "mobile.sync.stop {reason}"
 msgstr "Stopped because: {reason}"
 

@@ -13,6 +13,7 @@ use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::settings::SettingsName;
 use koloda::repo;
+use koloda::repo::sync::join::{join_mode, JoinMode};
 use koloda_sync::error::SyncError;
 use koloda_sync::runner::{Event, EventSink};
 use std::num::NonZeroU32;
@@ -23,6 +24,7 @@ use std::sync::{Arc, OnceLock};
 use std::thread;
 use sync::SyncHost;
 use tokio::sync::oneshot;
+use uuid::Uuid;
 
 mod sync;
 
@@ -292,6 +294,17 @@ impl KolodaMobile {
             to_wire(&sync::StatusWire::from(
                 sync.engine().and_then(|e| e.status()).map_err(sync_error)?,
             ))
+        })
+        .await
+    }
+
+    /// Whether this database may join a space in the spike: only one that holds just its starter content.
+    /// WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
+    pub async fn sync_can_join(&self) -> Result<bool, MobileError> {
+        self.run(|db| {
+            // WHY: the nil id matches no space, so a file in a space reads as attached elsewhere and is refused too.
+            let mode = join_mode(db, Uuid::nil())?;
+            Ok(matches!(mode, JoinMode::Blank | JoinMode::UntouchedSeed))
         })
         .await
     }

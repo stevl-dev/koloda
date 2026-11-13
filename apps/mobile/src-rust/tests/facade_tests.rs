@@ -61,6 +61,10 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
     assert_eq!(mobile.get_db_status().await.expect("status"), "blank");
     mobile.seed_db(starter_seed()).await.expect("seed");
     assert_eq!(mobile.get_db_status().await.expect("status after seed"), "ok");
+    assert!(
+        mobile.sync_can_join().await.expect("can join"),
+        "only the starter content joins"
+    );
 
     let deck: Value = serde_json::from_str(
         &mobile
@@ -93,6 +97,10 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
     assert_eq!(decks.len(), 1);
     assert_eq!(decks[0]["id"], deck["id"]);
     assert_eq!(decks[0]["untouched"], 3, "three new cards are due");
+    assert!(
+        !mobile.sync_can_join().await.expect("can join"),
+        "a database with a deck of its own is refused"
+    );
 
     let learning: Value = serde_json::from_str(&mobile.get_settings("learning".to_string()).await.expect("settings"))
         .expect("settings json");

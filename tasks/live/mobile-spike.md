@@ -403,7 +403,7 @@ Out:
   Commit: Host the sync engine on mobile
   Depends on: 5
 
-- [ ] 9. Add a spike sync screen on mobile
+- [x] 9. Add a spike sync screen on mobile
   Goal: The Sync tab joins a space (spike code).
   It asks for the server address, the pairing code, and the device name, which starts as the device's name.
   It shows the preview (space name and counts) as `docs/specs/SYNC.md` (§Joining a Space) describes, then joins.

@@ -92,13 +92,20 @@ Run on each platform before the spike's verdict.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, the Sync tab shows the engine's status (not in a space), not an error.
+- [ ] On a fresh install, before adding the sample deck: on desktop, issue a pairing code; on the phone, enter the
+  server address and the code, check the preview, and join.
+  The desktop library arrives, and a card with an image shows that image in a lesson.
+- [ ] Grade a card on the phone; desktop shows its new due time after it syncs.
+- [ ] Grade a card on desktop; after the phone returns to the foreground, it shows the change.
+- [ ] Force-quit and reopen the phone app; it is still in the space, and the status is in sync.
+- [ ] Enter a wrong code; the screen says the code is wrong.
 
 ## Spike code
 
 Code that exists only to answer a question, replaced by the follow-up:
 
 - `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
-- `src/app/(tabs)/sync.tsx`: the Sync tab placeholder.
+- `src/app/(tabs)/sync.tsx`, `src/components/sync-panel.tsx`, and `src/components/join-space.tsx`: the Sync tab.
 - `src/lesson` and `src/app/lesson/[deckId].tsx`: the lesson screen, on the shared lesson reducer.
 - `src/app/debug.tsx` and the `src/components/debug-intervals.tsx`, `sample-deck.tsx`, and `sample-card.tsx` it shows:
   the debug screen.

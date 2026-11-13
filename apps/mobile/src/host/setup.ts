@@ -16,17 +16,19 @@ export function starterContent(t: I18nContext["_"]) {
   };
 }
 
+// INVARIANT: a blank database gets the same settings whether it is seeded or joins a space.
+export function seedSettings() {
+  return {
+    interface: DEFAULT_INTERFACE_SETTINGS,
+    learning: DEFAULT_LEARNING_SETTINGS,
+    hotkeys: DEFAULT_HOTKEYS_SETTINGS,
+  };
+}
+
 export async function seedDB(facade: KolodaFacade, t: I18nContext["_"]): Promise<void> {
   const status = await call(() => facade.getDbStatus());
   if (status === "ok") return;
 
-  const data = {
-    ...starterContent(t),
-    settings: {
-      interface: DEFAULT_INTERFACE_SETTINGS,
-      learning: DEFAULT_LEARNING_SETTINGS,
-      hotkeys: DEFAULT_HOTKEYS_SETTINGS,
-    },
-  };
+  const data = { ...starterContent(t), settings: seedSettings() };
   await call(() => facade.seedDb(wireArgs(data)));
 }

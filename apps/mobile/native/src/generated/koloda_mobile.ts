@@ -22,6 +22,7 @@ import {
   AbstractFfiConverterByteArray,
   Cursor,
   FfiConverterArrayBuffer,
+  FfiConverterBool,
   FfiConverterCallback,
   FfiConverterObject,
   FfiConverterOptional,
@@ -340,6 +341,13 @@ export interface KolodaMobileLike {
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<void>;
+  /**
+   * Whether this database may join a space in the spike: only one that holds just its starter content.
+   * WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
+   */
+  syncCanJoin(asyncOpts_?: {
+    signal: AbortSignal;
+  }) /*throws*/ : Promise<boolean>;
   syncJoin(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -970,6 +978,46 @@ export class KolodaMobile
     }
   }
 
+  /**
+   * Whether this database may join a space in the spike: only one that holds just its starter content.
+   * WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
+   */
+  async syncCanJoin(asyncOpts_?: {
+    signal: AbortSignal;
+  }): Promise<boolean> /*throws*/ {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_can_join(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+          );
+        },
+        /*pollFunc:*/ nativeModule().ubrn_ffi_koloda_mobile_rust_future_poll_i8,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_i8,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_i8,
+        /*freeFunc:*/ nativeModule().ubrn_ffi_koloda_mobile_rust_future_free_i8,
+        // Async returns always go through the JS-side converter: the
+        // completed future's value is deserialized here by the
+        // per-callable return-type converter.
+        /*liftFunc:*/ FfiConverterBool.lift.bind(FfiConverterBool),
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
+          FfiConverterTypeMobileError,
+        ),
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
   async syncJoin(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -1524,6 +1572,14 @@ function uniffiEnsureInitialized() {
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_submit_lesson_result",
+    );
+  }
+  if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join() !==
+    8147
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join",
     );
   }
   if (
