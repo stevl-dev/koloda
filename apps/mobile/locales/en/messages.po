@@ -33,6 +33,10 @@ msgstr "Intervals for a new card under the starter algorithm"
 msgid "mobile.debug.open"
 msgstr "Open the debug screen"
 
+#: src/components/sample-card.tsx
+msgid "mobile.debug.sample-card-failed"
+msgstr "The sample card could not be prepared."
+
 #: src/components/sample-deck.tsx
 msgid "mobile.debug.sample-deck-added"
 msgstr "Sample deck added. It shows on the Lessons tab."

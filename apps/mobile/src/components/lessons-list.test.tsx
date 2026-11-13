@@ -13,6 +13,8 @@ function fakeFacade(overrides: Partial<KolodaFacade>): KolodaFacade {
   return {
     getDbStatus: unexpected,
     getDecks: unexpected,
+    addAttachment: unexpected,
+    attachmentFile: unexpected,
     addDeck: unexpected,
     addCards: unexpected,
     getLessonData: unexpected,
@@ -35,7 +37,7 @@ describe("LessonsList", () => {
   it("shows each deck with its due counts from the façade", async () => {
     activateEnglish();
     const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(lessons)));
-    const queries = createMobileQueries(fakeFacade({ getLessons }));
+    const queries = createMobileQueries(fakeFacade({ getLessons }), "/cache");
 
     await render(
       <I18nProvider i18n={i18n}>

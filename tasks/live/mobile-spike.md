@@ -159,6 +159,9 @@ Out:
   The starter content has no decks or cards, so a fresh install has nothing to study, and nothing shows that data
   survives a relaunch, until sync brings a library in item 9.
   Item 12 adds the action; items 5 and 7 run their device checks on its deck.
+- [x] 14. Can the app follow the system's light or dark scheme on Android? — yes, with `expo-system-ui`.
+  Expo locks an Android app to light mode unless its config sets an interface style, which needs that package.
+  Approved on 2026-11-13 for item 6, with the app set to follow the system.
 
 ## Plan
 
@@ -298,7 +301,7 @@ Out:
   Commit: Build and run the mobile app on Android
   Depends on: 4, 12
 
-- [ ] 6. Render card markdown natively on mobile
+- [x] 6. Render card markdown natively on mobile
   Goal: Add a card markdown renderer under `apps/mobile/src/cards/` (kept code) that needs no DOM.
   It parses with the `marked` lexer, so its tokens match the desktop's parse.
   It renders the tokens as native components.

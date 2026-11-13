@@ -12,6 +12,8 @@ It shares the TypeScript domain libraries with the other apps; Metro resolves th
 Data lives in `koloda`, in-process: `src-rust` (crate `koloda-mobile`) is a thin UniFFI façade over it,
 and `native` (`@koloda/mobile-native`) is the React Native module uniffi-bindgen-react-native generates for it.
 `src/host` turns the façade's JSON payloads into the TS domain types and its errors into `AppError`.
+`src/cards` renders card markdown as native views from the `marked` tokens the desktop parses.
+Card images load from cache files `koloda-mobile` writes from the attachment bytes, under the app's cache directory.
 It targets Android only for now; iOS comes in a follow-up.
 
 ## Platform setup
@@ -75,6 +77,10 @@ Run on each platform before the spike's verdict.
   That answer came back from `koloda` through an async UniFFI call.
 - [ ] On the debug screen, "Add a sample deck" adds a deck; the Lessons tab shows it with twelve new cards.
 - [ ] After force-quitting and reopening the app, the sample deck still shows.
+- [ ] The debug screen's sample card shows every markdown kind, with the sample image (a red and yellow checkerboard).
+  The remote and embedded images show their alt text instead.
+- [ ] The sample card reads well with the system in light mode and in dark mode.
+- [ ] Tapping the card's web link opens the system browser.
 
 ## Spike code
 
@@ -82,7 +88,8 @@ Code that exists only to answer a question, replaced by the follow-up:
 
 - `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
 - `src/app/(tabs)/sync.tsx`: the Sync tab placeholder.
-- `src/app/debug.tsx`, `src/components/debug-intervals.tsx`, and `src/components/sample-deck.tsx`: the debug screen.
+- `src/app/debug.tsx` and the `src/components/debug-intervals.tsx`, `sample-deck.tsx`, and `sample-card.tsx` it shows:
+  the debug screen.
 
 ## Copies
 
@@ -112,5 +119,5 @@ What building and running the spike showed:
 - Bun installs peer dependencies, so Reanimated and Worklets arrive through `expo-router`'s drawer dependency,
   and autolinking compiles them into the app.
 - The debug APK is about 250 MB.
-- Expo locks an Android app to light mode unless the app config sets an interface style.
-  That setting needs `expo-system-ui`, so the config leaves it unset until a change that follows the system scheme.
+- Expo locks an Android app to light mode unless the app config sets an interface style, which needs
+  `expo-system-ui`; the app follows the system scheme with it.

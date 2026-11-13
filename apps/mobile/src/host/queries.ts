@@ -1,6 +1,8 @@
 import { queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type {
+  AddAttachmentData,
+  Attachment,
   Deck,
   GetLessonDataParams,
   InsertCardData,
@@ -11,6 +13,7 @@ import type {
   LessonResultData,
   LessonsResult,
 } from "@koloda/srs";
+import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
 import { call, read, wireArgs } from "./facade";
 
@@ -23,9 +26,13 @@ export type MobileQueries = Pick<
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
->;
+  | "addAttachmentMutation"
+> & {
+  // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
+  getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
+};
 
-export function createMobileQueries(facade: KolodaFacade): MobileQueries {
+export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
   return {
     getDecksQuery: () => ({
       queryKey: queryKeys.decks.all(),
@@ -44,6 +51,15 @@ export function createMobileQueries(facade: KolodaFacade): MobileQueries {
     getLessonDataQuery: (params: GetLessonDataParams) => ({
       queryKey: queryKeys.lessons.data(params),
       queryFn: () => read<LessonData | null>(() => facade.getLessonData(wireArgs(params))),
+    }),
+    addAttachmentMutation: () => ({
+      mutationFn: ({ bytes, width, height }: AddAttachmentData) =>
+        read<Attachment>(() => facade.addAttachment(bytes.slice().buffer, width, height)),
+    }),
+    getAttachmentFileQuery: (id: Attachment["id"]) => ({
+      queryKey: ["attachment_file", id],
+      queryFn: async () => (await call(() => facade.attachmentFile(id, cacheDir))) ?? null,
+      staleTime: Infinity,
     }),
     submitLessonResultMutation: () => ({
       mutationFn: (data: LessonResultData) => call(() => facade.submitLessonResult(wireArgs(data))),

@@ -26,6 +26,7 @@
 | Sync bookkeeping tables (`crates/koloda-sync-proto/PROTOCOL.md` §Client state) | Device-local |
 | Sync tokens (OS keyring: `sync.token.*`, `sync.pending_token.*`) | Device-local |
 | Attachment transfer queue and fetch state | Device-local |
+| Mobile card image cache files (`apps/mobile`, one per attachment, rebuilt from attachment bytes) | Device-local |
 | Runtime state: lesson session in flight, streaming | Device-local |
 
 - Card scheduling is part of the card's global row.

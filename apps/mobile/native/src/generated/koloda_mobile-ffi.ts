@@ -176,6 +176,12 @@ interface NativeModuleInterface {
     dbPath: Uint8Array,
     uniffi_out_err: UniffiRustCallStatus,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_attachment(
+    uniffiSelf: bigint,
+    bytes: Uint8Array,
+    width: Uint8Array,
+    height: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_cards(
     uniffiSelf: bigint,
     data: Uint8Array,
@@ -183,6 +189,11 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_deck(
     uniffiSelf: bigint,
     data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_attachment_file(
+    uniffiSelf: bigint,
+    id: Uint8Array,
+    cacheDir: Uint8Array,
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_db_status(
     uniffiSelf: bigint,
@@ -208,8 +219,10 @@ interface NativeModuleInterface {
   ): bigint;
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_attachment(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_db_status(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_decks(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_lesson_data(): number;

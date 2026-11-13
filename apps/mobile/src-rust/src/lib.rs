@@ -6,11 +6,14 @@
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
+use koloda::domain::attachments::AddAttachmentData;
 use koloda::domain::cards::InsertCardData;
 use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::repo;
+use std::num::NonZeroU32;
 use std::panic::{self, AssertUnwindSafe};
+use std::path::PathBuf;
 use std::sync::mpsc::{self, Sender};
 use std::sync::Arc;
 use std::thread;
@@ -57,6 +60,46 @@ fn from_wire<T: serde::de::DeserializeOwned>(json: &str) -> Result<T, MobileErro
 
 fn to_wire<T: serde::Serialize>(value: &T) -> Result<String, MobileError> {
     serde_json::to_string(value).map_err(|e| unknown(e.to_string()))
+}
+
+fn dimension(value: Option<u32>) -> Result<Option<NonZeroU32>, MobileError> {
+    value
+        .map(|v| NonZeroU32::new(v).ok_or_else(|| unknown("An image dimension must be positive".to_string())))
+        .transpose()
+}
+
+fn image_extension(mime: &str) -> &'static str {
+    match mime {
+        "image/png" => "png",
+        "image/jpeg" => "jpg",
+        "image/gif" => "gif",
+        "image/webp" => "webp",
+        "image/avif" => "avif",
+        _ => "img",
+    }
+}
+
+// INVARIANT: the id is the SHA-256 of the bytes, so a cache file that exists already holds them.
+// The check also keeps an id from naming a path outside the cache directory.
+fn cached_image(db: &Database, id: &str, cache_dir: &str) -> Result<Option<String>, MobileError> {
+    if id.len() != 64 || !id.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)) {
+        return Err(unknown(format!("Not an attachment id: {id}")));
+    }
+    let Some(attachment) = repo::attachments::get_attachment(db, id)? else {
+        return Ok(None);
+    };
+    let path = PathBuf::from(cache_dir).join(format!("{id}.{}", image_extension(&attachment.mime)));
+    if !path.exists() {
+        let Some(bytes) = repo::attachments::get_attachment_bytes(db, id)? else {
+            return Ok(None);
+        };
+        std::fs::create_dir_all(cache_dir).map_err(|e| unknown(e.to_string()))?;
+        // WHY: write then rename, so an interrupted write never leaves a partial file under the final name.
+        let partial = path.with_extension("partial");
+        std::fs::write(&partial, bytes).map_err(|e| unknown(e.to_string()))?;
+        std::fs::rename(&partial, &path).map_err(|e| unknown(e.to_string()))?;
+    }
+    Ok(Some(path.to_string_lossy().into_owned()))
 }
 
 type Job = Box<dyn FnOnce(&Database) + Send>;
@@ -151,6 +194,29 @@ impl KolodaMobile {
             to_wire(&repo::cards::add_cards(db, data)?)
         })
         .await
+    }
+
+    pub async fn add_attachment(
+        &self,
+        bytes: Vec<u8>,
+        width: Option<u32>,
+        height: Option<u32>,
+    ) -> Result<String, MobileError> {
+        self.run(move |db| {
+            let data = AddAttachmentData {
+                bytes,
+                width: dimension(width)?,
+                height: dimension(height)?,
+            };
+            to_wire(&repo::attachments::add_attachment(db, data)?)
+        })
+        .await
+    }
+
+    /// The path of a card image's file in `cache_dir`, written from the stored bytes on first use;
+    /// none when the attachment or its bytes are missing.
+    pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {
+        self.run(move |db| cached_image(db, &id, &cache_dir)).await
     }
 
     pub async fn get_lessons(&self, params: String) -> Result<String, MobileError> {

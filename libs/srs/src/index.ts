@@ -21,6 +21,7 @@ export { DEFAULT_FSRS_ALGORITHM, FSRS_GRADES, LEARNING_STEPS_UNITS } from "./lib
 export type { AlgorithmFSRS } from "./lib/algorithms-fsrs";
 export {
   ATTACHMENT_MAX_BYTES,
+  ATTACHMENT_REF_PATTERN,
   ATTACHMENT_MIMES,
   addAttachmentSchema,
   attachmentRowSchema,
