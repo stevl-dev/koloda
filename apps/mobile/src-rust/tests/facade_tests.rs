@@ -93,6 +93,13 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
     assert_eq!(decks.len(), 1);
     assert_eq!(decks[0]["id"], deck["id"]);
     assert_eq!(decks[0]["untouched"], 3, "three new cards are due");
+
+    let learning: Value = serde_json::from_str(&mobile.get_settings("learning".to_string()).await.expect("settings"))
+        .expect("settings json");
+    assert_eq!(learning["content"]["learnAheadLimit"], json!([4, 0]));
+    let totals: Value =
+        serde_json::from_str(&mobile.get_todays_review_totals().await.expect("totals")).expect("totals json");
+    assert_eq!(totals["reviewTotals"]["untouched"], 0, "nothing studied yet today");
 }
 
 #[tokio::test]

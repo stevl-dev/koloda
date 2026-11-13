@@ -10,6 +10,7 @@ use koloda::domain::attachments::AddAttachmentData;
 use koloda::domain::cards::InsertCardData;
 use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
+use koloda::domain::settings::SettingsName;
 use koloda::repo;
 use std::num::NonZeroU32;
 use std::panic::{self, AssertUnwindSafe};
@@ -217,6 +218,19 @@ impl KolodaMobile {
     /// none when the attachment or its bytes are missing.
     pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {
         self.run(move |db| cached_image(db, &id, &cache_dir)).await
+    }
+
+    pub async fn get_settings(&self, name: String) -> Result<String, MobileError> {
+        self.run(move |db| {
+            let name = name.parse::<SettingsName>().map_err(|e| unknown(e.to_string()))?;
+            to_wire(&repo::settings::get_settings(db, name)?)
+        })
+        .await
+    }
+
+    pub async fn get_todays_review_totals(&self) -> Result<String, MobileError> {
+        self.run(|db| to_wire(&repo::reviews::get_todays_review_totals(db)?))
+            .await
     }
 
     pub async fn get_lessons(&self, params: String) -> Result<String, MobileError> {

@@ -9,6 +9,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./lesson-state": {
+      "types": "./src/lesson-state.ts",
+      "import": "./src/lesson-state.ts",
+      "default": "./src/lesson-state.ts"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

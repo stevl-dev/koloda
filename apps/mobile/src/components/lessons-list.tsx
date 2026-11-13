@@ -1,7 +1,8 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { FlatList, Pressable, StyleSheet, Text } from "react-native";
 import { useMobileQueries } from "../host/queries-context";
 
 export function LessonsList() {
@@ -17,11 +18,13 @@ export function LessonsList() {
       data={data.decks}
       keyExtractor={(deck) => deck.id}
       ListEmptyComponent={<Text>{_(msg`mobile.lessons.empty`)}</Text>}
-      renderItem={({ item: { title, untouched, learn, review } }) => (
-        <View style={styles.row}>
-          <Text style={styles.title}>{title}</Text>
-          <Text>{_(msg`mobile.lessons.due ${untouched} ${learn} ${review}`)}</Text>
-        </View>
+      renderItem={({ item: { id, title, untouched, learn, review } }) => (
+        <Link href={{ pathname: "/lesson/[deckId]", params: { deckId: id } }} asChild>
+          <Pressable style={styles.row}>
+            <Text style={styles.title}>{title}</Text>
+            <Text>{_(msg`mobile.lessons.due ${untouched} ${learn} ${review}`)}</Text>
+          </Pressable>
+        </Link>
       )}
     />
   );

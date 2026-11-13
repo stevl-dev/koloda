@@ -53,6 +53,34 @@ msgstr "Sample: Spanish numbers"
 msgid "mobile.debug.title"
 msgstr "Debug"
 
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.back"
+msgstr "Back to lessons"
+
+#: src/lesson/lesson-card.tsx
+msgid "mobile.lesson.card"
+msgstr "Card; tap to show the answer"
+
+#: src/lesson/lesson-card.tsx
+msgid "mobile.lesson.continue"
+msgstr "Continue"
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.done"
+msgstr "Lesson done"
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.load-failed"
+msgstr "The lesson could not load."
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.save-failed {failed}"
+msgstr "Results not saved: {failed}"
+
+#: src/app/_layout.tsx
+msgid "mobile.lesson.title"
+msgstr "Lesson"
+
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.due {untouched} {learn} {review}"
 msgstr "New {untouched} · Learning {learn} · Review {review}"

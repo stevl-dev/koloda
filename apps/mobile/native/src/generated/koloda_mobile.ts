@@ -244,6 +244,13 @@ export interface KolodaMobileLike {
     params: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
+  getSettings(
+    name: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ) /*throws*/ : Promise<string>;
+  getTodaysReviewTotals(asyncOpts_?: {
+    signal: AbortSignal;
+  }) /*throws*/ : Promise<string>;
   seedDb(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -691,6 +698,102 @@ export class KolodaMobile
     }
   }
 
+  async getSettings(
+    name: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ): Promise<string> /*throws*/ {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_settings(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+            FfiConverterString.lower(name, nativeModule().rustbuffer_alloc),
+          );
+        },
+        /*pollFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
+        /*freeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
+        // Async returns always go through the JS-side converter: the
+        // completed future's value is deserialized here by the
+        // per-callable return-type converter.
+        // Borrowed view over foreign memory: the call site owns the free,
+        // as on the sync paths. Unconditional — a no-op where buffers are
+        // already JS-owned.
+        /*liftFunc:*/ (__rb) => {
+          try {
+            return FfiConverterString.lift(__rb);
+          } finally {
+            nativeModule().rustbuffer_free(__rb);
+          }
+        },
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
+          FfiConverterTypeMobileError,
+        ),
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
+  async getTodaysReviewTotals(asyncOpts_?: {
+    signal: AbortSignal;
+  }): Promise<string> /*throws*/ {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_todays_review_totals(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+          );
+        },
+        /*pollFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
+        /*freeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
+        // Async returns always go through the JS-side converter: the
+        // completed future's value is deserialized here by the
+        // per-callable return-type converter.
+        // Borrowed view over foreign memory: the call site owns the free,
+        // as on the sync paths. Unconditional — a no-op where buffers are
+        // already JS-owned.
+        /*liftFunc:*/ (__rb) => {
+          try {
+            return FfiConverterString.lift(__rb);
+          } finally {
+            nativeModule().rustbuffer_free(__rb);
+          }
+        },
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
+          FfiConverterTypeMobileError,
+        ),
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
   async seedDb(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -946,6 +1049,22 @@ function uniffiEnsureInitialized() {
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_get_lessons",
+    );
+  }
+  if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_settings() !==
+    22503
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_get_settings",
+    );
+  }
+  if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals() !==
+    46317
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals",
     );
   }
   if (

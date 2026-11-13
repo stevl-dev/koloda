@@ -2,28 +2,11 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react-native";
-import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { activateEnglish } from "../i18n";
+import { fakeFacade } from "../test/fake-facade";
 import { LessonsList } from "./lessons-list";
-
-function fakeFacade(overrides: Partial<KolodaFacade>): KolodaFacade {
-  const unexpected = () => Promise.reject(new Error("not stubbed"));
-  return {
-    getDbStatus: unexpected,
-    getDecks: unexpected,
-    addAttachment: unexpected,
-    attachmentFile: unexpected,
-    addDeck: unexpected,
-    addCards: unexpected,
-    getLessonData: unexpected,
-    getLessons: unexpected,
-    seedDb: unexpected,
-    submitLessonResult: unexpected,
-    ...overrides,
-  };
-}
 
 const lessons = {
   total: { untouched: 5, learn: 1, review: 7, total: 13 },

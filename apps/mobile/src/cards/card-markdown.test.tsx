@@ -4,31 +4,16 @@ import { Linking } from "react-native";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
+import { fakeFacade } from "../test/fake-facade";
 import { CardMarkdown } from "./card-markdown";
 
 const IMAGE_ID = "a".repeat(64);
-
-function facadeWith(attachmentFile: KolodaFacade["attachmentFile"]): KolodaFacade {
-  const unexpected = () => Promise.reject(new Error("not stubbed"));
-  return {
-    getDbStatus: unexpected,
-    getDecks: unexpected,
-    addDeck: unexpected,
-    addCards: unexpected,
-    addAttachment: unexpected,
-    attachmentFile,
-    getLessons: unexpected,
-    getLessonData: unexpected,
-    seedDb: unexpected,
-    submitLessonResult: unexpected,
-  };
-}
 
 async function renderCard(text: string, attachmentFile: KolodaFacade["attachmentFile"] = jest.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   await render(
     <QueryClientProvider client={client}>
-      <MobileQueriesContext.Provider value={createMobileQueries(facadeWith(attachmentFile), "/cache")}>
+      <MobileQueriesContext.Provider value={createMobileQueries(fakeFacade({ attachmentFile }), "/cache")}>
         <CardMarkdown text={text} />
       </MobileQueriesContext.Provider>
     </QueryClientProvider>,
@@ -85,10 +70,10 @@ describe("CardMarkdown", () => {
     await renderCard("[site](https://example.com) and [mail](mailto:a@b.c)");
 
     expect(openURL).not.toHaveBeenCalled();
-    fireEvent.press(screen.getByText("site"));
+    await fireEvent.press(screen.getByText("site"));
     expect(openURL).toHaveBeenCalledWith("https://example.com");
 
-    fireEvent.press(screen.getByText("mail"));
+    await fireEvent.press(screen.getByText("mail"));
     expect(openURL).toHaveBeenCalledTimes(1);
     openURL.mockRestore();
   });

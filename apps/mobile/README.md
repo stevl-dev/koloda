@@ -81,6 +81,13 @@ Run on each platform before the spike's verdict.
   The remote and embedded images show their alt text instead.
 - [ ] The sample card reads well with the system in light mode and in dark mode.
 - [ ] Tapping the card's web link opens the system browser.
+- [ ] Tap the sample deck to start a lesson; study ten cards with swipes and buttons.
+  Left is Again, down is Hard, right is Good, up is Easy.
+  Swipes, card transitions, and haptics feel native.
+- [ ] On a new card, "Good" shows the same interval as on desktop.
+- [ ] After force-quitting and reopening the app, the deck's due count has dropped.
+- [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
+- [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 
 ## Spike code
 
@@ -88,6 +95,7 @@ Code that exists only to answer a question, replaced by the follow-up:
 
 - `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
 - `src/app/(tabs)/sync.tsx`: the Sync tab placeholder.
+- `src/lesson` and `src/app/lesson/[deckId].tsx`: the lesson screen, on the shared lesson reducer.
 - `src/app/debug.tsx` and the `src/components/debug-intervals.tsx`, `sample-deck.tsx`, and `sample-card.tsx` it shows:
   the debug screen.
 
@@ -97,6 +105,8 @@ Code copied from another app instead of shared:
 
 - `src/host/wire.ts` and its test, from `apps/electron-react/src/app/ipc.ts`: the JSON wire shapes.
 - `src/host/setup.ts`, from `apps/electron-react/src/app/setup.ts`: the starter content and settings.
+- `src/lesson/use-mobile-lesson-session.ts`, from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and
+  `lesson-uploader.tsx`: the session's queries and result uploads, without hotkeys or a setup screen.
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 
 ## Findings
@@ -105,7 +115,7 @@ What building and running the spike showed:
 
 - 2026-11-13, Android emulator (API 36, x86_64, debug build): every device check passes.
   The shared libs load under Hermes, async calls cross UniFFI, and the database survives a relaunch.
-- Jest runs CommonJS, so ESM-only packages the shared libs import (`uuid`, `marked`) go through Babel there
+- Jest runs CommonJS, so ESM-only packages the shared libs import (`uuid`, `marked`, `immer`) go through Babel there
   (`jest.config.js`).
   Metro bundles them as they are.
 - `koloda`, `koloda-sync`, and `koloda-mobile` cross-build for `arm64-v8a` and `x86_64` unchanged,
@@ -119,5 +129,11 @@ What building and running the spike showed:
 - Bun installs peer dependencies, so Reanimated and Worklets arrive through `expo-router`'s drawer dependency,
   and autolinking compiles them into the app.
 - The debug APK is about 250 MB.
+- `@koloda/core-react`'s barrel loads under Hermes, so the lesson reducer imports it as it is;
+  no DOM-free subpath was needed there.
+- The lesson reducer calls `structuredClone`, which TypeScript declares only in the DOM lib.
+  Expo's runtime installs it on the device, so `src/globals.d.ts` declares it for the type check.
+- Jest cannot run Reanimated's UI runtime: its JS build needs `react-native-web`.
+  The lesson test swaps the swipe layer (`src/lesson/swipeable-card.tsx`) for a pass-through and grades with buttons.
 - Expo locks an Android app to light mode unless the app config sets an interface style, which needs
   `expo-system-ui`; the app follows the system scheme with it.

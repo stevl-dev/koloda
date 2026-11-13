@@ -162,6 +162,9 @@ Out:
 - [x] 14. Can the app follow the system's light or dark scheme on Android? — yes, with `expo-system-ui`.
   Expo locks an Android app to light mode unless its config sets an interface style, which needs that package.
   Approved on 2026-11-13 for item 6, with the app set to follow the system.
+- [x] 15. Which versions does item 7 add? — Expo SDK 58's pins, approved on 2026-11-13.
+  Gesture Handler ~3.3.0, Reanimated 4.7.1, `expo-haptics` ~58.0.8, and `react-native-worklets` 0.13.0,
+  which Reanimated 4 requires and open question 9 did not name.
 
 ## Plan
 
@@ -331,7 +334,7 @@ Out:
   Commit: Render card markdown natively on mobile
   Depends on: 5
 
-- [ ] 7. Add a spike lesson screen on mobile
+- [x] 7. Add a spike lesson screen on mobile
   Goal: Tapping a deck on the Lessons tab starts a lesson with the default amounts (spike code).
   The session runs on the existing lesson reducer, store, and selectors.
   Add a DOM-free subpath export, `@koloda/srs-react/lesson-state`, that re-exports them without moving files.
@@ -353,7 +356,7 @@ Out:
   - On Android, also record the swipe frame rate in the performance monitor.
   Constraints: No spec change.
   The only change to `@koloda/srs-react` is the subpath export.
-  Add only the dependencies open question 9 approved.
+  Add only the dependencies open questions 9 and 15 approved.
   Done when: A Jest test runs a three-card lesson over a mocked façade with button grades.
   It checks the intervals on the buttons and the `LessonResultData` the façade receives.
   `bun run test:libs` and `bun run typecheck` pass.
