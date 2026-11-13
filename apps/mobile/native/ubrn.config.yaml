@@ -7,6 +7,8 @@ bindings:
   ts: src/generated
 android:
   directory: android
+  # WHY: link the `cdylib` the crate builds anyway, instead of adding a `staticlib` to every desktop build.
+  useSharedLibrary: true
   targets:
     - arm64-v8a
     - x86_64

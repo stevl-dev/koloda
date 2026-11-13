@@ -270,7 +270,7 @@ Out:
   Commit: Call koloda from the mobile app through UniFFI
   Depends on: 2, 3
 
-- [ ] 5. Build and run the mobile app on Android
+- [x] 5. Build and run the mobile app on Android
   Goal: Prove the stack on a real target before more code is written on it.
   Set the machine up as `apps/mobile/README.md` (§Platform setup) says for Android: the Android SDK and NDK, a JDK,
   `cargo-ndk`, and the Rust targets `aarch64-linux-android` and `x86_64-linux-android`.
