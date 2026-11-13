@@ -13,6 +13,8 @@ function fakeFacade(overrides: Partial<KolodaFacade>): KolodaFacade {
   return {
     getDbStatus: unexpected,
     getDecks: unexpected,
+    addDeck: unexpected,
+    addCards: unexpected,
     getLessonData: unexpected,
     getLessons: unexpected,
     seedDb: unexpected,

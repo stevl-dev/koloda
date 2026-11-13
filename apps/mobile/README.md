@@ -54,6 +54,8 @@ Run on each platform before the spike's verdict.
 - [ ] "Open the debug screen" on the Lessons tab shows four grades, each with an interval.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
   That answer came back from `koloda` through an async UniFFI call.
+- [ ] On the debug screen, "Add a sample deck" adds a deck; the Lessons tab shows it with twelve new cards.
+- [ ] After force-quitting and reopening the app, the sample deck still shows.
 
 ## Spike code
 
@@ -61,7 +63,7 @@ Code that exists only to answer a question, replaced by the follow-up:
 
 - `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
 - `src/app/(tabs)/sync.tsx`: the Sync tab placeholder.
-- `src/app/debug.tsx` and `src/components/debug-intervals.tsx`: the debug screen.
+- `src/app/debug.tsx`, `src/components/debug-intervals.tsx`, and `src/components/sample-deck.tsx`: the debug screen.
 
 ## Copies
 

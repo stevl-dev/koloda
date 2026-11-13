@@ -12,11 +12,10 @@
       "options": {
         "commands": [
           "cargo build -p koloda-mobile",
-          "bunx ubrn generate jsi bindings --library ../../../target/debug/libkoloda_mobile.so --ts-dir src/generated --cpp-dir cpp/generated",
-          "bunx ubrn generate jsi turbo-module --config ubrn.config.yaml koloda_mobile"
+          "bunx ubrn generate jsi bindings --library target/debug/libkoloda_mobile.so --ts-dir apps/mobile/native/src/generated --cpp-dir apps/mobile/native/cpp/generated",
+          "cd apps/mobile/native && bunx ubrn generate jsi turbo-module --config ubrn.config.yaml koloda_mobile"
         ],
-        "parallel": false,
-        "cwd": "apps/mobile/native"
+        "parallel": false
       }
     },
     "build-android": {

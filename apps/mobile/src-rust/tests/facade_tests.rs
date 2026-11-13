@@ -1,11 +1,11 @@
 //! The façade over a real database file, as the app opens it at startup.
 
-use koloda::app::db::Database;
-use koloda::domain::decks::InsertDeckData;
 use koloda::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
-use koloda::repo;
 use koloda_mobile::{KolodaMobile, MobileError};
 use serde_json::{json, Value};
+
+const FRONT: &str = "01900000-0000-7000-8000-000000000001";
+const BACK: &str = "01900000-0000-7000-8000-000000000002";
 
 fn starter_seed() -> String {
     json!({
@@ -25,12 +25,12 @@ fn starter_seed() -> String {
             "title": "Default",
             "content": {
                 "fields": [
-                    { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
-                    { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "text", "isRequired": false },
+                    { "id": FRONT, "title": "Front", "type": "text", "isRequired": true },
+                    { "id": BACK, "title": "Back", "type": "text", "isRequired": false },
                 ],
                 "layout": [
-                    { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
-                    { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" },
+                    { "field": FRONT, "operation": "display" },
+                    { "field": BACK, "operation": "reveal" },
                 ],
             },
         },
@@ -54,33 +54,45 @@ fn starter_seed() -> String {
 }
 
 #[tokio::test]
-async fn a_new_database_seeds_its_starter_content_and_lists_a_deck_in_its_lessons() {
+async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
     let dir = tempfile::tempdir().expect("temp dir");
-    let path = dir.path().join("koloda.db");
-    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open and migrate");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
 
     assert_eq!(mobile.get_db_status().await.expect("status"), "blank");
     mobile.seed_db(starter_seed()).await.expect("seed");
     assert_eq!(mobile.get_db_status().await.expect("status after seed"), "ok");
 
-    // The façade has no deck commands yet, so a second connection to the same file adds one.
-    let db = Database::init(&path).expect("second connection");
-    let deck = repo::decks::add_deck(
-        &db,
-        InsertDeckData {
-            title: "Spanish".to_string(),
-            algorithm_id: SEED_ALGORITHM_SIMPLE_ID.to_string(),
-            template_id: SEED_TEMPLATE_TYPE_ID.to_string(),
-        },
+    let deck: Value = serde_json::from_str(
+        &mobile
+            .add_deck(
+                json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID })
+                    .to_string(),
+            )
+            .await
+            .expect("add deck"),
     )
-    .expect("add deck");
+    .expect("deck json");
+    let cards: Vec<Value> = ["uno", "dos", "tres"]
+        .iter()
+        .map(|word| {
+            json!({
+                "deckId": deck["id"],
+                "templateId": SEED_TEMPLATE_TYPE_ID,
+                "content": { FRONT: { "text": word }, BACK: { "text": "" } },
+            })
+        })
+        .collect();
+    mobile
+        .add_cards(Value::from(cards).to_string())
+        .await
+        .expect("add cards");
 
     let lessons: Value =
         serde_json::from_str(&mobile.get_lessons(json!({}).to_string()).await.expect("lessons")).expect("lessons json");
     let decks = lessons["decks"].as_array().expect("decks array");
     assert_eq!(decks.len(), 1);
-    assert_eq!(decks[0]["id"], deck.id);
-    assert_eq!(decks[0]["title"], "Spanish");
+    assert_eq!(decks[0]["id"], deck["id"]);
+    assert_eq!(decks[0]["untouched"], 3, "three new cards are due");
 }
 
 #[tokio::test]

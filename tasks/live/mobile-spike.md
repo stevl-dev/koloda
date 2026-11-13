@@ -155,6 +155,10 @@ Out:
     The generated C++ and Android files are not committed.
   - `expo-file-system` is approved, so the app can pass the documents directory to the façade.
     `expo` already depends on it; the app lists it directly.
+- [x] 13. Where does the spike get content to test with? — a debug action adds a sample deck, decided 2026-11-13.
+  The starter content has no decks or cards, so a fresh install has nothing to study, and nothing shows that data
+  survives a relaunch, until sync brings a library in item 9.
+  Item 12 adds the action; items 5 and 7 run their device checks on its deck.
 
 ## Plan
 
@@ -292,7 +296,7 @@ Out:
   The device checks of items 3 and 4 pass on the emulator, or each failure is recorded under Findings.
   `bun run check:push` is green.
   Commit: Build and run the mobile app on Android
-  Depends on: 4
+  Depends on: 4, 12
 
 - [ ] 6. Render card markdown natively on mobile
   Goal: Add a card markdown renderer under `apps/mobile/src/cards/` (kept code) that needs no DOM.
@@ -432,6 +436,23 @@ Out:
   Done when: `bun run check:docs` passes.
   Commit: Record the mobile host decision
   Depends on: 10
+
+
+- [x] 12. Add a sample deck to the mobile debug screen
+  Goal: The debug screen gets an "Add a sample deck" action (spike code), as open question 13 settles.
+  It adds a deck on the starter algorithm and template, with a dozen cards, through `koloda-mobile`.
+  `koloda-mobile` gains `add_deck` and `add_cards`, in the desktop addon's shapes (kept code).
+  The Lessons tab refreshes to show the new deck.
+  Regenerate and commit the TS bindings.
+  Device checks to add: add a sample deck from the debug screen, and the Lessons tab shows it with twelve new cards.
+  After force-quitting and reopening the app, the deck still shows.
+  Constraints: No change to `koloda`.
+  Add no dependency.
+  Done when: The façade's Rust test adds a deck and cards and lists the deck's due counts in its lessons.
+  `bun run typecheck` and `cargo test -p koloda-mobile` pass.
+  `bun run check:push` is green.
+  Commit: Add a sample deck to the mobile debug screen
+  Depends on: 4; it runs before item 5
 
 ## Outcome
 

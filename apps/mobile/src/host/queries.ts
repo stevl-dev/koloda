@@ -3,6 +3,9 @@ import type { Queries } from "@koloda/core-react";
 import type {
   Deck,
   GetLessonDataParams,
+  InsertCardData,
+  InsertCardsResponse,
+  InsertDeckData,
   LessonData,
   LessonFilters,
   LessonResultData,
@@ -14,7 +17,12 @@ import { call, read, wireArgs } from "./facade";
 // INVARIANT: the same keys as the other hosts' queries, so cache refreshes after a sync reach these queries too.
 export type MobileQueries = Pick<
   Queries,
-  "getDecksQuery" | "getLessonsQuery" | "getLessonDataQuery" | "submitLessonResultMutation"
+  | "getDecksQuery"
+  | "addDeckMutation"
+  | "addCardsMutation"
+  | "getLessonsQuery"
+  | "getLessonDataQuery"
+  | "submitLessonResultMutation"
 >;
 
 export function createMobileQueries(facade: KolodaFacade): MobileQueries {
@@ -22,6 +30,12 @@ export function createMobileQueries(facade: KolodaFacade): MobileQueries {
     getDecksQuery: () => ({
       queryKey: queryKeys.decks.all(),
       queryFn: () => read<Deck[]>(() => facade.getDecks()),
+    }),
+    addDeckMutation: () => ({
+      mutationFn: (data: InsertDeckData) => read<Deck>(() => facade.addDeck(wireArgs(data))),
+    }),
+    addCardsMutation: () => ({
+      mutationFn: (data: InsertCardData[]) => read<InsertCardsResponse>(() => facade.addCards(wireArgs(data))),
     }),
     getLessonsQuery: (filters?: LessonFilters) => ({
       queryKey: queryKeys.lessons.all(filters),

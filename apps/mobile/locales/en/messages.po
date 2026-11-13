@@ -21,6 +21,10 @@ msgstr "Default"
 msgid "mobile.boot.error"
 msgstr "The app could not open its database."
 
+#: src/components/sample-deck.tsx
+msgid "mobile.debug.add-sample-deck"
+msgstr "Add a sample deck"
+
 #: src/components/debug-intervals.tsx
 msgid "mobile.debug.intervals"
 msgstr "Intervals for a new card under the starter algorithm"
@@ -28,6 +32,18 @@ msgstr "Intervals for a new card under the starter algorithm"
 #: src/app/(tabs)/index.tsx
 msgid "mobile.debug.open"
 msgstr "Open the debug screen"
+
+#: src/components/sample-deck.tsx
+msgid "mobile.debug.sample-deck-added"
+msgstr "Sample deck added. It shows on the Lessons tab."
+
+#: src/components/sample-deck.tsx
+msgid "mobile.debug.sample-deck-failed"
+msgstr "The sample deck could not be added."
+
+#: src/components/sample-deck.tsx
+msgid "mobile.debug.sample-deck-title"
+msgstr "Sample: Spanish numbers"
 
 #: src/app/_layout.tsx
 msgid "mobile.debug.title"

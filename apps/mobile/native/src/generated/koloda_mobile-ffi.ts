@@ -176,6 +176,14 @@ interface NativeModuleInterface {
     dbPath: Uint8Array,
     uniffi_out_err: UniffiRustCallStatus,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_cards(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_deck(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_db_status(
     uniffiSelf: bigint,
   ): bigint;
@@ -200,6 +208,8 @@ interface NativeModuleInterface {
   ): bigint;
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_db_status(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_decks(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_lesson_data(): number;

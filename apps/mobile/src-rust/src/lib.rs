@@ -6,6 +6,8 @@
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
+use koloda::domain::cards::InsertCardData;
+use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::repo;
 use std::panic::{self, AssertUnwindSafe};
@@ -133,6 +135,22 @@ impl KolodaMobile {
 
     pub async fn get_decks(&self) -> Result<String, MobileError> {
         self.run(|db| to_wire(&repo::decks::get_decks(db)?)).await
+    }
+
+    pub async fn add_deck(&self, data: String) -> Result<String, MobileError> {
+        self.run(move |db| {
+            let data: InsertDeckData = from_wire(&data)?;
+            to_wire(&repo::decks::add_deck(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn add_cards(&self, data: String) -> Result<String, MobileError> {
+        self.run(move |db| {
+            let data: Vec<InsertCardData> = from_wire(&data)?;
+            to_wire(&repo::cards::add_cards(db, data)?)
+        })
+        .await
     }
 
     pub async fn get_lessons(&self, params: String) -> Result<String, MobileError> {
