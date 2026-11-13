@@ -10,7 +10,7 @@ import { useLingui } from "@lingui/react";
 import { useMutation } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ClipboardEvent, DragEvent, FormEvent } from "react";
+import type { ClipboardEvent, DragEvent, InputEvent } from "react";
 import { FileTrigger, InputContext } from "react-aria-components";
 import {
   altFromFileName,
@@ -179,9 +179,9 @@ function CardMarkdownTextArea({ ref, ...props }: TextFieldTextAreaProps) {
     void insertFiles(files, () => "");
   };
 
-  const handleInput = (event: FormEvent<HTMLTextAreaElement>) => {
+  const handleInput = (event: InputEvent<HTMLTextAreaElement>) => {
     // WHY: the paste's own input event shows the embed action; any later edit hides it.
-    const isPaste = (event.nativeEvent as InputEvent).inputType === "insertFromPaste";
+    const isPaste = event.nativeEvent.inputType === "insertFromPaste";
     setPastedUrl(isPaste ? pendingUrlRef.current : null);
     pendingUrlRef.current = null;
   };

@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
-import type { FormEvent } from "react";
+import type { InputEvent } from "react";
 import type { ComponentProps, PropsWithChildren, RefAttributes } from "react";
 import {
   Input,
@@ -146,7 +146,7 @@ function TextFieldTextArea({
   }, [adjustHeight, canAutoResize, shownValue]);
 
   const handleInput = useCallback(
-    (e: FormEvent<HTMLTextAreaElement>) => {
+    (e: InputEvent<HTMLTextAreaElement>) => {
       adjustHeight();
       onInput?.(e);
     },
