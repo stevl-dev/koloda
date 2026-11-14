@@ -355,7 +355,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Build the header-menu test state from shared fixtures
   Depends on: none
 
-- [ ] 12. Correct stale comments in assistant-react tests
+- [x] 12. Correct stale comments in assistant-react tests
   Goal (finding 13, finding 15): Delete the orphan WHY at `state/assistant-conversation-unread.test.ts:376-379`.
   Move the WHY at `runs/use-run-orchestration.test.ts:19-20` onto the retry-validation describe it explains.
   Reword the WHY at `libs/assistant-react/vitest.config.mjs:17-18` so it is true: files share a worker's module

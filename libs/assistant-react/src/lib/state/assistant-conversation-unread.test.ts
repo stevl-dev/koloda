@@ -372,8 +372,3 @@ describe("setCurrentConversationIdAtom mark-read side effect", () => {
     expect(unread.has("B")).toBe(false);
   });
 });
-
-// WHY: ASSISTANT-CONVERSATION-LIST.md (§Conversation List) — "The timestamp
-// is bumped only when a new run starts". Every other action (streaming
-// chunks, completions, cancellations, deck/mode/profile changes, etc.)
-// must NOT touch updatedAt.

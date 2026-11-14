@@ -16,9 +16,6 @@ import {
 } from "../state/conversation-store";
 import { useRunOrchestration } from "./use-run-orchestration";
 
-// WHY: `handleRetry` must validate before starting a stream so an invalid
-// retry (no prompt/profile/model) never reaches the engine.
-
 const CHAT_TOOLS = Object.keys(ASSISTANT_TOOL_SPECS);
 
 function makeConfig(overrides: Partial<AssistantConversationConfig> = {}): AssistantConversationConfig {
@@ -35,6 +32,8 @@ function makeConfig(overrides: Partial<AssistantConversationConfig> = {}): Assis
 
 type DispatchCommand = (command: AssistantCommand) => void | Promise<void>;
 
+// WHY: `handleRetry` must validate before starting a stream so an invalid
+// retry (no prompt/profile/model) never reaches the engine.
 describe("useRunOrchestration — handleRetry ordering", () => {
   let calls: Array<{ fn: string; args: unknown[] }>;
   let dispatchCommand: ReturnType<typeof vi.fn<DispatchCommand>>;

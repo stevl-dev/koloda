@@ -15,7 +15,8 @@ export default defineConfig({
   test: {
     pool: "threads",
     // WHY: These files share a worker module registry to skip per-file isolation cost.
-    // A file-level vi.mock leaks for the whole worker; no file here mocks a module a sibling imports for real.
+    // A file-level vi.mock leaks to every later file on the worker; mock a module a sibling imports for real in
+    // src/test-setup.ts, not in a test file.
     isolate: false,
     maxWorkers: 2,
     environment: "jsdom",
