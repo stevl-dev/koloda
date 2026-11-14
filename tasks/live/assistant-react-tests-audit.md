@@ -375,7 +375,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Drop class-name assertions from assistant-react tests
   Depends on: none
 
-- [ ] 14. Mount the chat integration tests through one helper
+- [x] 14. Mount the chat integration tests through one helper
   Goal (finding 12): In `ui/assistant-chat-integration.test.tsx`, add one module-level helper, after the shape of
   `makeRecoveryWrapper` (`:1275`), that builds the store and query client and returns the wrapper; and one helper
   that seeds a stored conversation row in the query cache. Replace every inline `TestWrapper` and stored-row literal

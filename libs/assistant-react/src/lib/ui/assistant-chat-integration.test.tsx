@@ -17,10 +17,10 @@ import {
   upsertConversationAtom,
   blockedConversationRestoreAtom,
 } from "../state/conversation-store";
-import type { ConversationReducerState } from "../state/conversation-types";
 import { initialConversationState } from "../state/conversation-types";
 import { getAssistantEngine } from "../runs/assistant-engine-instance";
 import { resetAssistantEngineForTests } from "../runs/assistant-persistence-host";
+import { makeConversation } from "../state/assistant-conversation.fixtures";
 import { AssistantConversationRecovery } from "./assistant-conversation-recovery";
 import {
   useAssistantAppShellHosts,
@@ -185,15 +185,6 @@ function buildQueries(): Queries {
   };
 }
 
-function makeConversation(id: string, overrides: Partial<ConversationReducerState> = {}): ConversationReducerState {
-  return {
-    ...initialConversationState,
-    id,
-    createdAt: new Date(1),
-    ...overrides,
-  };
-}
-
 function createMockAIRuntime(): AIRuntime {
   return {
     listModels: async () => wire.models,
@@ -271,6 +262,52 @@ function setupTestHarness(overrides: { profileId?: string; modelId?: string } = 
   wire.setConversationCalls = [];
 }
 
+function mountHarness(options: { queries?: Queries; deleteCalls?: string[] } = {}) {
+  setupTestHarness();
+  const store = createStore();
+  const queries = options.queries ?? buildQueries();
+  if (options.deleteCalls) {
+    queries.deleteConversationMutation = () => ({
+      mutationFn: async (data: { id: string }) => {
+        options.deleteCalls!.push(data.id);
+        return undefined;
+      },
+    });
+  }
+  store.set(queriesAtom, queries);
+  store.set(aiRuntimeAtom, createMockAIRuntime());
+  const queryClient = createTestQueryClient();
+
+  function TestWrapper({ children }: PropsWithChildren) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <JotaiProvider store={store}>{children}</JotaiProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  return { store, queryClient, TestWrapper };
+}
+
+function storedState(id: string, schemaVersion: unknown = CONVERSATION_SCHEMA_VERSION) {
+  return {
+    ...initialConversationState,
+    id,
+    createdAt: new Date(1).toISOString(),
+    schemaVersion,
+  };
+}
+
+function seedStoredRow(queryClient: QueryClient, id: string, state: Record<string, unknown> = storedState(id)) {
+  queryClient.setQueryData(queryKeys.conversations.detail(id), {
+    id,
+    title: null,
+    state,
+    createdAt: new Date(1).toISOString(),
+    updatedAt: null,
+  });
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   resetAssistantEngineForTests();
@@ -284,10 +321,7 @@ afterEach(() => {
 
 describe("assistant chat integration (per-conversation state)", () => {
   it("save host: dirtying A while viewing B schedules a save for A", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(
       upsertConversationAtom,
       makeConversation("A", {
@@ -316,39 +350,8 @@ describe("assistant chat integration (per-conversation state)", () => {
     );
     store.set(setCurrentConversationIdAtom, "B");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-    queryClient.setQueryData(queryKeys.conversations.detail("B"), {
-      id: "B",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "B",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
+    seedStoredRow(queryClient, "B");
 
     renderHook(() => useAssistantChatTestHarness({ conversationId: "B" }), {
       wrapper: TestWrapper,
@@ -374,34 +377,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("throttled save during a streaming run persists the run as streaming", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     // Keep the chat stream in flight so the run stays in "streaming"
     // status while the throttled save fires.
@@ -445,34 +425,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("pagehide then unmount during a streaming run interrupts runs and persists app_shutdown once", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     wire.chatStream.keepInFlight = true;
 
@@ -518,34 +475,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("persisted pagehide/pageshow keeps the assistant available for a new run", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     wire.chatStream.keepInFlight = true;
 
@@ -604,34 +538,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("switch-away from AI route keeps an in-flight run streaming", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     wire.chatStream.keepInFlight = true;
     const controllerRef: { current: RunController | null } = { current: null };
@@ -680,34 +591,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("pagehide after leaving AI route still persists app_shutdown", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     wire.chatStream.keepInFlight = true;
     const controllerRef: { current: RunController | null } = { current: null };
@@ -771,34 +659,11 @@ describe("assistant chat integration (per-conversation state)", () => {
   });
 
   it("controller.cancel aborts the in-flight run, marks it read, and leaves it canceled", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
     store.set(upsertConversationAtom, makeConversation("A"));
     store.set(setCurrentConversationIdAtom, "A");
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "A");
 
     wire.chatStream.keepInFlight = true;
 
@@ -840,41 +705,6 @@ describe("assistant chat integration (per-conversation state)", () => {
 });
 
 describe("assistant chat restore policy (blocked rows)", () => {
-  function makeBlockedRowState(id: string, schemaVersion: unknown) {
-    return {
-      ...initialConversationState,
-      id,
-      createdAt: new Date(1).toISOString(),
-      schemaVersion,
-    };
-  }
-
-  function makeRecoveryWrapper(options: { deleteCalls?: string[] }) {
-    const store = createStore();
-    const queries = buildQueries();
-    if (options.deleteCalls) {
-      queries.deleteConversationMutation = () => ({
-        mutationFn: async (data: { id: string }) => {
-          options.deleteCalls!.push(data.id);
-          return undefined;
-        },
-      });
-    }
-    store.set(queriesAtom, queries);
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    const queryClient = createTestQueryClient();
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    return { store, queryClient, TestWrapper };
-  }
-
   function RecoveryHarness({ conversationId, onDeleted }: { conversationId: string; onDeleted?: () => void }) {
     useAssistantAppShellHosts();
     useAssistantChatSessionHarness({ conversationId });
@@ -884,34 +714,10 @@ describe("assistant chat restore policy (blocked rows)", () => {
   }
 
   it("restore: a future-version row is blocked and never written on selection, touch, or autosave", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("ok"), {
-      id: "ok",
-      title: null,
-      state: makeBlockedRowState("ok", CONVERSATION_SCHEMA_VERSION),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-    queryClient.setQueryData(queryKeys.conversations.detail("future"), {
-      id: "future",
-      title: null,
-      state: makeBlockedRowState("future", CONVERSATION_SCHEMA_VERSION + 1),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "ok");
+    seedStoredRow(queryClient, "future", storedState("future", CONVERSATION_SCHEMA_VERSION + 1));
 
     const phases: Array<{ isRestoring: boolean; blocked: boolean; hasLive: boolean }> = [];
     const { rerender } = renderHook(
@@ -961,28 +767,10 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("restore: a corrupt row is blocked and preserved until an explicit recovery action", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
 
-    const queryClient = createTestQueryClient();
     // malformed-version row: the version cannot be determined, so it is corrupt.
-    queryClient.setQueryData(queryKeys.conversations.detail("corrupt"), {
-      id: "corrupt",
-      title: null,
-      state: makeBlockedRowState("corrupt", "2"),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    seedStoredRow(queryClient, "corrupt", storedState("corrupt", "2"));
 
     const phases: Array<{ isRestoring: boolean; blocked: boolean; hasLive: boolean }> = [];
     renderHook(
@@ -1019,16 +807,9 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("recovery reset: explicitly discards a corrupt row and starts a fresh conversation under the same id", async () => {
-    setupTestHarness();
     const deleteCalls: string[] = [];
-    const { store, queryClient, TestWrapper } = makeRecoveryWrapper({ deleteCalls });
-    queryClient.setQueryData(queryKeys.conversations.detail("corrupt"), {
-      id: "corrupt",
-      title: null,
-      state: makeBlockedRowState("corrupt", "2"),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
+    const { store, queryClient, TestWrapper } = mountHarness({ deleteCalls });
+    seedStoredRow(queryClient, "corrupt", storedState("corrupt", "2"));
 
     const view = render(
       <TestWrapper>
@@ -1067,16 +848,9 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("recovery reset: the fresh empty conversation is saved without new content", async () => {
-    setupTestHarness();
     const deleteCalls: string[] = [];
-    const { queryClient, TestWrapper } = makeRecoveryWrapper({ deleteCalls });
-    queryClient.setQueryData(queryKeys.conversations.detail("corrupt"), {
-      id: "corrupt",
-      title: null,
-      state: makeBlockedRowState("corrupt", "2"),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
+    const { queryClient, TestWrapper } = mountHarness({ deleteCalls });
+    seedStoredRow(queryClient, "corrupt", storedState("corrupt", "2"));
 
     const view = render(
       <TestWrapper>
@@ -1107,16 +881,9 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("recovery reset: the fresh conversation saves normally once content is added", async () => {
-    setupTestHarness();
     const deleteCalls: string[] = [];
-    const { store, queryClient, TestWrapper } = makeRecoveryWrapper({ deleteCalls });
-    queryClient.setQueryData(queryKeys.conversations.detail("corrupt"), {
-      id: "corrupt",
-      title: null,
-      state: makeBlockedRowState("corrupt", "2"),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
+    const { store, queryClient, TestWrapper } = mountHarness({ deleteCalls });
+    seedStoredRow(queryClient, "corrupt", storedState("corrupt", "2"));
 
     const controllerRef: { current: RunController | null } = { current: null };
 
@@ -1168,16 +935,9 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("recovery delete: explicitly removes the blocked row and notifies the route", async () => {
-    setupTestHarness();
     const deleteCalls: string[] = [];
-    const { store, queryClient, TestWrapper } = makeRecoveryWrapper({ deleteCalls });
-    queryClient.setQueryData(queryKeys.conversations.detail("corrupt"), {
-      id: "corrupt",
-      title: null,
-      state: makeBlockedRowState("corrupt", "2"),
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
+    const { store, queryClient, TestWrapper } = mountHarness({ deleteCalls });
+    seedStoredRow(queryClient, "corrupt", storedState("corrupt", "2"));
 
     const onDeleted = vi.fn();
     const view = render(
@@ -1207,49 +967,31 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("restore: an ok row is restored into the store and is not blocked", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
+    const { store, queryClient, TestWrapper } = mountHarness();
 
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("ok"), {
-      id: "ok",
-      title: null,
-      state: {
-        ...makeBlockedRowState("ok", CONVERSATION_SCHEMA_VERSION),
-        messages: [
-          {
-            id: "user-r1",
-            role: "user",
-            parts: [{ type: "text", text: "Hello from ok" }],
-            metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-          },
-        ],
-        runs: {
-          r1: {
-            id: "r1",
-            status: "success",
-            cards: [],
-            cardStatuses: {},
-            templateFields: null,
-            startedAt: new Date(1).toISOString(),
-            elapsedSeconds: 1,
-            toolCalls: [],
-          },
+    seedStoredRow(queryClient, "ok", {
+      ...storedState("ok"),
+      messages: [
+        {
+          id: "user-r1",
+          role: "user",
+          parts: [{ type: "text", text: "Hello from ok" }],
+          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
+        },
+      ],
+      runs: {
+        r1: {
+          id: "r1",
+          status: "success",
+          cards: [],
+          cardStatuses: {},
+          templateFields: null,
+          startedAt: new Date(1).toISOString(),
+          elapsedSeconds: 1,
+          toolCalls: [],
         },
       },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
     });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
 
     renderHook(() => useAssistantChatTestHarness({ conversationId: "ok" }), {
       wrapper: TestWrapper,
@@ -1267,26 +1009,13 @@ describe("assistant chat restore policy (blocked rows)", () => {
   });
 
   it("restore: a missing row creates fresh state and saves normally", async () => {
-    setupTestHarness();
-    const store = createStore();
     const queries = buildQueries();
     // A row that does not exist resolves to null — restore must create fresh state.
     queries.getConversationQuery = (id: string) => ({
       queryKey: queryKeys.conversations.detail(id),
       queryFn: async () => null,
     });
-    store.set(queriesAtom, queries);
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-
-    const queryClient = createTestQueryClient();
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
+    const { store, TestWrapper } = mountHarness({ queries });
 
     const controllerRef: { current: RunController | null } = { current: null };
 
