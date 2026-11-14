@@ -55,6 +55,8 @@ describe("createConversationPersistenceHost", () => {
     publish({ B: 1, A: 2 });
     publish({ B: 1, A: 3 });
     await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
+    // WHY: a bump that lands during a write re-dirties the queue, so three
+    // bumps may write A more than once; the count is not this test's claim.
     const afterA = writes.slice(1);
     expect(afterA).toContain("A");
     expect(afterA).not.toContain("B");
