@@ -355,7 +355,7 @@ async fn fork(harness: &Harness, device: &Enrolled, nonce: [u8; 16]) -> Enrolled
 }
 
 #[tokio::test]
-async fn a_fork_retried_with_its_nonce_and_token_returns_the_same_device() {
+async fn a_fork_retried_with_its_nonce_and_token_returns_the_same_device_and_another_token_is_refused() {
     let harness = Harness::new();
     let home = harness.create_space("Home").await;
     let nonce = [1; 16];
@@ -373,23 +373,6 @@ async fn a_fork_retried_with_its_nonce_and_token_returns_the_same_device() {
         .await
         .ok();
     assert_eq!(list.devices.len(), 3, "the creator and two forks");
-}
-
-#[tokio::test]
-async fn two_forks_with_one_nonce_and_token_return_one_device_and_another_token_changes_nothing() {
-    let harness = Harness::new();
-    let home = harness.create_space("Home").await;
-    let nonce = [7; 16];
-    let (first, second) = tokio::join!(fork(&harness, &home, nonce), fork(&harness, &home, nonce));
-
-    assert_eq!(first, second, "either order returns the one device");
-    let list = harness
-        .get(format!("/v1/spaces/{}/devices", uuid(home.space_id)))
-        .token(&token(&nonce))
-        .send::<DeviceList>()
-        .await
-        .ok();
-    assert_eq!(list.devices.len(), 2, "the creator and one fork");
 
     let refused = harness
         .post(format!("/v1/spaces/{}/devices/fork", uuid(home.space_id)))
@@ -407,7 +390,7 @@ async fn two_forks_with_one_nonce_and_token_return_one_device_and_another_token_
         .send::<DeviceList>()
         .await
         .ok();
-    assert_eq!(unchanged.devices.len(), 2, "the refused token wrote nothing");
+    assert_eq!(unchanged.devices.len(), 3, "the refused token wrote nothing");
 
     let malformed = harness
         .post(format!("/v1/spaces/{}/devices/fork", uuid(home.space_id)))

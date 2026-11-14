@@ -187,7 +187,7 @@ none
   Commit: Test the disk watermarks at their limits
   Depends on: none
 
-- [ ] 4. Fold the unforced concurrent fork test into the retry test
+- [x] 4. Fold the unforced concurrent fork test into the retry test
   Goal (finding 4): In `crates/koloda-server/tests/server/devices_tests.rs`, delete
   `two_forks_with_one_nonce_and_token_return_one_device_and_another_token_changes_nothing` (`:382`) and move its
   distinct checks into `a_fork_retried_with_its_nonce_and_token_returns_the_same_device` (`:358`):
