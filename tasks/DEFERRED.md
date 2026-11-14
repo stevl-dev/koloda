@@ -138,6 +138,15 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-audit-fixes.md`
   Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
 
+- Risk, Later: the fork fallback's success arm is untested.
+  Evidence: at `851b81c0`, `crates/koloda-server/src/devices.rs:152-154`: a fork that lost the unique index returns
+  the winner's device. It runs only when two forks with one nonce and token interleave between `same_fork` and
+  `insert_fork`, and no test forces that.
+  The refusal arm (another token for the nonce) runs in the fork retry test in `tests/server/devices_tests.rs`.
+  Kind: skipped
+  Source: `tasks/archive/sync-proto-server-tests-audit.md`, finding 4
+  Deferred because: forcing the race needs a seam in `fork_device`, which integration tests reach only by a feature.
+
 ## crates/koloda-sync
 
 - Risk, Later: a bootstrap under a bounded tick restarts each tick, so a snapshot past one tick's budget never ends.

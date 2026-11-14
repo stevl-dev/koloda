@@ -1,6 +1,6 @@
 # Sync proto and server tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, crates/koloda-server/README.md, crates/koloda-sync-proto/README.md, crates/koloda-sync-proto/PROTOCOL.md, agents/REVIEW.md
 Flow: local
 
@@ -226,8 +226,31 @@ none
 
 ## Outcome
 
-<what shipped>
+Every finding is fixed as its decision says; only test files changed, plus `tasks/DEFERRED.md`.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- Finding 1: the staged-upload test links its stored attachment from a card before `serve` starts.
+  A probe with a 1-second sleep before the directory read failed every run without the link and passed 3 of 3 with it.
+  The deferred entry for the flaky test is removed.
+- Finding 2: an `attachment_ids_in` row links A, B, A and expects `[B, A]`; deleting either the sort or the dedup in
+  `src/payload.rs` fails it. The `cards.create` sample and its golden fixture are unchanged.
+- Finding 3: the watermark test runs free space at 1,000 and 999 (soft) and 100 and 99 (reserve); turning either `<` in
+  `src/quota.rs` into `<=` fails it.
+- Finding 4: the concurrent fork test is folded into
+  `a_fork_retried_with_its_nonce_and_token_returns_the_same_device_and_another_token_is_refused`; no `join!` remains.
+- Finding 5: `every_sample_round_trips_through_a_sealed_envelope` is deleted.
+- Finding 6: `a_bad_batch_consumes_nothing` sends exactly `MAX_PUSH_ITEMS` items and expects `400`; `>=` at
+  `src/push.rs:236` fails it.
+
+`bun run check:push` passed on `851b81c0`, the last plan item.
+
+Skipped:
+
+- 4. Risk, Later: the fork fallback's success arm is untested.
+  At `851b81c0`, `crates/koloda-server/src/devices.rs:152-154`: when `insert_fork` loses the unique index, the second
+  `same_fork` finding the other request's row runs only under a real race.
+  Decision: skipped; forcing it needs a seam inside `fork_device` that an integration test cannot reach without a
+  feature flag. The refusal arm runs deterministically in the retry test. Added to `tasks/DEFERRED.md`.
+
+Spec: none — test-only change, no user-visible behavior
+Review: none
+Change rounds: 0
