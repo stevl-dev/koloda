@@ -75,7 +75,7 @@ fn header_parent_and_refs_come_from_the_payload() {
             template_id: Some(TEMPLATE_ID.to_string()),
             attachment_ids: vec![ATTACHMENT_B.to_string(), ATTACHMENT_A.to_string()],
         },
-        "attachment ids are sorted, whatever order the content links them in"
+        "the header carries the content's attachment links, sorted"
     );
 
     let content = Payload::CardContent(CardContent {
@@ -229,6 +229,10 @@ fn attachment_links_are_found_only_as_whole_lowercase_ids() {
         (format!("attachment:{}", id.to_uppercase()), vec![]),
         (
             format!("attachment:{ATTACHMENT_B} attachment:{id}"),
+            vec![ATTACHMENT_B, id],
+        ),
+        (
+            format!("attachment:{id} attachment:{ATTACHMENT_B} attachment:{id}"),
             vec![ATTACHMENT_B, id],
         ),
     ];

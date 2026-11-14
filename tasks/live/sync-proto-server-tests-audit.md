@@ -160,7 +160,7 @@ none
   (`sync-attachments`, 2026-10-06) had made `serve` collect at startup.
   Depends on: none
 
-- [ ] 2. Link attachments out of sorted order in a protocol test
+- [x] 2. Link attachments out of sorted order in a protocol test
   Goal (finding 2): In `crates/koloda-sync-proto/tests/protocol/payload_tests.rs`, add a row to the table in
   `attachment_links_are_found_only_as_whole_lowercase_ids` (`:218`) whose content links `ATTACHMENT_A`, then
   `ATTACHMENT_B`, then `ATTACHMENT_A` again (not adjacent), and expects `[ATTACHMENT_B, ATTACHMENT_A]`.
