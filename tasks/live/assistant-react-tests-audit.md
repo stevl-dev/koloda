@@ -386,7 +386,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Mount the chat integration tests through one helper
   Depends on: 1, 7
 
-- [ ] 15. Share the run fixtures in the restore tests
+- [x] 15. Share the run fixtures in the restore tests
   Goal (finding 12): In `persistence/conversation-restore.test.ts`, hoist `baseRun` and `makeStateWithRun` to module
   level once. The two variants (`:350`, `:442`) differ; keep one helper and pass the difference as overrides at the
   `:442` and `:954` describes. Delete the eight local copies.

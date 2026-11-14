@@ -12,6 +12,32 @@ import type { ConversationReducerState } from "../state/conversation-types";
 const { revertState: _revertState, ...persistedInitialState } = initialConversationState;
 const storedRow = { ...persistedInitialState, schemaVersion: CONVERSATION_SCHEMA_VERSION };
 
+function makeStateWithRun(run: Record<string, unknown>) {
+  return {
+    ...storedRow,
+    id: "conv-1",
+    createdAt: new Date(1),
+    messages: [],
+    runs: { r1: run },
+  };
+}
+
+function baseRun(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "r1",
+    status: "success",
+    cards: [],
+    cardStatuses: {},
+    templateFields: null,
+    startedAt: new Date(1),
+    elapsedSeconds: 1,
+    toolCalls: [],
+    ...overrides,
+  };
+}
+
+const proposalCards = { cards: [{ content: { "1": { text: "A" } } }], cardStatuses: { 0: "success" } };
+
 function testId(n: number): string {
   return `01900000-0000-7000-8000-${n.toString(16).padStart(12, "0")}`;
 }
@@ -350,30 +376,6 @@ describe("coerceConversationState", () => {
   });
 
   describe("run modelName coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     it.each<{ label: string; modelName?: unknown; shouldOmit: boolean; expected?: string }>([
       { label: "a string", modelName: "GPT-4", shouldOmit: false, expected: "GPT-4" },
       { label: "missing", shouldOmit: true },
@@ -393,30 +395,6 @@ describe("coerceConversationState", () => {
   });
 
   describe("run stopNote coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     // WHY: a streaming checkpoint holds the note between the chunk and completion.
     it.each(["success", "streaming"])("keeps the step-budget note on a %s run", (status) => {
       const restored = expectOk(makeStateWithRun(baseRun({ status, stopNote: "step_budget" })));
@@ -442,78 +420,30 @@ describe("coerceConversationState", () => {
   // (`Template["content"]["fields"]`), not a record. Validating it as a record
   // would fail every proposal run on restore. These pin array-or-null.
   describe("run templateFields coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [{ content: { "1": { text: "A" } } }],
-        cardStatuses: { 0: "success" },
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     it("accepts a TemplateFields array (a proposal run survives restore)", () => {
       const fields = [{ id: 1, title: "Front", type: "text", isRequired: true }];
-      const coerced = expectOk(makeStateWithRun(baseRun({ templateFields: fields })));
+      const coerced = expectOk(makeStateWithRun(baseRun({ ...proposalCards, templateFields: fields })));
       expect(coerced.runs["r1"].templateFields).toEqual(fields);
     });
 
     it("accepts null templateFields", () => {
-      const coerced = expectOk(makeStateWithRun(baseRun({ templateFields: null })));
+      const coerced = expectOk(makeStateWithRun(baseRun({ ...proposalCards, templateFields: null })));
       expect(coerced.runs["r1"].templateFields).toBeNull();
     });
 
     it("rejects a record-shaped templateFields as corrupt (not a TemplateFields array)", () => {
-      expect(corruptPaths(makeStateWithRun(baseRun({ templateFields: { "1": { text: "A" } } })))).toContain(
-        "runs.r1.templateFields",
-      );
+      expect(
+        corruptPaths(makeStateWithRun(baseRun({ ...proposalCards, templateFields: { "1": { text: "A" } } }))),
+      ).toContain("runs.r1.templateFields");
     });
 
     it("rejects a missing templateFields as corrupt (a bad field fails the whole row)", () => {
-      const { templateFields: _omit, ...withoutTemplateFields } = baseRun();
+      const { templateFields: _omit, ...withoutTemplateFields } = baseRun(proposalCards);
       expect(corruptPaths(makeStateWithRun(withoutTemplateFields))).toContain("runs.r1.templateFields");
     });
   });
 
   describe("run dataAccess residue", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     // WHY: older rows may still carry the retired submit-time snapshot. It is
     // never read, so even a malformed value must not block restore.
     it("restores a run whose stored row carries a malformed dataAccess value, dropping the key", () => {
@@ -524,30 +454,6 @@ describe("coerceConversationState", () => {
   });
 
   describe("run toolCalls coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     const timing = { startedAt: new Date("2026-07-01T12:00:00.000Z"), elapsedSeconds: 1 };
 
     const fullToolCalls = [
@@ -751,30 +657,6 @@ describe("coerceConversationState", () => {
   });
 
   describe("run write target id coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     const writeTargetFields = [
       {
         field: "writeTargetDeckId" as const,
@@ -861,30 +743,6 @@ describe("coerceConversationState", () => {
   });
 
   describe("schemaVersion and strict lifecycle validation", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [],
-        cardStatuses: {},
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     it("classifies a future schemaVersion row as unsupportedVersion with found and supported", () => {
       expect(
         coerceConversationState({
@@ -956,36 +814,10 @@ describe("coerceConversationState", () => {
   });
 
   describe("run cardStatuses coercion", () => {
-    function makeStateWithRun(run: Record<string, unknown>) {
-      return {
-        ...storedRow,
-        id: "conv-1",
-        createdAt: new Date(1),
-        messages: [],
-        runs: { r1: run },
-      };
-    }
-
-    function baseRun(overrides: Record<string, unknown> = {}) {
-      return {
-        id: "r1",
-        status: "success",
-        cards: [{ content: { "1": { text: "A" } } }],
-        cardStatuses: { 0: "success" },
-        templateFields: null,
-        startedAt: new Date(1),
-        elapsedSeconds: 1,
-        toolCalls: [],
-        ...overrides,
-      };
-    }
-
     it("accepts all valid CardStatus values", () => {
       const coerced = expectOk(
         makeStateWithRun(
-          baseRun({
-            cardStatuses: { 0: "idle", 1: "pending", 2: "success", 3: "error" },
-          }),
+          baseRun({ ...proposalCards, cardStatuses: { 0: "idle", 1: "pending", 2: "success", 3: "error" } }),
         ),
       );
       expect(coerced.runs["r1"].cardStatuses).toEqual({
@@ -1002,7 +834,7 @@ describe("coerceConversationState", () => {
       { label: "an object", value: {} },
       { label: "a boolean", value: true },
     ])("rejects $label card status as corrupt", ({ value }) => {
-      expect(corruptPaths(makeStateWithRun(baseRun({ cardStatuses: { 0: value } })))).toContain(
+      expect(corruptPaths(makeStateWithRun(baseRun({ ...proposalCards, cardStatuses: { 0: value } })))).toContain(
         "runs.r1.cardStatuses.0",
       );
     });
