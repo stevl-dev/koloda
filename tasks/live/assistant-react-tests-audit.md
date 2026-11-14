@@ -366,7 +366,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Correct stale comments in assistant-react tests
   Depends on: 8 (same orchestration file)
 
-- [ ] 13. Drop class-name assertions from assistant-react tests
+- [x] 13. Drop class-name assertions from assistant-react tests
   Goal (finding 14): Delete the `fg-level-4` checks at `ui/assistant-conversations-list.test.tsx:77`, `:79`; rename
   that test, which names a color, to the `data-has-turns` claim.
   Delete the `prose-chat` line at `ui/assistant-markdown.test.tsx:9` and the test at `:19-24`.

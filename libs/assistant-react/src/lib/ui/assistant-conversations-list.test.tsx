@@ -67,16 +67,14 @@ function renderList(list: ConversationListItem[], setup?: (store: ReturnType<typ
 }
 
 describe("AssistantConversationsList", () => {
-  it("dims draft titles and leaves turned conversation titles at the default color", async () => {
+  it("marks draft titles as having no turns and sent ones as having turns", async () => {
     renderList(items());
 
     const draft = await screen.findByText("soon");
     const sent = screen.getByText("hello");
 
     expect(draft.getAttribute("data-has-turns")).toBe("false");
-    expect(draft.className).toContain("fg-level-4");
     expect(sent.getAttribute("data-has-turns")).toBe("true");
-    expect(sent.className).not.toContain("fg-level-4");
   });
 
   it("names the working marker for assistive technology", async () => {
