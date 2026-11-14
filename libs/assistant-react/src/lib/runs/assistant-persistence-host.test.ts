@@ -38,20 +38,6 @@ describe("registerAssistantPersistenceWriteAdapter", () => {
     expect(isAssistantPersistenceWriteAdapterReady()).toBe(false);
   });
 
-  it("abandoned render token cannot clear a later committed registration", () => {
-    const adapterA = { writeConversation: async () => {} };
-    const adapterB = { writeConversation: async () => {} };
-
-    const unregisterAbandoned = registerAssistantPersistenceWriteAdapter(adapterA);
-    const unregisterCommitted = registerAssistantPersistenceWriteAdapter(adapterB);
-
-    unregisterAbandoned();
-    expect(isAssistantPersistenceWriteAdapterReady()).toBe(true);
-
-    unregisterCommitted();
-    expect(isAssistantPersistenceWriteAdapterReady()).toBe(false);
-  });
-
   it("a write attempted before the adapter registers stays dirty and lands on retry after registration", async () => {
     const store = createStore();
     const writes: string[] = [];

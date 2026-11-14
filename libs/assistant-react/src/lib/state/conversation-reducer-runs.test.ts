@@ -821,6 +821,8 @@ describe("conversationReducer", () => {
       let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
       state = withProposeCall(state, "call-1", proposeOutput);
       state = conversationReducer(state, ["runFailed", { runId: "r1", error: { message: "boom" } }]);
+      expect(state.runs["r1"].writeTargetDeckId).toBe(testId(5));
+      expect(state.runs["r1"].toolCalls).toHaveLength(1);
 
       vi.setSystemTime(10_000);
       state = conversationReducer(state, ["restartRun", { runId: "r1" }]);
@@ -829,6 +831,10 @@ describe("conversationReducer", () => {
       expect(state.runs["r1"].reason).toBeUndefined();
       expect(state.runs["r1"].cards).toEqual([]);
       expect(state.runs["r1"].cardStatuses).toEqual({});
+      // WHY: retry re-executes fresh — stale tool traffic must not survive the restart.
+      expect(state.runs["r1"].toolCalls).toEqual([]);
+      expect(state.runs["r1"].writeTargetDeckId).toBeUndefined();
+      expect(state.runs["r1"].writeTargetTemplateId).toBeUndefined();
       expect(state.runs["r1"].templateFields).toBeNull();
       expect(state.runs["r1"].startedAt).toEqual(new Date(10_000));
       expect(state.runs["r1"].elapsedSeconds).toBeNull();
@@ -871,43 +877,6 @@ describe("conversationReducer", () => {
       expect(state.runs["r1"].startedAt).toEqual(before.runs["r1"].startedAt);
       expect(state.runs["r1"].templateFields).toEqual(before.runs["r1"].templateFields);
       expect(state.messages[1]?.parts).toEqual([{ type: "text", text: "partial" }]);
-    });
-
-    it("clears cards, toolCalls, and write targets on restart", () => {
-      const proposeOutput = {
-        deckId: testId(5),
-        deckTitle: "Spanish verbs",
-        templateId: testId(1),
-        templateFields: [
-          { id: testId(10), title: "Front", type: "text", isRequired: true },
-          { id: testId(11), title: "Back", type: "text", isRequired: true },
-        ],
-        cards: [{ fields: { Front: "hola", Back: "hello" } }],
-        rejectedCount: 0,
-      };
-      let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
-      state = conversationReducer(state, [
-        "addToolCall",
-        { runId: "r1", call: { id: "call-1", name: "propose_cards", input: { deckId: testId(5), cards: [] } } },
-      ]);
-      state = conversationReducer(state, [
-        "setToolCallResult",
-        { runId: "r1", callId: "call-1", output: proposeOutput },
-      ]);
-      state = conversationReducer(state, ["runFailed", { runId: "r1", error: { message: "boom" } }]);
-
-      expect(state.runs["r1"].writeTargetDeckId).toBe(testId(5));
-      expect(state.runs["r1"].writeTargetTemplateId).toBe(testId(1));
-      expect(state.runs["r1"].cards).toHaveLength(1);
-
-      state = conversationReducer(state, ["restartRun", { runId: "r1" }]);
-
-      expect(state.runs["r1"].cards).toEqual([]);
-      expect(state.runs["r1"].cardStatuses).toEqual({});
-      // WHY: retry re-executes fresh — stale tool traffic must not survive the restart.
-      expect(state.runs["r1"].toolCalls).toEqual([]);
-      expect(state.runs["r1"].writeTargetDeckId).toBeUndefined();
-      expect(state.runs["r1"].writeTargetTemplateId).toBeUndefined();
     });
 
     it("clears termination reason when restarting a canceled or interrupted run", () => {

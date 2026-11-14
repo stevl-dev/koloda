@@ -35,7 +35,6 @@ describe("conversationReducer", () => {
         status: "streaming",
         modelName: "GPT-x",
       });
-      expect(state.promptInput).toBe("");
     });
 
     it("clears promptInput on submit", () => {

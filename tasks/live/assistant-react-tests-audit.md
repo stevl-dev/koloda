@@ -156,7 +156,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   - `runs/assistant-persistence-host.test.ts:41-53` is a subset of `:25-39`.
   - `persistence/conversation-write-adapter.test.ts:122-146` repeats the `updatedAt` assertion at `:64`.
   - `state/assistant-messages.test.ts:30-43` repeats `:16-24`, plus one null case; keep the null case as a line in
-    `:16`.
+    `:16`. At implementation the assistant-metadata read moved into `:16` too, since `:16` reads only user metadata.
   - `ui/use-assistant-message-renderer.test.tsx:470-487` checks callback identity; `:489` covers the same guarantee by
     counting renders.
 
@@ -314,7 +314,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Delete rules tested a third time in the chat integration suite
   Depends on: 1, 6 (same file)
 
-- [ ] 8. Delete duplicate assistant-react tests
+- [x] 8. Delete duplicate assistant-react tests
   Goal (finding 9): Delete or merge each duplicate the finding lists: `state/conversation-reducer-revert.test.ts:121-207`;
   the line at `state/conversation-reducer-messages.test.ts:38`; merge `state/conversation-reducer-runs.test.ts:876-911`
   into `:817`; `runs/use-run-orchestration.test.ts:320-349`, `:397-410`, `:185-205`;

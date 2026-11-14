@@ -119,32 +119,6 @@ describe("buildWriteConversation", () => {
     expect(setConversationFn.mock.calls[0]![0].title).toBe("first turn");
   });
 
-  it("passes through the state's updatedAt instead of stamping a new one", async () => {
-    const store = createStore();
-    const createdAt = new Date(1);
-    store.set(
-      upsertConversationAtom,
-      makeConversation("draft-1", {
-        createdAt,
-        updatedAt: createdAt,
-        messages: [],
-        promptInput: "hello",
-      }),
-    );
-    const setConversationFn = vi.fn(async (data: SetConversationData) => makeRow(data));
-    const write = buildWriteConversation({
-      store,
-      setConversationFn,
-      setSaveStatus: vi.fn(),
-      setQueryConversation: vi.fn(),
-      updateConversationsList: vi.fn(),
-      isTombstoned: () => false,
-    });
-
-    await write("draft-1");
-    expect(setConversationFn.mock.calls[0]![0].updatedAt?.getTime()).toBe(createdAt.getTime());
-  });
-
   it("skips a tombstoned id without writing", async () => {
     const store = createStore();
     store.set(upsertConversationAtom, makeConversation("draft-1", { promptInput: "hello" }));

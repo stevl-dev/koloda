@@ -13,33 +13,21 @@ import {
 } from "./assistant-messages";
 
 describe("message metadata readers and card serialization", () => {
-  it("reads createdAt and runId from user message metadata", () => {
+  it("reads createdAt and runId from message metadata", () => {
     const message = createTextMessage("user-1", "user", "Hello", {
       createdAt: "2026-07-18T11:00:00.000Z",
       runId: "1",
     });
+    const assistant = createTextMessage("assistant-1", "assistant", "Hi", { kind: "chat-text", runId: "1" });
 
     expect(getUserMessageCreatedAt(message)?.toISOString()).toBe("2026-07-18T11:00:00.000Z");
     expect(getMessageRunId(message)).toBe("1");
+    expect(getMessageRunId(assistant)).toBe("1");
+    expect(getMessageRunId(createTextMessage("user-2", "user", "Hello"))).toBeNull();
   });
 
   it("returns null createdAt when user metadata omits it", () => {
     expect(getUserMessageCreatedAt(createTextMessage("user-2", "user", "Hello"))).toBeNull();
-  });
-
-  it("reads runId from user and assistant message metadata", () => {
-    const user = createTextMessage("user-r1", "user", "Hi", {
-      createdAt: "2026-07-18T11:00:00.000Z",
-      runId: "r1",
-    });
-    const assistant = createTextMessage("assistant-r1", "assistant", "Hello", {
-      kind: "chat-text",
-      runId: "r1",
-    });
-
-    expect(getMessageRunId(user)).toBe("r1");
-    expect(getMessageRunId(assistant)).toBe("r1");
-    expect(getMessageRunId(createTextMessage("user-r1", "user", "Hi"))).toBeNull();
   });
 
   it("serializes generated cards in template field order", () => {

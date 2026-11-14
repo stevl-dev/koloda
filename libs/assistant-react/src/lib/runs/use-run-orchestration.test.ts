@@ -181,28 +181,6 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     // it so the provider sees the prompt exactly once, not [user, user].
     expect(command.input.request.messages).toEqual([{ role: "user", content: "hello" }]);
   });
-
-  it("retry keeps prior turns and appends the retried prompt once", async () => {
-    seedConversation("conv-1");
-    dispatch(["submitTurn", { runId: "run-0", text: "prior", kind: "chat-text", assistantText: "ok" }]);
-    dispatch(["completeRun", { runId: "run-0" }]);
-    addChatRun("run-1");
-    dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
-    const cfg = makeConfig();
-
-    const { result } = orchestrate(cfg);
-    await act(async () => {
-      await result.current.handleRetry("run-1");
-    });
-
-    expect(dispatchCommand).toHaveBeenCalledTimes(1);
-    const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "retry" }>;
-    expect(command.input.request.messages).toEqual([
-      { role: "user", content: "prior" },
-      { role: "assistant", content: "ok" },
-      { role: "user", content: "hello" },
-    ]);
-  });
 });
 
 describe("useRunOrchestration — atomic submitTurn", () => {
@@ -281,74 +259,6 @@ describe("useRunOrchestration — atomic submitTurn", () => {
   });
 });
 
-describe("useRunOrchestration — always-chat submit", () => {
-  let store: ReturnType<typeof createStore>;
-  let dispatch: (action: ConversationReducerAction) => void;
-  let readState: () => ConversationReducerState;
-  let dispatchCommand: ReturnType<typeof vi.fn<DispatchCommand>>;
-
-  beforeEach(() => {
-    store = createStore();
-    dispatch = (action) => store.set(assistantConversationStateAtom, action);
-    readState = () => store.get(assistantConversationStateAtom);
-    dispatchCommand = vi.fn<DispatchCommand>(() => Promise.resolve());
-  });
-
-  function seedConversation(id: string) {
-    store.set(upsertConversationAtom, {
-      ...initialConversationState,
-      id,
-      createdAt: new Date(1),
-    });
-    store.set(currentConversationIdAtom, id);
-  }
-
-  function orchestrate(cfg: AssistantConversationConfig) {
-    return renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
-  }
-
-  it("submit passes chat tools and does not store a data-access snapshot", async () => {
-    seedConversation("conv-1");
-
-    const { result } = orchestrate(makeConfig());
-    await act(async () => {
-      await result.current.handleGenerate("hello");
-    });
-
-    expect(dispatchCommand).toHaveBeenCalledTimes(1);
-    const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "submit" }>;
-    expect(command.input.kind).toBe("chat");
-    if (command.input.kind !== "chat") throw new Error("expected chat submit");
-    expect(command.input.request.tools).toEqual(CHAT_TOOLS);
-    expect(command.input.request).not.toHaveProperty("dataContext");
-  });
-
-  it("submit is chat+tools without a conversation deck", async () => {
-    seedConversation("conv-1");
-
-    const { result } = orchestrate(makeConfig());
-    await act(async () => {
-      await result.current.handleGenerate("make cards");
-    });
-
-    expect(dispatchCommand).toHaveBeenCalledTimes(1);
-    const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "submit" }>;
-    expect(command.input.kind).toBe("chat");
-    expect(command.input.request).toMatchObject({ tools: CHAT_TOOLS });
-    expect(command.input.request).not.toHaveProperty("dataContext");
-  });
-});
-
 describe("useRunOrchestration — retry always chat", () => {
   let store: ReturnType<typeof createStore>;
   let dispatch: (action: ConversationReducerAction) => void;
@@ -389,25 +299,6 @@ describe("useRunOrchestration — retry always chat", () => {
       }),
     );
   }
-
-  function retryCommand(index = 0): Extract<AssistantCommand, { type: "retry" }> {
-    return dispatchCommand.mock.calls[index]![0] as Extract<AssistantCommand, { type: "retry" }>;
-  }
-
-  it("chat retry still sends tools", async () => {
-    seedConversation("conv-1");
-    addFailedChatRun("run-1");
-
-    const { result } = orchestrate();
-    await act(async () => {
-      await result.current.handleRetry("run-1");
-    });
-
-    expect(dispatchCommand).toHaveBeenCalledTimes(1);
-    const command = retryCommand();
-    expect(command.input.request).not.toHaveProperty("dataContext");
-    expect(command.input.request).toMatchObject({ tools: CHAT_TOOLS });
-  });
 
   it("retrying a run that is not the visible tail is a no-op", async () => {
     seedConversation("conv-1");

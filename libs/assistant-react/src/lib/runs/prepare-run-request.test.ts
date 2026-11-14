@@ -155,16 +155,6 @@ describe("prepareRunRequest — retry history", () => {
   });
 });
 
-describe("prepareRunRequest — data access", () => {
-  it("chat requests carry tool names and do not embed a snapshot", () => {
-    const prepared = prepareRunRequest(makeConfig(), "hello", [], {});
-
-    expect(prepared).not.toBeNull();
-    expect(prepared!.request.tools).toEqual(CHAT_TOOLS);
-    expect(prepared!.request).not.toHaveProperty("dataContext");
-  });
-});
-
 describe("toSubmitCommand / toRetryCommand", () => {
   it("builds a submit command for chat", () => {
     const prepared = prepareRunRequest(makeConfig(), "hello", [], {});
