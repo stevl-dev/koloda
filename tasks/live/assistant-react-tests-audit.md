@@ -265,7 +265,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Assert the issue path in every corrupt restore case
   Depends on: none
 
-- [ ] 4. Pin setRevertState in the updatedAt table
+- [x] 4. Pin setRevertState in the updatedAt table
   Goal (finding 4, finding 13 first bullet): In `state/assistant-conversation-store.test.ts`, add a `setRevertState`
   row to `negativeCases` (`:511`): `["setRevertState", { revertedToUserMessageId: "user-r1", preRevertInputText: "" }]`.
   Delete the "updatedAt isolation" describe (`state/assistant-conversation-revert-atoms.test.ts:31` to the end of

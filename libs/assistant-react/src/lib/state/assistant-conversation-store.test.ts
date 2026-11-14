@@ -527,6 +527,10 @@ describe("updatedAt stamping (only on run start)", () => {
     { label: "setAIProfile", action: ["setAIProfile", { profileId: "p1", modelId: "m1" }] },
     { label: "setPromptInput", action: ["setPromptInput", "draft"] },
     {
+      label: "setRevertState",
+      action: ["setRevertState", { revertedToUserMessageId: "user-r1", preRevertInputText: "draft" }],
+    },
+    {
       label: "commitRevert",
       action: ["commitRevert"],
       buildOverrides: {
@@ -626,6 +630,3 @@ describe("assistantConversationCanCloneAtom", () => {
     expect(store.get(assistantConversationCanCloneAtom("A"))).toBe(expected);
   });
 });
-
-// WHY: Revert is in-memory only (ASSISTANT-CONVERSATIONS.md
-// §Revert). It must not bump `updatedAt` and must not be persisted.

@@ -1,5 +1,5 @@
 import { createStore } from "jotai";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   assistantConversationStateAtom,
   setCurrentConversationIdAtom,
@@ -22,84 +22,6 @@ describe("revert state in-memory lifecycle", () => {
       elapsedSeconds: 1,
     };
   }
-
-  // WHY: House pattern (use-assistant-engine-host.test.ts) — fake timers scoped
-  // to a describe so only the updatedAt-isolation test runs on a controlled
-  // clock; sibling tests keep real time. Only Date is faked: the test is fully
-  // synchronous, so a narrow fake surface cannot interfere with jotai internals
-  // or promise scheduling.
-  describe("updatedAt isolation", () => {
-    const CLOCK_STEP_MS = 1000;
-
-    beforeEach(() => {
-      vi.useFakeTimers({ toFake: ["Date"] });
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it("setRevertState does not bump updatedAt and is not persisted", () => {
-      const store = createStore();
-      const messages = [
-        {
-          id: "user-r1",
-          role: "user" as const,
-          parts: [{ type: "text" as const, text: "Hi" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant" as const,
-          metadata: { kind: "chat-text" as const, runId: "r1" },
-          parts: [{ type: "text" as const, text: "Hello" }],
-        },
-        {
-          id: "user-r2",
-          role: "user" as const,
-          parts: [{ type: "text" as const, text: "Bye" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r2" },
-        },
-        {
-          id: "assistant-r2",
-          role: "assistant" as const,
-          metadata: { kind: "chat-text" as const, runId: "r2" },
-          parts: [{ type: "text" as const, text: "Bye!" }],
-        },
-      ];
-      store.set(
-        upsertConversationAtom,
-        makeConversation("A", { messages, runs: { r1: chatRun("r1"), r2: chatRun("r2") } }),
-      );
-      store.set(setCurrentConversationIdAtom, "A");
-
-      const before = store.get(assistantConversationStateAtom);
-      expect(before.revertState).toBeNull();
-
-      // WHY: updatedAt starts as null on a freshly upserted conversation.
-      // We still want to confirm that a setRevertState dispatch does not
-      // stamp it with a fresh date, so we make a run-starting dispatch
-      // first to seed a value, then verify revert leaves it alone.
-      dispatchTo(store, "A", ["submitTurn", { runId: "r99", text: "hello", kind: "chat-text", assistantText: "" }]);
-      const seeded = store.get(assistantConversationStateAtom);
-      expect(seeded.updatedAt).not.toBeNull();
-      const seededAt = seeded.updatedAt!.getTime();
-
-      // WHY: The fake clock is frozen between steps, so one fixed-step advance
-      // proves "now" moved measurably past the seed without a busy-wait — making
-      // the unchanged-updatedAt assertion below exactly deterministic.
-      vi.advanceTimersByTime(CLOCK_STEP_MS);
-
-      dispatchTo(store, "A", ["setRevertState", { revertedToUserMessageId: "user-r2", preRevertInputText: "draft" }]);
-
-      const after = store.get(assistantConversationStateAtom);
-      expect(after.revertState).toEqual({
-        revertedToUserMessageId: "user-r2",
-        preRevertInputText: "draft",
-      });
-      expect(after.updatedAt!.getTime()).toBe(seededAt);
-    });
-  });
 
   // WHY: getVisibleMessages is owned by conversation-reducer-messages.test.ts;
   // this case pins that the selector applies the revert filter to the open conversation.
