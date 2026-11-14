@@ -62,6 +62,10 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   - No test in engine suite `conversation-persistence-host.test.ts` is named for per-id isolation.
     The host keeps one save queue per id fed by the pending-save map (`subscribePendingSaves`), so it is the lowest
     layer that sees the rule (`agents/TESTING.md` §One home per behavior).
+  - Corrected at implementation: item 1's Goal starts the pending map empty and asserts `writes` is `["A"]`.
+    B's queue would then not exist while A is bumped, so the probe could not fail; the test saves B first.
+    It asserts that the writes after A's bumps name A and never B, not their count: a bump that lands during a write
+    re-dirties the queue, so three bumps write A twice.
 
 - 2. Risk, Should-fix: "rejects durable writes until the adapter is ready" does not observe the rejection it names.
   Decision: fixed by item 2 by renaming and dropping the vacuous assertion (corrected at triage).
@@ -227,6 +231,11 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
 
 - [x] Finding 12: fix the repeated setup here or defer it? — fix it here (items 14–17).
 - [x] Finding 15: replace the mocks or only correct the comment? — only correct the comment; the mocks stay deferred.
+- [x] Finding 3: eight tool-call cases (`persistence/conversation-restore.test.ts`, "rejects a malformed toolCalls
+  value as corrupt" and "rejects a missing or malformed activity timer as corrupt") assert `runs.r1.toolCalls.0`,
+  not the corrupted field. Accept that, or defer it? — accept it. The activity schema is a union of the reasoning and
+  tool-call shapes, so the issue is reported at the element; a field path would need a non-test source change, which
+  Scope excludes.
 
 ## Plan
 
