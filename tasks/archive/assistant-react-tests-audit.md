@@ -1,6 +1,6 @@
 # Assistant React tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/ASSISTANT-MAP.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -427,6 +427,23 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
 
 ## Outcome
 
+Findings 1–14 are fixed by items 1–17; finding 15 is skipped, as triage decided.
+
+- Test-only: 26 files, 904 lines added and 2,540 deleted, in `libs/assistant-react` and the engine suite.
+- The engine suite now owns per-conversation save isolation (`conversation-persistence-host.test.ts`) and the usage
+  emit and abort re-emit (`conversation-runtime.test.ts`); their `libs/assistant-react` doubles are gone.
+- Every corrupt restore case asserts its issue path; eight tool-call cases assert the element path
+  `runs.r1.toolCalls.0` (Open questions, finding 3).
+- Duplicate, dead-field, literal-mirror, and class-name tests are deleted; the repeated setup the audit listed uses
+  shared helpers and fixtures.
+- The WHY in `libs/assistant-react/vitest.config.mjs` now says a file-level `vi.mock` leaks to later files.
+- Self-review found two Blocking findings, both fixed: the restart test merged by item 8 dropped two of its
+  preconditions, and the save-isolation test lacked a WHY for not counting writes.
+- No e2e case changed, so no suite run is recorded.
+
+Deferred: finding 15, the three file-level mocks, stays in `tasks/DEFERRED.md` under `libs/assistant-react`;
+the Archive commit updates that entry's Evidence.
+
 Spec: none — test-only change, no user-visible behavior
-Review: not run
+Review: blocking 2 (TESTING §Delete when, CODE-DOCUMENTATION §What TO Document)
 Change rounds: 0

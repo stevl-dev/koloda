@@ -260,9 +260,12 @@ Entries are grouped under one heading per package directory.
   `@koloda/ai-react`.
   `agents/TESTING.md` (§Runner constraints) calls such a mock a bug when a sibling imports the package for real.
   The suite passed with `--maxWorkers=1 --sequence.shuffle.files`, seeds 1–8.
+  At `abca5a8a` the three mocks are unchanged, and the WHY at `libs/assistant-react/vitest.config.mjs:17-19` says
+  such a mock leaks to later files and belongs in `src/test-setup.ts`.
   Kind: handoff
   Source: `tasks/archive/assistant-conversation-list-audit.md`
-  Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape.
+  Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape;
+  `assistant-react-tests-audit` (finding 15) left the mocks in place by the human's choice.
 
 ## libs/db-sqlite
 
