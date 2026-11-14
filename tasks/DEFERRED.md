@@ -138,15 +138,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-audit-fixes.md`
   Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
 
-- Handoff: `serve_removes_staged_uploads_before_it_listens` failed once in a full `check:push` run.
-  Evidence: at `1c0661bb`, `crates/koloda-server/tests/server/attachments_tests.rs:553`.
-  It failed once during `templates-audit` and once during `typecheck-tests`, and passed on re-run and alone.
-  During `mobile-spike` it failed in 4 full `check:push` runs on 2026-11-13, each passing on re-run.
-  The test drops the upload's result (`put(...).await.ok()`), so an upload that fails under load goes unnoticed.
-  Kind: handoff
-  Source: `tasks/archive/templates-audit.md`
-  Deferred because: seen, not fixed; neither task touched the test.
-
 ## crates/koloda-sync
 
 - Risk, Later: a bootstrap under a bounded tick restarts each tick, so a snapshot past one tick's budget never ends.

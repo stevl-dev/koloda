@@ -557,6 +557,10 @@ async fn serve_removes_staged_uploads_before_it_listens() {
     let harness = Harness::new();
     let home = harness.create_space("Home").await;
     let (stored, stored_body) = image(30, 10);
+    // WHY: `serve` collects as it starts, on the system clock, and the harness uploads in 2024.
+    // Unlinked, the stored file is past 90 days and may be collected before the directory is read.
+    push_parents(&harness, &home).await;
+    push_one(&harness, &home, 3, card(&[&stored])).await;
     put(&harness, &home, &stored, &stored_body).await.ok();
     // A kill mid-upload leaves the staged bytes beside the stored ones.
     let dir = harness.generation_dir().join("attachments").join(uuid(home.space_id));

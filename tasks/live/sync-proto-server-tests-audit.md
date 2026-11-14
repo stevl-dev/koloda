@@ -141,7 +141,7 @@ none
 
 ## Plan
 
-- [ ] 1. Link the stored attachment before `serve` starts in the staged-upload test
+- [x] 1. Link the stored attachment before `serve` starts in the staged-upload test
   Goal (finding 1): In `crates/koloda-server/tests/server/attachments_tests.rs`,
   `serve_removes_staged_uploads_before_it_listens` (`:551`), link `stored` from a card before spawning `serve`,
   the way `a_linked_attachment_is_kept_at_any_age` (`:412`) does: `push_parents(&harness, &home)` then
