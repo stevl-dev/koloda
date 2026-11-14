@@ -1,6 +1,6 @@
 # Sync proto and server tests audit fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, crates/koloda-server/README.md, crates/koloda-sync-proto/README.md, crates/koloda-sync-proto/PROTOCOL.md, agents/REVIEW.md
 Flow: local
 
