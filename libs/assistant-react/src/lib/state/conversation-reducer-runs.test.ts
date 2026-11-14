@@ -795,6 +795,8 @@ describe("conversationReducer", () => {
       state = withProposeCall(state, "call-1", proposeOutput);
       state = conversationReducer(state, ["runFailed", { runId: "r1", error: { message: "boom" } }]);
       expect(state.runs["r1"].writeTargetDeckId).toBe(testId(5));
+      expect(state.runs["r1"].writeTargetTemplateId).toBe(testId(1));
+      expect(state.runs["r1"].cards).toHaveLength(1);
       expect(state.runs["r1"].toolCalls).toHaveLength(1);
 
       vi.setSystemTime(10_000);
