@@ -218,6 +218,86 @@ describe("createConversationRuntime chat tool events", () => {
     });
   });
 
+  it("emits the transport-reported usage after the text on success", async () => {
+    const events: AssistantEvent[] = [];
+    const usage = { promptTokens: 10, completionTokens: 5, totalTokens: 15 };
+    const executionPort: AssistantExecutionPort = {
+      executeChat: async (_input, onChunk) => {
+        onChunk({ kind: "text", text: "hi" });
+        return usage;
+      },
+    };
+
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => events.push(event),
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      createRunControllerRegistry(),
+    );
+
+    await runtime.executeChatRun("run-usage", {} as ChatStreamRequest, TEST_EXECUTION);
+
+    expect(events).toEqual([
+      { type: "runChunk", conversationId: "conv-a", runId: "run-usage", chunk: { kind: "assistantText", text: "hi" } },
+      { type: "runChunk", conversationId: "conv-a", runId: "run-usage", chunk: { kind: "usage", usage } },
+      { type: "runTerminated", conversationId: "conv-a", runId: "run-usage", outcome: { status: "success" } },
+    ]);
+  });
+
+  it("re-emits the accumulated text once more when the run is aborted", async () => {
+    const events: AssistantEvent[] = [];
+    const registry = createRunControllerRegistry();
+    const executionPort: AssistantExecutionPort = {
+      executeChat: async (_input, onChunk) => {
+        onChunk({ kind: "text", text: "partial " });
+        onChunk({ kind: "text", text: "text" });
+        registry.cancel("run-abort", "user");
+        throw new DOMException("Aborted", "AbortError");
+      },
+    };
+
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => events.push(event),
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      registry,
+    );
+
+    await runtime.executeChatRun("run-abort", {} as ChatStreamRequest, TEST_EXECUTION);
+
+    // WHY: the third text event is the abort re-emit; the order pins it
+    // between the last chunk and the termination.
+    const text = (value: string) => ({
+      type: "runChunk",
+      conversationId: "conv-a",
+      runId: "run-abort",
+      chunk: { kind: "assistantText", text: value },
+    });
+    expect(events).toEqual([
+      text("partial "),
+      text("partial text"),
+      text("partial text"),
+      {
+        type: "runTerminated",
+        conversationId: "conv-a",
+        runId: "run-abort",
+        outcome: { status: "canceled", reason: "user" },
+      },
+    ]);
+  });
+
   it("stores generate failures as a catalog code plus technical details", async () => {
     const events: AssistantEvent[] = [];
     const executionPort: AssistantExecutionPort = {

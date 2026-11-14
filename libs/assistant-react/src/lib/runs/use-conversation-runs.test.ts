@@ -1,4 +1,4 @@
-import type { ChatStreamRequest, createAIGenerationClient, StreamUsage } from "@koloda/ai";
+import type { ChatStreamRequest, createAIGenerationClient } from "@koloda/ai";
 import { aiRuntimeAtom } from "@koloda/core-react";
 import { act, renderHook } from "@testing-library/react";
 import { createStore } from "jotai";
@@ -279,82 +279,6 @@ describe("useConversationRuns", () => {
     expect(pending["A"] ?? 0).toBeGreaterThan(0);
     expect(pending["B"] ?? 0).toBe(0);
     expect(harness.touch).toHaveBeenCalledWith("A");
-  });
-
-  it("an aborted chat run re-dispatches the final accumulated text via finalize (A)", async () => {
-    // WHY: the chat finalize hook must re-dispatch `updateAssistantText`
-    // with the full accumulated text on abort so the persisted assistant
-    // message reflects everything received before the stream was torn
-    // down.
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-    harness.store.set(setCurrentConversationIdAtom, "A");
-    harness.store.set(assistantConversationStateAtom, [
-      "submitTurn",
-      { runId: "run-A", text: "hello", kind: "chat-text", assistantText: "" },
-    ]);
-
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk, signal) => {
-      onChunk({ kind: "text", text: "partial " });
-      onChunk({ kind: "text", text: "text" });
-      await holdUntilAborted(signal);
-      return undefined;
-    });
-
-    const { result } = renderRuns(harness);
-
-    const runPromise = act(async () => {
-      await result.current.executeChatRun("A", "run-A", {} as ChatStreamRequest);
-    });
-    await act(async () => {
-      await Promise.resolve();
-    });
-    await act(async () => {
-      result.current.cancel("A", "run-A");
-    });
-    await runPromise;
-
-    const textActions = harness.dispatchToMap
-      .filter((e) => e.action[0] === "updateAssistantText")
-      .map((e) => e.action[1] as { runId: string; text: string });
-    const finalText = textActions.at(-1);
-    expect(finalText?.text).toBe("partial text");
-    // The finalize re-dispatch is additional to the per-chunk dispatches.
-    expect(textActions.filter((a) => a.text === "partial text").length).toBeGreaterThanOrEqual(2);
-  });
-
-  it("dispatches setUsage with the transport-reported usage on a successful chat run", async () => {
-    // WHY: chat's finalize dispatches `setUsage` when the transport
-    // reports usage; cards have no equivalent. Pinning this guards the
-    // kind-specific finalize hook against the unified executor.
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-    harness.store.set(setCurrentConversationIdAtom, "A");
-    harness.store.set(assistantConversationStateAtom, [
-      "submitTurn",
-      { runId: "run-A", text: "hello", kind: "chat-text", assistantText: "" },
-    ]);
-
-    const usage: StreamUsage = {
-      promptTokens: 10,
-      completionTokens: 5,
-      totalTokens: 15,
-    };
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk) => {
-      onChunk({ kind: "text", text: "hi" });
-      return usage;
-    });
-
-    const { result } = renderRuns(harness);
-
-    await act(async () => {
-      await result.current.executeChatRun("A", "run-A", {} as ChatStreamRequest);
-    });
-
-    const setUsageActions = harness.dispatchToMap.filter((e) => e.action[0] === "setUsage");
-    expect(setUsageActions).toHaveLength(1);
-    expect(setUsageActions[0].id).toBe("A");
-    expect((setUsageActions[0].action[1] as { runId: string; usage: StreamUsage }).usage).toBe(usage);
   });
 
   it("cancel(conversationId, runId) aborts only that run, leaving a concurrent same-mode stream running", async () => {

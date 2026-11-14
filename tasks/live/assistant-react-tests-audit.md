@@ -276,7 +276,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Pin setRevertState in the updatedAt table
   Depends on: none
 
-- [ ] 5. Move the usage and abort re-emit tests to the conversation runtime
+- [x] 5. Move the usage and abort re-emit tests to the conversation runtime
   Goal (finding 7): In `libs/assistant/src/lib/conversation-runtime.test.ts`, add two tests, built like the one at
   `:114`, that assert emitted events:
   a successful `executeChat` that returns usage emits `runChunk` with `{ kind: "usage", usage }` once, after the
