@@ -228,7 +228,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
 
 ## Plan
 
-- [ ] 1. Test per-conversation save isolation in the persistence host
+- [x] 1. Test per-conversation save isolation in the persistence host
   Goal (finding 1): In `libs/assistant/src/lib/conversation-persistence-host.test.ts`, add a test: a host whose
   pending-save map starts `{}` and whose `subscribePendingSaves` hands the test the listener; the test bumps A three
   times (`{ A: 1 }`, `{ A: 2 }`, `{ A: 3 }`), advances past `IDLE_SAVE_DEBOUNCE_MS`, and asserts `writes` is `["A"]`;

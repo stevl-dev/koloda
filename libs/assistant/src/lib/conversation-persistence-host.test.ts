@@ -30,6 +30,41 @@ describe("createConversationPersistenceHost", () => {
     host.dispose();
   });
 
+  it("a pending-save bump writes only the conversation it names", async () => {
+    const writes: string[] = [];
+    let publish!: (pending: Record<string, number>) => void;
+    const host = createConversationPersistenceHost({
+      createWrite: (id) => async () => {
+        writes.push(id);
+      },
+      isStreaming: () => false,
+      getInitialPending: () => ({}),
+      subscribePendingSaves: (listener) => {
+        publish = listener;
+        return () => {};
+      },
+    });
+
+    // WHY: save B first so its queue exists while A is bumped; a bump that
+    // dirtied every known queue would then write B again.
+    publish({ B: 1 });
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
+    expect(writes).toEqual(["B"]);
+
+    publish({ B: 1, A: 1 });
+    publish({ B: 1, A: 2 });
+    publish({ B: 1, A: 3 });
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
+    const afterA = writes.slice(1);
+    expect(afterA).toContain("A");
+    expect(afterA).not.toContain("B");
+
+    publish({ B: 2, A: 3 });
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
+    expect(writes.slice(1 + afterA.length)).toEqual(["B"]);
+    host.dispose();
+  });
+
   it("flushAllBounded waits for in-flight writes before returning", async () => {
     let resolveWrite!: () => void;
     const writeStarted = vi.fn();
