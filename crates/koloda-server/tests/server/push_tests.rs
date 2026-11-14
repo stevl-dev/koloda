@@ -221,6 +221,12 @@ async fn a_bad_batch_consumes_nothing() {
         sender_seq: 2,
         envelope: vec![0xff],
     });
+    // WHY: the cap is checked before any envelope decodes, so the last envelope's 400 proves the cap admitted the
+    // push without applying 5,000 writes.
+    let mut at_cap = Push {
+        items: too_many.items[..MAX_PUSH_ITEMS].to_vec(),
+    };
+    at_cap.items[MAX_PUSH_ITEMS - 1].envelope = vec![0xff];
     let cases = [
         (
             "out-of-order seqs",
@@ -233,6 +239,7 @@ async fn a_bad_batch_consumes_nothing() {
             StatusCode::BAD_REQUEST,
         ),
         ("an envelope that does not decode", garbage, StatusCode::BAD_REQUEST),
+        ("as many items as the cap", at_cap, StatusCode::BAD_REQUEST),
         ("more items than the cap", too_many, StatusCode::PAYLOAD_TOO_LARGE),
     ];
     for (name, push, status) in cases {

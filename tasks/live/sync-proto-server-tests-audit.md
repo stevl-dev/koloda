@@ -212,7 +212,7 @@ none
   Commit: Delete the protocol round-trip test the golden test subsumes
   Depends on: 2 (same file)
 
-- [ ] 6. Test the push item cap at the cap
+- [x] 6. Test the push item cap at the cap
   Goal (finding 6): In `crates/koloda-server/tests/server/push_tests.rs`, add a row to the refusal table (`:236`):
   `MAX_PUSH_ITEMS` items in order whose last envelope does not decode, expecting `400 BadRequest`.
   Add a WHY on the row: the cap is checked before any envelope decodes, so the `400` proves the cap admitted the push
