@@ -346,10 +346,10 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Delete the command-literal mirror tests
   Depends on: 8, 9 (same file)
 
-- [ ] 11. Build the header-menu test state from shared fixtures
+- [x] 11. Build the header-menu test state from shared fixtures
   Goal (finding 5): In `ui/conversation-header-menu.test.tsx`, build `renderMenu`'s state with `makeConversation`
   and `makeRun` from `state/assistant-conversation.fixtures.ts` and a real user message shape; drop `as never`.
-  Type the `state` parameter as `Partial<ConversationReducerState>`.
+  `renderMenu` takes a whole `ConversationReducerState`; the streaming test passes its reduced state as it is.
   Constraints: that file.
   Done when: the package's vitest run and `bun run typecheck` pass.
   Commit: Build the header-menu test state from shared fixtures

@@ -7,9 +7,11 @@ import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetAssistantEngineForTests } from "../runs/assistant-persistence-host";
-import { makeConversation } from "../state/assistant-conversation.fixtures";
+import { makeConversation, makeRun } from "../state/assistant-conversation.fixtures";
+import { createTextMessage } from "../state/assistant-messages";
 import { conversationReducer } from "../state/conversation-reducer";
 import { conversationsAtom } from "../state/conversation-store";
+import type { ConversationReducerState } from "../state/conversation-types";
 import { ConversationHeaderMenu } from "./conversation-header-menu";
 
 const deleteFromDb = vi.hoisted(() => vi.fn(async (_data: DeleteConversationData) => undefined));
@@ -26,18 +28,10 @@ function buildQueries(): Queries {
   } as unknown as Queries;
 }
 
-function renderMenu(state: Record<string, unknown>, hasTurns: boolean) {
+function renderMenu(conversation: ConversationReducerState) {
   const store = createStore();
   store.set(queriesAtom, buildQueries());
-  store.set(conversationsAtom, {
-    c1: {
-      messages: hasTurns ? [{ id: "m1", role: "user", content: "hi" }] : [],
-      runs: hasTurns ? { r1: { status: "success" } } : {},
-      activeRunId: null,
-      promptInput: "",
-      ...state,
-    },
-  } as never);
+  store.set(conversationsAtom, { c1: conversation });
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -64,7 +58,12 @@ describe("ConversationHeaderMenu", () => {
   });
 
   it("asks for confirmation before deleting a conversation with turns", async () => {
-    renderMenu({}, true);
+    renderMenu(
+      makeConversation("c1", {
+        messages: [createTextMessage("user-r1", "user", "hi", { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" })],
+        runs: { r1: makeRun("r1", "success") },
+      }),
+    );
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "ai.conversation.menu.trigger" }));
@@ -90,7 +89,7 @@ describe("ConversationHeaderMenu", () => {
       "submitTurn",
       { runId: "r1", text: "hi", kind: "chat-text", assistantText: "" },
     ]);
-    renderMenu({ messages: streaming.messages, runs: streaming.runs, activeRunId: streaming.activeRunId }, true);
+    renderMenu(streaming);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "ai.conversation.menu.trigger" }));
