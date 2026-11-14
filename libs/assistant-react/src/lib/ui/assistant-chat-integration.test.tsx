@@ -283,200 +283,6 @@ afterEach(() => {
 });
 
 describe("assistant chat integration (per-conversation state)", () => {
-  it("handleStreamError: two streams in flight on different conversations, one errors, error routes to the right conversation", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    store.set(upsertConversationAtom, makeConversation("A"));
-    store.set(upsertConversationAtom, makeConversation("B"));
-    store.set(setCurrentConversationIdAtom, "A");
-
-    const queryClient = createTestQueryClient();
-
-    wire.chatStream.keepInFlight = true;
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    const { result, rerender } = renderHook(
-      ({ conversationId }: { conversationId: string | undefined }) => useAssistantChatTestHarness({ conversationId }),
-      {
-        wrapper: TestWrapper,
-        initialProps: { conversationId: "A" as string | undefined },
-      },
-    );
-
-    // Start a chat run on A. The mock keeps it in flight.
-    await act(async () => {
-      // Fire and forget — the promise never resolves.
-      void result.current.controller.submit("Hello from A");
-      await Promise.resolve();
-    });
-
-    // Switch to B and start a chat run on B.
-    rerender({ conversationId: "B" });
-    await act(async () => {
-      store.set(setCurrentConversationIdAtom, "B");
-      void result.current.controller.submit("Hello from B");
-      await Promise.resolve();
-    });
-
-    // Both streams were started.
-    expect(wire.chatStream.started).toBe(2);
-
-    expect(wire.chatStream.rejectNext).not.toBeNull();
-    await act(async () => {
-      wire.chatStream.rejectNext!(new Error("stream blew up"));
-    });
-
-    // B's most recent run is failed with the error message.
-    const stateB = store.get(conversationsAtom)["B"];
-    const bRunIds = Object.keys(stateB.runs);
-    const bLatestRun = stateB.runs[bRunIds[bRunIds.length - 1]!];
-    expect(bLatestRun.status).toBe("failed");
-    expect(bLatestRun.error).toEqual({ message: "unknown", details: "stream blew up" });
-
-    // A is unaffected — A's run is still streaming, and A's runs have no
-    // error attached.
-    const stateA = store.get(conversationsAtom)["A"];
-    for (const run of Object.values(stateA.runs)) {
-      expect(run.status).not.toBe("failed");
-      expect(run.error).toBeUndefined();
-    }
-  });
-
-  it("a chunk emitted after conversationId has changed still updates the originating conversation", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    store.set(upsertConversationAtom, makeConversation("A"));
-    store.set(upsertConversationAtom, makeConversation("B"));
-    store.set(setCurrentConversationIdAtom, "A");
-
-    const queryClient = createTestQueryClient();
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    // Configure the chat stream to emit a chunk mid-flight, but only after
-    // the test has had a chance to switch the current conversation to B.
-    // We use a deferred promise (keepInFlight) so the stream stays in
-    // flight until we resolve it after emitting the chunks.
-    wire.chatStream.keepInFlight = true;
-    wire.chatStream.onStart = (_request, onChunk) => {
-      // Defer the chunk emission until after the test switches to B.
-      setTimeout(() => {
-        onChunk({ kind: "text", text: "late chunk" });
-        onChunk({ kind: "text", text: " second chunk" });
-      }, 100);
-    };
-
-    const { result, rerender } = renderHook(
-      ({ conversationId }: { conversationId: string | undefined }) => useAssistantChatTestHarness({ conversationId }),
-      {
-        wrapper: TestWrapper,
-        initialProps: { conversationId: "A" as string | undefined },
-      },
-    );
-
-    let chatPromise!: Promise<void>;
-    await act(async () => {
-      chatPromise = result.current.controller.submit("Hello from A") as unknown as Promise<void>;
-      await Promise.resolve();
-    });
-
-    await act(async () => {
-      vi.advanceTimersByTime(150);
-    });
-
-    // Switch to B before the chat promise resolves.
-    rerender({ conversationId: "B" });
-
-    // Now resolve the chat stream so the run completes.
-    await act(async () => {
-      wire.chatStream.resolveNext?.();
-      await chatPromise;
-    });
-
-    // The chunk landed on A, not on B (the current conversation).
-    const stateA = store.get(conversationsAtom)["A"];
-    const stateB = store.get(conversationsAtom)["B"];
-    const aAssistant = stateA.messages.find((m) => m.role === "assistant");
-    expect(aAssistant).toBeDefined();
-    expect(aAssistant?.parts[0]).toEqual({ type: "text", text: "late chunk second chunk" });
-    expect(stateB.messages.find((m) => m.role === "assistant")).toBeUndefined();
-  });
-
-  it("reasoning deltas stream into one activity row and survive text updates", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    store.set(upsertConversationAtom, makeConversation("A"));
-    store.set(setCurrentConversationIdAtom, "A");
-
-    const queryClient = createTestQueryClient();
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    wire.chatStream.onStart = (_request, onChunk) => {
-      onChunk({ kind: "reasoning", text: "pondering " });
-      onChunk({ kind: "reasoning", text: "the question" });
-      onChunk({ kind: "text", text: "The answer" });
-    };
-
-    const { result } = renderHook(
-      ({ conversationId }: { conversationId: string | undefined }) => useAssistantChatTestHarness({ conversationId }),
-      {
-        wrapper: TestWrapper,
-        initialProps: { conversationId: "A" as string | undefined },
-      },
-    );
-
-    let chatPromise!: Promise<void>;
-    await act(async () => {
-      chatPromise = result.current.controller.submit("Hello") as unknown as Promise<void>;
-      await Promise.resolve();
-    });
-
-    await act(async () => {
-      wire.chatStream.resolveNext?.();
-      await chatPromise;
-    });
-
-    const stateA = store.get(conversationsAtom)["A"];
-    const aAssistant = stateA.messages.find((m) => m.role === "assistant");
-    expect(aAssistant?.parts).toEqual([{ type: "text", text: "The answer" }]);
-    expect(stateA.runs[Object.keys(stateA.runs)[0]!]?.toolCalls).toEqual([
-      {
-        kind: "reasoning",
-        id: expect.stringMatching(/-reasoning-0$/),
-        text: "pondering the question",
-        status: "done",
-        startedAt: expect.any(Date),
-        elapsedSeconds: expect.any(Number),
-      },
-    ]);
-  });
-
   it("save host: dirtying A while viewing B schedules a save for A", async () => {
     setupTestHarness();
     const store = createStore();
@@ -638,7 +444,7 @@ describe("assistant chat integration (per-conversation state)", () => {
     });
   });
 
-  it("pagehide during a streaming run interrupts runs and persists app_shutdown", async () => {
+  it("pagehide then unmount during a streaming run interrupts runs and persists app_shutdown once", async () => {
     setupTestHarness();
     const store = createStore();
     store.set(queriesAtom, buildQueries());
@@ -670,7 +476,7 @@ describe("assistant chat integration (per-conversation state)", () => {
 
     wire.chatStream.keepInFlight = true;
 
-    const { result } = renderHook(() => useAssistantChatTestHarness({ conversationId: "A" }), {
+    const { result, unmount } = renderHook(() => useAssistantChatTestHarness({ conversationId: "A" }), {
       wrapper: TestWrapper,
     });
 
@@ -687,6 +493,9 @@ describe("assistant chat integration (per-conversation state)", () => {
     const callsBeforePagehide = wire.setConversationCalls.length;
     await act(async () => {
       window.dispatchEvent(new Event("pagehide"));
+    });
+    await act(async () => {
+      unmount();
     });
 
     // INVARIANT: shutdown interrupts then aborts; abort must not re-dirty an
@@ -792,126 +601,6 @@ describe("assistant chat integration (per-conversation state)", () => {
       wire.chatStream.resolveNext?.();
       await Promise.resolve();
     });
-  });
-
-  it("pagehide plus unmount during a streaming run persists interrupted app_shutdown", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    store.set(upsertConversationAtom, makeConversation("A"));
-    store.set(setCurrentConversationIdAtom, "A");
-
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    wire.chatStream.keepInFlight = true;
-
-    const { result, unmount } = renderHook(() => useAssistantChatTestHarness({ conversationId: "A" }), {
-      wrapper: TestWrapper,
-    });
-
-    await act(async () => {
-      void result.current.controller.submit("Hello from A");
-      await Promise.resolve();
-    });
-
-    const beforeState = store.get(conversationsAtom)["A"];
-    const beforeRunIds = Object.keys(beforeState.runs);
-    expect(beforeRunIds).toHaveLength(1);
-    expect(beforeState.runs[beforeRunIds[0]!]?.status).toBe("streaming");
-
-    await act(async () => {
-      window.dispatchEvent(new Event("pagehide"));
-    });
-
-    await act(async () => {
-      unmount();
-    });
-
-    const lastForA = [...wire.setConversationCalls].reverse().find((c) => c.id === "A");
-    expect(lastForA).toBeDefined();
-    const lastRunIds = Object.keys(lastForA?.state?.runs ?? {});
-    expect(lastRunIds).toHaveLength(1);
-    expect(lastForA?.state?.runs[lastRunIds[0]!]?.status).toBe("interrupted");
-    expect(lastForA?.state?.runs[lastRunIds[0]!]?.reason).toBe("app_shutdown");
-    expect(lastForA?.title).toBe("Hello from A");
-
-    const afterState = store.get(conversationsAtom)["A"];
-    expect(afterState.runs[beforeRunIds[0]!]?.status).toBe("interrupted");
-    expect(afterState.runs[beforeRunIds[0]!]?.reason).toBe("app_shutdown");
-  });
-
-  it("unmount without pagehide keeps an in-flight run streaming", async () => {
-    setupTestHarness();
-    const store = createStore();
-    store.set(queriesAtom, buildQueries());
-    store.set(aiRuntimeAtom, createMockAIRuntime());
-    store.set(upsertConversationAtom, makeConversation("A"));
-    store.set(setCurrentConversationIdAtom, "A");
-
-    const queryClient = createTestQueryClient();
-    queryClient.setQueryData(queryKeys.conversations.detail("A"), {
-      id: "A",
-      title: null,
-      state: {
-        ...initialConversationState,
-        schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "A",
-        createdAt: new Date(1).toISOString(),
-      },
-      createdAt: new Date(1).toISOString(),
-      updatedAt: null,
-    });
-
-    function TestWrapper({ children }: PropsWithChildren) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <JotaiProvider store={store}>{children}</JotaiProvider>
-        </QueryClientProvider>
-      );
-    }
-
-    wire.chatStream.keepInFlight = true;
-
-    const { result, unmount } = renderHook(() => useAssistantChatTestHarness({ conversationId: "A" }), {
-      wrapper: TestWrapper,
-    });
-
-    await act(async () => {
-      void result.current.controller.submit("Hello from A");
-      await Promise.resolve();
-    });
-
-    const beforeState = store.get(conversationsAtom)["A"];
-    const beforeRunIds = Object.keys(beforeState.runs);
-    expect(beforeState.runs[beforeRunIds[0]!]?.status).toBe("streaming");
-
-    await act(async () => {
-      unmount();
-    });
-
-    const afterState = store.get(conversationsAtom)["A"];
-    expect(afterState.runs[beforeRunIds[0]!]?.status).toBe("streaming");
   });
 
   it("switch-away from AI route keeps an in-flight run streaming", async () => {

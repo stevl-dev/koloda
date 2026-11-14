@@ -304,7 +304,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Delete engine rules re-tested through useConversationRuns
   Depends on: 5 (same file)
 
-- [ ] 7. Delete rules tested a third time in the chat integration suite
+- [x] 7. Delete rules tested a third time in the chat integration suite
   Goal (finding 8): In `ui/assistant-chat-integration.test.tsx`, delete `:286`, `:354`, `:422`, and `:976`.
   Fold `:909` into `:753`: add `unmount()` after the pagehide in `:753` and keep its assertions; delete `:909`.
   If the exact write count at `:753` changes with the unmount, stop and record it in Open questions.
