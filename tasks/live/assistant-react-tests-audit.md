@@ -338,7 +338,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Delete guards for removed conversation fields
   Depends on: 8
 
-- [ ] 10. Delete the command-literal mirror tests
+- [x] 10. Delete the command-literal mirror tests
   Goal (finding 11): Delete the `toSubmitCommand / toRetryCommand` describe (`runs/prepare-run-request.test.ts:168-197`)
   and imports it alone used.
   Constraints: that file.

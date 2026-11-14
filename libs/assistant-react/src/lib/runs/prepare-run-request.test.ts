@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { AssistantConversationConfig } from "../state/assistant-conversation-config";
 import { createTextMessage, assistantMessageId, userMessageId } from "../state/assistant-messages";
 import type { AssistantRun } from "../state/conversation-types";
-import { prepareRunRequest, toRetryCommand, toSubmitCommand } from "./prepare-run-request";
+import { prepareRunRequest } from "./prepare-run-request";
 
 const CHAT_TOOLS = Object.keys(ASSISTANT_TOOL_SPECS);
 
@@ -152,37 +152,5 @@ describe("prepareRunRequest — retry history", () => {
       { role: "assistant", content: "ok" },
       { role: "user", content: "hello" },
     ]);
-  });
-});
-
-describe("toSubmitCommand / toRetryCommand", () => {
-  it("builds a submit command for chat", () => {
-    const prepared = prepareRunRequest(makeConfig(), "hello", [], {});
-    expect(prepared).not.toBeNull();
-    expect(toSubmitCommand("conv-1", "run-1", prepared!)).toEqual({
-      type: "submit",
-      conversationId: "conv-1",
-      input: {
-        kind: "chat",
-        runId: "run-1",
-        request: prepared!.request,
-        execution: prepared!.execution,
-      },
-    });
-  });
-
-  it("builds a retry command", () => {
-    const prepared = prepareRunRequest(makeConfig(), "hello", [], {});
-    expect(prepared).not.toBeNull();
-    expect(toRetryCommand("conv-1", "run-1", prepared!)).toEqual({
-      type: "retry",
-      conversationId: "conv-1",
-      input: {
-        runId: "run-1",
-        request: prepared!.request,
-        modelName: "GPT-x",
-        execution: prepared!.execution,
-      },
-    });
   });
 });
