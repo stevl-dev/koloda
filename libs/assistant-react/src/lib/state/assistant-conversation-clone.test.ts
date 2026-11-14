@@ -268,8 +268,6 @@ describe("cloneConversationAtom", () => {
     expect(clone.profileId).toBe("p1");
     expect(clone.modelId).toBe("m1");
     expect(clone.modelParameters).toEqual({ reasoning_effort: "high" });
-    expect(clone).not.toHaveProperty("deckId");
-    expect(clone).not.toHaveProperty("mode");
   });
 
   it("sets lastReadRunId to the latest cloned run id, so the clone starts as read", () => {

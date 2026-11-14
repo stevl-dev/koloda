@@ -175,7 +175,6 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     expect(command.input.modelName).toBe("GPT-x");
     expect(command.input.request).toBeTypeOf("object");
     expect(command.input.request).toMatchObject({ tools: CHAT_TOOLS });
-    expect(command.input.request).not.toHaveProperty("dataContext");
     expect(command.input.execution).toEqual({ profileId: cfg.profileId });
     // WHY: Retry reuses the tail pair as the new prompt — history must exclude
     // it so the provider sees the prompt exactly once, not [user, user].

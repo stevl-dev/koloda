@@ -327,7 +327,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Delete duplicate assistant-react tests
   Depends on: 2 (same file)
 
-- [ ] 9. Delete guards for removed conversation fields
+- [x] 9. Delete guards for removed conversation fields
   Goal (finding 10): Delete the `deckId` and `mode` checks at `state/assistant-conversation-clone.test.ts:271-272`
   and the test at `state/conversation-reducer-runs.test.ts:619-645`.
   Delete the `not.toHaveProperty("dataContext")` line at `runs/use-run-orchestration.test.ts:178`; keep

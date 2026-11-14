@@ -615,33 +615,6 @@ describe("conversationReducer", () => {
         },
       ]);
     });
-
-    it("does not copy writeTargetDeckId onto the conversation", () => {
-      const proposeOutput = {
-        deckId: testId(5),
-        deckTitle: "Spanish",
-        templateId: testId(1),
-        templateTitle: "Default",
-        templateFields: [
-          { id: testId(10), title: "Front", type: "text", isRequired: true },
-          { id: testId(11), title: "Back", type: "text", isRequired: true },
-        ],
-        cards: [{ fields: { Front: "hola", Back: "hello" } }],
-        rejectedCount: 0,
-      };
-      let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
-      state = conversationReducer(state, [
-        "addToolCall",
-        { runId: "r1", call: { id: "call-1", name: "propose_cards", input: { deckId: testId(5), cards: [] } } },
-      ]);
-      state = conversationReducer(state, [
-        "setToolCallResult",
-        { runId: "r1", callId: "call-1", output: proposeOutput },
-      ]);
-      state = conversationReducer(state, ["completeRun", { runId: "r1" }]);
-      expect(state).not.toHaveProperty("deckId");
-      expect(state.runs["r1"].writeTargetDeckId).toBe(testId(5));
-    });
   });
 
   describe("runFailed", () => {
