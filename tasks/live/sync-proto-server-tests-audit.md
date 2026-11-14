@@ -203,7 +203,7 @@ none
   Commit: Fold the unforced concurrent fork test into the retry test
   Depends on: none
 
-- [ ] 5. Delete the protocol round-trip test the golden test subsumes
+- [x] 5. Delete the protocol round-trip test the golden test subsumes
   Goal (finding 5): Delete `every_sample_round_trips_through_a_sealed_envelope` (`payload_tests.rs:13`) and any import
   it alone used. `fixtures_tests.rs:44` keeps the coverage.
   Constraints: `payload_tests.rs` only.

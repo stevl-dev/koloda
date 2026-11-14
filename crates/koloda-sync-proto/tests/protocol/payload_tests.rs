@@ -1,5 +1,5 @@
 use ciborium::Value;
-use koloda_sync_proto::envelope::{Envelope, EnvelopeError, Header, Refs};
+use koloda_sync_proto::envelope::{EnvelopeError, Header, Refs};
 use koloda_sync_proto::payload::{
     attachment_ids_in, seal, CardContent, CardScheduling, Delete, Payload, PayloadError, SCHEMA,
 };
@@ -8,26 +8,6 @@ use koloda_sync_proto::registry::Kind;
 use crate::samples::{
     card_content_text, samples, scheduling, seal_for, ATTACHMENT_A, ATTACHMENT_B, CARD_ID, DECK_ID, TEMPLATE_ID,
 };
-
-#[test]
-fn every_sample_round_trips_through_a_sealed_envelope() {
-    for sample in samples() {
-        let sealed = seal(sample.seal, &sample.payload).unwrap_or_else(|error| panic!("{}: {error}", sample.name));
-        let envelope = Envelope::decode(&sealed.bytes).unwrap();
-        let (kind, group, op) = sample.payload.target();
-        assert_eq!(
-            (envelope.header.kind, envelope.header.group, envelope.header.op),
-            (kind, group, op)
-        );
-        assert_eq!(envelope.header.schema, SCHEMA);
-        assert_eq!(
-            Payload::decode(&envelope.header, &envelope.payload),
-            Ok(sample.payload),
-            "{}",
-            sample.name
-        );
-    }
-}
 
 #[test]
 fn every_group_and_delete_has_a_sample() {
