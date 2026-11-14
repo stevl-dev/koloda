@@ -52,7 +52,7 @@ describe("registerAssistantPersistenceWriteAdapter", () => {
     expect(isAssistantPersistenceWriteAdapterReady()).toBe(false);
   });
 
-  it("rejects durable writes until the adapter is ready", async () => {
+  it("a write attempted before the adapter registers stays dirty and lands on retry after registration", async () => {
     const store = createStore();
     const writes: string[] = [];
     ensureAssistantEngine(store);
@@ -65,7 +65,6 @@ describe("registerAssistantPersistenceWriteAdapter", () => {
     await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
     await Promise.resolve();
     await Promise.resolve();
-    expect(writes).toEqual([]);
 
     registerAssistantPersistenceWriteAdapter({
       writeConversation: async (id) => {
@@ -74,6 +73,8 @@ describe("registerAssistantPersistenceWriteAdapter", () => {
       },
     });
 
+    // WHY: the queue flushes only while dirty, so this write lands only if the
+    // attempt before registration was rejected rather than acked.
     host.retrySave("A");
     await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
     await Promise.resolve();

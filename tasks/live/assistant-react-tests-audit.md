@@ -241,7 +241,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Test per-conversation save isolation in the persistence host
   Depends on: none
 
-- [ ] 2. Name the adapter-readiness test for what it asserts
+- [x] 2. Name the adapter-readiness test for what it asserts
   Goal (finding 2): In `runs/assistant-persistence-host.test.ts`, rename the test at `:55` to say a write attempted
   before the adapter registers stays dirty and lands on retry after registration.
   Delete `writes` check at `:68` and keep the timer advance before it, which runs the first, rejected attempt.
