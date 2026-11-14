@@ -1,3 +1,4 @@
+import type { UIMessage } from "ai";
 import type { createStore } from "jotai";
 import { dispatchToConversationOnStore, markReadIfCurrentOnStore } from "./conversation-store";
 import type { ConversationReducerAction } from "./conversation-reducer";
@@ -15,6 +16,24 @@ export function makeRun(id: string, status: AssistantRun["status"]): AssistantRu
     startedAt: new Date(1),
     elapsedSeconds: status === "streaming" ? null : 1,
   };
+}
+
+/** A user message and its chat-text reply, both tagged with `runId`. */
+export function messagePair(runId: string, userText: string, assistantText: string): UIMessage[] {
+  return [
+    {
+      id: `user-${runId}`,
+      role: "user",
+      parts: [{ type: "text", text: userText }],
+      metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId },
+    },
+    {
+      id: `assistant-${runId}`,
+      role: "assistant",
+      parts: [{ type: "text", text: assistantText }],
+      metadata: { kind: "chat-text", runId },
+    },
+  ];
 }
 
 export function makeConversation(

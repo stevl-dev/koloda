@@ -404,7 +404,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Share the hook setup in the run orchestration tests
   Depends on: 8, 9, 12
 
-- [ ] 17. Use the shared conversation fixtures in assistant-react tests
+- [x] 17. Use the shared conversation fixtures in assistant-react tests
   Goal (finding 12): Add a message-pair helper to `state/assistant-conversation.fixtures.ts` (a user message and its
   assistant reply for one run id) and use it for the pair literals in `state/conversation-reducer-revert.test.ts` and
   `state/assistant-conversation-clone.test.ts`.

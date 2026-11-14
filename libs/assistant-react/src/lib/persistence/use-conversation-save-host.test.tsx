@@ -7,9 +7,9 @@ import { render, renderHook } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import * as React from "react";
 import type { PropsWithChildren } from "react";
+import type { UIMessage } from "ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { initialConversationState } from "../state/conversation-types";
-import type { ConversationReducerState } from "../state/conversation-types";
+import { makeConversation } from "../state/assistant-conversation.fixtures";
 import { touchConversationAtom, upsertConversationAtom } from "../state/conversation-store";
 import { ensureAssistantEngine } from "../runs/assistant-engine-instance";
 import {
@@ -22,22 +22,14 @@ import { useConversationSaveHost } from "./use-conversation-save-host";
 // WHY: The idle save delay inside @koloda/assistant, which keeps it off its entry.
 const IDLE_SAVE_DEBOUNCE_MS = 250;
 
-function makeConversation(id: string, overrides: Partial<ConversationReducerState> = {}): ConversationReducerState {
-  return {
-    ...initialConversationState,
-    id,
-    createdAt: new Date(1),
-    messages: [
-      {
-        id: "user-1",
-        role: "user",
-        parts: [{ type: "text", text: "hello" }],
-        metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-      },
-    ],
-    ...overrides,
-  };
-}
+const userTurn: UIMessage[] = [
+  {
+    id: "user-r1",
+    role: "user",
+    parts: [{ type: "text", text: "hello" }],
+    metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
+  },
+];
 
 function buildQueries(onWrite?: (id: string) => void): Queries {
   return {
@@ -127,14 +119,7 @@ describe("useConversationSaveHost", () => {
     store.set(
       upsertConversationAtom,
       makeConversation("A", {
-        messages: [
-          {
-            id: "user-r1",
-            role: "user",
-            parts: [{ type: "text", text: "hello" }],
-            metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-          },
-        ],
+        messages: userTurn,
       }),
     );
     function Probe() {
@@ -215,14 +200,7 @@ describe("useConversationSaveHost", () => {
     store.set(
       upsertConversationAtom,
       makeConversation("A", {
-        messages: [
-          {
-            id: "user-r1",
-            role: "user",
-            parts: [{ type: "text", text: "hello" }],
-            metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-          },
-        ],
+        messages: userTurn,
       }),
     );
     function Probe() {
@@ -249,7 +227,7 @@ describe("useConversationSaveHost", () => {
     ];
     const { store, queryClient, Wrapper } = createTestWrapper();
     queryClient.setQueryData(queryKeys.conversations.all(), seededList);
-    store.set(upsertConversationAtom, makeConversation("A"));
+    store.set(upsertConversationAtom, makeConversation("A", { messages: userTurn }));
     function Probe() {
       useConversationSaveHost();
       return null;
@@ -291,7 +269,7 @@ describe("useConversationSaveHost", () => {
   it("survives React Strict Mode double mount", async () => {
     const writes: string[] = [];
     const { store, Wrapper } = createTestWrapper((id) => writes.push(id));
-    store.set(upsertConversationAtom, makeConversation("A"));
+    store.set(upsertConversationAtom, makeConversation("A", { messages: userTurn }));
 
     render(
       <React.StrictMode>

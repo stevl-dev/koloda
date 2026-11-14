@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { messagePair } from "./assistant-conversation.fixtures";
 import { conversationReducer } from "./conversation-reducer";
 import { initialConversationState } from "./conversation-types";
 import type { ConversationReducerState } from "./conversation-types";
@@ -14,32 +15,7 @@ describe("conversationReducer → setRevertState", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "First" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Reply 1" }],
-        },
-        {
-          id: "user-r2",
-          role: "user",
-          parts: [{ type: "text", text: "Second" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r2" },
-        },
-        {
-          id: "assistant-r2",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r2" },
-          parts: [{ type: "text", text: "Reply 2" }],
-        },
-      ],
+      messages: [...messagePair("r1", "First", "Reply 1"), ...messagePair("r2", "Second", "Reply 2")],
       runs: {
         r1: {
           id: "r1",
@@ -79,20 +55,7 @@ describe("conversationReducer → setRevertState", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "Hi" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Hello" }],
-        },
-      ],
+      messages: messagePair("r1", "Hi", "Hello"),
       runs: {
         r1: {
           id: "r1",
@@ -138,20 +101,7 @@ describe("conversationReducer → commitRevert", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "Hi" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Hello" }],
-        },
-      ],
+      messages: messagePair("r1", "Hi", "Hello"),
       runs: { r1: chatRun("r1") },
       revertState: null,
     };
@@ -166,42 +116,9 @@ describe("conversationReducer → commitRevert", () => {
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
       messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "First" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Reply 1" }],
-        },
-        {
-          id: "user-r2",
-          role: "user",
-          parts: [{ type: "text", text: "Second" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r2" },
-        },
-        {
-          id: "assistant-r2",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r2" },
-          parts: [{ type: "text", text: "Reply 2" }],
-        },
-        {
-          id: "user-r3",
-          role: "user",
-          parts: [{ type: "text", text: "Third" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r3" },
-        },
-        {
-          id: "assistant-r3",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r3" },
-          parts: [{ type: "text", text: "Reply 3" }],
-        },
+        ...messagePair("r1", "First", "Reply 1"),
+        ...messagePair("r2", "Second", "Reply 2"),
+        ...messagePair("r3", "Third", "Reply 3"),
       ],
       runs: {
         r1: chatRun("r1"),
@@ -213,20 +130,7 @@ describe("conversationReducer → commitRevert", () => {
 
     const next = conversationReducer(state, ["commitRevert"]);
 
-    expect(next.messages).toEqual([
-      {
-        id: "user-r1",
-        role: "user",
-        parts: [{ type: "text", text: "First" }],
-        metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-      },
-      {
-        id: "assistant-r1",
-        role: "assistant",
-        metadata: { kind: "chat-text", runId: "r1" },
-        parts: [{ type: "text", text: "Reply 1" }],
-      },
-    ]);
+    expect(next.messages).toEqual(messagePair("r1", "First", "Reply 1"));
     expect(Object.keys(next.runs)).toEqual(["r1"]);
     expect(next.revertState).toBeNull();
     expect(next.activeRunId).toBeNull();
@@ -238,32 +142,7 @@ describe("conversationReducer → commitRevert", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "First" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Reply 1" }],
-        },
-        {
-          id: "user-r2",
-          role: "user",
-          parts: [{ type: "text", text: "Second" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r2" },
-        },
-        {
-          id: "assistant-r2",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r2" },
-          parts: [{ type: "text", text: "Reply 2" }],
-        },
-      ],
+      messages: [...messagePair("r1", "First", "Reply 1"), ...messagePair("r2", "Second", "Reply 2")],
       runs: {
         r1: chatRun("r1"),
         r2: chatRun("r2"),
@@ -283,32 +162,7 @@ describe("conversationReducer → commitRevert", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "First" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Reply 1" }],
-        },
-        {
-          id: "user-r2",
-          role: "user",
-          parts: [{ type: "text", text: "Second" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r2" },
-        },
-        {
-          id: "assistant-r2",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r2" },
-          parts: [{ type: "text", text: "Reply 2" }],
-        },
-      ],
+      messages: [...messagePair("r1", "First", "Reply 1"), ...messagePair("r2", "Second", "Reply 2")],
       runs: {
         r1: chatRun("r1"),
         r2: chatRun("r2"),
@@ -328,20 +182,7 @@ describe("conversationReducer → commitRevert", () => {
       ...initialConversationState,
       id: "conv-1",
       createdAt: new Date("2026-07-01T11:00:00Z"),
-      messages: [
-        {
-          id: "user-r1",
-          role: "user",
-          parts: [{ type: "text", text: "Hi" }],
-          metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
-        },
-        {
-          id: "assistant-r1",
-          role: "assistant",
-          metadata: { kind: "chat-text", runId: "r1" },
-          parts: [{ type: "text", text: "Hello" }],
-        },
-      ],
+      messages: messagePair("r1", "Hi", "Hello"),
       runs: { r1: chatRun("r1") },
       dismissedRunErrorId: "r1",
       revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "" },

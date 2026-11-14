@@ -5,16 +5,11 @@ import { renderHook } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { initialConversationState } from "../state/conversation-types";
-import type { ConversationReducerState } from "../state/conversation-types";
+import { makeConversation } from "../state/assistant-conversation.fixtures";
 import { conversationsAtom, dispatchToConversationOnStore, upsertConversationAtom } from "../state/conversation-store";
 import { resetAssistantEngineForTests } from "./assistant-persistence-host";
 import { getAssistantEngine } from "./assistant-engine-instance";
 import { useAssistantEngineHost } from "./use-assistant-engine-host";
-
-function makeConversation(id: string): ConversationReducerState {
-  return { ...initialConversationState, id, createdAt: new Date(1) };
-}
 
 function createRuntime(chat: AIRuntime["chat"]): AIRuntime {
   return { listModels: async () => [], chat };

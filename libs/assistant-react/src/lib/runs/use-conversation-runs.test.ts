@@ -3,9 +3,9 @@ import { aiRuntimeAtom } from "@koloda/core-react";
 import { act, renderHook } from "@testing-library/react";
 import { createStore } from "jotai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { makeConversation } from "../state/assistant-conversation.fixtures";
 import type { ConversationReducerAction } from "../state/conversation-reducer";
 import type { ConversationReducerState } from "../state/conversation-types";
-import { initialConversationState } from "../state/conversation-types";
 import * as conversationStore from "../state/conversation-store";
 import {
   assistantConversationStateAtom,
@@ -20,15 +20,6 @@ import { shutdownAssistantGracefully } from "./use-assistant-engine-host";
 import { useConversationRuns } from "./use-conversation-runs";
 
 type GetState = () => ConversationReducerState;
-
-function makeConversation(id: string, overrides: Partial<ConversationReducerState> = {}): ConversationReducerState {
-  return {
-    ...initialConversationState,
-    id,
-    createdAt: new Date(1),
-    ...overrides,
-  };
-}
 
 function createHarness() {
   const store = createStore();
