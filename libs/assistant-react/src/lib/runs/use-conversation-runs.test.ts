@@ -52,13 +52,11 @@ function createHarness() {
   });
 
   const chatStreamGenerator = vi.fn<ReturnType<typeof createAIGenerationClient>["chat"]>();
-  const chatExecutionProfiles: string[] = [];
 
   store.set(aiRuntimeAtom, {
     listModels: vi.fn(),
     chat: (profileId, request, onChunk, signal) => {
       if (!profileId) throw new Error("Missing profile identity");
-      chatExecutionProfiles.push(profileId);
       return chatStreamGenerator(request, onChunk, signal);
     },
   });
@@ -72,7 +70,6 @@ function createHarness() {
     touch,
     dispatchToMap,
     chatStreamGenerator,
-    chatExecutionProfiles,
   };
 }
 
@@ -81,27 +78,12 @@ function renderRuns(_harness: ReturnType<typeof createHarness>) {
   return renderHook(() => {
     const { dispatch } = useConversationRuns();
     return {
-      dispatch,
       executeChatRun: (conversationId: string, runId: string, request: ChatStreamRequest) =>
         dispatch({
           type: "submit",
           conversationId,
           input: { kind: "chat", runId, request, execution: chatExecution },
         }) as Promise<void>,
-      retryRun: (conversationId: string, runId: string, request: ChatStreamRequest, modelName?: string) =>
-        dispatch({
-          type: "retry",
-          conversationId,
-          input: {
-            runId,
-            request,
-            modelName,
-            execution: chatExecution,
-          },
-        }) as Promise<void>,
-      cancel: (conversationId: string, runId: string) => {
-        dispatch({ type: "cancel", conversationId, runId });
-      },
     };
   });
 }
@@ -188,66 +170,9 @@ describe("useConversationRuns", () => {
 
     expect(harness.touch).toHaveBeenCalledWith("A");
     expect(harness.touch).not.toHaveBeenCalledWith("B");
-  });
-
-  it("completing a background run on A while viewing B dirties only A", async () => {
-    // WHY: parameterless touch() used to dirty the currently viewed
-    // conversation. Background completion on A must bump A's pending-save
-    // counter and leave B clean.
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-    harness.store.set(upsertConversationAtom, makeConversation("B"));
-    harness.store.set(setCurrentConversationIdAtom, "A");
-    harness.store.set(assistantConversationStateAtom, [
-      "submitTurn",
-      { runId: "run-1", text: "hello", kind: "chat-text", assistantText: "" },
-    ]);
-
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk) => {
-      onChunk({ kind: "text", text: "done" });
-      harness.store.set(setCurrentConversationIdAtom, "B");
-      return undefined;
-    });
-
-    const { result } = renderRuns(harness);
-
-    await act(async () => {
-      await result.current.executeChatRun("A", "run-1", {} as ChatStreamRequest);
-    });
-
     const pending = harness.store.get(pendingSaveByConversationAtom);
     expect(pending["A"] ?? 0).toBeGreaterThan(0);
     expect(pending["B"] ?? 0).toBe(0);
-    expect(harness.touch.mock.calls.every(([id]) => id === "A")).toBe(true);
-  });
-
-  it("an unrequested AbortError fails the originating conversation run", async () => {
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-    harness.store.set(upsertConversationAtom, makeConversation("B"));
-    harness.store.set(setCurrentConversationIdAtom, "A");
-    harness.store.set(assistantConversationStateAtom, [
-      "submitTurn",
-      { runId: "run-A", text: "hello", kind: "chat-text", assistantText: "" },
-    ]);
-    harness.store.set(setCurrentConversationIdAtom, "B");
-
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk) => {
-      onChunk({ kind: "text", text: "partial" });
-      throw new DOMException("Aborted", "AbortError");
-    });
-
-    const { result } = renderRuns(harness);
-
-    await act(async () => {
-      await result.current.executeChatRun("A", "run-A", {} as ChatStreamRequest);
-    });
-
-    const cancelActions = harness.dispatchToMap.filter((entry) => entry.action[0] === "cancelRun");
-    const failedActions = harness.dispatchToMap.filter((entry) => entry.action[0] === "runFailed");
-    expect(cancelActions).toHaveLength(0);
-    expect(failedActions).toHaveLength(1);
-    expect(failedActions[0].id).toBe("A");
   });
 
   it("bumps the pending save for the originating conversation when a run fails", async () => {
@@ -279,224 +204,6 @@ describe("useConversationRuns", () => {
     expect(pending["A"] ?? 0).toBeGreaterThan(0);
     expect(pending["B"] ?? 0).toBe(0);
     expect(harness.touch).toHaveBeenCalledWith("A");
-  });
-
-  it("cancel(conversationId, runId) aborts only that run, leaving a concurrent same-mode stream running", async () => {
-    // WHY: two chats on different conversations must each own a controller.
-    // Mode-scoped cancel was not enough — the singleton stream hook aborted both.
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-    harness.store.set(upsertConversationAtom, makeConversation("B"));
-
-    const signals: AbortSignal[] = [];
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk, signal) => {
-      signals.push(signal);
-      onChunk({ kind: "text", text: "chunk" });
-      await holdUntilAborted(signal);
-    });
-
-    const { result } = renderRuns(harness);
-
-    let runA!: Promise<void>;
-    let runB!: Promise<void>;
-    act(() => {
-      runA = result.current.executeChatRun("A", "run-A", {} as ChatStreamRequest);
-      runB = result.current.executeChatRun("B", "run-B", {} as ChatStreamRequest);
-    });
-
-    await act(async () => {
-      while (signals.length < 2) await Promise.resolve();
-    });
-
-    expect(signals[0]?.aborted).toBe(false);
-    expect(signals[1]?.aborted).toBe(false);
-
-    await act(async () => {
-      result.current.cancel("A", "run-A");
-      await runA;
-    });
-
-    expect(signals[0]?.aborted).toBe(true);
-    expect(signals[1]?.aborted).toBe(false);
-
-    const cancelActions = harness.dispatchToMap.filter((entry) => entry.action[0] === "cancelRun");
-    expect(cancelActions).toHaveLength(1);
-    expect(cancelActions[0]?.id).toBe("A");
-
-    await act(async () => {
-      result.current.cancel("B", "run-B");
-      await runB;
-    });
-
-    expect(signals[1]?.aborted).toBe(true);
-  });
-
-  it("unmounting the hook does not abort an in-flight run", async () => {
-    const harness = createHarness();
-    harness.store.set(upsertConversationAtom, makeConversation("A"));
-
-    const signals: AbortSignal[] = [];
-    let resolveStream!: () => void;
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk, signal) => {
-      signals.push(signal);
-      onChunk({ kind: "text", text: "chunk" });
-      await new Promise<void>((resolve) => {
-        resolveStream = resolve;
-      });
-    });
-
-    const { result, unmount } = renderRuns(harness);
-
-    let runPromise!: Promise<void>;
-    act(() => {
-      runPromise = result.current.executeChatRun("A", "run-1", {} as ChatStreamRequest);
-    });
-
-    await act(async () => {
-      while (signals.length < 1) await Promise.resolve();
-    });
-
-    unmount();
-    expect(signals[0]?.aborted).toBe(false);
-
-    await act(async () => {
-      resolveStream();
-      await runPromise;
-    });
-
-    const completeActions = harness.dispatchToMap.filter((entry) => entry.action[0] === "completeRun");
-    expect(completeActions).toHaveLength(1);
-    expect(completeActions[0].id).toBe("A");
-  });
-
-  it("in-flight retry for A stays owned by A after UI switches to B", async () => {
-    const harness = createHarness();
-    harness.store.set(
-      upsertConversationAtom,
-      makeConversation("A", {
-        runs: {
-          "run-a": {
-            id: "run-a",
-            status: "failed",
-            cards: [],
-            cardStatuses: {},
-            toolCalls: [],
-            error: { message: "boom" },
-            startedAt: new Date(1),
-            elapsedSeconds: null,
-            modelName: "m",
-            templateFields: null,
-          },
-        },
-        messages: [
-          {
-            id: "user-run-a",
-            role: "user",
-            parts: [{ type: "text", text: "hello" }],
-          },
-          {
-            id: "assistant-run-a",
-            role: "assistant",
-            parts: [{ type: "text", text: "old" }],
-          },
-        ],
-      }),
-    );
-    harness.store.set(upsertConversationAtom, makeConversation("B"));
-    harness.store.set(setCurrentConversationIdAtom, "A");
-
-    let releaseRetry!: () => void;
-    const retryGate = new Promise<void>((resolve) => {
-      releaseRetry = resolve;
-    });
-
-    harness.chatStreamGenerator.mockImplementation(async (_request, onChunk) => {
-      onChunk({ kind: "text", text: "retried-a" });
-      await retryGate;
-      return undefined;
-    });
-
-    const { result } = renderRuns(harness);
-
-    let retryPromise!: Promise<void>;
-    act(() => {
-      retryPromise = result.current.retryRun("A", "run-a", {} as ChatStreamRequest, "m");
-    });
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    // Switch UI current to B while A's retry is still in flight.
-    harness.store.set(setCurrentConversationIdAtom, "B");
-
-    await act(async () => {
-      releaseRetry();
-      await retryPromise;
-    });
-
-    const restartActions = harness.dispatchToMap.filter((e) => e.action[0] === "restartRun");
-    expect(restartActions).toHaveLength(1);
-    expect(restartActions[0]?.id).toBe("A");
-
-    const clearActions = harness.dispatchToMap.filter(
-      (e) => e.action[0] === "updateAssistantText" && (e.action[1] as { text?: string }).text === "",
-    );
-    expect(clearActions.every((e) => e.id === "A")).toBe(true);
-
-    const chunkActions = harness.dispatchToMap.filter(
-      (e) => e.action[0] === "updateAssistantText" && (e.action[1] as { text?: string }).text === "retried-a",
-    );
-    expect(chunkActions).toHaveLength(1);
-    expect(chunkActions[0]?.id).toBe("A");
-
-    expect(harness.dispatchToMap.some((e) => e.id === "B" && e.action[0] === "restartRun")).toBe(false);
-    expect(harness.store.get(conversationsAtom)["B"]?.runs["run-a"]).toBeUndefined();
-  });
-
-  it("executes A with A's identity after React renders B", async () => {
-    const harness = createHarness();
-    let releaseRun!: () => void;
-    const gate = new Promise<void>((resolve) => {
-      releaseRun = resolve;
-    });
-    harness.chatStreamGenerator.mockImplementation(async () => {
-      await gate;
-      return undefined;
-    });
-
-    const { result, rerender } = renderHook(
-      ({ profileId }: { profileId: string }) => {
-        const { dispatch } = useConversationRuns();
-        return {
-          profileId,
-          executeChatRun: (
-            conversationId: string,
-            runId: string,
-            request: ChatStreamRequest,
-            execution: { profileId: string },
-          ) =>
-            dispatch({
-              type: "submit",
-              conversationId,
-              input: { kind: "chat", runId, request, execution },
-            }) as Promise<void>,
-        };
-      },
-      { initialProps: { profileId: "profile-a" } },
-    );
-
-    const identity = { profileId: result.current.profileId };
-    const runA = result.current.executeChatRun("A", "run-a", { input: { modelId: "model-a" }, messages: [] }, identity);
-
-    // This mirrors the route/profile render that previously replaced the
-    // module-level transport closure while A waited in the serial queue.
-    rerender({ profileId: "profile-b" });
-    identity.profileId = "profile-b";
-    releaseRun();
-    await runA;
-
-    expect(harness.chatExecutionProfiles).toEqual(["profile-a"]);
-    expect(harness.chatExecutionProfiles).not.toContain("profile-b");
   });
 
   it("shutdownAssistantGracefully interrupts streaming runs with app_shutdown", async () => {

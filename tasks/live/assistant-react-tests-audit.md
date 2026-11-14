@@ -108,8 +108,10 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
     to clean up); `:448` in-flight retry stays owned by A (`:182`); `:532` executes with command-time identity
     (`:225`); `:224` an unrequested AbortError fails the run (`:755`).
   - Keep `:128` (events land on the originating conversation) and `:578` (shutdown interrupts streaming runs), which
-    the host adapter owns. `:193` (completing a background run on A dirties only A) and `:253` (a failed run bumps
-    A's pending save) fold into `:128`.
+    the host adapter owns. `:193` (completing a background run on A dirties only A) folds into `:128`.
+  - Corrected at implementation: the report also folds `:253` (a failed run bumps A's pending save) into `:128`.
+    `:128` is a successful run, and the failure touch is its own branch (engine suite `conversation-runtime.ts`,
+    `case "error"` in `handleStreamResult`), so `:253` stays as the host's failure-routing test.
 
 - 7. Improvement, Should-fix: two engine behaviors have their only test in this package.
   Decision: fixed by item 5.
@@ -291,11 +293,11 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Move the usage and abort re-emit tests to the conversation runtime
   Depends on: none
 
-- [ ] 6. Delete engine rules re-tested through useConversationRuns
+- [x] 6. Delete engine rules re-tested through useConversationRuns
   Goal (finding 6): In `runs/use-conversation-runs.test.ts`, delete `:224`, `:360`, `:410`, `:448`, and `:532`.
-  Fold `:193` (a background completion on A dirties only A) and `:253` (a failed run bumps A's pending save) into
-  `:128` as extra assertions on the same run, and delete them.
-  Keep `:578`. Remove helpers and imports nothing uses afterwards.
+  Fold `:193` (a background completion on A dirties only A) into `:128` as extra assertions on the same run, and
+  delete it.
+  Keep `:253` and `:578` (finding 6, implementation note). Remove helpers and imports nothing uses afterwards.
   Constraints: that file only.
   Done when: the package's vitest run passes; the five deleted rules each still have the engine-suite test named in
   finding 6.
@@ -310,7 +312,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Constraints: that file only.
   Done when: the package's vitest run passes.
   Commit: Delete rules tested a third time in the chat integration suite
-  Depends on: 1, 6 (same file; `:253` folded before `:286` goes)
+  Depends on: 1, 6 (same file)
 
 - [ ] 8. Delete duplicate assistant-react tests
   Goal (finding 9): Delete or merge each duplicate the finding lists: `state/conversation-reducer-revert.test.ts:121-207`;
