@@ -253,7 +253,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Name the adapter-readiness test for what it asserts
   Depends on: none
 
-- [ ] 3. Assert the issue path in every corrupt restore case
+- [x] 3. Assert the issue path in every corrupt restore case
   Goal (finding 3): In `persistence/conversation-restore.test.ts`, give `expectCorrupt` (`:36`) a required `path`
   argument and have it assert that some returned issue has that path (`expect.objectContaining({ path })`).
   Update all 44 call sites to name the field each case corrupts (for example `"profileId"`,

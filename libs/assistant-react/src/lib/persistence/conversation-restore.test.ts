@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { computeConversationTitle } from "@koloda/ai";
 import { fromPersistedState, normalizeRestoredConversation, toPersistedState } from "./conversation-persistence";
 import { coerceConversationState } from "./conversation-persistence-schema";
-import type { RestoreIssue } from "./conversation-persistence-schema";
 import { CONVERSATION_SCHEMA_VERSION } from "./conversation-schema-version";
 import { initialConversationState } from "../state/conversation-types";
 import { findLatestErroredRun } from "../state/conversation-run-helpers";
@@ -32,13 +31,13 @@ function expectOk(value: unknown): ConversationReducerState {
   return result.state;
 }
 
-/** Returns the issues of a `corrupt` restore result, failing the test otherwise. */
-function expectCorrupt(value: unknown): RestoreIssue[] {
+/** Returns the issue paths of a `corrupt` restore result, failing the test otherwise. */
+function corruptPaths(value: unknown): string[] {
   const result = coerceConversationState(asStored(value));
   if (result.status !== "corrupt") {
     throw new Error(`expected restore result "corrupt", got ${JSON.stringify(result)}`);
   }
-  return result.issues;
+  return result.issues.map((issue) => issue.path);
 }
 
 describe("toPersistedState / fromPersistedState", () => {
@@ -171,7 +170,7 @@ describe("coerceConversationState", () => {
         },
       ],
     };
-    expect(expectCorrupt(row).length).toBeGreaterThan(0);
+    expect(corruptPaths(row)).toContain("messages.0.parts");
   });
 
   it("rejects a message with a non-string id as corrupt", () => {
@@ -181,7 +180,7 @@ describe("coerceConversationState", () => {
       createdAt: new Date(1),
       messages: [{ id: 7, role: "user", parts: [{ type: "text", text: "Hi" }] }],
     };
-    expect(expectCorrupt(row).length).toBeGreaterThan(0);
+    expect(corruptPaths(row)).toContain("messages.0.id");
   });
 
   it("keeps structurally valid messages and rejects malformed cards", () => {
@@ -222,13 +221,13 @@ describe("coerceConversationState", () => {
       ...okRow,
       runs: { r1: { ...run, cards: [{ content: "oops" }] } },
     };
-    expect(expectCorrupt(corruptRow).length).toBeGreaterThan(0);
+    expect(corruptPaths(corruptRow)).toContain("runs.r1.cards.0.content");
 
     const nullContentRow = {
       ...okRow,
       runs: { r1: { ...run, cards: [{ content: { "1": null } }] } },
     };
-    expect(expectCorrupt(nullContentRow).length).toBeGreaterThan(0);
+    expect(corruptPaths(nullContentRow)).toContain("runs.r1.cards.0.content.1");
   });
 
   it("classifies an absent row (undefined) as missing", () => {
@@ -236,21 +235,25 @@ describe("coerceConversationState", () => {
   });
 
   it("classifies non-object rows as corrupt with non-empty issues", () => {
-    expect(expectCorrupt(null).length).toBeGreaterThan(0);
-    expect(expectCorrupt("string").length).toBeGreaterThan(0);
-    expect(expectCorrupt(123).length).toBeGreaterThan(0);
-    expect(expectCorrupt([]).length).toBeGreaterThan(0);
+    expect(corruptPaths(null)).toContain("(root)");
+    expect(corruptPaths("string")).toContain("(root)");
+    expect(corruptPaths(123)).toContain("(root)");
+    expect(corruptPaths([])).toContain("(root)");
   });
 
   it("rejects objects with wrong field types as corrupt", () => {
-    expect(expectCorrupt({ ...storedRow, id: 123 }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, profileId: 5 }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, modelId: 7 }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, modelParameters: "x" }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, modelParameters: { reasoning_effort: 5 } }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, modelParameters: { reasoning_effort: null } }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, createdAt: 1700000000000 }).length).toBeGreaterThan(0);
-    expect(expectCorrupt({ ...storedRow, dismissedRunErrorId: 7 }).length).toBeGreaterThan(0);
+    expect(corruptPaths({ ...storedRow, id: 123 })).toContain("id");
+    expect(corruptPaths({ ...storedRow, profileId: 5 })).toContain("profileId");
+    expect(corruptPaths({ ...storedRow, modelId: 7 })).toContain("modelId");
+    expect(corruptPaths({ ...storedRow, modelParameters: "x" })).toContain("modelParameters");
+    expect(corruptPaths({ ...storedRow, modelParameters: { reasoning_effort: 5 } })).toContain(
+      "modelParameters.reasoning_effort",
+    );
+    expect(corruptPaths({ ...storedRow, modelParameters: { reasoning_effort: null } })).toContain(
+      "modelParameters.reasoning_effort",
+    );
+    expect(corruptPaths({ ...storedRow, createdAt: 1700000000000 })).toContain("createdAt");
+    expect(corruptPaths({ ...storedRow, dismissedRunErrorId: 7 })).toContain("dismissedRunErrorId");
   });
 
   it.each([
@@ -263,7 +266,7 @@ describe("coerceConversationState", () => {
     "promptInput",
   ])("rejects a row without %s as corrupt (the current build always writes it)", (field) => {
     const { [field as keyof typeof storedRow]: _omit, ...row } = storedRow;
-    expect(expectCorrupt(row).length).toBeGreaterThan(0);
+    expect(corruptPaths(row)).toContain(field);
   });
 
   it("coerces ISO string createdAt into a Date", () => {
@@ -318,7 +321,7 @@ describe("coerceConversationState", () => {
       { label: "a boolean", lastReadRunId: true },
       { label: "an object", lastReadRunId: {} },
     ])("rejects lastReadRunId when the field is $label", ({ lastReadRunId }) => {
-      expect(expectCorrupt(rowWithLastRead(false, lastReadRunId)).length).toBeGreaterThan(0);
+      expect(corruptPaths(rowWithLastRead(false, lastReadRunId))).toContain("lastReadRunId");
     });
   });
 
@@ -342,7 +345,7 @@ describe("coerceConversationState", () => {
     });
 
     it.each([null, 42])("rejects a promptInput of %s as corrupt", (promptInput) => {
-      expect(expectCorrupt(rowWithPrompt(false, promptInput)).length).toBeGreaterThan(0);
+      expect(corruptPaths(rowWithPrompt(false, promptInput))).toContain("promptInput");
     });
   });
 
@@ -385,7 +388,7 @@ describe("coerceConversationState", () => {
       { label: "a boolean", modelName: true },
       { label: "an object", modelName: {} },
     ])("rejects modelName when the field is $label", ({ modelName }) => {
-      expect(expectCorrupt(makeStateWithRun(baseRun({ modelName }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ modelName })))).toContain("runs.r1.modelName");
     });
   });
 
@@ -425,13 +428,13 @@ describe("coerceConversationState", () => {
       { status: "canceled", reason: "user" },
       { status: "interrupted", reason: "crash_recovery" },
     ])("rejects the note on a $status run", (overrides) => {
-      expect(
-        expectCorrupt(makeStateWithRun(baseRun({ ...overrides, stopNote: "step_budget" }))).length,
-      ).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ ...overrides, stopNote: "step_budget" })))).toContain(
+        "runs.r1.stopNote",
+      );
     });
 
     it("rejects an unknown note", () => {
-      expect(expectCorrupt(makeStateWithRun(baseRun({ stopNote: "tired" }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ stopNote: "tired" })))).toContain("runs.r1.stopNote");
     });
   });
 
@@ -475,14 +478,14 @@ describe("coerceConversationState", () => {
     });
 
     it("rejects a record-shaped templateFields as corrupt (not a TemplateFields array)", () => {
-      expect(
-        expectCorrupt(makeStateWithRun(baseRun({ templateFields: { "1": { text: "A" } } }))).length,
-      ).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ templateFields: { "1": { text: "A" } } })))).toContain(
+        "runs.r1.templateFields",
+      );
     });
 
     it("rejects a missing templateFields as corrupt (a bad field fails the whole row)", () => {
       const { templateFields: _omit, ...withoutTemplateFields } = baseRun();
-      expect(expectCorrupt(makeStateWithRun(withoutTemplateFields)).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(withoutTemplateFields))).toContain("runs.r1.templateFields");
     });
   });
 
@@ -598,32 +601,32 @@ describe("coerceConversationState", () => {
 
     it("rejects a malformed toolCalls value as corrupt", () => {
       const { toolCalls: _omit, ...withoutToolCalls } = baseRun();
-      expect(expectCorrupt(makeStateWithRun(withoutToolCalls)).length).toBeGreaterThan(0);
-      expect(expectCorrupt(makeStateWithRun(baseRun({ toolCalls: "yes" }))).length).toBeGreaterThan(0);
-      expect(expectCorrupt(makeStateWithRun(baseRun({ toolCalls: null }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(withoutToolCalls))).toContain("runs.r1.toolCalls");
+      expect(corruptPaths(makeStateWithRun(baseRun({ toolCalls: "yes" })))).toContain("runs.r1.toolCalls");
+      expect(corruptPaths(makeStateWithRun(baseRun({ toolCalls: null })))).toContain("runs.r1.toolCalls");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({
               toolCalls: [{ id: "call-1", name: "list_decks", input: {}, status: "pending", ...timing }],
             }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(baseRun({ toolCalls: [{ name: "list_decks", input: {}, status: "success", ...timing }] })),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({ toolCalls: [{ id: 1, name: "list_decks", input: {}, status: "success", ...timing }] }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({
               toolCalls: [
@@ -631,8 +634,8 @@ describe("coerceConversationState", () => {
               ],
             }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
     });
 
     it("strips unknown extra keys on a tool call instead of failing the row", () => {
@@ -704,14 +707,14 @@ describe("coerceConversationState", () => {
 
     it("rejects a missing or malformed activity timer as corrupt", () => {
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({ toolCalls: [{ id: "call-1", name: "list_decks", input: {}, status: "success" }] }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({
               toolCalls: [
@@ -725,10 +728,10 @@ describe("coerceConversationState", () => {
               ],
             }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
       expect(
-        expectCorrupt(
+        corruptPaths(
           makeStateWithRun(
             baseRun({
               toolCalls: [
@@ -742,8 +745,8 @@ describe("coerceConversationState", () => {
               ],
             }),
           ),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toContain("runs.r1.toolCalls.0");
     });
   });
 
@@ -827,7 +830,7 @@ describe("coerceConversationState", () => {
 
     it.each(writeTargetFields)("rejects a malformed $field value as corrupt", ({ field }) => {
       for (const value of ["yes", null, 0, -1, 1.5, true]) {
-        expect(expectCorrupt(makeStateWithRun(baseRun({ [field]: value }))).length).toBeGreaterThan(0);
+        expect(corruptPaths(makeStateWithRun(baseRun({ [field]: value })))).toContain(`runs.r1.${field}`);
       }
     });
   });
@@ -847,13 +850,13 @@ describe("coerceConversationState", () => {
 
     it("fails the row as corrupt when updatedAt is present but unparseable (not coerced to null)", () => {
       expect(
-        expectCorrupt({
+        corruptPaths({
           ...storedRow,
           id: "conv-1",
           createdAt: new Date(1),
           updatedAt: "not-a-date",
-        }).length,
-      ).toBeGreaterThan(0);
+        }),
+      ).toContain("updatedAt");
     });
   });
 
@@ -899,41 +902,41 @@ describe("coerceConversationState", () => {
 
     it("classifies a row with a missing or malformed schemaVersion as corrupt", () => {
       const { schemaVersion: _omit, ...withoutVersion } = makeStateWithRun(baseRun());
-      expect(expectCorrupt({ ...withoutVersion, id: "conv-1" }).length).toBeGreaterThan(0);
+      expect(corruptPaths({ ...withoutVersion, id: "conv-1" })).toContain("schemaVersion");
       expect(
-        expectCorrupt({
+        corruptPaths({
           ...storedRow,
           id: "conv-1",
           createdAt: new Date(1),
           schemaVersion: "2",
-        }).length,
-      ).toBeGreaterThan(0);
+        }),
+      ).toContain("schemaVersion");
       expect(
-        expectCorrupt({
+        corruptPaths({
           ...storedRow,
           id: "conv-1",
           createdAt: new Date(1),
           schemaVersion: 1.5,
-        }).length,
-      ).toBeGreaterThan(0);
+        }),
+      ).toContain("schemaVersion");
       expect(
-        expectCorrupt({
+        corruptPaths({
           ...storedRow,
           id: "conv-1",
           createdAt: new Date(1),
           schemaVersion: -1,
-        }).length,
-      ).toBeGreaterThan(0);
+        }),
+      ).toContain("schemaVersion");
     });
 
     it("rejects an unknown run status string as corrupt", () => {
-      expect(expectCorrupt(makeStateWithRun(baseRun({ status: "pending" }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ status: "pending" })))).toContain("runs.r1.status");
     });
 
     it("rejects canceled with a reason other than user as corrupt", () => {
-      expect(
-        expectCorrupt(makeStateWithRun(baseRun({ status: "canceled", reason: "app_shutdown" }))).length,
-      ).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ status: "canceled", reason: "app_shutdown" })))).toContain(
+        "runs.r1.reason",
+      );
     });
 
     it.each<{ status: "canceled" | "interrupted"; reason: "user" | "crash_recovery" }>([
@@ -946,7 +949,9 @@ describe("coerceConversationState", () => {
     });
 
     it("rejects success carrying a termination reason as corrupt", () => {
-      expect(expectCorrupt(makeStateWithRun(baseRun({ status: "success", reason: "user" }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ status: "success", reason: "user" })))).toContain(
+        "runs.r1.reason",
+      );
     });
   });
 
@@ -997,7 +1002,9 @@ describe("coerceConversationState", () => {
       { label: "an object", value: {} },
       { label: "a boolean", value: true },
     ])("rejects $label card status as corrupt", ({ value }) => {
-      expect(expectCorrupt(makeStateWithRun(baseRun({ cardStatuses: { 0: value } }))).length).toBeGreaterThan(0);
+      expect(corruptPaths(makeStateWithRun(baseRun({ cardStatuses: { 0: value } })))).toContain(
+        "runs.r1.cardStatuses.0",
+      );
     });
   });
 });
