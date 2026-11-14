@@ -32,6 +32,28 @@ function makeConfig(overrides: Partial<AssistantConversationConfig> = {}): Assis
 
 type DispatchCommand = (command: AssistantCommand) => void | Promise<void>;
 
+/** Renders the hook against `store`; collaborators not overridden are inert. */
+function orchestrate(
+  store: ReturnType<typeof createStore>,
+  {
+    config = makeConfig(),
+    ...overrides
+  }: Partial<Parameters<typeof useRunOrchestration>[0]> & { config?: AssistantConversationConfig } = {},
+) {
+  return renderHook(() =>
+    useRunOrchestration({
+      configRef: { current: config },
+      readState: () => store.get(assistantConversationStateAtom),
+      dispatch: (action) => store.set(assistantConversationStateAtom, action),
+      dispatchLocal: vi.fn(),
+      rememberLastUsedAIProfile: vi.fn(),
+      cancelActiveRun: vi.fn(),
+      dispatchCommand: vi.fn(),
+      ...overrides,
+    }),
+  );
+}
+
 // WHY: `handleRetry` must validate before starting a stream so an invalid
 // retry (no prompt/profile/model) never reaches the engine.
 describe("useRunOrchestration — handleRetry ordering", () => {
@@ -103,27 +125,13 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     });
   }
 
-  function orchestrate(cfg: AssistantConversationConfig) {
-    return renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile,
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
-  }
-
   it("an invalid retry (no profile) does not start a stream", async () => {
     seedConversation("conv-1");
     addChatRun("run-1");
     dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
     const cfg = makeConfig({ profileId: "" });
 
-    const { result } = orchestrate(cfg);
+    const { result } = orchestrate(store, { config: cfg, rememberLastUsedAIProfile, dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-1");
     });
@@ -140,7 +148,7 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     dispatch(["runFailed", { runId: "run-2", error: { message: "boom" } }]);
     const cfg = makeConfig();
 
-    const { result } = orchestrate(cfg);
+    const { result } = orchestrate(store, { config: cfg, rememberLastUsedAIProfile, dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-2");
     });
@@ -154,7 +162,7 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
     const cfg = makeConfig();
 
-    const { result } = orchestrate(cfg);
+    const { result } = orchestrate(store, { config: cfg, rememberLastUsedAIProfile, dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-1");
     });
@@ -212,19 +220,7 @@ describe("useRunOrchestration — atomic submitTurn", () => {
       createdAt: new Date(1),
     });
     store.set(currentConversationIdAtom, "conv-1");
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatch, dispatchCommand });
 
     await act(async () => {
       await result.current.handleGenerate("Hello atomic");
@@ -284,26 +280,12 @@ describe("useRunOrchestration — retry always chat", () => {
     dispatch(["runFailed", { runId, error: { message: "boom" } }]);
   }
 
-  function orchestrate(cfg: AssistantConversationConfig = makeConfig()) {
-    return renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
-  }
-
   it("retrying a run that is not the visible tail is a no-op", async () => {
     seedConversation("conv-1");
     addFailedChatRun("run-1");
     dispatch(["submitTurn", { runId: "run-2", text: "hello", kind: "chat-text", assistantText: "" }]);
 
-    const { result } = orchestrate();
+    const { result } = orchestrate(store, { dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-1");
     });
@@ -320,7 +302,7 @@ describe("useRunOrchestration — retry always chat", () => {
     dispatch(["submitTurn", { runId: "run-1", text: "hello", kind: "chat-text", assistantText: "" }]);
     dispatch(["completeRun", { runId: "run-1" }]);
 
-    const { result } = orchestrate();
+    const { result } = orchestrate(store, { dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-1");
     });
@@ -333,7 +315,7 @@ describe("useRunOrchestration — retry always chat", () => {
     seedConversation("conv-1");
     dispatch(["submitTurn", { runId: "run-1", text: "hello", kind: "chat-text", assistantText: "" }]);
 
-    const { result } = orchestrate();
+    const { result } = orchestrate(store, { dispatchCommand });
     await act(async () => {
       await result.current.handleRetry("run-1");
     });
@@ -366,17 +348,7 @@ describe("useRunOrchestration — handleRevert", () => {
     dispatch(["submitTurn", { runId: "run-1", text: "make cards", kind: "chat-text", assistantText: "" }]);
     dispatch(["completeRun", { runId: "run-1" }]);
 
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: makeConfig() },
-        readState,
-        dispatch,
-        dispatchLocal,
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand: vi.fn(),
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchLocal });
 
     let prompt: string | null = null;
     act(() => {
@@ -398,17 +370,7 @@ describe("useRunOrchestration — handleRevert", () => {
     dispatch(["submitTurn", { runId: "run-2", text: "Second", kind: "chat-text", assistantText: "" }]);
     dispatch(["completeRun", { runId: "run-2" }]);
 
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: makeConfig() },
-        readState,
-        dispatch,
-        dispatchLocal,
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand: vi.fn(),
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchLocal });
 
     // The chat shell passes the composer text, which is the last pre-fill after the first revert.
     let restored: string | null = null;
@@ -457,19 +419,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       await gate;
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     let first!: Promise<void>;
     let second!: Promise<void>;
@@ -501,17 +451,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
 
       const dispatchCommand = vi.fn<DispatchCommand>(() => Promise.resolve());
       const cfg = makeConfig(overrides);
-      const { result } = renderHook(() =>
-        useRunOrchestration({
-          configRef: { current: cfg },
-          readState,
-          dispatch,
-          dispatchLocal: vi.fn(),
-          rememberLastUsedAIProfile: vi.fn(),
-          cancelActiveRun: vi.fn(),
-          dispatchCommand,
-        }),
-      );
+      const { result } = orchestrate(store, { config: cfg, dispatchCommand });
 
       await act(async () => {
         await result.current.handleGenerate(prompt);
@@ -542,19 +482,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       await gate;
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch: trackingDispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatch: trackingDispatch, dispatchCommand });
 
     let first!: Promise<void>;
     act(() => {
@@ -609,19 +537,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       await gate;
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     let first!: Promise<void>;
     let second!: Promise<void>;
@@ -654,19 +570,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async (command) => {
       if (command.type === "submit" && command.conversationId === "A") await gateA;
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     let runA!: Promise<void>;
     act(() => {
@@ -698,19 +602,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       throw new AssistantDuplicateRunError("conv-1", "run-new", "run-old");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     await act(async () => {
       await expect(result.current.handleGenerate("dup")).resolves.toBeUndefined();
@@ -732,19 +624,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
       dispatched.push(action);
       dispatch(action);
     };
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch: trackingDispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatch: trackingDispatch, dispatchCommand });
 
     await act(async () => {
       await expect(result.current.handleGenerate("dup-sync")).resolves.toBeUndefined();
@@ -760,19 +640,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(() => {
       throw new AssistantEngineClosedError("closed");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     await act(async () => {
       await expect(result.current.handleGenerate("closed")).resolves.toBeUndefined();
@@ -788,19 +656,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       throw new AssistantEngineClosedError("closed");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     await act(async () => {
       await expect(result.current.handleGenerate("closed-async")).resolves.toBeUndefined();
@@ -817,19 +673,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       throw new AssistantDuplicateRunError("conv-1", "run-1", "run-other");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     await act(async () => {
       await expect(result.current.handleRetry("run-1")).resolves.toBeUndefined();
@@ -841,19 +685,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       throw new Error("transport blew up");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     await act(async () => {
@@ -875,19 +707,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     const dispatchCommand = vi.fn<DispatchCommand>(async () => {
       throw new Error("retry transport blew up");
     });
-
-    const cfg = makeConfig();
-    const { result } = renderHook(() =>
-      useRunOrchestration({
-        configRef: { current: cfg },
-        readState,
-        dispatch,
-        dispatchLocal: vi.fn(),
-        rememberLastUsedAIProfile: vi.fn(),
-        cancelActiveRun: vi.fn(),
-        dispatchCommand,
-      }),
-    );
+    const { result } = orchestrate(store, { dispatchCommand });
 
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     await act(async () => {

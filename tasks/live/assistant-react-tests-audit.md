@@ -395,7 +395,7 @@ Paths are relative to `libs/assistant-react/src/lib/` unless they start with `li
   Commit: Share the run fixtures in the restore tests
   Depends on: 3
 
-- [ ] 16. Share the hook setup in the run orchestration tests
+- [x] 16. Share the hook setup in the run orchestration tests
   Goal (finding 12): In `runs/use-run-orchestration.test.ts`, give the file one module-level `orchestrate` that takes
   the store-bound collaborators and overrides, and use it in every describe in place of the 18 spelled-out
   `useRunOrchestration({...})` calls and the three local `orchestrate` copies.
