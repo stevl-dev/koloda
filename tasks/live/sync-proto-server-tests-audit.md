@@ -174,7 +174,7 @@ none
   Commit: Link attachments out of sorted order in a protocol test
   Depends on: none
 
-- [ ] 3. Test the disk watermarks at their limits
+- [x] 3. Test the disk watermarks at their limits
   Goal (finding 3): In `crates/koloda-server/tests/server/quota_tests.rs`,
   `the_disk_watermarks_hold_writes_then_refuse_every_push` (`:191`, soft watermark 1,000, reserve 100), add the edges:
   free space exactly 1,000 is not over quota, 999 is; exactly 100 holds growing writes but does not refuse the push

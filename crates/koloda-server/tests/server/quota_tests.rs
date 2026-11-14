@@ -194,7 +194,13 @@ async fn the_disk_watermarks_hold_writes_then_refuse_every_push() {
     let device = harness.create_space("Study").await;
     decks(&harness, &device).await;
 
-    disk.0.store(500, Ordering::SeqCst);
+    disk.0.store(1_000, Ordering::SeqCst);
+    assert!(
+        !is_over_quota(&harness, &device).await,
+        "at the soft watermark is not over"
+    );
+
+    disk.0.store(999, Ordering::SeqCst);
     assert!(
         is_over_quota(&harness, &device).await,
         "below the soft watermark counts as over"
@@ -210,11 +216,20 @@ async fn the_disk_watermarks_hold_writes_then_refuse_every_push() {
     .await;
     assert_eq!(held, vec![QUOTA, Outcome::Applied]);
 
-    disk.0.store(50, Ordering::SeqCst);
+    disk.0.store(100, Ordering::SeqCst);
+    let at_reserve = push_outcomes(
+        &harness,
+        &device,
+        vec![(6, card_create(CARD, DECK, TEMPLATE, stamp(2, 0, 1)))],
+    )
+    .await;
+    assert_eq!(at_reserve, vec![QUOTA], "at the reserve a push is held, not refused");
+
+    disk.0.store(99, Ordering::SeqCst);
     let refused = harness
         .push_body(
             &device,
-            &batch(vec![(6, tombstone(Kind::Decks, DECK, None, stamp(2, 0, 1)))]),
+            &batch(vec![(7, tombstone(Kind::Decks, DECK, None, stamp(3, 0, 1)))]),
         )
         .await;
     assert_eq!(
@@ -226,13 +241,13 @@ async fn the_disk_watermarks_hold_writes_then_refuse_every_push() {
     disk.0.store(10_000, Ordering::SeqCst);
     let retried = outcomes(
         harness
-            .push(&device, vec![(6, tombstone(Kind::Decks, DECK, None, stamp(2, 0, 1)))])
+            .push(&device, vec![(7, tombstone(Kind::Decks, DECK, None, stamp(3, 0, 1)))])
             .await
             .ok(),
     );
     assert_eq!(
         retried,
-        vec![(6, Outcome::Applied, false)],
+        vec![(7, Outcome::Applied, false)],
         "the refused push consumed nothing"
     );
 }
