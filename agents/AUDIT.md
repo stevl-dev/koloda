@@ -46,6 +46,9 @@ If you have not loaded a spec, you cannot raise a spec-violation finding against
 Read the entries in `tasks/DEFERRED.md` for the target: those whose heading or `Evidence:` names a path inside it.
 They are work earlier tasks left undone on purpose (`agents/TASKS.md` (§Deferred work)).
 
+Read the entries in `tasks/BACKLOG.md` for the target, and their briefs (`agents/TASKS.md` (§Area lookup)).
+They are work the human already intends to do.
+
 Read the README of each package in scope (`Where it sits`, `Does NOT own`).
 Read the owning specs before the code.
 Code is judged against its spec, not against taste.
@@ -141,6 +144,7 @@ An audit recommends; it does not implement.
 A finding whose only basis is taste is not a finding.
 
 A finding that matches a deferred entry is reported as known, citing the entry's `Source:`, not as new.
+A finding that matches a backlog entry or its brief is reported as known too, citing the entry's slug.
 A deferred entry for the target that no longer holds is reported as resolved, with what resolved it.
 
 ## Noise: do not raise
@@ -160,13 +164,14 @@ There is no "task" whose untouched neighbors are off limits.
 Write the report to `tmp/audits/<slug>.md`, creating the directory if needed.
 The slug names the target, for example `assistant-messages` or `core-dead-code`.
 `tmp/` is gitignored; the report is ephemeral.
-The report's only durable form is the task file that triages it,
+Its durable form is the task file that triages it,
 per `agents/TASKS.md` and `agents/IMPLEMENTATION-PLAN.md`.
 That task file must carry every finding, fixed, skipped, or needs-decision,
 with its number, classification, severity, and `file:line`.
 See `agents/TASKS.md` §Audit-sourced tasks.
 A finding left out of the task file is lost when the report is gone.
 The audit session does not create that file and does not implement.
+A report that will not be triaged soon can wait as a backlog brief (§After the report).
 
 Structure, in this order:
 
@@ -176,7 +181,7 @@ Structure, in this order:
 4. Strengths — what is good and should be kept as-is.
 5. Findings grouped by classification, ordered by severity inside each group.
    Each finding has `file:line` evidence, a classification, a severity, and a local fix direction.
-   A known finding cites its deferred entry (§Finding rules).
+   A known finding cites its deferred or backlog entry (§Finding rules).
 6. Resolved deferred entries — a list of its own: each entry that no longer holds, and what resolved it.
    Write `none` when every entry for the target still holds.
 7. Prioritized recommendations — a table: number, action (with § references), severity, effort, impact.
@@ -192,11 +197,15 @@ Do not fix findings in the audit session.
 
 The human triages each finding: fix, skip, or needs-decision.
 
+When the human asks to keep the report for later, put it on the backlog (`agents/TASKS.md` (§Backlog)):
+move the report to the item's brief path and add its entry.
+The brief is then the report's durable form until a task is scheduled from it.
+
 ## Checklist
 
 - [ ] Scope restated and bounded; split asked for if the target spanned more than one primary spec.
-- [ ] Standing guides loaded; deferred entries for the target read; specs read before code.
-- [ ] Known findings cite their deferred entry; resolved entries listed on their own.
+- [ ] Standing guides loaded; deferred and backlog entries for the target read; specs read before code.
+- [ ] Known findings cite their deferred or backlog entry; resolved entries listed on their own.
 - [ ] Every finding cites `file:line`, a classification, and a severity.
 - [ ] Spec-violation findings cite the spec section.
 - [ ] Architecture findings cite a README, map row, or decision.

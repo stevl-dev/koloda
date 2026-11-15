@@ -20,6 +20,8 @@ Then read, for the area:
 - its primary spec, its decisions, and the README of each package in it (`Where it sits`, `Does NOT own`);
 - its entries in `tasks/DEFERRED.md`: the skipped and needs-decision findings, open questions, and handoffs
   that earlier tasks left undone (`agents/TASKS.md` (§Deferred work));
+- its entries in `tasks/BACKLOG.md` and their briefs: work the human already intends to do
+  (`agents/TASKS.md` (§Area lookup));
 - its git history since the area's last architecture review, or for the whole area if there was none.
 
 From the history, measure:
@@ -68,11 +70,12 @@ Prefer the option that deletes more than it adds.
 
 Write the report to `tmp/audits/<slug>-architecture.md`, creating the directory if needed.
 `tmp/` is gitignored; the report is ephemeral.
+A report whose proposals will not be decided soon can wait as a backlog brief (§After the report).
 
 Structure, in this order:
 
 1. Title, the area, and the reviewed commit hash.
-2. Scope read: specs, decisions, packages, deferred entries, and the history range.
+2. Scope read: specs, decisions, packages, deferred and backlog entries, and the history range.
 3. The map: the area as it is (§What to look for).
 4. Findings for items 2–4, each with evidence.
 5. Proposals, at most three, each with its options.
@@ -88,10 +91,13 @@ The human decides each proposal.
 - Rejected: the human picks where the rejection is recorded, usually Rejected designs of the area's decision,
   so the next review does not propose it again.
 
+When the human asks to keep the report for later, put it on the backlog (`agents/TASKS.md` (§Backlog)):
+move the report to the item's brief path and add its entry.
+
 ## Checklist
 
 - [ ] Area restated and bounded.
-- [ ] Deferred entries and git history for the area read; measurements cited.
+- [ ] Deferred entries, backlog entries, and git history for the area read; measurements cited.
 - [ ] The map describes the code as it is.
 - [ ] At most three proposals, each a draft decision.
 - [ ] Every proposal has a seriously argued "do nothing" option.

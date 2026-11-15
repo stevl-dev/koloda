@@ -267,10 +267,12 @@ After approval, flip Status to `ready`.
 
 A task that triages an audit report keeps the report's findings in its task file.
 `tmp/audits/<slug>.md` is gitignored, so the task file is the report's only durable form.
+The same holds for a report kept as a backlog brief: scheduling its task deletes the brief (§Schedule).
 Do not commit the report.
 It would add a second file under `live/` that the Archive gate does not move.
 
 - Intent names the audited commit and the report path, for provenance only.
+  - For a report that was a backlog brief, the path is the brief's, with the `main` commit it was read at.
 - Scope or Plan carries every finding, numbered as in the report.
   - Each entry starts with one line in this shape, so entries can be counted across the archive:
     `- <number>. <classification>, <severity>: <the finding in one sentence>`.
@@ -346,7 +348,10 @@ An entry and its brief reach `main` like any small doc edit: through `bun run la
 
 The entries for a target are those whose `Area:` names a path inside the target, or a path the target is inside.
 
-Scheduled work lists the entries for its area to the human, in step 1 of §Session protocol.
+- Scheduled work lists the entries for its area to the human, in step 1 of §Session protocol.
+- An audit reads the entries for its target, and their briefs (`agents/AUDIT.md` (§Target and inputs)).
+- An architecture review reads the entries for its area, and their briefs
+  (`agents/ARCHITECTURE-REVIEW.md` (§Target and inputs)).
 
 ### How an entry leaves
 

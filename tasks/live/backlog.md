@@ -156,7 +156,7 @@ Out:
   Commit: Check the backlog shape in the docs check
   Depends on: 1
 
-- [ ] 3. Point audits and architecture reviews at the backlog
+- [x] 3. Point audits and architecture reviews at the backlog
   Goal: In `agents/AUDIT.md` (§Report and §After the report) and `agents/ARCHITECTURE-REVIEW.md` (§Report),
   keep the report ephemeral by default, and add that the human may ask for it to be kept as a brief:
   the report is then written or moved to the item's brief path with a backlog entry, per `agents/TASKS.md` (§Backlog).
