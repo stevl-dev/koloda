@@ -302,14 +302,12 @@ describe("createConversationPersistenceHost", () => {
     host.dispose();
   });
 
-  it("beginDelete commit awaits an in-flight write then blocks further saves", async () => {
+  it("beginDelete resolves only after the in-flight write finishes", async () => {
     const rows = new Map<string, string>();
     let releaseWrite!: () => void;
     const writeGate = new Promise<void>((resolve) => {
       releaseWrite = resolve;
     });
-    let pending: Record<string, number> = { A: 1 };
-    let listener: ((next: Record<string, number>) => void) | null = null;
     let writeCount = 0;
 
     const host = createConversationPersistenceHost({
@@ -319,13 +317,8 @@ describe("createConversationPersistenceHost", () => {
         rows.set(id, "saved");
       },
       isStreaming: () => false,
-      getInitialPending: () => ({ ...pending }),
-      subscribePendingSaves: (l) => {
-        listener = l;
-        return () => {
-          listener = null;
-        };
-      },
+      getInitialPending: () => ({ A: 1 }),
+      subscribePendingSaves: () => () => {},
     });
 
     host.retrySave("A");
@@ -350,19 +343,6 @@ describe("createConversationPersistenceHost", () => {
     expect(writeCount).toBe(1);
     expect(rows.get("A")).toBe("saved");
 
-    // Simulate post-commit DB delete while still tombstoned.
-    rows.delete("A");
-    host.retrySave("A");
-    pending = { A: 2 };
-    listener!(pending);
-    host.retrySave("A");
-    await vi.advanceTimersByTimeAsync(0);
-    await Promise.resolve();
-    expect(writeCount).toBe(1);
-    expect(rows.has("A")).toBe(false);
-
-    pending = {};
-    listener!(pending);
     host.dispose();
   });
 
@@ -433,16 +413,6 @@ describe("createConversationPersistenceHost", () => {
     await vi.advanceTimersByTimeAsync(0);
     await Promise.resolve();
     await Promise.resolve();
-    expect(writeCount).toBe(3);
-
-    // Later successful delete via commit.
-    const committed = await host.beginDelete("A");
-    committed.commit();
-    expect(host.isTombstoned("A")).toBe(true);
-    pending = { A: 5 };
-    listener!(pending);
-    host.retrySave("A");
-    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
     expect(writeCount).toBe(3);
 
     host.dispose();

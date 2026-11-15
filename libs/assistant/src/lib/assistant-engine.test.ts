@@ -159,49 +159,6 @@ describe("createAssistantEngine", () => {
     await expect(runPromise).resolves.toBeUndefined();
   });
 
-  it("in-flight retry for A stays owned by A after UI-current switches to B", async () => {
-    conversationStates["A"] = { runs: { "run-a": { status: "failed" } } };
-    conversationStates["B"] = { runs: {} };
-
-    let releaseRetry!: () => void;
-    const retryGate = new Promise<void>((resolve) => {
-      releaseRetry = resolve;
-    });
-
-    chatStreamGenerator.mockImplementation(async (_req, onChunk) => {
-      onChunk({ kind: "text", text: "retried" });
-      await retryGate;
-      return undefined;
-    });
-
-    const retryPromise = dispatchRetry(engine, "A", "run-a", {} as ChatStreamRequest, "model-a");
-    await Promise.resolve();
-
-    // Simulate the UI switching to B while A's retry is still in flight.
-    conversationStates["B"] = { runs: { "run-b": {} } };
-
-    releaseRetry();
-    await retryPromise;
-
-    const restartActions = events.filter((e) => e.type === "runStarted");
-    expect(restartActions).toHaveLength(1);
-    expect(restartActions[0]?.conversationId).toBe("A");
-
-    const clearActions = events.filter(
-      (e) => e.type === "runChunk" && e.chunk.kind === "assistantText" && e.chunk.text === "",
-    );
-    expect(clearActions.some((e) => e.conversationId === "A")).toBe(true);
-    expect(clearActions.some((e) => e.conversationId === "B")).toBe(false);
-
-    const chunkUpdates = events.filter(
-      (e) => e.type === "runChunk" && e.chunk.kind === "assistantText" && e.chunk.text === "retried",
-    );
-    expect(chunkUpdates).toHaveLength(1);
-    expect(chunkUpdates[0]?.conversationId).toBe("A");
-
-    expect(events.some((e) => e.conversationId === "B")).toBe(false);
-  });
-
   it("captures immutable command input before execution reaches the application port", async () => {
     const chatInputs: AssistantChatExecutionInput[] = [];
     let releaseChat!: () => void;

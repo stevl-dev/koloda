@@ -54,39 +54,7 @@ describe("createConversationSaveQueue", () => {
     expect(await failing).toBe("failed");
   });
 
-  it("serializes writes so a second flush waits for the in-flight write", async () => {
-    const writes: Array<ReturnType<typeof deferred<void>>> = [];
-    const write = vi.fn(() => {
-      const d = deferred();
-      writes.push(d);
-      return d.promise;
-    });
-    const isStreaming = vi.fn(() => false);
-    const queue = createConversationSaveQueue({ conversationId: "A", write, isStreaming });
-
-    queue.notifyDirty();
-    await vi.advanceTimersByTimeAsync(0);
-    expect(write).toHaveBeenCalledTimes(1);
-
-    // Dirtied again while N is in flight — must not start a parallel write.
-    queue.notifyDirty();
-    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
-    expect(write).toHaveBeenCalledTimes(1);
-    expect(queue.isDirty()).toBe(true);
-
-    writes[0]!.resolve();
-    await writes[0]!.promise;
-    await Promise.resolve();
-    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
-    expect(write).toHaveBeenCalledTimes(2);
-
-    writes[1]!.resolve();
-    await writes[1]!.promise;
-    await Promise.resolve();
-    expect(queue.isDirty()).toBe(false);
-  });
-
-  it("ack of N does not clear dirty when N+1 was queued during the write", async () => {
+  it("serializes writes, and an ack of N leaves dirty set when N+1 was queued during the write", async () => {
     const first = deferred();
     const second = deferred();
     let call = 0;
@@ -105,8 +73,10 @@ describe("createConversationSaveQueue", () => {
     expect(write).toHaveBeenCalledTimes(1);
     expect(queue.isDirty()).toBe(true);
 
-    // Queue N+1 while N is in flight.
+    // Queue N+1 while N is in flight — must not start a parallel write.
     queue.notifyDirty();
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
+    expect(write).toHaveBeenCalledTimes(1);
     expect(queue.isDirty()).toBe(true);
 
     first.resolve();
@@ -121,49 +91,6 @@ describe("createConversationSaveQueue", () => {
     second.resolve();
     await second.promise;
     await Promise.resolve();
-    expect(queue.isDirty()).toBe(false);
-  });
-
-  it("persists the latest snapshot after overlapping in-flight and queued dirties", async () => {
-    const snapshots: string[] = [];
-    let latest = "N";
-    const first = deferred();
-    const second = deferred();
-    let call = 0;
-    const write = vi.fn(async () => {
-      call += 1;
-      const snap = latest;
-      if (call === 1) {
-        await first.promise;
-      } else {
-        await second.promise;
-      }
-      snapshots.push(snap);
-    });
-    const queue = createConversationSaveQueue({
-      conversationId: "A",
-      write,
-      isStreaming: () => false,
-    });
-
-    queue.notifyDirty();
-    await vi.advanceTimersByTimeAsync(0);
-    expect(write).toHaveBeenCalledTimes(1);
-
-    latest = "N+1";
-    queue.notifyDirty();
-
-    first.resolve();
-    await first.promise;
-    await Promise.resolve();
-    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
-
-    expect(write).toHaveBeenCalledTimes(2);
-    second.resolve();
-    await second.promise;
-    await Promise.resolve();
-
-    expect(snapshots).toEqual(["N", "N+1"]);
     expect(queue.isDirty()).toBe(false);
   });
 

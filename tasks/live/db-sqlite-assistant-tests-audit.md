@@ -435,7 +435,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Delete db-sqlite rules re-tested through a higher door
   Depends on: 9, 11 (same files)
 
-- [ ] 15. Merge duplicate assistant tests
+- [x] 15. Merge duplicate assistant tests
   Goal (finding 10, first five bullets): Merge `create-conversation-save-queue.test.ts:57` and `:127` into `:89`.
   Make `conversation-persistence-host.test.ts:163` and `:189` one `it.each` over failures before shutdown (0, 3).
   Delete the permanent-tombstone checks at `conversation-persistence-host.test.ts:367-376` and `:452-460` that
@@ -446,6 +446,13 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Done when: the package's vitest run passes.
   Commit: Merge duplicate assistant tests
   Depends on: 5, 12, 13
+  Corrected at implementation: the host cap tests (`:163`, `:189`) are not duplicates. In `:163` the bootstrap
+  write is still in flight when the flush starts, and the flush's first round adopts that write's failure into its
+  cap; `:189` settles its failures before shutdown. An `it.each` over both writes 2 flush writes in the first row,
+  not 3, so both tests stay.
+  The scheduler bullet has no target: `create-save-scheduler.test.ts` has one `flushNow` test (`:128`), at
+  `dc9c7bb7` too; the report's `:167` and `:220` do not exist.
+  The commit test at `:305` lost its post-commit checks to `:451`, so it is renamed to what it still asserts.
 
 - [ ] 16. Trim the conversation repo tests to one home per rule
   Goal (findings 8 third bullet, 9 fifth bullet, 10 last bullet, 13 first two bullets): In
