@@ -173,7 +173,7 @@ Out:
   Commit: Point audits and architecture reviews at the backlog
   Depends on: 1
 
-- [ ] 4. Seed the backlog with the untriaged reports
+- [x] 4. Seed the backlog with the untriaged reports
   Goal: Nine reports written at `dc9c7bb7` sit in the audit report directory, `tmp/audits/` on the machine
   that holds this branch, and no task file carries them.
   Copy each to `tasks/backlog/<slug>.md` as written and add its entry to `tasks/BACKLOG.md`, in this order:
