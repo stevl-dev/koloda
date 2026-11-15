@@ -338,7 +338,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Assert what the persistence host and save queue tests claim
   Depends on: 1 (same host file)
 
-- [ ] 6. Assert what the engine tests claim
+- [x] 6. Assert what the engine tests claim
   Goal (finding 3, bullets 3, 4, 5): In `assistant-engine.test.ts:156`, record `signals[0].aborted` inside
   `interruptActiveRuns` and expect `false` there.
   In `:843`, drop the interrupted-event assertion (`:889-893`), whose event the test pushed itself; keep the

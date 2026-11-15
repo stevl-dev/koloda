@@ -155,7 +155,7 @@ describe("createAssistantEngine", () => {
 
   it("dispatch shutdown interrupts active runs before aborting controllers", async () => {
     const signals: AbortSignal[] = [];
-    const interrupted: string[] = [];
+    const abortedAtInterrupt: boolean[] = [];
 
     chatStreamGenerator.mockImplementation(async (_req, _onChunk, _onToolEvent, signal) => {
       signals.push(signal);
@@ -169,12 +169,12 @@ describe("createAssistantEngine", () => {
 
     await dispatchShutdown(engine, {
       interruptActiveRuns: () => {
-        interrupted.push("run-1");
+        abortedAtInterrupt.push(signals[0]!.aborted);
       },
       flushTimeoutMs: 0,
     });
 
-    expect(interrupted).toEqual(["run-1"]);
+    expect(abortedAtInterrupt).toEqual([false]);
     expect(signals[0]?.aborted).toBe(true);
     await expect(runPromise).resolves.toBeUndefined();
   });
@@ -564,41 +564,6 @@ describe("createAssistantEngine", () => {
     expect(chatStreamGenerator).not.toHaveBeenCalled();
   });
 
-  it("disposeConversation closes only that conversation runtime", async () => {
-    const streaming = new Set<string>(["run-a", "run-b"]);
-    conversationStates.A = { runs: { "run-a": {} } };
-    conversationStates.B = { runs: { "run-b": {} } };
-
-    engine = createAssistantEngine({
-      executionPort: portFromGenerators(chatStreamGenerator),
-      emit: (event) => {
-        events.push(event);
-      },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
-      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-      readConversationState,
-    });
-
-    chatStreamGenerator.mockImplementation(async (_req, _onChunk, _onToolEvent, signal) => {
-      await holdUntilAborted(signal);
-      return undefined;
-    });
-
-    const runA = dispatchChat(engine, "A", "run-a", {} as ChatStreamRequest);
-    const runB = dispatchChat(engine, "B", "run-b", {} as ChatStreamRequest);
-    await Promise.resolve();
-
-    engine.disposeConversation("A");
-    streaming.delete("run-a");
-    await expect(runA).resolves.toBeUndefined();
-
-    expect(engine.lifecycle).toBe("running");
-    dispatchCancel(engine, "B", "run-b");
-    streaming.delete("run-b");
-    await expect(runB).resolves.toBeUndefined();
-  });
-
   it("disposeConversation aborts in-flight streams whether or not the store still has run keys", async () => {
     const signals: AbortSignal[] = [];
     conversationStates.A = { runs: { "run-kept": {} } };
@@ -879,14 +844,8 @@ describe("createAssistantEngine", () => {
     await expect(runPromise).resolves.toBeUndefined();
 
     const cancelActions = events.filter((e) => e.type === "runTerminated" && e.outcome.status === "canceled");
-    const interruptActions = events.filter((e) => e.type === "runTerminated" && e.outcome.status === "interrupted");
     const failedActions = events.filter((e) => e.type === "runTerminated" && e.outcome.status === "failed");
     expect(cancelActions).toHaveLength(0);
     expect(failedActions).toHaveLength(0);
-    expect(
-      interruptActions.some(
-        (e) => e.type === "runTerminated" && e.outcome.status === "interrupted" && e.outcome.reason === "app_shutdown",
-      ),
-    ).toBe(true);
   });
 });
