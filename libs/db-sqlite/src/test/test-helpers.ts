@@ -186,6 +186,22 @@ export async function insertReview(db: DB, review: Omit<Review, "id">) {
   return parseRow(reviewRowSchema, result);
 }
 
+export async function insertReviewFor(db: DB, cardId: string) {
+  return insertReview(db, {
+    cardId,
+    rating: 3,
+    state: 2,
+    dueAt: new Date("2026-01-15T09:00:00.000Z"),
+    stability: 7.5,
+    difficulty: 3.25,
+    scheduledDays: 12,
+    learningSteps: 2,
+    time: 4200,
+    isIgnored: false,
+    createdAt: new Date("2026-01-10T09:00:00.000Z"),
+  });
+}
+
 export function isForeignKeyError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   return /FOREIGN KEY constraint failed/i.test(message);

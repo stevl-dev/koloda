@@ -7,7 +7,7 @@ import type { TestDb } from "../test/test-helpers";
 import {
   createCardContent,
   createTestDb,
-  insertReview,
+  insertReviewFor,
   MISSING_ID,
   seedAlgorithm,
   seedDeck,
@@ -36,22 +36,6 @@ async function addScheduledCard(db: DB) {
     content: createCardContent(template),
   });
   return { deck, template, card };
-}
-
-async function insertReviewFor(db: DB, cardId: string) {
-  return insertReview(db, {
-    cardId,
-    rating: 3,
-    state: 2,
-    dueAt: new Date("2026-01-15T09:00:00.000Z"),
-    stability: 7.5,
-    difficulty: 3.25,
-    scheduledDays: 12,
-    learningSteps: 2,
-    time: 4200,
-    isIgnored: false,
-    createdAt: new Date("2026-01-10T09:00:00.000Z"),
-  });
 }
 
 describe("cards repository integration", () => {
@@ -308,19 +292,7 @@ describe("cards repository integration", () => {
       lastReviewedAt: new Date("2026-01-10T09:00:00.000Z"),
     });
 
-    await insertReview(db, {
-      cardId: card.id,
-      rating: 3,
-      state: 2,
-      dueAt: new Date("2026-01-15T09:00:00.000Z"),
-      stability: 7.5,
-      difficulty: 3.25,
-      scheduledDays: 12,
-      learningSteps: 2,
-      time: 4200,
-      isIgnored: false,
-      createdAt: new Date("2026-01-10T09:00:00.000Z"),
-    });
+    await insertReviewFor(db, card.id);
 
     const resetCard = await resetCardProgress(db, { id: card.id });
     const reviews = await getReviews(db, { cardId: card.id });

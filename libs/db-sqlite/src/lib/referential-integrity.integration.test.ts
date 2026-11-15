@@ -4,7 +4,7 @@ import type { TestDb } from "../test/test-helpers";
 import {
   createCardContent,
   createTestDb,
-  insertReview,
+  insertReviewFor,
   isForeignKeyError,
   MISSING_ID,
   seedDeck,
@@ -66,19 +66,7 @@ describe("referential integrity integration", () => {
       content: createCardContent(template),
     });
 
-    await insertReview(db, {
-      cardId: card.id,
-      rating: 3,
-      state: 2,
-      dueAt: new Date("2026-01-15T09:00:00.000Z"),
-      stability: 7.5,
-      difficulty: 3.25,
-      scheduledDays: 12,
-      learningSteps: 2,
-      time: 4200,
-      isIgnored: false,
-      createdAt: new Date("2026-01-10T09:00:00.000Z"),
-    });
+    await insertReviewFor(db, card.id);
     expect(await getReviews(db, { cardId: card.id })).toHaveLength(1);
 
     expect(await getCards(db, { deckId: deck.id })).toHaveLength(2);
@@ -100,19 +88,7 @@ describe("referential integrity integration", () => {
       content: createCardContent(template),
     });
 
-    await insertReview(db, {
-      cardId: card.id,
-      rating: 3,
-      state: 2,
-      dueAt: new Date("2026-01-15T09:00:00.000Z"),
-      stability: 7.5,
-      difficulty: 3.25,
-      scheduledDays: 12,
-      learningSteps: 2,
-      time: 4200,
-      isIgnored: false,
-      createdAt: new Date("2026-01-10T09:00:00.000Z"),
-    });
+    await insertReviewFor(db, card.id);
     expect(await getReviews(db, { cardId: card.id })).toHaveLength(1);
 
     await deleteCard(db, { id: card.id });

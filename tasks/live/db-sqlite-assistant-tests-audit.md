@@ -531,7 +531,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Share setup helpers in the assistant tests
   Depends on: 15, 17, 18
 
-- [ ] 22. Share insertReviewFor across the db-sqlite tests
+- [x] 22. Share insertReviewFor across the db-sqlite tests
   Goal (finding 12, last bullet): Move `insertReviewFor` from `cards.integration.test.ts:41` to
   `libs/db-sqlite/src/test/test-helpers.ts`, and use it for the review literals in
   `cards.integration.test.ts:312-324` and `referential-integrity.integration.test.ts:308-320`, `:342-354`.
