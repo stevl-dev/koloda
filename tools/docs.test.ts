@@ -195,6 +195,41 @@ describe("deferred work", () => {
   });
 });
 
+describe("backlog", () => {
+  const items = read("tasks/BACKLOG.md").split(/^## Items$/m)[1] ?? "";
+  // INVARIANT: an entry is a top-level list item under `## Items`; its field lines are indented under it.
+  const entries = items.split(/^(?=- )/m).filter((entry) => entry.startsWith("- "));
+  const slugs = entries.map((entry) => entry.match(/^- `([a-z0-9]+(?:-[a-z0-9]+)*)`: \S/)?.[1]);
+  const briefs = entries.map((entry) => entry.match(/^ +Brief: `([^`]+)`/m)?.[1]);
+  // WHY: git keeps no empty directory, so `tasks/backlog` is absent while no item has a brief.
+  const briefFiles = existsSync(join(root, "tasks/backlog")) ? readdirSync(join(root, "tasks/backlog")) : [];
+
+  // WHY: one test over all entries, because the file may hold none and Vitest fails a suite with no tests.
+  it("holds well-formed entries, each matched to its brief", () => {
+    const entryProblems = entries.flatMap((entry, index) => {
+      const slug = slugs[index];
+      if (!slug) return [`${entry.split("\n")[0]} does not start with a kebab-case slug in backticks and a colon`];
+      const problems: string[] = [];
+      if (!/^ +Area: \S/m.test(entry)) problems.push(`${slug} has no Area line`);
+      if (!/^ +Why: \S/m.test(entry)) problems.push(`${slug} has no Why line`);
+      if (slugs.indexOf(slug) !== index) problems.push(`${slug} is listed twice`);
+      if (existsSync(join(root, "tasks/archive", `${slug}.md`))) problems.push(`${slug} is already an archived task`);
+      if (/^ +Brief:/m.test(entry)) {
+        const brief = briefs[index];
+        const isOwnPath = brief === `tasks/backlog/${slug}.md` || brief === `tasks/backlog/${slug}/brief.md`;
+        if (!brief || !isOwnPath) problems.push(`${slug} has a Brief line that does not name its own brief path`);
+        else if (!existsSync(join(root, brief))) problems.push(`${slug} names ${brief}, which does not exist`);
+      }
+      return problems;
+    });
+    const named = new Set(briefs.map((brief) => brief?.split("/")[2]));
+    const orphans = briefFiles
+      .filter((name) => !named.has(name))
+      .map((name) => `tasks/backlog/${name} is no entry's brief`);
+    expect([...entryProblems, ...orphans]).toEqual([]);
+  });
+});
+
 describe("section pointers", () => {
   const files = allMarkdown();
   const byName = new Map<string, string[]>();

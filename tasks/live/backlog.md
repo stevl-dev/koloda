@@ -140,7 +140,7 @@ Out:
   Commit: Add a backlog for intended work
   Depends on: none
 
-- [ ] 2. Check the backlog shape in the docs check
+- [x] 2. Check the backlog shape in the docs check
   Goal: Add a `describe("backlog")` block to `tools/docs.test.ts`, beside the deferred work block.
   It reads `tasks/BACKLOG.md` and fails when: an entry's first line is not a backticked kebab-case slug,
   a colon, and a sentence; an entry lacks an `Area:` or a `Why:` line; two entries share a slug;

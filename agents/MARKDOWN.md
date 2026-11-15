@@ -80,7 +80,7 @@ Readable link text matters more than packing the full URL into the paragraph.
 `bun run check:docs` runs `tools/docs.test.ts`, the markdown rules that can fail.
 It checks that repo paths in markdown outside `docs/specs/` and `tasks/` exist.
 It also checks the spec shape and headings, decision reachability, the task archive shape,
-and that `§` pointers name an existing heading.
+the backlog's entries and briefs, and that `§` pointers name an existing heading.
 It also checks that each camelCase identifier in an inline code span of `AGENTS.md`, `agents/`,
 or a package README occurs in tracked source; names absent on purpose sit on an allow-list in the test.
 A plan item that edits markdown uses it as a Done-when.

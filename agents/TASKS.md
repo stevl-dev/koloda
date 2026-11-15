@@ -317,6 +317,10 @@ These lines follow, indented under it, in this order:
 The slug is lowercase kebab-case, and no archived task has it.
 It becomes the task slug when the item is scheduled.
 
+`bun run check:docs` fails when an entry breaks this shape, repeats a slug, or takes an archived task's slug.
+It also fails when a `Brief:` line names a path that is missing or is not the entry's own,
+or when a file under the brief directory belongs to no entry.
+
 ### Briefs
 
 A brief is the material that describes an item before triage:
@@ -324,7 +328,8 @@ a design note, an exploration, or an audit or architecture review report.
 It is optional; an idea that fits in one sentence is only its entry.
 
 A brief lives at `tasks/backlog/<slug>.md`.
-An item that needs images or several files uses the directory `tasks/backlog/<slug>/`, with `brief.md` as its entry file.
+An item that needs images or several files uses the directory `tasks/backlog/<slug>/`, with `brief.md` as its entry.
+The `Brief:` line then names that `brief.md`.
 
 A brief is free-form below its title.
 It is what triage reads, not a task file: it has no Status and no Plan.
