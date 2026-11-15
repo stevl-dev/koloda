@@ -6,6 +6,7 @@ import type { AssistantExecutionPort } from "./assistant-execution-port";
 import type { AssistantEvent } from "./assistant-protocol";
 import { createConversationRuntime } from "./conversation-runtime";
 import { createRunControllerRegistry } from "./run-controller-registry";
+import type { RunAbortReason } from "./run-controller-registry";
 
 const TEST_EXECUTION = { profileId: "test-profile" } as const;
 
@@ -382,6 +383,133 @@ describe("createConversationRuntime chat tool events", () => {
       runId: "run-fail-capped",
       outcome: { status: "failed", error: { message: "unknown", details: `${"x".repeat(16_000)}…` } },
     });
+  });
+
+  it("emits reasoning as its own chunk, keeps it out of the text, and touches the conversation", async () => {
+    const log: Array<AssistantEvent | "touch"> = [];
+    const executionPort: AssistantExecutionPort = {
+      executeChat: async (_input, onChunk) => {
+        onChunk({ kind: "text", text: "a" });
+        onChunk({ kind: "reasoning", text: "think" });
+        onChunk({ kind: "text", text: "b" });
+        return undefined;
+      },
+    };
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => log.push(event),
+        markReadIfCurrent: vi.fn(),
+        touch: () => log.push("touch"),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      createRunControllerRegistry(),
+    );
+
+    await runtime.executeChatRun("run-r", {} as ChatStreamRequest, TEST_EXECUTION);
+
+    expect(log).toEqual([
+      { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "assistantText", text: "a" } },
+      "touch",
+      { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "reasoning", text: "think" } },
+      "touch",
+      { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "assistantText", text: "ab" } },
+      "touch",
+      { type: "runTerminated", conversationId: "conv-a", runId: "run-r", outcome: { status: "success" } },
+      "touch",
+    ]);
+  });
+});
+
+describe("createConversationRuntime terminal touch and mark-read", () => {
+  type TerminalCase = {
+    label: string;
+    end: { kind: "return" } | { kind: "throw" } | { kind: "abort"; reason: RunAbortReason };
+    isStreamingAtEnd: boolean;
+    touched: string[];
+    markedRead: Array<[string, string]>;
+  };
+
+  // WHY: the port emits no chunks, so every touch and mark-read here comes from
+  // the terminal handling, not from stream arrivals.
+  it.each<TerminalCase>([
+    {
+      label: "success",
+      end: { kind: "return" },
+      isStreamingAtEnd: true,
+      touched: ["conv-a"],
+      markedRead: [["conv-a", "run-1"]],
+    },
+    {
+      label: "a provider error",
+      end: { kind: "throw" },
+      isStreamingAtEnd: true,
+      touched: ["conv-a"],
+      markedRead: [["conv-a", "run-1"]],
+    },
+    {
+      label: "a user cancel while streaming",
+      end: { kind: "abort", reason: "user" },
+      isStreamingAtEnd: true,
+      touched: ["conv-a"],
+      markedRead: [["conv-a", "run-1"]],
+    },
+    {
+      label: "a user cancel after the run stopped streaming",
+      end: { kind: "abort", reason: "user" },
+      isStreamingAtEnd: false,
+      touched: [],
+      markedRead: [["conv-a", "run-1"]],
+    },
+    {
+      label: "a shutdown abort while streaming",
+      end: { kind: "abort", reason: "app_shutdown" },
+      isStreamingAtEnd: true,
+      touched: ["conv-a"],
+      markedRead: [],
+    },
+    {
+      label: "a shutdown abort of an already interrupted run",
+      end: { kind: "abort", reason: "app_shutdown" },
+      isStreamingAtEnd: false,
+      touched: [],
+      markedRead: [],
+    },
+  ])("$label", async ({ end, isStreamingAtEnd, touched, markedRead }) => {
+    const registry = createRunControllerRegistry();
+    const touch = vi.fn();
+    const markReadIfCurrent = vi.fn();
+    let isStreaming = true;
+    const executionPort: AssistantExecutionPort = {
+      executeChat: async () => {
+        isStreaming = isStreamingAtEnd;
+        if (end.kind === "throw") throw new Error("provider down");
+        if (end.kind === "abort") {
+          registry.cancel("run-1", end.reason);
+          throw new DOMException("Aborted", "AbortError");
+        }
+        return undefined;
+      },
+    };
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: vi.fn(),
+        markReadIfCurrent,
+        touch,
+        isRunStreaming: () => isStreaming,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      registry,
+    );
+
+    await runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION);
+
+    expect(touch.mock.calls).toEqual(touched.map((id) => [id]));
+    expect(markReadIfCurrent.mock.calls).toEqual(markedRead);
   });
 });
 

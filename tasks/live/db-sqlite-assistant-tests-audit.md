@@ -359,7 +359,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Pin duplicate execute at the runtime only
   Depends on: 6 (same engine file)
 
-- [ ] 8. Test reasoning chunks and touch rules in the conversation runtime
+- [x] 8. Test reasoning chunks and touch rules in the conversation runtime
   Goal (finding 6): In `conversation-runtime.test.ts`, add a test, built like `:221`, whose port emits a reasoning
   chunk between two text chunks: assert a `runChunk` with `{ kind: "reasoning", text }`, that the accumulated
   `assistantText` excludes the reasoning, and that `touch` was called for the conversation.
