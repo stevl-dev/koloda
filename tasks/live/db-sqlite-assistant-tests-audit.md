@@ -389,6 +389,9 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   writing `NULL` for omitted stability fails `:116` (probes).
   Commit: Make the card repo tests check what they name
   Depends on: none
+  Corrected at review: the `NULL` probe does not hold at `cards.ts:60-61`. `addCard` parses its input first, and the
+  card schema defaults both fields to 0 (`libs/srs/src/lib/cards.ts:22-23`), so `?? 0` never sees `undefined` and
+  writing `?? null` there passes every test. The raw-column test still pins the stored 0.
 
 - [x] 10. Assert the full card after a lesson submit
   Goal (finding 4): In `lessons.integration.test.ts`, replace the partial `toMatchObject` at `:356-362` with
