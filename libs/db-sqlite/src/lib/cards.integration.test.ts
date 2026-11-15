@@ -122,9 +122,25 @@ describe("cards repository integration", () => {
       templateId: template.id,
       content: createCardContent(template),
     });
+    // WHY: read the raw columns — the row mapper turns NULL into 0, so a parsed read cannot tell them apart.
+    const raw = await db.get("SELECT stability, difficulty FROM cards WHERE id = ?", [card.id]);
 
-    expect(card.stability).toBe(0);
-    expect(card.difficulty).toBe(0);
+    expect(raw).toEqual({ stability: 0, difficulty: 0 });
+  });
+
+  it("reads a legacy NULL stability and difficulty as 0", async () => {
+    const { db } = testDb;
+    const { deck, template } = await seedDeckContext(db);
+    const card = await addCard(db, {
+      deckId: deck.id,
+      templateId: template.id,
+      content: createCardContent(template),
+    });
+    await db.run("UPDATE cards SET stability = NULL, difficulty = NULL WHERE id = ?", [card.id]);
+
+    const [stored] = await getCards(db, { deckId: deck.id });
+
+    expect(stored).toMatchObject({ stability: 0, difficulty: 0 });
   });
 
   it("rejects card content when a required template field is empty", async () => {
@@ -271,7 +287,15 @@ describe("cards repository integration", () => {
     const { db } = testDb;
     const algorithm = await seedAlgorithm(db);
     const templateA = await seedTemplate(db);
-    const templateB = await seedTemplate(db, { title: "Cloze" });
+    // WHY: B shares no field with A, so each card is valid only against its own template.
+    const clozeFieldId = "019a0000-0000-7000-8000-00000000000b";
+    const templateB = await seedTemplate(db, {
+      title: "Cloze",
+      content: {
+        fields: [{ id: clozeFieldId, title: "Cloze", type: "text", isRequired: true }],
+        layout: [{ field: clozeFieldId, operation: "display" }],
+      },
+    });
     const deckA = await seedDeck(db, { algorithmId: algorithm.id, templateId: templateA.id });
     const deckB = await seedDeck(db, { algorithmId: algorithm.id, templateId: templateB.id });
 

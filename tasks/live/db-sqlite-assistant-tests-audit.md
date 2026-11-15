@@ -373,7 +373,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Test reasoning chunks and touch rules in the conversation runtime
   Depends on: 7 (same file)
 
-- [ ] 9. Make the card repo tests check what they name
+- [x] 9. Make the card repo tests check what they name
   Goal (finding 3, bullets 8, 9): In `cards.integration.test.ts:270`, give template B a field set different from
   A's and add a card valid only for B; assert both land. In `:116`, read `stability` and `difficulty` as raw columns
   with `db.get` and expect `0`, then add a case that a row stored with `NULL` in both reads back as `0` through
