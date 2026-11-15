@@ -18,20 +18,6 @@ describe("lessons repository integration", () => {
     await testDb.close();
   });
 
-  function getLessonCounts(lesson: {
-    untouched: number | string;
-    learn: number | string;
-    review: number | string;
-    total: number | string;
-  }) {
-    return {
-      untouched: Number(lesson.untouched),
-      learn: Number(lesson.learn),
-      review: Number(lesson.review),
-      total: Number(lesson.total),
-    };
-  }
-
   it("aggregates lesson counts by due status and deck filters", async () => {
     const { db } = testDb;
     const deckContextA = await seedDeckContext(db, { deck: { title: "Deck A" } });
@@ -101,33 +87,27 @@ describe("lessons repository integration", () => {
     const lessons = await getLessons(db, dueAt);
     const filteredLessons = await getLessons(db, dueAt, { deckIds: [deckContextA.deck.id] });
 
-    expect(getLessonCounts(lessons.total)).toMatchObject({
+    expect(lessons.total).toMatchObject({
       untouched: 1,
       learn: 2,
       review: 2,
       total: 5,
     });
-    expect({
-      title: lessons.decks.find((lesson) => lesson.id === deckContextA.deck.id)?.title,
-      ...getLessonCounts(lessons.decks.find((lesson) => lesson.id === deckContextA.deck.id)!),
-    }).toMatchObject({
+    expect(lessons.decks.find((lesson) => lesson.id === deckContextA.deck.id)).toMatchObject({
       title: "Deck A",
       untouched: 1,
       learn: 2,
       review: 1,
       total: 4,
     });
-    expect({
-      title: lessons.decks.find((lesson) => lesson.id === deckContextB.deck.id)?.title,
-      ...getLessonCounts(lessons.decks.find((lesson) => lesson.id === deckContextB.deck.id)!),
-    }).toMatchObject({
+    expect(lessons.decks.find((lesson) => lesson.id === deckContextB.deck.id)).toMatchObject({
       title: "Deck B",
       untouched: 0,
       learn: 0,
       review: 1,
       total: 1,
     });
-    expect(getLessonCounts(filteredLessons.total)).toMatchObject({
+    expect(filteredLessons.total).toMatchObject({
       untouched: 1,
       learn: 2,
       review: 1,

@@ -512,7 +512,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Round-trip settings timestamps
   Depends on: 14 (same file)
 
-- [ ] 20. Clean stale residue in lesson and save queue tests
+- [x] 20. Clean stale residue in lesson and save queue tests
   Goal (finding 13, last two bullets): In `lessons.integration.test.ts:21-33`, drop the `number | string`
   conversion in `getLessonCounts` and read the parsed numbers. In `create-conversation-save-queue.test.ts:39`,
   `:44`, `:50`, restore the lost arrow or dash in each comment.

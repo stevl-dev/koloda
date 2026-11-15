@@ -36,18 +36,18 @@ describe("createConversationSaveQueue", () => {
     });
     const queue = createConversationSaveQueue({ conversationId: "A", write, isStreaming: () => false });
 
-    // Clean queue " skipped without kicking a write.
+    // Clean queue — skipped without kicking a write.
     const skipped = await queue.flushOnce();
     expect(skipped).toBe("skipped");
     expect(write).not.toHaveBeenCalled();
 
-    // Dirty queue " flushOnce resolves "saved" when the write acks.
+    // Dirty queue — flushOnce resolves "saved" when the write acks.
     queue.notifyDirty();
     const saving = queue.flushOnce();
     writes[0]!.resolve();
     expect(await saving).toBe("saved");
 
-    // Failing write " flushOnce resolves "failed".
+    // Failing write — flushOnce resolves "failed".
     queue.notifyDirty();
     const failing = queue.flushOnce();
     writes[1]!.reject(new Error("disk full"));
