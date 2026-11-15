@@ -349,7 +349,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Assert what the engine tests claim
   Depends on: 2 (same file)
 
-- [ ] 7. Pin duplicate execute at the runtime only
+- [x] 7. Pin duplicate execute at the runtime only
   Goal (finding 3 bullet 7, finding 9 second bullet): In `conversation-runtime.test.ts:93`, after the duplicate
   throws, assert the provider was called once and the error fields that `assistant-engine.test.ts:376` asserts, then
   `await first` and assert a new execute for the same conversation succeeds.

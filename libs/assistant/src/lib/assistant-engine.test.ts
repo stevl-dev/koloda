@@ -373,30 +373,6 @@ describe("createAssistantEngine", () => {
     expect(cancelActions.some((e) => e.runId === "run-1")).toBe(true);
   });
 
-  it("same-tick duplicate execute rejects without a second provider call", async () => {
-    let releaseFirst!: () => void;
-    const firstGate = new Promise<void>((resolve) => {
-      releaseFirst = resolve;
-    });
-    let providerCalls = 0;
-
-    chatStreamGenerator.mockImplementation(async () => {
-      providerCalls += 1;
-      await firstGate;
-      return undefined;
-    });
-
-    const first = dispatchChat(engine, "A", "run-1", {} as ChatStreamRequest);
-    expect(() => dispatchChat(engine, "A", "run-2", {} as ChatStreamRequest)).toThrow(
-      new AssistantDuplicateRunError("A", "run-2", "run-1"),
-    );
-
-    releaseFirst();
-    await first;
-
-    expect(providerCalls).toBe(1);
-  });
-
   it("repeated retry while active rejects without enqueueing another provider call", async () => {
     conversationStates["A"] = { runs: { "run-1": { status: "failed" } } };
 
@@ -522,12 +498,6 @@ describe("createAssistantEngine", () => {
       label: string;
     });
     await Promise.resolve();
-
-    expect(() =>
-      dispatchChat(engine, "A", "run-duplicate", { label: "duplicate" } as ChatStreamRequest & { label: string }),
-    ).toThrow(AssistantDuplicateRunError);
-
-    expect(startedRunIds).toEqual(["active"]);
 
     await dispatchShutdown(engine, {
       interruptActiveRuns: () => {

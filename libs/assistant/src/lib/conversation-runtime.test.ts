@@ -91,14 +91,38 @@ describe("createConversationRuntime command acceptance", () => {
   }
 
   it("duplicate execute throws synchronously without occupying a second slot", async () => {
-    const runtime = makeRuntime();
+    let releaseFirst!: () => void;
+    const firstGate = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const executeChat = vi.fn(async () => {
+      await firstGate;
+      return undefined;
+    });
+    const runtime = createConversationRuntime(
+      "A",
+      {
+        emit: vi.fn(),
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort: { executeChat } },
+      createRunControllerRegistry(),
+    );
     const first = runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION);
 
     expect(() => runtime.executeChatRun("run-2", {} as ChatStreamRequest, TEST_EXECUTION)).toThrow(
-      AssistantDuplicateRunError,
+      new AssistantDuplicateRunError("A", "run-2", "run-1"),
     );
 
+    releaseFirst();
     await first;
+    expect(executeChat).toHaveBeenCalledTimes(1);
+
+    await runtime.executeChatRun("run-3", {} as ChatStreamRequest, TEST_EXECUTION);
+    expect(executeChat).toHaveBeenCalledTimes(2);
   });
 
   it("closed queue throws AssistantEngineClosedError synchronously", () => {
