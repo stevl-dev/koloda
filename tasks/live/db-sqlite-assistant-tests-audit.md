@@ -521,7 +521,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Clean stale residue in lesson and save queue tests
   Depends on: 11, 17
 
-- [ ] 21. Share setup helpers in the assistant tests
+- [x] 21. Share setup helpers in the assistant tests
   Goal (finding 12, first three bullets): Add one local helper per file: `createStreamingEngine` in
   `assistant-engine.test.ts` for the second engine with a `streaming` set; `createPendingSource` in
   `conversation-persistence-host.test.ts` for the `pending` map and `listener`; `deferredWrites` in

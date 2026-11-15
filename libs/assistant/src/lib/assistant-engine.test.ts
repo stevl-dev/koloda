@@ -106,6 +106,22 @@ describe("createAssistantEngine", () => {
     });
   });
 
+  // WHY: mirrors the store — a run is streaming from its start until its terminal event lands.
+  function createStreamingEngine(streaming: Set<string>) {
+    return createAssistantEngine({
+      executionPort: portFromGenerators(chatStreamGenerator),
+      emit: (event) => {
+        events.push(event);
+        if (event.type === "runTerminated") streaming.delete(event.runId);
+        if (event.type === "runStarted") streaming.add(event.run.runId);
+      },
+      markReadIfCurrent: vi.fn(),
+      touch: vi.fn(),
+      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
+      readConversationState,
+    });
+  }
+
   it("dispatch cancel aborts only the targeted run", async () => {
     const signals: AbortSignal[] = [];
 
@@ -273,19 +289,7 @@ describe("createAssistantEngine", () => {
 
   it("cancel before provider start prevents provider execution", async () => {
     const streaming = new Set(["run-1"]);
-    engine = createAssistantEngine({
-      executionPort: portFromGenerators(chatStreamGenerator),
-      emit: (event) => {
-        events.push(event);
-        if (event.type === "runTerminated") {
-          streaming.delete(event.runId);
-        }
-      },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
-      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-      readConversationState,
-    });
+    engine = createStreamingEngine(streaming);
 
     const startedRunIds: string[] = [];
 
@@ -342,22 +346,7 @@ describe("createAssistantEngine", () => {
     const streaming = new Set(["run-1"]);
     conversationStates["A"] = { runs: { "run-1": { status: "canceled" } } };
 
-    engine = createAssistantEngine({
-      executionPort: portFromGenerators(chatStreamGenerator),
-      emit: (event) => {
-        events.push(event);
-        if (event.type === "runTerminated") {
-          streaming.delete(event.runId);
-        }
-        if (event.type === "runStarted") {
-          streaming.add(event.run.runId);
-        }
-      },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
-      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-      readConversationState,
-    });
+    engine = createStreamingEngine(streaming);
 
     const signals: AbortSignal[] = [];
     let providerCalls = 0;
@@ -399,19 +388,7 @@ describe("createAssistantEngine", () => {
     const streaming = new Set(["run-active"]);
     const flushAllBounded = vi.fn(async () => undefined);
 
-    engine = createAssistantEngine({
-      executionPort: portFromGenerators(chatStreamGenerator),
-      emit: (event) => {
-        events.push(event);
-        if (event.type === "runTerminated") {
-          streaming.delete(event.runId);
-        }
-      },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
-      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-      readConversationState,
-    });
+    engine = createStreamingEngine(streaming);
     engine.setPersistenceHost({
       flushAllBounded,
       retrySave: vi.fn(),
@@ -711,19 +688,7 @@ describe("createAssistantEngine", () => {
 
   it("does not classify shutdown AbortError as user cancellation", async () => {
     const streaming = new Set(["run-1"]);
-    engine = createAssistantEngine({
-      executionPort: portFromGenerators(chatStreamGenerator),
-      emit: (event) => {
-        events.push(event);
-        if (event.type === "runTerminated") {
-          streaming.delete(event.runId);
-        }
-      },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
-      isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-      readConversationState,
-    });
+    engine = createStreamingEngine(streaming);
 
     chatStreamGenerator.mockImplementation(async (_req, _onChunk, _onToolEvent, signal) => {
       await holdUntilAborted(signal);

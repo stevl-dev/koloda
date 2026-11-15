@@ -18,6 +18,17 @@ function deferred<T = void>() {
   return { promise, resolve, reject };
 }
 
+// Each call to `write` starts a write the test settles through `writes[n]`.
+function deferredWrites() {
+  const writes: Array<ReturnType<typeof deferred<void>>> = [];
+  const write = vi.fn(() => {
+    const d = deferred();
+    writes.push(d);
+    return d.promise;
+  });
+  return { writes, write };
+}
+
 describe("createConversationSaveQueue", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -28,12 +39,7 @@ describe("createConversationSaveQueue", () => {
   });
 
   it("flushOnce reports the queue's own outcome for the round", async () => {
-    const writes: Array<ReturnType<typeof deferred<void>>> = [];
-    const write = vi.fn(() => {
-      const d = deferred();
-      writes.push(d);
-      return d.promise;
-    });
+    const { writes, write } = deferredWrites();
     const queue = createConversationSaveQueue({ conversationId: "A", write, isStreaming: () => false });
 
     // Clean queue — skipped without kicking a write.
@@ -296,12 +302,7 @@ describe("createConversationSaveQueue", () => {
   });
 
   it("beginDelete rollback restores dirty and resumes autosave", async () => {
-    const writes: Array<ReturnType<typeof deferred<void>>> = [];
-    const write = vi.fn(() => {
-      const d = deferred();
-      writes.push(d);
-      return d.promise;
-    });
+    const { writes, write } = deferredWrites();
     const queue = createConversationSaveQueue({
       conversationId: "A",
       write,

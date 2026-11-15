@@ -3,6 +3,24 @@ import { createConversationPersistenceHost, SHUTDOWN_SAVE_MAX_ATTEMPTS } from ".
 import { SAVE_RETRY_BASE_DELAY_MS } from "./create-conversation-save-queue";
 import { IDLE_SAVE_DEBOUNCE_MS } from "./create-save-scheduler";
 
+function createPendingSource(initial: Record<string, number>) {
+  let pending = initial;
+  let listener: ((next: Record<string, number>) => void) | null = null;
+  return {
+    getInitialPending: () => ({ ...pending }),
+    subscribePendingSaves: (next: (pending: Record<string, number>) => void) => {
+      listener = next;
+      return () => {
+        listener = null;
+      };
+    },
+    publish: (next: Record<string, number>) => {
+      pending = next;
+      listener!(next);
+    },
+  };
+}
+
 describe("createConversationPersistenceHost", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -32,17 +50,15 @@ describe("createConversationPersistenceHost", () => {
 
   it("a pending-save bump writes only the conversation it names", async () => {
     const writes: string[] = [];
-    let publish!: (pending: Record<string, number>) => void;
+    const source = createPendingSource({});
+    const { publish } = source;
     const host = createConversationPersistenceHost({
       createWrite: (id) => async () => {
         writes.push(id);
       },
       isStreaming: () => false,
-      getInitialPending: () => ({}),
-      subscribePendingSaves: (listener) => {
-        publish = listener;
-        return () => {};
-      },
+      getInitialPending: source.getInitialPending,
+      subscribePendingSaves: source.subscribePendingSaves,
     });
 
     // WHY: save B first so its queue exists while A is bumped; a bump that
@@ -109,26 +125,19 @@ describe("createConversationPersistenceHost", () => {
       writes.push({ resolve, promise });
       return promise;
     });
-    let pending: Record<string, number> = { A: 1 };
-    let listener: ((next: Record<string, number>) => void) | null = null;
+    const source = createPendingSource({ A: 1 });
     const host = createConversationPersistenceHost({
       createWrite: () => write,
       isStreaming: () => false,
-      getInitialPending: () => ({ ...pending }),
-      subscribePendingSaves: (l) => {
-        listener = l;
-        return () => {
-          listener = null;
-        };
-      },
+      getInitialPending: source.getInitialPending,
+      subscribePendingSaves: source.subscribePendingSaves,
     });
 
     const bounded = host.flushAllBounded(100);
     await vi.advanceTimersByTimeAsync(0);
     expect(write).toHaveBeenCalledTimes(1);
 
-    pending = { A: 2 };
-    listener!(pending);
+    source.publish({ A: 2 });
     expect(write).toHaveBeenCalledTimes(1);
 
     writes[0]!.resolve();
@@ -245,18 +254,12 @@ describe("createConversationPersistenceHost", () => {
       writes.push({ resolve, promise });
       return promise;
     });
-    let pending: Record<string, number> = { A: 1 };
-    let listener: ((next: Record<string, number>) => void) | null = null;
+    const source = createPendingSource({ A: 1 });
     const host = createConversationPersistenceHost({
       createWrite: () => write,
       isStreaming: () => false,
-      getInitialPending: () => ({ ...pending }),
-      subscribePendingSaves: (l) => {
-        listener = l;
-        return () => {
-          listener = null;
-        };
-      },
+      getInitialPending: source.getInitialPending,
+      subscribePendingSaves: source.subscribePendingSaves,
     });
 
     for (let i = 0; i < SHUTDOWN_SAVE_MAX_ATTEMPTS; i += 1) {
@@ -273,8 +276,7 @@ describe("createConversationPersistenceHost", () => {
     await Promise.resolve();
     expect(writes).toHaveLength(1);
 
-    pending = { A: 2 };
-    listener!(pending);
+    source.publish({ A: 2 });
 
     mode = "fail-shutdown";
     writes[0]!.resolve();
@@ -352,8 +354,7 @@ describe("createConversationPersistenceHost", () => {
     const writeGate = new Promise<void>((resolve) => {
       releaseWrite = resolve;
     });
-    let pending: Record<string, number> = { A: 1 };
-    let listener: ((next: Record<string, number>) => void) | null = null;
+    const source = createPendingSource({ A: 1 });
     let writeCount = 0;
 
     const host = createConversationPersistenceHost({
@@ -363,13 +364,8 @@ describe("createConversationPersistenceHost", () => {
         rows.set(id, `v${writeCount}`);
       },
       isStreaming: () => false,
-      getInitialPending: () => ({ ...pending }),
-      subscribePendingSaves: (l) => {
-        listener = l;
-        return () => {
-          listener = null;
-        };
-      },
+      getInitialPending: source.getInitialPending,
+      subscribePendingSaves: source.subscribePendingSaves,
     });
 
     host.retrySave("A");
@@ -377,15 +373,13 @@ describe("createConversationPersistenceHost", () => {
     expect(writeCount).toBe(0);
 
     // Queue N+1 while N is gated in flight.
-    pending = { A: 2 };
-    listener!(pending);
+    source.publish({ A: 2 });
 
     const begin = host.beginDelete("A");
     await Promise.resolve();
     expect(host.isTombstoned("A")).toBe(true);
     // Tombstoned: further dirties / retry must not start writes yet.
-    pending = { A: 3 };
-    listener!(pending);
+    source.publish({ A: 3 });
     host.retrySave("A");
     expect(writeCount).toBe(0);
 
@@ -407,8 +401,7 @@ describe("createConversationPersistenceHost", () => {
     expect(rows.get("A")).toBe("v2");
 
     // Manual retry still works after rollback.
-    pending = { A: 4 };
-    listener!(pending);
+    source.publish({ A: 4 });
     host.retrySave("A");
     await vi.advanceTimersByTimeAsync(0);
     await Promise.resolve();
@@ -420,20 +413,14 @@ describe("createConversationPersistenceHost", () => {
 
   it("beginDelete commit leaves a permanent host tombstone", async () => {
     let writeCount = 0;
-    let pending: Record<string, number> = { A: 1 };
-    let listener: ((next: Record<string, number>) => void) | null = null;
+    const source = createPendingSource({ A: 1 });
     const host = createConversationPersistenceHost({
       createWrite: () => async () => {
         writeCount += 1;
       },
       isStreaming: () => false,
-      getInitialPending: () => ({ ...pending }),
-      subscribePendingSaves: (l) => {
-        listener = l;
-        return () => {
-          listener = null;
-        };
-      },
+      getInitialPending: source.getInitialPending,
+      subscribePendingSaves: source.subscribePendingSaves,
     });
 
     host.retrySave("A");
@@ -445,8 +432,7 @@ describe("createConversationPersistenceHost", () => {
     deletion.commit();
     expect(host.isTombstoned("A")).toBe(true);
 
-    pending = { A: 2 };
-    listener!(pending);
+    source.publish({ A: 2 });
     host.retrySave("A");
     host.retrySave("A");
     await vi.advanceTimersByTimeAsync(0);
@@ -456,12 +442,10 @@ describe("createConversationPersistenceHost", () => {
     // INVARIANT: removing the pending-save key must not drop a committed
     // tombstone. A later bump must still no-op (ASSISTANT-CONVERSATIONS.md
     // §Delete / §Concurrent Behavior — a late save cannot bring it back).
-    pending = {};
-    listener!(pending);
+    source.publish({});
     expect(host.isTombstoned("A")).toBe(true);
 
-    pending = { A: 3 };
-    listener!(pending);
+    source.publish({ A: 3 });
     host.retrySave("A");
     host.retrySave("A");
     await vi.advanceTimersByTimeAsync(0);
