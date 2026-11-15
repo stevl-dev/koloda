@@ -108,7 +108,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Add the backlog index and its rules
+- [x] 1. Add the backlog index and its rules
   Goal: Create `tasks/BACKLOG.md` with a short header and an empty list.
   The header states the purpose in a few lines: a home for ideas and artifacts that will not be addressed right away,
   one flat list in the human's order, sooner at the top, no position a promise.

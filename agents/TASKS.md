@@ -62,6 +62,15 @@ Switching to `remote` pushes the branch at the next commit.
    - Include the guides the Plan will need, not only the first change's.
 3. Push the branch only if `Flow` is `remote`.
 
+When the work is a backlog item (§Backlog):
+
+- The task takes the entry's slug.
+- Read the brief before writing the task file.
+- The commit that adds the task file also removes the entry from `tasks/BACKLOG.md` and deletes the brief.
+  - The task file restates what it needs from the brief; later sessions cannot open it.
+  - Intent names the brief's path and the `main` commit it was read at, for provenance only.
+- A task that takes only part of the item trims the entry and the brief to what remains instead.
+
 The branch and its task file are the scheduled unit of work.
 Find scheduled and in-flight work by listing `task/*` branches (§Session protocol), not by grepping `main`.
 A `draft` file exists while intent and the plan are being shaped on the branch.
@@ -273,10 +282,80 @@ It would add a second file under `live/` that the Archive gate does not move.
   - The next session and the archive reader must not need the report.
 - The Archive commit removes each `tasks/DEFERRED.md` entry that the report lists as resolved.
 
+## Backlog
+
+`tasks/BACKLOG.md` holds ideas and artifacts for work that will not be addressed right away.
+Its header points here and does not restate these rules.
+
+Work does not have to pass through the backlog.
+Work that starts now is scheduled directly (§Schedule), or done as a small fix with no task file.
+An item goes on the backlog only when it has to wait.
+
+### Index
+
+The index is one flat list under `## Items`, one entry per item.
+The order is the human's, sooner at the top.
+No position is a promise, and no rule reads the order.
+
+An entry is a top-level list item.
+Its first line gives the slug in backticks, a colon, and the work in one sentence.
+These lines follow, indented under it, in this order:
+
+- `Area:` the package directories the work touches, as comma-separated paths in backticks.
+  An item that belongs to no single package uses `Repository`.
+- `Why:` the reason the work is wanted, in one line.
+- `Brief:` the brief's path in backticks.
+  It is left out when the item has no brief.
+
+```markdown
+- `<slug>`: <the work in one sentence>.
+  Area: `libs/<package>`, `crates/<crate>`
+  Why: <the reason>.
+  Brief: `tasks/backlog/<slug>.md`
+```
+
+The slug is lowercase kebab-case, and no archived task has it.
+It becomes the task slug when the item is scheduled.
+
+### Briefs
+
+A brief is the material that describes an item before triage:
+a design note, an exploration, or an audit or architecture review report.
+It is optional; an idea that fits in one sentence is only its entry.
+
+A brief lives at `tasks/backlog/<slug>.md`.
+An item that needs images or several files uses the directory `tasks/backlog/<slug>/`, with `brief.md` as its entry file.
+
+A brief is free-form below its title.
+It is what triage reads, not a task file: it has no Status and no Plan.
+
+### Who writes
+
+The backlog is the human's.
+An agent adds, moves, or drops an entry only when the human asks.
+It adds at the bottom unless told where.
+
+An entry and its brief reach `main` like any small doc edit: through `bun run land`, with no task file.
+
+### Area lookup
+
+The entries for a target are those whose `Area:` names a path inside the target, or a path the target is inside.
+
+Scheduled work lists the entries for its area to the human, in step 1 of §Session protocol.
+
+### How an entry leaves
+
+- Scheduling an item removes its entry and deletes its brief, in the commit that adds the task file (§Schedule).
+  Both leave `main` when the task lands, and both stay if the branch is abandoned.
+- A task that takes only part of an item trims the entry and the brief to what remains.
+- The human drops an entry; the commit body gives the reason.
+
 ## Deferred work
 
 `tasks/DEFERRED.md` holds the work that finished tasks left undone, so the next audit or task in the area sees it.
-It is not a backlog: nothing in it is promised or ranked.
+It is not the backlog: it holds what was left undone, not what the human intends to do (§Backlog).
+Nothing in it is promised or ranked.
+An item is in one of the two files, never both.
 Its header points here and does not restate these rules.
 
 ### Kinds
@@ -346,6 +425,9 @@ A task that leaves nothing undone adds nothing.
 - A change that resolves an entry removes it in the same change.
 - A task that triages an audit report removes the entries the report lists as resolved (§Audit-sourced tasks).
 - Dropping an entry without resolving it gives the reason in the commit body.
+- Putting an entry on the backlog removes it here in the same change.
+  Its brief carries the entry's evidence and its `Source:` (§Briefs).
+  Only the human decides that (§Who writes).
 
 A fix made without a task file does not load this guide, so it may leave its entry behind.
 The next audit of the area reports that entry as resolved.
@@ -371,6 +453,7 @@ The next audit of the area reports that entry as resolved.
      route again in `agents/INDEX.md` only if scope changed.
    - When work is scheduled in an area, list the area's entries in `tasks/DEFERRED.md` to the human
      with the overlap check (§Deferred work).
+   - List the area's entries in `tasks/BACKLOG.md` beside them (§Area lookup).
 2. Record open questions as they appear.
    - Do not guess answers.
 3. Before ending a session, update Open questions and Plan on the task branch.
@@ -378,6 +461,7 @@ The next audit of the area reports that entry as resolved.
 4. After self-review passes on a green tip, report to the human and wait (§Self-review).
 5. When the human asks to land, follow §Done.
 6. To abandon, delete the branch locally, and on `origin` if it was pushed.
+   - A backlog entry and brief the task was scheduled from are still on `main`; leave them there.
 
 A new session starts from the task file on its branch.
 It does not start from memory or chat history.

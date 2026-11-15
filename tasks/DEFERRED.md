@@ -4,9 +4,10 @@ Work that finished tasks left undone on purpose.
 Each entry is a skipped or needs-decision finding, an open question, or a handoff.
 It names the archived task file it came from, its evidence, and why it was deferred.
 
-This is not a backlog.
+This is not the backlog.
+Work the human intends to do is in `tasks/BACKLOG.md`, and an item is in one of the two files, never both.
 Nothing here is promised or ranked.
-An entry leaves when a change resolves it, or when it is dropped with a reason.
+An entry leaves when a change resolves it, when it moves to the backlog, or when it is dropped with a reason.
 
 Entries are grouped under one heading per package directory.
 `agents/TASKS.md` (§Deferred work) holds the rules for the entry shape and for adding, reading, and removing entries.

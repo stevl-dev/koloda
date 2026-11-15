@@ -45,6 +45,7 @@ read those, and stay out of the rest.
 | Edit touches `className` | add `agents/CSS.md` |
 | Split multi-commit work into a plan (feature, audit report) | `agents/IMPLEMENTATION-PLAN.md`, `agents/TASKS.md`, plus the area guides the work needs |
 | Start or continue a task file | the task file, `agents/TASKS.md` |
+| Add, move, or drop a backlog item or its brief (`tasks/BACKLOG.md`) | `agents/TASKS.md` (§Backlog), `agents/MARKDOWN.md` |
 | Add an AI provider | `agents/ADD-AI-PROVIDER.md`, `docs/specs/AI-PROVIDERS.md`, `agents/CODE-STYLE.md`, `agents/CODE-DOCUMENTATION.md`, `agents/I18N.md`, `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` |
 | Add an assistant tool | `agents/ADD-ASSISTANT-TOOL.md`, `docs/specs/ASSISTANT-DATA-ACCESS.md`, `agents/CODE-STYLE.md`, `agents/CODE-DOCUMENTATION.md`, `agents/I18N.md` |
 | Assistant conversation list (create, name, unread, clone, delete) | `docs/specs/ASSISTANT-CONVERSATION-LIST.md`, `agents/ASSISTANT-MAP.md` |
