@@ -133,26 +133,6 @@ describe("createAssistantEngine", () => {
     await expect(runB).resolves.toBeUndefined();
   });
 
-  it("does not abort in-flight runs when dispose is not called", async () => {
-    let resolveStream!: () => void;
-    chatStreamGenerator.mockImplementation(async (_req, onChunk) => {
-      onChunk({ kind: "text", text: "chunk" });
-      await new Promise<void>((resolve) => {
-        resolveStream = resolve;
-      });
-      return undefined;
-    });
-
-    const runPromise = dispatchChat(engine, "conv-a", "run-1", {} as ChatStreamRequest);
-    await Promise.resolve();
-
-    resolveStream();
-    await runPromise;
-
-    const updates = events.filter((e) => e.type === "runChunk" && e.chunk.kind === "assistantText");
-    expect(updates.some((e) => e.conversationId === "conv-a")).toBe(true);
-  });
-
   it("dispatch shutdown interrupts active runs before aborting controllers", async () => {
     const signals: AbortSignal[] = [];
     const abortedAtInterrupt: boolean[] = [];

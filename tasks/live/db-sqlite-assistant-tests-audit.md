@@ -410,7 +410,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   covering states 1, 2, and 3 at the cutoff. The review window rows are state 1, which does not count toward the
   total, so the limit meta stays as it was.
 
-- [ ] 12. Delete assistant tests that protect nothing
+- [x] 12. Delete assistant tests that protect nothing
   Goal (finding 8, bullets 1, 2): Delete `assistant-observability.test.ts:159` and `assistant-engine.test.ts:136`,
   and imports only they used.
   Constraints: those two files.

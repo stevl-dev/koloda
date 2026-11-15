@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AssistantStructuredLog } from "./assistant-observability";
-import {
-  logAssistantStructured,
-  resetAssistantStructuredLogger,
-  setAssistantStructuredLogger,
-} from "./assistant-observability";
+import { resetAssistantStructuredLogger, setAssistantStructuredLogger } from "./assistant-observability";
 import { createConversationPersistenceHost } from "./conversation-persistence-host";
 import { createConversationSaveQueue } from "./create-conversation-save-queue";
 
@@ -116,24 +112,5 @@ describe("assistant structured observability", () => {
     expect(entries).toContainEqual(expect.objectContaining({ conversationId: "A", commandOrEvent: "deleteCommit" }));
 
     host.dispose();
-  });
-
-  it("records streamStart with requestId and no payload fields", () => {
-    logAssistantStructured({
-      conversationId: "conv-stream",
-      runId: "run-1",
-      requestId: "req-ipc-1",
-      commandOrEvent: "streamStart",
-    });
-    expect(entries).toEqual([
-      {
-        conversationId: "conv-stream",
-        runId: "run-1",
-        requestId: "req-ipc-1",
-        commandOrEvent: "streamStart",
-      },
-    ]);
-    expect(entries[0]).not.toHaveProperty("chunk");
-    expect(JSON.stringify(entries[0])).not.toMatch(/apiKey|secret/i);
   });
 });
