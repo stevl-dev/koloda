@@ -268,7 +268,7 @@ After approval, flip Status to `ready`.
 A task that triages an audit report keeps the report's findings in its task file.
 `tmp/audits/<slug>.md` is gitignored, so the task file is the report's only durable form.
 The same holds for a report kept as a backlog brief: scheduling its task deletes the brief (§Schedule).
-Do not commit the report.
+Do not commit the report on the task branch.
 It would add a second file under `live/` that the Archive gate does not move.
 
 - Intent names the audited commit and the report path, for provenance only.
@@ -321,7 +321,7 @@ It becomes the task slug when the item is scheduled.
 
 `bun run check:docs` fails when an entry breaks this shape, repeats a slug, or takes an archived task's slug.
 It also fails when a `Brief:` line names a path that is missing or is not the entry's own,
-or when a file under the brief directory belongs to no entry.
+or when a brief belongs to no entry.
 
 ### Briefs
 
