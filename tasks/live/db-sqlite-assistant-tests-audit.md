@@ -303,7 +303,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Abort a disposed conversation's run whatever the store holds
   Depends on: none
 
-- [ ] 3. Settle the migration loader's readdir fallback
+- [x] 3. Settle the migration loader's readdir fallback
   Goal (finding 14): Probe whether any suite needs the fallback in `libs/db-sqlite/src/lib/migrate.ts:40-51`: make
   `readdir` throw (scratch change, not committed) and run `apps/web`'s vitest suite, which includes
   `apps/web/src/app/ai.integration.test.ts`. If the glob works there too, delete the fallback and its `WHY`. If the fallback is reached, stop and record the suite that

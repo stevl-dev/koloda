@@ -33,24 +33,6 @@ function entriesFromGlob(): [string, string][] {
     .sort(([a], [b]) => compareMigrationNames(a, b));
 }
 
-async function loadMigrationEntries(): Promise<[string, string][]> {
-  const fromGlob = entriesFromGlob();
-  if (fromGlob.length > 0) return fromGlob;
-
-  // WHY: Vitest can miss a glob outside the lib; Node tests still need the SQL series applied.
-  const { readdir, readFile } = await import("node:fs/promises");
-  const { dirname, resolve } = await import("node:path");
-  const { fileURLToPath } = await import("node:url");
-  const dir = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../crates/koloda/src/migrations");
-  const files = (await readdir(dir)).filter((file) => file.endsWith(".sql")).sort(compareMigrationNames);
-  return Promise.all(
-    files.map(async (file) => {
-      const sql = await readFile(resolve(dir, file), "utf8");
-      return [nameFromPath(file), sql] as [string, string];
-    }),
-  );
-}
-
 export async function ensureMigrationsTable(db: DB) {
   const columns = await db.all(`PRAGMA table_info(${MIGRATIONS_TABLE})`);
   // INVARIANT: every caller runs after `isIncompatible` passed (in `getStatus` or `applyPendingMigrations`, or in
@@ -94,7 +76,7 @@ async function isIncompatible(db: DB) {
   const columns = await db.all(`PRAGMA table_info(${MIGRATIONS_TABLE})`);
   if (!columns.some((column) => column.name === "checksum")) return true;
 
-  const files = new Map(await loadMigrationEntries());
+  const files = new Map(entriesFromGlob());
   const records = await db.all(`SELECT name, checksum FROM ${MIGRATIONS_TABLE}`);
   for (const record of records) {
     const sql = files.get(String(record.name));
@@ -112,7 +94,7 @@ export async function applyPendingMigrations(db: DB) {
   const applied = new Set(await getAppliedMigrationNames(db));
   const createdAt = nowMs();
 
-  for (const [name, sql] of await loadMigrationEntries()) {
+  for (const [name, sql] of entriesFromGlob()) {
     if (applied.has(name)) continue;
     const sum = await checksum(sql);
     // WHY: Refinery applies each migration in its own transaction — a mid-migration
