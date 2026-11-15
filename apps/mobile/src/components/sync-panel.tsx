@@ -1,6 +1,6 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { StyleSheet, Text, View } from "react-native";
 import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
@@ -10,7 +10,7 @@ export function SyncPanel() {
   const { _ } = useLingui();
   const { getSyncStatusQuery } = useMobileQueries();
   // WHY: observes the start `Boot` runs; it never fetches here.
-  const start = useQuery({ queryKey: SYNC_START_KEY, enabled: false });
+  const start = useQuery({ queryKey: SYNC_START_KEY, queryFn: skipToken });
   const status = useQuery({ ...getSyncStatusQuery(), enabled: start.isSuccess });
 
   if (start.error) {
