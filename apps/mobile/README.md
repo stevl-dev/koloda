@@ -156,3 +156,9 @@ What building and running the spike showed:
   The lesson test swaps the swipe layer (`src/lesson/swipeable-card.tsx`) for a pass-through and grades with buttons.
 - Expo locks an Android app to light mode unless the app config sets an interface style, which needs
   `expo-system-ui`; the app follows the system scheme with it.
+- 2026-11-15, Android emulator (debug build): opening the Sync tab logged React Query's missing-`queryFn` error,
+  because `SyncPanel` observed the start query with no `queryFn`.
+  It now passes `queryFn: skipToken`, which disables the query without the warning; after a reload the tab shows the join form.
+- 2026-11-15, Android emulator (debug build, fresh install): device checks 1–7 and 9 pass.
+- 2026-11-15, Android emulator, dark mode: device check 8 fails. The card's text turns light, but the debug screen and its
+  header stay light, so the text is nearly unreadable. Light mode is fine. Deferred to a later session (`tasks/DEFERRED.md`).

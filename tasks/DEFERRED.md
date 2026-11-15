@@ -80,6 +80,14 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`
   Deferred because: found in a review after the task was archived; it cannot be checked without the Android build.
 
+- Handoff: make the mobile card readable in dark mode, and decide how far the app follows the dark scheme.
+  Evidence: at `0c7f9de5`, `apps/mobile/src/cards/markdown-colors.ts:19` sets light text for dark mode, while the debug
+  screen and its header stay light (`apps/mobile/src/app/debug.tsx`); device check 8 fails on the emulator in dark mode.
+  Kind: handoff
+  Source: `tasks/archive/mobile-spike.md`
+  Deferred because: found in the device checks after the task was archived; the fix needs a choice between a card
+  surface and dark screens across the app, and the human will take it in another session.
+
 ## crates/koloda
 
 - Improvement, Should-fix: no test cancels an optimizer run during training or scoring.
