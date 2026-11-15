@@ -1,6 +1,6 @@
 # Give future work a backlog
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/MARKDOWN.md, agents/AUDIT.md, agents/ARCHITECTURE-REVIEW.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md
 Flow: local
 
@@ -203,3 +203,37 @@ Out:
   Depends on: 1, 2, 3
 
 ## Outcome
+
+The four plan items shipped (`6591d641`..`4c0ba129`), plus one self-review commit (`eddee186`).
+`bun run check:push` passed on `eddee186`; the Archive commit after it changes only this file.
+No item added or edited an e2e case, so no suite run was required.
+
+- `tasks/BACKLOG.md` is the index, and an item's brief sits beside it under the backlog directory.
+  `agents/TASKS.md` (§Backlog) holds the rules, and `agents/INDEX.md` routes to it.
+- `agents/TASKS.md` (§Schedule) starts a task from a backlog entry: it takes the slug, reads the brief,
+  and removes the entry and the brief in the commit that adds the task file.
+- `tasks/DEFERRED.md` and the backlog never hold the same item; moving an entry over removes it from the first.
+- `bun run check:docs` checks the entry shape, unique slugs, slugs against the archive, and that entries and briefs
+  match each other.
+  Nine scratch entries that each broke one rule all failed, and three well-formed ones passed.
+- An audit and an architecture review read the backlog entries for their target and report a match as known.
+  The human may ask either to keep its report as a brief.
+- The backlog holds nine items: eight test audits and the architecture review of assistant chat runs,
+  all written at `dc9c7bb7`, in the order of the scratch tracker they replace.
+  The three reports whose tasks are archived were not seeded.
+
+Where the work departs from the plan's wording:
+
+- Item 3 put who reads the backlog under §Area lookup in the Backlog section, not under Deferred work's §Reading.
+- Item 4 changed five lines in three reports that named another report by its scratch path.
+  They now name that report's brief or its archived task, because `AGENTS.md` (§Scratch) forbids such paths
+  in durable files; `bun run check:docs` does not read `tasks/`, so it would not have failed on them.
+- Item 4 put the audited commit in each entry's `Why:` line, to keep the first line short.
+
+Self-review changed two sentences in `agents/TASKS.md`: what the check says about a brief with no entry,
+and that an audit report is not committed on the task branch.
+The task leaves nothing undone, so it adds no entry to `tasks/DEFERRED.md`.
+
+Spec: none — the change is to agent guides, the task files, and a docs check; no user-visible behavior changed
+Review: not run
+Change rounds: 0
