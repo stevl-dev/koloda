@@ -306,6 +306,13 @@ Entries are grouped under one heading per package directory.
   `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`), and a WASM `koloda` for web needs a new decision.
   Rule disagreements are covered by the shared rule cases.
 
+- Improvement, Later: the connection's I/O recovery and the stale-IndexedDB wipe have no test.
+  Evidence: at `91c9b3d4`, `libs/db-sqlite/src/lib/db.ts:158-165` and `:197-218` (an I/O error drops and reopens the
+  connection) and `:114-133` (a leftover IndexedDB without a `blocks` store is wiped).
+  Kind: skipped
+  Source: `tasks/archive/db-sqlite-assistant-tests-audit.md`, finding 11
+  Deferred because: testing either path needs a fake failing VFS call; the human chose to skip them at triage.
+
 ## libs/e2e
 
 - Improvement, Later: the two AI-mock transports repeat the response decision, and hold differently after a cancel.

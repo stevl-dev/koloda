@@ -1,6 +1,6 @@
 # db-sqlite and assistant tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/ASSISTANT-MAP.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -557,8 +557,38 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
 
 ## Outcome
 
-<what shipped>
+Findings 1–10 and 12–14 are fixed by items 1–22.
+Finding 11 is fixed by items 17–19 and 23, except its `db.ts` bullet, skipped as triage decided.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- 20 files outside `tasks/`, 679 lines added and 979 deleted.
+  `libs/assistant` goes from 75 tests to 82, and `libs/db-sqlite` from 126 to 121.
+- Source changes, all in teardown and persistence guards:
+  - `disposeConversation` cancels every run the conversation's runtime tracks, through the new `cancelAll`, so the
+    abort no longer depends on the store still holding run keys (finding 7).
+  - The persistence host's pre-write tombstone check is deleted. With a marker on it, no `libs/assistant` or
+    `libs/assistant-react` test reached it: the queue sets its own tombstone with no `await` after the host's
+    (finding 2).
+  - The migration loader's `readdir` fallback is deleted; the `libs/db-sqlite` and `apps/web` unit suites load the
+    series through the glob (finding 14).
+  - Retry's early-cancel check is deleted as unreachable (Open questions, item 23).
+- The conversation list order, the `createdAt` kept on conflict, the lesson and review-window cutoffs, and the
+  settings timestamps are pinned with a fake `Date` and boundary rows.
+- A lesson submit is compared on the full card, and the runtime has tests for reasoning chunks and for who is touched
+  and marked read on each outcome.
+- The self-fulfilling, passthrough, second-door, and duplicate tests are deleted; the repeated setup uses shared
+  helpers.
+- Mutations of the pinned comparisons, column order, and touch rules each fail a named test.
+  Three survive as equivalent: `?? null` at `cards.ts:60-61` (item 9's note), the list's `created_at DESC`
+  tiebreak, which the index `conversations_updated_at_idx (updated_at, created_at)` already yields, and either one
+  of the save queue's two backoff guards for a failed write with N+1 queued (removing both fails).
+- Review found three Blocking findings and one nit, all fixed: two comments still said dispose reads the store's
+  run keys, item 13 had merged the retry-delay `describe` into the queue's, and item 9's probe note was wrong.
+- No e2e case changed, so no suite run is recorded.
+
+Skipped, now in `tasks/DEFERRED.md` under `libs/db-sqlite`: finding 11's `db.ts` bullet.
+`db.ts:158-165` and `:197-218` (an I/O error drops and reopens the connection) and `db.ts:114-133` (a leftover
+IndexedDB without a `blocks` store is wiped) have no test; testing either needs a fake failing VFS call.
+
+Spec: none — tests, teardown, and persistence guards; no user-visible behavior changed
+Review: blocking 3 (CODE-DOCUMENTATION §Strict Commenting Rules, CODE-DOCUMENTATION §Strict Commenting Rules, CODE-STYLE §Change Discipline), nit 1
+Change rounds: 1
