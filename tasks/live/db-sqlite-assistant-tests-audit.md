@@ -454,7 +454,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   `dc9c7bb7` too; the report's `:167` and `:220` do not exist.
   The commit test at `:305` lost its post-commit checks to `:451`, so it is renamed to what it still asserts.
 
-- [ ] 16. Trim the conversation repo tests to one home per rule
+- [x] 16. Trim the conversation repo tests to one home per rule
   Goal (findings 8 third bullet, 9 fifth bullet, 10 last bullet, 13 first two bullets): In
   `conversations.integration.test.ts`, delete "unconditional upsert recreates a row after delete" (`:356`).
   Fold `:23`, `:150`, `:206`, `:243`, and `:339` into one round trip that sets a title and `createdAt` and lists a
@@ -467,6 +467,9 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Done when: the package's vitest run passes.
   Commit: Trim the conversation repo tests to one home per rule
   Depends on: 1, 4
+  Added at implementation: with the upsert test (`:356`) and item 1's tombstone test gone, nothing called
+  `deleteConversation`, so a plain delete test replaces them. The row's `createdAt` stays in item 4's test rather
+  than the round trip.
 
 - [ ] 17. Test the save scheduler and queue retry branches
   Goal (finding 11, bullets 1–4): In `create-save-scheduler.test.ts:119`, add a second bump at +100 and expect the
