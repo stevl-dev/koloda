@@ -41,4 +41,17 @@ describe("createRunControllerRegistry", () => {
     registry.dispose("dispose");
     expect(() => registry.beginRun("run-1")).toThrow(new RunControllerRegistryClosedError("app_shutdown"));
   });
+
+  it("beginRun for a reused runId aborts the old controller, and a stale endRun keeps the new one", () => {
+    const registry = createRunControllerRegistry();
+    const first = registry.beginRun("run-1");
+    const second = registry.beginRun("run-1");
+    expect(first.signal.aborted).toBe(true);
+    expect(second.signal.aborted).toBe(false);
+
+    registry.endRun("run-1", first);
+    expect(registry.has("run-1")).toBe(true);
+    registry.cancel("run-1");
+    expect(second.signal.aborted).toBe(true);
+  });
 });

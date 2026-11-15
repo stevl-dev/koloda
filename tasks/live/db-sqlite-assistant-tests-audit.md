@@ -273,6 +273,12 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
 - [x] Finding 11: which cases? — all but the `db.ts` recovery and wipe, which are skipped.
 - [x] Finding 12: fix the repeated setup here or defer it? — fix it here (items 21, 22).
 - [x] Finding 2: if the host's pre-write check is unreachable, remove it or keep it as a backstop? — remove it.
+- [ ] Finding 11 (item 18): retry's own early-cancel check (`libs/assistant/src/lib/conversation-runtime.ts:421-426`)
+  is unreachable. A cancel stamps `requestedReason` only while the run is `awaitingStart`, and between
+  `withAwaitingStart` setting that phase and the check there is no `await` and no `emit`; a probe marker on the
+  branch fired in no `libs/assistant` or `libs/assistant-react` test. A cancel dispatched from retry's `runStarted`
+  emit lands in the `awaitingStart` cancel branch (`:471-484`) and is consumed by `runChatRun`'s own check; item 18
+  tests that path. Delete the retry check, or keep it as a backstop? — open
 
 ## Plan
 
@@ -483,7 +489,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Test the save scheduler and queue retry branches
   Depends on: 15 (same files)
 
-- [ ] 18. Test the error-details cap, serial queue, registry, and runtime cancel branches
+- [x] 18. Test the error-details cap, serial queue, registry, and runtime cancel branches
   Goal (finding 11, bullets 5–8): Add tests for `boundRunErrorDetails` at 16,000 and 16,001 characters; a rejecting
   `serial-queue` task followed by one that runs; `beginRun` for a reused id aborting the old controller and `endRun`
   with a stale controller keeping the new one (`run-controller-registry.test.ts`).
@@ -495,6 +501,8 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Done when: the package's vitest run passes.
   Commit: Test the error-details cap, serial queue, registry, and runtime cancel branches
   Depends on: 8 (same runtime file)
+  Done at implementation: the 16,000 and 16,001 rows replace the 20,000 case in the runtime's cap test rather than
+  adding a protocol test file. The retry early-cancel branch is unreachable and recorded in Open questions.
 
 - [ ] 19. Round-trip settings timestamps
   Goal (finding 11, last bullet): In `settings-reviews.integration.test.ts`, add a test with fake `Date`: set a

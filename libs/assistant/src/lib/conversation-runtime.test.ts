@@ -5,6 +5,7 @@ import { AssistantDuplicateRunError, AssistantEngineClosedError } from "./assist
 import type { AssistantExecutionPort } from "./assistant-execution-port";
 import type { AssistantEvent } from "./assistant-protocol";
 import { createConversationRuntime } from "./conversation-runtime";
+import type { ConversationRuntime } from "./conversation-runtime";
 import { createRunControllerRegistry } from "./run-controller-registry";
 import type { RunAbortReason } from "./run-controller-registry";
 
@@ -354,36 +355,42 @@ describe("createConversationRuntime chat tool events", () => {
     });
   });
 
-  it("caps oversized unknown-failure details at the storage backstop", async () => {
-    const events: AssistantEvent[] = [];
-    const executionPort: AssistantExecutionPort = {
-      executeChat: async () => {
-        throw new Error("x".repeat(20_000));
-      },
-    };
+  it.each([
+    { length: 16_000, details: "x".repeat(16_000) },
+    { length: 16_001, details: `${"x".repeat(16_000)}…` },
+  ])(
+    "stores $length characters of unknown-failure details as the storage backstop allows",
+    async ({ length, details }) => {
+      const events: AssistantEvent[] = [];
+      const executionPort: AssistantExecutionPort = {
+        executeChat: async () => {
+          throw new Error("x".repeat(length));
+        },
+      };
 
-    const runtime = createConversationRuntime(
-      "conv-a",
-      {
-        emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
-        isRunStreaming: () => true,
-        readConversationState: () => ({ runs: {} }),
-      },
-      { executionPort },
-      createRunControllerRegistry(),
-    );
+      const runtime = createConversationRuntime(
+        "conv-a",
+        {
+          emit: (event) => events.push(event),
+          markReadIfCurrent: vi.fn(),
+          touch: vi.fn(),
+          isRunStreaming: () => true,
+          readConversationState: () => ({ runs: {} }),
+        },
+        { executionPort },
+        createRunControllerRegistry(),
+      );
 
-    await runtime.executeChatRun("run-fail-capped", {} as ChatStreamRequest, TEST_EXECUTION);
+      await runtime.executeChatRun("run-fail-capped", {} as ChatStreamRequest, TEST_EXECUTION);
 
-    expect(events).toContainEqual({
-      type: "runTerminated",
-      conversationId: "conv-a",
-      runId: "run-fail-capped",
-      outcome: { status: "failed", error: { message: "unknown", details: `${"x".repeat(16_000)}…` } },
-    });
-  });
+      expect(events).toContainEqual({
+        type: "runTerminated",
+        conversationId: "conv-a",
+        runId: "run-fail-capped",
+        outcome: { status: "failed", error: { message: "unknown", details } },
+      });
+    },
+  );
 
   it("emits reasoning as its own chunk, keeps it out of the text, and touches the conversation", async () => {
     const log: Array<AssistantEvent | "touch"> = [];
@@ -560,5 +567,50 @@ describe("createConversationRuntime retryRun status guard", () => {
       run: { runId: "run-1", modelName: undefined },
     });
     expect(executionPort.executeChat).toHaveBeenCalledTimes(1);
+  });
+
+  // WHY: retry emits runStarted after the run leaves the queue and before beginRun; a cancel dispatched from that
+  // emit is the only way to land in that gap.
+  it("a cancel dispatched from the retry's runStarted stops the run before the provider", async () => {
+    const events: AssistantEvent[] = [];
+    let isStreaming = true;
+    let shouldCancelOnStart = true;
+    let storedStatus = "failed";
+    const executeChat = vi.fn(async () => undefined);
+    const runtime: ConversationRuntime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => {
+          events.push(event);
+          if (event.type === "runStarted" && shouldCancelOnStart) runtime.cancel("run-1");
+          if (event.type === "runTerminated") isStreaming = false;
+        },
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => isStreaming,
+        readConversationState: () => ({ runs: { "run-1": { status: storedStatus } } }),
+      },
+      { executionPort: { executeChat } },
+      createRunControllerRegistry(),
+    );
+
+    await runtime.retryRun("run-1", {} as ChatStreamRequest, undefined, TEST_EXECUTION);
+
+    expect(executeChat).not.toHaveBeenCalled();
+    expect(events.filter((event) => event.type === "runTerminated")).toEqual([
+      {
+        type: "runTerminated",
+        conversationId: "conv-a",
+        runId: "run-1",
+        outcome: { status: "canceled", reason: "user" },
+      },
+    ]);
+
+    // The stamped cancel was consumed: a later retry of the same run id reaches the provider.
+    shouldCancelOnStart = false;
+    isStreaming = true;
+    storedStatus = "canceled";
+    await runtime.retryRun("run-1", {} as ChatStreamRequest, undefined, TEST_EXECUTION);
+    expect(executeChat).toHaveBeenCalledTimes(1);
   });
 });

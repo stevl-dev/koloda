@@ -50,4 +50,15 @@ describe("createSerialQueue", () => {
 
     expect(() => queue.enqueue("c", async () => undefined)).toThrow(QueueClosedError);
   });
+
+  it("a rejecting task rejects its own caller and does not stop the next task", async () => {
+    const queue = createSerialQueue<string>();
+    const failing = queue.enqueue("a", async () => {
+      throw new Error("boom");
+    });
+    const next = queue.enqueue("b", async () => "ran");
+
+    await expect(failing).rejects.toThrow("boom");
+    await expect(next).resolves.toBe("ran");
+  });
 });
