@@ -356,7 +356,9 @@ describe("createConversationSaveQueue", () => {
     await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
     expect(write).toHaveBeenCalledTimes(1);
   });
+});
 
+describe("computeSaveRetryDelayMs / categorizeSaveError", () => {
   it("bounds exponential delay and applies jitter", () => {
     expect(computeSaveRetryDelayMs(1, () => 0)).toBe(Math.floor(SAVE_RETRY_BASE_DELAY_MS * 0.5));
     expect(computeSaveRetryDelayMs(1, () => 1)).toBe(SAVE_RETRY_BASE_DELAY_MS);
