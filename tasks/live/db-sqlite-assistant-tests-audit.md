@@ -418,7 +418,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Delete assistant tests that protect nothing
   Depends on: 7 (same engine file)
 
-- [ ] 13. Delete assistant rules re-tested through a higher door
+- [x] 13. Delete assistant rules re-tested through a higher door
   Goal (finding 9, first and third bullets): Delete `create-conversation-save-queue.test.ts:353` (throttle while
   streaming; home `create-save-scheduler.test.ts:134`) and `conversation-persistence-host.test.ts:292` (`retrySave`
   skips backoff; home `create-conversation-save-queue.test.ts:170`).

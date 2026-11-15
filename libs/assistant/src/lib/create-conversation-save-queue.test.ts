@@ -6,7 +6,7 @@ import {
   SAVE_RETRY_BASE_DELAY_MS,
   SAVE_RETRY_MAX_DELAY_MS,
 } from "./create-conversation-save-queue";
-import { IDLE_SAVE_DEBOUNCE_MS, STREAM_SAVE_THROTTLE_MS } from "./create-save-scheduler";
+import { IDLE_SAVE_DEBOUNCE_MS } from "./create-save-scheduler";
 
 function deferred<T = void>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
@@ -354,27 +354,6 @@ describe("createConversationSaveQueue", () => {
     expect(write).toHaveBeenCalledTimes(1);
   });
 
-  it("throttles while streaming", async () => {
-    const write = vi.fn(async () => {});
-    const queue = createConversationSaveQueue({
-      conversationId: "A",
-      write,
-      isStreaming: () => true,
-    });
-
-    queue.notifyDirty();
-    await vi.advanceTimersByTimeAsync(0);
-    expect(write).toHaveBeenCalledTimes(1);
-
-    queue.notifyDirty();
-    await vi.advanceTimersByTimeAsync(STREAM_SAVE_THROTTLE_MS - 1);
-    expect(write).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(1);
-    expect(write).toHaveBeenCalledTimes(2);
-  });
-});
-
-describe("computeSaveRetryDelayMs / categorizeSaveError", () => {
   it("bounds exponential delay and applies jitter", () => {
     expect(computeSaveRetryDelayMs(1, () => 0)).toBe(Math.floor(SAVE_RETRY_BASE_DELAY_MS * 0.5));
     expect(computeSaveRetryDelayMs(1, () => 1)).toBe(SAVE_RETRY_BASE_DELAY_MS);

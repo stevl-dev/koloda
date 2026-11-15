@@ -302,33 +302,6 @@ describe("createConversationPersistenceHost", () => {
     host.dispose();
   });
 
-  it("retrySave flushes a dirty conversation immediately", async () => {
-    let shouldFail = true;
-    const write = vi.fn(async () => {
-      if (shouldFail) throw new Error("db down");
-    });
-    const host = createConversationPersistenceHost({
-      createWrite: () => write,
-      isStreaming: () => false,
-      getInitialPending: () => ({ A: 1 }),
-      subscribePendingSaves: () => () => {},
-    });
-
-    await vi.advanceTimersByTimeAsync(0);
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(write).toHaveBeenCalled();
-    write.mockClear();
-    shouldFail = false;
-
-    host.retrySave("A");
-    await vi.advanceTimersByTimeAsync(0);
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(write).toHaveBeenCalledTimes(1);
-    host.dispose();
-  });
-
   it("beginDelete commit awaits an in-flight write then blocks further saves", async () => {
     const rows = new Map<string, string>();
     let releaseWrite!: () => void;
