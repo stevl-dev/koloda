@@ -71,6 +71,9 @@
     },
     {
       "path": "./tools"
+    },
+    {
+      "path": "./apps/mobile/native"
     }
   ],
   "compilerOptions": {
