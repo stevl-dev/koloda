@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TestDb } from "../test/test-helpers";
 import { createTestDb } from "../test/test-helpers";
 import { deleteConversation, getConversation, getConversations, setConversation } from "./conversations";
@@ -11,6 +11,7 @@ describe("conversations repository integration", () => {
   });
 
   afterEach(async () => {
+    vi.useRealTimers();
     await testDb.close();
   });
 
@@ -120,31 +121,53 @@ describe("conversations repository integration", () => {
     expect(ts).toBeLessThanOrEqual(after);
   });
 
-  it("lists conversations ordered by updated/created time", async () => {
+  it("lists conversations by updated time, then by created time", async () => {
     const { db } = testDb;
-    const createdAt = new Date(1700000000000);
     const state = {
       id: "",
-      createdAt,
+      createdAt: new Date(1700000000000),
       messages: [],
       runs: {},
       activeRunId: null,
       deckId: null,
     };
+    const save = async (id: string, createdAtMs: number, updatedAtMs: number) => {
+      vi.setSystemTime(createdAtMs);
+      await setConversation(db, { id, state: { ...state, id }, updatedAt: new Date(updatedAtMs) });
+    };
+    vi.useFakeTimers({ toFake: ["Date"] });
 
-    await setConversation(db, { id: "conv-a", state: { ...state, id: "conv-a" } });
-    await setConversation(db, { id: "conv-b", state: { ...state, id: "conv-b" } });
-    // Ensure both rows have a non-null updated_at so ordering is deterministic,
-    // then make conv-a the most recently updated.
-    await setConversation(db, { id: "conv-b", state: { ...state, id: "conv-b", deckId: 1 } });
-    await setConversation(db, { id: "conv-a", state: { ...state, id: "conv-a", deckId: 2 } });
+    await save("conv-a", 1_000, 1_000);
+    await save("conv-b", 2_000, 4_000);
+    // A later save moves conv-a ahead of conv-b.
+    await save("conv-a", 3_000, 5_000);
+    // conv-c and conv-d tie on updated_at; conv-d was created later.
+    await save("conv-c", 4_000, 3_000);
+    await save("conv-d", 5_000, 3_000);
 
     const list = await getConversations(db);
-    expect(list).toHaveLength(2);
-    expect(list[0].id).toBe("conv-a");
-    expect(list[1].id).toBe("conv-b");
-    expect(list[0].hasTurns).toBe(false);
-    expect(list[1].hasTurns).toBe(false);
+    expect(list.map((item) => item.id)).toEqual(["conv-a", "conv-b", "conv-d", "conv-c"]);
+  });
+
+  it("keeps the first save's createdAt when a later save conflicts", async () => {
+    const { db } = testDb;
+    const state = {
+      id: "conv-created",
+      createdAt: new Date(1700000000000),
+      messages: [],
+      runs: {},
+      activeRunId: null,
+      deckId: null,
+    };
+    vi.useFakeTimers({ toFake: ["Date"] });
+
+    vi.setSystemTime(1_000);
+    await setConversation(db, { id: "conv-created", state });
+    vi.setSystemTime(2_000);
+    const updated = await setConversation(db, { id: "conv-created", state });
+
+    expect(updated.createdAt).toEqual(new Date(1_000));
+    expect(updated.updatedAt).toEqual(new Date(2_000));
   });
 
   it("handles complex nested state", async () => {

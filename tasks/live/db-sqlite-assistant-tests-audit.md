@@ -313,7 +313,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Delete the unused migration readdir fallback
   Depends on: none
 
-- [ ] 4. Pin the conversation list order and createdAt without the wall clock
+- [x] 4. Pin the conversation list order and createdAt without the wall clock
   Goal (findings 1, 5 fourth bullet): In `conversations.integration.test.ts:123`, pass an explicit `updatedAt` on
   every save so `conv-a` is the most recent, and add a pair that ties on `updated_at` and is ordered by
   `created_at`. Delete the stale comment at `:137-138`.
