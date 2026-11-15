@@ -143,31 +143,6 @@ describe("cards repository integration", () => {
     expect(stored).toMatchObject({ stability: 0, difficulty: 0 });
   });
 
-  it("rejects card content when a required template field is empty", async () => {
-    const { db } = testDb;
-    const { deck, template } = await seedDeckContext(db);
-
-    const frontId = template.content.fields[0]!.id;
-
-    await expect(
-      addCard(db, {
-        deckId: deck.id,
-        templateId: template.id,
-        content: {
-          ...createCardContent(template),
-          [frontId]: { text: "" },
-        },
-      }),
-    ).rejects.toMatchObject({
-      issues: expect.arrayContaining([
-        expect.objectContaining({
-          message: "validation.cards.content.field-empty",
-          path: ["content", frontId, "text"],
-        }),
-      ]),
-    });
-  });
-
   // WHY: twin of Rust `add_card_rejects_invalid_progress_state`; the web insert used to store the row first.
   it("addCard rejects invalid progress fields and stores no row", async () => {
     const { db } = testDb;

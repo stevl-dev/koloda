@@ -427,7 +427,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Delete assistant rules re-tested through a higher door
   Depends on: 5 (same files)
 
-- [ ] 14. Delete db-sqlite rules re-tested through a higher door
+- [x] 14. Delete db-sqlite rules re-tested through a higher door
   Goal (finding 9, fourth and sixth bullets): Delete `settings-reviews.integration.test.ts:240` (home `:222`) and
   `cards.integration.test.ts:130` (home `libs/srs/src/lib/cards.test.ts:233`).
   Constraints: those two files.
