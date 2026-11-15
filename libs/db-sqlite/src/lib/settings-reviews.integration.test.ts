@@ -367,11 +367,28 @@ describe("settings and review totals integration", () => {
       createdAt: new Date(2026, 0, 10, 5, 15, 0),
     });
 
+    // The window is [from, to): a review at the day start counts, one at the next day start does not.
+    for (const createdAt of [new Date(2026, 0, 9, 5, 0, 0), new Date(2026, 0, 10, 5, 0, 0)]) {
+      await insertReview(db, {
+        cardId: cardB.id,
+        rating: 3,
+        state: 1,
+        dueAt: new Date(2026, 0, 10, 9, 0, 0),
+        stability: 2,
+        difficulty: 2,
+        scheduledDays: 0,
+        learningSteps: 1,
+        time: 350,
+        isIgnored: false,
+        createdAt,
+      });
+    }
+
     const result = await getTodaysReviewTotals(db);
 
     expect(result.reviewTotals).toEqual({
       untouched: 1,
-      learn: 2,
+      learn: 3,
       review: 1,
       total: 2,
     });

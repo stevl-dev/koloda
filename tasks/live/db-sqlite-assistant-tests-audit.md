@@ -394,7 +394,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Assert the full card after a lesson submit
   Depends on: none
 
-- [ ] 11. Add boundary rows to the lesson and review window tests
+- [x] 11. Add boundary rows to the lesson and review window tests
   Goal (finding 5, bullets 1–3): In `lessons.integration.test.ts`, add a card due exactly at the cutoff to the
   tests at `:35`, `:121`, and `:162`, expecting it neither counted nor drawn; add a state 3 card to `:35` and
   expect it counted as learn.
@@ -405,6 +405,10 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   or either comparison at `reviews.ts:36-37`, fails a test (probes).
   Commit: Add boundary rows to the lesson and review window tests
   Depends on: 10 (same lessons file)
+  Corrected at implementation: `:121` and `:162` draw with a learn and review limit of 1, so a card due at the
+  cutoff would lose to an earlier one even under `<=`. The draw boundary is a new test with wide limits instead,
+  covering states 1, 2, and 3 at the cutoff. The review window rows are state 1, which does not count toward the
+  total, so the limit meta stays as it was.
 
 - [ ] 12. Delete assistant tests that protect nothing
   Goal (finding 8, bullets 1, 2): Delete `assistant-observability.test.ts:159` and `assistant-engine.test.ts:136`,

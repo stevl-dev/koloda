@@ -79,15 +79,33 @@ describe("lessons repository integration", () => {
       state: 2,
       dueAt: new Date("2026-01-10T09:00:00.000Z"),
     });
+    // Relearning counts as learn.
+    await addCard(db, {
+      deckId: deckContextA.deck.id,
+      templateId: deckContextA.template.id,
+      content: createCardContent(deckContextA.template),
+      state: 3,
+      dueAt: new Date("2026-01-10T11:30:00.000Z"),
+    });
+    // Due exactly at the cutoff: not due yet, so neither is counted.
+    for (const state of [1, 2]) {
+      await addCard(db, {
+        deckId: deckContextA.deck.id,
+        templateId: deckContextA.template.id,
+        content: createCardContent(deckContextA.template),
+        state,
+        dueAt,
+      });
+    }
 
     const lessons = await getLessons(db, dueAt);
     const filteredLessons = await getLessons(db, dueAt, { deckIds: [deckContextA.deck.id] });
 
     expect(getLessonCounts(lessons.total)).toMatchObject({
       untouched: 1,
-      learn: 1,
+      learn: 2,
       review: 2,
-      total: 4,
+      total: 5,
     });
     expect({
       title: lessons.decks.find((lesson) => lesson.id === deckContextA.deck.id)?.title,
@@ -95,9 +113,9 @@ describe("lessons repository integration", () => {
     }).toMatchObject({
       title: "Deck A",
       untouched: 1,
-      learn: 1,
+      learn: 2,
       review: 1,
-      total: 3,
+      total: 4,
     });
     expect({
       title: lessons.decks.find((lesson) => lesson.id === deckContextB.deck.id)?.title,
@@ -111,9 +129,9 @@ describe("lessons repository integration", () => {
     });
     expect(getLessonCounts(filteredLessons.total)).toMatchObject({
       untouched: 1,
-      learn: 1,
+      learn: 2,
       review: 1,
-      total: 3,
+      total: 4,
     });
   });
 
@@ -185,6 +203,33 @@ describe("lessons repository integration", () => {
     );
 
     expect(cards.map(({ id, state }) => ({ id, state }))).toEqual([{ id: relearningDue.id, state: 3 }]);
+  });
+
+  it("does not draw learn or review cards due exactly at the cutoff", async () => {
+    const { db } = testDb;
+    const { deck, template } = await seedDeckContext(db);
+    const addDue = async (state: number, dueAt: number) =>
+      (
+        await addCard(db, {
+          deckId: deck.id,
+          templateId: template.id,
+          content: createCardContent(template),
+          state,
+          dueAt: new Date(dueAt),
+        })
+      ).id;
+    const learnDue = await addDue(1, 999);
+    const reviewDue = await addDue(2, 999);
+    for (const state of [1, 2, 3]) await addDue(state, 1_000);
+
+    const cards = await getLessonCards(
+      db,
+      new Date(1_000),
+      { deckIds: [deck.id] },
+      { untouched: 0, learn: 10, review: 10, total: 20 },
+    );
+
+    expect(cards.map(({ id }) => id)).toEqual([learnDue, reviewDue]);
   });
 
   it("assembles lesson cards, decks, templates, and algorithms together", async () => {
