@@ -276,7 +276,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
 
 ## Plan
 
-- [ ] 1. Delete the self-fulfilling tombstone tests
+- [x] 1. Delete the self-fulfilling tombstone tests
   Goal (finding 2): Delete "delayed write that resumes after tombstone does not resurrect the row"
   (`libs/assistant/src/lib/conversation-persistence-host.test.ts:519`) and "delayed write that respects a tombstone
   after delete does not resurrect the row" (`libs/db-sqlite/src/lib/conversations.integration.test.ts:379`).

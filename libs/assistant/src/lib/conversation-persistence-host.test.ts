@@ -515,48 +515,4 @@ describe("createConversationPersistenceHost", () => {
 
     host.dispose();
   });
-
-  it("delayed write that resumes after tombstone does not resurrect the row", async () => {
-    // Simulated unconditional upsert store — mirrors SQLite repos.
-    const rows = new Map<string, string>();
-    rows.set("A", "v1");
-
-    let releaseWrite!: () => void;
-    const writeGate = new Promise<void>((resolve) => {
-      releaseWrite = resolve;
-    });
-    let writeStarted = false;
-
-    const host = createConversationPersistenceHost({
-      createWrite: (id) => async () => {
-        writeStarted = true;
-        // Passed the in-memory existence check; block before upsert.
-        await writeGate;
-        if (host.isTombstoned(id)) return;
-        rows.set(id, "v2");
-      },
-      isStreaming: () => false,
-      getInitialPending: () => ({ A: 1 }),
-      subscribePendingSaves: () => () => {},
-    });
-
-    host.retrySave("A");
-    await vi.advanceTimersByTimeAsync(0);
-    expect(writeStarted).toBe(true);
-
-    // Tombstone without awaiting the gated write — then delete the row.
-    // The host still awaits in beginDelete; release after microtask so the
-    // write continues only once tombstoned (invalidate path).
-    const begin = host.beginDelete("A");
-    await Promise.resolve();
-    expect(host.isTombstoned("A")).toBe(true);
-
-    rows.delete("A");
-    releaseWrite();
-    const deletion = await begin;
-    deletion.commit();
-
-    expect(rows.has("A")).toBe(false);
-    host.dispose();
-  });
 });

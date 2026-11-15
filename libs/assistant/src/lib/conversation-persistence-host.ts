@@ -60,13 +60,7 @@ export function createConversationPersistenceHost({
     if (!queue) {
       queue = createConversationSaveQueue({
         conversationId: id,
-        // WHY: re-check tombstone around the durable write so a generation that
-        // started before beginDelete still no-ops if delete won the race at
-        // the host boundary (queue-level beginDelete also awaits in-flight).
-        write: async () => {
-          if (tombstonedIds.has(id)) return;
-          await createWrite(id)();
-        },
+        write: () => createWrite(id)(),
         isStreaming: () => isStreaming(id),
       });
       queues.set(id, queue);

@@ -375,44 +375,4 @@ describe("conversations repository integration", () => {
     await setConversation(db, { id, state });
     expect(await getConversation(db, id)).not.toBeNull();
   });
-
-  it("delayed write that respects a tombstone after delete does not resurrect the row", async () => {
-    const { db } = testDb;
-    const id = "conv-delayed-write-delete";
-    const stateV1 = {
-      id,
-      createdAt: new Date(1700000000000),
-      messages: [{ id: "msg-1", role: "user", parts: [{ type: "text", text: "v1" }] }],
-      runs: {},
-      activeRunId: null,
-      deckId: null,
-    };
-    const stateV2 = {
-      ...stateV1,
-      messages: [{ id: "msg-1", role: "user", parts: [{ type: "text", text: "v2" }] }],
-    };
-
-    await setConversation(db, { id, state: stateV1 });
-
-    let releaseWrite!: () => void;
-    const writeGate = new Promise<void>((resolve) => {
-      releaseWrite = resolve;
-    });
-    let isTombstoned = false;
-
-    // WHY: mirrors beginDelete commit ordering — tombstone, delete, then resume a
-    // write that already passed the in-memory existence check.
-    const delayedWrite = (async () => {
-      await writeGate;
-      if (isTombstoned) return;
-      await setConversation(db, { id, state: stateV2 });
-    })();
-
-    isTombstoned = true;
-    await deleteConversation(db, { id });
-    releaseWrite();
-    await delayedWrite;
-
-    expect(await getConversation(db, id)).toBeNull();
-  });
 });
