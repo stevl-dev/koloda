@@ -384,7 +384,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Make the card repo tests check what they name
   Depends on: none
 
-- [ ] 10. Assert the full card after a lesson submit
+- [x] 10. Assert the full card after a lesson submit
   Goal (finding 4): In `lessons.integration.test.ts`, replace the partial `toMatchObject` at `:356-362` with
   `expect(storedCard).toEqual({ ...card, ...updatedCard })`, handling `updatedAt` the way the card round trip at
   `cards.integration.test.ts:96` does.

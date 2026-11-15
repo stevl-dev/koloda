@@ -323,16 +323,17 @@ describe("lessons repository integration", () => {
       content: createCardContent(template),
       state: 0,
     });
+    // WHY: no two progress columns share a value, so a swap in the UPDATE fails the full-card comparison.
     const updatedCard = {
       id: card.id,
       state: 2,
       dueAt: new Date("2026-01-12T12:00:00.000Z"),
       stability: 4.5,
       difficulty: 2.25,
-      scheduledDays: 2,
-      learningSteps: 0,
-      reps: 1,
-      lapses: 0,
+      scheduledDays: 6,
+      learningSteps: 3,
+      reps: 4,
+      lapses: 5,
       lastReviewedAt: new Date("2026-01-10T12:00:00.000Z"),
     };
     const review = {
@@ -353,13 +354,7 @@ describe("lessons repository integration", () => {
     const storedCard = storedCards.find((item) => item.id === card.id);
     const storedReviews = await getReviews(db, { cardId: card.id });
 
-    expect(storedCard).toMatchObject({
-      id: card.id,
-      state: 2,
-      scheduledDays: 2,
-      reps: 1,
-      lastReviewedAt: updatedCard.lastReviewedAt,
-    });
+    expect(storedCard).toEqual({ ...card, ...updatedCard });
     expect(storedReviews).toHaveLength(1);
     expect(storedReviews[0]).toMatchObject(review);
     expect(storedReviews[0]?.createdAt).toEqual(new Date("2026-01-10T12:00:00.000Z"));
