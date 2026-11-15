@@ -82,12 +82,17 @@ describe("createConversationPersistenceHost", () => {
       subscribePendingSaves: () => () => {},
     });
 
-    const bounded = host.flushAllBounded(100);
+    let isSettled = false;
+    const bounded = host.flushAllBounded(100).then(() => {
+      isSettled = true;
+    });
     await vi.advanceTimersByTimeAsync(0);
     expect(writeStarted).toHaveBeenCalledTimes(1);
+    expect(isSettled).toBe(false);
 
     resolveWrite();
     await bounded;
+    expect(isSettled).toBe(true);
     host.dispose();
   });
 
@@ -221,9 +226,9 @@ describe("createConversationPersistenceHost", () => {
   });
 
   it("flushAllBounded caps and yields after mid-flush success with N+1 still dirty", async () => {
-    // WHY: the failure count resets on ack — a local flush failure count must
-    // still cap retries and keep failure yields after lifetime-at-cap → success
-    // → subsequent rejects (otherwise the loop tight-spins until the deadline).
+    // WHY: the flush counts only its own failures, so autosave failures before
+    // shutdown and a mid-flush success must neither lift the cap nor skip the
+    // yield between failed attempts (otherwise the loop tight-spins).
     const writes: Array<{
       resolve: () => void;
       promise: Promise<void>;
@@ -275,6 +280,14 @@ describe("createConversationPersistenceHost", () => {
     writes[0]!.resolve();
     await writes[0]!.promise;
     await Promise.resolve();
+
+    // The N+1 write fails at once; the next attempt waits out the failure yield.
+    await vi.advanceTimersByTimeAsync(0);
+    expect(write.mock.calls.length - writesBeforeShutdown).toBe(2);
+    await vi.advanceTimersByTimeAsync(SAVE_RETRY_BASE_DELAY_MS - 1);
+    expect(write.mock.calls.length - writesBeforeShutdown).toBe(2);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(write.mock.calls.length - writesBeforeShutdown).toBe(3);
 
     for (let i = 0; i < SHUTDOWN_SAVE_MAX_ATTEMPTS + 2; i += 1) {
       await vi.advanceTimersByTimeAsync(0);

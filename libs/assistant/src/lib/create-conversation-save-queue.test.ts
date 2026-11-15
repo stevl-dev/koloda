@@ -286,6 +286,10 @@ describe("createConversationSaveQueue", () => {
 
     deletion.commit();
     expect(queue.isDirty()).toBe(false);
+
+    queue.notifyDirty();
+    queue.flushNow();
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS);
     expect(write).toHaveBeenCalledTimes(1);
   });
 

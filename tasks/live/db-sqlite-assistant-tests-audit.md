@@ -325,7 +325,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Pin the conversation list order and createdAt without the wall clock
   Depends on: 1 (same file)
 
-- [ ] 5. Assert what the persistence host and save queue tests claim
+- [x] 5. Assert what the persistence host and save queue tests claim
   Goal (finding 3, bullets 1, 2, 6): In `conversation-persistence-host.test.ts:70`, record when `bounded` settles and
   assert it is still pending after `advanceTimersByTimeAsync(0)`, then settled after `resolveWrite()`.
   In `:223`, assert the second failing write does not start before `SAVE_RETRY_BASE_DELAY_MS` has passed, and
