@@ -45,6 +45,8 @@ Non-test source changes in three places only: `assistant-engine.ts` (finding 7),
 `libs/db-sqlite/src/lib/migrate.ts` if a probe shows its fallback unused (finding 14).
 The caller WHY at `libs/assistant-react/src/lib/persistence/conversation-write-adapter.ts:141-142` changes with
 finding 7.
+Added at implementation: `libs/assistant/src/lib/conversation-runtime.ts` also changes, for the `cancelAll` method of
+finding 7 and for the unreachable retry check of finding 11 (item 23).
 
 Out:
 
@@ -273,12 +275,12 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
 - [x] Finding 11: which cases? — all but the `db.ts` recovery and wipe, which are skipped.
 - [x] Finding 12: fix the repeated setup here or defer it? — fix it here (items 21, 22).
 - [x] Finding 2: if the host's pre-write check is unreachable, remove it or keep it as a backstop? — remove it.
-- [ ] Finding 11 (item 18): retry's own early-cancel check (`libs/assistant/src/lib/conversation-runtime.ts:421-426`)
+- [x] Finding 11 (item 18): retry's own early-cancel check (`libs/assistant/src/lib/conversation-runtime.ts:421-426`)
   is unreachable. A cancel stamps `requestedReason` only while the run is `awaitingStart`, and between
   `withAwaitingStart` setting that phase and the check there is no `await` and no `emit`; a probe marker on the
   branch fired in no `libs/assistant` or `libs/assistant-react` test. A cancel dispatched from retry's `runStarted`
   emit lands in the `awaitingStart` cancel branch (`:471-484`) and is consumed by `runChatRun`'s own check; item 18
-  tests that path. Delete the retry check, or keep it as a backstop? — open
+  tests that path. Delete the retry check, or keep it as a backstop? — delete it (item 23).
 
 ## Plan
 
@@ -542,6 +544,16 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Done when: the package's vitest run passes with the same test count as before the item.
   Commit: Share insertReviewFor across the db-sqlite tests
   Depends on: 9, 14
+
+- [x] 23. Delete the unreachable retry early-cancel check
+  Goal (finding 11, eighth bullet; Open questions): In `libs/assistant/src/lib/conversation-runtime.ts` `retryRun`,
+  delete the `takeRequestedReason` check that runs before the stored-status guard, with its `WHY`.
+  Nothing can stamp a cancel between `withAwaitingStart` marking the phase and that check; a cancel dispatched from
+  retry's `runStarted` emit is consumed by `runChatRun`'s own check, which item 18 tests.
+  Constraints: that file; no test change.
+  Done when: the `libs/assistant` and `libs/assistant-react` vitest runs pass.
+  Commit: Delete the unreachable retry early-cancel check
+  Depends on: 18
 
 ## Outcome
 

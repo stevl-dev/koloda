@@ -416,14 +416,6 @@ export function createConversationRuntime(
   ): Promise<void> =>
     enqueueExclusive(runId, async () => {
       await withAwaitingStart(runId, async () => {
-        const earlyCancel = takeRequestedReason(runId);
-        if (earlyCancel !== undefined) {
-          // WHY: Do not restartRun after cancel/shutdown — that would revive a
-          // terminal run and then call the provider.
-          applyQueuedCancel(runId, earlyCancel);
-          return;
-        }
-
         // WHY: The store owns retry eligibility (ASSISTANT-CONVERSATIONS.md
         // §Retry: only failed/canceled/interrupted). A stale or duplicate
         // retry command must not restart a success/streaming run or spend a
