@@ -162,3 +162,27 @@ What building and running the spike showed:
 - 2026-11-15, Android emulator (debug build, fresh install): device checks 1–7 and 9 pass.
 - 2026-11-15, Android emulator, dark mode: device check 8 fails. The card's text turns light, but the debug screen and its
   header stay light, so the text is nearly unreadable. Light mode is fine. Deferred to a later session (`tasks/DEFERRED.md`).
+- 2026-11-15, Android emulator: device check 10 passes except swipe feedback. A swipe triggers its grade, but nothing shows
+  which direction gives which grade (`src/lesson/swipeable-card.tsx:11–16`). Deferred as out of the spike's scope
+  (`tasks/DEFERRED.md`). The grade buttons, transitions, and haptics work.
+- 2026-11-15, Android emulator: device check 12 passes. The deck's counts (2 new, 4 learning, 0 review) are the same after a
+  force-quit and relaunch.
+- 2026-11-15, Android emulator: device check 20 passes. A wrong pairing code says so.
+- 2026-11-15, Android emulator: device checks 16 and 17 pass. The phone reached the host's server through
+  `adb reverse tcp:8080 tcp:8080` at `http://localhost:8080`. The desktop library arrived and its image shows in a lesson,
+  and a grade on the phone reached desktop.
+- 2026-11-15, Android emulator: after joining, the library did not arrive until the app was force-quit and relaunched.
+  At that point the server had no open bootstrap lease for the space. Not diagnosed.
+- 2026-11-15, Android emulator: the Sync tab's content started under the status bar, which covered the server address
+  field. `src/app/(tabs)/sync.tsx` now wraps the tab in `SafeAreaView` with the top edge. The Lessons tab was not checked
+  for the same overlap.
+- 2026-11-15, Android emulator: device check 18 is not met for a card created on desktop. After the phone synced it
+  (its hot cursor reached the server's head) and the app was foregrounded, the Lessons list still did not show the card.
+  It showed after a force-quit and relaunch. Not diagnosed: `refreshKinds` maps `cards` to the lessons queries that the
+  list reads, so the cause is probably in the event path. A grade made on desktop failed the same way: the phone's Lessons list did not change after the app was foregrounded.
+  The server shows the phone's hot cursor at the head (24) and the reviews at 9, so the phone had the change.
+- 2026-11-15, Android emulator: device check 19 passes. After a force-quit and relaunch, the phone is still in the space
+  and in sync.
+- 2026-11-15, Android emulator: device check 11 passes. The Good interval on a new card matches desktop.
+- Device checks 13 and 14 (release-build cold start and frame rate on a phone) are deferred. The handoff in
+  `tasks/DEFERRED.md` covers them.
