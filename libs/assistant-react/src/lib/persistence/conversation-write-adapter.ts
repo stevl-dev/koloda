@@ -112,8 +112,8 @@ export type DeleteAssistantConversationOptions = {
 
 /**
  * Coordinated conversation delete (#8): provisional tombstone → cancel queued →
- * await in-flight write → DB delete → commit tombstone → dispose runtime
- * (while store still has runs) → drop store/query cache.
+ * await in-flight write → DB delete → commit tombstone → dispose runtime →
+ * drop store/query cache.
  *
  * On DB failure, rollback restores autosave so the conversation stays editable
  * and a later delete can succeed (#6).

@@ -18,8 +18,6 @@ export type ConversationRuntimeCallbacks = {
   touch: (conversationId: string) => void;
   /** True while the run can still accept a terminal cancel/complete transition. */
   isRunStreaming: (conversationId: string, runId: string) => boolean;
-  // WHY: disposeConversation cancels known run ids from this snapshot so
-  // in-flight AbortControllers abort before the runtime is dropped.
   readConversationState: (conversationId: string) => { runs: Record<string, unknown> };
 };
 
