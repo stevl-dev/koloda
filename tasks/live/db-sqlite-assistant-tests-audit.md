@@ -471,7 +471,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   `deleteConversation`, so a plain delete test replaces them. The row's `createdAt` stays in item 4's test rather
   than the round trip.
 
-- [ ] 17. Test the save scheduler and queue retry branches
+- [x] 17. Test the save scheduler and queue retry branches
   Goal (finding 11, bullets 1–4): In `create-save-scheduler.test.ts:119`, add a second bump at +100 and expect the
   flush at +350, not +250.
   In `create-conversation-save-queue.test.ts`, add: a write that fails with N+1 queued schedules no backoff and

@@ -54,6 +54,26 @@ describe("createConversationSaveQueue", () => {
     expect(await failing).toBe("failed");
   });
 
+  it("flushOnce during an in-flight write resolves with that write's outcome", async () => {
+    const first = deferred();
+    const write = vi.fn(() => first.promise);
+    const queue = createConversationSaveQueue({
+      conversationId: "A",
+      write,
+      isStreaming: () => false,
+      logSaveFailure: vi.fn(),
+    });
+
+    queue.notifyDirty();
+    expect(write).toHaveBeenCalledTimes(1);
+    const outcome = queue.flushOnce();
+    first.reject(new Error("db down"));
+
+    expect(await outcome).toBe("failed");
+    expect(write).toHaveBeenCalledTimes(1);
+    queue.dispose();
+  });
+
   it("serializes writes, and an ack of N leaves dirty set when N+1 was queued during the write", async () => {
     const first = deferred();
     const second = deferred();
@@ -151,6 +171,61 @@ describe("createConversationSaveQueue", () => {
     // Pending backoff must not fire after the successful manual retry.
     await vi.advanceTimersByTimeAsync(SAVE_RETRY_MAX_DELAY_MS);
     expect(write).toHaveBeenCalledTimes(3);
+  });
+
+  // WHY: with random 0 the first backoff is SAVE_RETRY_BASE_DELAY_MS / 2, earlier than the idle debounce, so a
+  // write before the debounce means the backoff fired.
+  it("a failed write with N+1 queued writes N+1 on the scheduler, not the backoff", async () => {
+    const first = deferred();
+    const write = vi.fn<() => Promise<void>>().mockReturnValueOnce(first.promise).mockResolvedValue(undefined);
+    const queue = createConversationSaveQueue({
+      conversationId: "A",
+      write,
+      isStreaming: () => false,
+      random: () => 0,
+      logSaveFailure: vi.fn(),
+    });
+
+    queue.notifyDirty();
+    expect(write).toHaveBeenCalledTimes(1);
+    queue.notifyDirty();
+    first.reject(new Error("db down"));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS - 1);
+    expect(write).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(write).toHaveBeenCalledTimes(2);
+
+    await vi.advanceTimersByTimeAsync(SAVE_RETRY_MAX_DELAY_MS);
+    expect(write).toHaveBeenCalledTimes(2);
+    queue.dispose();
+  });
+
+  it("a new dirty during a backoff cancels it and follows the scheduler", async () => {
+    const write = vi.fn<() => Promise<void>>().mockRejectedValueOnce(new Error("db down")).mockResolvedValue(undefined);
+    const queue = createConversationSaveQueue({
+      conversationId: "A",
+      write,
+      isStreaming: () => false,
+      random: () => 0,
+      logSaveFailure: vi.fn(),
+    });
+
+    queue.notifyDirty();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(write).toHaveBeenCalledTimes(1);
+
+    // The backoff would fire at SAVE_RETRY_BASE_DELAY_MS / 2; the dirty at 100 debounces to 100 + IDLE_SAVE_DEBOUNCE_MS.
+    await vi.advanceTimersByTimeAsync(100);
+    queue.notifyDirty();
+    await vi.advanceTimersByTimeAsync(IDLE_SAVE_DEBOUNCE_MS - 1);
+    expect(write).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(write).toHaveBeenCalledTimes(2);
+    queue.dispose();
   });
 
   it("cancels retry timers on dispose", async () => {
@@ -284,6 +359,9 @@ describe("createConversationSaveQueue", () => {
   it("bounds exponential delay and applies jitter", () => {
     expect(computeSaveRetryDelayMs(1, () => 0)).toBe(Math.floor(SAVE_RETRY_BASE_DELAY_MS * 0.5));
     expect(computeSaveRetryDelayMs(1, () => 1)).toBe(SAVE_RETRY_BASE_DELAY_MS);
+    // The last doubling under the cap, then the first attempt that hits it.
+    expect(computeSaveRetryDelayMs(7, () => 1)).toBe(16_000);
+    expect(computeSaveRetryDelayMs(8, () => 1)).toBe(SAVE_RETRY_MAX_DELAY_MS);
     expect(computeSaveRetryDelayMs(20, () => 1)).toBe(SAVE_RETRY_MAX_DELAY_MS);
   });
 

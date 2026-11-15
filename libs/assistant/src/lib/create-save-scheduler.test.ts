@@ -32,6 +32,8 @@ describe("createSaveScheduler", () => {
 
     flush.mockClear();
     scheduler.schedule();
+    // A second bump restarts the debounce from its own time.
+    vi.advanceTimersByTime(100);
     scheduler.schedule();
     vi.advanceTimersByTime(IDLE_SAVE_DEBOUNCE_MS - 1);
     expect(flush).not.toHaveBeenCalled();
