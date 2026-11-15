@@ -51,6 +51,7 @@ export type ConversationRuntime = {
     execution: AssistantExecutionIdentity,
   ) => Promise<void>;
   cancel: (runId: string, reason?: QueueCancelReason) => void;
+  cancelAll: (reason: QueueCancelReason) => void;
   close: (reason: QueueCancelReason) => void;
 };
 
@@ -487,6 +488,12 @@ export function createConversationRuntime(
     controllerRegistry.cancel(runId, reason);
   };
 
+  const cancelAll = (reason: QueueCancelReason) => {
+    for (const runId of runs.keys()) {
+      cancel(runId, reason);
+    }
+  };
+
   const close = (reason: QueueCancelReason) => {
     const canceledRunIds = queue.close(reason);
     for (const runId of canceledRunIds) {
@@ -499,6 +506,7 @@ export function createConversationRuntime(
     executeChatRun,
     retryRun,
     cancel,
+    cancelAll,
     close,
   };
 }

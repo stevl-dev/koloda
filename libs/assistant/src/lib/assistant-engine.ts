@@ -224,12 +224,10 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
         conversationId,
         commandOrEvent: "disposeConversation",
       });
-      // WHY: close only drops queued serial-queue tasks; cancel each known run
-      // so an in-flight AbortController aborts before we drop the runtime (#8).
-      const state = options.readConversationState(conversationId);
-      for (const runId of Object.keys(state.runs)) {
-        runtime.cancel(runId, "dispose");
-      }
+      // WHY: close only drops queued serial-queue tasks; cancel every run the
+      // runtime tracks so an in-flight AbortController aborts before we drop
+      // the runtime (#8), whatever the store still holds.
+      runtime.cancelAll("dispose");
       runtime.close("dispose");
       runtimes.delete(conversationId);
     },

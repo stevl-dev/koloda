@@ -138,8 +138,6 @@ export async function deleteAssistantConversation({
     deletion.rollback();
     throw error;
   }
-  // WHY: dispose while store still has run keys — cancel loop reads
-  // readConversationState; clearing first leaves empty runs and never aborts (#8).
   // INVARIANT: only after successful commit — failure must not dispose/remove.
   engine.disposeConversation(conversationId);
   store.set(removeConversationAtom, conversationId);

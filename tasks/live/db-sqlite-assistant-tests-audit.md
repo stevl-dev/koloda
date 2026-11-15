@@ -289,7 +289,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Commit: Delete the self-fulfilling tombstone tests
   Depends on: none
 
-- [ ] 2. Abort a disposed conversation's run whatever the store holds
+- [x] 2. Abort a disposed conversation's run whatever the store holds
   Goal (finding 7): In `libs/assistant/src/lib/assistant-engine.ts` `disposeConversation`, also cancel every run the
   conversation's runtime tracks, not only the run ids read from the store. Prefer one runtime method (for example
   one that cancels each id in its `runs` map with reason `"dispose"`) over reading the map from the engine.

@@ -20,7 +20,7 @@ import {
 // disposeConversation). Dropping the store entry and pending-save counter
 // disposes the queue (#8); the host tombstone stays for the session so a late
 // pending bump cannot resurrect the row. Do not clear before beginDelete awaits
-// in-flight writes, or before disposeConversation reads run keys to abort.
+// in-flight writes.
 export const removeConversationAtom = atom(null, (_get, set, id: string) => {
   set(conversationsAtom, (prev) => {
     if (!(id in prev)) return prev;

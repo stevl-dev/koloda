@@ -599,7 +599,7 @@ describe("createAssistantEngine", () => {
     await expect(runB).resolves.toBeUndefined();
   });
 
-  it("disposeConversation aborts in-flight streams only while store still has run keys", async () => {
+  it("disposeConversation aborts in-flight streams whether or not the store still has run keys", async () => {
     const signals: AbortSignal[] = [];
     conversationStates.A = { runs: { "run-kept": {} } };
     conversationStates.B = { runs: { "run-cleared": {} } };
@@ -628,18 +628,15 @@ describe("createAssistantEngine", () => {
     expect(signals[0]?.aborted).toBe(false);
     expect(signals[1]?.aborted).toBe(false);
 
-    // Regression: empty runs before dispose skips abort (wrong delete order).
+    // B's store row was cleared before dispose; A's still has the run key.
     conversationStates.B = { runs: {} };
     engine.disposeConversation("B");
-    expect(signals[1]?.aborted).toBe(false);
+    expect(signals[1]?.aborted).toBe(true);
 
-    // Correct order: dispose while store still has run keys, then clear.
     engine.disposeConversation("A");
     expect(signals[0]?.aborted).toBe(true);
-    delete conversationStates.A;
 
     await expect(kept).resolves.toBeUndefined();
-    dispatchCancel(engine, "B", "run-cleared");
     await expect(cleared).resolves.toBeUndefined();
   });
 
