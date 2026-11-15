@@ -197,6 +197,35 @@ describe("settings and review totals integration", () => {
     expect(totals.dailyLimits.total).toBe(0);
   });
 
+  it("round-trips a settings row, keeping createdAt and stamping updatedAt when set again", async () => {
+    const { db } = testDb;
+    const content = {
+      language: "ru",
+      scheme: "dark",
+      lightTheme: "github-light",
+      darkTheme: "github-dark",
+      motion: "off",
+      dateFormat: "locale",
+      timeFormat: "locale",
+    } as const;
+    vi.useFakeTimers({ toFake: ["Date"] });
+
+    vi.setSystemTime(1_000);
+    const created = await setSettings(db, { name: "interface", content: { ...content, scheme: "light" } });
+    vi.setSystemTime(2_000);
+    await setSettings(db, { name: "interface", content });
+    const stored = await getSettings(db, "interface");
+
+    expect(created).toMatchObject({ createdAt: new Date(1_000), updatedAt: null });
+    expect(stored).toEqual({
+      id: created.id,
+      name: "interface",
+      content,
+      createdAt: new Date(1_000),
+      updatedAt: new Date(2_000),
+    });
+  });
+
   it("returns normalized settings content with schema defaults applied", async () => {
     const { db } = testDb;
 

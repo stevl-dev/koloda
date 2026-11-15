@@ -504,7 +504,7 @@ A bare file name is in `libs/assistant/src/lib/` or `libs/db-sqlite/src/lib/`; n
   Done at implementation: the 16,000 and 16,001 rows replace the 20,000 case in the runtime's cap test rather than
   adding a protocol test file. The retry early-cancel branch is unreachable and recorded in Open questions.
 
-- [ ] 19. Round-trip settings timestamps
+- [x] 19. Round-trip settings timestamps
   Goal (finding 11, last bullet): In `settings-reviews.integration.test.ts`, add a test with fake `Date`: set a
   settings row, step the clock, set it again, and assert `createdAt` is the first stamp and `updatedAt` the second.
   Constraints: that file.
