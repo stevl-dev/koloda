@@ -3,6 +3,7 @@ import {
   shapeAddDeckOutput,
   shapeGetDeckCardsOutput,
   shapeGetDeckOutput,
+  shapeGetSettingsOutput,
   shapeGetTemplateOutput,
   shapeListAlgorithmsOutput,
   shapeListDecksOutput,
@@ -16,6 +17,7 @@ import type {
   AssistantToolTemplate,
 } from "./assistant-tools";
 import { readHelpTopic } from "./help-corpus";
+import type { AIProfile } from "./settings";
 
 /**
  * Data access the assistant tools need. Injected by the host so this module
@@ -29,6 +31,13 @@ type AssistantToolDataSource = {
   getCardCounts: () => Promise<Record<string, number>>;
   /** App default algorithm — the same id manual deck create stores when the user does not pick one. */
   getDefaultAlgorithmId: () => Promise<string>;
+  /**
+   * One settings row's content as the host's own read validates it, or null when no row is stored.
+   * A present row that fails validation rejects.
+   */
+  getSettings: (name: "learning" | "interface" | "hotkeys" | "ai") => Promise<unknown>;
+  /** The public profile read: keys redacted, `hasSecrets` from key presence. */
+  getAIProfiles: () => Promise<AIProfile[]>;
   /**
    * Persist an empty deck. Called only after template and algorithm resolution succeed.
    * `algorithmId` is always explicit here; the host does not invent cards.
@@ -139,6 +148,27 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
       const { deckId, cards } = ASSISTANT_TOOL_SPECS.propose_cards.inputSchema.parse(input);
       const { deck, template } = await resolveDeckTemplate(deckId);
       return shapeProposeCardsOutput({ id: deck.id, title: deck.title, template }, cards);
+    }
+    if (name === "get_settings") {
+      const { section } = ASSISTANT_TOOL_SPECS.get_settings.inputSchema.parse(input);
+      const wants = (part: string) => section === undefined || section === part;
+      const [learning, interfaceSettings, hotkeys, ai] = await Promise.all([
+        wants("learning") ? data.getSettings("learning") : undefined,
+        wants("interface") ? data.getSettings("interface") : undefined,
+        wants("hotkeys") ? data.getSettings("hotkeys") : undefined,
+        wants("ai")
+          ? Promise.all([data.getSettings("ai"), data.getAIProfiles()]).then(([content, profiles]) => ({
+              content,
+              profiles,
+            }))
+          : undefined,
+      ]);
+      return shapeGetSettingsOutput({
+        ...(wants("learning") ? { learning } : {}),
+        ...(wants("interface") ? { interface: interfaceSettings } : {}),
+        ...(wants("hotkeys") ? { hotkeys } : {}),
+        ...(ai ? { ai } : {}),
+      });
     }
     if (name === "read_help_topic") {
       const { topic, section } = ASSISTANT_TOOL_SPECS.read_help_topic.inputSchema.parse(input);

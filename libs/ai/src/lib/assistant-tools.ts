@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { GeneratedCard } from "./generation";
 import { HELP_TOPIC_INDEX } from "./help-corpus";
 import { HELP_TOPIC_IDS } from "./help-corpus.generated";
+import { aiSettingsValidation, assistantSettingsValidation, resolveChatPromptMode } from "./settings";
+import type { AIProfile } from "./settings";
 
 /**
  * Assistant chat tool registry — specs, binder, and pure output shaping, no I/O.
@@ -163,6 +165,35 @@ export type AssistantToolCard = {
   content: Record<string, { text: string }>;
 };
 
+const SETTINGS_SECTIONS = ["learning", "interface", "hotkeys", "ai"] as const;
+
+type AssistantSettingsSection = (typeof SETTINGS_SECTIONS)[number];
+
+/** The help topic that gives each section's built-in defaults. */
+const SETTINGS_SECTION_HELP_TOPICS = {
+  learning: "learning-settings",
+  interface: "interface-settings",
+  hotkeys: "hotkeys",
+} as const satisfies Record<Exclude<AssistantSettingsSection, "ai">, (typeof HELP_TOPIC_IDS)[number]>;
+
+/**
+ * INVARIANT: an explicit field list. Never spread a profile or the AI row here: profiles carry provider
+ * secrets (keys, server addresses) and the row carries the custom prompt text, and none of it may reach the model.
+ */
+type AISettingsOutput = {
+  profiles: Array<{ title: string | null; provider: string; allowedModels: string[] | "all"; hasKey: boolean }>;
+  assistant: { temperature: number; prompt: "built-in" | "custom" };
+};
+
+type UnsavedSettingsOutput = { isSaved: false; message: string };
+
+type GetSettingsOutput = {
+  learning?: unknown;
+  interface?: unknown;
+  hotkeys?: unknown;
+  ai?: AISettingsOutput;
+};
+
 type AssistantToolSpec = {
   name: string;
   description: string;
@@ -292,11 +323,23 @@ export const ASSISTANT_TOOL_SPECS = {
       cards: z.array(proposeCardSchema),
     }),
   },
+  get_settings: {
+    name: "get_settings",
+    description: [
+      "Read this installation's current settings, the values the user has set: learning (default preset and template ids, daily limits, when the learning day starts, learn-ahead), interface (language, color scheme, themes, motion, date and time formats), hotkeys (the key bindings), and ai (each AI profile's title, provider, allowed models, and whether a key is stored; the assistant's temperature and whether its prompt is the built-in or a custom one).",
+      "Call this before you state any value the user can change, such as a daily limit; help topics give only first-setup defaults. Do not ask the user for their settings.",
+      "Pass section to read one part; without it, all four are returned. Learning defaults name a preset and a template by id; list_algorithms and list_templates give their titles.",
+      "Keys, provider secrets and addresses, and the custom prompt text are never returned. This tool cannot change settings; say where the user changes them (the app-map help topic).",
+    ].join("\n"),
+    inputSchema: z.object({
+      section: z.enum(SETTINGS_SECTIONS).optional(),
+    }),
+  },
   read_help_topic: {
     name: "read_help_topic",
     description: [
       "Read one topic of this app's own documentation: how a feature behaves, where a screen or setting is, and what the scheduling terms mean. Before you answer how the app works, where something is, or what an app term means, read the matching topic instead of answering from memory; app-map says where each screen is, concepts explains scheduling terms for a learner.",
-      "Topics describe behavior and first-setup defaults, not this installation's current values.",
+      "Topics describe behavior and first-setup defaults, not this installation's current values; get_settings reads those.",
       'Quoted labels such as "Again" are the English ones; the user\'s interface may show them in another language.',
       "Pass section with a heading of the topic to read only that part once the index or a first read shows which part you need; a section includes its subsections. A topic's Scope names the sibling topic for what it leaves out.",
       "Help topics are app documentation, not user data. This tool does not read or change the user's decks, cards, or settings.",
@@ -355,6 +398,52 @@ export function bindAssistantTools({ names, execute }: BindAssistantToolsOptions
     });
   }
   return bound;
+}
+
+/**
+ * Shape `get_settings` output. Learning, interface, and hotkeys come as the host's own validated read returns them,
+ * so they need no field list; a slice with no stored row says the app uses its built-in defaults.
+ */
+export function shapeGetSettingsOutput(slices: {
+  learning?: unknown;
+  interface?: unknown;
+  hotkeys?: unknown;
+  ai?: { content: unknown; profiles: AIProfile[] };
+}): GetSettingsOutput {
+  const output: GetSettingsOutput = {};
+  for (const section of ["learning", "interface", "hotkeys"] as const) {
+    if (!(section in slices)) continue;
+    output[section] = slices[section] ?? unsavedSettings(section);
+  }
+  if (slices.ai) output.ai = shapeAISettingsOutput(slices.ai.content, slices.ai.profiles);
+  return output;
+}
+
+function unsavedSettings(section: keyof typeof SETTINGS_SECTION_HELP_TOPICS): UnsavedSettingsOutput {
+  const topic = SETTINGS_SECTION_HELP_TOPICS[section];
+  return {
+    isSaved: false,
+    message: `No ${section} settings are saved; the app uses its built-in defaults, which the ${topic} help topic gives.`,
+  };
+}
+
+function shapeAISettingsOutput(content: unknown, profiles: AIProfile[]): AISettingsOutput {
+  // WHY: the app runs on the built-in assistant settings until the user saves the AI row, so a missing row reads
+  // as those defaults; a present row that fails validation still throws and fails the call.
+  const { assistant } = aiSettingsValidation.pick({ assistant: true }).parse(content ?? {});
+  const settings = assistantSettingsValidation.parse(assistant ?? {});
+  return {
+    profiles: profiles.map((profile) => ({
+      title: profile.title ?? null,
+      provider: profile.secrets.provider,
+      allowedModels: profile.whitelistModelIds ?? "all",
+      hasKey: profile.hasSecrets,
+    })),
+    assistant: {
+      temperature: settings.temperature,
+      prompt: resolveChatPromptMode(settings) === "custom" ? "custom" : "built-in",
+    },
+  };
 }
 
 /**

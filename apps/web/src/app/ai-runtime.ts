@@ -11,7 +11,7 @@ import {
   getSettings,
   getTemplates,
 } from "@koloda/db-sqlite";
-import { loadAIProfileSecrets } from "./ai";
+import { getAIProfiles, loadAIProfileSecrets } from "./ai";
 
 async function readDefaultAlgorithmId(db: DB): Promise<string> {
   const learning = await getSettings(db, "learning");
@@ -28,6 +28,8 @@ function createWebToolExecutor(db: DB) {
     getCards: ({ deckId }) => getCards(db, { deckId }),
     getCardCounts: () => getCardCounts(db),
     getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
+    getSettings: async (name) => (await getSettings(db, name))?.content ?? null,
+    getAIProfiles: () => getAIProfiles(db),
     createDeck: async ({ title, templateId, algorithmId }) => {
       const deck = await addDeck(db, { title, templateId, algorithmId });
       return {

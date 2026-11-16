@@ -38,7 +38,7 @@ This README owns the package boundary.
   Per-provider wrappers only supply the model factory (and optional `providerOptions`).
   Temperature comes from the request or falls back to `GENERATION_TEMPERATURE`.
 - Assistant tools: `assistant-tools.ts` — specs for `list_decks`, `list_templates`, `list_algorithms`,
-  `get_deck`, `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, and `read_help_topic`,
+  `get_deck`, `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, and `read_help_topic`,
   input binding, output shaping and budgets; `assistant-tool-executor.ts` — the shared executor,
   awaiting a host-injected `AssistantToolDataSource` (web SQLite, Electron NAPI).
   `add_deck` validates then calls host `createDeck`; card content still goes through `propose_cards`.

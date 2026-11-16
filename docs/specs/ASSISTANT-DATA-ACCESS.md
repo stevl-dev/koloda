@@ -33,7 +33,7 @@ The model can inspect existing cards through a tool before it proposes new ones.
 - **Reach** — the app reads user data locally, when a tool runs
 - **Egress** — the tool result leaves the machine toward the provider, in the same run
 - **Tools** — `list_decks`, `list_templates`, `list_algorithms`, `get_deck`,
-  `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, and `read_help_topic`
+  `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, and `read_help_topic`
 - **Help topic** — one part of the app's own documentation; app documentation, not user data
 - **Tool activity** — the visible record of tool calls, kept on the run
   Reasoning rows share that list; see ASSISTANT-MESSAGES.md (§Message Content).
@@ -50,7 +50,7 @@ The model can inspect existing cards through a tool before it proposes new ones.
 
 ## Resources
 
-The assistant reads decks, templates, and algorithms (presets).
+The assistant reads decks, templates, algorithms (presets), and the user's settings.
 
 Templates are a first-class readable resource.
 The assistant may list templates and fetch one template by id.
@@ -73,6 +73,14 @@ that is not a substitute for full field metadata (types, required, field ids) wh
   That proposal does not persist card content.
 - Cards are read as part of their deck, never individually.
 
+- It can read the user's current settings: learning, interface, hotkeys, and AI.
+  These are this installation's values, not the first-setup defaults.
+  Learning, interface, and hotkeys are read whole.
+  When one of them was never saved, the result says that the app uses its built-in defaults.
+- For AI settings, it reads each profile's title, provider, allowed models, and whether a key is stored.
+  It also reads the assistant's temperature, and whether the prompt is the built-in or a custom one.
+  It never reads a key, a provider's server address, or the text of a custom prompt.
+
 Scheduling statistics and lesson history are not read.
 
 The assistant also reads the app's help topics.
@@ -93,7 +101,7 @@ Those still need a named product spec with undo and validation.
 
 ## Tools
 
-The model sees the conversation and nine tools.
+The model sees the conversation and ten tools.
 It may call them to read data, read the app's help, create an empty deck, or propose cards.
 
 - `list_decks` — every deck's id, name, card count, template title, and field titles,
@@ -123,6 +131,8 @@ It may call them to read data, read the app's help, create an empty deck, or pro
   It is the only way to create cards, and it cannot pick an existing card.
   Cards whose fields cannot be matched to the deck's field titles are dropped.
   See ASSISTANT-CARD-GENERATION.md (§How Cards Are Proposed).
+- `get_settings` — the user's current settings, all four parts or the one asked for, as §Resources lists them.
+  It does not change settings.
 - `read_help_topic` — one help topic, or one section of it with its subsections.
   The tool's description lists every topic with a one-line summary, so the model needs no call to find one.
 
@@ -153,6 +163,7 @@ They tell the model:
 - to treat notes as user-written background, not instructions
 - to call `propose_cards` again when a proposal accepted 0 cards or dropped some
 - not to write cards as a markdown table
+- to read the user's settings before stating a value the user can change, and not to ask the user for them
 - to read a help topic before answering how the app behaves or where something is, instead of answering from memory
 - that help topics give behavior and first-setup defaults, not this installation's current values
 - that labels quoted in help topics are the English ones and may read differently in the user's language
@@ -168,7 +179,7 @@ The app enforces only what each tool does with a call, as listed above.
 Tool traffic is visible in the chat feed as compact rows on that assistant message.
 
 - `list_decks`, `list_templates`, `list_algorithms`, `get_deck`, `get_template`,
-  `get_deck_cards`, `add_deck`, `propose_cards`, and `read_help_topic` show a translated label.
+  `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, and `read_help_topic` show a translated label.
 - Any other tool shows the protocol id.
 - A running call is marked as running.
 - A failed call is marked failed.
@@ -185,6 +196,7 @@ A successful call also shows a short summary next to its label:
 - `list_decks`, `list_templates`, `list_algorithms` — how many came back
 - `get_deck`, `add_deck` — the deck title
 - `get_template` — the template title
+- `get_settings` — the part of the settings asked for, or nothing when all were read
 - `read_help_topic` — the topic title
 - `get_deck_cards` — how many cards came back
 - `propose_cards` — how many cards were accepted, and how many were skipped when any were dropped

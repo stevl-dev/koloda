@@ -37,4 +37,10 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/how the app works/i);
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/not from memory/i);
   });
+
+  it("sends questions about the user's own values to get_settings", () => {
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toContain("get_settings");
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/daily limit/i);
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/help topics give only first-setup defaults/i);
+  });
 });

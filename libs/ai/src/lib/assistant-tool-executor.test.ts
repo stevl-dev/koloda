@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createAssistantToolExecutor } from "./assistant-tool-executor";
+import type { AIProfile } from "./settings";
 
 const DECK_ID = "01900000-0000-7000-8000-000000000001";
 const TEMPLATE_ID = "01900000-0000-7000-8000-000000000005";
@@ -39,6 +40,13 @@ const algorithm = {
   },
 };
 
+const settingsRows = {
+  learning: { dailyLimits: { new: 20 }, dayStartsAt: "04:00" },
+  interface: { language: "ru", scheme: "dark" },
+  hotkeys: { grades: { again: ["1"] } },
+  ai: null,
+};
+
 function makeDataSource(overrides: Partial<Parameters<typeof createAssistantToolExecutor>[0]> = {}) {
   const data = {
     getDecks: async () => [{ id: DECK_ID, title: "Spanish", templateId: TEMPLATE_ID }],
@@ -57,6 +65,8 @@ function makeDataSource(overrides: Partial<Parameters<typeof createAssistantTool
     createDeck: async () => {
       throw new Error("createDeck should not be called");
     },
+    getSettings: async (name: "learning" | "interface" | "hotkeys" | "ai"): Promise<unknown> => settingsRows[name],
+    getAIProfiles: async (): Promise<AIProfile[]> => [],
   };
   return { ...data, ...overrides };
 }
@@ -404,6 +414,107 @@ describe("createAssistantToolExecutor", () => {
     expect(output.rejectedCount).toBe(2);
     expect(output.message).toMatch(/2 cards were not accepted/);
     expect(output.message).toContain("Required fields left empty: Back.");
+  });
+
+  it("get_settings returns every section as the host read it when no section is asked for", async () => {
+    const executor = createAssistantToolExecutor(makeDataSource());
+
+    const output = await executor("get_settings", {});
+
+    expect(output).toEqual({
+      learning: settingsRows.learning,
+      interface: settingsRows.interface,
+      hotkeys: settingsRows.hotkeys,
+      ai: { profiles: [], assistant: { temperature: 0.2, prompt: "built-in" } },
+    });
+  });
+
+  it.each(["learning", "interface", "hotkeys"] as const)(
+    "get_settings reads only the %s row when asked",
+    async (name) => {
+      const getSettings = vi.fn(async (asked: string) => settingsRows[asked as keyof typeof settingsRows]);
+      const getAIProfiles = vi.fn(async () => []);
+      const executor = createAssistantToolExecutor(makeDataSource({ getSettings, getAIProfiles }));
+
+      const output = await executor("get_settings", { section: name });
+
+      expect(output).toEqual({ [name]: settingsRows[name] });
+      expect(getSettings.mock.calls).toEqual([[name]]);
+      expect(getAIProfiles).not.toHaveBeenCalled();
+    },
+  );
+
+  it("get_settings says the app uses its built-in defaults when a row is not saved", async () => {
+    const executor = createAssistantToolExecutor(makeDataSource({ getSettings: async () => null }));
+
+    const output = await executor("get_settings", { section: "hotkeys" });
+
+    expect(output).toEqual({
+      hotkeys: {
+        isSaved: false,
+        message:
+          "No hotkeys settings are saved; the app uses its built-in defaults, which the hotkeys help topic gives.",
+      },
+    });
+  });
+
+  it("get_settings fails the call when the host rejects an invalid row", async () => {
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getSettings: () => Promise.reject(new Error("Invalid learning settings")) }),
+    );
+
+    await expect(executor("get_settings", { section: "learning" })).rejects.toThrow("Invalid learning settings");
+  });
+
+  it("get_settings fails the call when the AI row holds an invalid assistant temperature", async () => {
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getSettings: async () => ({ profiles: [], assistant: { temperature: 5 } }) }),
+    );
+
+    await expect(executor("get_settings", { section: "ai" })).rejects.toThrow();
+  });
+
+  it("get_settings shapes AI profiles and assistant settings without secrets or the custom prompt", async () => {
+    const profiles: AIProfile[] = [
+      {
+        id: "01900000-0000-7000-8000-000000000071",
+        title: "Home server",
+        secrets: { provider: "ollama", baseUrl: "http://10.0.0.5:11434/", apiKey: "sk-secret-ollama" },
+        hasSecrets: true,
+        whitelistModelIds: ["llama3"],
+        createdAt: new Date(0),
+      },
+      {
+        id: "01900000-0000-7000-8000-000000000072",
+        title: undefined,
+        secrets: { provider: "openrouter", apiKey: null },
+        hasSecrets: false,
+        createdAt: new Date(0),
+      },
+    ];
+    const aiRow = {
+      profiles: profiles.map((profile) => ({ ...profile, createdAt: "1970-01-01T00:00:00.000Z" })),
+      assistant: { temperature: 0.7, chatPromptMode: "custom", chatPromptTemplate: "Private prompt text" },
+    };
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getSettings: async () => aiRow, getAIProfiles: async () => profiles }),
+    );
+
+    const output = await executor("get_settings", { section: "ai" });
+
+    expect(output).toEqual({
+      ai: {
+        profiles: [
+          { title: "Home server", provider: "ollama", allowedModels: ["llama3"], hasKey: true },
+          { title: null, provider: "openrouter", allowedModels: "all", hasKey: false },
+        ],
+        assistant: { temperature: 0.7, prompt: "custom" },
+      },
+    });
+    const serialized = JSON.stringify(output);
+    for (const secret of ["sk-secret-ollama", "10.0.0.5", "Private prompt text", profiles[0].id]) {
+      expect(serialized).not.toContain(secret);
+    }
   });
 
   it("read_help_topic returns the asked section without reading host data", async () => {

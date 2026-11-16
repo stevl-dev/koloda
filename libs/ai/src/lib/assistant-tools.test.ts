@@ -239,6 +239,26 @@ describe("assistant-tools binder", () => {
   });
 });
 
+describe("get_settings", () => {
+  const { description, inputSchema } = ASSISTANT_TOOL_SPECS.get_settings;
+
+  it("tells the model these are current values and what it never returns", () => {
+    expect(description).toMatch(/current settings/i);
+    expect(description).toMatch(/help topics give only first-setup defaults/i);
+    expect(description).toMatch(/do not ask the user for their settings/i);
+    expect(description).toMatch(/keys, provider secrets and addresses, and the custom prompt text are never returned/i);
+    expect(description).toMatch(/cannot change settings/i);
+  });
+
+  it("accepts one of the four sections or none", () => {
+    expect(inputSchema.parse({})).toEqual({});
+    for (const section of ["learning", "interface", "hotkeys", "ai"]) {
+      expect(inputSchema.parse({ section })).toEqual({ section });
+    }
+    expect(() => inputSchema.parse({ section: "sync" })).toThrow();
+  });
+});
+
 describe("read_help_topic", () => {
   const { description, inputSchema } = ASSISTANT_TOOL_SPECS.read_help_topic;
 
@@ -249,7 +269,7 @@ describe("read_help_topic", () => {
 
   it("tells the model to read before answering and what topics cannot tell", () => {
     expect(description).toMatch(/instead of answering from memory/i);
-    expect(description).toMatch(/first-setup defaults, not this installation's current values/i);
+    expect(description).toMatch(/first-setup defaults, not this installation's current values; get_settings/i);
     expect(description).toMatch(/labels .* are the English ones/i);
     expect(description).toMatch(/pass section/i);
   });

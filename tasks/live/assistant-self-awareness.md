@@ -203,7 +203,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Commit: Let the assistant read help topics
   Depends on: 2
 
-- [ ] 4. Let the assistant read the user's settings
+- [x] 4. Let the assistant read the user's settings
   Goal: add the ordinary read tool `get_settings`, following `agents/ADD-ASSISTANT-TOOL.md`.
   Input: an optional `section`, one of `learning`, `interface`, `hotkeys`, `ai`; without it, all four are returned.
   Output: the current values of each slice.

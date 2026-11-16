@@ -6,6 +6,7 @@ import {
   DecksIcon,
   ErrorIcon,
   LookupIcon,
+  SettingsIcon,
   TextSwap,
   ToolIcon,
 } from "@koloda/ui";
@@ -318,6 +319,7 @@ function toolCallIcon(name: string): IconComponent {
     return LookupIcon;
   }
   if (name === "add_deck") return DecksIcon;
+  if (name === "get_settings") return SettingsIcon;
   if (name === "get_deck_cards" || name === "propose_cards") return CardsIcon;
   // WHY: unknown protocol ids still render; they keep the generic tool glyph.
   return ToolIcon;
@@ -349,6 +351,7 @@ function toolCallLabel(name: string, translate: I18n["_"]): string {
   if (name === "add_deck") return translate(msg`ai.chat.tool-activity.add-deck`);
   if (name === "propose_cards") return translate(msg`ai.chat.tool-activity.propose-cards`);
   if (name === "read_help_topic") return translate(msg`ai.chat.tool-activity.read-help-topic`);
+  if (name === "get_settings") return translate(msg`ai.chat.tool-activity.get-settings`);
   return name;
 }
 
@@ -388,6 +391,10 @@ function toolCallSummaries(call: AIToolCallRecord, translate: I18n["_"]): string
     const title = namedString(call.output, "title");
     if (title !== null) return [title];
   }
+  if (call.name === "get_settings") {
+    const section = settingsSectionLabel(namedString(call.input, "section"), translate);
+    return section === null ? [] : [section];
+  }
   if (call.name === "add_deck") {
     const title = namedString(call.output, "title");
     if (title !== null) return [title];
@@ -409,6 +416,14 @@ function toolCallSummaries(call: AIToolCallRecord, translate: I18n["_"]): string
     return summaries;
   }
   return [];
+}
+
+function settingsSectionLabel(section: string | null, translate: I18n["_"]): string | null {
+  if (section === "learning") return translate(msg`ai.chat.tool-activity.settings-section.learning`);
+  if (section === "interface") return translate(msg`ai.chat.tool-activity.settings-section.interface`);
+  if (section === "hotkeys") return translate(msg`ai.chat.tool-activity.settings-section.hotkeys`);
+  if (section === "ai") return translate(msg`ai.chat.tool-activity.settings-section.ai`);
+  return null;
 }
 
 function namedString(value: unknown, key: string): string | null {

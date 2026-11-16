@@ -23,7 +23,14 @@ export type AiProfileSecretsSource = {
 // fails to compile here. Secrets are typed apart: the mirror omits them on purpose.
 type AiIpcDb = Pick<
   KolodaDb,
-  "getDecks" | "getTemplates" | "getAlgorithms" | "getCards" | "getCardCounts" | "getSettings" | "addDeck"
+  | "getDecks"
+  | "getTemplates"
+  | "getAlgorithms"
+  | "getCards"
+  | "getCardCounts"
+  | "getSettings"
+  | "getAiProfiles"
+  | "addDeck"
 > &
   AiProfileSecretsSource;
 
@@ -117,6 +124,8 @@ function createChatToolExecutor(db: AiIpcDb) {
     getCards: ({ deckId }) => db.getCards({ deckId }),
     getCardCounts: async () => Object.fromEntries((await db.getCardCounts()).map((row) => [row.deckId, row.count])),
     getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
+    getSettings: async (name) => (await db.getSettings({ name }))?.content ?? null,
+    getAIProfiles: () => db.getAiProfiles(),
     createDeck: async ({ title, templateId, algorithmId }) => {
       const deck = await db.addDeck({ title, templateId, algorithmId });
       return {

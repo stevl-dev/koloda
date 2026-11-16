@@ -173,6 +173,22 @@ describe("AIToolActivity", () => {
   });
 
   it.each([
+    { input: { section: "learning" }, summary: "ai.chat.tool-activity.settings-section.learning" },
+    { input: { section: "ai" }, summary: "ai.chat.tool-activity.settings-section.ai" },
+    { input: {}, summary: null },
+  ])("renders a get_settings success row naming the asked section ($summary)", ({ input, summary }) => {
+    render(
+      <AIToolActivity
+        calls={[call({ id: "c1", name: "get_settings", status: "success", input, output: { isTruncated: true } })]}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: /ai\.chat\.tool-activity\.get-settings/ });
+    expect(activityDots(trigger)).toHaveLength(summary === null ? 0 : 1);
+    expect(screen.queryByText(/ai\.chat\.tool-activity\.settings-section\./)?.textContent ?? null).toBe(summary);
+  });
+
+  it.each([
     {
       scenario: "full output",
       output: { totalCards: 40, cards: [{ fields: {} }, { fields: {} }], acceptedCount: 9 },

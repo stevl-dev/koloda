@@ -154,6 +154,10 @@ msgid "ai.chat.tool-activity.get-deck-cards"
 msgstr "Get deck cards"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.get-settings"
+msgstr "Read settings"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.get-template"
 msgstr "Get template"
 
@@ -201,6 +205,22 @@ msgstr "Read help"
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.running"
 msgstr "Running"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.settings-section.ai"
+msgstr "AI"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.settings-section.hotkeys"
+msgstr "Hotkeys"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.settings-section.interface"
+msgstr "Interface"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.settings-section.learning"
+msgstr "Learning"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.thinking"
