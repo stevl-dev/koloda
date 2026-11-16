@@ -50,7 +50,6 @@ describe("createRunControllerRegistry", () => {
     expect(second.signal.aborted).toBe(false);
 
     registry.endRun("run-1", first);
-    expect(registry.has("run-1")).toBe(true);
     registry.cancel("run-1");
     expect(second.signal.aborted).toBe(true);
   });

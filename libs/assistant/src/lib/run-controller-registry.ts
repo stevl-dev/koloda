@@ -1,5 +1,3 @@
-import type { QueueCancelReason } from "./serial-queue";
-
 /**
  * Engine-owned AbortController map keyed by runId.
  *
@@ -8,18 +6,18 @@ import type { QueueCancelReason } from "./serial-queue";
  * not abort background runs.
  *
  * After dispose/close, beginRun must not create fresh controllers (shutdown
- * must not let a dequeued retry start a new provider call).
+ * must not let a late submit or retry start a new provider call).
  *
  * Abort provenance: cancel/dispose record a requested termination cause so
  * AbortError classification can distinguish user cancel from shutdown/dispose
  * and from unrequested provider/transport aborts.
  */
-export type RunAbortReason = QueueCancelReason;
+export type RunAbortReason = "user" | "app_shutdown" | "dispose";
 
 /**
  * Thrown when beginRun is attempted after dispose/close.
- * Callers must convert this into a deterministic shutdown/dispose outcome —
- * do not leave the run `streaming` or surface a bare rejection past transport handling.
+ * The runtime calls beginRun on accept and rethrows this as `AssistantEngineClosedError`,
+ * so a closed registry rejects the command before the UI applies `submitTurn`.
  */
 export class RunControllerRegistryClosedError extends Error {
   readonly reason: RunAbortReason;
@@ -36,7 +34,6 @@ export type RunControllerRegistry = {
   endRun: (runId: string, controller: AbortController) => void;
   cancel: (runId: string, reason?: RunAbortReason) => void;
   takeAbortReason: (runId: string) => RunAbortReason | undefined;
-  has: (runId: string) => boolean;
   dispose: (reason?: RunAbortReason) => void;
 };
 
@@ -86,9 +83,6 @@ export function createRunControllerRegistry(): RunControllerRegistry {
       if (reason === undefined) return undefined;
       abortReasons.delete(runId);
       return reason;
-    },
-    has(runId) {
-      return controllers.has(runId);
     },
     dispose(reason: RunAbortReason = "dispose") {
       // WHY: Preserve the first close reason so a later dispose during shutdown

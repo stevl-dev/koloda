@@ -11,7 +11,6 @@ import type {
   ConversationRuntimeTransports,
 } from "./conversation-runtime";
 import { createRunControllerRegistry } from "./run-controller-registry";
-import type { QueueCancelReason } from "./serial-queue";
 
 type AssistantEngineLifecycle = "running" | "closing" | "closed";
 
@@ -41,29 +40,29 @@ export class AssistantEngineClosedError extends Error {
 }
 
 /**
- * Rejected when a conversation already has an active or queued run.
+ * Rejected when a conversation already has an active run.
  * UI disable-submit is not sufficient for same-tick or programmatic duplicates.
  */
 export class AssistantDuplicateRunError extends Error {
   readonly conversationId: string;
   readonly rejectedRunId: string;
-  readonly activeOrQueuedRunId: string | null;
+  readonly activeRunId: string | null;
 
-  constructor(conversationId: string, rejectedRunId: string, activeOrQueuedRunId: string | null = null) {
+  constructor(conversationId: string, rejectedRunId: string, activeRunId: string | null = null) {
     super(
-      activeOrQueuedRunId
-        ? `Conversation ${conversationId} already has an active or queued run (${activeOrQueuedRunId})`
-        : `Conversation ${conversationId} already has an active or queued run`,
+      activeRunId
+        ? `Conversation ${conversationId} already has an active run (${activeRunId})`
+        : `Conversation ${conversationId} already has an active run`,
     );
     this.name = "AssistantDuplicateRunError";
     this.conversationId = conversationId;
     this.rejectedRunId = rejectedRunId;
-    this.activeOrQueuedRunId = activeOrQueuedRunId;
+    this.activeRunId = activeRunId;
   }
 }
 
 function captureExecutionValue<T>(value: ImmutableExecutionValue<T>): T {
-  // WHY: Queue closures must retain command-time data, not references that a
+  // WHY: Run bodies start after dispatch returns and must retain command-time data, not references that a
   // later React render or mutable store update can rewrite before execution.
   return structuredClone(value) as T;
 }
@@ -91,12 +90,6 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
       runtimes.set(conversationId, runtime);
     }
     return runtime;
-  };
-
-  const closeRuntimes = (reason: QueueCancelReason) => {
-    for (const runtime of runtimes.values()) {
-      runtime.close(reason);
-    }
   };
 
   const logCommand = (commandOrEvent: string, conversationId: string, runId: string) => {
@@ -127,7 +120,7 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
   ): Promise<void> => {
     assertRunning();
     // WHY: conversationId is caller-supplied — never inferred from UI-current
-    // state, or a queued retry for A can restart/clear B after a switch.
+    // state, or a retry for A can restart/clear B after a switch.
     logCommand("retry", conversationId, runId);
     return getRuntime(conversationId).retryRun(
       runId,
@@ -142,11 +135,6 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
     // still abort; once closed there is nothing left to cancel.
     if (lifecycle === "closed") return;
     logCommand("cancel", conversationId, runId);
-    const runtime = runtimes.get(conversationId);
-    if (runtime) {
-      runtime.cancel(runId, "user");
-      return;
-    }
     controllerRegistry.cancel(runId, "user");
   };
 
@@ -168,15 +156,13 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
         nextStatus: "closing",
       });
 
-      // 1–2. Reject new commands (lifecycle) and cancel queued work with provenance.
-      closeRuntimes("app_shutdown");
-      // 3. Transition active (and any still-streaming queued) runs.
+      // 1. Reject new commands (lifecycle above), then transition active runs.
       interruptActiveRuns();
-      // 4. Abort active controllers with shutdown provenance and seal beginRun.
+      // 2. Abort active controllers with shutdown provenance and seal beginRun.
       controllerRegistry.dispose("app_shutdown");
-      // 5. Flush persistence.
+      // 3. Flush persistence.
       if (persistenceHost) await persistenceHost.flushAllBounded(flushTimeoutMs);
-      // 6. Closed — beginRun already sealed by registry dispose.
+      // 4. Closed — beginRun already sealed by registry dispose.
       lifecycle = "closed";
       runtimes.clear();
     })();
@@ -224,11 +210,9 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
         conversationId,
         commandOrEvent: "disposeConversation",
       });
-      // WHY: close only drops queued serial-queue tasks; cancel every run the
-      // runtime tracks so an in-flight AbortController aborts before we drop
-      // the runtime (#8), whatever the store still holds.
+      // WHY: cancel every run the runtime tracks so its AbortController aborts
+      // before we drop the runtime (#8), whatever the store still holds.
       runtime.cancelAll("dispose");
-      runtime.close("dispose");
       runtimes.delete(conversationId);
     },
     dispose() {
@@ -236,7 +220,6 @@ export function createAssistantEngine(options: AssistantEngineOptions): Assistan
       // during flushAllBounded cannot tear down the persistence host mid-flush.
       if (lifecycle !== "running") return;
       lifecycle = "closing";
-      closeRuntimes("dispose");
       controllerRegistry.dispose("dispose");
       persistenceHost?.dispose();
       persistenceHost = null;

@@ -1,6 +1,6 @@
 # @koloda/assistant
 
-Framework-free assistant application layer: per-conversation runtimes, serial command queues,
+Framework-free assistant application layer: per-conversation runtimes, one active run per conversation,
 run-scoped AbortControllers, persistence scheduling, and graceful shutdown.
 No React, no Jotai, no TanStack Query, no UI, no repository I/O.
 
@@ -53,16 +53,14 @@ Do not log token chunks, card payloads, or secrets.
   `conversation-persistence-host.ts` is also exported via the `./conversation-persistence-host` subpath, for the
   Electron main process: its close deadline derives from the flush timeout, and main must not load the root barrel,
   which pulls `@koloda/app` and its compile-time Lingui macros.
-- Conversation runtime: `conversation-runtime.ts` — serial command queue and chat/retry execution
+- Conversation runtime: `conversation-runtime.ts` — chat/retry execution
   against the injected execution port + by-id ports (`emit`, `touch`, `markReadIfCurrent`,
   `readConversationState`, `isRunStreaming`).
-  At most one active or queued execute/retry per conversation;
+  At most one active execute/retry per conversation;
   a second command throws `AssistantDuplicateRunError` before occupancy is claimed.
 - Controllers: `run-controller-registry.ts` — engine-owned `AbortController` map keyed by `runId`
   (cancel isolation; shutdown/dispose aborts all).
-  Closed-registry `beginRun` becomes a typed interrupt, not a bare throw that leaves the run `streaming`.
-- Serial queue: `serial-queue.ts` — per-conversation command serialization
-  (one hop per public execute entry; retry must not re-enqueue through those entry points).
+  The runtime claims a run's controller on accept, so a closed registry rejects the command synchronously.
 - Types / helpers: `stream-result.ts`, `assistant-protocol.ts` (`boundRunErrorDetails`).
 
 ### Does NOT own (prevent scope creep)
@@ -84,7 +82,11 @@ then `useRunOrchestration` calls `dispatch` and only then applies `submitTurn`.
 A synchronous reject (duplicate or closed engine) must not leave a streaming placeholder;
 `rollbackSubmitTurn` covers a later async reject.
 
-The runtime claims occupancy only after enqueue succeeds.
+On accept the runtime claims the run's `AbortController` and occupancy, then starts the run body one microtask later.
+No event of the run reaches the store before `submitTurn`.
+A cancel, shutdown, or dispose in that gap aborts the controller.
+The body checks for that abort before the provider call.
+It then ends the run as an in-flight abort would, and the provider is never called.
 Same-tick duplicate submit/retry throws `AssistantDuplicateRunError`.
 UI disable-submit is not sufficient.
 

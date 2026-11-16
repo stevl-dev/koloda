@@ -287,33 +287,6 @@ describe("createAssistantEngine", () => {
     expect(completes.map((e) => e.conversationId).sort()).toEqual(["A", "B"]);
   });
 
-  it("cancel before provider start prevents provider execution", async () => {
-    const streaming = new Set(["run-1"]);
-    engine = createStreamingEngine(streaming);
-
-    const startedRunIds: string[] = [];
-
-    chatStreamGenerator.mockImplementation(async (req) => {
-      const runLabel = (req as { label?: string }).label ?? "unknown";
-      startedRunIds.push(runLabel);
-      return undefined;
-    });
-
-    // WHY: Same-tick cancel after accept must settle occupancy without calling the provider.
-    const runPromise = dispatchChat(engine, "A", "run-1", { label: "only" } as ChatStreamRequest & { label: string });
-    dispatchCancel(engine, "A", "run-1");
-    await runPromise;
-
-    expect(startedRunIds).toEqual([]);
-    expect(chatStreamGenerator).not.toHaveBeenCalled();
-
-    const cancelActions = events.filter(
-      (e): e is Extract<AssistantEvent, { type: "runTerminated" }> =>
-        e.type === "runTerminated" && e.outcome.status === "canceled",
-    );
-    expect(cancelActions.some((e) => e.runId === "run-1")).toBe(true);
-  });
-
   it("repeated retry while active rejects without enqueueing another provider call", async () => {
     conversationStates["A"] = { runs: { "run-1": { status: "failed" } } };
 
@@ -658,8 +631,8 @@ describe("createAssistantEngine", () => {
 
     const firstRun = dispatchChat(engine, "conv-a", "run-1", {} as ChatStreamRequest);
     await Promise.resolve();
-    // Wait until the transport holds a live controller so the cancel loses to
-    // success instead of landing on a queued entry.
+    // Wait until the provider call is in flight so the cancel loses to
+    // success instead of stopping the run before it starts.
     expect(signals).toHaveLength(1);
     dispatchCancel(engine, "conv-a", "run-1");
     releaseFirst();

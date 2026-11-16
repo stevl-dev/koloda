@@ -147,7 +147,7 @@ Evidence is as of `dc9c7bb7` unless a line says otherwise.
 
 ## Plan
 
-- [ ] 1. Drop the per-conversation serial queue
+- [x] 1. Drop the per-conversation serial queue
   Goal: In `libs/assistant/src/lib/conversation-runtime.ts`, start a run without `serial-queue.ts`.
   Today `enqueueExclusive` puts each run on a serial queue that can never hold two entries,
   and the `queued` and `awaitingStart` phases guard the one-microtask gap before the run body starts.

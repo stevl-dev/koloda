@@ -16,7 +16,8 @@ Add a sibling only when the task crosses that spec.
 | `ui/` | Chat shell, lists, settings, message/card renderers (incl. tool-activity wiring), chrome |
 | *(root)* | Profile cascade hooks (`use-assistant-profile-selection`, `use-global-ai-profile-state`), runtime config (`use-assistant-runtime-config`, resolves the effective prompt template) |
 
-Stream execution, AbortControllers, serial queues, and save scheduling live in `@koloda/assistant`, not in `runs/`.
+Stream execution, AbortControllers, the one-run-per-conversation rule, and save scheduling live in `@koloda/assistant`,
+not in `runs/`.
 `use-conversation-runs.ts` only returns `engine.dispatch`.
 Do not put chunk dispatch or run lifecycle there.
 See `libs/assistant-react/README.md` (§Dispatch).

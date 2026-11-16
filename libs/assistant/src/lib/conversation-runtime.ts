@@ -7,8 +7,6 @@ import type { AssistantEvent, AssistantRunError } from "./assistant-protocol";
 import { boundRunErrorDetails } from "./assistant-protocol";
 import type { RunAbortReason, RunControllerRegistry } from "./run-controller-registry";
 import { RunControllerRegistryClosedError } from "./run-controller-registry";
-import { createSerialQueue, QueueClosedError } from "./serial-queue";
-import type { QueueCancelReason } from "./serial-queue";
 import type { StreamResult } from "./stream-result";
 
 export type ConversationRuntimeCallbacks = {
@@ -26,16 +24,7 @@ export type ConversationRuntimeTransports = {
   executionPort: AssistantExecutionPort;
 };
 
-/**
- * Lifecycle phase of a run inside this runtime: queued (serial-queue entry),
- * awaitingStart (dequeued, before beginRun), inFlight (provider transport).
- * `requestedReason` is a cancel stamped before the transport can observe it;
- * `abortReason` is the registry cause stashed by the AbortError path for
- * `handleStreamResult` to consume.
- */
-type RunLifecycle = {
-  phase: "queued" | "awaitingStart" | "inFlight";
-  requestedReason?: QueueCancelReason;
+type ActiveRun = {
   abortReason?: RunAbortReason;
 };
 
@@ -48,65 +37,24 @@ export type ConversationRuntime = {
     modelName: string | undefined,
     execution: AssistantExecutionIdentity,
   ) => Promise<void>;
-  cancel: (runId: string, reason?: QueueCancelReason) => void;
-  cancelAll: (reason: QueueCancelReason) => void;
-  close: (reason: QueueCancelReason) => void;
+  cancelAll: (reason: RunAbortReason) => void;
 };
 
 export function createConversationRuntime(
   conversationId: string,
   callbacks: ConversationRuntimeCallbacks,
   transports: ConversationRuntimeTransports,
-  controllerRegistry: Pick<RunControllerRegistry, "beginRun" | "endRun" | "cancel" | "has" | "takeAbortReason">,
+  controllerRegistry: Pick<RunControllerRegistry, "beginRun" | "endRun" | "cancel" | "takeAbortReason">,
 ): ConversationRuntime {
-  const queue = createSerialQueue<void>();
-
   /**
-   * Single per-run lifecycle record, so every race invariant is inspectable
-   * in one place.
-   *
    * INVARIANT: At most one entry per conversation — occupancy is claimed
-   * synchronously on enqueue (duplicate submit/retry rejects before a second
-   * serial-queue entry is created) and released when the task settles.
+   * synchronously on accept (duplicate submit/retry rejects before a second
+   * controller is claimed) and released when the run settles.
    */
-  const runs = new Map<string, RunLifecycle>();
-
-  /** WHY: Cancel can win the race after a task dequeues but before beginRun;
-   * a stamped requestedReason blocks provider execution without a controller. */
-  const takeRequestedReason = (runId: string): QueueCancelReason | undefined => {
-    const entry = runs.get(runId);
-    if (entry === undefined || entry.requestedReason === undefined) return undefined;
-    const reason = entry.requestedReason;
-    delete entry.requestedReason;
-    return reason;
-  };
+  const runs = new Map<string, ActiveRun>();
 
   const emit = (event: AssistantEvent) => {
     callbacks.emit(event);
-  };
-
-  const applyQueuedCancel = (runId: string, reason: QueueCancelReason) => {
-    if (!callbacks.isRunStreaming(conversationId, runId)) return;
-    if (reason === "app_shutdown" || reason === "dispose") {
-      // WHY: dispose has no dedicated termination reason; treat as non-user
-      // interruption so AbortError/queue cancel cannot look like user cancel.
-      emit({
-        type: "runTerminated",
-        conversationId,
-        runId,
-        outcome: { status: "interrupted", reason: "app_shutdown" },
-      });
-      callbacks.touch(conversationId);
-      return;
-    }
-    emit({
-      type: "runTerminated",
-      conversationId,
-      runId,
-      outcome: { status: "canceled", reason: "user" },
-    });
-    callbacks.markReadIfCurrent(conversationId, runId);
-    callbacks.touch(conversationId);
   };
 
   const classifyAbortError = (runId: string): StreamResult => {
@@ -123,27 +71,11 @@ export function createConversationRuntime(
       callbacks.markReadIfCurrent(conversationId, runId);
       return "error";
     }
-    // WHY: stash on the lifecycle record — the registry stamp is consumed
-    // here, but handleStreamResult reads it after endRun/finally.
+    // WHY: stash on the run record — the registry stamp is consumed here,
+    // but handleStreamResult reads it after the stream returns.
     const entry = runs.get(runId);
     if (entry) entry.abortReason = reason;
     return "aborted";
-  };
-
-  // WHY: beginRun sits outside the provider try/catch. A closed registry must
-  // settle through the same abort→interrupt path as dispose AbortError, not
-  // reject past transport handling and leave the run `streaming`.
-  const beginRunForTransport = (runId: string): AbortController | null => {
-    try {
-      return controllerRegistry.beginRun(runId);
-    } catch (error) {
-      if (error instanceof RunControllerRegistryClosedError) {
-        const entry = runs.get(runId);
-        if (entry) entry.abortReason = error.reason;
-        return null;
-      }
-      throw error;
-    }
   };
 
   const handleStreamResult = (targetConversationId: string, result: StreamResult, runId: string) => {
@@ -170,11 +102,8 @@ export function createConversationRuntime(
         break;
       case "aborted": {
         const entry = runs.get(runId);
-        const reason = entry?.abortReason ?? entry?.requestedReason ?? "user";
-        if (entry) {
-          entry.abortReason = undefined;
-          entry.requestedReason = undefined;
-        }
+        const reason = entry?.abortReason ?? "user";
+        if (entry) entry.abortReason = undefined;
         // WHY: Capture streaming-ness before the terminal dispatch. Graceful
         // shutdown interrupts before aborting; a blind touch would schedule a
         // redundant second durable write of the same interrupted snapshot.
@@ -217,13 +146,8 @@ export function createConversationRuntime(
     runId: string,
     request: ChatStreamRequest,
     execution: AssistantExecutionIdentity,
+    controller: AbortController,
   ): Promise<void> => {
-    const earlyCancel = takeRequestedReason(runId);
-    if (earlyCancel !== undefined) {
-      applyQueuedCancel(runId, earlyCancel);
-      return;
-    }
-
     let text = "";
     const onValue = (chunk: ChatStreamChunk | AssistantToolEvent) => {
       // WHY: reasoning records on the run activity list (alongside tools)
@@ -266,18 +190,10 @@ export function createConversationRuntime(
     };
 
     const stream = async (): Promise<{ streamResult: StreamResult; usage: StreamUsage | null }> => {
-      // WHY: Last-chance gate for cancel that landed after dequeue.
-      const gateReason = takeRequestedReason(runId);
-      const gateEntry = runs.get(runId);
-      if (gateReason !== undefined) {
-        if (gateEntry) gateEntry.abortReason = gateReason;
-        return { streamResult: "aborted", usage: null };
-      }
-      // INVARIANT: Leaving the awaiting-start gap before beginRun so a
-      // post-abort cancel cannot re-stamp a requestedReason.
-      if (gateEntry && gateEntry.phase === "awaitingStart") gateEntry.phase = "inFlight";
-      const controller = beginRunForTransport(runId);
-      if (!controller) return { streamResult: "aborted", usage: null };
+      // WHY: A cancel, shutdown, or dispose that lands between accept and here
+      // has already aborted the controller. Settle it like an in-flight abort,
+      // without calling the provider.
+      if (controller.signal.aborted) return { streamResult: classifyAbortError(runId), usage: null };
       try {
         const onChunk = (chunk: ChatStreamChunk) => {
           if (!controller.signal.aborted) onValue(chunk);
@@ -314,8 +230,6 @@ export function createConversationRuntime(
         });
         callbacks.markReadIfCurrent(conversationId, runId);
         return { streamResult: "error", usage: null };
-      } finally {
-        controllerRegistry.endRun(runId, controller);
       }
     };
 
@@ -342,71 +256,37 @@ export function createConversationRuntime(
     handleStreamResult(conversationId, streamResult, runId);
   };
 
-  const mapQueueClosed = (error: QueueClosedError): AssistantEngineClosedError =>
-    new AssistantEngineClosedError(
-      error.reason === "app_shutdown" || error.reason === "dispose" ? "closing" : "closed",
-    );
-
-  const guardClosed = async (run: () => Promise<void>): Promise<void> => {
-    try {
-      await run();
-    } catch (error) {
-      // WHY: Callers already handle AssistantEngineClosedError; do not resolve
-      // closed-queue races as success.
-      if (error instanceof QueueClosedError) throw mapQueueClosed(error);
-      // WHY: Safety net if a closed-registry throw escapes transport conversion —
-      // still a typed engine-closed rejection, never a bare Error.
-      if (error instanceof RunControllerRegistryClosedError) {
-        throw new AssistantEngineClosedError(
-          error.reason === "app_shutdown" || error.reason === "dispose" ? "closing" : "closed",
-        );
-      }
-      throw error;
-    }
-  };
-
-  const withAwaitingStart = async (runId: string, run: () => Promise<void>): Promise<void> => {
-    const entry = runs.get(runId);
-    if (entry) entry.phase = "awaitingStart";
-    try {
-      await run();
-    } finally {
-      // WHY: only clear the awaitingStart marker here; occupancy (the entry
-      // itself) is released by the enqueue finally.
-      if (entry && entry.phase === "awaitingStart") entry.phase = "inFlight";
-    }
-  };
-
   // WHY: Reject (do not supersede) a second execute/retry while one is already
-  // active or queued — duplicate provider work must not enqueue silently.
+  // active — duplicate provider work must not start silently.
   // INVARIANT: Duplicate/closed fail synchronously so UI can apply submitTurn
-  // only after the command is accepted. Do not claim occupancy unless enqueue succeeded.
-  const enqueueExclusive = (runId: string, task: () => Promise<void>): Promise<void> => {
-    // INVARIANT: at most one entry per conversation — its key is the
-    // outstanding run; duplicate submit/retry rejects synchronously.
+  // only after the command is accepted. Do not claim occupancy unless the controller was claimed.
+  const startExclusive = (runId: string, body: (controller: AbortController) => Promise<void>): Promise<void> => {
     const outstanding = runs.keys().next();
     if (!outstanding.done) throw new AssistantDuplicateRunError(conversationId, runId, outstanding.value);
-    let pending: Promise<void>;
+    let controller: AbortController;
     try {
-      pending = queue.enqueue(runId, task);
+      controller = controllerRegistry.beginRun(runId);
     } catch (error) {
-      if (error instanceof QueueClosedError) throw mapQueueClosed(error);
+      if (error instanceof RunControllerRegistryClosedError) throw new AssistantEngineClosedError("closing");
       throw error;
     }
-    runs.set(runId, { phase: "queued" });
-    return guardClosed(() => pending).finally(() => {
-      runs.delete(runId);
-    });
+    runs.set(runId, {});
+    // INVARIANT: The body starts one microtask after accept. The UI applies
+    // submitTurn right after dispatch returns, and no event of this run may
+    // reach the store before it; a cancel in that gap aborts the controller.
+    return Promise.resolve()
+      .then(() => body(controller))
+      .finally(() => {
+        controllerRegistry.endRun(runId, controller);
+        runs.delete(runId);
+      });
   };
 
   const executeChatRun = (
     runId: string,
     request: ChatStreamRequest,
     execution: AssistantExecutionIdentity,
-  ): Promise<void> =>
-    enqueueExclusive(runId, async () => {
-      await withAwaitingStart(runId, () => runChatRun(runId, request, execution));
-    });
+  ): Promise<void> => startExclusive(runId, (controller) => runChatRun(runId, request, execution, controller));
 
   const retryRun = (
     runId: string,
@@ -414,80 +294,48 @@ export function createConversationRuntime(
     modelName: string | undefined,
     execution: AssistantExecutionIdentity,
   ): Promise<void> =>
-    enqueueExclusive(runId, async () => {
-      await withAwaitingStart(runId, async () => {
-        // WHY: The store owns retry eligibility (ASSISTANT-CONVERSATIONS.md
-        // §Retry: only failed/canceled/interrupted). A stale or duplicate
-        // retry command must not restart a success/streaming run or spend a
-        // provider call on it — without this the runChunk below would still
-        // overwrite a good answer even though the reducer ignores restart.
-        // A missing run is not retryable either.
-        const storedRun = callbacks.readConversationState(conversationId).runs[runId];
-        const storedStatus =
-          typeof storedRun === "object" && storedRun !== null ? (storedRun as { status?: unknown }).status : undefined;
-        if (storedStatus !== "failed" && storedStatus !== "canceled" && storedStatus !== "interrupted") {
-          return;
-        }
+    startExclusive(runId, async (controller) => {
+      // WHY: The run has not restarted yet, so it still holds its earlier
+      // terminal status; an abort before the body starts leaves it there.
+      if (controller.signal.aborted) return;
+      // WHY: The store owns retry eligibility (ASSISTANT-CONVERSATIONS.md
+      // §Retry: only failed/canceled/interrupted). A stale or duplicate
+      // retry command must not restart a success/streaming run or spend a
+      // provider call on it — without this the runChunk below would still
+      // overwrite a good answer even though the reducer ignores restart.
+      // A missing run is not retryable either.
+      const storedRun = callbacks.readConversationState(conversationId).runs[runId];
+      const storedStatus =
+        typeof storedRun === "object" && storedRun !== null ? (storedRun as { status?: unknown }).status : undefined;
+      if (storedStatus !== "failed" && storedStatus !== "canceled" && storedStatus !== "interrupted") {
+        return;
+      }
 
-        // INVARIANT: Restart/clear/stream ownership stays on this runtime's
-        // conversationId even if the UI-current conversation changed while
-        // this retry waited in the serial queue.
-        // WHY: Retry is always chat+tools.
-        emit({
-          type: "runStarted",
-          conversationId,
-          run: {
-            runId,
-            modelName,
-          },
-        });
-
-        emit({
-          type: "runChunk",
-          conversationId,
+      // INVARIANT: Restart/clear/stream ownership stays on this runtime's
+      // conversationId even if the UI-current conversation changed after
+      // the retry was accepted.
+      // WHY: Retry is always chat+tools.
+      emit({
+        type: "runStarted",
+        conversationId,
+        run: {
           runId,
-          chunk: { kind: "assistantText", text: "" },
-        });
-        await runChatRun(runId, request, execution);
+          modelName,
+        },
       });
+
+      emit({
+        type: "runChunk",
+        conversationId,
+        runId,
+        chunk: { kind: "assistantText", text: "" },
+      });
+      await runChatRun(runId, request, execution, controller);
     });
 
-  const cancel = (runId: string, reason: QueueCancelReason = "user") => {
-    const wasQueued = queue.cancel(runId, reason);
-    const entry = runs.get(runId);
-    if (wasQueued) {
-      // WHY: Entry will never run — apply terminal state now and do not leave
-      // a requestedReason stamped (a later retry of the same runId must proceed).
-      applyQueuedCancel(runId, reason);
-    } else if (
-      entry &&
-      entry.phase === "awaitingStart" &&
-      !controllerRegistry.has(runId) &&
-      callbacks.isRunStreaming(conversationId, runId)
-    ) {
-      // WHY: Dequeued but not yet beginRun — stamp so transport skips the
-      // provider, and transition immediately for UI responsiveness.
-      // INVARIANT: the awaitingStart phase gates the stamp; a second cancel
-      // after the in-flight controller was removed must not leave a
-      // requestedReason for a later retry that reuses the same runId.
-      entry.requestedReason = reason;
-      applyQueuedCancel(runId, reason);
-    }
-    // else: in-flight or already terminal — abort if present; AbortError path
-    // owns the terminal transition for live controllers using recorded provenance.
-    controllerRegistry.cancel(runId, reason);
-  };
-
-  const cancelAll = (reason: QueueCancelReason) => {
+  const cancelAll = (reason: RunAbortReason) => {
     for (const runId of runs.keys()) {
-      cancel(runId, reason);
-    }
-  };
-
-  const close = (reason: QueueCancelReason) => {
-    const canceledRunIds = queue.close(reason);
-    for (const runId of canceledRunIds) {
-      applyQueuedCancel(runId, reason);
+      controllerRegistry.cancel(runId, reason);
     }
   };
 
@@ -495,9 +343,7 @@ export function createConversationRuntime(
     conversationId,
     executeChatRun,
     retryRun,
-    cancel,
     cancelAll,
-    close,
   };
 }
 

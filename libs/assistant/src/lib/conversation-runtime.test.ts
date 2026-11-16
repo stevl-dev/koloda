@@ -5,9 +5,8 @@ import { AssistantDuplicateRunError, AssistantEngineClosedError } from "./assist
 import type { AssistantExecutionPort } from "./assistant-execution-port";
 import type { AssistantEvent } from "./assistant-protocol";
 import { createConversationRuntime } from "./conversation-runtime";
-import type { ConversationRuntime } from "./conversation-runtime";
 import { createRunControllerRegistry } from "./run-controller-registry";
-import type { RunAbortReason } from "./run-controller-registry";
+import type { RunAbortReason, RunControllerRegistry } from "./run-controller-registry";
 
 const TEST_EXECUTION = { profileId: "test-profile" } as const;
 
@@ -17,81 +16,7 @@ function unusedPort(): AssistantExecutionPort {
   };
 }
 
-describe("createConversationRuntime closed-registry races", () => {
-  it("closed registry at beginRun interrupts without remaining streaming or rejecting", async () => {
-    const events: AssistantEvent[] = [];
-    const streaming = new Set<string>(["run-1"]);
-    const registry = createRunControllerRegistry();
-    const executionPort = unusedPort();
-
-    const runtime = createConversationRuntime(
-      "conv-a",
-      {
-        emit: (event) => {
-          events.push(event);
-          if (
-            event.type === "runTerminated" &&
-            (event.outcome.status === "interrupted" ||
-              event.outcome.status === "canceled" ||
-              event.outcome.status === "failed" ||
-              event.outcome.status === "success")
-          ) {
-            streaming.delete(event.runId);
-          }
-        },
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
-        isRunStreaming: (_conversationId, runId) => streaming.has(runId),
-        readConversationState: () => ({ runs: { "run-1": {} } }),
-      },
-      { executionPort },
-      registry,
-    );
-
-    // WHY: Queue still open, registry already sealed — models a dequeued task
-    // that reaches beginRun after shutdown dispose.
-    registry.dispose("app_shutdown");
-
-    const unhandled: unknown[] = [];
-    const onUnhandled = (reason: unknown) => {
-      unhandled.push(reason);
-    };
-    process.on("unhandledRejection", onUnhandled);
-
-    try {
-      await expect(runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION)).resolves.toBeUndefined();
-    } finally {
-      process.off("unhandledRejection", onUnhandled);
-    }
-
-    expect(unhandled).toEqual([]);
-    expect(executionPort.executeChat).not.toHaveBeenCalled();
-    expect(streaming.has("run-1")).toBe(false);
-    expect(events).toContainEqual({
-      type: "runTerminated",
-      conversationId: "conv-a",
-      runId: "run-1",
-      outcome: { status: "interrupted", reason: "app_shutdown" },
-    });
-  });
-});
-
 describe("createConversationRuntime command acceptance", () => {
-  function makeRuntime() {
-    return createConversationRuntime(
-      "conv-a",
-      {
-        emit: vi.fn(),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
-        isRunStreaming: () => true,
-        readConversationState: () => ({ runs: {} }),
-      },
-      { executionPort: unusedPort() },
-      createRunControllerRegistry(),
-    );
-  }
-
   it("duplicate execute throws synchronously without occupying a second slot", async () => {
     let releaseFirst!: () => void;
     const firstGate = new Promise<void>((resolve) => {
@@ -127,12 +52,148 @@ describe("createConversationRuntime command acceptance", () => {
     expect(executeChat).toHaveBeenCalledTimes(2);
   });
 
-  it("closed queue throws AssistantEngineClosedError synchronously", () => {
-    const runtime = makeRuntime();
-    runtime.close("dispose");
+  it("a closed registry rejects the command synchronously and frees the slot", async () => {
+    const emit = vi.fn();
+    const executionPort = unusedPort();
+    const registry = createRunControllerRegistry();
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit,
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      registry,
+    );
+    registry.dispose("app_shutdown");
+
     expect(() => runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION)).toThrow(
       AssistantEngineClosedError,
     );
+    // WHY: a rejected command must not occupy the conversation, or the next one would read as a duplicate.
+    expect(() => runtime.executeChatRun("run-2", {} as ChatStreamRequest, TEST_EXECUTION)).toThrow(
+      AssistantEngineClosedError,
+    );
+    await Promise.resolve();
+    expect(executionPort.executeChat).not.toHaveBeenCalled();
+    expect(emit).not.toHaveBeenCalled();
+  });
+
+  it("emits nothing until a microtask after accept", async () => {
+    const events: AssistantEvent[] = [];
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => events.push(event),
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => true,
+        readConversationState: () => ({ runs: { "run-1": { status: "failed" } } }),
+      },
+      { executionPort: unusedPort() },
+      createRunControllerRegistry(),
+    );
+
+    // WHY: the UI applies submitTurn right after dispatch returns; an event before it would land on no run.
+    const pending = runtime.retryRun("run-1", {} as ChatStreamRequest, undefined, TEST_EXECUTION);
+    expect(events).toEqual([]);
+
+    await pending;
+    expect(events[0]).toMatchObject({ type: "runStarted" });
+  });
+});
+
+describe("createConversationRuntime abort before the body starts", () => {
+  type EarlyAbortCase = {
+    label: string;
+    abort: (registry: RunControllerRegistry) => void;
+    isStreaming: boolean;
+    terminal: AssistantEvent[];
+  };
+
+  const terminated = (outcome: Extract<AssistantEvent, { type: "runTerminated" }>["outcome"]): AssistantEvent => ({
+    type: "runTerminated",
+    conversationId: "conv-a",
+    runId: "run-1",
+    outcome,
+  });
+
+  it.each<EarlyAbortCase>([
+    {
+      label: "a user cancel ends a submit as canceled",
+      abort: (registry) => registry.cancel("run-1", "user"),
+      isStreaming: true,
+      terminal: [terminated({ status: "canceled", reason: "user" })],
+    },
+    {
+      label: "a shutdown ends a streaming submit as interrupted",
+      abort: (registry) => registry.dispose("app_shutdown"),
+      isStreaming: true,
+      terminal: [terminated({ status: "interrupted", reason: "app_shutdown" })],
+    },
+    {
+      label: "a dispose ends a streaming submit as interrupted",
+      abort: (registry) => registry.cancel("run-1", "dispose"),
+      isStreaming: true,
+      terminal: [terminated({ status: "interrupted", reason: "app_shutdown" })],
+    },
+    {
+      label: "a shutdown leaves a submit the shell already interrupted alone",
+      abort: (registry) => registry.dispose("app_shutdown"),
+      isStreaming: false,
+      terminal: [],
+    },
+  ])("$label, without calling the provider", async ({ abort, isStreaming, terminal }) => {
+    const events: AssistantEvent[] = [];
+    const registry = createRunControllerRegistry();
+    const executionPort = unusedPort();
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit: (event) => events.push(event),
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => isStreaming,
+        readConversationState: () => ({ runs: {} }),
+      },
+      { executionPort },
+      registry,
+    );
+
+    const pending = runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION);
+    abort(registry);
+    await pending;
+
+    expect(executionPort.executeChat).not.toHaveBeenCalled();
+    expect(events.filter((event) => event.type === "runTerminated")).toEqual(terminal);
+  });
+
+  it("a retry aborted before its body starts emits nothing", async () => {
+    const emit = vi.fn();
+    const registry = createRunControllerRegistry();
+    const executionPort = unusedPort();
+    const runtime = createConversationRuntime(
+      "conv-a",
+      {
+        emit,
+        markReadIfCurrent: vi.fn(),
+        touch: vi.fn(),
+        isRunStreaming: () => false,
+        readConversationState: () => ({ runs: { "run-1": { status: "failed" } } }),
+      },
+      { executionPort },
+      registry,
+    );
+
+    const pending = runtime.retryRun("run-1", {} as ChatStreamRequest, undefined, TEST_EXECUTION);
+    registry.dispose("app_shutdown");
+    await pending;
+
+    expect(executionPort.executeChat).not.toHaveBeenCalled();
+    expect(emit).not.toHaveBeenCalled();
   });
 });
 
@@ -569,20 +630,21 @@ describe("createConversationRuntime retryRun status guard", () => {
     expect(executionPort.executeChat).toHaveBeenCalledTimes(1);
   });
 
-  // WHY: retry emits runStarted after the run leaves the queue and before beginRun; a cancel dispatched from that
-  // emit is the only way to land in that gap.
+  // WHY: retry emits runStarted before the provider call; a cancel dispatched from that emit is the only way to
+  // land between the restart and the provider.
   it("a cancel dispatched from the retry's runStarted stops the run before the provider", async () => {
     const events: AssistantEvent[] = [];
     let isStreaming = true;
     let shouldCancelOnStart = true;
     let storedStatus = "failed";
     const executeChat = vi.fn(async () => undefined);
-    const runtime: ConversationRuntime = createConversationRuntime(
+    const registry = createRunControllerRegistry();
+    const runtime = createConversationRuntime(
       "conv-a",
       {
         emit: (event) => {
           events.push(event);
-          if (event.type === "runStarted" && shouldCancelOnStart) runtime.cancel("run-1");
+          if (event.type === "runStarted" && shouldCancelOnStart) registry.cancel("run-1", "user");
           if (event.type === "runTerminated") isStreaming = false;
         },
         markReadIfCurrent: vi.fn(),
@@ -591,7 +653,7 @@ describe("createConversationRuntime retryRun status guard", () => {
         readConversationState: () => ({ runs: { "run-1": { status: storedStatus } } }),
       },
       { executionPort: { executeChat } },
-      createRunControllerRegistry(),
+      registry,
     );
 
     await runtime.retryRun("run-1", {} as ChatStreamRequest, undefined, TEST_EXECUTION);
@@ -606,7 +668,7 @@ describe("createConversationRuntime retryRun status guard", () => {
       },
     ]);
 
-    // The stamped cancel was consumed: a later retry of the same run id reaches the provider.
+    // The cancel's abort reason was consumed: a later retry of the same run id reaches the provider.
     shouldCancelOnStart = false;
     isStreaming = true;
     storedStatus = "canceled";
