@@ -1,6 +1,6 @@
 # Assistant chat runs: drop the serial queue, touch from the event adapter
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/specs/ASSISTANT-CONVERSATIONS.md
 Flow: local
 
@@ -136,12 +136,12 @@ Evidence is as of `dc9c7bb7` unless a line says otherwise.
 
 ## Open questions
 
-- [ ] Item 1: is "claim the controller on accept, start the body one microtask later" the accepted reading of
-  "drop the queue"? — open; the plan assumes yes.
+- [x] Item 1: is "claim the controller on accept, start the body one microtask later" the accepted reading of
+  "drop the queue"? — yes.
   The alternative runs the body inside `dispatch` and needs `submitTurn` to move before the command,
   which overturns "Accept `engine.dispatch` before `submitTurn`" in `agents/ASSISTANT-MAP.md`.
-- [ ] Item 2: does the adapter touch on every event, or only when the event changed the conversation entry?
-  — open; the plan assumes only when changed.
+- [x] Item 2: does the adapter touch on every event, or only when the event changed the conversation entry?
+  — only when changed.
   Touching on every event adds one save of an unchanged snapshot per user cancel and per shutdown abort,
   because the engine repeats a terminal status the UI or the shell already wrote.
 
