@@ -77,7 +77,7 @@ Out:
   Commit: Add a plain-text reading of card markdown
   Depends on: none
 
-- [ ] 2. Show cards table content as one line of plain text
+- [x] 2. Show cards table content as one line of plain text
   Goal: change the content columns of `libs/srs-react/src/lib/cards/cards-table.tsx`.
   The accessor resolves the field through the card's own template, as it does now, and also reads that field's type.
   For a `markdown` field it returns `markdownToPlainText(text)`; for a `text` field it returns the text unchanged.

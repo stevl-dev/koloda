@@ -264,6 +264,10 @@ msgstr "Table Columns"
 msgid "cards-table.columns-menu.trigger"
 msgstr "Columns"
 
+#: ../../libs/srs-react/src/lib/cards/cards-table-cell-content.tsx
+msgid "cards-table.content.image"
+msgstr "Image"
+
 #: ../../libs/srs-react/src/lib/cards/cards-table-filters.tsx
 msgid "cards-table.filters.due-at.values.false"
 msgstr "Not due yet"

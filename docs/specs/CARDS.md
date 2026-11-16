@@ -44,8 +44,9 @@ Optional fields accept an empty value.
 Every field of the template must be present in the content.
 Content for fields that are not on the card's template is not stored.
 
-In the management UI, every field is edited and shown as plain text, including markdown fields.
+In the management UI, every field is edited as plain text, including markdown fields.
 Rendered markdown appears only in preview and lessons.
+The table view shows a markdown field without its formatting; see §Table View.
 
 ## Rendered Markdown
 
@@ -179,8 +180,20 @@ On narrow screens the stack view is forced and the view toggle is hidden.
 The table view shows every card in a paginated, sortable table.
 Each row shows the card's content, its state, and its due time (if scheduled).
 The creation and update time columns start hidden; the user can show them like any other column.
-Content cells show raw text, not rendered markdown.
 Per-row actions let the user preview, edit, or delete the card.
+
+Each content cell shows its value on one line.
+A value that does not fit is cut short with an ellipsis, so every row has the same height.
+The full content is in the card's preview and on its details view.
+
+- A text field shows as written.
+- A markdown field shows the text the rendered card would show, without formatting.
+  Marks for emphasis, headings, lists, tables, and code are left out, and a link shows its text without its address.
+- A card image shows as MEDIA.md (§Where Images Show) says.
+  Any other image shows its alt text.
+
+Sorting and search use the text the cells show.
+Formatting marks, link addresses, and card images are not searched.
 
 When cards in the deck use more than one template, content columns are aligned by field position.
 If titles at a position agree, that title is the column header; otherwise the header is a positional label.

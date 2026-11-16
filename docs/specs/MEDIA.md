@@ -98,7 +98,8 @@ If the stored image is missing or cannot be read, the alt text shows instead.
 
 Elsewhere the reference does not show an image:
 
-- In the card editor and the cards table, it shows as the raw text of the field.
+- In the card editor, it shows as the raw text of the field.
+- In the cards table, it shows as an image icon, without its alt text.
 - In assistant messages, it shows its alt text.
 
 Showing an image never contacts another site and works offline.

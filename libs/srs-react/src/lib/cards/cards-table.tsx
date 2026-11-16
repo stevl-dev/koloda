@@ -1,4 +1,5 @@
 import { queriesAtom } from "@koloda/core-react";
+import { markdownToPlainText } from "@koloda/srs";
 import type { Card, Deck, Template } from "@koloda/srs";
 import { QueryError, SearchField, Table } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -70,7 +71,10 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
             (row) => {
               const template = templateMapRef.current.get(row.templateId);
               const fieldId = field.getFieldId(template);
-              return fieldId ? (row.content[fieldId]?.text ?? "") : "";
+              const text = fieldId ? (row.content[fieldId]?.text ?? "") : "";
+              // WHY: columns are aligned by field position, so one column can hold text and markdown fields.
+              // Search and sort read this value, so they match what the cell shows.
+              return template?.content.fields[field.index]?.type === "markdown" ? markdownToPlainText(text) : text;
             },
             {
               id: `content.field.${field.index}`,

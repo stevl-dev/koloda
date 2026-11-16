@@ -5,6 +5,7 @@ import type { CardsTableFeatures } from "./cards-table-hook";
 import type { CellContext } from "@tanstack/react-table";
 import { isDate } from "date-fns";
 import { CardState } from "./card-state";
+import { CardsTableCellContent } from "./cards-table-cell-content";
 import { CardsTableCellDeleteCard } from "./cards-table-cell-delete-card";
 import { CardsTableCellEditCard } from "./cards-table-cell-edit-card";
 import { CardsTableCellPreviewCard } from "./cards-table-cell-preview-card";
@@ -27,6 +28,7 @@ export function CardsTableCell({ cell }: CardsTableCellProps) {
   if (id === "preview") return <CardsTableCellPreviewCard card={card} />;
   if (id === "edit") return <CardsTableCellEditCard card={card} />;
   if (id === "delete") return <CardsTableCellDeleteCard id={card.id} />;
+  if (id.startsWith("content.field.")) return <CardsTableCellContent value={value} />;
 
   if (id === "state") {
     return (

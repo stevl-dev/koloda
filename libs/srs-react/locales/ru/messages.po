@@ -264,6 +264,10 @@ msgstr "Столбцы таблицы"
 msgid "cards-table.columns-menu.trigger"
 msgstr "Столбцы"
 
+#: ../../libs/srs-react/src/lib/cards/cards-table-cell-content.tsx
+msgid "cards-table.content.image"
+msgstr "Изображение"
+
 #: ../../libs/srs-react/src/lib/cards/cards-table-filters.tsx
 msgid "cards-table.filters.due-at.values.false"
 msgstr "Не подошёл"

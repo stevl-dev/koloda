@@ -226,6 +226,47 @@ describe("CardsTable content columns", () => {
     expect(screen.queryByText("cards-table.filters.template")).toBeNull();
   });
 
+  // WHY: markdownToPlainText has its own tests in @koloda/srs. These cover what only the table decides:
+  // which reading each card's field gets, and that search reads the same value the cell shows.
+  it("shows a markdown field as plain text and a text field as written, each by its own card's template", async () => {
+    const markdownTemplate = createTemplate();
+    markdownTemplate.content.fields[0].type = "markdown";
+    const textTemplate = createQuestionTemplate();
+    const attachmentId = "0123456789abcdef".repeat(4);
+    const markdownCard = createCard({
+      id: testId(300),
+      content: {
+        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: `# Capital\n\n**Paris** ![map](attachment:${attachmentId})` },
+      },
+    });
+    const textCard = createCard({
+      id: testId(301),
+      templateId: textTemplate.id,
+      content: { [testId(201)]: { text: "**not** markdown" }, [testId(202)]: { text: "plain" } },
+    });
+    const { controls } = setup([markdownCard, textCard], { templates: [markdownTemplate, textTemplate] });
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(2));
+
+    const [markdownRow, textRow] = [...document.querySelectorAll<HTMLElement>("tbody tr")];
+    expect(markdownRow.textContent).toContain("Capital Paris");
+    expect(markdownRow.textContent).not.toContain(attachmentId);
+    expect(within(markdownRow).getByRole("img", { name: "cards-table.content.image" })).toBeTruthy();
+    expect(textRow.textContent).toContain("**not** markdown");
+    expect(within(textRow).queryByRole("img")).toBeNull();
+
+    const search = within(controls).getByRole("searchbox");
+    fireEvent.change(search, { target: { value: "capital paris" } });
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(1));
+    expect(bodyRowTexts()[0]).toContain("Capital Paris");
+
+    fireEvent.change(search, { target: { value: "**" } });
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(1));
+    expect(bodyRowTexts()[0]).toContain("**not** markdown");
+
+    fireEvent.change(search, { target: { value: attachmentId.slice(0, 8) } });
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(0));
+  });
+
   it("names the columns after the deck's template while the deck has no cards", async () => {
     const t2 = createQuestionTemplate();
     setup([], { templates: [createTemplate(), t2], deckTemplateId: t2.id });
