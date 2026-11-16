@@ -55,7 +55,7 @@ const numberFieldInput = tv({
       hidden: "caret-transparent",
     },
     layer: {
-      input: "spin-hide text-transparent",
+      input: "spin-hide text-transparent selection:text-transparent selection:bg-[color:Highlight]",
       display: "pointer-events-none",
     },
   },
