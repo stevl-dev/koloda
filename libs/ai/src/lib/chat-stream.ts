@@ -13,8 +13,9 @@ function resolveGenerationTemperature(value?: number) {
 }
 
 // WHY: bounds runaway tool loops (the model re-calling tools instead of answering)
-// while leaving room for list_decks → get_deck_cards → answer chains plus retries.
-const CHAT_TOOL_STEP_BUDGET = 8;
+// while leaving room for list_decks → get_deck_cards → answer chains plus retries,
+// and for a help answer that reads the settings and two or three help topics first.
+const CHAT_TOOL_STEP_BUDGET = 12;
 
 async function runChatStream(
   modelFactory: (modelId: string) => Parameters<typeof wrapModelWithReasoningExtraction>[0],

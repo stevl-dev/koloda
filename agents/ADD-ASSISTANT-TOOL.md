@@ -145,7 +145,7 @@ Do not hard-code a parallel name list unless you are intentionally subsetting.
 `prepare-run-request.ts` must not reintroduce submit-time data injection.
 
 `libs/ai/src/lib/chat-stream.ts` binds names through `bindAssistantTools`.
-It caps tool loops with `CHAT_TOOL_STEP_BUDGET` (8).
+It caps tool loops with `CHAT_TOOL_STEP_BUDGET` (12).
 A request that lists tools without an executor must fail fast.
 
 ### 6. Run-state and UI (kind-specific)

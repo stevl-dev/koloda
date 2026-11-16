@@ -260,7 +260,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Commit: Let the assistant read app and sync status
   Depends on: 4
 
-- [ ] 6. Raise the chat tool step budget to 12
+- [x] 6. Raise the chat tool step budget to 12
   Goal: change `CHAT_TOOL_STEP_BUDGET` in `libs/ai/src/lib/chat-stream.ts` from 8 to 12.
   A help question can take a settings read and two or three topic reads before the answer,
   and creating and filling a deck needs several steps of its own.

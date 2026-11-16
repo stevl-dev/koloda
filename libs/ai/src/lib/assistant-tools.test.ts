@@ -1167,7 +1167,7 @@ describe("chat tool streaming", () => {
     ]);
   });
 
-  it("ends a run that keeps calling tools after eight model calls and says so", async () => {
+  it("ends a run that keeps calling tools after twelve model calls and says so", async () => {
     const model = createToolStepsModel(Number.POSITIVE_INFINITY);
     fakeModelSlot.model = model;
     const executeTool = vi.fn().mockResolvedValue({ decks: [] });
@@ -1180,14 +1180,14 @@ describe("chat tool streaming", () => {
       OLLAMA_OPTIONS,
     );
 
-    expect(model.doStreamCalls).toHaveLength(8);
-    expect(executeTool).toHaveBeenCalledTimes(8);
+    expect(model.doStreamCalls).toHaveLength(12);
+    expect(executeTool).toHaveBeenCalledTimes(12);
     expect(result).toMatchObject({ promptTokens: 3, completionTokens: 5 });
     expect(onChunk.mock.calls).toEqual([[{ kind: "stepBudgetReached" }]]);
   });
 
-  it("does not report the step budget when the eighth step answers", async () => {
-    const model = createToolStepsModel(7);
+  it("does not report the step budget when the twelfth step answers", async () => {
+    const model = createToolStepsModel(11);
     fakeModelSlot.model = model;
     const onChunk = vi.fn();
 
@@ -1198,7 +1198,7 @@ describe("chat tool streaming", () => {
       OLLAMA_OPTIONS,
     );
 
-    expect(model.doStreamCalls).toHaveLength(8);
+    expect(model.doStreamCalls).toHaveLength(12);
     expect(onChunk.mock.calls).toEqual([[{ kind: "text", text: "You have " }], [{ kind: "text", text: "2 decks." }]]);
   });
 
