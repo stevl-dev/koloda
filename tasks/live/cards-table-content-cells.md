@@ -1,6 +1,6 @@
 # Cards table content cells
 
-Status: draft
+Status: ready
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/specs/CARDS.md, docs/specs/MEDIA.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/CSS.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -18,7 +18,7 @@ Rulings from the human (2026-11-16):
 - A card image shows as an image icon only: no alt text and no thumbnail.
 - Search and sort use the text the cell shows, not the markdown source.
 
-Rulings the agent made, for the human to confirm at plan approval:
+Rulings the agent made, confirmed by the human at plan approval:
 
 - A text field still shows as written; only its line breaks collapse, as today.
 - An image that rendered markdown would not show (another site, embedded data) shows its alt text,
@@ -50,7 +50,7 @@ Out:
 
 ## Open questions
 
-- [ ] Confirm the four agent rulings in Intent — open
+- [x] Confirm the agent rulings in Intent — confirmed by the human (2026-11-16)
 
 ## Plan
 
