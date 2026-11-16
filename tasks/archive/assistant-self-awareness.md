@@ -1,6 +1,6 @@
 # Assistant self-awareness
 
-Status: ready
+Status: done
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, agents/ADD-ASSISTANT-TOOL.md, docs/specs/ASSISTANT-DATA-ACCESS.md, agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-SETTINGS.md, docs/specs/SYNC.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -273,3 +273,25 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Depends on: none
 
 ## Outcome
+
+The assistant answers how the app works from the specs, and reads the user's current settings and app state.
+Shipped in the six Plan items, on both hosts unless noted:
+
+- Help topics: `docs/help/CONCEPTS.md` (scheduling terms and how to choose values) and `docs/help/APP-MAP.md` (one entry per screen).
+- Help corpus: `bun run gen:help` writes `libs/ai/src/lib/help-corpus.generated.ts` from every spec and help topic.
+  The ruling is `docs/decisions/SPECS-AS-ASSISTANT-HELP.md`.
+- `read_help_topic`: reads one topic or one section. Its description carries the topic index.
+- `get_settings`: reads all four slices, or one by `section`. The AI slice is an explicit field list.
+  Keys, provider secrets, server addresses, and the custom prompt text are never returned.
+  A slice with no stored row reports that the built-in defaults apply.
+- `get_app_info`: on the desktop, sync state, last successful sync, changes and images waiting, and why sync stopped.
+  On the web demo, it says sync is not available. No server address, space or device id, token, or version.
+- Chat tool step budget raised from 8 to 12.
+- `docs/specs/ASSISTANT-DATA-ACCESS.md` and `docs/specs/ASSISTANT-SETTINGS.md` describe the new reads.
+
+Not done, out of the approved scope: lesson and progress statistics, in-app deep links, a `propose_settings_change` tool,
+and direct settings writes. Each is in `tasks/DEFERRED.md` as a handoff.
+
+Spec: docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/ASSISTANT-SETTINGS.md
+Review: not run
+Change rounds: 0

@@ -249,6 +249,31 @@ Entries are grouped under one heading per package directory.
   Deferred because: the fake-model harness lives there, and a second file-level mock of `ai-sdk-ollama` would leak under
   `isolate: false`; revisit only together with the harness.
 
+- Handoff: let the assistant read lesson and progress statistics, such as why only 10 new cards show today.
+  Evidence: at `daa0ad62`, `docs/specs/ASSISTANT-DATA-ACCESS.md:90` says scheduling statistics and lesson history are not read.
+  Kind: handoff
+  Source: `tasks/archive/assistant-self-awareness.md`
+  Deferred because: the human left it out of the self-awareness task; it needs its own read of lesson data.
+
+- Handoff: give assistant answers in-app deep links to the screen where a setting or feature lives.
+  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` tells the model to say where the user changes settings,
+  because no link exists.
+  Kind: handoff
+  Source: `tasks/archive/assistant-self-awareness.md`
+  Deferred because: the human left it out of the self-awareness task; the first version reads only and does not act.
+
+- Handoff: add a `propose_settings_change` tool, so the assistant can propose a settings change for the user to apply.
+  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` says the settings tool cannot change settings.
+  Kind: handoff
+  Source: `tasks/archive/assistant-self-awareness.md`
+  Deferred because: the human left it out of the self-awareness task; it is an action, and the first version reads only.
+
+- Handoff: let the assistant write settings directly.
+  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` says the settings tool cannot change settings.
+  Kind: handoff
+  Source: `tasks/archive/assistant-self-awareness.md`
+  Deferred because: the human left it out of the self-awareness task; it is an action, and the first version reads only.
+
 ## libs/ai-react
 
 - Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
