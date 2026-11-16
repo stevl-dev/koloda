@@ -1,6 +1,6 @@
 # Cards table content cells
 
-Status: ready
+Status: done
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/specs/CARDS.md, docs/specs/MEDIA.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/CSS.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -117,6 +117,21 @@ Out:
   Depends on: 1
 
 ## Outcome
+
+Both plan items shipped (`9159a12d`, `bb61cfaf`).
+`bun run check:push` passed on `bb61cfaf`; the Archive commit after it changes only this file.
+No item added or edited an e2e case.
+The Manual verify block of item 2 was handed to the human, who asked to land; this file records no result of it.
+
+- `libs/srs` has `markdownToPlainText` and `MARKDOWN_IMAGE_MARK` (U+FFFC), read from the `marked` lexer with no DOM.
+- The cards table's content accessor returns the plain-text reading for a markdown field and the raw text for a text
+  field, by each card's own template.
+  Search and sort read that value.
+- `cards-table-cell-content.tsx` shows the value on one line with an ellipsis and draws an image icon at each mark.
+  The cell is positioned absolutely inside its `td`, so text that cannot wrap does not widen the column.
+- One new message, `cards-table.content.image`, in the `en` and `ru` catalogs of `libs/srs-react`.
+- Beyond the plan text: an HTML `<br>` reads as a space, so two lines joined by it do not run together.
+- Accepted, not deferred: a field whose text already contains U+FFFC shows an image icon at that place.
 
 Spec: docs/specs/CARDS.md, docs/specs/MEDIA.md
 Review: not run
