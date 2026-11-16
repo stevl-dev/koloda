@@ -1,6 +1,6 @@
 # Assistant self-awareness
 
-Status: draft
+Status: ready
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, agents/ADD-ASSISTANT-TOOL.md, docs/specs/ASSISTANT-DATA-ACCESS.md, agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-SETTINGS.md, docs/specs/SYNC.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -75,8 +75,7 @@ Facts at `8658cc27` that the plan builds on.
 
 ## Open questions
 
-Each open question names the proposal the Plan is written for.
-Answering it differently changes the named item.
+The human approved the plan on 2026-11-16, accepting the proposal on each question that was open.
 
 - [x] What is the help corpus? — the specs; no separate user-facing help set is written.
 - [x] How is it delivered? — a topic index in the tool description, and bodies fetched by a read tool.
@@ -95,27 +94,23 @@ Answering it differently changes the named item.
   a difference only when the owning spec names it; sync status is that difference.
 - [x] What does the built-in prompt say about the new tools? — one line per tool, added in that tool's item.
   The rules that must survive a custom prompt go in the tool descriptions.
-- [ ] Where do the concepts topic and the app map live, and is the app map generated? — open.
-  Proposal: hand-written, at `docs/help/CONCEPTS.md` and `docs/help/APP-MAP.md` (item 1).
-- [ ] Does `read_help_topic` need a size budget? — open.
-  Proposal: no runtime truncation; a call returns one topic or one section,
+- [x] Where do the concepts topic and the app map live, and is the app map generated? —
+  hand-written, at `docs/help/CONCEPTS.md` and `docs/help/APP-MAP.md` (item 1).
+- [x] Does `read_help_topic` need a size budget? — no runtime truncation; a call returns one topic or one section,
   and a test caps a topic at 16 KB so a spec that outgrows it fails `check:docs` (items 2 and 3).
-- [ ] Is the 8-step budget raised, or do help reads get a separate allowance? — open.
-  Proposal: raise the one budget to 12 (item 6).
-- [ ] How does the model handle a UI language other than English? — open.
-  Proposal: `get_settings` returns the language, and the `read_help_topic` description says that quoted labels are
+- [x] Is the 8-step budget raised, or do help reads get a separate allowance? — raise the one budget to 12 (item 6).
+- [x] How does the model handle a UI language other than English? —
+  `get_settings` returns the language, and the `read_help_topic` description says that quoted labels are
   the English ones and may read differently in the user's language (items 3 and 4).
   The model is not asked to translate labels, since it cannot see the catalogs.
-- [ ] Does the assistant help with self-hosting the sync server? — open.
+- [x] Does the assistant help with self-hosting the sync server? — no; the Plan has no item for it.
   That material is in `crates/koloda-server/README.md`, not in a spec.
-  Proposal: no; the Plan has no item for it.
-- [ ] Does `get_app_info` report a version? — open.
-  Proposal: no, until the app has a version worth showing (item 5).
-- [ ] Do the new tools get e2e cases? — open.
-  Proposal: no; unit tests cover the shared executor and the web binder, and the human verifies both hosts by hand.
+- [x] Does `get_app_info` report a version? — no, until the app has a version worth showing (item 5).
+- [x] Do the new tools get e2e cases? — no;
+  unit tests cover the shared executor and the web binder, and the human verifies both hosts by hand.
   Adding e2e cases would add a run of both suites to the landing gate (`agents/VERIFY.md` (§Suite runs)).
-- [ ] Does `get_settings` return the text of a custom prompt template? — open.
-  Proposal: no; it returns only whether the prompt is the built-in or a custom one (item 4).
+- [x] Does `get_settings` return the text of a custom prompt template? — no;
+  it returns only whether the prompt is the built-in or a custom one (item 4).
 
 ## Plan
 
