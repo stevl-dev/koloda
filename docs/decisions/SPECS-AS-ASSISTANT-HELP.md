@@ -27,7 +27,7 @@ since the packaged desktop app ships no repository files.
 ## Applies when
 
 - A change adds, renames, splits, or edits a file in `docs/specs/` or `docs/help/`.
-- A change touches the generator or the generated module.
+- A change touches the generator, the generated module, or the `read_help_topic` tool.
 
 ## Rejected designs
 

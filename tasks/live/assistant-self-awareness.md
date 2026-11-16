@@ -169,7 +169,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Commit: Generate the assistant help corpus from the specs
   Depends on: 1
 
-- [ ] 3. Let the assistant read help topics
+- [x] 3. Let the assistant read help topics
   Goal: add the ordinary read tool `read_help_topic`, following `agents/ADD-ASSISTANT-TOOL.md`.
   Input: `topic`, one of the generated topic ids, and an optional `section`, a heading of that topic.
   Output: the topic title, the section when one was asked for, and the markdown text.

@@ -194,6 +194,10 @@ msgid "ai.chat.tool-activity.propose-cards"
 msgstr "Propose cards"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.read-help-topic"
+msgstr "Read help"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.running"
 msgstr "Running"

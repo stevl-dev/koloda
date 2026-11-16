@@ -19,6 +19,8 @@ Pick one before editing code.
    - Returns bounded user data for the model.
    - Needs a spec, a shared-executor branch, host data if new, activity label, docs.
    - Does not write run cards or write targets.
+   - A read of app data rather than user data (like `read_help_topic`) needs no host data:
+     its executor branch calls a pure `libs/ai` function, and step 4 does not apply.
 
 2. **`propose_*` tool** (like `propose_cards`):
    - Proposes structured content for the user to review; it is not a write.
@@ -112,6 +114,8 @@ If the tool needs new reads, extend `AssistantToolDataSource` here first.
 Then bind the new methods in both hosts (next step).
 
 ### 4. Bind host data sources
+
+Skip this step for a tool that reads no host data.
 
 Hosts inject DB access into `createAssistantToolExecutor`.
 Shaping and budgets stay in `@koloda/ai`.

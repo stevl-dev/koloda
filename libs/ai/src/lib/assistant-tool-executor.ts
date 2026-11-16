@@ -15,6 +15,7 @@ import type {
   AssistantToolExecutor,
   AssistantToolTemplate,
 } from "./assistant-tools";
+import { readHelpTopic } from "./help-corpus";
 
 /**
  * Data access the assistant tools need. Injected by the host so this module
@@ -138,6 +139,10 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
       const { deckId, cards } = ASSISTANT_TOOL_SPECS.propose_cards.inputSchema.parse(input);
       const { deck, template } = await resolveDeckTemplate(deckId);
       return shapeProposeCardsOutput({ id: deck.id, title: deck.title, template }, cards);
+    }
+    if (name === "read_help_topic") {
+      const { topic, section } = ASSISTANT_TOOL_SPECS.read_help_topic.inputSchema.parse(input);
+      return readHelpTopic(topic, section);
     }
     throw new Error(`Unknown assistant tool: ${name}`);
   };

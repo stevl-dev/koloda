@@ -146,6 +146,20 @@ describe("AIToolActivity", () => {
       },
       title: "Basic",
     },
+    {
+      name: "read_help_topic",
+      label: "ai.chat.tool-activity.read-help-topic",
+      input: { topic: "lessons", section: "Grading" },
+      output: { title: "Lessons", section: "Grading", markdown: "## Grading\n" },
+      title: "Lessons",
+    },
+    {
+      name: "read_help_topic",
+      label: "ai.chat.tool-activity.read-help-topic",
+      input: { topic: "lessons" },
+      output: { isTruncated: true, itemCount: 2, title: "Lessons", preview: '{"title":"Lessons",' },
+      title: "Lessons",
+    },
   ])("renders a $name success row with the title", ({ name, label, input, output, title }) => {
     render(<AIToolActivity calls={[call({ id: "c1", name, status: "success", input, output })]} />);
 

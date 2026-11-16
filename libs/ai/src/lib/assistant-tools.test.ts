@@ -8,6 +8,7 @@ import {
   ASSISTANT_TOOL_SPECS,
   bindAssistantTools,
 } from "./assistant-tools";
+import { HELP_TOPIC_IDS } from "./help-corpus.generated";
 import type {
   AssistantToolCard,
   AssistantToolEvent,
@@ -235,6 +236,36 @@ describe("assistant-tools binder", () => {
 
   it("rejects unknown tool names at bind time", () => {
     expect(() => bindAssistantTools({ names: ["nope"], execute: vi.fn() })).toThrow(/Unknown assistant tool/);
+  });
+});
+
+describe("read_help_topic", () => {
+  const { description, inputSchema } = ASSISTANT_TOOL_SPECS.read_help_topic;
+
+  it("indexes every help topic in its description", () => {
+    const missing = HELP_TOPIC_IDS.filter((id) => !description.includes(`\n- ${id}: `));
+    expect(missing).toEqual([]);
+  });
+
+  it("tells the model to read before answering and what topics cannot tell", () => {
+    expect(description).toMatch(/instead of answering from memory/i);
+    expect(description).toMatch(/first-setup defaults, not this installation's current values/i);
+    expect(description).toMatch(/labels .* are the English ones/i);
+    expect(description).toMatch(/pass section/i);
+  });
+
+  it("accepts a known topic with an optional section", () => {
+    expect(inputSchema.parse({ topic: "lessons" })).toEqual({ topic: "lessons" });
+    expect(inputSchema.parse({ topic: "lessons", section: "Grading" })).toEqual({
+      topic: "lessons",
+      section: "Grading",
+    });
+  });
+
+  it("rejects an unknown topic and an empty section", () => {
+    expect(() => inputSchema.parse({ topic: "billing" })).toThrow();
+    expect(() => inputSchema.parse({})).toThrow();
+    expect(() => inputSchema.parse({ topic: "lessons", section: "" })).toThrow();
   });
 });
 

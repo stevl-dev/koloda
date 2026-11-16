@@ -12,6 +12,8 @@ export type HelpTopic = {
 
 type HelpTopicRead = { title: string; section?: string; markdown: string };
 
+export const HELP_TOPIC_INDEX = HELP_TOPICS.map((topic) => `- ${topic.id}: ${topic.summary}`).join("\n");
+
 function sameHeading(a: string, b: string) {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }

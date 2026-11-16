@@ -31,4 +31,10 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).not.toMatch(/call list_decks and get_deck_cards first/i);
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).not.toMatch(/currently selected deck/i);
   });
+
+  it("sends questions about the app to read_help_topic instead of memory", () => {
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toContain("read_help_topic");
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/how the app works/i);
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/not from memory/i);
+  });
 });

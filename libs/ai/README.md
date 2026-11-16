@@ -38,11 +38,13 @@ This README owns the package boundary.
   Per-provider wrappers only supply the model factory (and optional `providerOptions`).
   Temperature comes from the request or falls back to `GENERATION_TEMPERATURE`.
 - Assistant tools: `assistant-tools.ts` — specs for `list_decks`, `list_templates`, `list_algorithms`,
-  `get_deck`, `get_template`, `get_deck_cards`, `add_deck`, and `propose_cards`,
+  `get_deck`, `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, and `read_help_topic`,
   input binding, output shaping and budgets; `assistant-tool-executor.ts` — the shared executor,
   awaiting a host-injected `AssistantToolDataSource` (web SQLite, Electron NAPI).
   `add_deck` validates then calls host `createDeck`; card content still goes through `propose_cards`.
   No I/O in this module — hosts bind data sources.
+- Help corpus: `help-corpus.ts` — `readHelpTopic` over `help-corpus.generated.ts`, which `bun run gen:help` writes
+  from `docs/specs/` and `docs/help/` (`docs/decisions/SPECS-AS-ASSISTANT-HELP.md`).
 - Prompts: `prompts.ts` — default chat prompt template and `GENERATION_TEMPERATURE`.
   Field titles come from tools, not the system prompt.
   `chat-stream.ts` trims the saved (or default) prompt when sending.

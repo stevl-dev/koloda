@@ -2,6 +2,8 @@ import { tool } from "ai";
 import type { ToolSet } from "ai";
 import { z } from "zod";
 import type { GeneratedCard } from "./generation";
+import { HELP_TOPIC_INDEX } from "./help-corpus";
+import { HELP_TOPIC_IDS } from "./help-corpus.generated";
 
 /**
  * Assistant chat tool registry — specs, binder, and pure output shaping, no I/O.
@@ -288,6 +290,22 @@ export const ASSISTANT_TOOL_SPECS = {
     inputSchema: z.object({
       deckId: z.uuid(),
       cards: z.array(proposeCardSchema),
+    }),
+  },
+  read_help_topic: {
+    name: "read_help_topic",
+    description: [
+      "Read one topic of this app's own documentation: how a feature behaves, where a screen or setting is, and what the scheduling terms mean. Before you answer how the app works, where something is, or what an app term means, read the matching topic instead of answering from memory; app-map says where each screen is, concepts explains scheduling terms for a learner.",
+      "Topics describe behavior and first-setup defaults, not this installation's current values.",
+      'Quoted labels such as "Again" are the English ones; the user\'s interface may show them in another language.',
+      "Pass section with a heading of the topic to read only that part once the index or a first read shows which part you need; a section includes its subsections. A topic's Scope names the sibling topic for what it leaves out.",
+      "Help topics are app documentation, not user data. This tool does not read or change the user's decks, cards, or settings.",
+      // WHY: the index rides in the description, so the model picks a topic without a listing call.
+      `Topics:\n${HELP_TOPIC_INDEX}`,
+    ].join("\n"),
+    inputSchema: z.object({
+      topic: z.enum(HELP_TOPIC_IDS),
+      section: z.string().min(1).optional(),
     }),
   },
 } as const satisfies Record<string, AssistantToolSpec>;

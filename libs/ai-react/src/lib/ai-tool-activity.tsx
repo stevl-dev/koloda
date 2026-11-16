@@ -312,7 +312,8 @@ function toolCallIcon(name: string): IconComponent {
     name === "list_templates" ||
     name === "list_algorithms" ||
     name === "get_deck" ||
-    name === "get_template"
+    name === "get_template" ||
+    name === "read_help_topic"
   ) {
     return LookupIcon;
   }
@@ -347,6 +348,7 @@ function toolCallLabel(name: string, translate: I18n["_"]): string {
   if (name === "get_deck_cards") return translate(msg`ai.chat.tool-activity.get-deck-cards`);
   if (name === "add_deck") return translate(msg`ai.chat.tool-activity.add-deck`);
   if (name === "propose_cards") return translate(msg`ai.chat.tool-activity.propose-cards`);
+  if (name === "read_help_topic") return translate(msg`ai.chat.tool-activity.read-help-topic`);
   return name;
 }
 
@@ -379,6 +381,10 @@ function toolCallSummaries(call: AIToolCallRecord, translate: I18n["_"]): string
     if (title !== null) return [title];
   }
   if (call.name === "get_template") {
+    const title = namedString(call.output, "title");
+    if (title !== null) return [title];
+  }
+  if (call.name === "read_help_topic") {
     const title = namedString(call.output, "title");
     if (title !== null) return [title];
   }

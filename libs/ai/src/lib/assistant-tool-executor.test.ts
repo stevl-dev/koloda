@@ -406,6 +406,27 @@ describe("createAssistantToolExecutor", () => {
     expect(output.message).toContain("Required fields left empty: Back.");
   });
 
+  it("read_help_topic returns the asked section without reading host data", async () => {
+    const unread = () => Promise.reject(new Error("host data should not be read"));
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getDecks: unread, getTemplates: unread, getAlgorithms: unread, getCardCounts: unread }),
+    );
+
+    const output = await executor("read_help_topic", { topic: "learning-settings", section: "Daily Limits" });
+
+    expect(output).toMatchObject({ title: "Learning Settings", section: "Daily Limits" });
+    expect((output as { markdown: string }).markdown).toMatch(/^## Daily Limits\n/);
+  });
+
+  it("read_help_topic fails the call for an unknown topic or section", async () => {
+    const executor = createAssistantToolExecutor(makeDataSource());
+
+    await expect(executor("read_help_topic", { topic: "billing" })).rejects.toThrow();
+    await expect(executor("read_help_topic", { topic: "learning-settings", section: "Billing" })).rejects.toThrow(
+      /no section "Billing"/,
+    );
+  });
+
   it("rejects unknown tool names", async () => {
     const executor = createAssistantToolExecutor(makeDataSource());
     await expect(executor("delete_everything", {})).rejects.toThrow("Unknown assistant tool: delete_everything");
