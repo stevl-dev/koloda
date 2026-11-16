@@ -169,7 +169,6 @@ const SETTINGS_SECTIONS = ["learning", "interface", "hotkeys", "ai"] as const;
 
 type AssistantSettingsSection = (typeof SETTINGS_SECTIONS)[number];
 
-/** The help topic that gives each section's built-in defaults. */
 const SETTINGS_SECTION_HELP_TOPICS = {
   learning: "learning-settings",
   interface: "interface-settings",
