@@ -114,7 +114,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
 
 ## Plan
 
-- [ ] 1. Add the concepts and app map help topics
+- [x] 1. Add the concepts and app map help topics
   Goal: add two hand-written topics under a new `docs/help/` directory.
   `CONCEPTS.md` explains, for a learner, what the app's scheduling terms mean and how to choose values:
   desired retention and what raising or lowering it costs, the four grades and when to pick each,
