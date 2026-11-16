@@ -59,3 +59,8 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai-react`, `libs/assistant-react`, `libs/ai`, `libs/ui`
   Why: A mention gives the model an exact id, and shows the user what they can refer to.
   Brief: `tasks/backlog/assistant-mention-picker.md`
+
+- `assistant-attachments`: Let the user attach images to an assistant message, for models that accept them.
+  Area: `libs/ai`, `libs/ai-react`, `libs/assistant-react`, `libs/srs`, `libs/db-sqlite`, `crates/koloda`, `apps/electron`, `apps/web`
+  Why: A screenshot or a photo is often the source of the cards the user wants, and today it has to be retyped.
+  Brief: `tasks/backlog/assistant-attachments.md`
