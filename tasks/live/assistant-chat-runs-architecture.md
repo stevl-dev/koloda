@@ -206,7 +206,7 @@ Evidence is as of `dc9c7bb7` unless a line says otherwise.
   Commit: Touch and mark read from the assistant event adapter
   Depends on: 1
 
-- [ ] 3. Record the declined run and save designs in the assistant map
+- [x] 3. Record the declined run and save designs in the assistant map
   Goal: In `agents/ASSISTANT-MAP.md`, add "No serial queue per conversation" to §Do not reintroduce,
   with the reason: runs are exclusive per conversation, so the queue never held two entries.
   Add a section "Weighed and not taken" that lists the three options this task's Out section names,

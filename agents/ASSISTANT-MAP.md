@@ -11,8 +11,8 @@ Add a sibling only when the task crosses that spec.
 | Folder | Owns |
 |--------|------|
 | `state/` | Reducer, store, selectors, actions, messages, profile/config types, AI profile dual-write payloads (`ai-profile-sync`) |
-| `runs/` | Session (`RunController`), orchestration, engine host, command prep (`prepare-run-request` / `build-stream-request`), thin `engine.dispatch` adapter |
-| `persistence/` | Restore/saver hooks, coerce/normalize, `schemaVersion` check, save host adapter |
+| `runs/` | Session (`RunController`), orchestration, engine host, command prep (`prepare-run-request` / `build-stream-request`), thin `engine.dispatch` adapter, persistence host singleton (`assistant-persistence-host`) |
+| `persistence/` | Restore/saver hooks, coerce/normalize, `schemaVersion` check, save write adapter (`conversation-write-adapter`) |
 | `ui/` | Chat shell, lists, settings, message/card renderers (incl. tool-activity wiring), chrome |
 | *(root)* | Profile cascade hooks (`use-assistant-profile-selection`, `use-global-ai-profile-state`), runtime config (`use-assistant-runtime-config`, resolves the effective prompt template) |
 
@@ -61,3 +61,22 @@ Paths under `libs/assistant-react` are relative to `src/lib/` unless noted.
 - No god `useAssistantChat`.
   See `libs/assistant-react/README.md` (§Composition).
 - `@koloda/assistant-react` and `@koloda/ai-react` do not import `@koloda/app-react` or `@koloda/settings-react`.
+- No serial queue per conversation.
+  Runs are exclusive per conversation, so the queue never held two entries.
+  See `libs/assistant/README.md` (§Command ingress and duplicate runs).
+
+## Weighed and not taken
+
+Designs an architecture review proposed and the project declined, with the reason for each.
+
+- Terminal status only through engine events.
+  The UI would stop writing `cancelRun` and the shell `interruptRun`; the engine would end every run.
+  Not taken: the duplicate writes are harmless.
+  The reducer ignores a terminal event for a run that is not streaming.
+  Reopen it when a change to cancel or shutdown is already planned.
+- Dirty derived from `conversationsAtom` identity.
+  The persistence host would diff the store instead of counting `touch` calls.
+  Not taken: the explicit touches and the three dispatch helpers work.
+  The engine path already touches only when an event changed the entry.
+- One `WeakMap` from store to the engine, persistence host, write adapter, and add-deck invalidator.
+  Not taken: the four module slots and their test resets work as they are; merging them changes no behavior.
