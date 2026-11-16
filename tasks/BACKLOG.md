@@ -54,8 +54,3 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `crates/koloda-sync`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
   Brief: `tasks/backlog/sync-engine-tests-audit.md`
-
-- `assistant-chat-runs-architecture`: Decide the three proposals of the architecture review of assistant chat runs.
-  Area: `libs/assistant`, `libs/assistant-react`
-  Why: The review, written at `dc9c7bb7`, has no decision yet.
-  Brief: `tasks/backlog/assistant-chat-runs-architecture.md`
