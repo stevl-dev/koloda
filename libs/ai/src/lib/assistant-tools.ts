@@ -200,6 +200,7 @@ export type AssistantToolSyncStatus = {
     | { type: "stopped"; stop: { reason: string; code?: string; needed?: number; free?: number; message?: string } };
   lastSuccessAt: number | null;
   pending: number;
+  held: number;
   uploads: number;
   fetches: number;
   hold: { reason: "corruptEnvelope" | "updateRequired" } | null;
@@ -515,7 +516,7 @@ export function shapeAppInfoOutput(info: AssistantToolAppInfo): AppInfoOutput {
   if (info.app === "web") {
     return { app: "web demo", sync: { state: "not available", message: "Sync is in the desktop app only." } };
   }
-  const { state, lastSuccessAt, pending, uploads, fetches, hold, isOverQuota } = info.syncStatus;
+  const { state, lastSuccessAt, pending, held, uploads, fetches, hold, isOverQuota } = info.syncStatus;
   if (state.type === "notEnrolled") return { app: "desktop", sync: { state: "not set up" } };
 
   const problems = [
@@ -530,7 +531,8 @@ export function shapeAppInfoOutput(info: AssistantToolAppInfo): AppInfoOutput {
       ...(state.type === "stopped" ? { stoppedBecause: syncStopReason(state.stop) } : {}),
       ...(problems.length > 0 ? { problems } : {}),
       lastSyncedAt: lastSuccessAt === null ? null : new Date(lastSuccessAt).toISOString(),
-      changesWaitingToUpload: pending,
+      // WHY: changes a full space refused wait in a hold of their own; Settings → Sync counts them as waiting too.
+      changesWaitingToUpload: pending + held,
       imagesWaitingToUpload: uploads,
       imagesWaitingToDownload: fetches,
     },

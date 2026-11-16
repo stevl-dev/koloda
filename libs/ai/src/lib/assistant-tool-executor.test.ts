@@ -532,6 +532,7 @@ describe("createAssistantToolExecutor", () => {
     state: { type: "idle" },
     lastSuccessAt: Date.UTC(2026, 10, 16, 9, 30),
     pending: 3,
+    held: 0,
     uploads: 1,
     fetches: 2,
     hold: null,
@@ -566,7 +567,7 @@ describe("createAssistantToolExecutor", () => {
       },
     },
     {
-      status: syncStatus({ isOverQuota: true, hold: { reason: "updateRequired" } }),
+      status: syncStatus({ isOverQuota: true, held: 4, hold: { reason: "updateRequired" } }),
       sync: {
         state: "up to date",
         problems: [
@@ -574,6 +575,7 @@ describe("createAssistantToolExecutor", () => {
           "downloads wait at a change this version of the app cannot read",
         ],
         ...counts,
+        changesWaitingToUpload: 7,
       },
     },
   ])("get_app_info reports the desktop sync state as $sync.state", async ({ status, sync }) => {
