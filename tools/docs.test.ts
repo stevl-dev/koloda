@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { HELP_CORPUS_PATH, readHelpSources, renderHelpCorpus } from "./generate-help-corpus.ts";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -154,6 +155,28 @@ describe("decisions", () => {
   });
 });
 
+describe("help corpus", () => {
+  const sources = readHelpSources();
+
+  it("is regenerated with `bun run gen:help` after a spec or help topic changes", () => {
+    expect(read(HELP_CORPUS_PATH)).toBe(renderHelpCorpus(sources));
+  });
+
+  it("splits each topic so its parts join back into the source", () => {
+    const rejoined = sources.filter(
+      ({ path, intro, sections }) => intro + sections.map((section) => section.markdown).join("") !== read(path),
+    );
+    expect(rejoined.map(({ path }) => path)).toEqual([]);
+  });
+
+  it("keeps each topic within 16 KB, so one read stays a small part of a run", () => {
+    const tooLarge = sources
+      .map(({ path }) => ({ path, bytes: Buffer.byteLength(read(path)) }))
+      .filter(({ bytes }) => bytes > 16 * 1024);
+    expect(tooLarge).toEqual([]);
+  });
+});
+
 describe("archived tasks", () => {
   const archived = readdirSync(join(root, "tasks/archive"))
     .filter((name) => name.endsWith(".md"))
@@ -239,8 +262,9 @@ describe("section pointers", () => {
   }
 
   // WHY: code comments point into the docs too. This file is skipped: its strings show the syntax.
+  // The help corpus is skipped too: it copies the docs, whose pointers are checked at the source.
   const sources = allFiles((name) => /\.(ts|tsx|mts|mjs|js|rs|css|yml)$/.test(name)).filter(
-    (file) => file !== "tools/docs.test.ts" && read(file).includes("§"),
+    (file) => file !== "tools/docs.test.ts" && file !== HELP_CORPUS_PATH && read(file).includes("§"),
   );
 
   // `FILE.md (§Heading)` points into FILE.md; a bare `(§Heading)` points into the file it is written in.

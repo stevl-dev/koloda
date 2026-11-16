@@ -133,7 +133,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Commit: Add the concepts and app map help topics
   Depends on: none
 
-- [ ] 2. Generate the assistant help corpus from the specs
+- [x] 2. Generate the assistant help corpus from the specs
   Goal: add `tools/generate-help-corpus.ts` and a root script `gen:help` that runs it.
   It reads every markdown file in `docs/specs/` and `docs/help/` and writes `libs/ai/src/lib/help-corpus.generated.ts`.
   Each topic has an id (the filename without its extension, in lowercase), a title (the `#` heading),

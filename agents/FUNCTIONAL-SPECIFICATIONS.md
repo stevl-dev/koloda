@@ -20,6 +20,7 @@ It explains how it behaves in different situations, including failure and bounda
 - Not architecture documentation — no diagrams of module dependencies or data flow between files
 - Not a changelog — use git history for that
 - Not user-facing documentation — specs serve the developer, not the end user
+  (the assistant also reads them as help; see `docs/decisions/SPECS-AS-ASSISTANT-HELP.md`)
 - Not a storage schema — persistence field names and migration history belong in code and comments
 - Not a UI mock — layout, alignment, and chrome belong in the product, not the spec
 
@@ -160,6 +161,7 @@ Do not write a spec that only makes sense as part of a bundle.
 ## Checklist
 
 `bun run check:docs` enforces the opening sections, Title Case headings, no code references, and `§` pointers.
+It also fails when the assistant's help corpus is stale; regenerate it with `bun run gen:help`.
 The rest of this list is for the author and the reviewer.
 
 - [ ] Opens with Scope, What it is, and Core model, in that order, under those exact names

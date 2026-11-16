@@ -78,7 +78,8 @@ read those, and stay out of the rest.
 | App shell layout (narrow/wide, drawer, nav) | `agents/LAYOUT.md`, `agents/CSS.md`; add `docs/specs/INTERFACE-SETTINGS.md` when the change is an interface setting |
 | User-visible behavior (UI copy, flows, settings the user touches) | area primary spec (or `agents/ASSISTANT-MAP.md` for assistant), `agents/VERIFY.md`, plus the usual CODE-STYLE / CODE-DOCUMENTATION as for any TS/React edit |
 | Add a hotkey | `agents/ADD-HOTKEY.md`, `docs/specs/HOTKEYS.md`, `agents/I18N.md` |
-| Write or update a functional spec | `agents/FUNCTIONAL-SPECIFICATIONS.md`, `agents/MARKDOWN.md` |
+| Write or update a functional spec | `agents/FUNCTIONAL-SPECIFICATIONS.md`, `agents/MARKDOWN.md`, `docs/decisions/SPECS-AS-ASSISTANT-HELP.md` |
+| Write or update an assistant help topic (`docs/help/`) | `docs/decisions/SPECS-AS-ASSISTANT-HELP.md`, `agents/MARKDOWN.md`, the specs it points at |
 | Write or update a decision | `agents/DECISIONS.md`, `agents/MARKDOWN.md` |
 | Write or update any markdown | `agents/MARKDOWN.md` |
 | Playwright e2e suites (`apps/web-e2e`, `apps/electron-e2e`, `libs/e2e`) | `apps/web-e2e/README.md` or `apps/electron-e2e/README.md`, `libs/e2e/README.md`, `agents/VERIFY.md` |

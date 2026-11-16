@@ -32,6 +32,7 @@
     "**/*-lock.json",
     "**/locales/*.ts",
     "**/routeTree.gen.ts",
+    "libs/ai/src/lib/help-corpus.generated.ts",
     "**/_journal.json",
     "**/*_snapshot.json",
     "apps/mobile/native/src"

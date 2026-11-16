@@ -83,6 +83,8 @@ It also checks the spec shape and headings, decision reachability, the task arch
 the backlog's entries and briefs, and that `§` pointers name an existing heading.
 It also checks that each camelCase identifier in an inline code span of `AGENTS.md`, `agents/`,
 or a package README occurs in tracked source; names absent on purpose sit on an allow-list in the test.
+It also checks the assistant's help corpus: that the generated module matches `docs/specs/` and `docs/help/`,
+and that no topic is larger than 16 KB (`docs/decisions/SPECS-AS-ASSISTANT-HELP.md`).
 A plan item that edits markdown uses it as a Done-when.
 
 `bun run check:markdown` only reports prose lines over the limit in changed files.
