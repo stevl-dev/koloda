@@ -54,3 +54,8 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `crates/koloda-sync`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
   Brief: `tasks/backlog/sync-engine-tests-audit.md`
+
+- `assistant-mention-picker`: Add an `@` picker to the assistant composer for decks, templates, and algorithms.
+  Area: `libs/ai-react`, `libs/assistant-react`, `libs/ai`, `libs/ui`
+  Why: A mention gives the model an exact id, and shows the user what they can refer to.
+  Brief: `tasks/backlog/assistant-mention-picker.md`
