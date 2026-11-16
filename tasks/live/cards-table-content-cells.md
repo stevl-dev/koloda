@@ -54,7 +54,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Add a plain-text reading of card markdown
+- [x] 1. Add a plain-text reading of card markdown
   Goal: add `markdownToPlainText(markdown: string): string` to `libs/srs/src/lib/markdown.ts`.
   It reads the tokens of the installed `marked` lexer (17.0.2; read its types in `node_modules`), with no DOM.
   It needs no DOM because the table calls it for every card in a deck, and DOMPurify per value is too slow for that.

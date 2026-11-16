@@ -23,6 +23,7 @@ Desktop mirrors live in `crates/koloda/src/domain/`; keep TS and Rust aligned wh
 - Progress: `progress.ts` — shared progress-field bounds, error-code maps, and validation for cards and reviews.
 - Attachments: `attachments.ts` — attachment meta and add schemas, magic-byte format sniffing, size cap, ref pattern.
 - Markdown: `markdown.ts` — `markdownToHtml` (marked + DOMPurify); attachment refs render as `<img data-attachment-id>`.
+  `markdownToPlainText` reads the same markdown without formatting, for the cards table.
 
 ### Does NOT own (prevent scope creep)
 

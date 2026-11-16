@@ -2,7 +2,7 @@
 
 import DOMPurify from "dompurify";
 import { describe, expect, it } from "vitest";
-import { markdownToHtml } from "./markdown";
+import { MARKDOWN_IMAGE_MARK, markdownToHtml, markdownToPlainText } from "./markdown";
 
 describe("markdownToHtml", () => {
   it("keeps links and drops remote images", () => {
@@ -75,5 +75,32 @@ describe("markdownToHtml attachment refs", () => {
     } finally {
       DOMPurify.isSupported = isSupported;
     }
+  });
+});
+
+describe("markdownToPlainText", () => {
+  const id = "0123456789abcdef".repeat(4);
+  const image = `![photo](attachment:${id})`;
+
+  it.each([
+    ["empty input", "", ""],
+    ["emphasis inside a word", "**bo**ld, *it*alic, ~~gone~~", "bold, italic, gone"],
+    ["headings and paragraphs", "# Title\n\nfirst\nsecond", "Title first second"],
+    ["a blockquote and a rule", "> quoted\n\n---\n\nafter", "quoted after"],
+    ["list items, nested and task", "- [ ] one\n- two\n  1. three", "one two three"],
+    ["table cells", "| a | b |\n| --- | --- |\n| c | d |", "a b c d"],
+    ["a fenced code block", "before\n\n```js\nrun()\n```\n\nafter", "before run() after"],
+    ["inline code", "call `a < b` now", "call a < b now"],
+    ["a link", "see [the docs](https://docs.example/guide) here", "see the docs here"],
+    ["raw HTML", "<div>block <b>bo</b>ld</div>\n\nin<i>line</i> tag", "block bold inline tag"],
+    ["an HTML line break", "one<br>two<br />three", "one two three"],
+    ["an escaped mark", "2 \\* 3", "2 * 3"],
+    ["a card image", `front ${image} back`, `front ${MARKDOWN_IMAGE_MARK} back`],
+    ["a card image alone", image, MARKDOWN_IMAGE_MARK],
+    ["a card image inside a link", `[${image} open](https://docs.example)`, `${MARKDOWN_IMAGE_MARK} open`],
+    ["a remote image", "![a *remote* logo](https://evil.example/c.png)", "a remote logo"],
+    ["a malformed card image", `![label](attachment:${id.slice(1)})`, "label"],
+  ])("reads %s", (_, markdown, text) => {
+    expect(markdownToPlainText(markdown)).toBe(text);
   });
 });

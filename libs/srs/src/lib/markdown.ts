@@ -1,6 +1,7 @@
 import type { UponSanitizeAttributeHookEvent } from "dompurify";
 import DOMPurify from "dompurify";
 import { Marked } from "marked";
+import type { MarkedToken, Token } from "marked";
 import { ATTACHMENT_REF_PATTERN } from "./attachments";
 
 // WHY: A remote image URL is fetched as soon as the markdown is shown, so a
@@ -45,6 +46,60 @@ export function markdownToHtml(
   const container = document.createElement("div");
   container.append(fragment);
   return container.innerHTML;
+}
+
+// WHY: the cards table shows, searches, and sorts one string per field, so a card image has to be a
+// character in that string. U+FFFC cannot be typed into a search and sorts after text.
+export const MARKDOWN_IMAGE_MARK = "\uFFFC";
+
+// WHY: reads lexer tokens instead of the sanitized HTML. The cards table calls this for every card in a
+// deck, and DOMPurify per value is too slow for that. The result is shown as text, never as HTML.
+export function markdownToPlainText(markdown: string): string {
+  return tokensToPlainText(cardMarkdown.lexer(markdown)).replace(/\s+/g, " ").trim();
+}
+
+function tokensToPlainText(tokens: Token[]): string {
+  return tokens.map(tokenToPlainText).join("");
+}
+
+// WHY: block-level text is padded with spaces so neighbouring blocks do not run together. Inline text is
+// not, so a word with formatting inside it stays one word. The caller collapses the extra spaces.
+function tokenToPlainText(generic: Token): string {
+  const token = generic as MarkedToken;
+  switch (token.type) {
+    case "image":
+      return ATTACHMENT_REF_PATTERN.test(token.href) ? MARKDOWN_IMAGE_MARK : tokensToPlainText(token.tokens);
+    case "html": {
+      const text = token.text.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "");
+      return token.block ? ` ${text} ` : text;
+    }
+    case "code":
+      return ` ${token.text} `;
+    case "codespan":
+    case "escape":
+      return token.text;
+    case "text":
+      return token.tokens ? tokensToPlainText(token.tokens) : token.text;
+    case "list":
+      return tokensToPlainText(token.items);
+    case "table":
+      return [...token.header, ...token.rows.flat()].map((cell) => ` ${tokensToPlainText(cell.tokens)} `).join("");
+    case "paragraph":
+    case "heading":
+    case "blockquote":
+    case "list_item":
+      return ` ${tokensToPlainText(token.tokens)} `;
+    case "strong":
+    case "em":
+    case "del":
+    case "link":
+      return tokensToPlainText(token.tokens);
+    case "br":
+    case "space":
+      return " ";
+    default:
+      return "";
+  }
 }
 
 function escapeAttribute(value: string): string {

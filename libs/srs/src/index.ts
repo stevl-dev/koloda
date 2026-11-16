@@ -91,7 +91,7 @@ export type {
   LessonType,
   LessonsResult,
 } from "./lib/lessons";
-export { markdownToHtml } from "./lib/markdown";
+export { MARKDOWN_IMAGE_MARK, markdownToHtml, markdownToPlainText } from "./lib/markdown";
 export {
   calculateTodaysReviewTotals,
   createReviewFromReviewFSRS,
