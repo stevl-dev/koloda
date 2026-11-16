@@ -236,7 +236,7 @@ The human approved the plan on 2026-11-16, accepting the proposal on each questi
   Commit: Let the assistant read the user's settings
   Depends on: 3
 
-- [ ] 5. Let the assistant read app and sync status
+- [x] 5. Let the assistant read app and sync status
   Goal: add the ordinary read tool `get_app_info`, following `agents/ADD-ASSISTANT-TOOL.md`.
   It takes no input.
   Output: which app this is, desktop or the web demo, and the sync status.

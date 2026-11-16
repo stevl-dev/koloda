@@ -146,6 +146,10 @@ msgid "ai.chat.tool-activity.failed"
 msgstr "ошибка"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.get-app-info"
+msgstr "Состояние приложения"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.get-deck"
 msgstr "Колода"
 

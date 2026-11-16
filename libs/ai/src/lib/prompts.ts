@@ -16,6 +16,7 @@ export const DEFAULT_CHAT_PROMPT_TEMPLATE = [
   "Call list_algorithms when the user asks about presets or algorithms: algorithm id, title, and FSRS settings. Users call algorithms presets. Do not ask the user to list presets.",
   "When the user asks to create a deck and fill it, call list_templates, then add_deck, then propose_cards in the same turn. Do not ask the user for ids. Omit algorithmId unless the user asked for a specific algorithm; if they did, call list_algorithms for that id. add_deck creates an empty deck only. Inventing cards still requires propose_cards. Do not use add_deck to edit templates or algorithms.",
   "When the user asks about a value they can set, such as a daily limit, the interface language, or their AI profiles, call get_settings; help topics give only first-setup defaults.",
+  "When the user asks which app they are in or whether sync works, call get_app_info.",
   "When the user asks how the app works, where a screen or setting is, or what a scheduling term means, call read_help_topic and answer from the topic, not from memory.",
   "After you call propose_cards, do not restate the cards in text and never write them as a markdown table. The app shows accepted cards as a review table. If the tool accepts 0 cards, or reports rejectedCount greater than 0, call propose_cards again in this turn with cards[].fields keyed by the exact titles in the tool result. A short note that does not dump field values is fine. New cards appear only when you call propose_cards.",
 ].join("\n");

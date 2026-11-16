@@ -1,6 +1,7 @@
 import {
   ASSISTANT_TOOL_SPECS,
   shapeAddDeckOutput,
+  shapeAppInfoOutput,
   shapeGetDeckCardsOutput,
   shapeGetDeckOutput,
   shapeGetSettingsOutput,
@@ -12,6 +13,7 @@ import {
 } from "./assistant-tools";
 import type {
   AssistantToolAlgorithm,
+  AssistantToolAppInfo,
   AssistantToolCard,
   AssistantToolExecutor,
   AssistantToolTemplate,
@@ -38,6 +40,8 @@ type AssistantToolDataSource = {
   getSettings: (name: "learning" | "interface" | "hotkeys" | "ai") => Promise<unknown>;
   /** The public profile read: keys redacted, `hasSecrets` from key presence. */
   getAIProfiles: () => Promise<AIProfile[]>;
+  /** The host kind, and on the desktop the sync status; the web demo has no sync (`SYNC.md` (§Platform Availability)). */
+  getAppInfo: () => Promise<AssistantToolAppInfo>;
   /**
    * Persist an empty deck. Called only after template and algorithm resolution succeed.
    * `algorithmId` is always explicit here; the host does not invent cards.
@@ -169,6 +173,9 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
         ...(wants("hotkeys") ? { hotkeys } : {}),
         ...(ai ? { ai } : {}),
       });
+    }
+    if (name === "get_app_info") {
+      return shapeAppInfoOutput(await data.getAppInfo());
     }
     if (name === "read_help_topic") {
       const { topic, section } = ASSISTANT_TOOL_SPECS.read_help_topic.inputSchema.parse(input);

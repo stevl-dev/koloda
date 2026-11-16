@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createAssistantToolExecutor } from "./assistant-tool-executor";
+import type { AssistantToolAppInfo, AssistantToolSyncStatus } from "./assistant-tools";
 import type { AIProfile } from "./settings";
 
 const DECK_ID = "01900000-0000-7000-8000-000000000001";
@@ -67,6 +68,7 @@ function makeDataSource(overrides: Partial<Parameters<typeof createAssistantTool
     },
     getSettings: async (name: "learning" | "interface" | "hotkeys" | "ai"): Promise<unknown> => settingsRows[name],
     getAIProfiles: async (): Promise<AIProfile[]> => [],
+    getAppInfo: async (): Promise<AssistantToolAppInfo> => ({ app: "web" }),
   };
   return { ...data, ...overrides };
 }
@@ -515,6 +517,87 @@ describe("createAssistantToolExecutor", () => {
     for (const secret of ["sk-secret-ollama", "10.0.0.5", "Private prompt text", profiles[0].id]) {
       expect(serialized).not.toContain(secret);
     }
+  });
+
+  it("get_app_info says the web demo has no sync", async () => {
+    const executor = createAssistantToolExecutor(makeDataSource());
+
+    expect(await executor("get_app_info", {})).toEqual({
+      app: "web demo",
+      sync: { state: "not available", message: "Sync is in the desktop app only." },
+    });
+  });
+
+  const syncStatus = (overrides: Partial<AssistantToolSyncStatus>): AssistantToolSyncStatus => ({
+    state: { type: "idle" },
+    lastSuccessAt: Date.UTC(2026, 10, 16, 9, 30),
+    pending: 3,
+    uploads: 1,
+    fetches: 2,
+    hold: null,
+    isOverQuota: false,
+    ...overrides,
+  });
+  const counts = {
+    lastSyncedAt: "2026-11-16T09:30:00.000Z",
+    changesWaitingToUpload: 3,
+    imagesWaitingToUpload: 1,
+    imagesWaitingToDownload: 2,
+  };
+
+  it.each([
+    { status: syncStatus({ state: { type: "notEnrolled" } }), sync: { state: "not set up" } },
+    { status: syncStatus({ state: { type: "idle" } }), sync: { state: "up to date", ...counts } },
+    { status: syncStatus({ state: { type: "syncing" } }), sync: { state: "syncing", ...counts } },
+    {
+      status: syncStatus({ state: { type: "bootstrapping" }, lastSuccessAt: null }),
+      sync: { state: "downloading the space", ...counts, lastSyncedAt: null },
+    },
+    {
+      status: syncStatus({ state: { type: "importPending" } }),
+      sync: { state: "waiting for the Add or Replace choice", ...counts },
+    },
+    {
+      status: syncStatus({ state: { type: "stopped", stop: { reason: "pushRefused", code: "quota.envelope" } } }),
+      sync: {
+        state: "stopped",
+        stoppedBecause: "the server refused this device's changes (reason code quota.envelope)",
+        ...counts,
+      },
+    },
+    {
+      status: syncStatus({ isOverQuota: true, hold: { reason: "updateRequired" } }),
+      sync: {
+        state: "up to date",
+        problems: [
+          "the space is full; new changes wait to upload",
+          "downloads wait at a change this version of the app cannot read",
+        ],
+        ...counts,
+      },
+    },
+  ])("get_app_info reports the desktop sync state as $sync.state", async ({ status, sync }) => {
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getAppInfo: async () => ({ app: "desktop", syncStatus: status }) }),
+    );
+
+    expect(await executor("get_app_info", {})).toEqual({ app: "desktop", sync });
+  });
+
+  it("get_app_info never passes an error stop's message, which can name the server", async () => {
+    const status = syncStatus({
+      state: { type: "stopped", stop: { reason: "error", message: "connect failed: https://sync.example.org:8443" } },
+    });
+    const executor = createAssistantToolExecutor(
+      makeDataSource({ getAppInfo: async () => ({ app: "desktop", syncStatus: status }) }),
+    );
+
+    const output = await executor("get_app_info", {});
+
+    expect(output).toMatchObject({
+      sync: { stoppedBecause: "an error stopped sync; Settings → Sync shows the details" },
+    });
+    expect(JSON.stringify(output)).not.toContain("sync.example.org");
   });
 
   it("read_help_topic returns the asked section without reading host data", async () => {

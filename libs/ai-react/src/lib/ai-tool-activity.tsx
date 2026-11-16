@@ -314,7 +314,8 @@ function toolCallIcon(name: string): IconComponent {
     name === "list_algorithms" ||
     name === "get_deck" ||
     name === "get_template" ||
-    name === "read_help_topic"
+    name === "read_help_topic" ||
+    name === "get_app_info"
   ) {
     return LookupIcon;
   }
@@ -352,6 +353,7 @@ function toolCallLabel(name: string, translate: I18n["_"]): string {
   if (name === "propose_cards") return translate(msg`ai.chat.tool-activity.propose-cards`);
   if (name === "read_help_topic") return translate(msg`ai.chat.tool-activity.read-help-topic`);
   if (name === "get_settings") return translate(msg`ai.chat.tool-activity.get-settings`);
+  if (name === "get_app_info") return translate(msg`ai.chat.tool-activity.get-app-info`);
   return name;
 }
 

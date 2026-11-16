@@ -30,6 +30,7 @@ function createWebToolExecutor(db: DB) {
     getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
     getSettings: async (name) => (await getSettings(db, name))?.content ?? null,
     getAIProfiles: () => getAIProfiles(db),
+    getAppInfo: async () => ({ app: "web" }),
     createDeck: async ({ title, templateId, algorithmId }) => {
       const deck = await addDeck(db, { title, templateId, algorithmId });
       return {

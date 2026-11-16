@@ -194,6 +194,41 @@ type GetSettingsOutput = {
   ai?: AISettingsOutput;
 };
 
+/** Sync status subset — mirrors `SyncStatus` in `@koloda/app` (`sync.ts`) without importing it. */
+export type AssistantToolSyncStatus = {
+  state:
+    | { type: "notEnrolled" | "importPending" | "bootstrapping" | "idle" | "syncing" }
+    | { type: "stopped"; stop: { reason: string; code?: string; needed?: number; free?: number; message?: string } };
+  lastSuccessAt: number | null;
+  pending: number;
+  uploads: number;
+  fetches: number;
+  hold: { reason: "corruptEnvelope" | "updateRequired" } | null;
+  isOverQuota: boolean;
+};
+
+export type AssistantToolAppInfo = { app: "desktop"; syncStatus: AssistantToolSyncStatus } | { app: "web" };
+
+/**
+ * INVARIANT: an explicit field list, as `SYNC.md` (§Status) shows the user. Never pass a stop's free-text message
+ * through: an error message can carry the server address, which the model must not see.
+ */
+type AppInfoOutput =
+  | { app: "desktop"; sync: { state: "not set up" } }
+  | {
+      app: "desktop";
+      sync: {
+        state: "up to date" | "syncing" | "downloading the space" | "waiting for the Add or Replace choice" | "stopped";
+        stoppedBecause?: string;
+        problems?: string[];
+        lastSyncedAt: string | null;
+        changesWaitingToUpload: number;
+        imagesWaitingToUpload: number;
+        imagesWaitingToDownload: number;
+      };
+    }
+  | { app: "web demo"; sync: { state: "not available"; message: string } };
+
 type AssistantToolSpec = {
   name: string;
   description: string;
@@ -335,6 +370,15 @@ export const ASSISTANT_TOOL_SPECS = {
       section: z.enum(SETTINGS_SECTIONS).optional(),
     }),
   },
+  get_app_info: {
+    name: "get_app_info",
+    description: [
+      "Read which app the user is in, the desktop app or the web demo, and the state of sync. Call this when the user asks which app they use or whether sync works, instead of guessing; do not ask the user.",
+      "On the desktop it returns the sync state, when sync last succeeded since the app started (UTC), how many changes and images wait, and why sync stopped. The sync help topic explains each state and stop reason; Settings → Sync shows the details.",
+      "The web demo has no sync. Server addresses, space and device ids, and tokens are never returned. This tool does not start or change sync.",
+    ].join("\n"),
+    inputSchema: z.object({}),
+  },
   read_help_topic: {
     name: "read_help_topic",
     description: [
@@ -444,6 +488,63 @@ function shapeAISettingsOutput(content: unknown, profiles: AIProfile[]): AISetti
       prompt: resolveChatPromptMode(settings) === "custom" ? "custom" : "built-in",
     },
   };
+}
+
+const SYNC_STOP_REASONS: Record<string, string> = {
+  clockSkew: "this device's clock is more than 5 minutes off the server's",
+  revoked: "this device left the space or was removed from it",
+  unknownDevice: "the server no longer knows this device",
+  authoritativeRestore: "the server was restored from a backup, and sync waits for the user to continue",
+  restored: "the server was restored from a backup made before this device joined, or access was reset",
+  pushRefused: "the server refused this device's changes",
+  lowDisk: "there is not enough free disk space to download the space",
+  unreachable: "the server cannot be reached",
+  updateRequired: "the server is newer than this version of the app",
+  error: "an error stopped sync; Settings → Sync shows the details",
+};
+
+const SYNC_STATES = {
+  importPending: "waiting for the Add or Replace choice",
+  bootstrapping: "downloading the space",
+  idle: "up to date",
+  syncing: "syncing",
+  stopped: "stopped",
+} as const;
+
+/** Shape `get_app_info` output from the host kind and, on the desktop, the raw sync status. */
+export function shapeAppInfoOutput(info: AssistantToolAppInfo): AppInfoOutput {
+  if (info.app === "web") {
+    return { app: "web demo", sync: { state: "not available", message: "Sync is in the desktop app only." } };
+  }
+  const { state, lastSuccessAt, pending, uploads, fetches, hold, isOverQuota } = info.syncStatus;
+  if (state.type === "notEnrolled") return { app: "desktop", sync: { state: "not set up" } };
+
+  const problems = [
+    ...(isOverQuota ? ["the space is full; new changes wait to upload"] : []),
+    ...(hold?.reason === "updateRequired" ? ["downloads wait at a change this version of the app cannot read"] : []),
+    ...(hold?.reason === "corruptEnvelope" ? ["downloads wait at a damaged change"] : []),
+  ];
+  return {
+    app: "desktop",
+    sync: {
+      state: SYNC_STATES[state.type],
+      ...(state.type === "stopped" ? { stoppedBecause: syncStopReason(state.stop) } : {}),
+      ...(problems.length > 0 ? { problems } : {}),
+      lastSyncedAt: lastSuccessAt === null ? null : new Date(lastSuccessAt).toISOString(),
+      changesWaitingToUpload: pending,
+      imagesWaitingToUpload: uploads,
+      imagesWaitingToDownload: fetches,
+    },
+  };
+}
+
+function syncStopReason(stop: { reason: string; code?: string; needed?: number; free?: number }): string {
+  const reason = SYNC_STOP_REASONS[stop.reason] ?? SYNC_STOP_REASONS.error;
+  if (stop.reason === "pushRefused" && stop.code) return `${reason} (reason code ${stop.code})`;
+  if (stop.reason === "lowDisk" && stop.needed !== undefined && stop.free !== undefined) {
+    return `${reason} (needs ${stop.needed} bytes, ${stop.free} free)`;
+  }
+  return reason;
 }
 
 /**

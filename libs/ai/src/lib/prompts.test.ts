@@ -38,6 +38,10 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/not from memory/i);
   });
 
+  it("sends questions about the app and sync to get_app_info", () => {
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/which app they are in or whether sync works, call get_app_info/i);
+  });
+
   it("sends questions about the user's own values to get_settings", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toContain("get_settings");
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/daily limit/i);

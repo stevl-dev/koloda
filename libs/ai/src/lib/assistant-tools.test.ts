@@ -239,6 +239,16 @@ describe("assistant-tools binder", () => {
   });
 });
 
+describe("get_app_info", () => {
+  it("tells the model when to call it and what it never returns", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.get_app_info;
+    expect(description).toMatch(/which app they use or whether sync works/i);
+    expect(description).toMatch(/do not ask the user/i);
+    expect(description).toMatch(/web demo has no sync/i);
+    expect(description).toMatch(/server addresses, space and device ids, and tokens are never returned/i);
+  });
+});
+
 describe("get_settings", () => {
   const { description, inputSchema } = ASSISTANT_TOOL_SPECS.get_settings;
 

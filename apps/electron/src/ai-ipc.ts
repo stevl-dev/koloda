@@ -30,6 +30,7 @@ type AiIpcDb = Pick<
   | "getCardCounts"
   | "getSettings"
   | "getAiProfiles"
+  | "syncStatus"
   | "addDeck"
 > &
   AiProfileSecretsSource;
@@ -126,6 +127,7 @@ function createChatToolExecutor(db: AiIpcDb) {
     getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
     getSettings: async (name) => (await db.getSettings({ name }))?.content ?? null,
     getAIProfiles: () => db.getAiProfiles(),
+    getAppInfo: async () => ({ app: "desktop", syncStatus: await db.syncStatus() }),
     createDeck: async ({ title, templateId, algorithmId }) => {
       const deck = await db.addDeck({ title, templateId, algorithmId });
       return {
