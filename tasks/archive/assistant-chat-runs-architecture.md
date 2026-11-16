@@ -1,6 +1,6 @@
 # Assistant chat runs: drop the serial queue, touch from the event adapter
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/MARKDOWN.md, agents/BACKWARDS-COMPATIBILITY.md, docs/specs/ASSISTANT-CONVERSATIONS.md
 Flow: local
 
@@ -223,6 +223,23 @@ Evidence is as of `dc9c7bb7` unless a line says otherwise.
 
 ## Outcome
 
-Spec:
-Review:
-Change rounds:
+All three plan items shipped (`fac0439f`..`467d8b36`).
+`bun run check:push` passed on `467d8b36`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case.
+
+- `libs/assistant` has no serial queue.
+  On accept the runtime claims the run's `AbortController` and starts the body one microtask later.
+  A run aborted before its body starts settles through the registry's abort reason without calling the provider.
+- Beyond the plan text: the runtime's `cancel` and the registry's `has` were removed,
+  since the engine now cancels through the registry directly.
+  `AssistantDuplicateRunError.activeOrQueuedRunId` became `activeRunId`.
+- The engine event adapter in `runs/assistant-engine-instance.ts` touches when an event changed the conversation entry,
+  and marks read on a `success`, `failed` or `canceled` terminal event.
+  `runs/assistant-engine-instance.test.ts` holds the terminal save and mark-read cases.
+- `agents/ASSISTANT-MAP.md` has "No serial queue per conversation" and §Weighed and not taken.
+- Deferred: the skipped parts of F1, F3 and F4, F4's add-deck note, and the hand-built tool data source,
+  in `tasks/DEFERRED.md`.
+
+Spec: none — no user-visible behavior changed.
+Review: none
+Change rounds: 0

@@ -319,6 +319,43 @@ Entries are grouped under one heading per package directory.
   Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape;
   `assistant-react-tests-audit` (finding 15) left the mocks in place by the human's choice.
 
+- Improvement, Later: a run's terminal status enters the store from the UI or the shell, then again from the engine.
+  Evidence: at `467d8b36`, user cancel writes `cancelRun` and `markRead` itself
+  (`libs/assistant-react/src/lib/runs/use-assistant-session.ts:74-78`), and shutdown writes `interruptRun`
+  (`runs/use-assistant-engine-host.ts:20-21`); the engine then repeats it, and `transitionRun` ignores the repeat
+  (`state/conversation-run-lifecycle.ts:58`).
+  Retry eligibility is checked three times: `hasRetryableTurn` (`runs/use-run-orchestration.ts:63`),
+  an untyped read in `libs/assistant/src/lib/conversation-runtime.ts:279-281`, and `transitionRun`.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/assistant-chat-runs-architecture.md`, finding F1
+  Deferred because: the duplicate writes are harmless; take it when a change to cancel or shutdown is planned.
+
+- Improvement, Later: outside the engine path, marking a conversation dirty is still a manual touch beside each change.
+  Evidence: at `467d8b36`, 39 lines in 8 non-test files of `libs/assistant-react/src` name a touch helper,
+  imports and definitions included; the restore path touches four times (`persistence/use-conversation-restore.ts`).
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/assistant-chat-runs-architecture.md`, finding F3
+  Deferred because: dirty derived from `conversationsAtom` identity was not taken (`agents/ASSISTANT-MAP.md`).
+
+- Improvement, Later: four `persistence/` files import from `runs/`, and the shell keeps four module slots.
+  Evidence: at `467d8b36`, `libs/assistant-react/src/lib/persistence/conversation-write-adapter.ts:3-5`,
+  `use-conversation-persistence.ts:3`, `use-conversation-restore.ts:6` and `use-conversation-save-host.ts:11-12`
+  import `runs/assistant-engine-instance.ts` or `runs/assistant-persistence-host.ts`.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/assistant-chat-runs-architecture.md`, finding F4
+  Deferred because: the human kept the import direction and the module slots; the map now names the host's file.
+
+- Improvement, Later: the engine event adapter knows one tool by name.
+  Evidence: at `467d8b36`, `libs/assistant-react/src/lib/runs/add-deck-query-invalidation.ts:35` checks
+  `ASSISTANT_TOOL_SPECS.add_deck.name`.
+  The architecture review gave findings no classification or severity.
+  Kind: skipped
+  Source: `tasks/archive/assistant-chat-runs-architecture.md`, finding F4
+  Deferred because: the review called it a note, not a finding to act on.
+
 ## libs/db-sqlite
 
 - Improvement, Later: web keeps a second implementation of every repo, and audit after audit finds a host-only defect.
@@ -416,6 +453,12 @@ Entries are grouped under one heading per package directory.
   Deferred because: the record has no fixed line shape yet, and few tasks have needed it.
 
 ## Repository
+
+- Handoff: both hosts build the assistant's tool data source by hand.
+  Evidence: at `467d8b36`, `apps/web/src/app/ai-runtime.ts` and `apps/electron/src/ai-ipc.ts` each assemble it.
+  Kind: handoff
+  Source: `tasks/archive/assistant-chat-runs-architecture.md`
+  Deferred because: the architecture review left it for a later review of the AI providers.
 
 - Waste, Medium: the per-crate Rust test targets could run as one `cargo test --workspace`.
   Evidence: at `1c0661bb`, `package.json:15` (`test:rust`) runs `koloda`, `koloda-sync-proto`, `koloda-server`, and
