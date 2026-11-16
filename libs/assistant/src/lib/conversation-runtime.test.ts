@@ -6,7 +6,7 @@ import type { AssistantExecutionPort } from "./assistant-execution-port";
 import type { AssistantEvent } from "./assistant-protocol";
 import { createConversationRuntime } from "./conversation-runtime";
 import { createRunControllerRegistry } from "./run-controller-registry";
-import type { RunAbortReason, RunControllerRegistry } from "./run-controller-registry";
+import type { RunControllerRegistry } from "./run-controller-registry";
 
 const TEST_EXECUTION = { profileId: "test-profile" } as const;
 
@@ -30,8 +30,6 @@ describe("createConversationRuntime command acceptance", () => {
       "A",
       {
         emit: vi.fn(),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -60,8 +58,6 @@ describe("createConversationRuntime command acceptance", () => {
       "conv-a",
       {
         emit,
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -88,8 +84,6 @@ describe("createConversationRuntime command acceptance", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: { "run-1": { status: "failed" } } }),
       },
@@ -154,8 +148,6 @@ describe("createConversationRuntime abort before the body starts", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => isStreaming,
         readConversationState: () => ({ runs: {} }),
       },
@@ -179,8 +171,6 @@ describe("createConversationRuntime abort before the body starts", () => {
       "conv-a",
       {
         emit,
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => false,
         readConversationState: () => ({ runs: { "run-1": { status: "failed" } } }),
       },
@@ -200,7 +190,6 @@ describe("createConversationRuntime abort before the body starts", () => {
 describe("createConversationRuntime chat tool events", () => {
   it("forwards tool events as runChunk emissions and drops them after abort", async () => {
     const events: AssistantEvent[] = [];
-    const touch = vi.fn();
     const registry = createRunControllerRegistry();
     const executionPort: AssistantExecutionPort = {
       executeChat: async (_input, onChunk, onToolEvent, _signal) => {
@@ -219,8 +208,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch,
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -253,7 +240,6 @@ describe("createConversationRuntime chat tool events", () => {
       runId: "run-tool",
       outcome: { status: "canceled", reason: "user" },
     });
-    expect(touch).toHaveBeenCalledWith("conv-a");
   });
 
   it("forwards tool results untouched on success", async () => {
@@ -274,8 +260,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -319,8 +303,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -353,8 +335,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -397,8 +377,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -433,8 +411,6 @@ describe("createConversationRuntime chat tool events", () => {
         "conv-a",
         {
           emit: (event) => events.push(event),
-          markReadIfCurrent: vi.fn(),
-          touch: vi.fn(),
           isRunStreaming: () => true,
           readConversationState: () => ({ runs: {} }),
         },
@@ -453,8 +429,8 @@ describe("createConversationRuntime chat tool events", () => {
     },
   );
 
-  it("emits reasoning as its own chunk, keeps it out of the text, and touches the conversation", async () => {
-    const log: Array<AssistantEvent | "touch"> = [];
+  it("emits reasoning as its own chunk and keeps it out of the text", async () => {
+    const log: AssistantEvent[] = [];
     const executionPort: AssistantExecutionPort = {
       executeChat: async (_input, onChunk) => {
         onChunk({ kind: "text", text: "a" });
@@ -467,8 +443,6 @@ describe("createConversationRuntime chat tool events", () => {
       "conv-a",
       {
         emit: (event) => log.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: () => log.push("touch"),
         isRunStreaming: () => true,
         readConversationState: () => ({ runs: {} }),
       },
@@ -480,104 +454,10 @@ describe("createConversationRuntime chat tool events", () => {
 
     expect(log).toEqual([
       { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "assistantText", text: "a" } },
-      "touch",
       { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "reasoning", text: "think" } },
-      "touch",
       { type: "runChunk", conversationId: "conv-a", runId: "run-r", chunk: { kind: "assistantText", text: "ab" } },
-      "touch",
       { type: "runTerminated", conversationId: "conv-a", runId: "run-r", outcome: { status: "success" } },
-      "touch",
     ]);
-  });
-});
-
-describe("createConversationRuntime terminal touch and mark-read", () => {
-  type TerminalCase = {
-    label: string;
-    end: { kind: "return" } | { kind: "throw" } | { kind: "abort"; reason: RunAbortReason };
-    isStreamingAtEnd: boolean;
-    touched: string[];
-    markedRead: Array<[string, string]>;
-  };
-
-  // WHY: the port emits no chunks, so every touch and mark-read here comes from
-  // the terminal handling, not from stream arrivals.
-  it.each<TerminalCase>([
-    {
-      label: "success",
-      end: { kind: "return" },
-      isStreamingAtEnd: true,
-      touched: ["conv-a"],
-      markedRead: [["conv-a", "run-1"]],
-    },
-    {
-      label: "a provider error",
-      end: { kind: "throw" },
-      isStreamingAtEnd: true,
-      touched: ["conv-a"],
-      markedRead: [["conv-a", "run-1"]],
-    },
-    {
-      label: "a user cancel while streaming",
-      end: { kind: "abort", reason: "user" },
-      isStreamingAtEnd: true,
-      touched: ["conv-a"],
-      markedRead: [["conv-a", "run-1"]],
-    },
-    {
-      label: "a user cancel after the run stopped streaming",
-      end: { kind: "abort", reason: "user" },
-      isStreamingAtEnd: false,
-      touched: [],
-      markedRead: [["conv-a", "run-1"]],
-    },
-    {
-      label: "a shutdown abort while streaming",
-      end: { kind: "abort", reason: "app_shutdown" },
-      isStreamingAtEnd: true,
-      touched: ["conv-a"],
-      markedRead: [],
-    },
-    {
-      label: "a shutdown abort of an already interrupted run",
-      end: { kind: "abort", reason: "app_shutdown" },
-      isStreamingAtEnd: false,
-      touched: [],
-      markedRead: [],
-    },
-  ])("$label", async ({ end, isStreamingAtEnd, touched, markedRead }) => {
-    const registry = createRunControllerRegistry();
-    const touch = vi.fn();
-    const markReadIfCurrent = vi.fn();
-    let isStreaming = true;
-    const executionPort: AssistantExecutionPort = {
-      executeChat: async () => {
-        isStreaming = isStreamingAtEnd;
-        if (end.kind === "throw") throw new Error("provider down");
-        if (end.kind === "abort") {
-          registry.cancel("run-1", end.reason);
-          throw new DOMException("Aborted", "AbortError");
-        }
-        return undefined;
-      },
-    };
-    const runtime = createConversationRuntime(
-      "conv-a",
-      {
-        emit: vi.fn(),
-        markReadIfCurrent,
-        touch,
-        isRunStreaming: () => isStreaming,
-        readConversationState: () => ({ runs: {} }),
-      },
-      { executionPort },
-      registry,
-    );
-
-    await runtime.executeChatRun("run-1", {} as ChatStreamRequest, TEST_EXECUTION);
-
-    expect(touch.mock.calls).toEqual(touched.map((id) => [id]));
-    expect(markReadIfCurrent.mock.calls).toEqual(markedRead);
   });
 });
 
@@ -589,8 +469,6 @@ describe("createConversationRuntime retryRun status guard", () => {
       "conv-a",
       {
         emit: (event) => events.push(event),
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => false,
         readConversationState: () => ({ runs: storedRuns }),
       },
@@ -647,8 +525,6 @@ describe("createConversationRuntime retryRun status guard", () => {
           if (event.type === "runStarted" && shouldCancelOnStart) registry.cancel("run-1", "user");
           if (event.type === "runTerminated") isStreaming = false;
         },
-        markReadIfCurrent: vi.fn(),
-        touch: vi.fn(),
         isRunStreaming: () => isStreaming,
         readConversationState: () => ({ runs: { "run-1": { status: storedStatus } } }),
       },

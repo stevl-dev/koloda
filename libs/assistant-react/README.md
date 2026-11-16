@@ -45,6 +45,8 @@ Do not collapse them into one options bag.
 - `dispatch` — current conversation, and `touch()` for submit, cancel, and commit.
 - `dispatchToConversation(id)` — by id, no auto-touch.
   Engine events and stream chunks land here.
+  The engine event adapter (`runs/assistant-engine-instance.ts`) touches only when an event changed the entry,
+  and marks a run read when it ends in the open conversation other than by interrupt.
 - `dispatchLocal` — current conversation, no save.
   In-memory revert uses this.
 

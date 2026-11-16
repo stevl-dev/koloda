@@ -54,8 +54,8 @@ Do not log token chunks, card payloads, or secrets.
   Electron main process: its close deadline derives from the flush timeout, and main must not load the root barrel,
   which pulls `@koloda/app` and its compile-time Lingui macros.
 - Conversation runtime: `conversation-runtime.ts` — chat/retry execution
-  against the injected execution port + by-id ports (`emit`, `touch`, `markReadIfCurrent`,
-  `readConversationState`, `isRunStreaming`).
+  against the injected execution port + by-id ports (`emit`, `readConversationState`, `isRunStreaming`).
+  The runtime does not decide when a conversation is saved or read; the host's event adapter does.
   At most one active execute/retry per conversation;
   a second command throws `AssistantDuplicateRunError` before occupancy is claimed.
 - Controllers: `run-controller-registry.ts` — engine-owned `AbortController` map keyed by `runId`

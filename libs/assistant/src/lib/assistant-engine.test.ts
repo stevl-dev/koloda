@@ -99,8 +99,6 @@ describe("createAssistantEngine", () => {
       emit: (event) => {
         events.push(event);
       },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
       isRunStreaming: () => true,
       readConversationState,
     });
@@ -115,8 +113,6 @@ describe("createAssistantEngine", () => {
         if (event.type === "runTerminated") streaming.delete(event.runId);
         if (event.type === "runStarted") streaming.add(event.run.runId);
       },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
       isRunStreaming: (_conversationId, runId) => streaming.has(runId),
       readConversationState,
     });
@@ -192,8 +188,6 @@ describe("createAssistantEngine", () => {
     engine = createAssistantEngine({
       executionPort,
       emit: (event) => events.push(event),
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
       isRunStreaming: () => true,
       readConversationState,
     });
@@ -431,8 +425,6 @@ describe("createAssistantEngine", () => {
       emit: (event) => {
         events.push(event);
       },
-      markReadIfCurrent: vi.fn(),
-      touch: vi.fn(),
       isRunStreaming: () => true,
       readConversationState,
     });

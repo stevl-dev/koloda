@@ -12,8 +12,6 @@ import type { StreamResult } from "./stream-result";
 export type ConversationRuntimeCallbacks = {
   /** Engine emits typed events; adapters translate them into store actions. */
   emit: (event: AssistantEvent) => void;
-  markReadIfCurrent: (id: string, runId: string) => void;
-  touch: (conversationId: string) => void;
   /** True while the run can still accept a terminal cancel/complete transition. */
   isRunStreaming: (conversationId: string, runId: string) => boolean;
   readConversationState: (conversationId: string) => { runs: Record<string, unknown> };
@@ -68,7 +66,6 @@ export function createConversationRuntime(
         runId,
         outcome: { status: "failed", error: { message: "ai.aborted" } },
       });
-      callbacks.markReadIfCurrent(conversationId, runId);
       return "error";
     }
     // WHY: stash on the run record — the registry stamp is consumed here,
@@ -87,30 +84,20 @@ export function createConversationRuntime(
           runId,
           outcome: { status: "success" },
         });
-        callbacks.markReadIfCurrent(targetConversationId, runId);
-        // WHY: Force a save with the post-completion state so a
-        // throttled streaming checkpoint cannot outlive the terminal
-        // success status on disk. Touch by originating id — viewing B
-        // must not dirty B when A's background run finishes.
-        callbacks.touch(targetConversationId);
         break;
       case "error":
         // WHY: the transport catch already emitted `runTerminated` with a
-        // failed outcome; still dirty the originating conversation so the
-        // failed terminal status is scheduled for save.
-        callbacks.touch(targetConversationId);
+        // failed outcome.
         break;
       case "aborted": {
         const entry = runs.get(runId);
         const reason = entry?.abortReason ?? "user";
         if (entry) entry.abortReason = undefined;
-        // WHY: Capture streaming-ness before the terminal dispatch. Graceful
-        // shutdown interrupts before aborting; a blind touch would schedule a
-        // redundant second durable write of the same interrupted snapshot.
-        const shouldPersist = callbacks.isRunStreaming(targetConversationId, runId);
 
         if (reason === "app_shutdown" || reason === "dispose") {
-          if (!shouldPersist) break;
+          // WHY: Graceful shutdown interrupts runs in the store before it
+          // aborts them; the abort that follows has nothing left to end.
+          if (!callbacks.isRunStreaming(targetConversationId, runId)) break;
           // WHY: dispose has no dedicated termination reason; treat as non-user
           // interruption so AbortError cannot look like user cancel.
           emit({
@@ -119,7 +106,6 @@ export function createConversationRuntime(
             runId,
             outcome: { status: "interrupted", reason: "app_shutdown" },
           });
-          callbacks.touch(targetConversationId);
           break;
         }
 
@@ -133,10 +119,6 @@ export function createConversationRuntime(
           runId,
           outcome: { status: "canceled", reason: "user" },
         });
-        callbacks.markReadIfCurrent(targetConversationId, runId);
-        if (shouldPersist) {
-          callbacks.touch(targetConversationId);
-        }
         break;
       }
     }
@@ -160,9 +142,6 @@ export function createConversationRuntime(
           runId,
           chunk: { kind: "reasoning", text: chunk.text },
         });
-        // WHY: reasoning arrivals dirty the conversation like text so
-        // streaming checkpoints persist the partial thinking row.
-        callbacks.touch(conversationId);
         return;
       }
       if (chunk.kind !== "text") {
@@ -172,9 +151,6 @@ export function createConversationRuntime(
           runId,
           chunk,
         });
-        // WHY: tool arrivals must dirty the originating conversation, like
-        // card arrivals, so streaming checkpoints save A while viewing B.
-        callbacks.touch(conversationId);
         return;
       }
       text += chunk.text;
@@ -184,9 +160,6 @@ export function createConversationRuntime(
         runId,
         chunk: { kind: "assistantText", text },
       });
-      // WHY: Stream chunks must dirty the originating conversation so
-      // throttled streaming checkpoints save A while the user views B.
-      callbacks.touch(conversationId);
     };
 
     const stream = async (): Promise<{ streamResult: StreamResult; usage: StreamUsage | null }> => {
@@ -228,7 +201,6 @@ export function createConversationRuntime(
           runId,
           outcome: { status: "failed", error: toRunError(error) },
         });
-        callbacks.markReadIfCurrent(conversationId, runId);
         return { streamResult: "error", usage: null };
       }
     };

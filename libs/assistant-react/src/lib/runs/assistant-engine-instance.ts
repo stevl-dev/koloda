@@ -22,22 +22,29 @@ function createEngineFromStore(store: AssistantJotaiStore): AssistantEngine {
     // command supplies only immutable non-secret identity; this host resolves
     // the current host-owned runtime and invokes it by that identity.
     executionPort: createAssistantExecutionPort(store),
-    // WHY: Engine emits typed events; this adapter alone knows reducer tuples.
+    // WHY: Engine emits typed events; this adapter alone knows reducer tuples,
+    // and owns when a run's event saves its conversation or marks it read.
     emit: (event) => {
       notifyAddDeckStillRunning(store, event);
+      const before = store.get(conversationsAtom)[event.conversationId];
       dispatchToConversationOnStore(store, event.conversationId, assistantEventToReducerAction(event));
+      // WHY: An interrupted run was stopped by the app; the user did not see it finish.
+      if (event.type === "runTerminated" && event.outcome.status !== "interrupted") {
+        markReadIfCurrentOnStore(store, event.conversationId, event.runId);
+      }
+      // INVARIANT: Touch only when the event changed the conversation entry, and by the originating id,
+      // so a background run on A never dirties the B the user is viewing.
+      // The engine repeats a terminal status the UI or the shell already wrote; the Immer reducer
+      // ignores it and returns the same entry, so the repeat schedules no second save.
+      if (store.get(conversationsAtom)[event.conversationId] !== before) {
+        touchConversationOnStore(store, event.conversationId);
+      }
       notifyAddDeckWritten(store, event);
-    },
-    markReadIfCurrent: (id, runId) => {
-      markReadIfCurrentOnStore(store, id, runId);
-    },
-    touch: (conversationId) => {
-      touchConversationOnStore(store, conversationId);
     },
     isRunStreaming: (conversationId, runId) =>
       store.get(conversationsAtom)[conversationId]?.runs[runId]?.status === "streaming",
     // WHY: Engine/runtime must address conversations by id — never UI-current
-    // `assistantConversationStateAtom` — so queued retry ownership cannot drift.
+    // `assistantConversationStateAtom` — so a retry's ownership cannot drift.
     readConversationState: (conversationId) => store.get(conversationsAtom)[conversationId] ?? { runs: {} },
   });
 }

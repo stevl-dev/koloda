@@ -181,7 +181,7 @@ Evidence is as of `dc9c7bb7` unless a line says otherwise.
   Commit: Start assistant runs without a serial queue
   Depends on: none
 
-- [ ] 2. Touch and mark read from the engine event adapter
+- [x] 2. Touch and mark read from the engine event adapter
   Goal: Take save and read policy out of the conversation runtime.
   Remove `touch` and `markReadIfCurrent` from `ConversationRuntimeCallbacks` and from `AssistantEngineOptions`,
   and delete every call to them in `conversation-runtime.ts`.
