@@ -1,6 +1,6 @@
 # Anthropic provider
 
-Status: draft
+Status: ready
 Guides: agents/ADD-AI-PROVIDER.md, docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/RUST.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -52,11 +52,11 @@ Facts later sessions need, read from `@ai-sdk/anthropic` 4.0.71 source:
 
 ## Open questions
 
-- [ ] Should runs ask for reasoning summaries (`thinking: { type: "adaptive", display: "summarized" }`)? — open.
-  Opus 4.7 and later return empty thinking text by default, so the reasoning panel stays empty without it.
-  The risk: adaptive thinking is rejected by models that report effort but predate it (Opus 4.5),
+- [x] Should runs ask for reasoning summaries (`thinking: { type: "adaptive", display: "summarized" }`)? — No, not in this task.
+  Opus 4.7 and later return empty thinking text by default, so the reasoning panel stays empty for them.
+  Adaptive thinking is rejected by models that report effort but predate it (Opus 4.5),
   and the chat stream only knows the model ID and effort, not the model's thinking capabilities.
-  Recommendation: leave it out of this task, and record it in `tasks/DEFERRED.md` at Archive.
+  Archive records it in `tasks/DEFERRED.md` as a handoff.
 
 ## Plan
 
