@@ -1,6 +1,6 @@
 # OpenAI-compatible provider
 
-Status: ready
+Status: done
 Guides: agents/ADD-AI-PROVIDER.md, docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/RUST.md, agents/TESTING.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -132,8 +132,27 @@ Out:
 
 ## Outcome
 
-<what shipped>
+All three plan items shipped (`912326f9`, `ccea368e`, `16c1e0f1`), plus a self-review fix (`6a590204`).
+`bun run check:push` passed on `6a590204`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case.
+The Manual verify block was handed to the human, who asked to land; this file records no result of it.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- Provider `openaiCompatible` (`OpenAI-compatible`): required base URL, optional Bearer API key,
+  optional custom headers; `worksInBrowser: true`.
+  The model list is `<base URL>/models`; levels come only from that list.
+  Effort goes on the wire as `providerOptions.openaiCompatible.reasoningEffort`.
+- Header values: desktop keeps them in the keyring entry `ai-profile-<id>-headers` as a JSON map,
+  and settings JSON keeps only the names with `null` values; web keeps them with the profile.
+  On edit, a `null` value keeps the stored value and a name left out is removed (open questions 1, 3);
+  `has_secrets` still means "the API key is stored" (question 4).
+- New error code `validation.settings-ai.providers.headers`, with English and Russian messages.
+- Header rule cases live in a new shared file, `crates/koloda/tests/cases/ai-secrets.json`.
+  `libs/ai` gained a copy of the rule-case reader and lists the cases directory in its `test` Nx inputs.
+- The form shows stored names read-only and masks values behind a Replace button (question 2);
+  a custom `Authorization` header replaces the API key's.
+- Self-review found `agents/ADD-AI-PROVIDER.md` step 6 listing only three form field types; `6a590204` fixed it.
+- Manual model IDs for servers without `/models` are left out (Scope Out) and recorded in `tasks/DEFERRED.md`.
+
+Spec: docs/specs/AI-PROVIDERS.md
+Review: not run
+Change rounds: 0

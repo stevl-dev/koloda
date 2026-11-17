@@ -282,6 +282,13 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/anthropic-provider.md`, question 1
   Deferred because: the human left it out of the provider task; it needs the model's thinking capabilities at run time.
 
+- Handoff: let an OpenAI-compatible profile list model IDs by hand, for servers that do not serve `/models`.
+  Evidence: at `6a590204`, `libs/ai/src/lib/providers/openai-compatible-provider.ts` lists models only from
+  `<base URL>/models`, and `docs/specs/AI-PROVIDERS.md` (§Fetching) disables sending while the list has not loaded.
+  Kind: handoff
+  Source: `tasks/archive/openai-compatible-provider.md`
+  Deferred because: most targets serve `/models`; the field is added when a real endpoint needs it.
+
 ## libs/ai-react
 
 - Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
