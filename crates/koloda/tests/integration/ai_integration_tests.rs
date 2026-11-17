@@ -255,6 +255,9 @@ fn api_key_only_profiles_round_trip_via_secret_store() {
         AISecrets::OllamaCloud {
             api_key: Some("cloud-secret".to_string()),
         },
+        AISecrets::Anthropic {
+            api_key: Some("sk-ant-secret".to_string()),
+        },
     ];
 
     for secrets in cases {

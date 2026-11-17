@@ -60,7 +60,7 @@ Facts later sessions need, read from `@ai-sdk/anthropic` 4.0.71 source:
 
 ## Plan
 
-- [ ] 1. Add the Anthropic secrets variant on the Rust side
+- [x] 1. Add the Anthropic secrets variant on the Rust side
   Goal: add `AISecrets::Anthropic { api_key: Option<String> }`, serde tag `anthropic`, API key only,
   following `agents/ADD-AI-PROVIDER.md` steps 2 and 3 (`crates/koloda/src/domain/ai.rs`, `crates/koloda/src/repo/ai.rs`).
   Add tests in `crates/koloda/tests/domain/ai_tests.rs` (including the variant and the `"anthropic"` tag in

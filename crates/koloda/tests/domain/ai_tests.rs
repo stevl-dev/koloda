@@ -118,6 +118,9 @@ const KEYED_PROVIDER_ROWS: &[KeyedProviderRow] = &[
     ("ollamaCloud", "cloud-secret", |api_key| AISecrets::OllamaCloud {
         api_key,
     }),
+    ("anthropic", "anthropic-secret", |api_key| AISecrets::Anthropic {
+        api_key,
+    }),
 ];
 
 #[test]
@@ -497,6 +500,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
         AISecrets::OpencodeGo { api_key: None },
         AISecrets::OpencodeZen { api_key: None },
         AISecrets::OllamaCloud { api_key: None },
+        AISecrets::Anthropic { api_key: None },
     ];
 
     let mut tags: Vec<String> = variants
@@ -515,6 +519,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
     assert_eq!(
         tags,
         vec![
+            "anthropic".to_string(),
             "deepseek".to_string(),
             "lmstudio".to_string(),
             "ollama".to_string(),
