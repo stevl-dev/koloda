@@ -71,6 +71,10 @@ These numeric/serde edges are deliberately not mirrored; do not re-flag them as 
   A stored row outside today's rules still lists on desktop, and fails the read with the operation's code on web.
 - Desktop `get_settings` reports a stored row that fails `validate()` with that validation code; web reports `db.get`.
   The repo-level delete guards read the learning row with `db.get` on both hosts.
+- Desktop `set_settings` and `patch_settings` keep the stored AI profiles and write only the rest of the `ai` row.
+  Desktop keeps API keys and header values in the OS store under the profile id, out of the renderer's reach,
+  so a generic write must not move or drop a profile (`docs/specs/AI-PROVIDERS.md` (§Storage)).
+  Web keeps keys in the same browser database as the profile, so its generic write still writes profiles.
 
 ## Why
 
