@@ -62,8 +62,27 @@ fn test_lmstudio_validate_empty_base_url_fails() {
     assert_eq!(result.unwrap_err().code, "validation.settings-ai.providers.base-url");
 }
 
-// WHY: Ollama and LmStudio share the same `z.url()` twin; one table covers both providers
-// so a parse-guard regression cannot hide on only one arm.
+#[test]
+fn test_openai_compatible_key_is_optional_on_input_and_rejected_in_storage() {
+    let keyless = AISecrets::OpenaiCompatible {
+        base_url: "http://localhost:8000/v1".to_string(),
+        api_key: None,
+    };
+    keyless.validate_for_input().unwrap();
+
+    let keyed = AISecrets::OpenaiCompatible {
+        base_url: "http://localhost:8000/v1".to_string(),
+        api_key: Some("sk-local".to_string()),
+    };
+    keyed.validate_for_input().unwrap();
+    assert_eq!(
+        keyed.validate_for_storage().unwrap_err().code,
+        "validation.settings-ai.providers.api-key"
+    );
+}
+
+// WHY: Ollama, LmStudio, and OpenaiCompatible share the same `z.url()` twin; one table covers
+// every base-URL provider so a parse-guard regression cannot hide on only one arm.
 type LocalProviderRow = (&'static str, fn(String) -> AISecrets);
 const LOCAL_PROVIDER_ROWS: &[LocalProviderRow] = &[
     ("ollama", |base_url| AISecrets::Ollama {
@@ -71,6 +90,10 @@ const LOCAL_PROVIDER_ROWS: &[LocalProviderRow] = &[
         api_key: None,
     }),
     ("lmstudio", |base_url| AISecrets::LmStudio {
+        base_url,
+        api_key: None,
+    }),
+    ("openaiCompatible", |base_url| AISecrets::OpenaiCompatible {
         base_url,
         api_key: None,
     }),
@@ -505,6 +528,10 @@ fn ai_secrets_provider_tags_match_ts_registry() {
         AISecrets::Anthropic { api_key: None },
         AISecrets::Xai { api_key: None },
         AISecrets::Vercel { api_key: None },
+        AISecrets::OpenaiCompatible {
+            base_url: "http://localhost".into(),
+            api_key: None,
+        },
     ];
 
     let mut tags: Vec<String> = variants
@@ -529,6 +556,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
             "ollama".to_string(),
             "ollamaCloud".to_string(),
             "openai".to_string(),
+            "openaiCompatible".to_string(),
             "opencodeGo".to_string(),
             "opencodeZen".to_string(),
             "openrouter".to_string(),

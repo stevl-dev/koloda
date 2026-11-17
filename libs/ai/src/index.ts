@@ -22,6 +22,7 @@ export {
   deepseekSecretsValidation,
   isPresentApiKey,
   lmstudioSecretsValidation,
+  openaiCompatibleSecretsValidation,
   openaiSecretsValidation,
   ollamaCloudSecretsValidation,
   ollamaSecretsValidation,

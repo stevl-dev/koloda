@@ -183,6 +183,10 @@ export function vercelReasoning(reasoningEffort: string | undefined): SdkReasoni
   return SDK_REASONING_LEVELS.find((level) => level === reasoningEffort);
 }
 
+export function openaiCompatibleProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
+  return reasoningEffort ? { openaiCompatible: { reasoningEffort } } : undefined;
+}
+
 export function opencodeGoProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
   return reasoningEffort ? { "opencode-go": { reasoningEffort } } : undefined;
 }
@@ -375,6 +379,25 @@ export function streamChatWithLMStudio(
       onChunk,
       abortSignal,
       lmstudioProviderOptions(request.input.reasoningEffort),
+    );
+  });
+}
+
+export function streamChatWithOpenaiCompatible(
+  request: ChatStreamRequest,
+  onChunk: (chunk: ChatStreamChunk) => void,
+  abortSignal: AbortSignal,
+  { baseUrl, apiKey }: { baseUrl: string; apiKey?: string },
+) {
+  return wrapAIError(async () => {
+    const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
+    const provider = createOpenAICompatible({ name: "openaiCompatible", baseURL: baseUrl, apiKey });
+    return runChatStream(
+      (modelId) => provider(modelId),
+      request,
+      onChunk,
+      abortSignal,
+      openaiCompatibleProviderOptions(request.input.reasoningEffort),
     );
   });
 }

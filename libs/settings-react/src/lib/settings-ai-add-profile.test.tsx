@@ -102,6 +102,7 @@ describe("SettingsAIAddProfile", () => {
       "Anthropic",
       "xAI",
       "Vercel AI Gateway",
+      "OpenAI-compatible",
     ]);
   });
 

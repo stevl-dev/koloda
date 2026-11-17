@@ -125,6 +125,28 @@ fn test_valid_ai_settings_with_lmstudio_profile_without_api_key() {
 }
 
 #[test]
+fn test_valid_ai_settings_with_openai_compatible_profile_without_api_key() {
+    let json = r#"{
+        "profiles": [
+            {
+                "id": "01900000-0000-7000-8000-00000000000b",
+                "title": "vLLM",
+                "secrets": {
+                    "provider": "openaiCompatible",
+                    "baseUrl": "http://localhost:8000/v1",
+                    "apiKey": null
+                },
+                "hasSecrets": false,
+                "createdAt": "2026-01-01T00:00:00Z"
+            }
+        ]
+    }"#;
+
+    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
+    settings.validate().unwrap();
+}
+
+#[test]
 fn test_valid_ai_settings_with_opencode_go_profile_redacted() {
     let json = r#"{
         "profiles": [

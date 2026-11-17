@@ -6,6 +6,7 @@ import {
   deepseekSecretsValidation,
   isPresentApiKey,
   lmstudioSecretsValidation,
+  openaiCompatibleSecretsValidation,
   openaiSecretsValidation,
   ollamaCloudSecretsValidation,
   ollamaSecretsValidation,
@@ -57,6 +58,18 @@ describe("provider-secrets", () => {
     { label: "lmstudioSecretsValidation", parse: () => lmstudioSecretsValidation.safeParse({ baseUrl: "not-a-url" }) },
     { label: "ollamaSecretsValidation empty", parse: () => ollamaSecretsValidation.safeParse({ baseUrl: "" }) },
     { label: "lmstudioSecretsValidation empty", parse: () => lmstudioSecretsValidation.safeParse({ baseUrl: "" }) },
+    {
+      label: "openaiCompatibleSecretsValidation",
+      parse: () => openaiCompatibleSecretsValidation.safeParse({ baseUrl: "not-a-url" }),
+    },
+    {
+      label: "openaiCompatibleSecretsValidation empty",
+      parse: () => openaiCompatibleSecretsValidation.safeParse({ baseUrl: "" }),
+    },
+    {
+      label: "stored openaiCompatible",
+      parse: () => aiSecretsValidation.safeParse({ provider: "openaiCompatible" as const, baseUrl: "not-a-url" }),
+    },
     {
       label: "stored ollama",
       parse: () => aiSecretsValidation.safeParse({ provider: "ollama" as const, baseUrl: "not-a-url" }),
@@ -177,5 +190,12 @@ describe("provider-secrets", () => {
     expect(
       aiSecretsInputValidation.parse({ provider: "lmstudio", baseUrl: "http://localhost:1234/v1", apiKey: "   " }),
     ).toEqual({ provider: "lmstudio", baseUrl: "http://localhost:1234/v1" });
+    expect(
+      aiSecretsInputValidation.parse({
+        provider: "openaiCompatible",
+        baseUrl: "http://localhost:8000/v1",
+        apiKey: "   ",
+      }),
+    ).toEqual({ provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1" });
   });
 });

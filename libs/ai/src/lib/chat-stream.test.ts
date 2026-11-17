@@ -5,6 +5,7 @@ import {
   lmstudioProviderOptions,
   ollamaProviderOptions,
   openAIProviderOptions,
+  openaiCompatibleProviderOptions,
   openRouterProviderOptions,
   opencodeGoProviderOptions,
   opencodeZenProviderOptions,
@@ -23,6 +24,7 @@ describe("provider option helpers pass a non-empty effort through", () => {
     ["Ollama", ollamaProviderOptions, { ollama: { think: "high" } }],
     ["Anthropic", anthropicProviderOptions, { anthropic: { effort: "high" } }],
     ["xAI", xaiProviderOptions, { xai: { reasoningEffort: "high" } }],
+    ["OpenAI-compatible", openaiCompatibleProviderOptions, { openaiCompatible: { reasoningEffort: "high" } }],
   ] as const)("maps %s high onto provider options", (_label, providerOptions, expected) => {
     expect(providerOptions("high")).toEqual(expected);
   });
@@ -77,6 +79,7 @@ describe("provider option helpers omit an empty effort", () => {
     ["opencode-zen", opencodeZenProviderOptions],
     ["Anthropic", anthropicProviderOptions],
     ["xAI", xaiProviderOptions],
+    ["OpenAI-compatible", openaiCompatibleProviderOptions],
   ] as const)("omits %s providerOptions when effort is missing or empty", (_label, providerOptions) => {
     expect(providerOptions(undefined)).toBeUndefined();
     expect(providerOptions("")).toBeUndefined();

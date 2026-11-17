@@ -97,6 +97,13 @@ pub enum AISecrets {
         #[serde(rename = "apiKey", deserialize_with = "deserialize_api_key")]
         api_key: Option<String>,
     },
+    #[serde(rename = "openaiCompatible")]
+    OpenaiCompatible {
+        #[serde(rename = "baseUrl")]
+        base_url: String,
+        #[serde(rename = "apiKey", default, deserialize_with = "deserialize_api_key")]
+        api_key: Option<String>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -147,6 +154,7 @@ impl AISecrets {
             AISecrets::Anthropic { .. } => "anthropic",
             AISecrets::Xai { .. } => "xai",
             AISecrets::Vercel { .. } => "vercel",
+            AISecrets::OpenaiCompatible { .. } => "openaiCompatible",
         }
     }
 
@@ -162,7 +170,8 @@ impl AISecrets {
             | AISecrets::Xai { api_key }
             | AISecrets::Vercel { api_key }
             | AISecrets::Ollama { api_key, .. }
-            | AISecrets::LmStudio { api_key, .. } => api_key.as_deref(),
+            | AISecrets::LmStudio { api_key, .. }
+            | AISecrets::OpenaiCompatible { api_key, .. } => api_key.as_deref(),
         }
     }
 
@@ -214,6 +223,7 @@ impl AISecrets {
             AISecrets::Anthropic { api_key } => Self::require_api_key_for_input(api_key, "anthropic"),
             AISecrets::Xai { api_key } => Self::require_api_key_for_input(api_key, "xai"),
             AISecrets::Vercel { api_key } => Self::require_api_key_for_input(api_key, "vercel"),
+            AISecrets::OpenaiCompatible { base_url, .. } => Self::require_base_url(base_url, "openaiCompatible"),
         }
     }
 
@@ -239,6 +249,10 @@ impl AISecrets {
             AISecrets::Anthropic { api_key } => Self::reject_stored_api_key(api_key, "anthropic"),
             AISecrets::Xai { api_key } => Self::reject_stored_api_key(api_key, "xai"),
             AISecrets::Vercel { api_key } => Self::reject_stored_api_key(api_key, "vercel"),
+            AISecrets::OpenaiCompatible { base_url, api_key } => {
+                Self::require_base_url(base_url, "openaiCompatible")?;
+                Self::reject_stored_api_key(api_key, "openaiCompatible")
+            }
         }
     }
 }

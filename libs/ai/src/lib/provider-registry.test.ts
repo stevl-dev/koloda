@@ -20,6 +20,7 @@ const RUST_AI_SECRETS_PROVIDER_TAGS = [
   "anthropic",
   "xai",
   "vercel",
+  "openaiCompatible",
 ];
 
 describe("AI provider registry parity", () => {

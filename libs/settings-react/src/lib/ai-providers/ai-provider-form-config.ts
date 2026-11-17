@@ -3,6 +3,7 @@ import {
   anthropicSecretsValidation,
   deepseekSecretsValidation,
   lmstudioSecretsValidation,
+  openaiCompatibleSecretsValidation,
   openaiSecretsValidation,
   ollamaCloudSecretsValidation,
   ollamaSecretsValidation,
@@ -69,7 +70,7 @@ function apiKeyOnlyConfig(
 }
 
 function baseUrlConfig(
-  provider: "ollama" | "lmstudio",
+  provider: "ollama" | "lmstudio" | "openaiCompatible",
   secretsSchema: typeof ollamaSecretsValidation,
   defaultBaseUrl: string,
 ): AIProviderFormConfig {
@@ -111,6 +112,7 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
   vercel: apiKeyOnlyConfig("vercel", vercelSecretsValidation),
   ollama: baseUrlConfig("ollama", ollamaSecretsValidation, "http://localhost:11434"),
   lmstudio: baseUrlConfig("lmstudio", lmstudioSecretsValidation, "http://localhost:1234/v1"),
+  openaiCompatible: baseUrlConfig("openaiCompatible", openaiCompatibleSecretsValidation, ""),
 };
 
 export function getAddDefaultValues(config: AIProviderFormConfig): AIProfileFormValues {

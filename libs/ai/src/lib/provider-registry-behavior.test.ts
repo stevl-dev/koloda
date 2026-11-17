@@ -29,6 +29,7 @@ describe("provider-registry", () => {
       "anthropic",
       "xai",
       "vercel",
+      "openaiCompatible",
     ]);
   });
 });

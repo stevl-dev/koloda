@@ -297,6 +297,49 @@ fn api_key_only_profiles_round_trip_via_secret_store() {
 }
 
 #[test]
+fn openai_compatible_profile_round_trips_base_url_and_key() {
+    let _guard = test_store::setup();
+    let db = test_db();
+
+    let added = ai::add_ai_profile(
+        &db,
+        None,
+        AISecrets::OpenaiCompatible {
+            base_url: "http://localhost:8000/v1".to_string(),
+            api_key: Some("sk-local".to_string()),
+        },
+    )
+    .expect("profile should be added");
+
+    let profiles = ai::get_ai_profiles(&db).expect("should get profiles");
+    let public = profiles
+        .iter()
+        .find(|p| p.id == added.id)
+        .expect("profile should exist");
+    assert!(public.has_secrets);
+    match &public.secrets {
+        AISecrets::OpenaiCompatible { base_url, api_key } => {
+            assert_eq!(base_url, "http://localhost:8000/v1");
+            assert!(api_key.is_none(), "public read must redact apiKey");
+        }
+        other => panic!("expected OpenaiCompatible secrets, got {:?}", other),
+    }
+
+    let stored = ai::get_ai_profile_secrets(&db, &added.id)
+        .expect("should load secrets")
+        .expect("secrets should exist");
+    match stored {
+        AISecrets::OpenaiCompatible { base_url, api_key } => {
+            assert_eq!(base_url, "http://localhost:8000/v1");
+            assert_eq!(api_key.as_deref(), Some("sk-local"));
+        }
+        other => panic!("expected OpenaiCompatible secrets, got {:?}", other),
+    }
+
+    test_store::teardown(_guard);
+}
+
+#[test]
 fn update_ai_profile_rejects_a_provider_change() {
     // Twin: "rejects a provider change on update" (apps/web/src/app/ai.test.ts).
     let _guard = test_store::setup();

@@ -40,6 +40,11 @@ export const lmstudioSecretsValidation = z.object({
   apiKey: optionalApiKey,
 });
 
+export const openaiCompatibleSecretsValidation = z.object({
+  baseUrl: z.url("validation.settings-ai.providers.base-url"),
+  apiKey: optionalApiKey,
+});
+
 export const opencodeGoSecretsValidation = z.object({
   apiKey: requiredApiKey,
 });
@@ -92,6 +97,11 @@ export const aiSecretsValidation = z.discriminatedUnion("provider", [
   z.object({ provider: z.literal("anthropic"), apiKey: storedApiKey }),
   z.object({ provider: z.literal("xai"), apiKey: storedApiKey }),
   z.object({ provider: z.literal("vercel"), apiKey: storedApiKey }),
+  z.object({
+    provider: z.literal("openaiCompatible"),
+    baseUrl: z.url("validation.settings-ai.providers.base-url"),
+    apiKey: storedApiKey.optional(),
+  }),
 ]);
 
 export type AISecrets = z.infer<typeof aiSecretsValidation>;
@@ -112,6 +122,7 @@ export const aiSecretsInputValidation = z.discriminatedUnion("provider", [
   anthropicSecretsValidation.extend({ provider: z.literal("anthropic") }),
   xaiSecretsValidation.extend({ provider: z.literal("xai") }),
   vercelSecretsValidation.extend({ provider: z.literal("vercel") }),
+  openaiCompatibleSecretsValidation.extend({ provider: z.literal("openaiCompatible") }),
 ]);
 
 export type SecretField = "apiKey" | "baseUrl";

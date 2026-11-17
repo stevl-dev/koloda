@@ -10,6 +10,7 @@ export const AI_PROVIDER_LABELS = {
   anthropic: "Anthropic",
   xai: "xAI",
   vercel: "Vercel AI Gateway",
+  openaiCompatible: "OpenAI-compatible",
 } as const;
 
 export const OPENCODE_GO_BASE_URL = "https://opencode.ai/zen/go/v1";

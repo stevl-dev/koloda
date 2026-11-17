@@ -8,6 +8,7 @@ import { anthropicProviderEntry } from "./providers/anthropic";
 import { deepseekProviderEntry } from "./providers/deepseek";
 import { lmstudioProviderEntry } from "./providers/lmstudio";
 import { openaiProviderEntry } from "./providers/openai";
+import { openaiCompatibleProviderEntry } from "./providers/openai-compatible-provider";
 import { ollamaProviderEntry } from "./providers/ollama";
 import { ollamaCloudProviderEntry } from "./providers/ollama-cloud";
 import { opencodeGoProviderEntry } from "./providers/opencode-go";
@@ -43,6 +44,7 @@ export const AI_PROVIDER_REGISTRY: Record<AiProvider, AIProviderEntry> = {
   anthropic: anthropicProviderEntry,
   xai: xaiProviderEntry,
   vercel: vercelProviderEntry,
+  openaiCompatible: openaiCompatibleProviderEntry,
 };
 
 export function getProviderConfig(provider: AiProvider): AIProviderEntry {

@@ -74,7 +74,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Add the OpenAI-compatible provider
+- [x] 1. Add the OpenAI-compatible provider
   Goal: Add provider `openaiCompatible` (label `OpenAI-compatible`) with a required base URL and an optional API key,
   following `agents/ADD-AI-PROVIDER.md` steps 1–9.
   Secrets match the LM Studio shape (`baseUrl`, `apiKey`), so the form uses `baseUrlConfig` with an empty default URL.

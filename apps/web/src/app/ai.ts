@@ -34,6 +34,8 @@ function redactSecrets(secrets: AISecrets): AISecrets {
       return { provider: "ollama", baseUrl: secrets.baseUrl, apiKey: null };
     case "lmstudio":
       return { provider: "lmstudio", baseUrl: secrets.baseUrl, apiKey: null };
+    case "openaiCompatible":
+      return { provider: "openaiCompatible", baseUrl: secrets.baseUrl, apiKey: null };
   }
 }
 

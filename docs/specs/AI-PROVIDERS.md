@@ -48,6 +48,9 @@ Available in the browser:
 - Anthropic
 - xAI
 - Vercel AI Gateway
+- OpenAI-compatible
+
+The browser can reach an OpenAI-compatible server only when that server allows requests from the app's web page.
 
 Desktop only:
 
@@ -114,7 +117,7 @@ Secrets are the per-provider credentials stored inside a profile.
 ### Fields
 
 - **API key** — authenticates with the provider.
-- **Base URL** — address of a self-hosted provider endpoint.
+- **Base URL** — address of a self-hosted or OpenAI-compatible provider endpoint.
 
 A profile must have all required fields filled in before it can be used for a run.
 Optional API keys are stored only when provided.
@@ -223,6 +226,8 @@ The app learns the supported levels and the default for a model by a fixed rule 
 - xAI reports the levels and the default in its model list.
 - Vercel AI Gateway reports the levels in its model list, without a default.
   The app offers only the levels it can send: none, minimal, low, medium, high, and xhigh.
+- An OpenAI-compatible server reports the levels and the default in its model list, when it reports them at all.
+  A model it lists without levels gets no picker.
 - LM Studio reports the levels and the default in the model's capabilities.
   A model without a valid reported default has no default level.
 - Ollama and Ollama Cloud report only whether a model can think.
