@@ -274,6 +274,14 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/assistant-self-awareness.md`
   Deferred because: the human left it out of the self-awareness task; it is an action, and the first version reads only.
 
+- Handoff: ask Anthropic for reasoning summaries, so the reasoning panel is not empty on Opus 4.7 and later.
+  Evidence: at `75bef231`, `libs/ai/src/lib/chat-stream.ts:258` sends no `thinking` option;
+  those models return empty thinking text unless a run sends `thinking: { type: "adaptive", display: "summarized" }`.
+  Opus 4.5 reports effort levels but rejects adaptive thinking, and the chat stream knows only the model ID and effort.
+  Kind: handoff
+  Source: `tasks/archive/anthropic-provider.md`, question 1
+  Deferred because: the human left it out of the provider task; it needs the model's thinking capabilities at run time.
+
 ## libs/ai-react
 
 - Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.

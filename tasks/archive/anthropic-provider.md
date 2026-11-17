@@ -1,6 +1,6 @@
 # Anthropic provider
 
-Status: ready
+Status: done
 Guides: agents/ADD-AI-PROVIDER.md, docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/RUST.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -95,3 +95,25 @@ Facts later sessions need, read from `@ai-sdk/anthropic` 4.0.71 source:
   Depends on: 1
 
 ## Outcome
+
+Both plan items shipped (`eec0cd74`, `75bef231`).
+`bun run check:push` passed on `75bef231`; the Archive commit after it changes only this file and `tasks/DEFERRED.md`.
+No item added or edited an e2e case.
+The Manual verify block was handed to the human, who asked to land; this file records no result of it.
+
+- Rust `AISecrets::Anthropic` (tag `anthropic`, API key only), stored in the keyring like the other keyed providers.
+- `libs/ai/src/lib/providers/anthropic.ts` lists every page of `/v1/models` and reads effort levels from
+  `capabilities.effort`, lowest first, with no default.
+  Runs send the picked level as `providerOptions.anthropic.effort`.
+- `ANTHROPIC_BROWSER_ACCESS_HEADERS` in `provider-catalog.ts` goes on both the model list and the chat client,
+  so the provider works in the browser.
+- Beyond the plan text: `bun run gen:help` regenerated the help corpus for the spec edit,
+  and `provider-registry-behavior.test.ts` pins the browser list, so it gained `anthropic`.
+- `agents/ADD-AI-PROVIDER.md` drifted from the code: step 8 says nothing checks the browser list,
+  and the guide does not mention the help corpus or the shared provider rows in the secrets and add-profile tests.
+  The human asked to fix it after landing, outside this task.
+- Reasoning summaries are left out (question 1) and recorded in `tasks/DEFERRED.md`.
+
+Spec: docs/specs/AI-PROVIDERS.md
+Review: not run
+Change rounds: 0
