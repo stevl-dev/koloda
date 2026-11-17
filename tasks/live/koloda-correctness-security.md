@@ -147,7 +147,7 @@ None.
 
 ## Plan
 
-- [ ] 1. Keep AI profiles out of the generic settings writes
+- [x] 1. Keep AI profiles out of the generic settings writes
   Goal: finding 1.
   `set_settings` and `patch_settings` in `crates/koloda/src/repo/settings.rs` are renderer commands and today write
   the whole `ai` document, profiles included.

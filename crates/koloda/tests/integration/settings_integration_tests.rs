@@ -114,58 +114,16 @@ fn patch_settings_deletes_null_keys_so_schema_defaults_refill() {
 fn patch_settings_replaces_arrays_wholesale() {
     let db = test_db();
 
-    settings::set_settings(
-        &db,
-        SettingsName::Ai,
-        json!({
-            "profiles": [
-                {
-                    "id": "01900000-0000-7000-8000-000000000001",
-                    "secrets": { "provider": "openrouter", "apiKey": null },
-                    "title": "First",
-                    "whitelistModelIds": ["openai/gpt-4"],
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-01T00:00:00Z"
-                },
-                {
-                    "id": "01900000-0000-7000-8000-000000000002",
-                    "secrets": { "provider": "openrouter", "apiKey": null },
-                    "title": "Second",
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-02T00:00:00Z"
-                }
-            ]
-        }),
-    )
-    .expect("initial AI settings insert should succeed");
+    settings::set_settings(&db, SettingsName::Hotkeys, json!({ "grades": { "again": ["1", "a"] } }))
+        .expect("initial hotkeys insert should succeed");
 
-    let patched = settings::patch_settings(
-        &db,
-        SettingsName::Ai,
-        json!({
-            "profiles": [
-                {
-                    "id": "01900000-0000-7000-8000-000000000001",
-                    "secrets": { "provider": "openrouter", "apiKey": null },
-                    "title": "Renamed",
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-01T00:00:00Z"
-                }
-            ]
-        }),
-    )
-    .expect("patch should succeed");
+    let patched = settings::patch_settings(&db, SettingsName::Hotkeys, json!({ "grades": { "again": ["x"] } }))
+        .expect("patch should succeed");
 
     // Twin: "replaces arrays wholesale instead of element-merging" in
     // libs/db-sqlite/src/lib/settings-reviews.integration.test.ts. The whole
-    // array is replaced — one profile, and fields the patch omits do not survive.
-    let profiles = patched.content["profiles"]
-        .as_array()
-        .expect("profiles should be an array");
-    assert_eq!(profiles.len(), 1);
-    assert_eq!(profiles[0]["id"], "01900000-0000-7000-8000-000000000001");
-    assert_eq!(profiles[0]["title"], "Renamed");
-    assert!(profiles[0].get("whitelistModelIds").is_none());
+    // array is replaced, so no key of the stored one survives.
+    assert_eq!(patched.content["grades"]["again"], json!(["x"]));
 }
 
 #[test]
@@ -284,83 +242,5 @@ fn patch_settings_rejects_non_uuid_default_and_preserves_previous_value() {
     assert_eq!(
         current.content["defaults"]["algorithm"],
         "01900000-0000-7000-8000-000000000001"
-    );
-}
-
-#[test]
-fn set_settings_rejects_plaintext_ai_api_key() {
-    let db = test_db();
-
-    let result = settings::set_settings(
-        &db,
-        SettingsName::Ai,
-        json!({
-            "profiles": [
-                {
-                    "id": "01900000-0000-7000-8000-000000000001",
-                    "title": "OpenRouter",
-                    "secrets": {
-                        "provider": "openrouter",
-                        "apiKey": "sk-live-secret-key"
-                    },
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-01T00:00:00Z"
-                }
-            ]
-        }),
-    );
-
-    assert_eq!(
-        result.expect_err("set_settings should fail").code,
-        error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_API_KEY
-    );
-}
-
-#[test]
-fn patch_settings_rejects_plaintext_ai_api_key() {
-    let db = test_db();
-
-    settings::set_settings(
-        &db,
-        SettingsName::Ai,
-        json!({
-            "profiles": [
-                {
-                    "id": "01900000-0000-7000-8000-000000000001",
-                    "title": "OpenRouter",
-                    "secrets": {
-                        "provider": "openrouter",
-                        "apiKey": null
-                    },
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-01T00:00:00Z"
-                }
-            ]
-        }),
-    )
-    .expect("redacted AI settings should be storable");
-
-    let result = settings::patch_settings(
-        &db,
-        SettingsName::Ai,
-        json!({
-            "profiles": [
-                {
-                    "id": "01900000-0000-7000-8000-000000000001",
-                    "title": "OpenRouter",
-                    "secrets": {
-                        "provider": "openrouter",
-                        "apiKey": "sk-live-secret-key"
-                    },
-                    "hasSecrets": false,
-                    "createdAt": "2026-01-01T00:00:00Z"
-                }
-            ]
-        }),
-    );
-
-    assert_eq!(
-        result.expect_err("patch_settings should fail").code,
-        error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_API_KEY
     );
 }

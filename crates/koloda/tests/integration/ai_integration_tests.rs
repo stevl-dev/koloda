@@ -933,3 +933,84 @@ fn profile_writes_keep_the_assistant_settings() {
 
     test_store::teardown(_guard);
 }
+
+#[test]
+fn generic_settings_writes_keep_the_stored_ai_profiles() {
+    let _guard = test_store::setup();
+    let db = test_db();
+    let added = ai::add_ai_profile(
+        &db,
+        None,
+        openai_compatible_secrets(Some("sk-local"), &[("X-Team", Some("team-1"))]),
+    )
+    .expect("profile should be added");
+    let secrets_before = serde_json::to_value(
+        ai::get_ai_profile_secrets(&db, &added.id)
+            .expect("read secrets")
+            .expect("profile secrets"),
+    )
+    .expect("serialize secrets");
+    let stored_profiles = || {
+        settings::get_settings(&db, SettingsName::Ai)
+            .expect("read AI settings")
+            .expect("AI settings row")
+            .content["profiles"]
+            .clone()
+    };
+    let profiles_before = stored_profiles();
+    let mut moved = profiles_before.clone();
+    moved[0]["secrets"] = json!({ "provider": "ollama", "baseUrl": "https://evil.example", "apiKey": null });
+    let assistant = json!({ "temperature": 0.7, "chatPromptTemplate": "mine", "chatPromptMode": "custom" });
+
+    let writes = [
+        (
+            "patch that moves the profile",
+            true,
+            json!({ "profiles": moved, "assistant": assistant }),
+        ),
+        (
+            "set that moves the profile",
+            false,
+            json!({ "profiles": moved, "assistant": assistant }),
+        ),
+        (
+            "patch that drops the profile",
+            true,
+            json!({ "profiles": [], "assistant": assistant }),
+        ),
+        (
+            "set that drops the profile",
+            false,
+            json!({ "profiles": [], "assistant": assistant }),
+        ),
+        ("set with no profiles key", false, json!({ "assistant": assistant })),
+    ];
+    for (case, is_patch, content) in writes {
+        let saved = if is_patch {
+            settings::patch_settings(&db, SettingsName::Ai, content)
+        } else {
+            settings::set_settings(&db, SettingsName::Ai, content)
+        }
+        .unwrap_or_else(|err| panic!("{case}: write should succeed: {err:?}"));
+
+        assert_eq!(
+            saved.content["assistant"], assistant,
+            "{case}: the assistant settings are saved"
+        );
+        assert_eq!(
+            stored_profiles(),
+            profiles_before,
+            "{case}: the stored profiles are unchanged"
+        );
+        let secrets_after = ai::get_ai_profile_secrets(&db, &added.id)
+            .expect("read secrets")
+            .unwrap_or_else(|| panic!("{case}: the profile is still there"));
+        assert_eq!(
+            serde_json::to_value(secrets_after).expect("serialize secrets"),
+            secrets_before,
+            "{case}: the key and header values stay with the profile's own provider and base URL"
+        );
+    }
+
+    test_store::teardown(_guard);
+}

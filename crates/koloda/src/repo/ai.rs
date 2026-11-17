@@ -145,9 +145,7 @@ fn get_ai_settings_or_default(db: &Database) -> Result<AISettings, AppError> {
 
 fn set_ai_settings(db: &Database, settings: AISettings) -> Result<(), AppError> {
     let content: Value = serde_json::to_value(&settings)?;
-    crate::repo::settings::set_settings(db, SettingsName::Ai, content)?;
-
-    Ok(())
+    crate::repo::settings::write_ai_settings(db, content)
 }
 
 fn drop_ai_profile_from_settings(db: &Database, profile_id: &str) -> Result<(), AppError> {

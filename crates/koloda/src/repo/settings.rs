@@ -96,37 +96,75 @@ pub(crate) fn learning_defaults(conn: &Connection) -> Result<Option<LearningDefa
 
 pub fn set_settings(db: &Database, name: SettingsName, content: Value) -> Result<Settings, AppError> {
     throw_known_error(error_codes::DB_UPDATE, || {
-        let content = name.normalize(content)?;
-        let now = get_current_timestamp()?;
-
         db.with_transaction(|tx| {
-            if name != SettingsName::Learning {
-                return upsert_settings(tx, name, &content, now);
-            }
-
-            let previous: Option<String> = tx
-                .query_row(
-                    "SELECT content FROM settings WHERE name = ?1",
-                    params![name.to_string()],
-                    |row| row.get(0),
-                )
-                .optional()?;
-            upsert_settings(tx, name, &content, now)?;
-            // WHY: the previous document is compared as a read sees it, normalized, so a key it lacks a defaulted
-            // field of is not captured again on every save. One that does not normalize counts as absent, so every key
-            // is captured.
-            let previous = previous
-                .and_then(|text| serde_json::from_str::<Value>(&text).ok())
-                .and_then(|value| name.normalize(value).ok());
-            let mut capture = Capture::begin(tx)?;
-            for payload in learning_payloads(previous.as_ref(), &content) {
-                capture.write(LEARNING_SYNC_ID, None, &payload)?;
-            }
-            Ok(())
+            // INVARIANT: a generic write never changes AI profiles. A stored key and header values are kept under the
+            // profile id alone, so a profile that changed provider or base URL here would carry them along, and one
+            // dropped here would leave them in the store (AI-PROVIDERS.md, Editing a Profile and Storage). Profiles
+            // change only through `repo/ai.rs`, which writes with `write_ai_settings`.
+            let content = match name {
+                SettingsName::Ai => with_stored_ai_profiles(tx, content)?,
+                _ => content,
+            };
+            write_settings(tx, name, content)
         })?;
 
         get_settings(db, name)?.ok_or_else(|| AppError::new(error_codes::DB_UPDATE, None))
     })
+}
+
+pub(crate) fn write_ai_settings(db: &Database, content: Value) -> Result<(), AppError> {
+    db.with_transaction(|tx| write_settings(tx, SettingsName::Ai, content))
+}
+
+fn with_stored_ai_profiles(conn: &Connection, mut content: Value) -> Result<Value, AppError> {
+    let Some(object) = content.as_object_mut() else {
+        return Ok(content);
+    };
+    let stored: Option<String> = conn
+        .query_row(
+            "SELECT content FROM settings WHERE name = ?1",
+            params![SettingsName::Ai.to_string()],
+            |row| row.get(0),
+        )
+        .optional()?;
+    let profiles = match stored {
+        Some(text) => parse_json_column::<Value>(0, &text)?
+            .get("profiles")
+            .cloned()
+            .unwrap_or_else(|| Value::Array(Vec::new())),
+        None => Value::Array(Vec::new()),
+    };
+    object.insert("profiles".to_string(), profiles);
+    Ok(content)
+}
+
+fn write_settings(tx: &Connection, name: SettingsName, content: Value) -> Result<(), AppError> {
+    let content = name.normalize(content)?;
+    let now = get_current_timestamp()?;
+
+    if name != SettingsName::Learning {
+        return upsert_settings(tx, name, &content, now);
+    }
+
+    let previous: Option<String> = tx
+        .query_row(
+            "SELECT content FROM settings WHERE name = ?1",
+            params![name.to_string()],
+            |row| row.get(0),
+        )
+        .optional()?;
+    upsert_settings(tx, name, &content, now)?;
+    // WHY: the previous document is compared as a read sees it, normalized, so a key it lacks a defaulted
+    // field of is not captured again on every save. One that does not normalize counts as absent, so every key
+    // is captured.
+    let previous = previous
+        .and_then(|text| serde_json::from_str::<Value>(&text).ok())
+        .and_then(|value| name.normalize(value).ok());
+    let mut capture = Capture::begin(tx)?;
+    for payload in learning_payloads(previous.as_ref(), &content) {
+        capture.write(LEARNING_SYNC_ID, None, &payload)?;
+    }
+    Ok(())
 }
 
 pub(crate) fn upsert_settings(
@@ -197,7 +235,6 @@ pub fn patch_settings(db: &Database, name: SettingsName, patch: Value) -> Result
         // the shared patch contract, not a Rust detail. Twin: mergePatch in
         // libs/db-sqlite/src/lib/settings.ts.
         json_patch::merge(&mut merged, &patch);
-        let merged = name.normalize(merged)?;
 
         set_settings(db, name, merged)
     })

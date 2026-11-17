@@ -122,53 +122,14 @@ describe("settings and review totals integration", () => {
   it("replaces arrays wholesale instead of element-merging, like desktop RFC 7386", async () => {
     const { db } = testDb;
 
-    await setSettings(db, {
-      name: "ai",
-      content: {
-        profiles: [
-          {
-            id: "01900000-0000-7000-8000-000000000001",
-            title: "First",
-            secrets: { provider: "openrouter", apiKey: null },
-            whitelistModelIds: ["openai/gpt-4"],
-            hasSecrets: false,
-            createdAt: "2026-01-01T00:00:00.000Z",
-          },
-          {
-            id: "01900000-0000-7000-8000-000000000002",
-            secrets: { provider: "openrouter", apiKey: null },
-            title: "Second",
-            hasSecrets: false,
-            createdAt: "2026-01-02T00:00:00.000Z",
-          },
-        ],
-      },
-    });
+    await setSettings(db, { name: "hotkeys", content: { grades: { again: ["1", "a"] } } });
 
-    const result = await patchSettings<"ai">(db, {
-      name: "ai",
-      content: {
-        profiles: [
-          {
-            id: "01900000-0000-7000-8000-000000000001",
-            secrets: { provider: "openrouter", apiKey: null },
-            title: "Renamed",
-            hasSecrets: false,
-            createdAt: "2026-01-01T00:00:00.000Z",
-          },
-        ],
-      },
-    });
+    const result = await patchSettings<"hotkeys">(db, { name: "hotkeys", content: { grades: { again: ["x"] } } });
 
     // Twin: patch_settings_replaces_arrays_wholesale
     // (crates/koloda/tests/integration/settings_integration_tests.rs). The whole
-    // array is replaced — one profile, and fields the patch omits do not survive.
-    expect(result.content.profiles).toHaveLength(1);
-    expect(result.content.profiles[0]).toMatchObject({
-      id: "01900000-0000-7000-8000-000000000001",
-      title: "Renamed",
-    });
-    expect(result.content.profiles[0]).not.toHaveProperty("whitelistModelIds");
+    // array is replaced, so no key of the stored one survives.
+    expect(result.content.grades?.again).toEqual(["x"]);
   });
 
   // Twin of koloda `set_settings_keeps_a_zero_total_as_a_hard_cap`.
