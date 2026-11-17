@@ -805,7 +805,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Review History",
         "depth": 2,
-        "markdown": "## Review History\n\nGraded cards show a review history on the details view.\nEach entry is a timestamp and a grade.\nUntouched cards have no review history section.\n\nResetting progress or deleting the card removes the history.\n\n"
+        "markdown": "## Review History\n\nGraded cards show a review history on the details view.\nEach entry is a timestamp and a grade.\nEntries are listed oldest first, by when each review was made,\nincluding reviews made on another device and synced later.\nUntouched cards have no review history section.\n\nResetting progress or deleting the card removes the history.\n\n"
       },
       {
         "heading": "Deleting Cards",
