@@ -278,8 +278,9 @@ myProvider: {
 },
 ```
 
-Field types are `title`, `baseUrl`, and `apiKey`.
+Field types are `title`, `baseUrl`, `apiKey`, and `headers`.
 `AIProfileFormFields` supplies the labels, placeholders, and edit-mode secret masking for these.
+`headers` is a list of name/value rows with masked stored values; only `openaiCompatible` uses it.
 No new locale strings are needed.
 If the provider needs a different field, extend `AIProfileFieldType`.
 Teach `AIProfileFormFields` to render it, and add its label string.
