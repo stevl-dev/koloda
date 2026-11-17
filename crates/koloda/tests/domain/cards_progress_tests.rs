@@ -1,4 +1,6 @@
+use koloda::app::error::error_codes;
 use koloda::domain::cards::UpdateCardProgress;
+use koloda::domain::progress::validate_stability;
 use serde_json::{json, Value};
 
 use crate::common::cases::rule_cases;
@@ -93,5 +95,20 @@ fn test_update_card_progress_rules() {
             progress.validate().map(|()| Value::Null)
         });
         assert_eq!(observed, case.expect, "{}", case.name);
+    }
+}
+
+#[test]
+fn stability_that_is_not_finite_is_refused() {
+    // WHY: JSON cannot carry these, so they cannot join `cards.json`. Zod's `z.number()` refuses them on the TS side
+    // before any refine runs; here the value arrives from a remote review, which serde decodes from CBOR.
+    for stability in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        let error = validate_stability(stability, error_codes::VALIDATION_CARDS_PROGRESS_STABILITY)
+            .expect_err("a stability that is not finite is refused");
+        assert_eq!(
+            error.code,
+            error_codes::VALIDATION_CARDS_PROGRESS_STABILITY,
+            "{stability}"
+        );
     }
 }

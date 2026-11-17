@@ -18,14 +18,19 @@ pub fn default_now() -> i64 {
     now_millis().unwrap_or_default()
 }
 
+// INVARIANT: the one epoch-ms range check. Remote apply refuses what this refuses (`repo/sync/apply.rs`,
+// `breaks_domain_rule`), so a stored row always serializes.
+pub fn to_datetime(timestamp: i64) -> Option<chrono::DateTime<chrono::Utc>> {
+    chrono::DateTime::from_timestamp_millis(timestamp)
+}
+
 pub fn serialize_optional_timestamp<S>(timestamp: &Option<i64>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
     match timestamp {
         Some(ts) => {
-            let datetime = chrono::DateTime::from_timestamp_millis(*ts)
-                .ok_or_else(|| serde::ser::Error::custom("Invalid timestamp"))?;
+            let datetime = to_datetime(*ts).ok_or_else(|| serde::ser::Error::custom("Invalid timestamp"))?;
             serializer.serialize_str(&datetime.to_rfc3339())
         }
         None => serializer.serialize_none(),
@@ -36,8 +41,7 @@ pub fn serialize_timestamp<S>(timestamp: &i64, serializer: S) -> Result<S::Ok, S
 where
     S: Serializer,
 {
-    let datetime = chrono::DateTime::from_timestamp_millis(*timestamp)
-        .ok_or_else(|| serde::ser::Error::custom("Invalid timestamp"))?;
+    let datetime = to_datetime(*timestamp).ok_or_else(|| serde::ser::Error::custom("Invalid timestamp"))?;
     serializer.serialize_str(&datetime.to_rfc3339())
 }
 

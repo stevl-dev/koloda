@@ -12,21 +12,25 @@ use koloda_sync_proto::payload::{
 };
 use koloda_sync_proto::registry::{allow, check_lane, Class, Group, Kind, Lane, RegistryError};
 use rusqlite::{params, Connection, OptionalExtension, ToSql};
+use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
 use super::attachments;
 use super::repair::{self, tombstone_successor, Starter};
 use super::{delete_empty_cohort, forget_entity, protocol_error, Changed, StampValues, ROW_GROUP};
-use crate::app::db::Database;
+use crate::app::db::{parse_json_column, Database};
 use crate::app::error::{error_codes, throw_known_error, AppError};
-use crate::domain::cards::CardState;
+use crate::domain::algorithms_fsrs::AlgorithmFSRS;
+use crate::domain::cards::{CardContent as CardContentValues, CardState};
 use crate::domain::reviews::InsertReviewData;
 use crate::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
 use crate::domain::settings_learning::{
     validate_daily_limits, validate_day_starts_at, validate_default_algorithm, validate_default_template,
     validate_learn_ahead_limit,
 };
+use crate::domain::templates::TemplateContent;
+use crate::domain::time::to_datetime;
 use crate::repo::reviews::insert_review;
 
 /// One pull page: one lane's entries in `seq` order, and the highest seq the server examined for that lane.
@@ -218,18 +222,69 @@ fn unreadable(error: &EnvelopeError) -> HoldReason {
 
 // INVARIANT: a payload that decodes but breaks a rule applying it checks is corrupt, as bytes that do not decode are.
 // The lane holds at it until an operator drops it, instead of failing the page on every pull (PROTOCOL.md, Corrupt
-// envelopes). Every fallible conversion of a payload field that apply makes is checked here. A learning key is
-// checked as a read of the whole document checks it, so one this app refuses never breaks every read.
+// envelopes). Every value apply stores is checked the way its readers read it: content parses as the row mapper parses
+// it, numbers fit the mapper's integer types, floats are finite, and timestamps serialize (`domain/time.rs`). A
+// learning key is checked as a read of the whole document checks it. Applied, any of these would fail every list read
+// of its kind, and the app could not repair the row through its own update, which reads it first.
 fn breaks_domain_rule(payload: &Payload) -> bool {
-    match payload {
-        Payload::Review(review) => review_data(review).and_then(|data| data.validate()).is_err(),
-        Payload::LearningDefaultAlgorithm(group) => validate_default_algorithm(&group.algorithm_id).is_err(),
-        Payload::LearningDefaultTemplate(group) => validate_default_template(&group.template_id).is_err(),
-        Payload::LearningDailyLimits(group) => is_refused(&group.value, validate_daily_limits),
-        Payload::LearningDayStartsAt(group) => is_refused(&group.value, validate_day_starts_at),
-        Payload::LearningLearnAheadLimit(group) => is_refused(&group.value, validate_learn_ahead_limit),
-        _ => false,
-    }
+    let has_bad_timestamp = payload.product_ts().is_some_and(is_bad_timestamp)
+        || payload.legacy_product_ts_floor().is_some_and(is_bad_timestamp)
+        || payload
+            .initial_product_ts()
+            .is_some_and(|initial| initial.values().any(|ts| is_bad_timestamp(*ts)));
+    has_bad_timestamp
+        || match payload {
+            Payload::Review(review) => {
+                is_bad_timestamp(review.due_at)
+                    || is_bad_timestamp(review.created_at)
+                    || review_data(review).and_then(|data| data.validate()).is_err()
+            }
+            Payload::CardCreate(create) => {
+                is_unreadable::<CardContentValues>(&create.content)
+                    || is_unreadable_scheduling(&create.scheduling)
+                    || is_bad_timestamp(create.created_at)
+            }
+            Payload::CardContent(group) => is_unreadable::<CardContentValues>(&group.content),
+            Payload::CardScheduling(scheduling) => is_unreadable_scheduling(scheduling),
+            Payload::DeckCreate(create) => is_bad_timestamp(create.created_at),
+            Payload::TemplateCreate(create) => {
+                is_unreadable::<TemplateContent>(&create.content) || is_bad_timestamp(create.created_at)
+            }
+            Payload::TemplateStructure(group) => is_unreadable::<TemplateContent>(&group.content),
+            Payload::AlgorithmCreate(create) => {
+                is_unreadable::<AlgorithmFSRS>(&create.content) || is_bad_timestamp(create.created_at)
+            }
+            Payload::AlgorithmContent(group) => is_unreadable::<AlgorithmFSRS>(&group.content),
+            Payload::LearningDefaultAlgorithm(group) => validate_default_algorithm(&group.algorithm_id).is_err(),
+            Payload::LearningDefaultTemplate(group) => validate_default_template(&group.template_id).is_err(),
+            Payload::LearningDailyLimits(group) => is_refused(&group.value, validate_daily_limits),
+            Payload::LearningDayStartsAt(group) => is_refused(&group.value, validate_day_starts_at),
+            Payload::LearningLearnAheadLimit(group) => is_refused(&group.value, validate_learn_ahead_limit),
+            _ => false,
+        }
+}
+
+fn is_bad_timestamp(timestamp: i64) -> bool {
+    to_datetime(timestamp).is_none()
+}
+
+fn is_unreadable<T: DeserializeOwned>(json: &str) -> bool {
+    parse_json_column::<T>(0, json).is_err()
+}
+
+// WHY: `get_card_row` reads these integers as `i32`. SQLite stores a NaN as NULL, which the `f64` read refuses, and
+// an infinity reaches the renderer as `null`.
+fn is_unreadable_scheduling(scheduling: &CardScheduling) -> bool {
+    let fits = |value: i64| i32::try_from(value).is_ok();
+    !(fits(scheduling.state)
+        && fits(scheduling.scheduled_days)
+        && fits(scheduling.learning_steps)
+        && fits(scheduling.reps)
+        && fits(scheduling.lapses))
+        || !scheduling.stability.is_finite()
+        || !scheduling.difficulty.is_finite()
+        || scheduling.due_at.is_some_and(is_bad_timestamp)
+        || scheduling.last_reviewed_at.is_some_and(is_bad_timestamp)
 }
 
 fn is_refused(json: &str, validate: fn(&Value) -> Result<(), AppError>) -> bool {

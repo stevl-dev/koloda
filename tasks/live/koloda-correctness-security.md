@@ -197,7 +197,7 @@ None.
   - `cargo test -p koloda` and `bun run test:libs` pass.
   Commit: Move update times only when a save changes something
   Depends on: none
-- [ ] 4. Hold remote envelopes the crate's readers would refuse
+- [x] 4. Hold remote envelopes the crate's readers would refuse
   Goal: findings 2 and 4.
   Extend `breaks_domain_rule` (`crates/koloda/src/repo/sync/apply.rs`) so a payload is corrupt when applying it would
   store a value the crate's readers or validators refuse:

@@ -25,10 +25,10 @@ pub fn validate_state(state: i32, code: &str) -> Result<(), AppError> {
 }
 
 pub fn validate_stability(stability: f64, code: &str) -> Result<(), AppError> {
-    if stability < 0.0 {
+    if !stability.is_finite() || stability < 0.0 {
         return Err(AppError::new(
             code,
-            Some(format!("Stability must be non-negative, got {}", stability)),
+            Some(format!("Stability must be finite and non-negative, got {}", stability)),
         ));
     }
     Ok(())

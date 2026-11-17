@@ -1165,6 +1165,13 @@ So is a payload that decodes but breaks a domain rule applying it would check.
 That is a review the app would refuse to record, such as a rating out of range.
 It is also a learning value or default id that this app's validation of the learning document refuses, such as a
 value that is not JSON or daily limits past their total; applied, it would break every read of the document.
+It is also a value this app's readers refuse, so that, applied, it would break every read of its kind:
+
+- card, template, or algorithm content that does not parse as that document;
+- a card scheduling number past the 32-bit integer the app reads it as;
+- a stability or difficulty that is not finite;
+- a timestamp outside the range the app can show, whether a creation time, a due or review time, or an update time.
+
 The page applies every entry before the held one in one transaction and sets the lane cursor to the held seq minus
 one.
 Nothing at or after it applies, so every later pull meets it again until an upgrade reads it or a drop removes it.

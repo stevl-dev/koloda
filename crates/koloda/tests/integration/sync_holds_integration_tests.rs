@@ -10,14 +10,19 @@ use koloda::domain::decks::{UpdateDeckData, UpdateDeckValues};
 use koloda::domain::lessons::LessonResultData;
 use koloda::domain::reviews::InsertReviewData;
 use koloda::domain::settings::SettingsName;
-use koloda::repo::cards::get_card;
-use koloda::repo::decks::{get_deck, update_deck};
+use koloda::repo::algorithms::get_algorithms;
+use koloda::repo::cards::{get_card, get_cards};
+use koloda::repo::decks::{get_deck, get_decks, update_deck};
 use koloda::repo::lessons::submit_lesson_result;
 use koloda::repo::reviews::get_todays_review_totals;
 use koloda::repo::settings::get_settings;
 use koloda::repo::sync::apply::{apply_page, apply_snapshot_page, Applied, Hold, HoldReason, Page, PageEntry};
+use koloda::repo::templates::get_templates;
 use koloda_sync_proto::envelope::Envelope;
-use koloda_sync_proto::payload::{CardReset, DefaultAlgorithm, Delete, Payload, Review, SettingValue, SCHEMA};
+use koloda_sync_proto::payload::{
+    CardContent, CardReset, CardScheduling, DefaultAlgorithm, Delete, JsonContent, Payload, Review, SettingValue,
+    SCHEMA,
+};
 use koloda_sync_proto::registry::{Kind, Lane};
 use uuid::Uuid;
 
@@ -29,6 +34,8 @@ type Target = fn(&Written) -> (Kind, String, &'static str);
 type Damage = fn(&Envelope) -> Vec<u8>;
 
 struct Written {
+    algorithm: String,
+    template: String,
     deck: String,
     first: String,
     second: String,
@@ -55,7 +62,13 @@ fn write_deck(writer: &Database) -> Written {
     )
     .expect("deck renames");
     let second = add_card(writer, &deck, &template, "adiós");
-    Written { deck, first, second }
+    Written {
+        algorithm,
+        template,
+        deck,
+        first,
+        second,
+    }
 }
 
 fn grade(db: &Database, card: &str) {
@@ -323,27 +336,47 @@ fn a_corrupt_create_or_update_stops_the_hot_page_before_it() {
 
 /// The review with another rating, sealed as its writer would have sealed it.
 fn rated(envelope: &Envelope, rating: i64) -> Vec<u8> {
-    let review = match Payload::decode(&envelope.header, &envelope.payload) {
+    reviewed(envelope, |review| review.rating = rating)
+}
+
+/// The review changed by `edit`, sealed as its writer would have sealed it.
+fn reviewed(envelope: &Envelope, edit: impl Fn(&mut Review)) -> Vec<u8> {
+    let mut review = match Payload::decode(&envelope.header, &envelope.payload) {
         Ok(Payload::Review(review)) => Some(review),
         _ => None,
     }
     .expect("the envelope is a review");
+    edit(&mut review);
     let header = &envelope.header;
     sealed(
         &header.id,
         header.parent.as_deref(),
         header.stamp,
-        &Payload::Review(Review { rating, ..review }),
+        &Payload::Review(review),
     )
+}
+
+/// The payload changed by `edit`, sealed with the envelope's own id, parent, and stamp.
+fn edited(envelope: &Envelope, edit: impl Fn(&mut Payload)) -> Vec<u8> {
+    let mut payload = Payload::decode(&envelope.header, &envelope.payload).expect("the payload decodes");
+    edit(&mut payload);
+    let header = &envelope.header;
+    sealed(&header.id, header.parent.as_deref(), header.stamp, &payload)
 }
 
 #[test]
 fn a_corrupt_review_stops_the_cold_page_before_it() {
     // WHY: a review that decodes but breaks a domain rule is as corrupt as bytes that do not decode.
-    let cases: [(&str, Damage); 3] = [
+    let cases: [(&str, Damage); 5] = [
         ("bytes that do not decode", unreadable_payload),
         ("a rating out of range", |envelope| rated(envelope, 5)),
         ("a rating past i32", |envelope| rated(envelope, i64::from(i32::MAX) + 1)),
+        ("a stability that is not finite", |envelope| {
+            reviewed(envelope, |review| review.stability = f64::INFINITY)
+        }),
+        ("a creation time past the timestamp range", |envelope| {
+            reviewed(envelope, |review| review.created_at = i64::MAX)
+        }),
     ];
     for (case, damage) in cases {
         let (writer, reader) = (replica(), replica());
@@ -585,6 +618,168 @@ fn an_unreadable_hot_entry_reports_why() {
 
         assert_eq!(applied.hold, hold(Lane::Hot, seq, reason), "{case}");
         assert_eq!(cursor(&reader, Lane::Hot), seq - 1, "{case}");
+    }
+}
+
+/// What a hot-lane case damages, and the entities `write_deck` made.
+struct Ids {
+    deck: String,
+    card: String,
+    template: String,
+    algorithm: String,
+}
+
+/// An envelope that names `id` in place of the picked one, at the picked one's stamp.
+fn replaced(envelope: &Envelope, id: &str, parent: Option<&str>, payload: &Payload) -> Vec<u8> {
+    sealed(id, parent, envelope.header.stamp, payload)
+}
+
+fn scheduling(edit: impl Fn(&mut CardScheduling)) -> Payload {
+    let mut scheduling = CardScheduling {
+        state: 2,
+        due_at: Some(1_900_000_000_000),
+        stability: 5.5,
+        difficulty: 4.25,
+        scheduled_days: 9,
+        learning_steps: 0,
+        reps: 1,
+        lapses: 0,
+        last_reviewed_at: Some(1_800_000_000_000),
+    };
+    edit(&mut scheduling);
+    Payload::CardScheduling(scheduling)
+}
+
+#[test]
+fn a_value_the_readers_refuse_holds_and_every_list_still_reads() {
+    // WHY: applied, each of these is a row that fails every list read of its kind, or its trip to the renderer, and
+    // the app could not repair it, since its own update reads the row first.
+    type Case = (&'static str, Target, fn(&Ids, &Envelope) -> Vec<u8>);
+    let at_rename: Target = |written| (Kind::Decks, written.deck.clone(), "title");
+    let cases: [Case; 11] = [
+        (
+            "card content that does not parse",
+            |written| (Kind::Cards, written.first.clone(), "create"),
+            |_, envelope| {
+                edited(envelope, |payload| match payload {
+                    Payload::CardCreate(create) => create.content = r#"{"front":7}"#.to_string(),
+                    _ => panic!("the envelope is a card create"),
+                })
+            },
+        ),
+        (
+            "a card content group that does not parse",
+            at_rename,
+            |ids, envelope| {
+                let content = Payload::CardContent(CardContent {
+                    content: "[1]".to_string(),
+                    updated_at: Some(1_800_000_000_000),
+                });
+                replaced(envelope, &ids.card, Some(&ids.deck), &content)
+            },
+        ),
+        ("a scheduling state past i32", at_rename, |ids, envelope| {
+            let payload = scheduling(|scheduling| scheduling.state = 9_000_000_000);
+            replaced(envelope, &ids.card, Some(&ids.deck), &payload)
+        }),
+        (
+            "a scheduled stability that is not finite",
+            at_rename,
+            |ids, envelope| {
+                let payload = scheduling(|scheduling| scheduling.stability = f64::INFINITY);
+                replaced(envelope, &ids.card, Some(&ids.deck), &payload)
+            },
+        ),
+        ("a due time past the timestamp range", at_rename, |ids, envelope| {
+            let payload = scheduling(|scheduling| scheduling.due_at = Some(i64::MAX));
+            replaced(envelope, &ids.card, Some(&ids.deck), &payload)
+        }),
+        (
+            "template create content that does not parse",
+            |written| (Kind::Templates, written.template.clone(), "create"),
+            |_, envelope| {
+                edited(envelope, |payload| match payload {
+                    Payload::TemplateCreate(create) => create.content = r#"{"fields":7}"#.to_string(),
+                    _ => panic!("the envelope is a template create"),
+                })
+            },
+        ),
+        (
+            "a template structure that does not parse",
+            at_rename,
+            |ids, envelope| {
+                let structure = Payload::TemplateStructure(JsonContent {
+                    content: r#"{"fields":7}"#.to_string(),
+                    updated_at: Some(1_800_000_000_000),
+                });
+                replaced(envelope, &ids.template, None, &structure)
+            },
+        ),
+        (
+            "algorithm create content that does not parse",
+            |written| (Kind::Algorithms, written.algorithm.clone(), "create"),
+            |_, envelope| {
+                edited(envelope, |payload| match payload {
+                    Payload::AlgorithmCreate(create) => create.content = r#"{"retention":"high"}"#.to_string(),
+                    _ => panic!("the envelope is an algorithm create"),
+                })
+            },
+        ),
+        ("algorithm content that does not parse", at_rename, |ids, envelope| {
+            let content = Payload::AlgorithmContent(JsonContent {
+                content: "{}".to_string(),
+                updated_at: Some(1_800_000_000_000),
+            });
+            replaced(envelope, &ids.algorithm, None, &content)
+        }),
+        ("an update time past the timestamp range", at_rename, |_, envelope| {
+            edited(envelope, |payload| match payload {
+                Payload::DeckTitle(title) => title.updated_at = Some(i64::MAX),
+                _ => panic!("the envelope is a deck title"),
+            })
+        }),
+        (
+            "a creation time past the timestamp range",
+            |written| (Kind::Decks, written.deck.clone(), "create"),
+            |_, envelope| {
+                edited(envelope, |payload| match payload {
+                    Payload::DeckCreate(create) => create.created_at = i64::MIN,
+                    _ => panic!("the envelope is a deck create"),
+                })
+            },
+        ),
+    ];
+    for (case, target, damage) in cases {
+        let (writer, reader) = (replica(), replica());
+        let written = write_deck(&writer);
+        let ids = Ids {
+            deck: written.deck.clone(),
+            card: written.first.clone(),
+            template: written.template.clone(),
+            algorithm: written.algorithm.clone(),
+        };
+        let (kind, id, group) = target(&written);
+        let (page, seq) = page_from(&writer, Lane::Hot, is_group(kind, &id, group), |envelope| {
+            damage(&ids, envelope)
+        });
+
+        let applied = apply_held(&reader, &page);
+
+        assert_eq!(
+            applied.hold,
+            hold(Lane::Hot, seq, HoldReason::CorruptEnvelope),
+            "{case}"
+        );
+        assert_eq!(cursor(&reader, Lane::Hot), seq - 1, "{case}");
+        let lists = [
+            serde_json::to_value(get_algorithms(&reader).unwrap_or_else(|error| panic!("{case}: {error:?}"))),
+            serde_json::to_value(get_templates(&reader).unwrap_or_else(|error| panic!("{case}: {error:?}"))),
+            serde_json::to_value(get_decks(&reader).unwrap_or_else(|error| panic!("{case}: {error:?}"))),
+            serde_json::to_value(get_cards(&reader, &written.deck).unwrap_or_else(|error| panic!("{case}: {error:?}"))),
+        ];
+        for list in lists {
+            list.unwrap_or_else(|error| panic!("{case}: a list serializes: {error}"));
+        }
     }
 }
 
