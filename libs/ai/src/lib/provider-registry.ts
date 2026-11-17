@@ -4,6 +4,7 @@ import type { AIModel } from "./models";
 import { AI_PROVIDERS } from "./provider-catalog";
 import type { AiProvider } from "./provider-catalog";
 import type { AISecrets, SecretField } from "./provider-secrets";
+import { anthropicProviderEntry } from "./providers/anthropic";
 import { deepseekProviderEntry } from "./providers/deepseek";
 import { lmstudioProviderEntry } from "./providers/lmstudio";
 import { openaiProviderEntry } from "./providers/openai";
@@ -37,6 +38,7 @@ export const AI_PROVIDER_REGISTRY: Record<AiProvider, AIProviderEntry> = {
   opencodeGo: opencodeGoProviderEntry,
   opencodeZen: opencodeZenProviderEntry,
   ollamaCloud: ollamaCloudProviderEntry,
+  anthropic: anthropicProviderEntry,
 };
 
 export function getProviderConfig(provider: AiProvider): AIProviderEntry {

@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  anthropicProviderOptions,
   deepseekProviderOptions,
   lmstudioProviderOptions,
   ollamaProviderOptions,
@@ -7,6 +8,7 @@ import {
   openRouterProviderOptions,
   opencodeGoProviderOptions,
   opencodeZenProviderOptions,
+  streamChatWithAnthropic,
 } from "./chat-stream";
 
 describe("provider option helpers pass a non-empty effort through", () => {
@@ -16,6 +18,7 @@ describe("provider option helpers pass a non-empty effort through", () => {
     ["opencode-go", opencodeGoProviderOptions, { "opencode-go": { reasoningEffort: "high" } }],
     ["opencode-zen", opencodeZenProviderOptions, { "opencode-zen": { reasoningEffort: "high" } }],
     ["Ollama", ollamaProviderOptions, { ollama: { think: "high" } }],
+    ["Anthropic", anthropicProviderOptions, { anthropic: { effort: "high" } }],
   ] as const)("maps %s high onto provider options", (_label, providerOptions, expected) => {
     expect(providerOptions("high")).toEqual(expected);
   });
@@ -68,8 +71,41 @@ describe("provider option helpers omit an empty effort", () => {
     ["Ollama", ollamaProviderOptions],
     ["LM Studio", lmstudioProviderOptions],
     ["opencode-zen", opencodeZenProviderOptions],
+    ["Anthropic", anthropicProviderOptions],
   ] as const)("omits %s providerOptions when effort is missing or empty", (_label, providerOptions) => {
     expect(providerOptions(undefined)).toBeUndefined();
     expect(providerOptions("")).toBeUndefined();
+  });
+});
+
+describe("streamChatWithAnthropic", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("sends the browser access header with the api key", async () => {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+      Promise.resolve(
+        new Response(JSON.stringify({ type: "error", error: { type: "authentication_error", message: "bad key" } }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    // WHY: the 401 ends the run; only the request the SDK built matters here.
+    await expect(
+      streamChatWithAnthropic(
+        { input: { modelId: "claude-opus-5-5" }, messages: [{ role: "user", content: "Hi" }] },
+        () => {},
+        new AbortController().signal,
+        { apiKey: "sk-ant" },
+      ),
+    ).rejects.toThrow();
+
+    const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+    expect(headers.get("anthropic-dangerous-direct-browser-access")).toBe("true");
+    expect(headers.get("x-api-key")).toBe("sk-ant");
   });
 });

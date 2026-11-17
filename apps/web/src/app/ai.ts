@@ -24,6 +24,8 @@ function redactSecrets(secrets: AISecrets): AISecrets {
       return { provider: "opencodeZen", apiKey: null };
     case "ollamaCloud":
       return { provider: "ollamaCloud", apiKey: null };
+    case "anthropic":
+      return { provider: "anthropic", apiKey: null };
     case "ollama":
       return { provider: "ollama", baseUrl: secrets.baseUrl, apiKey: null };
     case "lmstudio":

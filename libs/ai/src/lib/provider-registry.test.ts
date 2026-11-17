@@ -17,6 +17,7 @@ const RUST_AI_SECRETS_PROVIDER_TAGS = [
   "opencodeGo",
   "opencodeZen",
   "ollamaCloud",
+  "anthropic",
 ];
 
 describe("AI provider registry parity", () => {

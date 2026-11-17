@@ -72,7 +72,7 @@ Facts later sessions need, read from `@ai-sdk/anthropic` 4.0.71 source:
   Commit: Add the Anthropic secrets variant to the Rust domain
   Depends on: none
 
-- [ ] 2. Add the Anthropic provider
+- [x] 2. Add the Anthropic provider
   Goal: add `@ai-sdk/anthropic@4.0.71` with `bun add`, pinned like its `@ai-sdk/*` neighbours in `package.json`.
   Follow `agents/ADD-AI-PROVIDER.md` steps 1 and 4 to 9 with the facts in Scope:
   label `anthropic: "Anthropic"` in `provider-catalog.ts`; secrets schemas in `provider-secrets.ts`;

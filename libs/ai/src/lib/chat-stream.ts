@@ -5,7 +5,12 @@ import { AIError, wrapAIError } from "./error";
 import type { ChatStreamChunk, ChatStreamRequest } from "./generation";
 import type { StreamUsage } from "./models";
 import { DEFAULT_CHAT_PROMPT_TEMPLATE, GENERATION_TEMPERATURE } from "./prompts";
-import { OLLAMA_CLOUD_BASE_URL, OPENCODE_GO_BASE_URL, OPENCODE_ZEN_BASE_URL } from "./provider-catalog";
+import {
+  ANTHROPIC_BROWSER_ACCESS_HEADERS,
+  OLLAMA_CLOUD_BASE_URL,
+  OPENCODE_GO_BASE_URL,
+  OPENCODE_ZEN_BASE_URL,
+} from "./provider-catalog";
 import { wrapModelWithReasoningExtraction } from "./model-reasoning-extraction";
 
 function resolveGenerationTemperature(value?: number) {
@@ -156,6 +161,10 @@ export function deepseekProviderOptions(reasoningEffort: string | undefined): Pr
   return { deepseek: { reasoningEffort: mappedEffort } };
 }
 
+export function anthropicProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
+  return reasoningEffort ? { anthropic: { effort: reasoningEffort } } : undefined;
+}
+
 export function opencodeGoProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
   return reasoningEffort ? { "opencode-go": { reasoningEffort } } : undefined;
 }
@@ -234,6 +243,25 @@ export function streamChatWithDeepSeek(
       onChunk,
       abortSignal,
       deepseekProviderOptions(request.input.reasoningEffort),
+    );
+  });
+}
+
+export function streamChatWithAnthropic(
+  request: ChatStreamRequest,
+  onChunk: (chunk: ChatStreamChunk) => void,
+  abortSignal: AbortSignal,
+  { apiKey }: { apiKey: string },
+) {
+  return wrapAIError(async () => {
+    const { createAnthropic } = await import("@ai-sdk/anthropic");
+    const anthropic = createAnthropic({ apiKey, headers: ANTHROPIC_BROWSER_ACCESS_HEADERS });
+    return runChatStream(
+      (modelId) => anthropic(modelId),
+      request,
+      onChunk,
+      abortSignal,
+      anthropicProviderOptions(request.input.reasoningEffort),
     );
   });
 }

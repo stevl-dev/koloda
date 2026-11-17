@@ -1,5 +1,6 @@
 import {
   aiProfileValidation,
+  anthropicSecretsValidation,
   deepseekSecretsValidation,
   lmstudioSecretsValidation,
   openaiSecretsValidation,
@@ -41,7 +42,7 @@ const titleField: AIProfileProviderField = {
 };
 
 function apiKeyOnlyConfig(
-  provider: "openai" | "deepseek" | "openrouter" | "opencodeGo" | "opencodeZen" | "ollamaCloud",
+  provider: "openai" | "deepseek" | "openrouter" | "opencodeGo" | "opencodeZen" | "ollamaCloud" | "anthropic",
   secretsSchema: typeof openRouterSecretsValidation,
 ): AIProviderFormConfig {
   return {
@@ -94,6 +95,7 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
   opencodeGo: apiKeyOnlyConfig("opencodeGo", opencodeGoSecretsValidation),
   opencodeZen: apiKeyOnlyConfig("opencodeZen", opencodeZenSecretsValidation),
   ollamaCloud: apiKeyOnlyConfig("ollamaCloud", ollamaCloudSecretsValidation),
+  anthropic: apiKeyOnlyConfig("anthropic", anthropicSecretsValidation),
   ollama: baseUrlConfig("ollama", ollamaSecretsValidation, "http://localhost:11434"),
   lmstudio: baseUrlConfig("lmstudio", lmstudioSecretsValidation, "http://localhost:1234/v1"),
 };

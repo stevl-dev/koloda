@@ -18,6 +18,7 @@ export {
 export {
   aiSecretsInputValidation,
   aiSecretsValidation,
+  anthropicSecretsValidation,
   deepseekSecretsValidation,
   isPresentApiKey,
   lmstudioSecretsValidation,

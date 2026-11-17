@@ -45,6 +45,7 @@ Available in the browser:
 - OpenRouter
 - Ollama
 - LM Studio
+- Anthropic
 
 Desktop only:
 
@@ -216,6 +217,7 @@ Some models support a reasoning-effort parameter.
 The app learns the supported levels and the default for a model by a fixed rule per provider:
 
 - OpenRouter reports the levels and the default in its model list.
+- Anthropic reports the levels in its model list, without a default.
 - LM Studio reports the levels and the default in the model's capabilities.
   A model without a valid reported default has no default level.
 - Ollama and Ollama Cloud report only whether a model can think.

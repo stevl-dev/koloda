@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   aiSecretsInputValidation,
   aiSecretsValidation,
+  anthropicSecretsValidation,
   deepseekSecretsValidation,
   isPresentApiKey,
   lmstudioSecretsValidation,
@@ -103,6 +104,10 @@ describe("provider-secrets", () => {
       label: "deepseekSecretsValidation",
       parse: () => deepseekSecretsValidation.safeParse({ apiKey: "   " }),
     },
+    {
+      label: "anthropicSecretsValidation",
+      parse: () => anthropicSecretsValidation.safeParse({ apiKey: "   " }),
+    },
   ])("rejects a whitespace-only apiKey on $label", ({ parse }) => {
     const result = parse();
     expect(result.success).toBe(false);
@@ -141,6 +146,7 @@ describe("provider-secrets", () => {
     { provider: "opencodeZen" as const, secrets: {} },
     { provider: "ollamaCloud" as const, secrets: { apiKey: null } },
     { provider: "deepseek" as const, secrets: { apiKey: null } },
+    { provider: "anthropic" as const, secrets: { apiKey: "   " } },
   ])("rejects a missing, blank, or null apiKey on the input schema for $provider", ({ provider, secrets }) => {
     const result = aiSecretsInputValidation.safeParse({ provider, ...secrets });
     expect(result.success).toBe(false);
