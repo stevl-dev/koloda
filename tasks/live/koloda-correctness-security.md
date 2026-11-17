@@ -1,6 +1,6 @@
 # Koloda crate correctness and security fixes
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/specs/AI-PROVIDERS.md, docs/specs/CARDS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/REVIEW.md
 Flow: local
 
