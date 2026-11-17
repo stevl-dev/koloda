@@ -1,6 +1,6 @@
 # OpenAI-compatible provider
 
-Status: draft
+Status: ready
 Guides: agents/ADD-AI-PROVIDER.md, docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/RUST.md, agents/TESTING.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -55,22 +55,19 @@ Out:
 
 ## Open questions
 
-- [ ] 1. Where do header values live on desktop? — open
-  Today the keyring holds one string per profile, the API key, under `ai-profile-<id>`
-  (`crates/koloda/src/repo/ai.rs`, `set_api_key` / `get_api_key`).
-  Option A: a second entry, `ai-profile-<id>-headers`, holding the map as JSON.
-  Existing profiles keep their stored format.
-  Option B: one JSON entry for all of the profile's secrets; every existing entry would need migrating.
-  Recommendation: A.
-- [ ] 2. How does the edit dialog show stored headers? — open
-  Recommendation: names in the clear; each value masked behind a replace button, like the API key.
-- [ ] 3. Can a stored header be removed on edit? — open
-  The spec says a stored optional API key cannot be cleared by leaving its field empty.
-  Headers need an explicit remove action per row, or the whole map is replaced on save.
-  Recommendation: a remove action per row; an untouched masked value is kept.
-- [ ] 4. Does a profile with headers but no API key have secrets (`has_secrets`)? — open
-  `has_secrets` today is "the keyring holds a key".
-  Check its readers before deciding.
+- [x] 1. Where do header values live on desktop? — in a second keyring entry, `ai-profile-<id>-headers`,
+  holding the name → value map as JSON.
+  The API key stays alone in `ai-profile-<id>` (`crates/koloda/src/repo/ai.rs`, `set_api_key` / `get_api_key`),
+  so existing profiles keep their stored format.
+- [x] 2. How does the edit dialog show stored headers? — names in the clear;
+  each value masked behind a replace button, like the API key.
+- [x] 3. Can a stored header be removed on edit? — yes, by a remove action per row.
+  An untouched masked value is kept; a stored optional API key still cannot be cleared.
+- [x] 4. Does a profile with headers but no API key have secrets (`has_secrets`)? — no; `has_secrets` stays
+  "the profile's API key is stored".
+  Its only reader, `libs/ai-react/src/lib/use-ai-profiles.ts:22`, uses it to drop a missing `apiKey` field,
+  and this provider's only required secret is the base URL.
+  Stored headers are visible through their names, which public reads keep.
 - [x] Provider key and label? — `openaiCompatible`, `OpenAI-compatible`.
 - [x] Does this need a task file? — yes: several commits across Rust, `libs/ai`, `libs/settings-react`, `apps/web`,
   and the spec, with open questions on secret storage.
@@ -97,16 +94,23 @@ Out:
 
 - [ ] 2. Store custom headers for OpenAI-compatible profiles
   Goal: The `openaiCompatible` secrets gain an optional `headers` map (name → value), on both sides.
-  Rust: the `AISecrets::OpenaiCompatible` variant gets the field; input validation checks names and values (§Scope);
-  storage validation rejects stored values in settings JSON, as it does for keys.
-  Desktop keeps values out of `settings.ai` per open question 1; redaction and reconstruction carry them.
-  TS: the wire, input, and form schemas gain the field; `redactSecrets` in `apps/web/src/app/ai.ts` drops the values.
-  Web keeps them in the local database with the profile, like the API key.
+  Rust: the `AISecrets::OpenaiCompatible` variant gets the field; input validation checks names and values (§Scope).
+  Settings JSON keeps the header names with every value `null`; storage validation rejects a non-null value,
+  as it rejects a stored key.
+  The values live in the keyring entry `ai-profile-<id>-headers` as a JSON map (open question 1).
+  Add, update, and delete write and remove that entry with the same settings-then-keyring order and rollback as the key.
+  On update, a header sent with a `null` value keeps its stored value, a header left out is removed,
+  and a header with a value is set (open question 3).
+  Public reads keep the names and redact the values; `has_secrets` is unchanged (open question 4).
+  TS: the wire, input, and form schemas gain the field; `redactSecrets` in `apps/web/src/app/ai.ts` keeps the names
+  and drops the values.
+  Web keeps the values in the local database with the profile, like the API key, and applies the same update rule.
   The model list fetch and the chat client send the headers.
   `fetchOpenAICompatibleModelsDetailed` gains a headers parameter; other callers pass none.
   Spec: §Secrets lists custom headers and where they are stored.
   Constraints: no form UI yet; no change to the stored format of other providers' secrets.
-  Done when: Rust unit, settings, and integration tests cover add, edit, read, and delete with headers,
+  Done when: Rust unit, settings, and integration tests cover add, edit (keep, remove, set), read, and delete
+  with headers,
   including that public reads never return values; TS tests cover validation, redaction,
   and that the model list request and `createOpenAICompatible` receive the headers; `bun run check:push` is green.
   Commit: Store custom headers for OpenAI-compatible profiles
@@ -116,7 +120,8 @@ Out:
   Goal: A `headers` `AIProfileFieldType` that `AIProfileFormFields` renders as name/value rows,
   with add and remove actions.
   The `openaiCompatible` form config becomes a hand-written entry with title, base URL, API key, and headers.
-  Edit mode follows open questions 2 and 3.
+  Edit mode shows stored names in the clear and masks each value behind a replace button (open question 2).
+  Each row has a remove action; an untouched masked value is sent as `null`, so it is kept (open question 3).
   Add the labels in every locale `agents/I18N.md` requires.
   Spec: §Editing a Profile says how stored headers are shown, replaced, and removed.
   Constraints: other providers' forms do not change.
