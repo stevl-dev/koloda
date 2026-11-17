@@ -297,6 +297,11 @@ pub fn update_card(db: &Database, data: UpdateCardData) -> Result<Card, AppError
             let Some(current) = select_card(tx, &data.id)? else {
                 return Ok(());
             };
+            // INVARIANT: a save with nothing changed writes nothing. Sync derives `updated_at` from the field groups
+            // (PROTOCOL.md, `updated_at`), so moving it without a captured change would show a time no other device has.
+            if current.content == values_content {
+                return Ok(());
+            }
             tx.execute(
                 r#"
                 UPDATE cards
@@ -306,16 +311,14 @@ pub fn update_card(db: &Database, data: UpdateCardData) -> Result<Card, AppError
                 params![content, now, data.id],
             )?;
 
-            if current.content != values_content {
-                Capture::begin(tx)?.write(
-                    &data.id,
-                    Some(&current.deck_id),
-                    &Payload::CardContent(wire::CardContent {
-                        content,
-                        updated_at: Some(now),
-                    }),
-                )?;
-            }
+            Capture::begin(tx)?.write(
+                &data.id,
+                Some(&current.deck_id),
+                &Payload::CardContent(wire::CardContent {
+                    content,
+                    updated_at: Some(now),
+                }),
+            )?;
 
             Ok(())
         })?;

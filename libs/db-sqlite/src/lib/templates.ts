@@ -89,9 +89,19 @@ export async function updateTemplate(db: DB, { id, values }: UpdateTemplateData)
         throw new AppError("validation.templates.update-locked");
       }
 
+      // INVARIANT: a save with nothing changed writes nothing, so the update time moves only with an edit.
+      // Both contents went through the same schema parse, so string equality is content equality.
+      // Twin of Rust `update_template`.
+      const content = JSON.stringify(payload.content);
+      const isUnchanged =
+        template.title === payload.title &&
+        (template.notes ?? null) === (payload.notes ?? null) &&
+        content === JSON.stringify(template.content);
+      if (isUnchanged) return template;
+
       await tx.run(`UPDATE templates SET title = ?, content = ?, notes = ?, updated_at = ? WHERE id = ?`, [
         payload.title,
-        JSON.stringify(payload.content),
+        content,
         payload.notes ?? null,
         nowMs(),
         id,

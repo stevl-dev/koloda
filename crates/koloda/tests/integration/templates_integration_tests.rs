@@ -55,6 +55,34 @@ fn update_template_round_trips_every_field() {
     );
 }
 
+// Twin of the web `keeps the update time when a save changes nothing` template case.
+#[test]
+fn update_template_with_unchanged_values_keeps_the_update_time() {
+    let db = test_db();
+    let template_id = add_template(&db, "Basic");
+    let template = templates::get_template(&db, &template_id)
+        .expect("template query should succeed")
+        .expect("template should exist");
+
+    let updated = templates::update_template(
+        &db,
+        UpdateTemplateData {
+            id: template_id,
+            values: UpdateTemplateValues {
+                title: template.title.clone(),
+                content: template.content.clone(),
+                notes: template.notes.clone(),
+            },
+        },
+    )
+    .expect("update should succeed");
+
+    assert_eq!(
+        updated, template,
+        "a save with nothing changed leaves the template, update time included"
+    );
+}
+
 fn is_locked(db: &Database, template_id: &str) -> bool {
     templates::get_template(db, template_id)
         .expect("template query should succeed")

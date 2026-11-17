@@ -213,6 +213,14 @@ pub fn update_algorithm(db: &Database, data: UpdateAlgorithmData) -> Result<Algo
                     )
                 })?;
 
+            let title_changed = existing_title != title;
+            let notes_changed = existing_notes != notes;
+            let content_changed = existing_content != data.values.content;
+            // INVARIANT: a save with nothing changed writes nothing. Sync derives `updated_at` from the field groups
+            // (PROTOCOL.md, `updated_at`), so moving it without a captured change would show a time no other device has.
+            if !(title_changed || notes_changed || content_changed) {
+                return Ok(());
+            }
             let content = serde_json::to_string(&data.values.content)?;
             tx.execute(
                 r#"
@@ -228,14 +236,14 @@ pub fn update_algorithm(db: &Database, data: UpdateAlgorithmData) -> Result<Algo
             )?;
             let updated_at = Some(now);
             let mut capture = Capture::begin(tx)?;
-            if existing_title != title {
+            if title_changed {
                 capture.write(
                     &data.id,
                     None,
                     &Payload::AlgorithmTitle(wire::Title { title, updated_at }),
                 )?;
             }
-            if existing_notes != notes {
+            if notes_changed {
                 capture.write(
                     &data.id,
                     None,
@@ -244,7 +252,7 @@ pub fn update_algorithm(db: &Database, data: UpdateAlgorithmData) -> Result<Algo
             }
             // WHY: title and notes are not parameters, so only a content change is a revision.
             // Twin of TS `updateAlgorithm`.
-            if existing_content != data.values.content {
+            if content_changed {
                 let revision = insert_algorithm_revision(tx, &data.id, &content, AlgorithmRevisionActor::User, now)?;
                 capture.write(
                     &data.id,

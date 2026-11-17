@@ -181,7 +181,7 @@ None.
   - `cargo test -p koloda` and `bun run test:libs` pass.
   Commit: Order a card's review history by time
   Depends on: none
-- [ ] 3. Move update times only when a save changes something
+- [x] 3. Move update times only when a save changes something
   Goal: finding 5.
   In `update_card`, `update_deck`, `update_template`, and `update_algorithm` (`crates/koloda/src/repo/`), set
   `updated_at` only when a field that captures for sync changed, decided from the row the transaction reads, as the

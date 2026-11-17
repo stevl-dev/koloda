@@ -233,6 +233,18 @@ describe("algorithms repository integration", () => {
     expect((await getAlgorithm(db, algorithm.id))?.notes).toBeUndefined();
   });
 
+  // Twin of `update_algorithm_with_unchanged_values_keeps_the_update_time`
+  // in `crates/koloda/tests/integration/algorithms_integration_tests.rs`.
+  it("keeps the update time when a save changes nothing", async () => {
+    const { db } = testDb;
+    const algorithm = await seedAlgorithm(db);
+    const values = { title: algorithm.title, notes: algorithm.notes, content: algorithm.content };
+
+    const updated = await updateAlgorithm(db, { id: algorithm.id, values });
+
+    expect(updated).toEqual(algorithm);
+  });
+
   describe("revisions", () => {
     async function getRevisions(db: DB, algorithmId: string) {
       const rows = await db.all(

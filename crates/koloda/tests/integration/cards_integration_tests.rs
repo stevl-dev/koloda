@@ -606,6 +606,29 @@ fn update_card_changes_only_content_and_moves_update_time() {
     );
 }
 
+// Twin of the web `keeps the update time when a save changes nothing` card case.
+#[test]
+fn update_card_with_unchanged_content_keeps_the_update_time() {
+    let db = test_db();
+    let (_, card) = add_scheduled_card(&db);
+
+    let updated = cards::update_card(
+        &db,
+        UpdateCardData {
+            id: card.id.clone(),
+            values: UpdateCardValues {
+                content: card.content.clone(),
+            },
+        },
+    )
+    .expect("update should succeed");
+
+    assert_eq!(
+        updated, card,
+        "a save with nothing changed leaves the card, update time included"
+    );
+}
+
 #[test]
 fn update_card_rejects_a_missing_card_or_template() {
     type Arrange = fn(&koloda::app::db::Database) -> String;

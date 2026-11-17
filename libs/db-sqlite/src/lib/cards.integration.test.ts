@@ -323,6 +323,17 @@ describe("cards repository integration", () => {
     expect(updated).toEqual({ ...card, content, updatedAt: expect.any(Date) });
   });
 
+  // Twin of `update_card_with_unchanged_content_keeps_the_update_time`
+  // in `crates/koloda/tests/integration/cards_integration_tests.rs`.
+  it("keeps the update time when a save changes nothing", async () => {
+    const { db } = testDb;
+    const { card } = await addScheduledCard(db);
+
+    const updated = await updateCard(db, { id: card.id, values: { content: card.content } });
+
+    expect(updated).toEqual(card);
+  });
+
   it.each<{ name: string; arrange: (db: DB) => Promise<UpdateCardData>; error: object }>([
     {
       name: "a missing card",

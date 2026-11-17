@@ -87,6 +87,18 @@ describe("templates repository integration", () => {
     });
   });
 
+  // Twin of `update_template_with_unchanged_values_keeps_the_update_time`
+  // in `crates/koloda/tests/integration/templates_integration_tests.rs`.
+  it("keeps the update time when a save changes nothing", async () => {
+    const { db } = testDb;
+    const template = await seedTemplate(db);
+    const values = { title: template.title, notes: template.notes, content: template.content };
+
+    const updated = await updateTemplate(db, { id: template.id, values });
+
+    expect(updated).toEqual(template);
+  });
+
   // Twin of `clone_template_copies_fields_and_layout_without_notes_or_lock`
   // in `crates/koloda/tests/integration/templates_integration_tests.rs`.
   it("clones fields and layout without notes or lock", async () => {

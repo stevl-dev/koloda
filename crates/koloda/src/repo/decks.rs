@@ -188,7 +188,18 @@ pub fn update_deck(db: &Database, data: UpdateDeckData) -> Result<Deck, AppError
         let notes = normalize_optional_notes(data.values.notes.clone());
 
         db.with_transaction(|tx| {
-            let original = select_deck(tx, &data.id)?;
+            let Some(original) = select_deck(tx, &data.id)? else {
+                return Ok(());
+            };
+            let title_changed = original.title != title;
+            let notes_changed = original.notes != notes;
+            let algorithm_changed = original.algorithm_id != data.values.algorithm_id;
+            let template_changed = original.template_id != data.values.template_id;
+            // INVARIANT: a save with nothing changed writes nothing. Sync derives `updated_at` from the field groups
+            // (PROTOCOL.md, `updated_at`), so moving it without a captured change would show a time no other device has.
+            if !(title_changed || notes_changed || algorithm_changed || template_changed) {
+                return Ok(());
+            }
             tx.execute(
                 r#"
                 UPDATE decks
@@ -210,18 +221,15 @@ pub fn update_deck(db: &Database, data: UpdateDeckData) -> Result<Deck, AppError
                 ],
             )?;
 
-            let Some(original) = original else {
-                return Ok(());
-            };
             let updated_at = Some(now);
             let mut capture = Capture::begin(tx)?;
-            if original.title != title {
+            if title_changed {
                 capture.write(&data.id, None, &Payload::DeckTitle(wire::Title { title, updated_at }))?;
             }
-            if original.notes != notes {
+            if notes_changed {
                 capture.write(&data.id, None, &Payload::DeckNotes(wire::Notes { notes, updated_at }))?;
             }
-            if original.algorithm_id != data.values.algorithm_id {
+            if algorithm_changed {
                 capture.write(
                     &data.id,
                     None,
@@ -231,7 +239,7 @@ pub fn update_deck(db: &Database, data: UpdateDeckData) -> Result<Deck, AppError
                     }),
                 )?;
             }
-            if original.template_id != data.values.template_id {
+            if template_changed {
                 capture.write(
                     &data.id,
                     None,

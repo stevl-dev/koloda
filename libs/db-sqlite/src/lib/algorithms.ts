@@ -59,6 +59,14 @@ export async function updateAlgorithm(db: DB, { id, values }: UpdateAlgorithmDat
 
       const now = nowMs();
       const content = JSON.stringify(payload.content);
+      // WHY: both sides went through the same schema parse, so key order matches and string equality is
+      // parameter equality. Title and notes are not parameters. Twin of Rust `update_algorithm`.
+      const isContentChanged = content !== JSON.stringify(existing.content);
+      // INVARIANT: a save with nothing changed writes nothing, so the update time moves only with an edit.
+      const isUnchanged =
+        !isContentChanged && existing.title === payload.title && (existing.notes ?? null) === (payload.notes ?? null);
+      if (isUnchanged) return;
+
       await tx.run(`UPDATE algorithms SET title = ?, content = ?, notes = ?, updated_at = ? WHERE id = ?`, [
         payload.title,
         content,
@@ -66,9 +74,7 @@ export async function updateAlgorithm(db: DB, { id, values }: UpdateAlgorithmDat
         now,
         id,
       ]);
-      // WHY: both sides went through the same schema parse, so key order matches and string equality is
-      // parameter equality. Title and notes are not parameters. Twin of Rust `update_algorithm`.
-      if (content !== JSON.stringify(existing.content)) await insertAlgorithmRevision(tx, id, payload.content, now);
+      if (isContentChanged) await insertAlgorithmRevision(tx, id, payload.content, now);
     });
 
     const result = await getAlgorithm(db, id);

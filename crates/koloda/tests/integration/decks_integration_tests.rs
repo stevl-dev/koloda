@@ -55,6 +55,37 @@ fn update_deck_round_trips_every_field() {
     );
 }
 
+// Twin of the web `keeps the update time when a save changes nothing` deck case.
+#[test]
+fn update_deck_with_unchanged_values_keeps_the_update_time() {
+    let db = test_db();
+    let algorithm_id = add_algorithm(&db, "FSRS");
+    let template_id = add_template(&db, "Basic");
+    let deck_id = add_deck(&db, &algorithm_id, &template_id, "Deck");
+    let deck = decks::get_deck(&db, &deck_id)
+        .expect("deck query should succeed")
+        .expect("deck should exist");
+
+    let updated = decks::update_deck(
+        &db,
+        UpdateDeckData {
+            id: deck_id,
+            values: UpdateDeckValues {
+                title: deck.title.clone(),
+                algorithm_id,
+                template_id,
+                notes: deck.notes.clone(),
+            },
+        },
+    )
+    .expect("update should succeed");
+
+    assert_eq!(
+        updated, deck,
+        "a save with nothing changed leaves the deck, update time included"
+    );
+}
+
 // Twin of the web `stores deck titles without leading or trailing whitespace` case.
 #[test]
 fn add_and_update_store_deck_titles_trimmed() {

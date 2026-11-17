@@ -39,6 +39,18 @@ describe("decks repository integration", () => {
     expect((await getDeck(db, deck.id))?.notes).toBeUndefined();
   });
 
+  // Twin of `update_deck_with_unchanged_values_keeps_the_update_time`
+  // in `crates/koloda/tests/integration/decks_integration_tests.rs`.
+  it("keeps the update time when a save changes nothing", async () => {
+    const { db } = testDb;
+    const { deck } = await seedDeckContext(db);
+    const values = { title: deck.title, algorithmId: deck.algorithmId, templateId: deck.templateId, notes: deck.notes };
+
+    const updated = await updateDeck(db, { id: deck.id, values });
+
+    expect(updated).toEqual(deck);
+  });
+
   // WHY: the title rule itself lives in `libs/srs` (`titles.test.ts`); this checks that the repo
   // rejects before it writes, so the saved deck is unchanged.
   it("rejects deck updates with an empty title", async () => {

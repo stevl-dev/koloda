@@ -55,6 +55,34 @@ fn update_algorithm_round_trips_every_field() {
     );
 }
 
+// Twin of the web `keeps the update time when a save changes nothing` algorithm case.
+#[test]
+fn update_algorithm_with_unchanged_values_keeps_the_update_time() {
+    let db = test_db();
+    let algorithm_id = add_algorithm(&db, "FSRS");
+    let algorithm = algorithms::get_algorithm(&db, &algorithm_id)
+        .expect("algorithm query should succeed")
+        .expect("algorithm should exist");
+
+    let updated = algorithms::update_algorithm(
+        &db,
+        UpdateAlgorithmData {
+            id: algorithm_id,
+            values: UpdateAlgorithmValues {
+                title: algorithm.title.clone(),
+                content: algorithm.content.clone(),
+                notes: algorithm.notes.clone(),
+            },
+        },
+    )
+    .expect("update should succeed");
+
+    assert_eq!(
+        updated, algorithm,
+        "a save with nothing changed leaves the algorithm, update time included"
+    );
+}
+
 #[test]
 fn update_algorithm_fails_with_not_found_when_algorithm_is_missing() {
     let db = test_db();

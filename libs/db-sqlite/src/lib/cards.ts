@@ -144,6 +144,10 @@ export async function updateCard(db: DB, { id, values }: UpdateCardData) {
     const schema = getUpdateCardSchema(template);
     const validated = schema.parse(values);
 
+    // INVARIANT: a save with nothing changed writes nothing, so the update time moves only with an edit
+    // (CARDS.md §Editing Cards). Twin of Rust `update_card`.
+    if (isSameCardContent(card.content, validated.content)) return card;
+
     await db.run(`UPDATE cards SET content = ?, updated_at = ? WHERE id = ?`, [
       JSON.stringify(validated.content),
       nowMs(),
@@ -153,6 +157,11 @@ export async function updateCard(db: DB, { id, values }: UpdateCardData) {
     const result = await getCard(db, id);
     return parseRow(cardRowSchema, result);
   });
+}
+
+function isSameCardContent(stored: Card["content"], next: Card["content"]) {
+  const keys = Object.keys(next);
+  return keys.length === Object.keys(stored).length && keys.every((key) => stored[key]?.text === next[key]?.text);
 }
 
 export async function deleteCard(db: DB, { id }: DeleteCardData) {

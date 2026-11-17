@@ -246,7 +246,17 @@ pub fn update_template(db: &Database, data: UpdateTemplateData) -> Result<Templa
                 data.values.validate(None)?;
             }
 
-            let stored = select_stored_template(tx, &data.id)?;
+            let Some(stored) = select_stored_template(tx, &data.id)? else {
+                return Ok(());
+            };
+            let title_changed = stored.title != title;
+            let notes_changed = stored.notes != notes;
+            let content_changed = stored.content != content;
+            // INVARIANT: a save with nothing changed writes nothing. Sync derives `updated_at` from the field groups
+            // (PROTOCOL.md, `updated_at`), so moving it without a captured change would show a time no other device has.
+            if !(title_changed || notes_changed || content_changed) {
+                return Ok(());
+            }
             tx.execute(
                 r#"
                 UPDATE templates
@@ -260,26 +270,23 @@ pub fn update_template(db: &Database, data: UpdateTemplateData) -> Result<Templa
                 params![title, content, notes, now, data.id],
             )?;
 
-            let Some(stored) = stored else {
-                return Ok(());
-            };
             let updated_at = Some(now);
             let mut capture = Capture::begin(tx)?;
-            if stored.title != title {
+            if title_changed {
                 capture.write(
                     &data.id,
                     None,
                     &Payload::TemplateTitle(wire::Title { title, updated_at }),
                 )?;
             }
-            if stored.notes != notes {
+            if notes_changed {
                 capture.write(
                     &data.id,
                     None,
                     &Payload::TemplateNotes(wire::Notes { notes, updated_at }),
                 )?;
             }
-            if stored.content != content {
+            if content_changed {
                 capture.write(
                     &data.id,
                     None,
