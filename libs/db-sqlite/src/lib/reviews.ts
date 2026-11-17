@@ -15,7 +15,9 @@ import { FSRS_LEARNING, FSRS_NEW, FSRS_RELEARNING, FSRS_REVIEW, toUnixMs } from 
 
 export async function getReviews(db: DB, { cardId }: GetReviewsData) {
   return throwKnownError("db.get", async () => {
-    const result = await db.all(`SELECT ${REVIEW_SELECT} FROM reviews WHERE card_id = ?`, [cardId]);
+    const result = await db.all(`SELECT ${REVIEW_SELECT} FROM reviews WHERE card_id = ? ORDER BY created_at, id`, [
+      cardId,
+    ]);
     return parseRows(reviewRowSchema, result);
   });
 }

@@ -109,6 +109,7 @@ pub fn get_reviews(db: &Database, data: GetReviewsData) -> Result<Vec<Review>, A
                        scheduled_days, learning_steps, time, is_ignored, created_at
                 FROM reviews
                 WHERE card_id = ?1
+                ORDER BY created_at, id
                 "#,
             )?;
 

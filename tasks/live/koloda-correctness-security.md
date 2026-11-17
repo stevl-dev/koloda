@@ -169,7 +169,7 @@ None.
   - `cargo test -p koloda` passes.
   Commit: Keep AI profiles out of the generic settings writes
   Depends on: none
-- [ ] 2. Order a card's review history by time
+- [x] 2. Order a card's review history by time
   Goal: finding 3.
   `get_reviews` in `crates/koloda/src/repo/reviews.rs` and `getReviews` in `libs/db-sqlite/src/lib/reviews.ts` add
   `ORDER BY created_at, id`, so the history reads oldest first on both hosts, as it did before sync.

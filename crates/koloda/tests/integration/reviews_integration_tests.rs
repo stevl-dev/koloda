@@ -83,6 +83,29 @@ fn submit_lesson_result_round_trips_every_review_field() {
 }
 
 #[test]
+fn get_reviews_lists_a_card_history_oldest_first() {
+    // Twin: "lists a card's review history oldest first" (libs/db-sqlite/src/lib/settings-reviews.integration.test.ts).
+    let db = test_db();
+    let algorithm_id = add_algorithm(&db, "FSRS");
+    let template_id = add_template(&db, "Basic");
+    let deck_id = add_deck(&db, &algorithm_id, &template_id, "Deck");
+    let card_id = add_card(&db, &deck_id, &template_id, "question");
+
+    // WHY: a review pulled from another device is inserted after a newer local one, so insertion order is not time
+    // order.
+    for created_at in [1_800_000_000_000, 1_700_000_000_000, 1_750_000_000_000] {
+        insert_review_row(&db, &card_id, 2, 0, created_at);
+    }
+
+    let stored = reviews::get_reviews(&db, GetReviewsData { card_id }).expect("reviews query should succeed");
+
+    assert_eq!(
+        stored.iter().map(|review| review.created_at).collect::<Vec<_>>(),
+        vec![1_700_000_000_000, 1_750_000_000_000, 1_800_000_000_000]
+    );
+}
+
+#[test]
 fn get_review_totals_counts_states_and_ignores_ignored_rows() {
     let db = test_db();
     let algorithm_id = add_algorithm(&db, "FSRS");

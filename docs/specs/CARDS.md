@@ -133,6 +133,8 @@ Without the card's template, the content cannot be edited.
 
 Graded cards show a review history on the details view.
 Each entry is a timestamp and a grade.
+Entries are listed oldest first, by when each review was made,
+including reviews made on another device and synced later.
 Untouched cards have no review history section.
 
 Resetting progress or deleting the card removes the history.

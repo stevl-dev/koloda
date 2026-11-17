@@ -8,7 +8,7 @@ import {
   seedLearningSettings,
 } from "../test/test-helpers";
 import { addCard } from "./cards";
-import { getTodaysReviewTotals } from "./reviews";
+import { getReviews, getTodaysReviewTotals } from "./reviews";
 import { getSettings, patchSettings, setSettings } from "./settings";
 
 describe("settings and review totals integration", () => {
@@ -130,6 +130,42 @@ describe("settings and review totals integration", () => {
     // (crates/koloda/tests/integration/settings_integration_tests.rs). The whole
     // array is replaced, so no key of the stored one survives.
     expect(result.content.grades?.again).toEqual(["x"]);
+  });
+
+  // Twin of koloda `get_reviews_lists_a_card_history_oldest_first`.
+  it("lists a card's review history oldest first", async () => {
+    const { db } = testDb;
+    const { deck, template } = await seedDeckContext(db);
+    const card = await addCard(db, {
+      deckId: deck.id,
+      templateId: template.id,
+      content: createCardContent(template),
+    });
+
+    // A review pulled from another device is inserted after a newer local one.
+    for (const createdAt of ["2026-03-01T00:00:00.000Z", "2026-01-01T00:00:00.000Z", "2026-02-01T00:00:00.000Z"]) {
+      await insertReview(db, {
+        cardId: card.id,
+        rating: 3,
+        state: 2,
+        dueAt: new Date("2026-04-01T00:00:00.000Z"),
+        stability: 7.5,
+        difficulty: 3.25,
+        scheduledDays: 12,
+        learningSteps: 2,
+        time: 4200,
+        isIgnored: false,
+        createdAt: new Date(createdAt),
+      });
+    }
+
+    const stored = await getReviews(db, { cardId: card.id });
+
+    expect(stored.map((review) => review.createdAt.toISOString())).toEqual([
+      "2026-01-01T00:00:00.000Z",
+      "2026-02-01T00:00:00.000Z",
+      "2026-03-01T00:00:00.000Z",
+    ]);
   });
 
   // Twin of koloda `set_settings_keeps_a_zero_total_as_a_hard_cap`.
