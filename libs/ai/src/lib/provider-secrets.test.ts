@@ -12,6 +12,7 @@ import {
   openRouterSecretsValidation,
   opencodeGoSecretsValidation,
   opencodeZenSecretsValidation,
+  vercelSecretsValidation,
   xaiSecretsValidation,
 } from "./provider-secrets";
 
@@ -113,6 +114,10 @@ describe("provider-secrets", () => {
       label: "xaiSecretsValidation",
       parse: () => xaiSecretsValidation.safeParse({ apiKey: "   " }),
     },
+    {
+      label: "vercelSecretsValidation",
+      parse: () => vercelSecretsValidation.safeParse({ apiKey: "   " }),
+    },
   ])("rejects a whitespace-only apiKey on $label", ({ parse }) => {
     const result = parse();
     expect(result.success).toBe(false);
@@ -153,6 +158,7 @@ describe("provider-secrets", () => {
     { provider: "deepseek" as const, secrets: { apiKey: null } },
     { provider: "anthropic" as const, secrets: { apiKey: "   " } },
     { provider: "xai" as const, secrets: {} },
+    { provider: "vercel" as const, secrets: { apiKey: null } },
   ])("rejects a missing, blank, or null apiKey on the input schema for $provider", ({ provider, secrets }) => {
     const result = aiSecretsInputValidation.safeParse({ provider, ...secrets });
     expect(result.success).toBe(false);

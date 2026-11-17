@@ -28,6 +28,7 @@ export {
   openRouterSecretsValidation,
   opencodeGoSecretsValidation,
   opencodeZenSecretsValidation,
+  vercelSecretsValidation,
   xaiSecretsValidation,
 } from "./lib/provider-secrets";
 export type { AISecrets, SecretField } from "./lib/provider-secrets";

@@ -1,5 +1,5 @@
 import type { ProviderOptions } from "@ai-sdk/provider-utils";
-import { isStepCount, streamText } from "ai";
+import { createGateway, isStepCount, streamText } from "ai";
 import { bindAssistantTools } from "./assistant-tools";
 import { AIError, wrapAIError } from "./error";
 import type { ChatStreamChunk, ChatStreamRequest } from "./generation";
@@ -13,6 +13,13 @@ import {
   XAI_BASE_URL,
 } from "./provider-catalog";
 import { wrapModelWithReasoningExtraction } from "./model-reasoning-extraction";
+
+type SdkReasoningLevel = NonNullable<Parameters<typeof streamText>[0]["reasoning"]>;
+
+// INVARIANT: the values of the AI SDK `reasoning` call option, minus "provider-default"
+// (no level picked already means the provider default). Vercel AI Gateway takes effort only
+// through this option, so its picker offers only these levels.
+export const SDK_REASONING_LEVELS: readonly SdkReasoningLevel[] = ["none", "minimal", "low", "medium", "high", "xhigh"];
 
 function resolveGenerationTemperature(value?: number) {
   return typeof value === "number" ? value : GENERATION_TEMPERATURE;
@@ -29,6 +36,7 @@ async function runChatStream(
   onChunk: (chunk: ChatStreamChunk) => void,
   abortSignal: AbortSignal,
   providerOptions?: ProviderOptions,
+  reasoning?: SdkReasoningLevel,
 ): Promise<StreamUsage | undefined> {
   let streamedError: unknown = null;
   let wasAborted = false;
@@ -55,6 +63,7 @@ async function runChatStream(
     // tools there is exactly one step and the extra options would be dead weight.
     ...(tools ? { tools, stopWhen: isStepCount(CHAT_TOOL_STEP_BUDGET) } : {}),
     ...(providerOptions ? { providerOptions } : {}),
+    ...(reasoning ? { reasoning } : {}),
     onError: ({ error }) => {
       streamedError = error;
     },
@@ -168,6 +177,10 @@ export function anthropicProviderOptions(reasoningEffort: string | undefined): P
 
 export function xaiProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
   return reasoningEffort ? { xai: { reasoningEffort } } : undefined;
+}
+
+export function vercelReasoning(reasoningEffort: string | undefined): SdkReasoningLevel | undefined {
+  return SDK_REASONING_LEVELS.find((level) => level === reasoningEffort);
 }
 
 export function opencodeGoProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
@@ -286,6 +299,25 @@ export function streamChatWithXai(
       onChunk,
       abortSignal,
       xaiProviderOptions(request.input.reasoningEffort),
+    );
+  });
+}
+
+export function streamChatWithVercel(
+  request: ChatStreamRequest,
+  onChunk: (chunk: ChatStreamChunk) => void,
+  abortSignal: AbortSignal,
+  { apiKey }: { apiKey: string },
+) {
+  return wrapAIError(async () => {
+    const gateway = createGateway({ apiKey });
+    return runChatStream(
+      (modelId) => gateway(modelId),
+      request,
+      onChunk,
+      abortSignal,
+      undefined,
+      vercelReasoning(request.input.reasoningEffort),
     );
   });
 }

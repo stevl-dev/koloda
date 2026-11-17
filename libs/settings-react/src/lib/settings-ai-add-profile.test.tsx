@@ -101,6 +101,7 @@ describe("SettingsAIAddProfile", () => {
       "Ollama Cloud",
       "Anthropic",
       "xAI",
+      "Vercel AI Gateway",
     ]);
   });
 

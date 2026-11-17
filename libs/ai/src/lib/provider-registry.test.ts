@@ -19,6 +19,7 @@ const RUST_AI_SECRETS_PROVIDER_TAGS = [
   "ollamaCloud",
   "anthropic",
   "xai",
+  "vercel",
 ];
 
 describe("AI provider registry parity", () => {

@@ -22,6 +22,13 @@ describe("provider-registry", () => {
   });
 
   it("lists the browser-capable providers per the spec platform table", () => {
-    expect(listProvidersThatWorkInBrowser()).toEqual(["openrouter", "ollama", "lmstudio", "anthropic", "xai"]);
+    expect(listProvidersThatWorkInBrowser()).toEqual([
+      "openrouter",
+      "ollama",
+      "lmstudio",
+      "anthropic",
+      "xai",
+      "vercel",
+    ]);
   });
 });

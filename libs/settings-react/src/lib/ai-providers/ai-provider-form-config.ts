@@ -9,6 +9,7 @@ import {
   opencodeGoSecretsValidation,
   opencodeZenSecretsValidation,
   openRouterSecretsValidation,
+  vercelSecretsValidation,
   xaiSecretsValidation,
 } from "@koloda/ai";
 import type { AiProvider, AISecrets } from "@koloda/ai";
@@ -43,7 +44,16 @@ const titleField: AIProfileProviderField = {
 };
 
 function apiKeyOnlyConfig(
-  provider: "openai" | "deepseek" | "openrouter" | "opencodeGo" | "opencodeZen" | "ollamaCloud" | "anthropic" | "xai",
+  provider:
+    | "openai"
+    | "deepseek"
+    | "openrouter"
+    | "opencodeGo"
+    | "opencodeZen"
+    | "ollamaCloud"
+    | "anthropic"
+    | "xai"
+    | "vercel",
   secretsSchema: typeof openRouterSecretsValidation,
 ): AIProviderFormConfig {
   return {
@@ -98,6 +108,7 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
   ollamaCloud: apiKeyOnlyConfig("ollamaCloud", ollamaCloudSecretsValidation),
   anthropic: apiKeyOnlyConfig("anthropic", anthropicSecretsValidation),
   xai: apiKeyOnlyConfig("xai", xaiSecretsValidation),
+  vercel: apiKeyOnlyConfig("vercel", vercelSecretsValidation),
   ollama: baseUrlConfig("ollama", ollamaSecretsValidation, "http://localhost:11434"),
   lmstudio: baseUrlConfig("lmstudio", lmstudioSecretsValidation, "http://localhost:1234/v1"),
 };

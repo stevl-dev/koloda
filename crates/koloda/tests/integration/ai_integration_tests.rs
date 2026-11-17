@@ -261,6 +261,9 @@ fn api_key_only_profiles_round_trip_via_secret_store() {
         AISecrets::Xai {
             api_key: Some("xai-secret".to_string()),
         },
+        AISecrets::Vercel {
+            api_key: Some("vercel-secret".to_string()),
+        },
     ];
 
     for secrets in cases {

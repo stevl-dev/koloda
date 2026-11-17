@@ -54,6 +54,7 @@ fn redact_secrets(secrets: &AISecrets) -> AISecrets {
         AISecrets::OllamaCloud { .. } => AISecrets::OllamaCloud { api_key: None },
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: None },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: None },
+        AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: None },
     }
 }
 
@@ -75,6 +76,7 @@ fn reconstruct_secrets(secrets: &AISecrets, api_key: String) -> AISecrets {
         AISecrets::OllamaCloud { .. } => AISecrets::OllamaCloud { api_key: Some(api_key) },
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: Some(api_key) },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: Some(api_key) },
+        AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: Some(api_key) },
     }
 }
 

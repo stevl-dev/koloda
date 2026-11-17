@@ -9,6 +9,8 @@ import {
   opencodeGoProviderOptions,
   opencodeZenProviderOptions,
   streamChatWithAnthropic,
+  streamChatWithVercel,
+  vercelReasoning,
   xaiProviderOptions,
 } from "./chat-stream";
 
@@ -110,5 +112,55 @@ describe("streamChatWithAnthropic", () => {
     const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
     expect(headers.get("anthropic-dangerous-direct-browser-access")).toBe("true");
     expect(headers.get("x-api-key")).toBe("sk-ant");
+  });
+});
+
+describe("vercelReasoning", () => {
+  it("passes a level the AI SDK reasoning option accepts", () => {
+    expect(vercelReasoning("xhigh")).toBe("xhigh");
+  });
+
+  it("drops a missing, empty, or unsupported level", () => {
+    expect(vercelReasoning(undefined)).toBeUndefined();
+    expect(vercelReasoning("")).toBeUndefined();
+    expect(vercelReasoning("max")).toBeUndefined();
+  });
+});
+
+describe("streamChatWithVercel", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function sentBody(reasoningEffort: string | undefined) {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: { message: "bad key", type: "authentication_error" } }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    // WHY: the 401 ends the run; only the request the SDK built matters here.
+    await expect(
+      streamChatWithVercel(
+        { input: { modelId: "openai/gpt-5.5", reasoningEffort }, messages: [{ role: "user", content: "Hi" }] },
+        () => {},
+        new AbortController().signal,
+        { apiKey: "vck-key" },
+      ),
+    ).rejects.toThrow();
+
+    return JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as Record<string, unknown>;
+  }
+
+  it("sends a picked level as the reasoning call option", async () => {
+    expect((await sentBody("high")).reasoning).toBe("high");
+  });
+
+  it("sends no reasoning when no level is picked", async () => {
+    expect(await sentBody(undefined)).not.toHaveProperty("reasoning");
   });
 });
