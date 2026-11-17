@@ -155,6 +155,15 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-audit-fixes.md`
   Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
 
+- Product decision, Later: an API key may go to a plain-http base URL on another host.
+  Evidence: at `537bfe0d`, `require_base_url` accepts any URL that parses (`crates/koloda/src/domain/ai.rs:261-270`).
+  The optional key of an Ollama, LM Studio, or OpenAI-compatible profile is sent to it.
+  `docs/specs/AI-PROVIDERS.md` §Validation asks only for a valid URL.
+  Kind: skipped
+  Source: `tasks/archive/koloda-correctness-security.md`, finding 6
+  Deferred because: refusing breaks Ollama, LM Studio, vLLM, and LiteLLM on another machine of the local network.
+  Every `ai` write validates every profile, so one stored profile would also fail later AI settings saves.
+
 ## crates/koloda-server
 
 - Handoff: ending a lease scans `versions` once per lease.

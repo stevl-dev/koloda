@@ -1,6 +1,6 @@
 # Koloda crate correctness and security fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/DECISIONS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/specs/AI-PROVIDERS.md, docs/specs/CARDS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/REVIEW.md
 Flow: local
 
@@ -226,7 +226,33 @@ None.
 
 ## Outcome
 
-<what shipped>
+Findings 1–5 are fixed; finding 6 is skipped and recorded in `tasks/DEFERRED.md`.
+
+- A generic settings write on desktop keeps the stored AI profiles and writes only `assistant` (finding 1).
+  Profile writes go through `write_ai_settings`, reachable only from `repo/ai.rs`.
+  `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` lists this as an accepted divergence, since web keeps keys with the
+  profile.
+- A card's review history reads oldest first on both hosts, and `docs/specs/CARDS.md` §Review History says so
+  (finding 3).
+- Saving a card, deck, template, or algorithm with nothing changed writes nothing on either host (finding 5).
+- Remote apply holds as corrupt an envelope whose content, scheduling numbers, floats, or timestamps the readers
+  refuse, and `PROTOCOL.md` §Corrupt envelopes names these cases (finding 2).
+  `validate_stability` refuses a value that is not finite (finding 4).
+
+Tests changed beside the new ones:
+
+- The two integration tests that sent a plaintext API key through the generic writes were removed.
+  Those writes now ignore profiles; the domain tests in `tests/domain/ai_tests.rs` still pin the refusal.
+- The "arrays replace wholesale" twins on both hosts now use the hotkeys settings instead of AI profiles.
+- A NaN review stability has no hold case: the encoder's round-trip check cannot seal one.
+  The domain test covers NaN.
+
+Every new test was checked to fail with its fix removed, each hold case on its own.
+`bun run check:push` passed on `70eb9034`.
+
+Spec: docs/specs/CARDS.md
+Review: not run
+Change rounds: 0
 
 Spec: docs/specs/CARDS.md
 Review: not run
