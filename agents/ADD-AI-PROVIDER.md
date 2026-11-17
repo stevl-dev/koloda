@@ -305,7 +305,11 @@ and is listed but disabled in web’s add-profile picker.
 
 List the provider in `docs/specs/AI-PROVIDERS.md` (§Platform Availability).
 It goes under the browser list when `worksInBrowser` is `true`, and under the desktop-only list otherwise.
-Nothing checks that list.
+`libs/ai/src/lib/provider-registry-behavior.test.ts` pins `listProvidersThatWorkInBrowser()` to the browser list.
+Add a browser provider there too.
+
+Specs feed the assistant's help corpus.
+After editing `docs/specs/AI-PROVIDERS.md`, run `bun run gen:help`; `bun run check:docs` fails until you do.
 
 ### 9. Add Tests
 
@@ -316,7 +320,11 @@ Nothing checks that list.
 - `libs/ai/src/lib/chat-stream.test.ts` — `streamText` gets this wrapper's `providerOptions`
   for a non-empty effort and omits it when effort is empty
 - Provider `fetchModels` tests — include a reasoning-capable model whose levels come from the provider list or catalog,
-  a model with no reported levels, and the documented behavior when the catalog is unavailable
+  and a model with no reported levels.
+  When the provider joins a catalog, also cover the documented behavior when the catalog is unavailable.
+- `libs/ai/src/lib/provider-secrets.test.ts` — add the new schema to the shared rows:
+  the whitespace-only key the form schema rejects, and the key the input schema rejects
+- `libs/settings-react/src/lib/settings-ai-add-profile.test.tsx` — the provider picker's option list gains the new label
 - `crates/koloda/tests/domain/ai_tests.rs` - Rust unit tests
 - `crates/koloda/tests/integration/ai_integration_tests.rs` - Rust integration tests
 - `crates/koloda/tests/domain/settings_ai_tests.rs` - Settings validation tests
