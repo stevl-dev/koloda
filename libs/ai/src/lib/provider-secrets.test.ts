@@ -16,6 +16,7 @@ import {
   vercelSecretsValidation,
   xaiSecretsValidation,
 } from "./provider-secrets";
+import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
 describe("provider-secrets", () => {
   it("treats null, empty string, and whitespace-only as absent api keys", () => {
@@ -197,5 +198,19 @@ describe("provider-secrets", () => {
         apiKey: "   ",
       }),
     ).toEqual({ provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1" });
+  });
+
+  it.each(readRuleCases("ai-secrets.json", "headers"))("openaiCompatible headers: $name", (ruleCase) => {
+    const result = aiSecretsInputValidation.safeParse({
+      provider: "openaiCompatible",
+      baseUrl: "http://localhost:8000/v1",
+      headers: ruleCase.input,
+    });
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
+  });
+
+  it("keeps stored header values on the wire schema", () => {
+    const secrets = { provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1", headers: { "X-Team": "t" } };
+    expect(aiSecretsValidation.parse(secrets)).toEqual(secrets);
   });
 });

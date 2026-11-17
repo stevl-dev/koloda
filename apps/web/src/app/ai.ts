@@ -35,8 +35,32 @@ function redactSecrets(secrets: AISecrets): AISecrets {
     case "lmstudio":
       return { provider: "lmstudio", baseUrl: secrets.baseUrl, apiKey: null };
     case "openaiCompatible":
-      return { provider: "openaiCompatible", baseUrl: secrets.baseUrl, apiKey: null };
+      return {
+        provider: "openaiCompatible",
+        baseUrl: secrets.baseUrl,
+        apiKey: null,
+        ...(secrets.headers
+          ? { headers: Object.fromEntries(Object.keys(secrets.headers).map((name) => [name, null])) }
+          : {}),
+      };
   }
+}
+
+// WHY: a `null` header value keeps the value stored under that name, and a name left out is removed.
+// Twin: `AISecrets::resolve_header_values` in crates/koloda/src/domain/ai.rs.
+function resolveHeaderValues(secrets: AISecrets, stored: AISecrets | undefined): AISecrets {
+  if (secrets.provider !== "openaiCompatible" || !secrets.headers) return secrets;
+  const storedHeaders = stored?.provider === "openaiCompatible" ? (stored.headers ?? {}) : {};
+  const headers = Object.fromEntries(
+    Object.entries(secrets.headers).map(([name, value]) => {
+      const resolved = value ?? storedHeaders[name] ?? null;
+      if (resolved === null) {
+        throw new AppError("validation.settings-ai.providers.headers", `openaiCompatible.headers.${name}`);
+      }
+      return [name, resolved];
+    }),
+  );
+  return { ...secrets, headers };
 }
 
 // WHY: The wire schema normalizes blank keys to `null`, so it cannot enforce the
@@ -90,7 +114,7 @@ export async function addAIProfile(db: DB, data: AddAIProfileData): Promise<void
   const newProfile: AIProfile = {
     id,
     title: data.title,
-    secrets: data.secrets,
+    secrets: resolveHeaderValues(data.secrets, undefined),
     hasSecrets: profileHasSecrets(data.secrets),
     createdAt: new Date(),
   };
@@ -135,6 +159,8 @@ export async function updateAIProfile(db: DB, data: UpdateAIProfileData): Promis
         throw new AppError("validation.ai-providers.provider.changed");
       }
     }
+    const secrets =
+      data.secrets && resolveHeaderValues(data.secrets, currentSettings.content.profiles[profileIndex]!.secrets);
 
     const newContent = aiSettingsValidation.parse(
       produce(currentSettings.content, (draft) => {
@@ -147,14 +173,14 @@ export async function updateAIProfile(db: DB, data: UpdateAIProfileData): Promis
             profile.whitelistModelIds = data.whitelistModelIds;
           }
         }
-        if (data.secrets !== undefined) {
+        if (secrets !== undefined) {
           const previous = profile.secrets;
           // WHY: Edit submits may omit apiKey when the user did not replace it.
           // Keep the stored key unless a new key was sent.
-          if (!profileHasSecrets(data.secrets) && profileHasSecrets(previous)) {
-            profile.secrets = { ...data.secrets, apiKey: previous.apiKey } as AISecrets;
+          if (!profileHasSecrets(secrets) && profileHasSecrets(previous)) {
+            profile.secrets = { ...secrets, apiKey: previous.apiKey } as AISecrets;
           } else {
-            profile.secrets = data.secrets;
+            profile.secrets = secrets;
           }
           profile.hasSecrets = profileHasSecrets(profile.secrets);
         }

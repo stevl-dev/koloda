@@ -3,6 +3,7 @@ use koloda::domain::ai::AISecrets;
 use koloda::domain::settings::SettingsName;
 use koloda::repo::{ai, settings};
 use serde_json::json;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use crate::common::test_db;
@@ -296,20 +297,54 @@ fn api_key_only_profiles_round_trip_via_secret_store() {
     }
 }
 
+fn openai_compatible_secrets(api_key: Option<&str>, headers: &[(&str, Option<&str>)]) -> AISecrets {
+    AISecrets::OpenaiCompatible {
+        base_url: "http://localhost:8000/v1".to_string(),
+        api_key: api_key.map(str::to_string),
+        headers: headers
+            .iter()
+            .map(|(name, value)| (name.to_string(), value.map(str::to_string)))
+            .collect(),
+    }
+}
+
+fn stored_headers(secrets: AISecrets) -> Option<BTreeMap<String, Option<String>>> {
+    match secrets {
+        AISecrets::OpenaiCompatible { headers, .. } => Some(headers),
+        _ => None,
+    }
+}
+
 #[test]
-fn openai_compatible_profile_round_trips_base_url_and_key() {
-    let _guard = test_store::setup();
+fn openai_compatible_profile_round_trips_base_url_key_and_headers() {
+    let (guard, data) = test_store::setup_shared();
     let db = test_db();
 
     let added = ai::add_ai_profile(
         &db,
         None,
-        AISecrets::OpenaiCompatible {
-            base_url: "http://localhost:8000/v1".to_string(),
-            api_key: Some("sk-local".to_string()),
-        },
+        openai_compatible_secrets(
+            Some("sk-local"),
+            &[
+                ("X-Team", Some("team-1")),
+                ("cf-aig-authorization", Some("Bearer gateway")),
+            ],
+        ),
     )
     .expect("profile should be added");
+
+    let settings = settings::get_settings(&db, SettingsName::Ai)
+        .expect("should read settings")
+        .expect("settings row should exist");
+    let settings_json = settings.content.to_string();
+    assert!(
+        !settings_json.contains("team-1") && !settings_json.contains("Bearer gateway"),
+        "header values must stay out of the settings row: {settings_json}"
+    );
+    assert!(data
+        .lock()
+        .unwrap()
+        .contains_key(&format!("ai-profile-{}-headers", added.id)));
 
     let profiles = ai::get_ai_profiles(&db).expect("should get profiles");
     let public = profiles
@@ -318,9 +353,18 @@ fn openai_compatible_profile_round_trips_base_url_and_key() {
         .expect("profile should exist");
     assert!(public.has_secrets);
     match &public.secrets {
-        AISecrets::OpenaiCompatible { base_url, api_key } => {
+        AISecrets::OpenaiCompatible {
+            base_url,
+            api_key,
+            headers,
+        } => {
             assert_eq!(base_url, "http://localhost:8000/v1");
             assert!(api_key.is_none(), "public read must redact apiKey");
+            assert_eq!(
+                headers,
+                &BTreeMap::from([("X-Team".to_string(), None), ("cf-aig-authorization".to_string(), None),]),
+                "public read keeps the names and redacts the values"
+            );
         }
         other => panic!("expected OpenaiCompatible secrets, got {:?}", other),
     }
@@ -328,15 +372,114 @@ fn openai_compatible_profile_round_trips_base_url_and_key() {
     let stored = ai::get_ai_profile_secrets(&db, &added.id)
         .expect("should load secrets")
         .expect("secrets should exist");
-    match stored {
-        AISecrets::OpenaiCompatible { base_url, api_key } => {
-            assert_eq!(base_url, "http://localhost:8000/v1");
-            assert_eq!(api_key.as_deref(), Some("sk-local"));
-        }
-        other => panic!("expected OpenaiCompatible secrets, got {:?}", other),
-    }
+    assert_eq!(stored.api_key(), Some("sk-local"));
+    assert_eq!(
+        stored_headers(stored),
+        Some(BTreeMap::from([
+            ("X-Team".to_string(), Some("team-1".to_string())),
+            ("cf-aig-authorization".to_string(), Some("Bearer gateway".to_string())),
+        ]))
+    );
+
+    test_store::teardown(guard);
+}
+
+// WHY: the merge rule is pinned in the domain tests; this one owns reading the kept values back from the keyring.
+#[test]
+fn openai_compatible_edit_keeps_removes_and_sets_headers() {
+    let _guard = test_store::setup();
+    let db = test_db();
+
+    let added = ai::add_ai_profile(
+        &db,
+        None,
+        openai_compatible_secrets(None, &[("X-Kept", Some("kept")), ("X-Dropped", Some("dropped"))]),
+    )
+    .expect("profile should be added");
+
+    ai::update_ai_profile(
+        &db,
+        &added.id,
+        None,
+        Some(openai_compatible_secrets(
+            None,
+            &[("X-Kept", None), ("X-Added", Some("added"))],
+        )),
+        None,
+    )
+    .expect("profile should be updated");
+
+    let stored = ai::get_ai_profile_secrets(&db, &added.id)
+        .expect("should load secrets")
+        .expect("secrets should exist");
+    assert_eq!(
+        stored_headers(stored),
+        Some(BTreeMap::from([
+            ("X-Added".to_string(), Some("added".to_string())),
+            ("X-Kept".to_string(), Some("kept".to_string())),
+        ]))
+    );
 
     test_store::teardown(_guard);
+}
+
+#[test]
+fn openai_compatible_kept_header_without_stored_value_is_rejected_and_changes_nothing() {
+    let _guard = test_store::setup();
+    let db = test_db();
+
+    let err = ai::add_ai_profile(&db, None, openai_compatible_secrets(None, &[("X-Missing", None)]))
+        .expect_err("a kept header on add has nothing to keep");
+    assert_eq!(err.code, error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_HEADERS);
+    assert!(ai::get_ai_profiles(&db).expect("should get profiles").is_empty());
+
+    let added = ai::add_ai_profile(
+        &db,
+        None,
+        openai_compatible_secrets(None, &[("X-Team", Some("team-1"))]),
+    )
+    .expect("profile should be added");
+    let err = ai::update_ai_profile(
+        &db,
+        &added.id,
+        None,
+        Some(openai_compatible_secrets(None, &[("X-Missing", None)])),
+        None,
+    )
+    .expect_err("a kept header the profile never stored is rejected");
+    assert_eq!(err.code, error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_HEADERS);
+
+    let stored = ai::get_ai_profile_secrets(&db, &added.id)
+        .expect("should load secrets")
+        .expect("secrets should exist");
+    assert_eq!(
+        stored_headers(stored),
+        Some(BTreeMap::from([("X-Team".to_string(), Some("team-1".to_string()))]))
+    );
+
+    test_store::teardown(_guard);
+}
+
+#[test]
+fn removing_an_openai_compatible_profile_removes_its_header_values() {
+    let (guard, data) = test_store::setup_shared();
+    let db = test_db();
+
+    let added = ai::add_ai_profile(
+        &db,
+        None,
+        openai_compatible_secrets(None, &[("X-Team", Some("team-1"))]),
+    )
+    .expect("profile should be added");
+    ai::remove_ai_profile(&db, &added.id).expect("profile should be removed");
+
+    let keys: Vec<String> = data.lock().unwrap().keys().cloned().collect();
+    assert!(
+        keys.iter().all(|key| !key.contains(&added.id)),
+        "no keyring entry may outlive the profile: {keys:?}"
+    );
+
+    test_store::teardown(guard);
 }
 
 #[test]

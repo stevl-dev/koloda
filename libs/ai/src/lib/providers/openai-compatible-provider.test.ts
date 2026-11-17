@@ -86,3 +86,56 @@ describe("openaiCompatibleProviderEntry.fetchModels", () => {
     expect((init.headers as Record<string, string>).Authorization).toBe(authorization);
   });
 });
+
+describe("openaiCompatibleProviderEntry custom headers", () => {
+  const secrets = {
+    provider: "openaiCompatible" as const,
+    baseUrl: "http://localhost:8000/v1",
+    apiKey: "sk-local",
+    headers: { "X-Team": "team-1", Authorization: "Gateway token", "X-Redacted": null },
+  };
+
+  function sentHeaders(init: RequestInit | undefined) {
+    const headers = new Headers(init?.headers);
+    return {
+      team: headers.get("x-team"),
+      authorization: headers.get("authorization"),
+      redacted: headers.get("x-redacted"),
+    };
+  }
+
+  const expected = { team: "team-1", authorization: "Gateway token", redacted: null };
+
+  it("sends them on the model list, replacing the key's Authorization", async () => {
+    const fetchMock = stubModelsResponse({ data: [] });
+
+    await openaiCompatibleProviderEntry.fetchModels(secrets);
+
+    expect(sentHeaders(fetchMock.mock.calls[0]?.[1])).toEqual(expected);
+  });
+
+  it("sends them on chat, replacing the key's Authorization", async () => {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) =>
+      Promise.resolve(
+        new Response(JSON.stringify({ error: { message: "bad key" } }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    // WHY: the 401 ends the run; only the request the SDK built matters here.
+    await expect(
+      openaiCompatibleProviderEntry
+        .createClient(secrets)
+        .chat(
+          { input: { modelId: "llama-3.1-8b" }, messages: [{ role: "user", content: "Hi" }] },
+          () => {},
+          new AbortController().signal,
+        ),
+    ).rejects.toThrow();
+
+    expect(sentHeaders(fetchMock.mock.calls[0]?.[1])).toEqual(expected);
+  });
+});

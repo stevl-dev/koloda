@@ -1,6 +1,8 @@
 //! AI settings persistence — `settings.ai` JSON plus keyring secret redaction/reconstruction.
 //!
-//! Public reads never return usable API keys; main-process callers use `get_ai_profile_secrets`.
+//! Public reads never return usable API keys or header values; main-process callers use `get_ai_profile_secrets`.
+
+use std::collections::BTreeMap;
 
 use serde_json::Value;
 
@@ -36,6 +38,47 @@ fn remove_api_key(profile_id: &str) -> Result<(), AppError> {
     get_secret_store()?.remove(&get_ai_profile_store_key(profile_id))
 }
 
+// INVARIANT: a second entry beside the API key, so the key's entry keeps its plain-string format.
+fn get_ai_profile_headers_store_key(profile_id: &str) -> String {
+    format!("ai-profile-{}-headers", profile_id)
+}
+
+fn set_header_values(profile_id: &str, values: &BTreeMap<String, String>) -> Result<(), AppError> {
+    if values.is_empty() {
+        return remove_header_values(profile_id);
+    }
+    get_secret_store()?.set(
+        &get_ai_profile_headers_store_key(profile_id),
+        &serde_json::to_string(values)?,
+    )
+}
+
+fn get_header_values(profile_id: &str) -> Result<BTreeMap<String, String>, AppError> {
+    match get_secret_store()?.get(&get_ai_profile_headers_store_key(profile_id))? {
+        Some(json) => Ok(serde_json::from_str(&json)?),
+        None => Ok(BTreeMap::new()),
+    }
+}
+
+fn remove_header_values(profile_id: &str) -> Result<(), AppError> {
+    get_secret_store()?.remove(&get_ai_profile_headers_store_key(profile_id))
+}
+
+// WHY: `None` for every provider but OpenAI-compatible, so the others never touch the headers entry.
+fn resolve_header_values(
+    secrets: &AISecrets,
+    stored: impl FnOnce() -> Result<BTreeMap<String, String>, AppError>,
+) -> Result<Option<BTreeMap<String, String>>, AppError> {
+    match secrets {
+        AISecrets::OpenaiCompatible { headers, .. } => Ok(Some(AISecrets::resolve_header_values(headers, &stored()?)?)),
+        _ => Ok(None),
+    }
+}
+
+fn redact_header_values(headers: &BTreeMap<String, Option<String>>) -> BTreeMap<String, Option<String>> {
+    headers.keys().map(|name| (name.clone(), None)).collect()
+}
+
 fn redact_secrets(secrets: &AISecrets) -> AISecrets {
     match secrets {
         AISecrets::OpenAi { .. } => AISecrets::OpenAi { api_key: None },
@@ -55,9 +98,10 @@ fn redact_secrets(secrets: &AISecrets) -> AISecrets {
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: None },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: None },
         AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: None },
-        AISecrets::OpenaiCompatible { base_url, .. } => AISecrets::OpenaiCompatible {
+        AISecrets::OpenaiCompatible { base_url, headers, .. } => AISecrets::OpenaiCompatible {
             base_url: base_url.clone(),
             api_key: None,
+            headers: redact_header_values(headers),
         },
     }
 }
@@ -81,9 +125,10 @@ fn reconstruct_secrets(secrets: &AISecrets, api_key: String) -> AISecrets {
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: Some(api_key) },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: Some(api_key) },
         AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: Some(api_key) },
-        AISecrets::OpenaiCompatible { base_url, .. } => AISecrets::OpenaiCompatible {
+        AISecrets::OpenaiCompatible { base_url, headers, .. } => AISecrets::OpenaiCompatible {
             base_url: base_url.clone(),
             api_key: Some(api_key),
+            headers: headers.clone(),
         },
     }
 }
@@ -161,10 +206,20 @@ pub fn get_ai_profile_secrets(db: &Database, profile_id: &str) -> Result<Option<
             return Ok(None);
         };
         let api_key = present_key(get_api_key(&profile.id)?);
-        Ok(Some(match api_key {
+        let mut secrets = match api_key {
             Some(key) => reconstruct_secrets(&profile.secrets, key),
             None => profile.secrets,
-        }))
+        };
+        if let AISecrets::OpenaiCompatible { headers, .. } = &mut secrets {
+            let values = get_header_values(&profile.id)?;
+            // WHY: names come from settings and values from the keyring; a name with no stored value is
+            // dropped rather than sent with an empty value.
+            *headers = headers
+                .keys()
+                .filter_map(|name| values.get(name).map(|value| (name.clone(), Some(value.clone()))))
+                .collect();
+        }
+        Ok(Some(secrets))
     })
 }
 
@@ -175,6 +230,7 @@ pub fn add_ai_profile(db: &Database, title: Option<String>, secrets: AISecrets) 
         let profile_id = generate_uuid();
 
         secrets.validate_for_input()?;
+        let header_values = resolve_header_values(&secrets, || Ok(BTreeMap::new()))?;
 
         let profile = AIProfile {
             id: profile_id.clone(),
@@ -196,6 +252,15 @@ pub fn add_ai_profile(db: &Database, title: Option<String>, secrets: AISecrets) 
                 // WHY: Best-effort rollback; prefer the original keyring error over a
                 // secondary settings failure. `?` here would replace the cause.
                 if let Err(_rollback_err) = drop_ai_profile_from_settings(db, &profile_id) {}
+                return Err(err);
+            }
+        }
+
+        if let Some(values) = header_values {
+            if let Err(err) = set_header_values(&profile_id, &values) {
+                // WHY: Best-effort rollback, as above; the key written just before must not outlive the profile.
+                if let Err(_rollback_err) = drop_ai_profile_from_settings(db, &profile_id) {}
+                if let Err(_rollback_err) = remove_api_key(&profile_id) {}
                 return Err(err);
             }
         }
@@ -232,6 +297,11 @@ pub fn update_ai_profile(
             }
         }
 
+        let header_values = match secrets {
+            Some(ref secrets) => resolve_header_values(secrets, || get_header_values(id))?,
+            None => None,
+        };
+
         let previous_profile = existing_profile.clone();
 
         if let Some(ref new_secrets) = secrets {
@@ -262,6 +332,14 @@ pub fn update_ai_profile(
             }
         }
 
+        if let Some(values) = header_values {
+            if let Err(err) = set_header_values(id, &values) {
+                // WHY: Best-effort rollback, as above. A key replaced in the same edit stays replaced.
+                if let Err(_rollback_err) = restore_ai_profile_in_settings(db, previous_profile) {}
+                return Err(err);
+            }
+        }
+
         let has_secrets = present_key(get_api_key(id)?).is_some();
         Ok(to_public_profile(updated_profile, has_secrets))
     })
@@ -280,7 +358,7 @@ pub fn remove_ai_profile(db: &Database, id: &str) -> Result<(), AppError> {
 
         drop_ai_profile_from_settings(db, id)?;
 
-        if let Err(err) = remove_api_key(id) {
+        if let Err(err) = remove_api_key(id).and_then(|()| remove_header_values(id)) {
             // WHY: Best-effort rollback; prefer the original keyring error over a
             // secondary settings failure. `?` here would replace the cause.
             if let Some(previous) = previous {

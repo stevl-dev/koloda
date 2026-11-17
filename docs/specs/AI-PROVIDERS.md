@@ -118,23 +118,29 @@ Secrets are the per-provider credentials stored inside a profile.
 
 - **API key** — authenticates with the provider.
 - **Base URL** — address of a self-hosted or OpenAI-compatible provider endpoint.
+- **Custom headers** — extra HTTP headers, each a name and a value, sent with every request to the provider.
+  Only OpenAI-compatible profiles have them.
+  They serve servers that do not authenticate with the API key, such as a gateway's own header.
 
 A profile must have all required fields filled in before it can be used for a run.
 Optional API keys are stored only when provided.
+Custom headers are optional.
 
 ### Storage
 
-On desktop, API keys are kept in the operating system's credential store:
+On desktop, API keys and custom header values are kept in the operating system's credential store:
 Windows Credential Manager, the macOS Keychain, or the Secret Service on Linux.
-The rest of the profile, including the base URL, is kept in the app's database.
+The rest of the profile, including the base URL and the header names, is kept in the app's database.
 A stored key survives restarts.
 
-In the browser, API keys are kept in the app's local database in that browser, with the rest of the profile.
+In the browser, API keys and header values are kept in the app's local database in that browser,
+with the rest of the profile.
 They are not encrypted.
 Anyone with access to that browser profile can read them.
 
-Stored keys are never shown back in the interface; see §Editing a Profile.
-Deleting a profile removes its key from wherever it was stored.
+Stored keys and header values are never shown back in the interface; see §Editing a Profile.
+Header names are shown.
+Deleting a profile removes its key and header values from wherever they were stored.
 
 ### Validation
 
@@ -145,6 +151,9 @@ The form rejects:
 - Empty required fields.
 - Required fields that contain only whitespace.
 - Invalid URLs for the base URL field.
+- A custom header name that is empty, has a space or other character not allowed in a header name,
+  or repeats another name in the profile, ignoring case.
+- A custom header value that is empty, contains only whitespace, or spans more than one line.
 
 Whitespace in an optional API key is treated as absent, not as a value.
 
@@ -283,5 +292,7 @@ Provider-facing details that matter here:
   The UI and catalog still use the generic levels low, medium, high, and xhigh (fallback families default to medium).
   When sending a run, the app maps minimal and low to low; medium and high to high; xhigh, max, and ultra to max.
   Any other stored value is passed through unchanged.
+- An OpenAI-compatible profile sends its custom headers with every request, including the model list.
+  A custom Authorization header replaces the one the API key would send.
 - All providers stream responses.
 - An unreachable self-hosted base URL surfaces as a network error on first use.

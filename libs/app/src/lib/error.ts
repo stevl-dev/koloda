@@ -88,6 +88,7 @@ export const ERROR_MESSAGES = {
   "validation.algorithm.fsrs.weights": msg`validation.algorithm.fsrs.weights`,
   "validation.settings-ai.providers.api-key": msg`validation.settings-ai.providers.api-key`,
   "validation.settings-ai.providers.base-url": msg`validation.settings-ai.providers.base-url`,
+  "validation.settings-ai.providers.headers": msg`validation.settings-ai.providers.headers`,
   "validation.settings-ai.providers.id": msg`validation.settings-ai.providers.id`,
   "validation.settings-ai.profiles.whitelist-model-ids": msg`validation.settings-ai.profiles.whitelist-model-ids`,
   "validation.ai-providers.profile-id.duplicate": msg`validation.ai-providers.profile-id.duplicate`,

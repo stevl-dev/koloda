@@ -92,7 +92,7 @@ Out:
   Commit: Add the OpenAI-compatible provider
   Depends on: none
 
-- [ ] 2. Store custom headers for OpenAI-compatible profiles
+- [x] 2. Store custom headers for OpenAI-compatible profiles
   Goal: The `openaiCompatible` secrets gain an optional `headers` map (name → value), on both sides.
   Rust: the `AISecrets::OpenaiCompatible` variant gets the field; input validation checks names and values (§Scope).
   Settings JSON keeps the header names with every value `null`; storage validation rejects a non-null value,

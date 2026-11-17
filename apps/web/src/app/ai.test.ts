@@ -106,6 +106,55 @@ describe("web AI profile save path", () => {
     });
   });
 
+  // Twin: openai_compatible_edit_keeps_removes_and_sets_headers (crates/koloda/tests/integration/ai_integration_tests.rs).
+  it("keeps, removes, and sets OpenAI-compatible header values on edit", async () => {
+    await addAIProfile(TEST_DB, {
+      secrets: {
+        provider: "openaiCompatible",
+        baseUrl: "http://localhost:8000/v1",
+        headers: { "X-Kept": "kept", "X-Dropped": "dropped" },
+      },
+    });
+    const profileId = storedProfiles()[0]!.id as string;
+
+    await updateAIProfile(TEST_DB, {
+      id: profileId,
+      secrets: {
+        provider: "openaiCompatible",
+        baseUrl: "http://localhost:8000/v1",
+        headers: { "X-Kept": null, "X-Added": "added" },
+      },
+    });
+
+    expect(storedProfiles()[0]?.secrets).toEqual({
+      provider: "openaiCompatible",
+      baseUrl: "http://localhost:8000/v1",
+      headers: { "X-Kept": "kept", "X-Added": "added" },
+    });
+  });
+
+  // Twin: openai_compatible_kept_header_without_stored_value_is_rejected_and_changes_nothing
+  // (crates/koloda/tests/integration/ai_integration_tests.rs).
+  it("rejects a kept header with no stored value and changes nothing", async () => {
+    const secrets = (headers: Record<string, string | null>) => ({
+      provider: "openaiCompatible" as const,
+      baseUrl: "http://localhost:8000/v1",
+      headers,
+    });
+
+    await expect(addAIProfile(TEST_DB, { secrets: secrets({ "X-Missing": null }) })).rejects.toMatchObject({
+      code: "validation.settings-ai.providers.headers",
+    });
+    expect(store.has("ai")).toBe(false);
+
+    await addAIProfile(TEST_DB, { secrets: secrets({ "X-Team": "team-1" }) });
+    const profileId = storedProfiles()[0]!.id as string;
+    await expect(
+      updateAIProfile(TEST_DB, { id: profileId, secrets: secrets({ "X-Missing": null }) }),
+    ).rejects.toMatchObject({ code: "validation.settings-ai.providers.headers" });
+    expect(storedProfiles()[0]?.secrets).toEqual(secrets({ "X-Team": "team-1" }));
+  });
+
   it("profile writes keep the assistant settings", async () => {
     // Twin: profile_writes_keep_the_assistant_settings (crates/koloda/tests/integration/ai_integration_tests.rs).
     const assistant = { temperature: 0.7, chatPromptTemplate: "mine", chatPromptMode: "custom" };
@@ -204,7 +253,7 @@ describe("web AI profile read path", () => {
     store.clear();
   });
 
-  it("redacts stored keys and keeps local base URLs", async () => {
+  it("redacts stored keys and header values, and keeps local base URLs and header names", async () => {
     // Twin: test_redacted_profile_keeps_empty_allowlist_and_null_key (crates/koloda/tests/domain/ai_serde_tests.rs).
     // WHY: the stored hasSecrets is stale on purpose; the public flag must come from the stored key.
     seedAiSettings([
@@ -220,6 +269,16 @@ describe("web AI profile read path", () => {
         hasSecrets: false,
         createdAt: CREATED_AT,
       },
+      {
+        id: "01900000-0000-7000-8000-000000000003",
+        secrets: {
+          provider: "openaiCompatible",
+          baseUrl: "http://localhost:8000/v1",
+          headers: { "X-Team": "team-1" },
+        },
+        hasSecrets: false,
+        createdAt: CREATED_AT,
+      },
     ]);
 
     const profiles = await getAIProfiles(TEST_DB);
@@ -227,6 +286,15 @@ describe("web AI profile read path", () => {
     expect(profiles.map(({ secrets, hasSecrets }) => ({ secrets, hasSecrets }))).toEqual([
       { secrets: { provider: "openrouter", apiKey: null }, hasSecrets: true },
       { secrets: { provider: "ollama", baseUrl: "http://127.0.0.1:11434", apiKey: null }, hasSecrets: true },
+      {
+        secrets: {
+          provider: "openaiCompatible",
+          baseUrl: "http://localhost:8000/v1",
+          apiKey: null,
+          headers: { "X-Team": null },
+        },
+        hasSecrets: false,
+      },
     ]);
   });
 });

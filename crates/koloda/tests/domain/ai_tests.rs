@@ -1,4 +1,9 @@
+use std::collections::BTreeMap;
+
 use koloda::domain::ai::{AIProfile, AISecrets};
+use serde_json::{json, Value};
+
+use crate::common::cases::rule_cases;
 
 const TEST_CREATED_AT: i64 = 1_767_225_600_000;
 
@@ -67,17 +72,80 @@ fn test_openai_compatible_key_is_optional_on_input_and_rejected_in_storage() {
     let keyless = AISecrets::OpenaiCompatible {
         base_url: "http://localhost:8000/v1".to_string(),
         api_key: None,
+        headers: BTreeMap::new(),
     };
     keyless.validate_for_input().unwrap();
 
     let keyed = AISecrets::OpenaiCompatible {
         base_url: "http://localhost:8000/v1".to_string(),
         api_key: Some("sk-local".to_string()),
+        headers: BTreeMap::new(),
     };
     keyed.validate_for_input().unwrap();
     assert_eq!(
         keyed.validate_for_storage().unwrap_err().code,
         "validation.settings-ai.providers.api-key"
+    );
+}
+
+#[test]
+fn test_openai_compatible_header_rules() {
+    for case in rule_cases("ai-secrets.json", "headers") {
+        let payload =
+            json!({ "provider": "openaiCompatible", "baseUrl": "http://localhost:8000/v1", "headers": case.input });
+        let outcome =
+            case.parse_and_observe::<AISecrets>(payload, |secrets| secrets.validate_for_input().map(|()| Value::Null));
+        assert_eq!(outcome, case.expect, "{}", case.name);
+    }
+}
+
+#[test]
+fn test_openai_compatible_storage_keeps_header_names_and_rejects_values() {
+    let named = |value: Option<&str>| AISecrets::OpenaiCompatible {
+        base_url: "http://localhost:8000/v1".to_string(),
+        api_key: None,
+        headers: BTreeMap::from([("X-Api-Key".to_string(), value.map(str::to_string))]),
+    };
+
+    named(None).validate_for_storage().unwrap();
+    assert_eq!(
+        named(Some("secret")).validate_for_storage().unwrap_err().code,
+        "validation.settings-ai.providers.headers"
+    );
+}
+
+#[test]
+fn test_resolve_header_values_keeps_removes_and_sets() {
+    let stored = BTreeMap::from([
+        ("X-Kept".to_string(), "kept".to_string()),
+        ("X-Dropped".to_string(), "dropped".to_string()),
+        ("X-Replaced".to_string(), "old".to_string()),
+    ]);
+    let incoming = BTreeMap::from([
+        ("X-Kept".to_string(), None),
+        ("X-Replaced".to_string(), Some("new".to_string())),
+        ("X-Added".to_string(), Some("added".to_string())),
+    ]);
+
+    assert_eq!(
+        AISecrets::resolve_header_values(&incoming, &stored).unwrap(),
+        BTreeMap::from([
+            ("X-Added".to_string(), "added".to_string()),
+            ("X-Kept".to_string(), "kept".to_string()),
+            ("X-Replaced".to_string(), "new".to_string()),
+        ])
+    );
+}
+
+#[test]
+fn test_resolve_header_values_rejects_a_kept_name_with_no_stored_value() {
+    let incoming = BTreeMap::from([("X-Missing".to_string(), None)]);
+
+    assert_eq!(
+        AISecrets::resolve_header_values(&incoming, &BTreeMap::new())
+            .unwrap_err()
+            .code,
+        "validation.settings-ai.providers.headers"
     );
 }
 
@@ -96,6 +164,7 @@ const LOCAL_PROVIDER_ROWS: &[LocalProviderRow] = &[
     ("openaiCompatible", |base_url| AISecrets::OpenaiCompatible {
         base_url,
         api_key: None,
+        headers: BTreeMap::new(),
     }),
 ];
 
@@ -531,6 +600,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
         AISecrets::OpenaiCompatible {
             base_url: "http://localhost".into(),
             api_key: None,
+            headers: BTreeMap::new(),
         },
     ];
 

@@ -610,6 +610,10 @@ msgid "validation.settings-ai.providers.base-url"
 msgstr "Некорректный URL"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.providers.headers"
+msgstr "Некорректный заголовок: имена должны быть уникальными и без пробелов, а значения — одной непустой строкой"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.providers.id"
 msgstr "Идентификатор профиля обязателен"
 

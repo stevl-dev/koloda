@@ -17,6 +17,22 @@ const optionalApiKey = z.preprocess(
   z.string().optional(),
 );
 
+const HEADER_NAME = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+
+// WHY: twin of `validate_headers` in `crates/koloda/src/domain/ai.rs`; boundary cases are in
+// `crates/koloda/tests/cases/ai-secrets.json`. A `null` value keeps the value stored under that name.
+const inputHeaders = z.record(z.string(), z.string().nullable()).superRefine((headers, ctx) => {
+  const seen = new Set<string>();
+  for (const [name, value] of Object.entries(headers)) {
+    const isValidValue = value === null || (value.trim() !== "" && !["\r", "\n", "\0"].some((c) => value.includes(c)));
+    if (!HEADER_NAME.test(name) || !isValidValue || seen.has(name.toLowerCase())) {
+      ctx.addIssue({ code: "custom", message: "validation.settings-ai.providers.headers", path: [name] });
+      return;
+    }
+    seen.add(name.toLowerCase());
+  }
+});
+
 /** Form/input schema: required non-blank key. */
 export const openRouterSecretsValidation = z.object({
   apiKey: requiredApiKey,
@@ -43,6 +59,7 @@ export const lmstudioSecretsValidation = z.object({
 export const openaiCompatibleSecretsValidation = z.object({
   baseUrl: z.url("validation.settings-ai.providers.base-url"),
   apiKey: optionalApiKey,
+  headers: inputHeaders.optional(),
 });
 
 export const opencodeGoSecretsValidation = z.object({
@@ -101,6 +118,8 @@ export const aiSecretsValidation = z.discriminatedUnion("provider", [
     provider: z.literal("openaiCompatible"),
     baseUrl: z.url("validation.settings-ai.providers.base-url"),
     apiKey: storedApiKey.optional(),
+    // WHY: values are `null` in public reads and in desktop settings; web stores them here.
+    headers: z.record(z.string(), z.string().nullable()).optional(),
   }),
 ]);
 

@@ -610,6 +610,10 @@ msgid "validation.settings-ai.providers.base-url"
 msgstr "Invalid URL"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.providers.headers"
+msgstr "Invalid header: each name must be unique and have no spaces, and each value must be one non-empty line"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.providers.id"
 msgstr "Profile id is required"
 

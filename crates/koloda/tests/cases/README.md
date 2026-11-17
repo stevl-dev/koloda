@@ -26,6 +26,8 @@ A case is `{ "name", "input", "expect" }`.
 ## Readers
 
 - Rust: `crates/koloda/tests/common/cases.rs`.
-- TS: `libs/srs/src/test/rule-cases.ts`, and a copy in `libs/app/src/test/rule-cases.ts`.
+- TS: `libs/srs/src/test/rule-cases.ts`, and copies in `libs/app/src/test/rule-cases.ts` and
+  `libs/ai/src/test/rule-cases.ts`.
 
-`libs/srs` and `libs/app` list this directory in their `test` Nx inputs, so a change here reruns their suites.
+`libs/srs`, `libs/app`, and `libs/ai` list this directory in their `test` Nx inputs,
+so a change here reruns their suites.

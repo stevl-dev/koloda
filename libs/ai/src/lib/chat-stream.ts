@@ -387,11 +387,11 @@ export function streamChatWithOpenaiCompatible(
   request: ChatStreamRequest,
   onChunk: (chunk: ChatStreamChunk) => void,
   abortSignal: AbortSignal,
-  { baseUrl, apiKey }: { baseUrl: string; apiKey?: string },
+  { baseUrl, apiKey, headers }: { baseUrl: string; apiKey?: string; headers?: Record<string, string> },
 ) {
   return wrapAIError(async () => {
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
-    const provider = createOpenAICompatible({ name: "openaiCompatible", baseURL: baseUrl, apiKey });
+    const provider = createOpenAICompatible({ name: "openaiCompatible", baseURL: baseUrl, apiKey, headers });
     return runChatStream(
       (modelId) => provider(modelId),
       request,

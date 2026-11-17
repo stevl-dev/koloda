@@ -71,12 +71,18 @@ export async function fetchOpenAICompatibleModels(baseUrl: string, apiKey?: stri
 }
 
 /** OpenAI-compatible models endpoint with gateway metadata only. */
-export async function fetchOpenAICompatibleModelsDetailed(modelsUrl: string, apiKey?: string): Promise<AIModel[]> {
+export async function fetchOpenAICompatibleModelsDetailed(
+  modelsUrl: string,
+  apiKey?: string,
+  extraHeaders?: Record<string, string>,
+): Promise<AIModel[]> {
   const response = await throwForAIResponse(
     await fetch(modelsUrl, {
+      // WHY: extra headers go last so a custom `Authorization` replaces the key's, as the AI SDK does on chat.
       headers: {
         "Content-Type": "application/json",
         ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        ...extraHeaders,
       },
     }),
   );

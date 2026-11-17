@@ -2,6 +2,8 @@
 //!
 //! Settings JSON stores redacted secrets (`apiKey: null`); real keys live in the keyring via `repo::ai`.
 
+use std::collections::{BTreeMap, HashSet};
+
 use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::app::error::{error_codes, AppError};
@@ -103,6 +105,11 @@ pub enum AISecrets {
         base_url: String,
         #[serde(rename = "apiKey", default, deserialize_with = "deserialize_api_key")]
         api_key: Option<String>,
+        // INVARIANT: settings JSON keeps only the names, each with a `null` value; the values live in the
+        // keyring (`repo::ai`). On input a `null` value keeps the value stored under that name, and a name
+        // left out is removed (`resolve_header_values`).
+        #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+        headers: BTreeMap<String, Option<String>>,
     },
 }
 
@@ -185,6 +192,60 @@ impl AISecrets {
         }
     }
 
+    // WHY: twin of the header schema in `libs/ai/src/lib/provider-secrets.ts`. Names are HTTP tokens and
+    // unique ignoring case, since HTTP folds case; a value must be non-blank and must not break the header
+    // line. Boundary cases: `tests/cases/ai-secrets.json`.
+    fn validate_headers(headers: &BTreeMap<String, Option<String>>, provider: &str) -> Result<(), AppError> {
+        let mut seen = HashSet::new();
+        for (name, value) in headers {
+            let is_valid_name = !name.is_empty()
+                && name
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&byte));
+            let is_valid_value = value
+                .as_deref()
+                .is_none_or(|value| !value.trim().is_empty() && !value.contains(['\r', '\n', '\0']));
+            if !is_valid_name || !is_valid_value || !seen.insert(name.to_ascii_lowercase()) {
+                return Err(Self::invalid_header(provider, name));
+            }
+        }
+        Ok(())
+    }
+
+    fn invalid_header(provider: &str, name: &str) -> AppError {
+        AppError::new(
+            error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_HEADERS,
+            Some(format!("{provider}.headers.{name} is invalid")),
+        )
+    }
+
+    fn reject_stored_header_values(headers: &BTreeMap<String, Option<String>>, provider: &str) -> Result<(), AppError> {
+        if headers.values().any(Option::is_some) {
+            return Err(AppError::new(
+                error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_HEADERS,
+                Some(format!("{provider}.headers values must not be stored in settings")),
+            ));
+        }
+        Ok(())
+    }
+
+    /// The header values an add or edit leaves stored, given the values stored before it.
+    /// Twin: `resolveHeaderValues` in `apps/web/src/app/ai.ts`.
+    pub fn resolve_header_values(
+        incoming: &BTreeMap<String, Option<String>>,
+        stored: &BTreeMap<String, String>,
+    ) -> Result<BTreeMap<String, String>, AppError> {
+        incoming
+            .iter()
+            .map(|(name, value)| {
+                let value = value.clone().or_else(|| stored.get(name).cloned());
+                value
+                    .map(|value| (name.clone(), value))
+                    .ok_or_else(|| Self::invalid_header("openaiCompatible", name))
+            })
+            .collect()
+    }
+
     fn reject_stored_api_key(api_key: &Option<String>, provider: &str) -> Result<(), AppError> {
         if api_key.is_some() {
             return Err(AppError::new(
@@ -223,7 +284,10 @@ impl AISecrets {
             AISecrets::Anthropic { api_key } => Self::require_api_key_for_input(api_key, "anthropic"),
             AISecrets::Xai { api_key } => Self::require_api_key_for_input(api_key, "xai"),
             AISecrets::Vercel { api_key } => Self::require_api_key_for_input(api_key, "vercel"),
-            AISecrets::OpenaiCompatible { base_url, .. } => Self::require_base_url(base_url, "openaiCompatible"),
+            AISecrets::OpenaiCompatible { base_url, headers, .. } => {
+                Self::require_base_url(base_url, "openaiCompatible")?;
+                Self::validate_headers(headers, "openaiCompatible")
+            }
         }
     }
 
@@ -249,9 +313,15 @@ impl AISecrets {
             AISecrets::Anthropic { api_key } => Self::reject_stored_api_key(api_key, "anthropic"),
             AISecrets::Xai { api_key } => Self::reject_stored_api_key(api_key, "xai"),
             AISecrets::Vercel { api_key } => Self::reject_stored_api_key(api_key, "vercel"),
-            AISecrets::OpenaiCompatible { base_url, api_key } => {
+            AISecrets::OpenaiCompatible {
+                base_url,
+                api_key,
+                headers,
+            } => {
                 Self::require_base_url(base_url, "openaiCompatible")?;
-                Self::reject_stored_api_key(api_key, "openaiCompatible")
+                Self::reject_stored_api_key(api_key, "openaiCompatible")?;
+                Self::validate_headers(headers, "openaiCompatible")?;
+                Self::reject_stored_header_values(headers, "openaiCompatible")
             }
         }
     }
