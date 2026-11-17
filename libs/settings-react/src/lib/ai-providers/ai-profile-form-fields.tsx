@@ -4,7 +4,8 @@ import { Label, TextField } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import type { ReactNode } from "react";
-import type { AIProfileFieldType, AIProfileProviderField } from "./ai-provider-form-config";
+import type { AIProfileHeaderRow, AIProfileProviderField, AIProfileTextFieldType } from "./ai-provider-form-config";
+import { AIProfileHeadersField } from "./ai-profile-headers-field";
 import { AIProfileSecretsField } from "./ai-profile-secrets-field";
 
 type FieldApi = {
@@ -16,10 +17,25 @@ type FieldApi = {
   handleChange: (value: string) => void;
 };
 
-export type AIProfileFormFieldsProps = {
-  form: {
-    Field: (props: { name: AIProfileFieldType; children: (field: FieldApi) => ReactNode }) => ReactNode;
+type HeaderRowsFieldApi = {
+  state: { value: AIProfileHeaderRow[] | undefined };
+  pushValue: (row: AIProfileHeaderRow) => void;
+  removeValue: (index: number) => void;
+};
+
+export type AIProfileForm = {
+  Field: {
+    (props: { name: AIProfileTextFieldType; children: (field: FieldApi) => ReactNode }): ReactNode;
+    (props: { name: "headers"; mode: "array"; children: (field: HeaderRowsFieldApi) => ReactNode }): ReactNode;
+    (props: {
+      name: `headers[${number}].name` | `headers[${number}].value`;
+      children: (field: FieldApi) => ReactNode;
+    }): ReactNode;
   };
+};
+
+export type AIProfileFormFieldsProps = {
+  form: AIProfileForm;
   fields: AIProfileProviderField[];
   mode: "add" | "edit";
   hasSecrets?: boolean;
@@ -29,6 +45,8 @@ export function AIProfileFormFields({ form, fields, mode, hasSecrets = false }: 
   const { _ } = useLingui();
 
   return fields.map((fieldConfig) => {
+    if (fieldConfig.type === "headers") return <AIProfileHeadersField key="headers" form={form} />;
+
     const placeholder =
       fieldConfig.type === "title"
         ? _(msg`settings.ai.profiles.title.placeholder`)

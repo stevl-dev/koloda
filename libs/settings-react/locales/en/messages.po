@@ -168,6 +168,26 @@ msgstr "Delete profile"
 msgid "settings.ai.profiles.empty"
 msgstr "No profiles"
 
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.add"
+msgstr "Add header"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.label"
+msgstr "Custom headers"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.name.{rowNumber}"
+msgstr "Header {rowNumber} name"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.remove.{rowNumber}"
+msgstr "Remove header {rowNumber}"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.value.{rowNumber}"
+msgstr "Header {rowNumber} value"
+
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Provider"

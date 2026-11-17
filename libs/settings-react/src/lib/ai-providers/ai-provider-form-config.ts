@@ -1,6 +1,8 @@
 import {
   aiProfileValidation,
   anthropicSecretsValidation,
+  isValidHeaderName,
+  isValidHeaderValue,
   deepseekSecretsValidation,
   lmstudioSecretsValidation,
   openaiCompatibleSecretsValidation,
@@ -17,26 +19,51 @@ import type { AiProvider, AISecrets } from "@koloda/ai";
 import { z } from "zod";
 import type { ZodObject, ZodRawShape } from "zod";
 
-export type AIProfileFieldType = "title" | "baseUrl" | "apiKey";
+type AIProfileFieldType = "title" | "baseUrl" | "apiKey" | "headers";
 
-export type AIProfileProviderField = {
-  type: AIProfileFieldType;
-  isRequired: boolean;
-  defaultValue: string;
-};
+export type AIProfileTextFieldType = Exclude<AIProfileFieldType, "headers">;
+
+export type AIProfileProviderField =
+  | { type: AIProfileTextFieldType; isRequired: boolean; defaultValue: string }
+  | { type: "headers"; isRequired: false };
+
+/** A stored row's value is masked: left blank, it keeps the value stored under that name. */
+export type AIProfileHeaderRow = { name: string; value: string; isStored: boolean };
 
 type AIProfileFormValues = {
   title?: string;
   baseUrl?: string;
   apiKey?: string;
+  headers?: AIProfileHeaderRow[];
 };
 
 type AIProviderFormConfig = {
   fields: AIProfileProviderField[];
   schema: ZodObject<ZodRawShape>;
   toSecrets: (values: AIProfileFormValues) => AISecrets;
-  fromSecrets: (secrets: AISecrets) => Pick<AIProfileFormValues, "baseUrl" | "apiKey">;
+  fromSecrets: (secrets: AISecrets) => Pick<AIProfileFormValues, "baseUrl" | "apiKey" | "headers">;
 };
+
+function isKeptHeaderRow(row: AIProfileHeaderRow) {
+  return row.isStored && row.value === "";
+}
+
+// WHY: the form checks rows, not the secrets record, so a repeated name is reported on its own row.
+// The rules are the secrets schema's (`isValidHeaderName`, `isValidHeaderValue` in @koloda/ai).
+const headerRowsValidation = z
+  .array(z.object({ name: z.string(), value: z.string(), isStored: z.boolean() }))
+  .superRefine((rows, ctx) => {
+    const seen = new Set<string>();
+    rows.forEach((row, index) => {
+      if (!isValidHeaderName(row.name) || seen.has(row.name.toLowerCase())) {
+        ctx.addIssue({ code: "custom", message: "validation.settings-ai.providers.headers", path: [index, "name"] });
+      }
+      seen.add(row.name.toLowerCase());
+      if (!isKeptHeaderRow(row) && !isValidHeaderValue(row.value)) {
+        ctx.addIssue({ code: "custom", message: "validation.settings-ai.providers.headers", path: [index, "value"] });
+      }
+    });
+  });
 
 const titleField: AIProfileProviderField = {
   type: "title",
@@ -70,7 +97,7 @@ function apiKeyOnlyConfig(
 }
 
 function baseUrlConfig(
-  provider: "ollama" | "lmstudio" | "openaiCompatible",
+  provider: "ollama" | "lmstudio",
   secretsSchema: typeof ollamaSecretsValidation,
   defaultBaseUrl: string,
 ): AIProviderFormConfig {
@@ -112,11 +139,44 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
   vercel: apiKeyOnlyConfig("vercel", vercelSecretsValidation),
   ollama: baseUrlConfig("ollama", ollamaSecretsValidation, "http://localhost:11434"),
   lmstudio: baseUrlConfig("lmstudio", lmstudioSecretsValidation, "http://localhost:1234/v1"),
-  openaiCompatible: baseUrlConfig("openaiCompatible", openaiCompatibleSecretsValidation, ""),
+  openaiCompatible: {
+    fields: [
+      titleField,
+      { type: "baseUrl", isRequired: true, defaultValue: "" },
+      { type: "apiKey", isRequired: false, defaultValue: "" },
+      { type: "headers", isRequired: false },
+    ],
+    schema: openaiCompatibleSecretsValidation.extend({
+      title: aiProfileValidation.shape.title,
+      headers: headerRowsValidation,
+    }),
+    toSecrets: (values) => {
+      const rows = values.headers ?? [];
+      return {
+        provider: "openaiCompatible",
+        baseUrl: values.baseUrl ?? "",
+        ...(values.apiKey ? { apiKey: values.apiKey } : {}),
+        // INVARIANT: a kept row is sent as `null` and a removed row is left out (AI-PROVIDERS.md §Editing a Profile).
+        ...(rows.length > 0
+          ? { headers: Object.fromEntries(rows.map((row) => [row.name, isKeptHeaderRow(row) ? null : row.value])) }
+          : {}),
+      };
+    },
+    fromSecrets: (secrets) => {
+      if (secrets.provider !== "openaiCompatible") return { baseUrl: "", apiKey: "", headers: [] };
+      return {
+        baseUrl: secrets.baseUrl,
+        apiKey: secrets.apiKey ?? "",
+        headers: Object.keys(secrets.headers ?? {}).map((name) => ({ name, value: "", isStored: true })),
+      };
+    },
+  },
 };
 
 export function getAddDefaultValues(config: AIProviderFormConfig): AIProfileFormValues {
-  return Object.fromEntries(config.fields.map((field) => [field.type, field.defaultValue]));
+  return Object.fromEntries(
+    config.fields.map((field) => [field.type, field.type === "headers" ? [] : field.defaultValue]),
+  );
 }
 
 export function getEditDefaultValues(

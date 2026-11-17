@@ -162,4 +162,68 @@ describe("SettingsAIAddProfile", () => {
     expect(await screen.findByText("SQLITE_BUSY")).toBeTruthy();
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
   });
+
+  describe("OpenAI-compatible custom headers", () => {
+    async function openWithHeaderRows(rows: Array<{ name: string; value: string }>) {
+      renderDialog(["openaiCompatible"]);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.add" }));
+      });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.base-url.label"), {
+        target: { value: "http://localhost:8000/v1" },
+      });
+      rows.forEach((row, index) => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.profiles.headers.add" }));
+        fireEvent.change(screen.getByLabelText(`settings.ai.profiles.headers.name.${index + 1}`), {
+          target: { value: row.name },
+        });
+        fireEvent.change(screen.getByLabelText(`settings.ai.profiles.headers.value.${index + 1}`), {
+          target: { value: row.value },
+        });
+      });
+    }
+
+    async function submit() {
+      await act(async () => {
+        fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
+      });
+    }
+
+    it("sends the rows as headers, leaving out a removed row", async () => {
+      await openWithHeaderRows([
+        { name: "X-Team", value: "team-1" },
+        { name: "X-Removed", value: "gone" },
+      ]);
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.profiles.headers.remove.2" }));
+      await submit();
+
+      expect(addProfile).toHaveBeenCalledWith({
+        title: undefined,
+        secrets: { provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1", headers: { "X-Team": "team-1" } },
+      });
+    });
+
+    it.each([
+      { case: "a name with a space", rows: [{ name: "X Team", value: "v" }], field: "name.1" },
+      {
+        case: "a name repeated in another case",
+        rows: [
+          { name: "X-Team", value: "a" },
+          { name: "x-team", value: "b" },
+        ],
+        field: "name.2",
+      },
+      { case: "a whitespace-only value", rows: [{ name: "X-Team", value: "   " }], field: "value.1" },
+    ])("reports $case on its row and does not submit", async ({ rows, field }) => {
+      await openWithHeaderRows(rows);
+      await submit();
+
+      // WHY: the error sits inside the text field it belongs to, so its parent holds that input.
+      const [alert, ...others] = screen.getAllByRole("alert");
+      expect(others).toEqual([]);
+      expect(alert?.textContent).toBe("validation.settings-ai.providers.headers");
+      expect(alert?.parentElement?.contains(screen.getByLabelText(`settings.ai.profiles.headers.${field}`))).toBe(true);
+      expect(addProfile).not.toHaveBeenCalled();
+    });
+  });
 });

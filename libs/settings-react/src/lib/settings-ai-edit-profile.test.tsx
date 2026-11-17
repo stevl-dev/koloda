@@ -50,7 +50,7 @@ function buildQueries(): Queries {
   } as unknown as Queries;
 }
 
-function renderDialog() {
+function renderDialog(target: AIProfile = profile) {
   const store = createStore();
   store.set(queriesAtom, buildQueries());
   const queryClient = new QueryClient({
@@ -65,7 +65,7 @@ function renderDialog() {
     );
   }
 
-  return { ...render(<SettingsAIEditProfile profile={profile} />, { wrapper: Wrapper }), queryClient };
+  return { ...render(<SettingsAIEditProfile profile={target} />, { wrapper: Wrapper }), queryClient };
 }
 
 describe("SettingsAIEditProfile", () => {
@@ -125,5 +125,70 @@ describe("SettingsAIEditProfile", () => {
 
     expect(updateProfile).toHaveBeenCalledOnce();
     expect(queryClient.getQueryData(queryKeys.ai.models(profile.id))).toBeUndefined();
+  });
+
+  describe("OpenAI-compatible custom headers", () => {
+    const compatibleProfile: AIProfile = {
+      id: "00000000-0000-4000-8000-000000000002",
+      title: "Gateway",
+      secrets: {
+        provider: "openaiCompatible",
+        baseUrl: "http://localhost:8000/v1",
+        apiKey: null,
+        headers: { "X-Dropped": null, "X-Kept": null, "X-Replaced": null },
+      },
+      hasSecrets: false,
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    };
+
+    const replaceButtons = () => screen.getAllByRole("button", { name: "settings.ai.profiles.replace" });
+
+    it("shows stored names read-only with every value masked", async () => {
+      renderDialog(compatibleProfile);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.trigger" }));
+      });
+
+      const names = ["X-Dropped", "X-Kept", "X-Replaced"].map((_name, index) =>
+        screen.getByLabelText(`settings.ai.profiles.headers.name.${index + 1}`),
+      );
+      expect(names.map((input) => [(input as HTMLInputElement).value, input.hasAttribute("readonly")])).toEqual([
+        ["X-Dropped", true],
+        ["X-Kept", true],
+        ["X-Replaced", true],
+      ]);
+      expect(replaceButtons()).toHaveLength(3);
+      expect(screen.queryByLabelText("settings.ai.profiles.headers.value.1")).toBeNull();
+    });
+
+    it("keeps untouched values, leaves out removed rows, and sends replaced values", async () => {
+      renderDialog(compatibleProfile);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.trigger" }));
+      });
+
+      fireEvent.click(replaceButtons()[0]!);
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.profiles.headers.remove.1" }));
+      // WHY: the rows below a removed one keep their own masked state, not the removed row's.
+      expect(replaceButtons()).toHaveLength(2);
+
+      fireEvent.click(replaceButtons()[1]!);
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.headers.value.2"), {
+        target: { value: "new" },
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.submit" }));
+      });
+
+      expect(updateProfile).toHaveBeenCalledWith({
+        id: compatibleProfile.id,
+        title: "Gateway",
+        secrets: {
+          provider: "openaiCompatible",
+          baseUrl: "http://localhost:8000/v1",
+          headers: { "X-Kept": null, "X-Replaced": "new" },
+        },
+      });
+    });
   });
 });

@@ -168,6 +168,26 @@ msgstr "Удалить профиль"
 msgid "settings.ai.profiles.empty"
 msgstr "Нет профилей"
 
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.add"
+msgstr "Добавить заголовок"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.label"
+msgstr "Дополнительные заголовки"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.name.{rowNumber}"
+msgstr "Имя заголовка {rowNumber}"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.remove.{rowNumber}"
+msgstr "Удалить заголовок {rowNumber}"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-headers-field.tsx
+msgid "settings.ai.profiles.headers.value.{rowNumber}"
+msgstr "Значение заголовка {rowNumber}"
+
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Провайдер"

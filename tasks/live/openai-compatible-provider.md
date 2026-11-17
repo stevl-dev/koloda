@@ -116,7 +116,7 @@ Out:
   Commit: Store custom headers for OpenAI-compatible profiles
   Depends on: 1
 
-- [ ] 3. Edit custom headers in the OpenAI-compatible profile form
+- [x] 3. Edit custom headers in the OpenAI-compatible profile form
   Goal: A `headers` `AIProfileFieldType` that `AIProfileFormFields` renders as name/value rows,
   with add and remove actions.
   The `openaiCompatible` form config becomes a hand-written entry with title, base URL, API key, and headers.

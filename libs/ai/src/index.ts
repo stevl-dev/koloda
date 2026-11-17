@@ -21,6 +21,8 @@ export {
   anthropicSecretsValidation,
   deepseekSecretsValidation,
   isPresentApiKey,
+  isValidHeaderName,
+  isValidHeaderValue,
   lmstudioSecretsValidation,
   openaiCompatibleSecretsValidation,
   openaiSecretsValidation,
