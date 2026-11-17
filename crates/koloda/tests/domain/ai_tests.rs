@@ -121,6 +121,7 @@ const KEYED_PROVIDER_ROWS: &[KeyedProviderRow] = &[
     ("anthropic", "anthropic-secret", |api_key| AISecrets::Anthropic {
         api_key,
     }),
+    ("xai", "xai-secret", |api_key| AISecrets::Xai { api_key }),
 ];
 
 #[test]
@@ -501,6 +502,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
         AISecrets::OpencodeZen { api_key: None },
         AISecrets::OllamaCloud { api_key: None },
         AISecrets::Anthropic { api_key: None },
+        AISecrets::Xai { api_key: None },
     ];
 
     let mut tags: Vec<String> = variants
@@ -528,6 +530,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
             "opencodeGo".to_string(),
             "opencodeZen".to_string(),
             "openrouter".to_string(),
+            "xai".to_string(),
         ]
     );
 }

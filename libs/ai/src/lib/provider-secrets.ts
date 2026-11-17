@@ -56,6 +56,10 @@ export const anthropicSecretsValidation = z.object({
   apiKey: requiredApiKey,
 });
 
+export const xaiSecretsValidation = z.object({
+  apiKey: requiredApiKey,
+});
+
 // WHY: Settings / profile wire format uses `null` for redacted or absent keys.
 // Blank and whitespace-only values normalize to `null` — the twin of
 // `deserialize_api_key` in `crates/koloda/src/domain/ai.rs` — so missing-secret
@@ -82,6 +86,7 @@ export const aiSecretsValidation = z.discriminatedUnion("provider", [
   z.object({ provider: z.literal("opencodeZen"), apiKey: storedApiKey }),
   z.object({ provider: z.literal("ollamaCloud"), apiKey: storedApiKey }),
   z.object({ provider: z.literal("anthropic"), apiKey: storedApiKey }),
+  z.object({ provider: z.literal("xai"), apiKey: storedApiKey }),
 ]);
 
 export type AISecrets = z.infer<typeof aiSecretsValidation>;
@@ -100,6 +105,7 @@ export const aiSecretsInputValidation = z.discriminatedUnion("provider", [
   opencodeZenSecretsValidation.extend({ provider: z.literal("opencodeZen") }),
   ollamaCloudSecretsValidation.extend({ provider: z.literal("ollamaCloud") }),
   anthropicSecretsValidation.extend({ provider: z.literal("anthropic") }),
+  xaiSecretsValidation.extend({ provider: z.literal("xai") }),
 ]);
 
 export type SecretField = "apiKey" | "baseUrl";

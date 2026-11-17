@@ -28,6 +28,7 @@ export {
   openRouterSecretsValidation,
   opencodeGoSecretsValidation,
   opencodeZenSecretsValidation,
+  xaiSecretsValidation,
 } from "./lib/provider-secrets";
 export type { AISecrets, SecretField } from "./lib/provider-secrets";
 export type { AIRuntime } from "./lib/runtime";

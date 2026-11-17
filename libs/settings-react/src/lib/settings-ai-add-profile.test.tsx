@@ -100,6 +100,7 @@ describe("SettingsAIAddProfile", () => {
       "OpenCode Zen",
       "Ollama Cloud",
       "Anthropic",
+      "xAI",
     ]);
   });
 

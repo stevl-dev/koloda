@@ -9,6 +9,7 @@ import {
   opencodeGoProviderOptions,
   opencodeZenProviderOptions,
   streamChatWithAnthropic,
+  xaiProviderOptions,
 } from "./chat-stream";
 
 describe("provider option helpers pass a non-empty effort through", () => {
@@ -19,6 +20,7 @@ describe("provider option helpers pass a non-empty effort through", () => {
     ["opencode-zen", opencodeZenProviderOptions, { "opencode-zen": { reasoningEffort: "high" } }],
     ["Ollama", ollamaProviderOptions, { ollama: { think: "high" } }],
     ["Anthropic", anthropicProviderOptions, { anthropic: { effort: "high" } }],
+    ["xAI", xaiProviderOptions, { xai: { reasoningEffort: "high" } }],
   ] as const)("maps %s high onto provider options", (_label, providerOptions, expected) => {
     expect(providerOptions("high")).toEqual(expected);
   });
@@ -72,6 +74,7 @@ describe("provider option helpers omit an empty effort", () => {
     ["LM Studio", lmstudioProviderOptions],
     ["opencode-zen", opencodeZenProviderOptions],
     ["Anthropic", anthropicProviderOptions],
+    ["xAI", xaiProviderOptions],
   ] as const)("omits %s providerOptions when effort is missing or empty", (_label, providerOptions) => {
     expect(providerOptions(undefined)).toBeUndefined();
     expect(providerOptions("")).toBeUndefined();

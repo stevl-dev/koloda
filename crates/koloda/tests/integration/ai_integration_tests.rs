@@ -258,6 +258,9 @@ fn api_key_only_profiles_round_trip_via_secret_store() {
         AISecrets::Anthropic {
             api_key: Some("sk-ant-secret".to_string()),
         },
+        AISecrets::Xai {
+            api_key: Some("xai-secret".to_string()),
+        },
     ];
 
     for secrets in cases {

@@ -87,6 +87,11 @@ pub enum AISecrets {
         #[serde(rename = "apiKey", deserialize_with = "deserialize_api_key")]
         api_key: Option<String>,
     },
+    #[serde(rename = "xai")]
+    Xai {
+        #[serde(rename = "apiKey", deserialize_with = "deserialize_api_key")]
+        api_key: Option<String>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -135,6 +140,7 @@ impl AISecrets {
             AISecrets::OpencodeZen { .. } => "opencodeZen",
             AISecrets::OllamaCloud { .. } => "ollamaCloud",
             AISecrets::Anthropic { .. } => "anthropic",
+            AISecrets::Xai { .. } => "xai",
         }
     }
 
@@ -147,6 +153,7 @@ impl AISecrets {
             | AISecrets::OpencodeZen { api_key }
             | AISecrets::OllamaCloud { api_key }
             | AISecrets::Anthropic { api_key }
+            | AISecrets::Xai { api_key }
             | AISecrets::Ollama { api_key, .. }
             | AISecrets::LmStudio { api_key, .. } => api_key.as_deref(),
         }
@@ -198,6 +205,7 @@ impl AISecrets {
             AISecrets::OpencodeZen { api_key } => Self::require_api_key_for_input(api_key, "opencodeZen"),
             AISecrets::OllamaCloud { api_key } => Self::require_api_key_for_input(api_key, "ollamaCloud"),
             AISecrets::Anthropic { api_key } => Self::require_api_key_for_input(api_key, "anthropic"),
+            AISecrets::Xai { api_key } => Self::require_api_key_for_input(api_key, "xai"),
         }
     }
 
@@ -221,6 +229,7 @@ impl AISecrets {
             AISecrets::OpencodeZen { api_key } => Self::reject_stored_api_key(api_key, "opencodeZen"),
             AISecrets::OllamaCloud { api_key } => Self::reject_stored_api_key(api_key, "ollamaCloud"),
             AISecrets::Anthropic { api_key } => Self::reject_stored_api_key(api_key, "anthropic"),
+            AISecrets::Xai { api_key } => Self::reject_stored_api_key(api_key, "xai"),
         }
     }
 }

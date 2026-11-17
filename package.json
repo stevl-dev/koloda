@@ -39,6 +39,7 @@
     "@ai-sdk/openai": "^4.0.83",
     "@ai-sdk/openai-compatible": "^3.0.62",
     "@ai-sdk/provider-utils": "^5.0.53",
+    "@ai-sdk/xai": "^5.0.14",
     "@dnd-kit/abstract": "^0.1.21",
     "@dnd-kit/react": "^0.1.21",
     "@fontsource-variable/inter": "^5.2.6",

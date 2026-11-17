@@ -8,12 +8,14 @@ export const AI_PROVIDER_LABELS = {
   opencodeZen: "OpenCode Zen",
   ollamaCloud: "Ollama Cloud",
   anthropic: "Anthropic",
+  xai: "xAI",
 } as const;
 
 export const OPENCODE_GO_BASE_URL = "https://opencode.ai/zen/go/v1";
 export const OPENCODE_ZEN_BASE_URL = "https://opencode.ai/zen/v1";
 export const OLLAMA_CLOUD_BASE_URL = "https://ollama.com";
 export const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
+export const XAI_BASE_URL = "https://api.x.ai/v1";
 
 // WHY: Anthropic sends CORS headers only to requests that carry this header, so the web host
 // needs it on every call. Desktop calls run in Electron main, where it changes nothing.

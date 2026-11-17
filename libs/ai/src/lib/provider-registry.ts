@@ -13,6 +13,7 @@ import { ollamaCloudProviderEntry } from "./providers/ollama-cloud";
 import { opencodeGoProviderEntry } from "./providers/opencode-go";
 import { opencodeZenProviderEntry } from "./providers/opencode-zen";
 import { openrouterProviderEntry } from "./providers/openrouter";
+import { xaiProviderEntry } from "./providers/xai";
 
 export type AIGenerationClient = {
   provider: AISecrets["provider"];
@@ -39,6 +40,7 @@ export const AI_PROVIDER_REGISTRY: Record<AiProvider, AIProviderEntry> = {
   opencodeZen: opencodeZenProviderEntry,
   ollamaCloud: ollamaCloudProviderEntry,
   anthropic: anthropicProviderEntry,
+  xai: xaiProviderEntry,
 };
 
 export function getProviderConfig(provider: AiProvider): AIProviderEntry {

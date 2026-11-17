@@ -10,6 +10,7 @@ import {
   OLLAMA_CLOUD_BASE_URL,
   OPENCODE_GO_BASE_URL,
   OPENCODE_ZEN_BASE_URL,
+  XAI_BASE_URL,
 } from "./provider-catalog";
 import { wrapModelWithReasoningExtraction } from "./model-reasoning-extraction";
 
@@ -165,6 +166,10 @@ export function anthropicProviderOptions(reasoningEffort: string | undefined): P
   return reasoningEffort ? { anthropic: { effort: reasoningEffort } } : undefined;
 }
 
+export function xaiProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
+  return reasoningEffort ? { xai: { reasoningEffort } } : undefined;
+}
+
 export function opencodeGoProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
   return reasoningEffort ? { "opencode-go": { reasoningEffort } } : undefined;
 }
@@ -262,6 +267,25 @@ export function streamChatWithAnthropic(
       onChunk,
       abortSignal,
       anthropicProviderOptions(request.input.reasoningEffort),
+    );
+  });
+}
+
+export function streamChatWithXai(
+  request: ChatStreamRequest,
+  onChunk: (chunk: ChatStreamChunk) => void,
+  abortSignal: AbortSignal,
+  { apiKey }: { apiKey: string },
+) {
+  return wrapAIError(async () => {
+    const { createXai } = await import("@ai-sdk/xai");
+    const xai = createXai({ apiKey, baseURL: XAI_BASE_URL });
+    return runChatStream(
+      (modelId) => xai(modelId),
+      request,
+      onChunk,
+      abortSignal,
+      xaiProviderOptions(request.input.reasoningEffort),
     );
   });
 }

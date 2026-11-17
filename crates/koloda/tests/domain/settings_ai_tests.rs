@@ -230,6 +230,27 @@ fn test_valid_ai_settings_with_anthropic_profile_redacted() {
 }
 
 #[test]
+fn test_valid_ai_settings_with_xai_profile_redacted() {
+    let json = r#"{
+        "profiles": [
+            {
+                "id": "01900000-0000-7000-8000-000000000009",
+                "title": "xAI",
+                "secrets": {
+                    "provider": "xai",
+                    "apiKey": null
+                },
+                "hasSecrets": false,
+                "createdAt": "2026-01-01T00:00:00Z"
+            }
+        ]
+    }"#;
+
+    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
+    settings.validate().unwrap();
+}
+
+#[test]
 fn test_valid_ai_settings_with_whitelist_model_ids() {
     let json = r#"{
         "profiles": [
