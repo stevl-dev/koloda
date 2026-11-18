@@ -245,7 +245,9 @@ A file-level mock there replaces a module that siblings import for real:
 
 - `ui`: `query-error.test.tsx`, `error-message.test.tsx`, and `form-errors-display.test.tsx` mock `@lingui/react`;
   siblings need the real catalog text.
-- `srs-react`: `optimize-algorithm.test.tsx` mocks `@koloda/core-react`; later files import the real module.
+- `srs-react`: several files mock what siblings import for real.
+  `optimize-algorithm.test.tsx` mocks `@koloda/core-react`, `delete-algorithm.test.tsx` mocks `@lingui/react`,
+  and `deck-cards.test.tsx` mocks `cards-stack`, `cards-table`, and `add-card`, which have tests of their own.
 
 Other `isolate: false` libs file-mock `@lingui/react` too and pass, because no sibling imports it for real.
 `db-sqlite` also sets `fileParallelism: false`.

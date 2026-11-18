@@ -426,7 +426,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Test the untested boundaries in settings-react
   Depends on: 9
 
-- [ ] 12. Say why srs-react keeps test isolation
+- [x] 12. Say why srs-react keeps test isolation
   Goal: Fix finding 13.
   Reword the `srs-react` bullet in `agents/TESTING.md` (§Runner constraints): several files mock modules their
   siblings import for real, naming `optimize-algorithm.test.tsx` (`@koloda/core-react`), `delete-algorithm.test.tsx`
