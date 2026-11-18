@@ -360,7 +360,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Make five tests assert what their names claim
   Depends on: 2
 
-- [ ] 8. Wait for a positive signal before asserting a single submit
+- [x] 8. Wait for a positive signal before asserting a single submit
   Goal: Fix finding 7.
   In the six double-submit tests (`libs/srs-react/src/lib/cards/card-details.test.tsx:130`,
   `components/entity-edit-forms.test.tsx:109`, `components/entity-add-dialogs.test.tsx:90`,
@@ -371,6 +371,14 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Constraints: those test files only.
   Done when: both suites pass; removing the in-flight guard behind one of them fails it (check one by hand, then
   revert).
+  Corrected at implementation: the add and clone dialogs' test could not fail.
+  With the write let through, the settled write reset the title, and the empty title alone stopped the second write.
+  It now types a title again before the second press, and asserts the submit button is disabled.
+  The add-card tests assert the Add button is disabled before they press it.
+  The card details test waits for the required-field error.
+  The four edit forms and the learning settings keep their single flush.
+  Their Save button shows only on a dirty form, so it gives no signal.
+  Letting the write through fails them, checked on `DeckDetails` and `SettingsLearning`.
   Commit: Wait for a positive signal before asserting a single submit
   Depends on: 2
 

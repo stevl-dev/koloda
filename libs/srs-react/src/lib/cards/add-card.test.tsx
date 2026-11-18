@@ -103,6 +103,7 @@ describe("AddCard", () => {
     submit();
     await waitFor(() => expect(addCard).toHaveBeenCalledTimes(1));
 
+    expect(screen.getByRole("button", { name: "add-card.submit" })).toHaveProperty("disabled", true);
     submit();
     await act(() => Promise.resolve());
     await resolveAdd();
@@ -119,6 +120,7 @@ describe("AddCard", () => {
     await waitFor(() => expect(addAttachment).toHaveBeenCalledTimes(1));
 
     // Both submit doors: the Add button, and the form submit the submit hotkey also runs.
+    expect(screen.getByRole("button", { name: "add-card.submit" })).toHaveProperty("disabled", true);
     submit();
     fireEvent.submit(back.closest("form") as HTMLFormElement);
     await act(() => Promise.resolve());

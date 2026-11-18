@@ -86,6 +86,10 @@ describe("add and clone dialogs", () => {
 
     fireEvent.submit(form);
     await waitFor(() => expect(write).toHaveBeenCalledTimes(1));
+    // WHY: a settled write resets the title, and an empty title stops a second write on its own;
+    // a valid title leaves only the pending write to stop it.
+    fireEvent.change(title, { target: { value: "Copy" } });
+    expect(form.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);
     fireEvent.submit(form);
     await act(async () => {});
 

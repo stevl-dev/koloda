@@ -127,7 +127,7 @@ describe("CardDetails form", () => {
 
     type("Front", "");
     save();
-    await act(async () => {});
+    expect((await screen.findAllByText("validation.cards.content.field-empty")).length).toBeGreaterThan(0);
 
     expect(updateCard).toHaveBeenCalledTimes(1);
   });
