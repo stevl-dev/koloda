@@ -32,6 +32,7 @@ use crate::domain::settings_learning::{
 use crate::domain::templates::TemplateContent;
 use crate::domain::time::to_datetime;
 use crate::repo::reviews::insert_review;
+use crate::repo::settings::LEARNING_SYNC_ID;
 
 /// One pull page: one lane's entries in `seq` order, and the highest seq the server examined for that lane.
 pub struct Page {
@@ -187,7 +188,7 @@ fn decode(lane: Lane, entry: &PageEntry) -> Result<Result<Entry, HoldReason>, Ap
             None => return Ok(Err(HoldReason::CorruptEnvelope)),
         },
     };
-    if breaks_domain_rule(&payload) {
+    if breaks_domain_rule(&payload) || contradicts_header(&envelope.header, &payload) {
         return Ok(Err(HoldReason::CorruptEnvelope));
     }
     let values = StampValues::new(
@@ -262,6 +263,18 @@ fn breaks_domain_rule(payload: &Payload) -> bool {
             Payload::LearningLearnAheadLimit(group) => is_refused(&group.value, validate_learn_ahead_limit),
             _ => false,
         }
+}
+
+// INVARIANT: an honest header is sealed from its payload (`payload::seal`), so the two agree. Apply checks the header's
+// parent and refs (`has_referents`) but writes the payload's ids, and patches the learning row the header's id names;
+// a header that disagrees would fail a foreign key on every pull, or write another settings document.
+fn contradicts_header(header: &Header, payload: &Payload) -> bool {
+    let is_other_document = header.kind == Kind::SettingsLearning && header.id != LEARNING_SYNC_ID;
+    is_other_document
+        || payload
+            .parent()
+            .is_some_and(|own| header.parent.as_deref() != Some(own))
+        || payload.refs() != header.refs
 }
 
 fn is_bad_timestamp(timestamp: i64) -> bool {

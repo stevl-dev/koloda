@@ -218,6 +218,13 @@ impl Header {
                 reason: "attachment ids are not sorted and unique",
             });
         }
+        // WHY: devices put the id in a URL path to fetch the bytes; another word there names another endpoint.
+        if !self.refs.attachment_ids.iter().all(|id| is_attachment_id(id)) {
+            return Err(EnvelopeError::Malformed {
+                part: Part::Header,
+                reason: "an attachment id is not 64 lowercase hex characters".to_string(),
+            });
+        }
         Ok(())
     }
 
@@ -310,6 +317,11 @@ fn unknown_key(bytes: &[u8], part: Part, known: &[&str]) -> Option<EnvelopeError
             (!REFS_KEYS.contains(&key.as_str())).then_some(EnvelopeError::UnknownKey { part, key })
         })
     })
+}
+
+/// Whether `id` names attachment bytes: their SHA-256 as 64 lowercase hex characters (PROTOCOL.md, Attachments).
+pub fn is_attachment_id(id: &str) -> bool {
+    id.len() == 64 && id.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'))
 }
 
 pub fn digest(encoded: &[u8]) -> Digest {

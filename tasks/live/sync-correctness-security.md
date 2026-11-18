@@ -254,7 +254,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `bun run test:libs` and `nx run @koloda/electron:test:unit` pass; the addon builds.
   Commit: Offer to remove a device's copies and invitees with it
   Depends on: 4
-- [ ] 6. Hold envelopes whose header an honest device never writes
+- [x] 6. Hold envelopes whose header an honest device never writes
   Goal: finding 4.
   `Header::validate` (`crates/koloda-sync-proto/src/envelope.rs:211-220`) also refuses an attachment id that is not
   64 lowercase hex characters, so the envelope fails to decode and holds as unreadable.

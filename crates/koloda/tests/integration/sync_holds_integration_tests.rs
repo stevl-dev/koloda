@@ -9,6 +9,7 @@ use koloda::domain::cards::UpdateCardProgress;
 use koloda::domain::decks::{UpdateDeckData, UpdateDeckValues};
 use koloda::domain::lessons::LessonResultData;
 use koloda::domain::reviews::InsertReviewData;
+use koloda::domain::seed_ids::SEED_ALGORITHM_SIMPLE_ID;
 use koloda::domain::settings::SettingsName;
 use koloda::repo::algorithms::get_algorithms;
 use koloda::repo::cards::{get_card, get_cards};
@@ -826,6 +827,121 @@ fn a_learning_value_this_app_refuses_holds_and_the_document_still_reads() {
         assert_eq!(after.content, before.content, "{case}");
         get_todays_review_totals(&reader).unwrap_or_else(|error| panic!("{case}: totals read: {error:?}"));
     }
+}
+
+/// The envelope with its payload changed by `edit` and its header kept, as no honest writer seals it.
+fn contradicted(envelope: &Envelope, edit: impl Fn(&mut Payload)) -> Vec<u8> {
+    let mut payload = Payload::decode(&envelope.header, &envelope.payload).expect("the payload decodes");
+    edit(&mut payload);
+    Envelope {
+        header: envelope.header.clone(),
+        payload: payload.encode().expect("the payload encodes"),
+    }
+    .encode()
+    .expect("envelope encodes")
+}
+
+#[test]
+fn a_payload_that_names_other_rows_than_its_header_holds() {
+    // WHY: apply checks the header's parent and refs but writes the payload's ids; applied, these would fail a foreign
+    // key on every pull, with no hold naming the seq to drop.
+    let cases: [(&str, Damage); 2] = [
+        ("a card create in another deck", |envelope| {
+            contradicted(envelope, |payload| {
+                if let Payload::CardCreate(create) = payload {
+                    create.deck_id = Uuid::now_v7().to_string();
+                }
+            })
+        }),
+        ("a card create of another template", |envelope| {
+            contradicted(envelope, |payload| {
+                if let Payload::CardCreate(create) = payload {
+                    create.template_id = Uuid::now_v7().to_string();
+                }
+            })
+        }),
+    ];
+    for (case, damage) in cases {
+        let (writer, reader) = (replica(), replica());
+        let written = write_deck(&writer);
+        let (page, seq) = page_from(
+            &writer,
+            Lane::Hot,
+            is_group(Kind::Cards, &written.second, "create"),
+            damage,
+        );
+
+        let applied = apply_held(&reader, &page);
+
+        assert_eq!(
+            applied.hold,
+            hold(Lane::Hot, seq, HoldReason::CorruptEnvelope),
+            "{case}"
+        );
+        assert!(
+            get_card(&reader, &written.first).unwrap().is_some(),
+            "{case}: the card before it applied"
+        );
+        assert!(get_card(&reader, &written.second).unwrap().is_none(), "{case}");
+    }
+
+    let (writer, reader) = (replica(), replica());
+    let written = write_deck(&writer);
+    grade(&writer, &written.first);
+    apply_held(&reader, &whole_page(&writer, Lane::Hot));
+    let (page, seq) = page_from(
+        &writer,
+        Lane::Cold,
+        |envelope| envelope.header.kind == Kind::Reviews,
+        |envelope| {
+            contradicted(envelope, |payload| {
+                if let Payload::Review(review) = payload {
+                    review.card_id = Uuid::now_v7().to_string();
+                }
+            })
+        },
+    );
+
+    let applied = apply_held(&reader, &page);
+
+    assert_eq!(
+        applied.hold,
+        hold(Lane::Cold, seq, HoldReason::CorruptEnvelope),
+        "a review of another card"
+    );
+    assert_eq!(count(&reader, "SELECT COUNT(*) FROM reviews"), 0);
+}
+
+#[test]
+fn a_learning_group_under_another_documents_id_holds() {
+    let reader = seeded_replica();
+    let patched = format!(
+        "SELECT COUNT(*) FROM settings WHERE name = 'interface' AND content LIKE '%{SEED_ALGORITHM_SIMPLE_ID}%'"
+    );
+    assert_eq!(
+        count(&reader, "SELECT COUNT(*) FROM settings WHERE name = 'interface'"),
+        1
+    );
+    let remote = Uuid::now_v7();
+    // WHY: a value the learning document accepts, naming an algorithm the file holds, so only the id is wrong.
+    let payload = Payload::LearningDefaultAlgorithm(DefaultAlgorithm {
+        algorithm_id: SEED_ALGORITHM_SIMPLE_ID.to_string(),
+    });
+    let page = Page {
+        lane: Lane::Hot,
+        entries: vec![PageEntry {
+            seq: 1,
+            sender: remote,
+            sender_seq: 1,
+            envelope: sealed("interface", None, stamp(remote, now_ms()), &payload),
+        }],
+        scanned_through: 1,
+    };
+
+    let applied = apply_held(&reader, &page);
+
+    assert_eq!(applied.hold, hold(Lane::Hot, 1, HoldReason::CorruptEnvelope));
+    assert_eq!(count(&reader, &patched), 0, "the device-local document is untouched");
 }
 
 #[test]

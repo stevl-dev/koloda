@@ -15,7 +15,7 @@ use axum::extract::rejection::QueryRejection;
 use axum::extract::{Path as UrlPath, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
-use koloda_sync_proto::envelope::Header;
+use koloda_sync_proto::envelope::{is_attachment_id, Header};
 use koloda_sync_proto::registry::{Group, Kind};
 use koloda_sync_proto::transport::{
     AttachmentBody, Empty, ErrorCode, MissingAttachments, ATTACHMENT_MIMES, MAX_ATTACHMENT_BYTES, MAX_MISSING_IDS,
@@ -30,7 +30,6 @@ use crate::http::{query, respond, respond_with_body, ApiError};
 use crate::quota::Room;
 use crate::server::{lock, Server, SpaceDb};
 
-const ID_LEN: usize = 64;
 // INVARIANT: a staged upload is `.<id>.<uuid>.tmp` beside the stored files, which are named by their hex id alone.
 const STAGED_PREFIX: char = '.';
 const STAGED_SUFFIX: &str = ".tmp";
@@ -117,7 +116,7 @@ pub(crate) async fn list_missing(
 }
 
 fn check_id(id: &str) -> Result<(), ApiError> {
-    if id.len() == ID_LEN && id.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')) {
+    if is_attachment_id(id) {
         Ok(())
     } else {
         Err(ApiError::bad_request("an attachment id is 64 lowercase hex characters"))

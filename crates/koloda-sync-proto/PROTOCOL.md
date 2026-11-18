@@ -139,6 +139,8 @@ One logical header has one encoding: `attachment_ids` are sorted and unique, and
 A header or frame in any other encoding does not decode.
 That covers reordered keys, an explicit `null`, a longer integer or length form, and trailing bytes.
 The server refuses such a push as `bad_request`, and a client that pulls one holds it as corrupt (§Corrupt envelopes).
+So does a header with an attachment id that is not 64 lowercase hex characters, since a device puts the id in the URL
+path that fetches the bytes.
 The digest is the SHA-256 of the encoded envelope bytes.
 
 Decoding validates the header against the registry:
@@ -1187,6 +1189,14 @@ It is also a value this app's readers refuse, so that, applied, it would break e
 - a card scheduling number past the 32-bit integer the app reads it as;
 - a stability or difficulty that is not finite;
 - a timestamp outside the range the app can show, whether a creation time, a due or review time, or an update time.
+
+It is also a payload that disagrees with its header, which no writer seals:
+
+- a parent or refs other than the ones sealing derives from the payload (§Sealing), such as a card create whose deck
+  is not the header's parent; apply checks the header but writes the payload's ids, so applied, it would fail on
+  every pull with no hold to drop;
+- a `settings.learning` envelope whose id is not `learning`; applied, it would write into another settings
+  document.
 
 The page applies every entry before the held one in one transaction and sets the lane cursor to the held seq minus
 one.

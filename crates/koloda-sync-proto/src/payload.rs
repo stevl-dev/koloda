@@ -9,7 +9,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::envelope::{decode_cbor, encode_cbor, Envelope, EnvelopeError, Header, Part, Refs};
+use crate::envelope::{decode_cbor, encode_cbor, is_attachment_id, Envelope, EnvelopeError, Header, Part, Refs};
 use crate::hlc::Stamp;
 use crate::registry::{Group, Kind, Op, RegistryError};
 
@@ -482,12 +482,11 @@ pub fn attachment_ids_in(content: &str) -> Vec<String> {
         .filter_map(|(start, prefix)| {
             let rest = content.get(start + prefix.len()..)?;
             let id = rest.get(..ATTACHMENT_ID_LEN)?;
-            let is_hex = id.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'));
             let is_whole = !rest
                 .as_bytes()
                 .get(ATTACHMENT_ID_LEN)
                 .is_some_and(|next| next.is_ascii_hexdigit());
-            (is_hex && is_whole).then(|| id.to_string())
+            (is_attachment_id(id) && is_whole).then(|| id.to_string())
         })
         .collect();
     ids.sort();

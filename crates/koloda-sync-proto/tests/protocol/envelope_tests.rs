@@ -25,6 +25,9 @@ fn header(kind: Kind, id: &str, parent: Option<&str>, group: Option<Group>, op: 
     }
 }
 
+const ATTACHMENT_A: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const ATTACHMENT_B: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
 fn card_content() -> Header {
     header(
         Kind::Cards,
@@ -33,7 +36,7 @@ fn card_content() -> Header {
         Some(Group::Content),
         Op::Write,
         Refs {
-            attachment_ids: vec!["aa".to_string(), "bb".to_string()],
+            attachment_ids: vec![ATTACHMENT_A.to_string(), ATTACHMENT_B.to_string()],
             ..Refs::default()
         },
     )
@@ -284,7 +287,7 @@ fn header_validation_follows_the_registry() {
                 Some(Group::Content),
                 Op::Write,
                 Refs {
-                    attachment_ids: vec!["bb".to_string(), "aa".to_string()],
+                    attachment_ids: vec![ATTACHMENT_B.to_string(), ATTACHMENT_A.to_string()],
                     ..Refs::default()
                 },
             ),
@@ -300,12 +303,29 @@ fn header_validation_follows_the_registry() {
                 Some(Group::Content),
                 Op::Write,
                 Refs {
-                    attachment_ids: vec!["aa".to_string(), "aa".to_string()],
+                    attachment_ids: vec![ATTACHMENT_A.to_string(), ATTACHMENT_A.to_string()],
                     ..Refs::default()
                 },
             ),
             EnvelopeError::NonCanonical {
                 reason: "attachment ids are not sorted and unique",
+            },
+        ),
+        (
+            header(
+                Kind::Cards,
+                "card-1",
+                Some("deck-1"),
+                Some(Group::Content),
+                Op::Write,
+                Refs {
+                    attachment_ids: vec!["missing".to_string()],
+                    ..Refs::default()
+                },
+            ),
+            EnvelopeError::Malformed {
+                part: Part::Header,
+                reason: "an attachment id is not 64 lowercase hex characters".to_string(),
             },
         ),
         (
@@ -410,7 +430,10 @@ fn decode_rejects_headers_that_do_not_parse_or_validate() {
                     (Value::Text("algorithm_id".to_string()), Value::Null),
                     (
                         Value::Text("attachment_ids".to_string()),
-                        Value::Array(vec![Value::Text("aa".to_string()), Value::Text("bb".to_string())]),
+                        Value::Array(vec![
+                            Value::Text(ATTACHMENT_A.to_string()),
+                            Value::Text(ATTACHMENT_B.to_string()),
+                        ]),
                     ),
                 ]);
                 set(entries, "refs", refs);
@@ -468,7 +491,7 @@ fn a_key_this_app_does_not_know_is_named_as_a_newer_writers() {
         Value::Map(vec![
             (
                 Value::Text("attachment_ids".to_string()),
-                Value::Array(vec![Value::Text("aa".to_string())]),
+                Value::Array(vec![Value::Text(ATTACHMENT_A.to_string())]),
             ),
             (Value::Text(key.to_string()), Value::Text("deck-1".to_string())),
         ])
@@ -545,7 +568,7 @@ fn a_known_key_with_a_wrong_type_stays_malformed() {
         ),
         (
             Value::Text("attachment_ids".to_string()),
-            Value::Array(vec![Value::Text("aa".to_string())]),
+            Value::Array(vec![Value::Text(ATTACHMENT_A.to_string())]),
         ),
     ]);
     let bytes = raw_card_content_header(|entries| {
