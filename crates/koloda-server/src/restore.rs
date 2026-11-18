@@ -15,7 +15,7 @@ use rusqlite::{params, Connection};
 use uuid::Uuid;
 
 use crate::backup::{self, Manifest, MANIFEST, MANIFEST_FORMAT};
-use crate::data_dir::{self, DataDirError, DataDirLock, ATTACHMENTS, SERVER_DB, SPACES};
+use crate::data_dir::{self, create_private_dirs, DataDirError, DataDirLock, ATTACHMENTS, SERVER_DB, SPACES};
 use crate::db::{self, DbError};
 use crate::http::ApiError;
 use crate::log;
@@ -236,7 +236,7 @@ fn stage(
     now_ms: u64,
 ) -> Result<Staged, RestoreError> {
     // INVARIANT: the staged copies are what gets checked, so nothing that differs from the manifest goes live.
-    fs::create_dir_all(staged.join(SPACES))?;
+    create_private_dirs(&staged.join(SPACES))?;
     copy_checked(
         &backup_dir.join(SERVER_DB),
         &staged.join(SERVER_DB),
@@ -252,7 +252,7 @@ fn stage(
         let from = backup_dir.join(ATTACHMENTS).join(space.id.to_string());
         let to = staged.join(ATTACHMENTS).join(space.id.to_string());
         if !space.attachments.is_empty() {
-            fs::create_dir_all(&to)?;
+            create_private_dirs(&to)?;
         }
         for attachment in &space.attachments {
             copy_checked(&from.join(attachment), &to.join(attachment), attachment)?;

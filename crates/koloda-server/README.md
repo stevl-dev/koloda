@@ -128,6 +128,8 @@ No image is published to a registry.
 | `generations/<id>/attachments/<space>/<attachment>` | One attachment's bytes, named by their SHA-256 |
 | `lock` | Held by `serve` for its whole run |
 
+Every directory the server, `backup`, or `restore` creates is readable by its user alone (mode `0700` on Unix), since
+the space databases hold card text in the clear; a directory that already exists keeps its mode.
 An upload stages its bytes as `.<attachment>.<uuid>.tmp` beside the stored files and renames them into place.
 A failed upload removes its staged file, and `serve` removes any left by a stop when it starts.
 

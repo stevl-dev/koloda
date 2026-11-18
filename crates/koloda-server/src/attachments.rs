@@ -26,6 +26,7 @@ use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
 use crate::auth;
+use crate::data_dir::create_private_dirs;
 use crate::http::{query, respond, respond_with_body, ApiError};
 use crate::quota::Room;
 use crate::server::{lock, Server, SpaceDb};
@@ -154,7 +155,7 @@ fn store(server: &Server, space_id: Uuid, id: &str, attachment: &AttachmentBody)
         return Err(no_room());
     }
     let dir = server.attachments_dir(space_id);
-    fs::create_dir_all(&dir).map_err(io_error)?;
+    create_private_dirs(&dir).map_err(io_error)?;
     let staged = dir.join(format!("{STAGED_PREFIX}{id}.{}{STAGED_SUFFIX}", Uuid::new_v4()));
     let landed = write_synced(&staged, &attachment.bytes)
         .map_err(io_error)

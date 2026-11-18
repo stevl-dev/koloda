@@ -44,6 +44,10 @@ The server defends against:
 - client bugs (existence checks, header allowlists, schema gates, limits);
 - resource exhaustion (body, envelope, and space size limits).
 
+Whether a space id exists is not secret: a call with an unknown token learns an existing space's epoch, which a
+device whose token a restore rotated needs (§Devices).
+Space ids are random UUIDs, so none can be guessed.
+
 The server does **not** defend against an enrolled device that lies.
 An enrolled device may push a write whose `stamp_device` is another device.
 It may republish another device's head during recovery, and read any sender's push receipts.

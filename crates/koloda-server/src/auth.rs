@@ -107,7 +107,10 @@ pub(crate) fn require_device_or_setup(
 
 /// Resolves a device token for a request on `/v1/spaces/{space}/...` and records the caller in `scope`.
 ///
-/// INVARIANT: a token of another space answers exactly like a missing space, so a device cannot probe for spaces.
+/// INVARIANT: a token of another space answers exactly like a missing space, so a device learns nothing of another
+/// space through its own token. An unknown token still learns an existing space's epoch: a device whose token a
+/// restore rotated tells that restore by it (PROTOCOL.md, Devices). So whether a space id exists is not secret; ids
+/// are random UUIDs, so none can be guessed.
 pub(crate) fn require_device(
     server: &Server,
     scope: &mut Scope,

@@ -300,7 +300,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-server` passes.
   Commit: Check backup attachment names before a restore copies them
   Depends on: none
-- [ ] 9. Keep server directories private and 500 replies generic
+- [x] 9. Keep server directories private and 500 replies generic
   Goal: finding 7, except setup-token rotation.
   Create the data directory's generations, spaces, and backup output directories with mode `0700` on Unix
   (`crates/koloda-server/src/data_dir.rs:42`, `crates/koloda-server/src/backup.rs:84`, and any other

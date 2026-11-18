@@ -31,6 +31,9 @@ use crate::server::{lock, Server};
 const CBOR: &str = "application/cbor";
 const ZSTD: &str = "zstd";
 const ZSTD_LEVEL: i32 = 3;
+// WHY: a server fault's detail, such as SQLite's text, helps no device and describes the server to any caller, so it
+// goes to the server's log and every `500` says only this.
+const INTERNAL_MESSAGE: &str = "the server failed; its log has the detail";
 
 #[derive(Debug)]
 pub struct ApiError {
@@ -100,9 +103,15 @@ impl ApiError {
     }
 
     fn body(&self) -> ErrorBody {
+        let message = if self.status == StatusCode::INTERNAL_SERVER_ERROR {
+            log_internal(&self.message);
+            INTERNAL_MESSAGE.to_string()
+        } else {
+            self.message.clone()
+        };
         ErrorBody {
             code: self.code,
-            message: self.message.clone(),
+            message,
             restore: self.restore.clone(),
         }
     }
@@ -205,7 +214,7 @@ where
     .await;
     match encoded {
         Ok(encoded) => encoded_response(encoded, compress),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response(),
+        Err(error) => internal_response(&error),
     }
 }
 
@@ -253,9 +262,7 @@ where
     match result {
         Ok(Ok(value)) => Ok(value),
         Ok(Err(encoded)) => Err(Box::new(encoded_response(encoded, compress))),
-        Err(error) => Err(Box::new(
-            (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response(),
-        )),
+        Err(error) => Err(Box::new(internal_response(&error))),
     }
 }
 
@@ -269,8 +276,17 @@ fn accepts_zstd(headers: &HeaderMap) -> bool {
 fn encoded_response(encoded: Result<(StatusCode, Vec<u8>), ApiError>, compress: bool) -> Response {
     match encoded {
         Ok((status, bytes)) => cbor_response(status, bytes, compress),
-        Err(error) => (StatusCode::INTERNAL_SERVER_ERROR, error.message).into_response(),
+        Err(error) => internal_response(&error.message),
     }
+}
+
+fn log_internal(detail: &dyn fmt::Display) {
+    eprintln!("koloda-server: {detail}");
+}
+
+fn internal_response(detail: &dyn fmt::Display) -> Response {
+    log_internal(detail);
+    (StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_MESSAGE).into_response()
 }
 
 pub(crate) async fn fallback(axum::extract::State(server): axum::extract::State<Arc<Server>>) -> Response {

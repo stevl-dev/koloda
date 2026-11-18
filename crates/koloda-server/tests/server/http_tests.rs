@@ -201,3 +201,29 @@ async fn a_body_that_stalls_is_refused_at_the_body_deadline() {
     assert_eq!(preview.error(), (StatusCode::REQUEST_TIMEOUT, ErrorCode::Internal));
     assert_eq!(start.elapsed(), BODY_READ_TIMEOUT);
 }
+
+#[tokio::test]
+async fn a_server_fault_answers_without_its_detail() {
+    let harness = Harness::new();
+    rusqlite::Connection::open(harness.generation_dir().join("server.db"))
+        .expect("server.db opens")
+        .execute("DROP TABLE space_creations", [])
+        .expect("the table drops");
+
+    let created = harness
+        .post("/v1/spaces")
+        .token(&harness.setup_token)
+        .body(&create_request("Home", nonce("home")))
+        .send::<Enrollment>()
+        .await;
+
+    assert_eq!(
+        created.error(),
+        (StatusCode::INTERNAL_SERVER_ERROR, ErrorCode::Internal)
+    );
+    let message = &created.reply.error.as_ref().expect("an error").message;
+    assert!(
+        !message.contains("space_creations") && !message.contains("sqlite"),
+        "the reply names no table and no SQLite text: {message}"
+    );
+}

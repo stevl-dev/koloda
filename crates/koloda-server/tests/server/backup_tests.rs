@@ -140,3 +140,60 @@ async fn a_directory_that_is_not_empty_is_refused() {
     ));
     assert!(!out.path().join(MANIFEST).exists());
 }
+
+/// Every directory below `root`, which itself existed before the test.
+#[cfg(unix)]
+fn directories_below(root: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut found = Vec::new();
+    let mut pending = vec![root.to_path_buf()];
+    while let Some(dir) = pending.pop() {
+        for entry in std::fs::read_dir(&dir).expect("the directory lists") {
+            let path = entry.expect("an entry reads").path();
+            if path.is_dir() {
+                found.push(path.clone());
+                pending.push(path);
+            }
+        }
+    }
+    found
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn the_server_and_a_backup_create_directories_only_their_user_can_read() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let harness = Harness::new();
+    let device = harness.create_space("Home").await;
+    let bytes = vec![1; 64];
+    let id = format!("{:x}", Sha256::digest(&bytes));
+    harness
+        .call(
+            Method::PUT,
+            format!("/v1/spaces/{}/attachments/{id}", uuid(device.space_id)),
+        )
+        .token(&device.token)
+        .body(&AttachmentBody {
+            mime: "image/png".to_string(),
+            width: NonZeroU32::new(1),
+            height: NonZeroU32::new(1),
+            bytes,
+        })
+        .send::<Empty>()
+        .await
+        .ok();
+    let out = tempfile::tempdir().expect("backup directory");
+    backup(harness.data_dir(), out.path(), 42).expect("backup runs");
+
+    let directories = [directories_below(harness.data_dir()), directories_below(out.path())].concat();
+    let names = |suffix: &str| directories.iter().filter(|dir| dir.ends_with(suffix)).count();
+    assert_eq!(
+        (names("spaces"), names(uuid(device.space_id).as_str())),
+        (2, 2),
+        "both trees hold a spaces and an attachments directory"
+    );
+    for dir in &directories {
+        let mode = std::fs::metadata(dir).expect("metadata reads").permissions().mode();
+        assert_eq!(mode & 0o077, 0, "{} is {mode:o}", dir.display());
+    }
+}

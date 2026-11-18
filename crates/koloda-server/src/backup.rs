@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use crate::data_dir::{self, DataDirError, ATTACHMENTS, SERVER_DB, SPACES};
+use crate::data_dir::{self, create_private_dirs, DataDirError, ATTACHMENTS, SERVER_DB, SPACES};
 use crate::db::{self, DbError};
 
 pub const MANIFEST: &str = "manifest.json";
@@ -81,7 +81,7 @@ pub fn backup(data_dir: &Path, out_dir: &Path, now_ms: u64) -> Result<Manifest, 
         .file_name()
         .map(|name| name.to_string_lossy().into_owned())
         .unwrap_or_default();
-    fs::create_dir_all(out_dir.join(SPACES))?;
+    create_private_dirs(&out_dir.join(SPACES))?;
 
     let source = db::open_reader(&generation.join(SERVER_DB))?;
     let listed: Vec<Uuid> = source
@@ -180,7 +180,7 @@ fn copy_space(generation: &Path, out_dir: &Path, id: Uuid, path: &Path) -> Resul
     let mut attachments = Vec::with_capacity(stored.len());
     for attachment in stored {
         if attachments.is_empty() {
-            fs::create_dir_all(&to)?;
+            create_private_dirs(&to)?;
         }
         match fs::copy(from.join(&attachment), to.join(&attachment)) {
             Ok(_) => {

@@ -32,6 +32,18 @@ pub enum DataDirError {
     Random(getrandom::Error),
 }
 
+/// Creates `path` and its missing parents, readable by the server's user alone where the platform has modes.
+///
+/// WHY: space databases and attachments hold card text and images in the clear; the process umask usually lets every
+/// local user read what it creates. A directory that already exists keeps its mode.
+pub(crate) fn create_private_dirs(path: &Path) -> io::Result<()> {
+    let mut builder = fs::DirBuilder::new();
+    builder.recursive(true);
+    #[cfg(unix)]
+    std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
+    builder.create(path)
+}
+
 /// Creates the first generation and returns the setup token, which is stored only as its hash.
 pub fn init(data_dir: &Path, now_ms: u64) -> Result<String, DataDirError> {
     if data_dir.join(CURRENT).exists() {
@@ -39,7 +51,7 @@ pub fn init(data_dir: &Path, now_ms: u64) -> Result<String, DataDirError> {
     }
     let generation = Uuid::new_v4().to_string();
     let root = data_dir.join(GENERATIONS).join(&generation);
-    fs::create_dir_all(root.join(SPACES))?;
+    create_private_dirs(&root.join(SPACES))?;
 
     let token = auth::new_token().map_err(DataDirError::Random)?;
     let conn = db::open_server(&root.join(SERVER_DB))?;
@@ -92,7 +104,7 @@ impl DataDirLock {
 
     /// Takes the lock on a directory whether or not it holds a server yet, as a restore onto a new machine must.
     pub(crate) fn acquire_any(data_dir: &Path) -> Result<DataDirLock, DataDirError> {
-        fs::create_dir_all(data_dir)?;
+        create_private_dirs(data_dir)?;
         let file = File::options()
             .create(true)
             .truncate(false)
