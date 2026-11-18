@@ -1,7 +1,6 @@
 import { DEFAULT_LEARNING_SETTINGS } from "@koloda/app";
 import type { ResolvedLearningSettings } from "@koloda/app";
 import { queriesAtom, queryKeys } from "@koloda/core-react";
-import type * as CoreReact from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -9,24 +8,6 @@ import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { DailyLimitCapField, SettingsLearning } from "./settings-learning";
-
-vi.mock("@lingui/react", () => ({
-  useLingui: () => ({
-    _: (message: { toString(): string }) => message.toString(),
-  }),
-}));
-
-vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal<typeof CoreReact>();
-  return {
-    ...actual,
-    useAppHotkey: () => {},
-    useHotkeysSettings: () => ({
-      ui: { close: ["Escape"] },
-      form: { submit: ["Control+Enter"], reset: ["Escape"] },
-    }),
-  };
-});
 
 function renderSettingsLearning(data: ResolvedLearningSettings) {
   const setSettings = vi.fn(async ({ content }: { content: ResolvedLearningSettings }) => ({

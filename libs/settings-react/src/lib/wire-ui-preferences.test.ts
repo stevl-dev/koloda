@@ -1,30 +1,9 @@
 import { schemeAtom } from "@koloda/core-react";
-import type * as CoreReact from "@koloda/core-react";
 import { motionSettingAtom } from "@koloda/ui";
 import { createStore } from "jotai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UI_PREFERENCES_STORAGE_KEY } from "./ui-preferences-cache";
 import { wireUiPreferences } from "./wire-ui-preferences";
-
-vi.mock("@lingui/react", () => ({
-  useLingui: () => ({
-    _: (message: { toString(): string }) => message.toString(),
-  }),
-}));
-
-// WHY: siblings here mock `@lingui/react` and `@koloda/core-react` the same way; under `isolate: false` the first file
-// to load `@koloda/ui` decides which module it binds to, so this file must not load the real one first.
-vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal<typeof CoreReact>();
-  return {
-    ...actual,
-    useAppHotkey: () => {},
-    useHotkeysSettings: () => ({
-      ui: { close: ["Escape"] },
-      form: { submit: ["Control+Enter"], reset: ["Escape"] },
-    }),
-  };
-});
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";

@@ -276,7 +276,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Fake animation frames in the sync invite tests
   Depends on: none
 
-- [ ] 2. Declare the shared settings-react module mocks once
+- [x] 2. Declare the shared settings-react module mocks once
   Goal: Fix finding 12.
   Move the `vi.mock("@lingui/react", ...)` and `vi.mock("@koloda/core-react", ...)` stubs into
   `libs/settings-react/src/test-setup.ts`, beside the `@number-flow/react` stub, including the `i18n: { locale: "en" }`

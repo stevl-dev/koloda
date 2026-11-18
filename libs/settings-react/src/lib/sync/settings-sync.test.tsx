@@ -2,7 +2,6 @@ import { AppError } from "@koloda/app";
 import type { CreateSpaceData, ImportMode, JoinedSpace, SyncStatus } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
-import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
@@ -10,24 +9,6 @@ import type { PropsWithChildren } from "react";
 import * as macro from "@lingui/core/macro";
 import { describe, expect, it, vi } from "vitest";
 import { SettingsSync } from "./settings-sync";
-
-vi.mock("@lingui/react", () => ({
-  useLingui: () => ({
-    _: (message: { toString(): string }) => message.toString(),
-  }),
-}));
-
-vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal<typeof CoreReact>();
-  return {
-    ...actual,
-    useAppHotkey: () => {},
-    useHotkeysSettings: () => ({
-      ui: { close: ["Escape"] },
-      form: { submit: ["Control+Enter"], reset: ["Escape"] },
-    }),
-  };
-});
 
 function status(state: SyncStatus["state"], overrides: Partial<SyncStatus> = {}): SyncStatus {
   return {

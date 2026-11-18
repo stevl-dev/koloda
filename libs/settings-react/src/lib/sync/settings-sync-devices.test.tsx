@@ -1,31 +1,12 @@
 import type { SyncDevice, SyncStatus } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
-import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { SettingsSyncDevices } from "./settings-sync-devices";
-
-vi.mock("@lingui/react", () => ({
-  useLingui: () => ({
-    _: (message: { toString(): string }) => message.toString(),
-  }),
-}));
-
-vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal<typeof CoreReact>();
-  return {
-    ...actual,
-    useAppHotkey: () => {},
-    useHotkeysSettings: () => ({
-      ui: { close: ["Escape"] },
-      form: { submit: ["Control+Enter"], reset: ["Escape"] },
-    }),
-  };
-});
 
 function device(overrides: Partial<SyncDevice>): SyncDevice {
   return {

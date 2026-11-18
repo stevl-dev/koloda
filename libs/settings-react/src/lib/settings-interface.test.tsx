@@ -1,7 +1,6 @@
 import { AppError } from "@koloda/app";
 import { motionSettingAtom } from "@koloda/ui";
 import { langAtom, queriesAtom, schemeAtom } from "@koloda/core-react";
-import type * as CoreReact from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -9,27 +8,6 @@ import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SettingsInterface } from "./settings-interface";
-
-vi.mock("@lingui/react", () => ({
-  useLingui: () => ({
-    _: (message: { toString(): string }) => message.toString(),
-    i18n: { locale: "en" },
-  }),
-}));
-
-// WHY: siblings here mock `@koloda/core-react` the same way; under `isolate: false` the first file to load `@koloda/ui`
-// decides which module it binds to, so this file must not load the real one first.
-vi.mock("@koloda/core-react", async (importOriginal) => {
-  const actual = await importOriginal<typeof CoreReact>();
-  return {
-    ...actual,
-    useAppHotkey: () => {},
-    useHotkeysSettings: () => ({
-      ui: { close: ["Escape"] },
-      form: { submit: ["Control+Enter"], reset: ["Escape"] },
-    }),
-  };
-});
 
 // WORKAROUND: jsdom lacks getAnimations; react-aria's SharedElementTransition under the toggle group
 // throws without it once the selection moves.
