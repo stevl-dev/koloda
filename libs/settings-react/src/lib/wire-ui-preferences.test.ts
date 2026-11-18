@@ -99,6 +99,26 @@ describe("wireUiPreferences", () => {
     expect(root.classList.contains("motion")).toBe(false);
   });
 
+  it("starts from the cached scheme and motion before settings load", () => {
+    stubDevice({ isDark: false, isReduced: false });
+    localStorage.setItem(UI_PREFERENCES_STORAGE_KEY, JSON.stringify({ scheme: "dark", motion: "off" }));
+
+    wireUiPreferences(createStore());
+
+    expect(root.classList.contains("dark")).toBe(true);
+    expect(root.classList.contains("motion")).toBe(false);
+  });
+
+  it("reads a cache that is not JSON as none", () => {
+    stubDevice({ isDark: true, isReduced: false });
+    localStorage.setItem(UI_PREFERENCES_STORAGE_KEY, "{not json");
+
+    wireUiPreferences(createStore());
+
+    expect(root.classList.contains("dark")).toBe(true);
+    expect(root.classList.contains("motion")).toBe(true);
+  });
+
   it("writes the device cache only with all four values set", () => {
     stubDevice({ isDark: false, isReduced: false });
     const setItem = vi.spyOn(Storage.prototype, "setItem");

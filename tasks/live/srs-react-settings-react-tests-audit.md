@@ -415,7 +415,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Test the untested boundaries in srs-react
   Depends on: 9
 
-- [ ] 11. Test the untested boundaries in settings-react
+- [x] 11. Test the untested boundaries in settings-react
   Goal: Fix the `settings-react` bullets of finding 9, one case each in the file that already tests the neighbor:
   clock skew rounding to minutes with a floor of 1 (read the count through a `plural` spy); the gigabyte switch at
   1,000,000,000 bytes; a used database with 0 known ids not offered as a likely copy; indicator precedence when a hold

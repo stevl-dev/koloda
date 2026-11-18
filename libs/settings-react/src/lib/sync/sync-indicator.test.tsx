@@ -59,6 +59,15 @@ describe("SyncIndicator", () => {
       status({ type: "idle" }, { hold: { lane: "hot", seq: 3, reason: "updateRequired" } }),
       "settings.sync.indicator.held",
     ],
+    [
+      status({ type: "syncing" }, { isOverQuota: true, hold: { lane: "hot", seq: 3, reason: "updateRequired" } }),
+      "settings.sync.indicator.held",
+    ],
+    [status({ type: "syncing" }, { isOverQuota: true }), "settings.sync.over-quota"],
+    [
+      status({ type: "stopped", stop: { reason: "unreachable" } }, { isOverQuota: true }),
+      "settings.sync.stop.unreachable",
+    ],
   ])("names the state of %o", async (current, label) => {
     await renderIndicator(current);
 

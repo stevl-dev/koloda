@@ -16,7 +16,7 @@ function deferred() {
   return { promise, reject };
 }
 
-function renderWrite(patchSettings: () => Promise<unknown>) {
+function renderWrite(patchSettings: (data: unknown) => Promise<unknown>) {
   const queries = {
     patchSettingsMutation: () => ({ mutationFn: patchSettings }),
   } as unknown as Queries;
@@ -40,6 +40,16 @@ function renderWrite(patchSettings: () => Promise<unknown>) {
 }
 
 describe("useInterfaceSettingWrite", () => {
+  it("sends only the field it writes", async () => {
+    const patchSettings = vi.fn(async (_data: unknown) => ({ name: "interface", content: {} }));
+    const { result } = renderWrite(patchSettings);
+
+    act(() => result.current.write("scheme", "dark"));
+
+    await waitFor(() => expect(patchSettings).toHaveBeenCalledOnce());
+    expect(patchSettings.mock.calls[0]?.[0]).toEqual({ name: "interface", content: { scheme: "dark" } });
+  });
+
   it("applies the value at once and puts it back when the save fails", async () => {
     const save = deferred();
     const { store, result } = renderWrite(() => save.promise);

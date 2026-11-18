@@ -9,6 +9,7 @@ import type { PropsWithChildren } from "react";
 import * as macro from "@lingui/core/macro";
 import { describe, expect, it, vi } from "vitest";
 import { SettingsSync } from "./settings-sync";
+import { syncKnownIdsAtom } from "./sync-import-choice";
 
 function status(state: SyncStatus["state"], overrides: Partial<SyncStatus> = {}): SyncStatus {
   return {
@@ -57,7 +58,7 @@ function wrapper() {
       </QueryClientProvider>
     );
   }
-  return { queryClient, Wrapper };
+  return { queryClient, store, Wrapper };
 }
 
 function renderSync(current: SyncStatus, sync: SyncQueries) {
@@ -259,6 +260,19 @@ describe("SettingsSync add or replace", () => {
       fireEvent.click(screen.getByRole("button", { name: "settings.sync.import.add" }));
     });
     expect(importData).toHaveBeenCalledWith("add", expect.anything());
+  });
+
+  it.each([
+    [0, "settings.sync.import.message"],
+    [1, "settings.sync.import.copy"],
+  ])("calls a used database with %i known ids a likely copy only past zero", (knownIds, message) => {
+    const { store, Wrapper } = wrapper();
+    store.set(syncKnownIdsAtom, knownIds);
+    render(<SettingsSync status={status({ type: "importPending" })} sync={syncQueries(vi.fn())} />, {
+      wrapper: Wrapper,
+    });
+
+    expect(screen.getByText(message)).not.toBeNull();
   });
 
   it("replaces this device's data only once confirmed, then refreshes every screen", async () => {

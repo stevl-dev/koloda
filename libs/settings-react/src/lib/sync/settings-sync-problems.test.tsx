@@ -1,6 +1,7 @@
 import type { SyncStatus, SyncStop } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
+import * as macro from "@lingui/core/macro";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
@@ -57,6 +58,28 @@ describe("SettingsSyncProblems", () => {
     renderProblems(status({ state: { type: "stopped", stop }, skewMs: 7 * 60_000 }));
 
     expect(screen.getByText(message)).not.toBeNull();
+  });
+
+  it.each([
+    [7 * 60_000, 7],
+    [-7 * 60_000, 7],
+    [90_000, 2],
+    [20_000, 1],
+    [0, 1],
+  ])("rounds a clock skew of %i ms to %i minutes, at least one", (skewMs, minutes) => {
+    // WHY: the macro mock's `plural` drops the count, so the test reads the count the message receives.
+    const plural = vi.spyOn(macro, "plural");
+    renderProblems(status({ state: { type: "stopped", stop: { reason: "clockSkew" } }, skewMs }));
+
+    expect(plural).toHaveBeenCalledWith(minutes, { other: "settings.sync.stop.clock-skew" });
+  });
+
+  it("names a billion bytes in gigabytes and one byte fewer in megabytes", () => {
+    renderProblems(
+      status({ state: { type: "stopped", stop: { reason: "lowDisk", needed: 1_000_000_000, free: 999_999_999 } } }),
+    );
+
+    expect(screen.getByText("settings.sync.stop.low-disk 1 GB 1,000 MB")).not.toBeNull();
   });
 
   it("keeps the engine's text for any other stop behind its details", async () => {
