@@ -16,6 +16,7 @@ vi.mock("@lingui/react", () => ({
 }));
 
 const navigate = vi.hoisted(() => vi.fn());
+const deleteAlgorithm = vi.hoisted(() => vi.fn(async (_data: unknown) => undefined));
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
@@ -43,14 +44,14 @@ function buildQueries(): Queries {
       queryFn: async () => [{ id: testId(9), title: "Spanish" }] as Array<Pick<Deck, "id" | "title">>,
     }),
     deleteAlgorithmMutation: () => ({
-      mutationFn: async () => undefined,
+      mutationFn: async (data) => deleteAlgorithm(data),
     }),
   };
   return queries as Queries;
 }
 
 describe("DeleteAlgorithm", () => {
-  it("invalidates deck queries after a successor delete", async () => {
+  it("hands the deck to the first other preset by default, then refreshes the decks", async () => {
     const store = createStore();
     store.set(queriesAtom, buildQueries());
     store.set(defaultAlgorithmAtom, testId(3));
@@ -76,6 +77,7 @@ describe("DeleteAlgorithm", () => {
     await waitFor(() => {
       expect(queryClient.getQueryState(queryKeys.decks.all())?.isInvalidated).toBe(true);
     });
+    expect(deleteAlgorithm).toHaveBeenCalledWith({ id: ALGORITHM_ID, successorId: SUCCESSOR_ID });
     expect(navigate).toHaveBeenCalledWith({ to: "/algorithms" });
   });
 });

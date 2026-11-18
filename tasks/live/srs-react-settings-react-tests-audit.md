@@ -343,7 +343,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Test that a lesson skips an orphan card and studies the next
   Depends on: none
 
-- [ ] 7. Make five tests assert what their names claim
+- [x] 7. Make five tests assert what their names claim
   Goal: Fix finding 6.
   - `libs/srs-react/src/lib/lessons/use-lesson-session.test.tsx:338`: count card-data loads with a `vi.fn` query, as
     `:359` does, and assert one.

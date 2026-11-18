@@ -336,7 +336,12 @@ describe("useLessonSession", () => {
   });
 
   it("loads card data once after setup is submitted", async () => {
-    const { store, Wrapper } = createWrapper();
+    const getLessonData = vi.fn().mockResolvedValue(createLessonData());
+    const { store, Wrapper } = createWrapper({
+      queries: buildQueries({
+        getLessonDataQuery: (params) => ({ queryKey: queryKeys.lessons.data(params), queryFn: getLessonData }),
+      }),
+    });
     renderHook(() => useLessonSession(), { wrapper: Wrapper });
 
     act(() => {
@@ -354,6 +359,7 @@ describe("useLessonSession", () => {
       expect(store.get(lessonPhaseAtom)).toBe("studying");
     });
     expect(store.get(lessonContentAtom)?.index).toBe(0);
+    expect(getLessonData).toHaveBeenCalledOnce();
   });
 
   it("loads fresh card data when a lesson reopens with the same amounts", async () => {

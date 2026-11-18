@@ -452,15 +452,10 @@ describe("lessonReducer", () => {
     expect(state.session?.progress?.pending.total).toBe(0);
   });
 
-  it("records and cancels a termination request", () => {
-    let state = startLesson({ lessonData: createLessonData() });
-    state = lessonReducer(state, ["terminationRequested", true]);
-    expect(state.isTerminationRequested).toBe(true);
-    expect(state.phase).toBe("studying");
+  it("ignores a termination request once the lesson is closed", () => {
+    const closed = structuredClone(lessonReducerDefault);
 
-    state = lessonReducer(state, ["terminationRequested", false]);
-    expect(state.isTerminationRequested).toBe(false);
-    expect(state.phase).toBe("studying");
+    expect(lessonReducer(closed, ["terminationRequested", true])).toBe(closed);
   });
 
   it("ignores a grade until the card is submitted", () => {

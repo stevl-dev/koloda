@@ -154,9 +154,11 @@ describe("SettingsSync", () => {
   });
 
   it("shows what is left to download across both lanes while downloading", () => {
+    const plural = vi.spyOn(macro, "plural");
     renderSync(status({ type: "bootstrapping" }, { lagHot: 40, lagCold: 2 }), syncQueries(vi.fn()));
 
     expect(screen.getByText("settings.sync.download-left")).not.toBeNull();
+    expect(plural).toHaveBeenCalledWith(42, { other: "settings.sync.download-left" });
   });
 
   it("shows why a stopped sync failed", () => {

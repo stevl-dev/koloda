@@ -40,12 +40,6 @@ describe("setAllowlistMode", () => {
     const draft = setAllowlistMode(createAllowlistDraft(undefined), "selected");
     expect(draft).toEqual({ mode: "selected", selectedIds: [] });
   });
-
-  it("does not snapshot the catalog when switching to Selected", () => {
-    const draft = setAllowlistMode(createAllowlistDraft(undefined), "selected");
-    expect(draft.selectedIds).toEqual([]);
-    expect(toWhitelistModelIdsUpdate(draft)).toEqual([]);
-  });
 });
 
 describe("setAllowlistModelSelected", () => {
