@@ -429,6 +429,13 @@ Entries are grouped under one heading per package directory.
 
 ## libs/srs-react
 
+- Improvement, Later: the prepare-error wait in `useLessonSession` has no test that can fail.
+  Evidence: at `959aefc1`, `libs/srs-react/src/lib/lessons/use-lesson-session.ts:159` skips a query that is
+  fetching; a retrying query reports no error, and a refetch after a close passed with the check removed.
+  Kind: skipped
+  Source: `tasks/archive/srs-react-settings-react-tests-audit.md`, finding 9
+  Deferred because: no reachable state was found in which the check decides anything; it may be dead.
+
 - Handoff: the four editors' `*_SYNC_GROUPS` lists mirror the Rust field-group registry with nothing that ties them.
   Evidence: at `1c0661bb`, `libs/srs-react/src/lib/cards/card-details.tsx:39`, `algorithms/algorithm.tsx:29`,
   `decks/deck-details.tsx:17`, and `templates/template.tsx:29`; no test reads them.

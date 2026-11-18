@@ -1,6 +1,6 @@
 # SRS React and settings React tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md, docs/specs/LESSONS.md
 Flow: local
 
@@ -438,7 +438,32 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
 
 ## Outcome
 
-<what shipped>
+Findings 1–8 and 10–13 are fixed by items 1–12.
+Finding 9 is fixed except one case, the prepare-error wait, which is skipped (below).
+
+- 40 files: 949 lines added and 1,021 deleted, in `libs/srs-react`, `libs/settings-react`, and `agents/TESTING.md`.
+  The only non-test source change is the extraction of `getLearnedTodayProgress` from `learned-today.tsx`.
+- `settings-react` passes `--maxWorkers=1 --sequence.shuffle.files` at seeds 1 through 7.
+  The invite tests fake animation frames, and the `tasks/DEFERRED.md` handoff for the failure is removed.
+- `settings-react` declares its `@lingui/react` and `@koloda/core-react` stubs once, in `src/test-setup.ts`.
+- The typed-answer comparison, the Enter rule, the dashboard percentages, the edit form's secrets payload, and the
+  orphan-card skip have tests.
+  Each was checked by breaking the rule by hand.
+- The five over-claiming tests assert their claim, or were replaced or deleted.
+- The add and clone dialogs' double-submit test could not fail; it now can (item 8).
+- The second-door, duplicate, and Playwright-shadowing tests are deleted or trimmed as finding 8, 10, and 11 list.
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `959aefc1`.
+
+Skipped:
+
+- 9. Improvement, Later: the prepare-error wait in `useLessonSession` has no test that can fail.
+  Evidence: at `959aefc1`, `libs/srs-react/src/lib/lessons/use-lesson-session.ts:159` skips a query that is
+  fetching.
+  A retrying query reports no error, and a failed query that fetches again after a close passed with the check
+  removed.
+  Decision: skipped; no reachable state was found in which the check decides anything.
+  The Archive commit adds it to `tasks/DEFERRED.md` under `libs/srs-react`.
 
 Spec: none — test changes and one behavior-preserving extraction; no user-visible behavior changed
 Review: not run
