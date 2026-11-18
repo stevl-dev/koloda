@@ -327,6 +327,39 @@ async fn a_backup_that_does_not_match_its_manifest_is_refused() {
 }
 
 #[tokio::test]
+async fn a_manifest_attachment_that_is_not_an_id_is_refused_before_anything_is_copied() {
+    let harness = Harness::new();
+    harness.create_space("Home").await;
+    let elsewhere = tempfile::tempdir().expect("a directory outside the data directory");
+    let victim = elsewhere.path().join("victim");
+    std::fs::write(&victim, b"keep me").expect("the victim writes");
+    let names = ["../outside".to_string(), victim.display().to_string()];
+    for name in names {
+        let out = backed_up(&harness);
+        let path = out.path().join(MANIFEST);
+        let mut manifest: Manifest =
+            serde_json::from_slice(&std::fs::read(&path).expect("manifest reads")).expect("parses");
+        manifest.spaces[0].attachments.push(name.clone());
+        std::fs::write(&path, serde_json::to_vec(&manifest).expect("manifest serializes")).expect("manifest writes");
+
+        let refused = prepare(harness.data_dir(), out.path(), HEAL, 99);
+
+        assert!(
+            matches!(&refused, Err(RestoreError::AttachmentName(refused)) if *refused == name),
+            "{name}"
+        );
+        assert_eq!(std::fs::read(&victim).expect("the victim reads"), b"keep me", "{name}");
+        assert_eq!(
+            std::fs::read_dir(harness.data_dir().join("generations"))
+                .expect("generations list")
+                .count(),
+            1,
+            "{name}: nothing was staged"
+        );
+    }
+}
+
+#[tokio::test]
 async fn a_restore_onto_a_new_machine_needs_no_server_there() {
     let harness = Harness::new();
     harness.create_space("Home").await;

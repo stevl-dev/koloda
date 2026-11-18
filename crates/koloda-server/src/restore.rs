@@ -9,6 +9,7 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
+use koloda_sync_proto::envelope::is_attachment_id;
 use koloda_sync_proto::transport::{Cutoff, Restore, RestoreMode};
 use rusqlite::{params, Connection};
 use uuid::Uuid;
@@ -56,6 +57,7 @@ pub enum RestoreError {
     Manifest(serde_json::Error),
     Format(u32),
     Mismatch(String),
+    AttachmentName(String),
 }
 
 /// One restore point as a space database stores it.
@@ -80,6 +82,12 @@ pub fn prepare(
         serde_json::from_slice(&fs::read(backup_dir.join(MANIFEST))?).map_err(RestoreError::Manifest)?;
     if manifest.format != MANIFEST_FORMAT {
         return Err(RestoreError::Format(manifest.format));
+    }
+    // INVARIANT: checked before anything is copied: a name becomes a path under the staged generation, so `..` would
+    // write outside it, and an absolute path would copy a file onto itself, which truncates it.
+    let names = manifest.spaces.iter().flat_map(|space| &space.attachments);
+    if let Some(name) = names.into_iter().find(|name| !is_attachment_id(name)) {
+        return Err(RestoreError::AttachmentName(name.clone()));
     }
     let replaced = match data_dir::active_generation(data_dir) {
         Ok(generation) => Some(generation),
@@ -530,6 +538,12 @@ impl fmt::Display for RestoreError {
                 write!(f, "this server reads backup format {MANIFEST_FORMAT}, not {format}")
             }
             RestoreError::Mismatch(file) => write!(f, "{file} does not match the backup's manifest"),
+            RestoreError::AttachmentName(name) => {
+                write!(
+                    f,
+                    "the manifest names attachment {name:?}, which is not 64 lowercase hex characters"
+                )
+            }
         }
     }
 }

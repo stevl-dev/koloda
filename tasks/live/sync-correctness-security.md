@@ -288,7 +288,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-sync` passes.
   Commit: Stop the sync engine following redirects
   Depends on: none
-- [ ] 8. Check backup attachment names before a restore copies them
+- [x] 8. Check backup attachment names before a restore copies them
   Goal: finding 6.
   In `crates/koloda-server/src/restore.rs`, refuse the restore before any copy when a manifest `attachments` name
   (`:249-251`) is not 64 lowercase hex characters; reuse the check `crates/koloda-server/src/attachments.rs:119-125`
