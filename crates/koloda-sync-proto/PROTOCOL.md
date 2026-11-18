@@ -1086,7 +1086,12 @@ What the device does for each:
 - `schema`: the envelope's schema is not the kind's current `write_schema`.
 - `dependency`: it names, as its id, parent, or hard ref, an entity whose create this sender had held.
   A create does not count its own id, so the regenerated create can land.
-  Any outcome of that create other than `held` releases the entity: its dependents then meet the ordinary rules.
+  Nor does a delete of the held entity: the space never took its create, so the delete fences the id, as any delete
+  of an id the space does not hold does (§Tombstones).
+  Tombstones go through even over quota (§Quotas), and the device that deleted the entity dropped its held create,
+  so nothing else would ever release it.
+  Any outcome of that create or delete other than `held` releases the entity: its dependents then meet the ordinary
+  rules.
 - `quota`: the space is over quota (§Quotas).
   Shrinking writes (tombstones) are still admitted, which is why holding consumes the seq.
 
@@ -2034,6 +2039,8 @@ Every implementation of the engine and the server must pass these.
 - Two live copies of one file (the second forks, both keep syncing).
 - A v2 write before the `write_schema` raise (rejected); a v1 write after it (`held { schema }`).
 - A held seq followed by a writable kind; `held { quota }` then a freeing tombstone.
+- A create held over quota, then the same sender's delete of it (the delete applies and releases the hold; a later
+  write of the entity is `fenced`; a delete whose parent is held stays `held { dependency }`).
 - A space over quota during a backfill (no backfill batch until a record shows room; then the held writes go out and
   the backfill resumes).
 - Corrupt create, update, and review (hold; pushing continues; an operator drop releases; a dropped create

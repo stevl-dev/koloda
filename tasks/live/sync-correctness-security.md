@@ -191,7 +191,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-server -p koloda-sync` passes.
   Commit: Clear rebase_required only when a bootstrap finished
   Depends on: none
-- [ ] 3. Apply a delete of a held entity as a fence and release its hold
+- [x] 3. Apply a delete of a held entity as a fence and release its hold
   Goal: finding 1.
   In the push path (`crates/koloda-server/src/push.rs:194-212`,
   `names_held` in `crates/koloda-server/src/log.rs:155-175`), a delete whose own id is in the sender's

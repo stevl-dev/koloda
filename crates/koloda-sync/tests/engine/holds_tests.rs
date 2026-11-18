@@ -391,6 +391,32 @@ fn writes_held_over_the_quota_go_out_at_their_stamps_once_the_space_has_room() {
     );
 }
 
+// WHY: the server suite owns the outcome; this one shows that nothing stays waiting on the device afterwards.
+#[test]
+fn deleting_a_deck_held_over_the_quota_leaves_nothing_waiting_once_there_is_room() {
+    let space = Space::new();
+    let a = &space.device;
+    let library = a.library();
+    a.engine.sync_now().expect("A pushes its library");
+    let server = space.server.server();
+    server.set_quota(space.space_id(), Some(1)).expect("the quota is set");
+    let deck = a.add_deck(&library.algorithm, &library.template, "French");
+    a.engine.sync_now().expect("A's deck is held");
+    decks::delete_deck(&a.db, DeleteDeckData { id: deck.clone() }).expect("A deletes the deck");
+    a.engine.sync_now().expect("A's delete goes out over the quota");
+
+    server
+        .set_quota(space.space_id(), None)
+        .expect("the operator lifts the quota");
+    for _ in 0..4 {
+        a.engine.sync_now().expect("A syncs");
+    }
+
+    let status = a.engine.status().expect("status reads");
+    assert_eq!((status.held, status.pending), (0, 0), "nothing waits");
+    assert!(a.deck(&deck).is_none());
+}
+
 #[test]
 fn a_space_over_quota_takes_no_backfill_until_a_record_shows_room() {
     let space = Space::with(|device| {

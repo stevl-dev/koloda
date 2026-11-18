@@ -92,6 +92,67 @@ fn image(seed: u8) -> (String, AttachmentBody) {
 }
 
 #[tokio::test]
+async fn a_delete_of_a_create_held_over_quota_fences_it_and_releases_its_hold() {
+    let harness = Harness::new();
+    let device = harness.create_space("Study").await;
+    decks(&harness, &device).await;
+    harness
+        .server
+        .set_quota(space(&device), Some(usage(&harness, &device)))
+        .expect("the quota is set");
+    let held_deck = "01920000-0000-7000-8000-0000000000d3";
+    let held = push_outcomes(
+        &harness,
+        &device,
+        vec![
+            (4, card_create(CARD, DECK, TEMPLATE, stamp(1, 0, 1))),
+            (5, write(Kind::Decks, held_deck, Group::Create, stamp(1, 1, 1))),
+        ],
+    )
+    .await;
+    assert_eq!(held, vec![QUOTA, QUOTA]);
+
+    let deleted = push_outcomes(
+        &harness,
+        &device,
+        vec![
+            (6, tombstone(Kind::Cards, CARD, Some(DECK), stamp(1, 2, 1))),
+            (
+                7,
+                tombstone(Kind::Cards, "card-of-held-deck", Some(held_deck), stamp(1, 3, 1)),
+            ),
+        ],
+    )
+    .await;
+    harness
+        .server
+        .set_quota(space(&device), None)
+        .expect("the quota is cleared");
+    let after = push_outcomes(
+        &harness,
+        &device,
+        vec![(8, child(Kind::Cards, CARD, DECK, Group::Content, stamp(1, 4, 1)))],
+    )
+    .await;
+
+    assert_eq!(
+        deleted,
+        vec![
+            Outcome::Applied,
+            Outcome::Held {
+                reason: HeldReason::Dependency
+            }
+        ],
+        "a delete of the held entity applies; one whose parent is held still waits for it"
+    );
+    assert_eq!(
+        after,
+        vec![Outcome::Fenced],
+        "the hold is released: a later write meets the fence"
+    );
+}
+
+#[tokio::test]
 async fn over_its_quota_a_space_holds_growing_writes_and_applies_deletes() {
     let harness = Harness::new();
     let device = harness.create_space("Study").await;

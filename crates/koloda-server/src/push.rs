@@ -201,14 +201,13 @@ fn push_batch(server: &Server, caller: &DeviceAuth, request: Push) -> Result<Pus
                 None => log::delete(&tx, &entry)?,
             }
         };
-        if class == Some(Class::Create) {
-            if matches!(outcome, Outcome::Held { .. }) {
-                log::hold(&tx, caller.id, header)?;
-            } else {
-                // WHY: any consumed outcome of the sender's own create settles the entity, so its dependents
-                // stop waiting and meet the ordinary rules (`stale` means another device created it).
-                log::release(&tx, caller.id, header)?;
-            }
+        let is_held = matches!(outcome, Outcome::Held { .. });
+        match class {
+            Some(Class::Create) if is_held => log::hold(&tx, caller.id, header)?,
+            // WHY: any consumed outcome of the sender's own create or delete settles the entity, so its dependents
+            // stop waiting and meet the ordinary rules (`stale` means another device created it).
+            Some(Class::Create) | None if !is_held => log::release(&tx, caller.id, header)?,
+            _ => {}
         }
         log::record(&tx, &entry, outcome)?;
         high_water = item.sender_seq;

@@ -153,14 +153,16 @@ pub(crate) fn cascade_counts(conn: &Connection, kind: Kind, id: &str) -> Result<
 
 /// Whether this sender had a create held for an entity the envelope names as its id, parent, or hard ref.
 ///
-/// A create does not name its own id here: the regenerated create of a held entity is what releases it.
+/// A create or a delete (`class` `None`) does not name its own id here. The regenerated create of a held entity is
+/// what releases it, and a delete of one applies as a fence and releases it: the device dropped the held create with
+/// the entity, so nothing else ever would (PROTOCOL.md, Push outcomes).
 pub(crate) fn names_held(
     tx: &Connection,
     sender: Uuid,
     header: &Header,
     class: Option<Class>,
 ) -> Result<bool, ApiError> {
-    let skip = usize::from(class == Some(Class::Create));
+    let skip = usize::from(matches!(class, Some(Class::Create) | None));
     for (kind, id) in named(header).into_iter().skip(skip) {
         let held = tx
             .query_row(
