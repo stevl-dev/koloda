@@ -183,6 +183,13 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-proto-server-tests-audit.md`, finding 4
   Deferred because: forcing the race needs a seam in `fork_device`, which integration tests reach only by a feature.
 
+- Product decision, Later: 100 wrong pairing codes a minute, server-wide, lock pairing for every space.
+  Evidence: at `3e7db94e`, `crates/koloda-server/src/pairing.rs:29-31` and `:256-272`: ten addresses at two wrong
+  codes a second keep previews and claims refused for all spaces, with no token.
+  Kind: skipped
+  Source: `tasks/archive/sync-correctness-security.md`, finding 9
+  Deferred because: `crates/koloda-sync-proto/PROTOCOL.md` §Pairing states the limit and accepts it.
+
 ## crates/koloda-sync
 
 - Risk, Later: a bootstrap under a bounded tick restarts each tick, so a snapshot past one tick's budget never ends.

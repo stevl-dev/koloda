@@ -1,6 +1,6 @@
 # Sync correctness and security fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, crates/koloda-sync-proto/PROTOCOL.md, crates/koloda-sync-proto/README.md, crates/koloda-server/README.md, crates/koloda-sync/README.md, crates/koloda/src/repo/sync/README.md, agents/RUST.md, apps/electron/README.md, apps/electron/IPC.md, libs/native-ipc/README.md, docs/specs/SYNC.md, agents/FUNCTIONAL-SPECIFICATIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/I18N.md, agents/DEPENDENCIES.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/REVIEW.md
 Flow: local
 
@@ -334,8 +334,37 @@ entry for the four crates, and any change to the pairing guess limit.
 
 ## Outcome
 
-<what shipped>
+Findings 1 to 8 are fixed, one plan item each, plus item 5 for the desktop side of finding 2.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- The server serves through its own accept loop (`crates/koloda-server/src/listen.rs`): a 30 s header deadline,
+  at most 512 open connections, and at most 128 TLS handshakes at once.
+  A body that takes over 5 minutes gets `408` with code `internal`, which a device retries; `bad_request` would make
+  it drop an upload for good.
+  `hyper` and `hyper-util` became direct dependencies at the versions axum already locked; the lockfile gained no
+  crate.
+  The engine harness's server runtime needed timers for the body deadline (item 1, `common.rs` `request`).
+- A lease release carries a required `finished` parameter; only `finished=true` clears `rebase_required`.
+- A delete of an entity whose create this sender holds applies as a fence and releases the hold.
+- Device records carry `forked_from` and `paired_by` (server migration `V5__device_provenance.sql`); the desktop
+  Remove confirm offers the removed device's copies and invitees, unchecked. Revocation stays one device per call.
+- Apply holds as corrupt a payload whose parent or refs differ from what sealing derives from it (broader than the
+  plan's three cases), and a `settings.learning` envelope whose id is not `learning`.
+  Header validation refuses an attachment id that is not 64 lowercase hex; one `is_attachment_id` in
+  `koloda-sync-proto` serves validation, payload link parsing, the server's attachment routes, and restore.
+- The engine follows no redirects; restore refuses a manifest attachment name that is not an id before copying.
+- Directories the server, `backup`, and `restore` create are `0700` on Unix; every `500` carries a fixed message and
+  the detail goes to the server log; `koloda-server rotate-setup-token` replaces the setup token.
+  The unknown-token reply keeps the space's epoch, which restore detection needs; the comment and §Trust model now
+  say whether a space id exists is not secret.
+
+Skipped, added to `tasks/DEFERRED.md`:
+
+- 9. Product decision, Later: 100 wrong pairing codes a minute, server-wide, lock pairing for every space.
+  Evidence: at `3e7db94e`, `crates/koloda-server/src/pairing.rs:29-31` and `:256-272`.
+  Decision: skipped; `PROTOCOL.md` §Pairing states and accepts the limit.
+
+Checks: `bun run check:push` passed on the tip before Archive, 2026-11-18. No plan item touched e2e cases.
+
+Spec: docs/specs/SYNC.md
+Review: none
+Change rounds: 0
