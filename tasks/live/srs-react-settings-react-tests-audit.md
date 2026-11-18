@@ -290,7 +290,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Declare the shared settings-react module mocks once
   Depends on: 1
 
-- [ ] 3. Test the typed-answer comparison and the Enter submit rule
+- [x] 3. Test the typed-answer comparison and the Enter submit rule
   Goal: Fix finding 2.
   Add `libs/srs-react/src/lib/lessons/lesson-card-field-text-diff.test.tsx` with one table that renders
   `LessonCardFieldTextDiff` over matching pairs (case differs, surrounding spaces differ) and non-matching pairs,
@@ -298,6 +298,8 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Assert through what the user sees, not class names, where the component allows it.
   Add one test for `LessonCardFieldText` (`lesson-card-field-text.tsx:35`): Enter submits, and Shift+Enter does not.
   The rule is `docs/specs/LESSONS.md` (§Field Operations).
+  Corrected at implementation: both cases render `LessonCardFieldText`, which shows the diff once submitted, so the
+  file is `lesson-card-field-text.test.tsx`.
   Constraints: test files only.
   Done when: the new tests pass; inverting the comparison or dropping `trim()` in `lesson-card-field-text-diff.tsx`
   fails them (check by hand, then revert).
