@@ -6,6 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use koloda_server::data_dir;
+use koloda_server::listen::{self, Limits};
 use koloda_server::tls::{Certificates, TlsListener};
 use rcgen::{BasicConstraints, CertificateParams, CertifiedIssuer, IsCa, KeyPair};
 use rustls::pki_types::ServerName;
@@ -44,7 +45,12 @@ async fn serve_tls(harness: &Harness, certificates: Arc<Certificates>) -> Socket
         .expect("bind a loopback port");
     let address = tcp.local_addr().expect("the bound address");
     let router = harness.router.clone();
-    tokio::spawn(async move { axum::serve(TlsListener::new(tcp, certificates), router).await });
+    tokio::spawn(listen::serve(
+        TlsListener::new(tcp, certificates),
+        router,
+        Limits::default(),
+        std::future::pending(),
+    ));
     address
 }
 

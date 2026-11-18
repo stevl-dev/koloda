@@ -23,6 +23,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use uuid::Uuid;
 
+use crate::listen::BODY_READ_TIMEOUT;
 use crate::log;
 use crate::quota::Room;
 use crate::server::{lock, Server};
@@ -128,10 +129,19 @@ impl From<rusqlite::Error> for ApiError {
     }
 }
 
-/// Reads a body of at most `max` bytes, before and after zstd.
+/// Reads a body of at most `max` bytes, before and after zstd, within `BODY_READ_TIMEOUT`.
 pub(crate) async fn read_body<T: DeserializeOwned>(headers: &HeaderMap, body: Body, max: usize) -> Result<T, ApiError> {
-    let bytes = to_bytes(body, max)
+    let bytes = tokio::time::timeout(BODY_READ_TIMEOUT, to_bytes(body, max))
         .await
+        // WHY: not `bad_request` or `too_large`, which a device takes as refused for good and drops an upload on; a
+        // slow link should try again.
+        .map_err(|_elapsed| {
+            ApiError::new(
+                StatusCode::REQUEST_TIMEOUT,
+                ErrorCode::Internal,
+                format!("the body did not arrive within {} s", BODY_READ_TIMEOUT.as_secs()),
+            )
+        })?
         .map_err(|error| ApiError::too_large(format!("body is over {max} bytes: {error}")))?;
     let decoded = match headers.get(CONTENT_ENCODING) {
         None => bytes.to_vec(),

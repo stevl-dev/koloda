@@ -873,6 +873,10 @@ Every request carries a token or a pairing code, so a device accepts a server UR
 to a loopback host.
 Every request is limited by body size, zstd expansion ratio, CBOR depth, envelope count, and per-envelope payload
 size.
+It is also limited in time: the server closes a connection whose request headers take more than 30 seconds, and
+answers `408` with code `internal` to a body that takes more than 5 minutes, which a device retries like a failed
+call.
+The server caps its open connections, so a client that holds them open delays others rather than exhausting it.
 Unknown `kind`, `group`, or `op`, and lane mismatches, are rejected at a header allowlist.
 
 ### Endpoints

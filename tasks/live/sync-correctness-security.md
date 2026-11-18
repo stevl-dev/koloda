@@ -148,7 +148,7 @@ entry for the four crates, and any change to the pairing guess limit.
 
 ## Plan
 
-- [ ] 1. Bound read time and open connections in `serve`
+- [x] 1. Bound read time and open connections in `serve`
   Goal: finding 3.
   Replace `axum::serve` in `serve` (`crates/koloda-server/src/main.rs:352-390`) with an accept loop over
   hyper-util's `server::conn::auto::Builder`, given a `TokioTimer` and an HTTP/1 header read timeout, serving with

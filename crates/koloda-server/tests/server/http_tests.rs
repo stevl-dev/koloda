@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use axum::body::{Body, Bytes};
 use axum::http::StatusCode;
+use koloda_server::listen::BODY_READ_TIMEOUT;
 use koloda_sync_proto::transport::{Enrollment, ErrorCode, PairingClaim, PairingPreview, PushReply, MAX_BODY_BYTES};
 
 use crate::common::{create_request, nonce, token, uuid, Harness};
@@ -178,4 +179,25 @@ async fn an_unknown_endpoint_is_a_not_found_reply() {
     let answer = harness.get("/v1/nothing").send::<()>().await;
 
     assert_eq!(answer.error(), (StatusCode::NOT_FOUND, ErrorCode::NotFound));
+}
+
+#[tokio::test(start_paused = true)]
+async fn a_body_that_stalls_is_refused_at_the_body_deadline() {
+    let harness = Harness::new();
+    // WHY: the body arrives only at twice the deadline, so a server without one reads it and refuses it otherwise; one
+    // with a deadline drops the body, and its timer, when the deadline passes.
+    let stalled = Body::from_stream(futures_util::stream::once(async {
+        tokio::time::sleep(2 * BODY_READ_TIMEOUT).await;
+        Ok::<_, std::io::Error>(Bytes::from_static(&[0xff]))
+    }));
+    let start = tokio::time::Instant::now();
+
+    let preview = harness
+        .post("/v1/pairings/preview")
+        .stream(stalled)
+        .send::<PairingPreview>()
+        .await;
+
+    assert_eq!(preview.error(), (StatusCode::REQUEST_TIMEOUT, ErrorCode::Internal));
+    assert_eq!(start.elapsed(), BODY_READ_TIMEOUT);
 }

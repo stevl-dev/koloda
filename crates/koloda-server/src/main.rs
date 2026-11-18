@@ -12,11 +12,11 @@ use std::process::ExitCode;
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::serve::ListenerExt;
 use clap::{ArgGroup, Parser, Subcommand};
 use koloda_server::backup;
 use koloda_server::clock::{Clock, SystemClock};
 use koloda_server::data_dir::{self, DataDirLock};
+use koloda_server::listen::{self, Limits};
 use koloda_server::quota::{Storage, DEFAULT_MIN_FREE_DISK, DEFAULT_RESERVE_DISK};
 use koloda_server::restore::{self, RestoreOptions};
 use koloda_server::router;
@@ -367,24 +367,26 @@ fn serve(
             .map_err(|error| format!("cannot listen on {listen}: {error}"))?;
         let server = Arc::new(server);
         tokio::spawn(collect_garbage(Arc::clone(&server)));
-        let routes = router(server).into_make_service_with_connect_info::<SocketAddr>();
+        let routes = router(server);
         let stop = shutdown();
         match certificates {
             Some(certificates) => {
                 eprintln!("koloda-server: listening on https://{listen}");
                 tokio::spawn(reload_certificates(Arc::clone(&certificates)));
-                // WORKAROUND: axum gives a listener of its own `ConnectInfo` only through `tap_io`, so the TLS
-                // listener goes through a tap that does nothing; pairing limits wrong codes per client address.
-                axum::serve(TlsListener::new(listener, certificates).tap_io(|_| {}), routes)
-                    .with_graceful_shutdown(stop)
-                    .await
+                listen::serve(
+                    TlsListener::new(listener, certificates),
+                    routes,
+                    Limits::default(),
+                    stop,
+                )
+                .await;
             }
             None => {
                 eprintln!("koloda-server: listening on http://{listen}");
-                axum::serve(listener, routes).with_graceful_shutdown(stop).await
+                listen::serve(listener, routes, Limits::default(), stop).await;
             }
         }
-        .map_err(|error| error.to_string())
+        Ok(())
     })
 }
 

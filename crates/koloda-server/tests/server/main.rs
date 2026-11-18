@@ -12,6 +12,7 @@ mod drop_tests;
 mod epoch_tests;
 mod events_tests;
 mod http_tests;
+mod listen_tests;
 mod pairing_tests;
 mod pull_tests;
 mod push_tests;

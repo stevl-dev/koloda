@@ -52,6 +52,9 @@ and below `--reserve-disk` (64 MiB) it refuses every push; on a platform without
 A request that runs out of disk anyway is refused with `507` and consumes nothing.
 It runs a garbage collection pass every hour, over tombstones every active device has passed and attachments no card
 has linked for 90 days; `Server::collect_garbage` runs one on demand.
+A request's headers must arrive within 30 seconds and its body within 5 minutes, and at most 512 connections are open
+at once; past that, new connections wait in the listen queue until one closes.
+Over TLS, at most 128 handshakes run at once, each for at most 10 seconds.
 It stops on Ctrl+C or SIGTERM, after the requests in flight, so `docker compose stop` needs no grace period.
 `backup` copies the active generation while `serve` runs, into a directory that is missing or empty.
 Each database is copied in one read transaction, `server.db` last; the attachment bytes follow each space's copy.
@@ -146,6 +149,8 @@ Triggers keep its live entities per kind and the bytes of its versions, which th
   under `src/migrations/`.
 - `src/server.rs` — shared state: `server.db`, open space databases and their lane heads, the clock, and the
   operator's write-schema raise.
+- `src/listen.rs` — the accept loop `serve` runs over TCP or TLS: a deadline on each request's headers, a cap on
+  open connections, and the body deadline `http.rs` applies.
 - `src/tls.rs` — certificates read from PEM files and read again when they change, and a listener that runs each
   TLS handshake off its accept loop.
 - `src/http.rs` — CBOR and zstd bodies, their limits, a body read only once its token checks, the reply envelope, and

@@ -5,6 +5,7 @@ use std::time::Duration;
 use axum::http::header::AUTHORIZATION;
 use axum::http::{Method, StatusCode};
 use futures_util::{SinkExt, StreamExt};
+use koloda_server::listen::{self, Limits};
 use koloda_sync_proto::payload::SCHEMA;
 use koloda_sync_proto::registry::{Group, Kind};
 use koloda_sync_proto::transport::{
@@ -28,14 +29,19 @@ fn events_path(device: &Enrolled) -> String {
     format!("/v1/spaces/{}/events", uuid(device.space_id))
 }
 
-/// Serves the harness's router on a loopback port, as `serve` does, so sockets can upgrade.
+/// Serves the harness's router on a loopback port through `serve`'s accept loop, so sockets can upgrade.
 async fn listen(harness: &Harness) -> SocketAddr {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
         .expect("bind a loopback port");
     let address = listener.local_addr().expect("the bound address");
     let router = harness.router.clone();
-    tokio::spawn(async move { axum::serve(listener, router).await });
+    tokio::spawn(listen::serve(
+        listener,
+        router,
+        Limits::default(),
+        std::future::pending(),
+    ));
     address
 }
 

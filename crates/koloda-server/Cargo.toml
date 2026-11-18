@@ -21,6 +21,8 @@ axum = { version = "0.8", features = ["ws"] }
 ciborium = "0.2"
 clap = { version = "4", features = ["derive"] }
 getrandom = "0.2"
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["service", "tokio"] }
 koloda-sync-proto = { path = "../koloda-sync-proto" }
 refinery = { version = "0.8", features = ["rusqlite"] }
 rusqlite = { version = "0.33", features = ["bundled", "uuid"] }

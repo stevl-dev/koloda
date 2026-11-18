@@ -18,6 +18,9 @@ use tokio_rustls::server::TlsStream;
 use tokio_rustls::TlsAcceptor;
 
 const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(10);
+// WHY: a handshake runs before the connection counts against `listen::MAX_CONNECTIONS`, so clients that open
+// connections and never finish one are bounded here instead.
+const MAX_HANDSHAKES: usize = 128;
 const ACCEPT_RETRY: Duration = Duration::from_secs(1);
 
 #[derive(Debug)]
@@ -122,7 +125,7 @@ impl Listener for TlsListener {
     async fn accept(&mut self) -> (Self::Io, Self::Addr) {
         loop {
             tokio::select! {
-                accepted = self.tcp.accept() => match accepted {
+                accepted = self.tcp.accept(), if self.handshakes.len() < MAX_HANDSHAKES => match accepted {
                     Ok((stream, peer)) => match self.certificates.acceptor() {
                         Ok(acceptor) => {
                             // WHY: a failed or stalled handshake ends with its own connection; there is nothing to

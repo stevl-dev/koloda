@@ -343,6 +343,7 @@ impl TestServer {
 
     pub fn request<T: DeserializeOwned>(&self, request: Request) -> (u16, Reply<T>) {
         let response = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
             .build()
             .expect("test runtime")
             .block_on(forward(&self.routes, request));
