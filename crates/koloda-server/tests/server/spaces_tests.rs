@@ -184,6 +184,28 @@ async fn spaces_need_the_setup_token() {
 }
 
 #[tokio::test]
+async fn a_rotated_setup_token_replaces_the_old_one_at_once() {
+    let harness = Harness::new();
+
+    let rotated = harness.server.rotate_setup_token().expect("the token rotates");
+
+    let old = harness
+        .post("/v1/spaces")
+        .token(&harness.setup_token)
+        .body(&create_request("Home", nonce("old")))
+        .send::<Enrollment>()
+        .await;
+    assert_eq!(old.error(), (StatusCode::UNAUTHORIZED, ErrorCode::Unauthorized));
+    let created = harness
+        .post("/v1/spaces")
+        .token(&rotated)
+        .body(&create_request("Home", nonce("new")))
+        .send::<Enrollment>()
+        .await;
+    assert_eq!(created.status, StatusCode::OK, "{:?}", created.reply.error);
+}
+
+#[tokio::test]
 async fn names_must_have_one_to_a_hundred_characters() {
     let harness = Harness::new();
     let cases = [

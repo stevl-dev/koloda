@@ -235,6 +235,20 @@ fn requested_schemas(headers: &HeaderMap) -> Result<&str, ApiError> {
     Ok(text)
 }
 
+impl Server {
+    /// Replaces the setup token and returns the new one, which is stored only as its hash.
+    ///
+    /// INVARIANT: every check reads the stored hash, so a running `serve` refuses the old token from its next request.
+    pub fn rotate_setup_token(&self) -> Result<String, ApiError> {
+        let token = new_token().map_err(|error| ApiError::internal(error.to_string()))?;
+        self.server_db()?.execute(
+            "UPDATE setup SET token_hash = ?1, created_at = ?2 WHERE id = 1",
+            params![token_hash(&token).to_vec(), self.now_ms()],
+        )?;
+        Ok(token)
+    }
+}
+
 fn is_setup_token(server: &Server, token: &str) -> Result<bool, ApiError> {
     let stored: Vec<u8> = server
         .server_db()?

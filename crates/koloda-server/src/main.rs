@@ -1,8 +1,8 @@
 //! `koloda-server` command line: `init` creates a data directory, `serve` runs the server on one over TLS or plain
 //! HTTP and collects garbage every hour, `backup` copies a running server, `restore` puts a backup back as a new
-//! generation, and `spaces` and `pair` list spaces and issue a pairing code beside a running `serve`, `quota` sets a
-//! space's size quota, `drop-envelope` removes one damaged envelope from a space's log, and `write-schema` raises a
-//! kind's write schema.
+//! generation. Beside a running `serve`, `rotate-setup-token` replaces the setup token, `spaces` and `pair` list spaces
+//! and issue a pairing code, `quota` sets a space's size quota, `drop-envelope` removes one damaged envelope from a
+//! space's log, and `write-schema` raises a kind's write schema.
 
 use std::future::Future;
 use std::io::{self, Write};
@@ -69,6 +69,11 @@ enum Command {
     },
     /// List the spaces with their device counts.
     Spaces {
+        #[arg(long)]
+        data_dir: PathBuf,
+    },
+    /// Replace the setup token and print the new one; a running `serve` refuses the old one from its next request.
+    RotateSetupToken {
         #[arg(long)]
         data_dir: PathBuf,
     },
@@ -187,6 +192,13 @@ fn run(cli: Cli) -> Result<(), String> {
                     space.device_count
                 );
             }
+            Ok(())
+        }
+        Command::RotateSetupToken { data_dir } => {
+            let server = Server::open(&data_dir, Arc::new(SystemClock)).map_err(|error| error.to_string())?;
+            let token = server.rotate_setup_token().map_err(|error| error.to_string())?;
+            println!("Setup token: {token}");
+            println!("Store it now; it is not shown again. The old one no longer works.");
             Ok(())
         }
         Command::Pair { data_dir, space } => {

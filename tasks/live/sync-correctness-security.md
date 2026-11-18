@@ -318,7 +318,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-server` passes.
   Commit: Keep server directories private and 500 replies generic
   Depends on: none
-- [ ] 10. Add a command that rotates the setup token
+- [x] 10. Add a command that rotates the setup token
   Goal: finding 7, setup-token rotation.
   `koloda-server rotate-setup-token --data-dir <dir>` writes a new token's hash to the `setup` row and prints the
   token, as `init` does (`crates/koloda-server/src/main.rs:43-150`, `auth::new_token`).

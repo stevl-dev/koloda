@@ -1747,6 +1747,7 @@ Nothing keeps syncing afterwards.
   The per-address limit then acts as one server-wide limit of 10 a minute; v1 accepts that.
 - **Break-glass**: the setup token can issue a pairing code for an existing space.
   An operator with the data directory can too, beside a running server (`koloda-server pair`).
+  The operator can also replace a setup token that leaked; the server refuses the old one from its next request.
 
 Transport security is TLS.
 

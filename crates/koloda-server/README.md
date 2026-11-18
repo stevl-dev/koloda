@@ -63,6 +63,7 @@ and attachment ids.
 ```bash
 koloda-server spaces --data-dir ./data
 koloda-server pair --data-dir ./data <space>
+koloda-server rotate-setup-token --data-dir ./data
 ```
 
 ```bash
@@ -73,6 +74,9 @@ koloda-server write-schema --data-dir ./data <space> <kind> <schema>
 
 `spaces` lists each space with its device count, and `pair` prints a pairing code for a space, as the setup token
 issues one; both run beside `serve`, since access to the data directory is the authority.
+`rotate-setup-token` runs beside it too: it prints a new setup token once, and `serve` refuses the old one from its
+next request.
+Rotate a token that leaked, since it creates spaces and pairs into every one.
 `quota` sets a space's size quota beside `serve`; over it, devices' growing writes wait (`PROTOCOL.md` §Quotas).
 `drop-envelope` runs beside `serve` too: it removes one damaged envelope that devices hold at, as their status
 reports it, and asks first unless `--yes`.
@@ -140,7 +144,7 @@ Triggers keep its live entities per kind and the bytes of its versions, which th
 ## Architectural Map
 
 - `src/main.rs` — command line: `init`, `serve` over TLS or plain HTTP, `backup`, `restore`, `spaces`, `pair`,
-  `quota`, `drop-envelope`, and `write-schema`.
+  `rotate-setup-token`, `quota`, `drop-envelope`, and `write-schema`.
 - `src/lib.rs` — the route table.
 - `src/clock.rs` — server time, injected so tests run on a manual clock.
 - `src/data_dir.rs` — layout, `init`, and the directory lock.
