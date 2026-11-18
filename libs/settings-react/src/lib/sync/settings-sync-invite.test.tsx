@@ -45,7 +45,12 @@ async function open() {
 
 describe("SettingsSyncInvite", () => {
   it("issues a code on open and shows it grouped, with the server address and the time left", async () => {
-    vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"], now: NOW });
+    // WHY: jsdom runs animation frames on the global setInterval. Faking that alone leaves its frame timer on a fake
+    // interval that never fires, so no later file in this worker (isolate: false) gets a frame.
+    vi.useFakeTimers({
+      toFake: ["Date", "setInterval", "clearInterval", "requestAnimationFrame", "cancelAnimationFrame"],
+      now: NOW,
+    });
     const issue = vi.fn(async () => ({
       code: "ABCDE12345",
       expiresAt: NOW + 10 * 60 * 1000,
@@ -67,7 +72,12 @@ describe("SettingsSyncInvite", () => {
   });
 
   it("shows an expired code as expired, and New code issues another", async () => {
-    vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"], now: NOW });
+    // WHY: jsdom runs animation frames on the global setInterval. Faking that alone leaves its frame timer on a fake
+    // interval that never fires, so no later file in this worker (isolate: false) gets a frame.
+    vi.useFakeTimers({
+      toFake: ["Date", "setInterval", "clearInterval", "requestAnimationFrame", "cancelAnimationFrame"],
+      now: NOW,
+    });
     const issue = vi
       .fn<() => Promise<IssuedPairing>>()
       .mockResolvedValueOnce({ code: "ABCDE12345", expiresAt: NOW + 5_000, serverUrl: "https://sync.example.test" })

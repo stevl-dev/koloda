@@ -16,6 +16,7 @@ export default defineConfig({
     pool: "threads",
     // WHY: These files share a worker module registry to skip per-file isolation cost.
     // A file-level vi.mock leaks for the whole worker; no file here mocks a module a sibling imports for real.
+    // The jsdom window is shared across files too, so a test that breaks its timers breaks every later file.
     isolate: false,
     maxWorkers: 2,
     environment: "jsdom",

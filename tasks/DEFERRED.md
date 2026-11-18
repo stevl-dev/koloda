@@ -427,17 +427,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/typecheck-tests.md`
   Deferred because: open at landing; the task changed no production code.
 
-## libs/settings-react
-
-- Handoff: the `settings-react` suite fails in some shuffled file orders.
-  Evidence: at `1c0661bb`, `--maxWorkers=1 --sequence.shuffle.files --sequence.seed=5` fails three cases in
-  `libs/settings-react/src/lib/sync/settings-sync-devices.test.tsx` ("Unable to find an element with the text: laptop");
-  seeds 2, 3, 4, and 6 pass.
-  Kind: handoff
-  Source: `tasks/archive/assistant-settings-providers-audit.md`
-  Deferred because: seen during self-review; the leak needs a wider set of files and belongs to a sync or
-  settings-react task.
-
 ## libs/srs-react
 
 - Handoff: the four editors' `*_SYNC_GROUPS` lists mirror the Rust field-group registry with nothing that ties them.

@@ -262,7 +262,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
 
 ## Plan
 
-- [ ] 1. Fake animation frames in the sync invite tests
+- [x] 1. Fake animation frames in the sync invite tests
   Goal: Fix finding 1.
   In `libs/settings-react/src/lib/sync/settings-sync-invite.test.tsx`, add `"requestAnimationFrame"` and
   `"cancelAnimationFrame"` to both `toFake` lists (`:48`, `:70`), with a one-line `WHY`: faking `setInterval` alone
