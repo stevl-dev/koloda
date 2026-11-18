@@ -18,10 +18,6 @@ describe("createAllowlistDraft", () => {
     expect(createAllowlistDraft(undefined)).toEqual({ mode: "all", selectedIds: [] });
   });
 
-  it("uses Selected for an empty allowlist", () => {
-    expect(createAllowlistDraft([])).toEqual({ mode: "selected", selectedIds: [] });
-  });
-
   it("uses Selected and copies stored ids", () => {
     expect(createAllowlistDraft(["openai/gpt-4"])).toEqual({ mode: "selected", selectedIds: ["openai/gpt-4"] });
   });

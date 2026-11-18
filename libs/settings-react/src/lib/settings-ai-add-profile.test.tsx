@@ -47,21 +47,6 @@ describe("SettingsAIAddProfile", () => {
     addProfile.mockClear();
   });
 
-  it("shows the API key error when submitting an empty required key", async () => {
-    renderDialog();
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "settings.ai.add" }));
-    });
-
-    await act(async () => {
-      fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
-    });
-
-    expect((await screen.findByRole("alert")).textContent).toBe("validation.settings-ai.providers.api-key");
-    expect(addProfile).not.toHaveBeenCalled();
-  });
-
   it("puts unavailable providers after available providers", async () => {
     renderDialog(["ollama", "openrouter"]);
 
@@ -87,7 +72,7 @@ describe("SettingsAIAddProfile", () => {
     ]);
   });
 
-  it("submits after a required API key is filled in", async () => {
+  it("refuses an empty required API key, then submits once it is filled in", async () => {
     renderDialog();
 
     await act(async () => {
@@ -98,7 +83,8 @@ describe("SettingsAIAddProfile", () => {
       fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
     });
 
-    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect((await screen.findByRole("alert")).textContent).toBe("validation.settings-ai.providers.api-key");
+    expect(addProfile).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText("settings.ai.profiles.api-key.label"), {
       target: { value: "test-key" },
@@ -117,7 +103,7 @@ describe("SettingsAIAddProfile", () => {
     });
   });
 
-  it("shows the catalog message and keeps AppError details behind the details control", async () => {
+  it("shows the catalog message for a failed save", async () => {
     addProfile.mockRejectedValueOnce(new AppError("db.add", "SQLITE_BUSY"));
     renderDialog();
 
@@ -133,15 +119,7 @@ describe("SettingsAIAddProfile", () => {
       fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
     });
 
-    const message = await screen.findByText("db.add");
-    expect(message.closest("div")?.className).toContain("flex-row");
-    expect(screen.queryByText("SQLITE_BUSY")).toBeNull();
-
-    const trigger = screen.getByRole("button", { name: "error.details" });
-    fireEvent.click(trigger);
-
-    expect(await screen.findByText("SQLITE_BUSY")).toBeTruthy();
-    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(await screen.findByText("db.add")).toBeTruthy();
   });
 
   describe("OpenAI-compatible custom headers", () => {

@@ -82,7 +82,7 @@ describe("SettingsAIProfileModels", () => {
     expect(listModels).toHaveBeenCalledTimes(2);
   });
 
-  it("shows the catalog message and keeps AppError details behind the details control", async () => {
+  it("shows the catalog message for a failed save", async () => {
     updateProfile.mockRejectedValueOnce(new AppError("db.update", "SQLITE_BUSY"));
     renderDialog();
 
@@ -94,14 +94,6 @@ describe("SettingsAIProfileModels", () => {
       fireEvent.click(await screen.findByRole("button", { name: "settings.ai.edit.submit" }));
     });
 
-    const message = await screen.findByText("db.update");
-    expect(message.closest("div")?.className).toContain("flex-col");
-    expect(screen.queryByText("SQLITE_BUSY")).toBeNull();
-
-    const trigger = screen.getByRole("button", { name: "error.details" });
-    fireEvent.click(trigger);
-
-    expect(await screen.findByText("SQLITE_BUSY")).toBeTruthy();
-    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(await screen.findByText("db.update")).toBeTruthy();
   });
 });

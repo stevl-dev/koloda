@@ -175,27 +175,7 @@ describe("lessonReducer", () => {
     expect(state.phase).toBe("configuring");
     expect(state.setup?.filters).toEqual({ deckIds: [testId(7)] });
     expect(state.setup?.learnAheadLimit).toEqual([0, 30]);
-  });
-
-  it("initializes total lesson amounts from complete setup input", () => {
-    const state = startLesson();
-
-    expect(state.phase).toBe("configuring");
     expect(state.setup?.amounts).toEqual(TOTAL_EXPECTED_AMOUNTS);
-    expect(state.setup?.available).toEqual(TOTAL_LESSONS.total);
-    expect(state.setup?.reviewTotals).toEqual(TOTAL_TODAY_REVIEW_TOTALS.reviewTotals);
-    expect(state.setup?.dailyLimits).toEqual(TOTAL_TODAY_REVIEW_TOTALS.dailyLimits);
-  });
-
-  it("initializes a single lesson type clamped by the remaining total allowance", () => {
-    const state = startLesson({
-      request: { type: "review" },
-      lessons: REVIEW_LESSONS,
-      todayReviewTotals: REVIEW_TODAY_REVIEW_TOTALS,
-    });
-
-    expect(state.phase).toBe("configuring");
-    expect(state.setup?.amounts).toEqual(REVIEW_EXPECTED_AMOUNTS);
   });
 
   it("treats repeated initialize and mismatched request as no-ops", () => {
@@ -503,12 +483,6 @@ describe("lessonReducer", () => {
     state = lessonReducer(state, ["close"]);
 
     expect(state).toEqual(lessonReducerDefault);
-    expect(state.phase).toBe("closed");
-    expect(state.request).toBeNull();
-    expect(state.setup).toBeNull();
-    expect(state.session).toBeNull();
-    expect(state.isTerminationRequested).toBe(false);
-    expect(state.upload).toEqual({ queue: [], log: {} });
   });
 
   it("settles uploaded results as success or failure while the lesson is open", () => {
@@ -566,6 +540,19 @@ describe("createLessonCardForm", () => {
 
     expect(form.firstInputFieldId).toBe(expected);
     expect(form.isSubmitted).toBe(false);
+  });
+
+  it("submits a display-only layout at once, with nothing to focus", () => {
+    const form = createLessonCardForm({
+      id: testId(1),
+      layout: [
+        { field: textField, operation: "display" },
+        { field: markdownField, operation: "display" },
+      ],
+    });
+
+    expect(form.isSubmitted).toBe(true);
+    expect(form.firstInputFieldId).toBeUndefined();
   });
 });
 

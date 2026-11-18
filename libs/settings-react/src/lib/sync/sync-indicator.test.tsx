@@ -2,7 +2,7 @@ import type { SyncStatus } from "@koloda/app";
 import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -26,7 +26,7 @@ function status(state: SyncStatus["state"], overrides: Partial<SyncStatus> = {})
   };
 }
 
-async function renderIndicator(current: SyncStatus, onOpen = vi.fn()) {
+async function renderIndicator(current: SyncStatus) {
   const sync = {
     getStatusQuery: () => ({ queryKey: ["sync", "status"], queryFn: async () => current }),
   } as unknown as SyncQueries;
@@ -40,7 +40,7 @@ async function renderIndicator(current: SyncStatus, onOpen = vi.fn()) {
       </QueryClientProvider>
     );
   }
-  const view = render(<SyncIndicator sync={sync} onOpen={onOpen} />, { wrapper: Wrapper });
+  const view = render(<SyncIndicator sync={sync} onOpen={vi.fn()} />, { wrapper: Wrapper });
   await act(async () => {
     await queryClient.refetchQueries();
   });
@@ -53,11 +53,6 @@ describe("SyncIndicator", () => {
     [status({ type: "syncing" }), "settings.sync.state.syncing"],
     [status({ type: "bootstrapping" }), "settings.sync.state.bootstrapping"],
     [status({ type: "stopped", stop: { reason: "unreachable" } }), "settings.sync.stop.unreachable"],
-    [
-      status({ type: "stopped", stop: { reason: "error", message: "the sync server answered 500" } }),
-      "settings.sync.stop.error",
-    ],
-    [status({ type: "stopped", stop: { reason: "restored" } }), "settings.sync.stop.pair-again"],
     [status({ type: "importPending" }), "settings.sync.indicator.choice"],
     [status({ type: "idle" }, { isOverQuota: true }), "settings.sync.over-quota"],
     [
@@ -79,13 +74,4 @@ describe("SyncIndicator", () => {
       expect(screen.queryByRole("button")).toBeNull();
     },
   );
-
-  it("opens Sync settings", async () => {
-    const onOpen = vi.fn();
-    await renderIndicator(status({ type: "idle" }), onOpen);
-
-    fireEvent.click(await screen.findByRole("button", { name: "settings.sync.state.idle" }));
-
-    expect(onOpen).toHaveBeenCalled();
-  });
 });

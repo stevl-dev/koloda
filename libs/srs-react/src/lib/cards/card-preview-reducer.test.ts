@@ -1,6 +1,6 @@
 import { SEED_TEMPLATE_TYPE_BACK_FIELD_ID } from "@koloda/app";
 import { describe, expect, it } from "vitest";
-import { createCard, createTemplate, testId } from "../../test/test-helpers";
+import { createCard, createTemplate } from "../../test/test-helpers";
 import { cardPreviewReducer, cardPreviewReducerDefault } from "./card-preview-reducer";
 
 type CardPreviewAction = Parameters<typeof cardPreviewReducer>[1];
@@ -25,30 +25,6 @@ describe("cardPreviewReducer", () => {
     expect(state.content?.template.layout[0]?.field?.title).toBe("Front");
     expect(state.content?.form.firstInputFieldId).toBe(SEED_TEMPLATE_TYPE_BACK_FIELD_ID);
     expect(state.content?.form.isSubmitted).toBe(false);
-  });
-
-  it("auto-submits display-only templates", () => {
-    const state = reducePreview([
-      [
-        "templateUpdated",
-        createTemplate({
-          content: {
-            fields: [
-              { id: testId(1), title: "Front", type: "text", isRequired: true },
-              { id: testId(2), title: "Back", type: "text", isRequired: true },
-            ],
-            layout: [
-              { field: testId(1), operation: "display" },
-              { field: testId(2), operation: "display" },
-            ],
-          },
-        }),
-      ],
-      ["cardUpdated", createCard()],
-    ]);
-
-    expect(state.content?.form.isSubmitted).toBe(true);
-    expect(state.content?.form.firstInputFieldId).toBeUndefined();
   });
 
   it("tracks preview form changes and submission", () => {

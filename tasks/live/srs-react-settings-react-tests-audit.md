@@ -382,7 +382,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Wait for a positive signal before asserting a single submit
   Depends on: 2
 
-- [ ] 9. Delete tests that repeat a Playwright flow, a lower layer, or a neighbor
+- [x] 9. Delete tests that repeat a Playwright flow, a lower layer, or a neighbor
   Goal: Fix findings 8, 10, and 11, as each entry above lists.
   - `cards-table.test.tsx`: delete `:114-125` and move its `WHY` (the 15 s timeout) to `:127`.
   - Second doors (finding 10): delete or trim each higher-door test in the table, keeping what that door owns.

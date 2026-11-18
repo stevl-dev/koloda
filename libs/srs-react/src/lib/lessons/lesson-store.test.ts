@@ -1,15 +1,9 @@
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import { createLessonData, createLessonsResult, createTodaysReviewTotals, testId } from "../../test/test-helpers";
-import {
-  initializeLessonAtom,
-  lessonAtom,
-  openLessonAtom,
-  receiveLessonDataAtom,
-  submitLessonSetupAtom,
-} from "./lesson-actions";
+import { createLessonsResult, createTodaysReviewTotals, testId } from "../../test/test-helpers";
+import { initializeLessonAtom, lessonAtom } from "./lesson-actions";
 import { lessonReducerDefault } from "./lesson-reducer";
-import { lessonHasSessionAtom, lessonIsOpenAtom, lessonPhaseAtom, lessonRequestAtom } from "./lesson-selectors";
+import { lessonIsOpenAtom, lessonPhaseAtom, lessonRequestAtom } from "./lesson-selectors";
 import { lessonStateAtom } from "./lesson-store";
 
 const TOTAL_LESSONS = createLessonsResult({
@@ -67,34 +61,5 @@ describe("lessonAtom launch", () => {
 
     expect(store.get(lessonAtom)).toBeNull();
     expect(store.get(lessonStateAtom)).toEqual(lessonReducerDefault);
-  });
-});
-
-describe("lesson command atoms", () => {
-  it("preserves identity for open while already open", () => {
-    const store = createStore();
-    store.set(openLessonAtom, REQUEST);
-    const preparing = store.get(lessonStateAtom);
-
-    store.set(openLessonAtom, { type: "review", deckId: testId(3) });
-
-    expect(store.get(lessonStateAtom)).toBe(preparing);
-    expect(store.get(lessonRequestAtom)).toEqual(REQUEST);
-  });
-});
-
-describe("lesson selectors", () => {
-  it("reports session presence after lesson data is received", () => {
-    const store = createStore();
-    store.set(openLessonAtom, REQUEST);
-    store.set(initializeLessonAtom, initializePayload());
-    expect(store.get(lessonHasSessionAtom)).toBe(false);
-
-    store.set(submitLessonSetupAtom);
-    expect(store.get(lessonHasSessionAtom)).toBe(false);
-
-    store.set(receiveLessonDataAtom, createLessonData());
-    expect(store.get(lessonHasSessionAtom)).toBe(true);
-    expect(store.get(lessonPhaseAtom)).toBe("studying");
   });
 });

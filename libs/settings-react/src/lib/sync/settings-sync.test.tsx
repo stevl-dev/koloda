@@ -114,7 +114,6 @@ describe("SettingsSync", () => {
   it("has a device the server no longer knows leave its space first, since an attached device cannot join", () => {
     renderSync(status({ type: "stopped", stop: { reason: "unknownDevice" } }), syncQueries(vi.fn()));
 
-    expect(screen.getByText("settings.sync.stop.unknown-device")).not.toBeNull();
     expect(screen.getByRole("button", { name: "settings.sync.leave" })).not.toBeNull();
     expect(screen.queryByRole("button", { name: "settings.sync.join" })).toBeNull();
     expect(screen.queryByRole("button", { name: "settings.sync.sync-now" })).toBeNull();
@@ -123,7 +122,6 @@ describe("SettingsSync", () => {
   it("offers a device a restore left out of its space to join again", () => {
     renderSync(status({ type: "stopped", stop: { reason: "restored" } }), syncQueries(vi.fn()));
 
-    expect(screen.getByText("settings.sync.stop.pair-again")).not.toBeNull();
     expect(screen.getByRole("button", { name: "settings.sync.join" })).not.toBeNull();
   });
 
@@ -159,12 +157,6 @@ describe("SettingsSync", () => {
 
     expect(screen.getByText("settings.sync.download-left")).not.toBeNull();
     expect(plural).toHaveBeenCalledWith(42, { other: "settings.sync.download-left" });
-  });
-
-  it("shows why a stopped sync failed", () => {
-    renderSync(status({ type: "stopped", stop: { reason: "unreachable" } }), syncQueries(vi.fn()));
-
-    expect(screen.getByText("settings.sync.stop.unreachable")).not.toBeNull();
   });
 });
 
