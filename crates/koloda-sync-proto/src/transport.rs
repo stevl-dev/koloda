@@ -587,6 +587,12 @@ pub struct DeviceInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub revoked_at: Option<u64>,
     pub rebase_required: bool,
+    /// The device this record was forked from, when a rolled-back or copied file forked it.
+    #[serde(default, with = "serde_bytes", skip_serializing_if = "Option::is_none")]
+    pub forked_from: Option<[u8; 16]>,
+    /// The device that issued the pairing code this one claimed; absent for a code the setup token issued.
+    #[serde(default, with = "serde_bytes", skip_serializing_if = "Option::is_none")]
+    pub paired_by: Option<[u8; 16]>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

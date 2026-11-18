@@ -766,10 +766,15 @@ A joining device never backfills them (§Joining).
 | `last_seen`, `cursor_hot`, `cursor_cold` | Maintained by the server |
 | `last_sender_seq` | Highest consumed `sender_seq`, and its digest |
 | `rebase_required` | Set when the device is stale or its cursor is below a GC horizon |
+| `forked_from` | The device whose record this one was forked from (§Behind its own record) |
+| `paired_by` | The device that issued the pairing code this one claimed; absent when the setup token or the operator issued it |
 
 Rules:
 
 - Any device can list and revoke devices.
+  Revoking takes out one device; the devices it forked or invited stay enrolled.
+  `forked_from` and `paired_by` let the list show them, so a host can offer to revoke them too: a stolen token can
+  fork, or issue and claim a code, before the owner revokes it.
   A revoked device gets `401 revoked`, detaches locally, keeps its data, and stops pinning GC.
   It still learns the epoch, so it can tell revocation from a restore that predates it.
   Revoking also ends the device's unclaimed pairing codes and its bootstrap lease.
@@ -949,7 +954,7 @@ Names are 1 to 100 characters after trimming.
 | --- | --- | --- |
 | `POST /v1/spaces` | `name`, `device_name`, `platform`, `nonce`, `token` | `space_id`, `device_id`, `epoch` |
 | `GET /v1/spaces` | none | `spaces`, each with `id`, `name`, `created_at`, `device_count` |
-| `GET /v1/spaces/{space}/devices/{id}` | none | `id`, `name`, `platform`, `created_at`, `last_seen`, `last_sender_seq`, optional `last_sender_digest`, `cursor_hot`, `cursor_cold`, optional `revoked_at`, `rebase_required` |
+| `GET /v1/spaces/{space}/devices/{id}` | none | `id`, `name`, `platform`, `created_at`, `last_seen`, `last_sender_seq`, optional `last_sender_digest`, `cursor_hot`, `cursor_cold`, optional `revoked_at`, `rebase_required`, optional `forked_from` and `paired_by` |
 | `GET /v1/spaces/{space}/devices` | none | `devices`, each a device record as above |
 | `DELETE /v1/spaces/{space}/devices/{id}` | none | empty |
 | `POST /v1/spaces/{space}/devices/fork` | `nonce`, `token` | the new device's enrollment, as space creation returns it; the same nonce and token return the same device, and another token is `bad_request` |

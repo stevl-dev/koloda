@@ -22,6 +22,8 @@ pub struct DeviceSummary {
     pub created_at: u64,
     pub last_seen: u64,
     pub revoked_at: Option<u64>,
+    pub forked_from: Option<Uuid>,
+    pub paired_by: Option<Uuid>,
     pub is_self: bool,
 }
 
@@ -42,6 +44,8 @@ impl Shared {
                 created_at: device.created_at,
                 last_seen: device.last_seen,
                 revoked_at: device.revoked_at,
+                forked_from: device.forked_from.map(Uuid::from_bytes),
+                paired_by: device.paired_by.map(Uuid::from_bytes),
                 is_self: device.id == *session.device.as_bytes(),
             })
             .collect())

@@ -212,7 +212,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-server -p koloda-sync -p koloda` passes.
   Commit: Apply a delete of a held entity as a fence and release its hold
   Depends on: none
-- [ ] 4. Record and report which device a device came from
+- [x] 4. Record and report which device a device came from
   Goal: finding 2, server and engine side.
   A server migration (`crates/koloda-server/src/migrations/server/V5__…`) adds `devices.paired_by`; a claim
   (`crates/koloda-server/src/pairing.rs:184-195`) sets it to the code's issuer, which is null for a code the setup

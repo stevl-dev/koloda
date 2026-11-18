@@ -19,8 +19,8 @@ use crate::http::{respond, respond_with_body, ApiError};
 use crate::log;
 use crate::server::{lock, Server};
 
-const DEVICE_COLUMNS: &str =
-    "id, name, platform, created_at, last_seen, cursor_hot, cursor_cold, revoked_at, rebase_required";
+const DEVICE_COLUMNS: &str = "id, name, platform, created_at, last_seen, cursor_hot, cursor_cold, revoked_at, \
+                              rebase_required, forked_from, paired_by";
 
 const DAY_MS: u64 = 24 * 60 * 60 * 1000;
 /// A device unseen this long is stale: it must re-bootstrap, and it stops pinning GC (`PROTOCOL.md` §Devices).
@@ -38,6 +38,8 @@ struct DeviceRow {
     cursor_cold: u64,
     revoked_at: Option<u64>,
     rebase_required: bool,
+    forked_from: Option<Uuid>,
+    paired_by: Option<Uuid>,
 }
 
 pub(crate) async fn list(State(server): State<Arc<Server>>, Path(space): Path<String>, headers: HeaderMap) -> Response {
@@ -225,6 +227,8 @@ fn device_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<DeviceRow> {
         cursor_cold: row.get(6)?,
         revoked_at: row.get(7)?,
         rebase_required: row.get(8)?,
+        forked_from: row.get(9)?,
+        paired_by: row.get(10)?,
     })
 }
 
@@ -243,6 +247,8 @@ fn device_info(server: &Server, space: Uuid, row: DeviceRow) -> Result<DeviceInf
         cursor_cold: row.cursor_cold,
         revoked_at: row.revoked_at,
         rebase_required: row.rebase_required,
+        forked_from: row.forked_from.map(Uuid::into_bytes),
+        paired_by: row.paired_by.map(Uuid::into_bytes),
     })
 }
 

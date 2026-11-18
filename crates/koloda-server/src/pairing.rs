@@ -47,6 +47,8 @@ type Peer = Option<Extension<ConnectInfo<SocketAddr>>>;
 struct Code {
     hash: Vec<u8>,
     space: Uuid,
+    /// `None` for a code the setup token or `koloda-server pair` issued.
+    issuer: Option<Uuid>,
     hint: Option<Vec<u8>>,
     claim: Option<Claim>,
 }
@@ -184,9 +186,17 @@ fn claim_code(server: &Server, request: ClaimPairing) -> Result<PairingClaim, Ap
     let device = Uuid::new_v4();
     let tx = conn.transaction()?;
     tx.execute(
-        "INSERT INTO devices (id, space_id, token_hash, name, platform, created_at, last_seen)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)",
-        params![device, code.space, hash, name, request.platform.as_wire(), now],
+        "INSERT INTO devices (id, space_id, token_hash, name, platform, created_at, last_seen, paired_by)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6, ?7)",
+        params![
+            device,
+            code.space,
+            hash,
+            name,
+            request.platform.as_wire(),
+            now,
+            code.issuer
+        ],
     )?;
     tx.execute(
         "UPDATE pairings SET claim_nonce = ?1, claim_device = ?2 WHERE code_hash = ?3",
@@ -208,7 +218,7 @@ fn live_code(conn: &Connection, code: &str, now: u64) -> Result<Option<Code>, Ap
     let hash = code_hash(code).to_vec();
     let row = conn
         .query_row(
-            "SELECT space_id, hint, claim_nonce, claim_device
+            "SELECT space_id, hint, claim_nonce, claim_device, issuer
              FROM pairings WHERE code_hash = ?1 AND expires_at >= ?2",
             params![hash, now],
             |row| {
@@ -219,6 +229,7 @@ fn live_code(conn: &Connection, code: &str, now: u64) -> Result<Option<Code>, Ap
                 Ok(Code {
                     hash: hash.clone(),
                     space: row.get(0)?,
+                    issuer: row.get(4)?,
                     hint: row.get(1)?,
                     claim,
                 })

@@ -339,6 +339,56 @@ async fn a_fork_is_a_new_device_and_the_old_token_keeps_working() {
     assert_eq!(home_record.last_sender_seq, 1, "the old record keeps its own progress");
 }
 
+#[tokio::test]
+async fn a_device_record_names_the_device_that_forked_or_invited_it() {
+    let harness = Harness::new();
+    let home = harness.create_space("Home").await;
+    let phone = harness.pair(&home, "Phone").await;
+    let break_glass = harness
+        .post(format!("/v1/spaces/{}/pairings", uuid(home.space_id)))
+        .token(&harness.setup_token)
+        .body(&IssuePairing::default())
+        .send::<Pairing>()
+        .await
+        .ok();
+    let rescue = harness
+        .post("/v1/pairings/claim")
+        .body(&claim_request(&break_glass.code, "Rescue", nonce("rescue")))
+        .send::<PairingClaim>()
+        .await
+        .ok()
+        .enrollment;
+    let copy = fork(&harness, &phone, [1; 16]).await;
+
+    let list = harness
+        .get(format!("/v1/spaces/{}/devices", uuid(home.space_id)))
+        .token(&home.token)
+        .send::<DeviceList>()
+        .await
+        .ok();
+    let provenance = |device: [u8; 16]| {
+        let record = list
+            .devices
+            .iter()
+            .find(|record| record.id == device)
+            .expect("the device is listed");
+        (record.forked_from, record.paired_by)
+    };
+
+    assert_eq!(
+        provenance(home.device_id),
+        (None, None),
+        "the creator came from no device"
+    );
+    assert_eq!(provenance(phone.device_id), (None, Some(home.device_id)));
+    assert_eq!(
+        provenance(rescue.device_id),
+        (None, None),
+        "a code the setup token issued names no device"
+    );
+    assert_eq!(provenance(copy.device_id), (Some(phone.device_id), None));
+}
+
 async fn fork(harness: &Harness, device: &Enrolled, nonce: [u8; 16]) -> Enrolled {
     let minted = token(&nonce);
     let enrollment = harness
