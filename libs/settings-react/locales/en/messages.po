@@ -399,8 +399,20 @@ msgid "settings.sync.devices.remove.confirm"
 msgstr "Remove"
 
 #: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.copy {relatedName}"
+msgstr "{relatedName}, a copy of it"
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.invited {relatedName}"
+msgstr "{relatedName}, which it invited"
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.message {name}"
 msgstr "Remove {name} from the space? It stops syncing and keeps its data."
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.related"
+msgstr "Also remove the devices that came from it:"
 
 #: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.this-device"

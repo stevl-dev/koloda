@@ -84,6 +84,8 @@ pub struct DeviceWire {
     platform: &'static str,
     last_seen_at: i64,
     is_revoked: bool,
+    forked_from_id: Option<String>,
+    paired_by_id: Option<String>,
     is_self: bool,
 }
 
@@ -95,6 +97,8 @@ impl From<DeviceSummary> for DeviceWire {
             platform: device.platform.as_wire(),
             last_seen_at: i64::try_from(device.last_seen).unwrap_or(i64::MAX),
             is_revoked: device.revoked_at.is_some(),
+            forked_from_id: device.forked_from.map(|id| id.to_string()),
+            paired_by_id: device.paired_by.map(|id| id.to_string()),
             is_self: device.is_self,
         }
     }

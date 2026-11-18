@@ -110,7 +110,7 @@ writes capture nothing and do not.
 - `cmd_sync_issue_pairing` — a pairing code for another device, the server URL, and `expiresAt` in this device's
   clock (the server's expiry minus the engine's skew estimate).
 - `cmd_sync_devices` — the space's devices: `id`, `name`, `platform`, `lastSeenAt` (server time), `isRevoked`,
-  and `isSelf`.
+  `forkedFromId` and `pairedById` (each a device id or `null`), and `isSelf`.
 - `cmd_sync_revoke_device` `{ id }` — revokes another device of the space.
 - `cmd_sync_detach` — revokes this device and detaches the database; rows stay. Returns the status.
 - `cmd_sync_preview` `{ data: { serverUrl, code } }` — the space a code would join: `spaceName`, `counts` per synced

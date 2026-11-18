@@ -399,8 +399,20 @@ msgid "settings.sync.devices.remove.confirm"
 msgstr "Удалить"
 
 #: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.copy {relatedName}"
+msgstr "{relatedName} — его копия"
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.invited {relatedName}"
+msgstr "{relatedName} — приглашено им"
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.remove.message {name}"
 msgstr "Удалить {name} из пространства? Устройство перестанет синхронизироваться, его данные останутся на нём."
+
+#: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
+msgid "settings.sync.devices.remove.related"
+msgstr "Также удалить устройства, появившиеся через него:"
 
 #: ../../libs/settings-react/src/lib/sync/settings-sync-devices.tsx
 msgid "settings.sync.devices.this-device"

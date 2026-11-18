@@ -70,6 +70,10 @@ export type SyncDevice = {
   platform: "desktop-win" | "desktop-mac" | "desktop-linux" | "ios" | "android";
   lastSeenAt: number;
   isRevoked: boolean;
+  /** The device this one is a copy of: a file that went back in time, or was copied, gets a new record. */
+  forkedFromId: string | null;
+  /** The device whose pairing code this one used; `null` when the server operator issued the code. */
+  pairedById: string | null;
   isSelf: boolean;
 };
 

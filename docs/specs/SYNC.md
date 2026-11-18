@@ -165,6 +165,16 @@ If the server cannot be reached, the list shows why and offers to try again.
 
 "Remove" on another device asks first, then takes that device out of the space.
 Removing is how to cut off a lost or stolen device.
+The confirmation also names the devices in the list that came from the one being removed:
+
+- a device it invited with a pairing code;
+- a copy of it, which a device becomes when its data goes back in time or its file is copied to another place.
+
+Each has a checkbox, unchecked at first, and the checked ones are removed with it.
+A stolen device may have invited another or made a copy before it was removed, and those keep syncing otherwise.
+Nothing else is removed on its own: the copy is often the device in use, listed under the same name as the old
+record being removed, and a device being retired invited the others the person still uses.
+If removing one of them fails, the ones before it stay removed, the error shows, and the list reloads.
 The removed device stops syncing the next time it reaches the server, and keeps its data.
 It can join a space again with a new pairing code.
 A device does not remove itself; it leaves instead.

@@ -3,7 +3,7 @@ import { langAtom } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import type * as CoreReact from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -34,6 +34,8 @@ function device(overrides: Partial<SyncDevice>): SyncDevice {
     platform: "desktop-linux",
     lastSeenAt: 1_760_000_000_000,
     isRevoked: false,
+    forkedFromId: null,
+    pairedById: null,
     isSelf: false,
     ...overrides,
   };
@@ -45,15 +47,20 @@ const DEVICES = [
   device({ id: "d3", name: "old phone", platform: "android", isRevoked: true }),
 ];
 
-function renderDevices(overrides: Partial<SyncQueries> = {}) {
-  const getDevices = vi.fn(async () => DEVICES);
+function renderDevices(overrides: Partial<SyncQueries> = {}, devices = DEVICES) {
+  const getDevices = vi.fn(async () => devices);
   const sync = {
-    getDevicesQuery: () => ({ queryKey: ["sync", "devices"], queryFn: getDevices }),
+    getDevicesQuery: () => ({
+      queryKey: ["sync", "devices"],
+      queryFn: getDevices,
+    }),
     revokeDeviceMutation: () => ({ mutationFn: vi.fn(async () => {}) }),
     detachMutation: () => ({ mutationFn: vi.fn() }),
     ...overrides,
   } as unknown as SyncQueries;
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   // WHY: last-seen times format in the interface language, which the app sets before any screen renders.
   const store = createStore();
   store.set(langAtom, "en");
@@ -74,6 +81,13 @@ async function press(name: string) {
   });
 }
 
+async function pressRemoveOf(name: string) {
+  const row = screen.getByText(name).parentElement as HTMLElement;
+  await act(async () => {
+    fireEvent.click(within(row).getByRole("button", { name: "settings.sync.devices.remove" }));
+  });
+}
+
 describe("SettingsSyncDevices", () => {
   it("lists the space's devices but revoked ones, and offers to remove only the others", async () => {
     renderDevices();
@@ -87,15 +101,86 @@ describe("SettingsSyncDevices", () => {
 
   it("removes a device only once confirmed, then reloads the list", async () => {
     const revoke = vi.fn(async (_data: { id: string }) => {});
-    const { getDevices } = renderDevices({ revokeDeviceMutation: () => ({ mutationFn: revoke }) });
+    const { getDevices } = renderDevices({
+      revokeDeviceMutation: () => ({ mutationFn: revoke }),
+    });
     await screen.findByText("desktop");
 
     await press("settings.sync.devices.remove");
     expect(screen.getByText("settings.sync.devices.remove.message desktop")).not.toBeNull();
     expect(revoke).not.toHaveBeenCalled();
 
+    expect(screen.queryByRole("checkbox")).toBeNull();
+
     await press("settings.sync.devices.remove.confirm");
     expect(revoke).toHaveBeenCalledWith({ id: "d2" }, expect.anything());
+    expect(getDevices).toHaveBeenCalledTimes(2);
+  });
+
+  it("offers the devices a removed one copied or invited, unchecked, and removes only those checked", async () => {
+    const revoke = vi.fn(async (_data: { id: string }) => {});
+    const { getDevices } = renderDevices({ revokeDeviceMutation: () => ({ mutationFn: revoke }) }, [
+      device({ id: "d1", name: "laptop", isSelf: true, pairedById: "d2" }),
+      device({ id: "d2", name: "desktop" }),
+      device({ id: "d4", name: "phone", pairedById: "d2" }),
+      device({ id: "d5", name: "desktop copy", forkedFromId: "d2" }),
+      device({
+        id: "d6",
+        name: "old tablet",
+        pairedById: "d2",
+        isRevoked: true,
+      }),
+    ]);
+    await screen.findByText("phone");
+
+    await pressRemoveOf("desktop");
+    const offered = within(screen.getByRole("dialog")).getAllByRole("checkbox");
+    const labels = offered.map((box) => box.closest("label")?.textContent);
+    expect(labels).toEqual([
+      "settings.sync.devices.remove.invited phone",
+      "settings.sync.devices.remove.copy desktop copy",
+    ]);
+    expect(offered.map((box) => (box as HTMLInputElement).checked)).toEqual([false, false]);
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("checkbox", {
+          name: "settings.sync.devices.remove.invited phone",
+        }),
+      );
+    });
+    await press("settings.sync.devices.remove.confirm");
+
+    expect(revoke.mock.calls.map(([data]) => data.id)).toEqual(["d2", "d4"]);
+    expect(getDevices).toHaveBeenCalledTimes(2);
+  });
+
+  it("stops at a removal that fails and reloads the list to show what is left", async () => {
+    const revoke = vi.fn(async ({ id }: { id: string }) => {
+      if (id === "d4") throw new Error("offline");
+    });
+    const { getDevices } = renderDevices({ revokeDeviceMutation: () => ({ mutationFn: revoke }) }, [
+      device({ id: "d1", name: "laptop", isSelf: true }),
+      device({ id: "d2", name: "desktop" }),
+      device({ id: "d4", name: "phone", pairedById: "d2" }),
+      device({ id: "d5", name: "tablet", pairedById: "d2" }),
+    ]);
+    await screen.findByText("phone");
+
+    await pressRemoveOf("desktop");
+    for (const name of ["phone", "tablet"]) {
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("checkbox", {
+            name: `settings.sync.devices.remove.invited ${name}`,
+          }),
+        );
+      });
+    }
+    await press("settings.sync.devices.remove.confirm");
+
+    expect(revoke.mock.calls.map(([data]) => data.id)).toEqual(["d2", "d4"]);
+    expect(screen.getByRole("dialog")).not.toBeNull();
     expect(getDevices).toHaveBeenCalledTimes(2);
   });
 
@@ -115,7 +200,9 @@ describe("SettingsSyncDevices", () => {
       pushResumesAt: null,
     };
     const detach = vi.fn(async () => left);
-    const { queryClient } = renderDevices({ detachMutation: () => ({ mutationFn: detach }) });
+    const { queryClient } = renderDevices({
+      detachMutation: () => ({ mutationFn: detach }),
+    });
     // WHY: React Query tells the list of its load on a timer. Told after the leave, the list re-renders, which brings
     // back the query the leave removed and loads the devices again.
     await screen.findByText("laptop");

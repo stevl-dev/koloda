@@ -2,7 +2,7 @@ import { formatAppError } from "@koloda/app";
 import type { SyncDevice } from "@koloda/app";
 import { queryKeys, useTimestampFormatter } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
-import { Button, Dialog, ErrorMessage, QueryState } from "@koloda/ui";
+import { Button, Checkbox, Dialog, ErrorMessage, QueryState } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +43,7 @@ export function SettingsSyncDevices({ sync }: SettingsSyncDevicesProps) {
                     ) : (
                       <>
                         <div className="fg-level-3">{_(msg`settings.sync.devices.last-seen ${lastSeen}`)}</div>
-                        <RemoveDevice device={device} sync={sync} />
+                        <RemoveDevice device={device} devices={devices} sync={sync} />
                       </>
                     )}
                   </div>
@@ -59,31 +59,61 @@ export function SettingsSyncDevices({ sync }: SettingsSyncDevicesProps) {
   );
 }
 
-type RemoveDeviceProps = { device: SyncDevice; sync: SyncQueries };
+type RemoveDeviceProps = {
+  device: SyncDevice;
+  devices: SyncDevice[];
+  sync: SyncQueries;
+};
 
-function RemoveDevice({ device, sync }: RemoveDeviceProps) {
+function RemoveDevice({ device, devices, sync }: RemoveDeviceProps) {
   const { _ } = useLingui();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [alsoRemoved, setAlsoRemoved] = useState<string[]>([]);
   const { mutate, error, isPending, reset } = useMutation(sync.revokeDeviceMutation());
   const name = device.name;
+  // INVARIANT: offered, never removed on their own. A copy is often the device in use, whose stale old record is the
+  // one being removed, and a retired device invited the others; only a stolen one makes them suspect.
+  const related = devices.filter(
+    (other) =>
+      !other.isRevoked && !other.isSelf && (other.forkedFromId === device.id || other.pairedById === device.id),
+  );
 
   const handleOpenChange = (next: boolean) => {
     setIsOpen(next);
-    if (!next) reset();
+    if (!next) {
+      reset();
+      setAlsoRemoved([]);
+    }
   };
 
-  const handleRemove = () => {
+  const handleAlsoRemove = (id: string, isSelected: boolean) => {
+    setAlsoRemoved((ids) => (isSelected ? [...ids, id] : ids.filter((other) => other !== id)));
+  };
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: queryKeys.sync.devices() });
+
+  const remove = (ids: string[]) => {
+    const [id, ...rest] = ids;
     mutate(
-      { id: device.id },
+      { id },
       {
         onSuccess: () => {
+          if (rest.length > 0) {
+            remove(rest);
+            return;
+          }
           setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: queryKeys.sync.devices() });
+          setAlsoRemoved([]);
+          refresh();
         },
+        // WHY: the devices before the failed one are already removed, so the list reloads to show what is left.
+        onError: refresh,
       },
     );
   };
+
+  const handleRemove = () => remove([device.id, ...alsoRemoved]);
 
   return (
     <Dialog.Root isOpen={isOpen} onOpenChange={handleOpenChange}>
@@ -92,6 +122,28 @@ function RemoveDevice({ device, sync }: RemoveDeviceProps) {
         <Dialog.Body>
           <Dialog.Content variants={{ class: "flex flex-col gap-2 max-w-96" }}>
             <p>{_(msg`settings.sync.devices.remove.message ${name}`)}</p>
+            {related.length > 0 && (
+              <div className="flex flex-col">
+                <p>{_(msg`settings.sync.devices.remove.related`)}</p>
+                {related.map((other) => {
+                  const relatedName = other.name;
+                  return (
+                    <Checkbox
+                      key={other.id}
+                      isSelected={alsoRemoved.includes(other.id)}
+                      onChange={(isSelected) => handleAlsoRemove(other.id, isSelected)}
+                    >
+                      <Checkbox.Indicator />
+                      <Checkbox.Label>
+                        {other.forkedFromId === device.id
+                          ? _(msg`settings.sync.devices.remove.copy ${relatedName}`)
+                          : _(msg`settings.sync.devices.remove.invited ${relatedName}`)}
+                      </Checkbox.Label>
+                    </Checkbox>
+                  );
+                })}
+              </div>
+            )}
             {error && <ErrorMessage {...formatAppError(error, _)} layout="inline" />}
             <div className="flex flex-row gap-2">
               <Button variants={{ style: "primary", size: "small" }} onPress={handleRemove} isDisabled={isPending}>

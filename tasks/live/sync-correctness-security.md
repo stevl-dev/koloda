@@ -232,7 +232,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-sync-proto -p koloda-server -p koloda-sync` passes.
   Commit: Record and report which device a device came from
   Depends on: none
-- [ ] 5. Offer to remove a device's copies and invitees with it
+- [x] 5. Offer to remove a device's copies and invitees with it
   Goal: finding 2, desktop side.
   `DeviceWire` (`apps/electron/src-rust/src/sync.rs:81-101`) gains `forkedFromId` and `pairedById` (string or
   null); `SyncDevice` in `libs/app/src/lib/sync.ts` and `cmd_sync_devices` in `apps/electron/IPC.md` follow.
