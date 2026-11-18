@@ -397,7 +397,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Delete tests that repeat a Playwright flow, a lower layer, or a neighbor
   Depends on: 2, 5, 7
 
-- [ ] 10. Test the untested boundaries in srs-react
+- [x] 10. Test the untested boundaries in srs-react
   Goal: Fix the `srs-react` bullets of finding 9, one case each in the file that already tests the neighbor:
   relearning (state 3) counted as learn in progress; a settle for an index not in the queue is a no-op;
   a rejected image load is dropped so the next acquire retries; a file over `ATTACHMENT_MAX_BYTES` refused before it is
@@ -407,6 +407,11 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Constraints: `libs/srs-react/src` test files and `src/test/test-helpers.tsx` only.
   Done when: the suite passes, and each case fails when its cited line is broken (spot-check three by hand, then
   revert).
+  Corrected at implementation: the prepare-error wait (`use-lesson-session.ts:86-90`) is skipped.
+  With retries on, a retrying query reports no error, so the `isFetching` check never decides anything.
+  A failed query fetching again after a close was the other state tried.
+  The test passed with the check removed, so it could not fail.
+  Archive records it in `tasks/DEFERRED.md`.
   Commit: Test the untested boundaries in srs-react
   Depends on: 9
 

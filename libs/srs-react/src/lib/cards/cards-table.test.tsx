@@ -1,5 +1,5 @@
 import { SEED_TEMPLATE_TYPE_BACK_FIELD_ID, SEED_TEMPLATE_TYPE_FRONT_FIELD_ID } from "@koloda/app";
-import { queriesAtom, queryKeys } from "@koloda/core-react";
+import { langAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type { Card, Template } from "@koloda/srs";
 import { i18n } from "@lingui/core";
@@ -42,6 +42,7 @@ function setup(initialCards: Card[], { templates = [createTemplate()], deckTempl
   } as unknown as Queries;
   const store = createStore();
   store.set(queriesAtom, queries);
+  store.set(langAtom, "en");
   const queryClient = createQueryClient();
   const controls = document.createElement("div");
   document.body.append(controls);
@@ -193,6 +194,34 @@ describe("CardsTable selection", () => {
 
     await waitFor(() => expect(deleteCards).toHaveBeenCalledTimes(1));
     expect(deleteCards.mock.calls[0][0]).toEqual({ ids: [first.id, second.id] });
+  });
+});
+
+describe("CardsTable due filter", () => {
+  function toggleDueFilter(controls: HTMLElement, name: string) {
+    fireEvent.click(within(controls).getByRole("button", { name: "cards-table.filters.trigger" }));
+    fireEvent.click(screen.getByRole("checkbox", { name }));
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+  }
+
+  it("counts a card due exactly now as overdue, not as not due", async () => {
+    const now = new Date("2026-03-01T12:00:00.000Z");
+    vi.useFakeTimers({ toFake: ["Date"], now });
+    const [past, dueNow, future] = createCards(3);
+    past.dueAt = new Date(now.getTime() - 60_000);
+    dueNow.dueAt = new Date(now);
+    future.dueAt = new Date(now.getTime() + 60_000);
+    const { controls } = setup([past, dueNow, future]);
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(3));
+
+    toggleDueFilter(controls, "cards-table.filters.due-at.values.true");
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(2));
+    expect(bodyRowTexts().join()).not.toContain("card 3");
+
+    toggleDueFilter(controls, "cards-table.filters.due-at.values.true");
+    toggleDueFilter(controls, "cards-table.filters.due-at.values.false");
+    await waitFor(() => expect(bodyRowTexts()).toHaveLength(1));
+    expect(bodyRowTexts()[0]).toContain("card 3");
   });
 });
 

@@ -1,5 +1,6 @@
 import { addAttachmentFromUrlAtom, queriesAtom } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
+import { ATTACHMENT_MAX_BYTES } from "@koloda/srs";
 import { useAppForm } from "@koloda/ui";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
@@ -243,6 +244,45 @@ describe("CardContentTextArea file types", () => {
     await waitFor(() => expect(textarea.value).toBe(`![cat](attachment:${ID})`));
     expect(add).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("refuses a file over the size limit before reading it", async () => {
+    const add = vi.fn(async () => ({ id: ID }));
+    const { textarea } = setup(add);
+    const file = cat();
+    Object.defineProperty(file, "size", { value: ATTACHMENT_MAX_BYTES + 1 });
+    const read = vi.spyOn(file, "arrayBuffer");
+
+    drop(textarea, file);
+
+    expect((await screen.findByRole("alert")).textContent).toContain("validation.attachments.too-large");
+    expect(read).not.toHaveBeenCalled();
+    expect(add).not.toHaveBeenCalled();
+  });
+
+  it("inserts the images that stored when another dropped file fails, and shows its error", async () => {
+    const add = vi.fn(async () => ({ id: ID }));
+    const { textarea } = setup(add);
+
+    fireEvent.drop(textarea, {
+      dataTransfer: {
+        files: [cat(), fakePng(), cat()],
+        items: [cat(), fakePng(), cat()].map(() => ({ kind: "file", type: "image/png" })),
+      },
+    });
+
+    expect((await screen.findByRole("alert")).textContent).toContain("validation.attachments");
+    expect(textarea.value).toBe(`![cat](attachment:${ID})\n![cat](attachment:${ID})`);
+    expect(add).toHaveBeenCalledTimes(2);
+  });
+
+  it("gives a pasted image an empty alt", async () => {
+    const add = vi.fn(async () => ({ id: ID }));
+    const { textarea } = setup(add);
+
+    fireEvent.paste(textarea, { clipboardData: { files: [cat()], getData: () => "" } });
+
+    await waitFor(() => expect(textarea.value).toBe(`![](attachment:${ID})`));
   });
 
   it("shows the format error for a picked file that is not an image", async () => {

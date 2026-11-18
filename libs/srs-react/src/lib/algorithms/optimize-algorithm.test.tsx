@@ -190,6 +190,21 @@ describe("OptimizeAlgorithm", () => {
     expect(screen.queryByRole("button", { name: "optimize-algorithm.apply" })).toBeNull();
   });
 
+  it.each([
+    { current: 0, total: 0, percentage: "0" },
+    { current: 3, total: 4, percentage: "75" },
+  ])("shows $current of $total steps as $percentage%", async ({ current, total, percentage }) => {
+    const optimizer = optimizerResolving(null);
+    renderWith(<OptimizeAlgorithm id={ALGORITHM.id} isDisabled={false} onApplied={() => {}} />, optimizer);
+
+    await openDialog();
+    act(() => optimizer.runs[0]?.onProgress({ current, total }));
+
+    const bar = await screen.findByRole("progressbar");
+    expect(bar.getAttribute("aria-valuenow")).toBe(percentage);
+    expect(screen.getByText(`${percentage}%`)).toBeTruthy();
+  });
+
   it("cancels a running optimization when the dialog closes", async () => {
     const optimizer = optimizerResolving(null);
     renderWith(<OptimizeAlgorithm id={ALGORITHM.id} isDisabled={false} onApplied={() => {}} />, optimizer);

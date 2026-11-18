@@ -1,3 +1,4 @@
+import { AppError } from "@koloda/app";
 import { defaultAlgorithmAtom, defaultTemplateAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { i18n } from "@lingui/core";
@@ -94,6 +95,18 @@ describe("add and clone dialogs", () => {
     await act(async () => {});
 
     expect(write).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(DIALOGS)("$name shows why a write failed and keeps the form", async (row) => {
+    const { title, form } = await openDialog(row, async () => {
+      throw new AppError("db.add");
+    });
+    fireEvent.change(title, { target: { value: "Copy" } });
+
+    fireEvent.submit(form);
+
+    expect((await screen.findByRole("alert")).textContent).toContain("db.add");
+    expect(title).toHaveProperty("value", "Copy");
   });
 
   it.each(DIALOGS)("$name opens on its title field", async (row) => {

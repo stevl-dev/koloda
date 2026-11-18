@@ -295,6 +295,12 @@ describe("lessonReducer", () => {
     expect(repeated.session?.data.cards).toHaveLength(1);
   });
 
+  it("counts a relearning card as learn in progress", () => {
+    const state = startLesson({ lessonData: createLessonData({ cards: [createCard({ state: 3 })] }) });
+
+    expect(state.session?.progress?.pending).toEqual({ untouched: 0, learn: 1, review: 0, total: 1 });
+  });
+
   it("finishes immediately when the loaded data contains zero cards", () => {
     const state = startLesson({ lessonData: createLessonData({ cards: [] }) });
 
@@ -503,6 +509,8 @@ describe("lessonReducer", () => {
     state = lessonReducer(state, ["resultUploaded", { index: 1, status: "error" }]);
     expect(state.upload.queue).toEqual([]);
     expect(state.upload.log).toEqual({ 0: "success", 1: "error" });
+
+    expect(lessonReducer(state, ["resultUploaded", { index: 9, status: "success" }])).toBe(state);
 
     const closed = lessonReducer(structuredClone(lessonReducerDefault), [
       "resultUploaded",

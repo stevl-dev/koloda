@@ -5,14 +5,17 @@ import { createAttachmentImageCache } from "./attachment-image-cache";
 type Deferred = {
   promise: Promise<AttachmentContent | null>;
   resolve: (value: AttachmentContent | null) => void;
+  reject: (error: unknown) => void;
 };
 
 function deferred(): Deferred {
   let resolve!: Deferred["resolve"];
-  const promise = new Promise<AttachmentContent | null>((r) => {
-    resolve = r;
+  let reject!: Deferred["reject"];
+  const promise = new Promise<AttachmentContent | null>((onResolve, onReject) => {
+    resolve = onResolve;
+    reject = onReject;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 function content(id: string): AttachmentContent {
@@ -152,6 +155,17 @@ describe("createAttachmentImageCache", () => {
 
     const lease = cache.acquire("a");
     settle("a", null);
+
+    expect(await lease.image).toBeNull();
+    cache.acquire("a");
+    expect(loads.get("a")).toHaveLength(2);
+  });
+
+  it("does not cache a failed load, so the next acquire loads again", async () => {
+    const cache = createAttachmentImageCache(load, 4);
+
+    const lease = cache.acquire("a");
+    loads.get("a")?.at(-1)?.reject(new Error("read failed"));
 
     expect(await lease.image).toBeNull();
     cache.acquire("a");
