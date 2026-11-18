@@ -1,10 +1,14 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+
+use axum::http::header::LOCATION;
+use axum::http::StatusCode;
 
 use koloda::app::db::Database;
 use koloda_sync::disk::SystemDisk;
 use koloda_sync::engine::Engine;
 use koloda_sync::runner::Event;
-use koloda_sync::transport::HttpTransport;
+use koloda_sync::transport::{HttpTransport, Method, Request, Transport};
 use koloda_sync_proto::registry::Kind;
 use koloda_sync_proto::transport::Platform;
 
@@ -98,4 +102,49 @@ fn a_grade_reaches_a_device_on_http_through_its_events_socket() {
         .expect("reviews count");
     assert_eq!(reviews, 1, "the nudge pulled the grade with no poll");
     serve.abort();
+}
+
+#[test]
+fn a_redirect_is_not_followed_and_its_target_gets_nothing() {
+    let serving = tokio::runtime::Runtime::new().expect("server runtime");
+    let bind = || {
+        serving
+            .block_on(tokio::net::TcpListener::bind("127.0.0.1:0"))
+            .expect("bind a loopback port")
+    };
+    let (target, server) = (bind(), bind());
+    let target_address = target.local_addr().expect("the bound address");
+    let server_address = server.local_addr().expect("the bound address");
+    let hits = Arc::new(AtomicUsize::new(0));
+    let counted = Arc::clone(&hits);
+    let target_routes = axum::Router::new().fallback(move || {
+        counted.fetch_add(1, Ordering::SeqCst);
+        async { "taken" }
+    });
+    let location = format!("http://{target_address}/v1/pairings/claim");
+    let server_routes = axum::Router::new().fallback(move || {
+        let location = location.clone();
+        async move { (StatusCode::TEMPORARY_REDIRECT, [(LOCATION, location)]) }
+    });
+    serving.spawn(async move { axum::serve(target, target_routes).await });
+    serving.spawn(async move { axum::serve(server, server_routes).await });
+
+    let response = serving
+        .block_on(HttpTransport::new().expect("HTTP client").send(Request {
+            method: Method::Post,
+            url: format!("http://{server_address}/v1/pairings/claim"),
+            token: None,
+            epoch: None,
+            schemas: None,
+            body: Some(b"the code and the new token".to_vec()),
+            is_zstd: false,
+        }))
+        .expect("a reply arrives");
+
+    assert_eq!(response.status, 307, "the redirect is the reply");
+    assert_eq!(
+        hits.load(Ordering::SeqCst),
+        0,
+        "the body never reaches the redirect's target"
+    );
 }

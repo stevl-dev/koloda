@@ -132,6 +132,9 @@ impl HttpTransport {
         let client = reqwest::Client::builder()
             .connect_timeout(CONNECT_TIMEOUT)
             .timeout(REQUEST_TIMEOUT)
+            // WHY: a claim, a space creation, and a fork carry a token or a pairing code in the body, which reqwest
+            // sends again on a 307 or 308, to a URL that skipped the check the configured one passed.
+            .redirect(reqwest::redirect::Policy::none())
             .build()
             .map_err(|error| SyncError::Transport {
                 status: None,

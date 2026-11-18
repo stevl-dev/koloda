@@ -275,7 +275,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - `cargo test -p koloda-sync-proto -p koloda` passes.
   Commit: Hold envelopes whose header an honest device never writes
   Depends on: none
-- [ ] 7. Stop the sync engine following redirects
+- [x] 7. Stop the sync engine following redirects
   Goal: finding 5.
   Set `redirect(reqwest::redirect::Policy::none())` on the client builder in
   `crates/koloda-sync/src/transport.rs:132-135`, with a `// WHY` naming the token and code in request bodies.
