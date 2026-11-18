@@ -455,7 +455,7 @@ impl Space {
         let (status, reply) = self.server.call::<Snapshot>(Method::Post, &path, &self.raw.token);
         assert_eq!(status, 200, "the raw client opens a lease: {:?}", reply.error);
         let snapshot = reply.ok.expect("a lease");
-        let release = format!("{path}/{}", Uuid::from_bytes(snapshot.snapshot_id));
+        let release = format!("{path}/{}?finished=false", Uuid::from_bytes(snapshot.snapshot_id));
         let (status, _) = self.server.call::<Empty>(Method::Delete, &release, &self.raw.token);
         assert_eq!(status, 200, "the raw client gives its lease back");
         snapshot.bytes

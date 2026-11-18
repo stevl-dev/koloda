@@ -310,7 +310,10 @@ async fn ending_a_lease_sweeps_the_versions_only_it_kept() {
 
     let pinned = stored_bytes(&harness, &home).await;
     harness
-        .call(Method::DELETE, lease_path(&home, &snapshot))
+        .call(
+            Method::DELETE,
+            format!("{}?finished=true", lease_path(&home, &snapshot)),
+        )
         .token(&home.token)
         .send::<Empty>()
         .await

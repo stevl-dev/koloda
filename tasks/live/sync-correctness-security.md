@@ -171,7 +171,7 @@ entry for the four crates, and any change to the pairing guess limit.
   - the events WebSocket tests and the rest of `cargo test -p koloda-server` pass.
   Commit: Bound read time and open connections in the sync server
   Depends on: none
-- [ ] 2. Clear `rebase_required` only when a bootstrap finished
+- [x] 2. Clear `rebase_required` only when a bootstrap finished
   Goal: finding 8.
   `DELETE /v1/spaces/{space}/bootstrap/{snapshot}` takes a required query parameter `finished` (`true` or `false`);
   without it the call is `bad_request`.

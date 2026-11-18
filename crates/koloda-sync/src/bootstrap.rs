@@ -37,6 +37,14 @@ pub(crate) struct OpenLease {
     pub(crate) server_ms: u64,
 }
 
+/// Whether a release ends a bootstrap whose snapshot and catch-up are applied; only that clears the server's
+/// `rebase_required`.
+#[derive(Clone, Copy)]
+enum Release {
+    Finished,
+    Unfinished,
+}
+
 impl Shared {
     /// Opens a re-bootstrap's barrier, or resumes the open one, and runs it.
     pub(crate) async fn rebootstrap(
@@ -98,13 +106,13 @@ impl Shared {
             paused => paused,
         };
         if let Err(error) = checked {
-            self.release(session, &lease).await?;
+            self.release(session, &lease, Release::Unfinished).await?;
             return Err(error);
         }
         // INVARIANT: the generation rises after the room checks, so a bootstrap that waits applies nothing and
         // leaves the marks of an earlier attempt for the lease that finishes.
         if let Err(error) = self.blocking(|shared| begin_lease(&shared.db)).await {
-            self.release(session, &lease).await?;
+            self.release(session, &lease, Release::Unfinished).await?;
             return Err(error);
         }
 
@@ -112,14 +120,14 @@ impl Shared {
             // INVARIANT: a held bootstrap starts over from a new lease on the next trigger, so it gives this one back
             // rather than pin versions until expiry. The status already shows the hold if the release fails.
             Err(SyncError::Held(hold)) => {
-                self.release(session, &lease).await?;
+                self.release(session, &lease, Release::Unfinished).await?;
                 return Err(SyncError::Held(hold));
             }
             filled => filled?,
         };
 
         // WHY: the flag clears before the release, so a failed release costs a lingering lease, not a second bootstrap.
-        // A re-bootstrap's server flag clears only on release, so a release that gets no reply costs a second one.
+        // A re-bootstrap's server flag clears only on a finished release, so one that gets no reply costs a second.
         let cursor_cold = snapshot.head_cold;
         let removed = match kind {
             Bootstrap::Join => {
@@ -136,7 +144,7 @@ impl Shared {
             }
         };
         merge(changed, removed);
-        self.release(session, &lease).await?;
+        self.release(session, &lease, Release::Finished).await?;
         let repaired = self
             .blocking(|shared| repair_dangling_defaults(&shared.db, &shared.starter))
             .await?;
@@ -166,14 +174,18 @@ impl Shared {
         Ok(cursor_hot)
     }
 
-    // INVARIANT: the release spends no tick budget. A re-bootstrap's server flag clears only on release, so a release
-    // that a spent budget refused would start the re-bootstrap over on the next tick.
-    async fn release(&self, session: &Session, lease: &OpenLease) -> Result<(), SyncError> {
+    // INVARIANT: the release spends no tick budget. A re-bootstrap's server flag clears only on a finished release, so
+    // one that a spent budget refused would start the re-bootstrap over on the next tick.
+    async fn release(&self, session: &Session, lease: &OpenLease, release: Release) -> Result<(), SyncError> {
+        let finished = matches!(release, Release::Finished);
         let released = self
             .device_client(session)
             .call::<(), Empty>(
                 Method::Delete,
-                &format!("/v1/spaces/{}/bootstrap/{}", session.space, lease.id),
+                &format!(
+                    "/v1/spaces/{}/bootstrap/{}?finished={finished}",
+                    session.space, lease.id
+                ),
                 Some(&session.token),
                 None,
             )

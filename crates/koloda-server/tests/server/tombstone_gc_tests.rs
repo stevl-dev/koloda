@@ -187,7 +187,7 @@ async fn a_live_lease_keeps_what_its_catch_up_still_needs() {
         .call(
             Method::DELETE,
             format!(
-                "/v1/spaces/{}/bootstrap/{}",
+                "/v1/spaces/{}/bootstrap/{}?finished=true",
                 uuid(phone.space_id),
                 uuid(lease.snapshot_id)
             ),

@@ -44,6 +44,12 @@ pub(crate) struct PageQuery {
     limit: Option<u64>,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct ReleaseQuery {
+    finished: bool,
+}
+
 struct LeaseRow {
     expires_at: u64,
     absolute_expiry: u64,
@@ -142,10 +148,12 @@ pub(crate) async fn heartbeat(
 pub(crate) async fn release(
     State(server): State<Arc<Server>>,
     Path((space, snapshot)): Path<(String, String)>,
+    params: Result<Query<ReleaseQuery>, QueryRejection>,
     headers: HeaderMap,
 ) -> Response {
     respond(server, headers, move |server, scope, headers| {
         let caller = auth::require_device(server, scope, headers, &space)?;
+        let params = query(params)?;
         let space = server.space(caller.space)?.ok_or_else(ApiError::unknown_space)?;
         {
             let mut conn = lock(&space.writer)?;
@@ -155,12 +163,16 @@ pub(crate) async fn release(
             }
             tx.commit()?;
         }
-        // WHY: a device releases only once its snapshot and catch-up are applied, so a re-bootstrap has ended. A lease
-        // that lapsed after its last page counts too: the device restarts on a lapse mid-stream instead of releasing.
-        server.server_db()?.execute(
-            "UPDATE devices SET rebase_required = 0 WHERE id = ?1",
-            params![caller.id],
-        )?;
+        // INVARIANT: only a finished bootstrap clears the flag. A device also gives a lease back to wait, for an
+        // unmetered network, room on disk, or a held entry, and until it finishes it must not count as active and pin
+        // collection. A lease that lapsed after its last page counts as finished: the device restarts on a lapse
+        // mid-stream instead of releasing.
+        if params.finished {
+            server.server_db()?.execute(
+                "UPDATE devices SET rebase_required = 0 WHERE id = ?1",
+                params![caller.id],
+            )?;
+        }
         Ok(Empty {})
     })
     .await

@@ -5,11 +5,12 @@ use std::time::Duration;
 use koloda::domain::decks::DeleteDeckData;
 use koloda::repo::decks::delete_deck;
 use koloda_sync::error::SyncError;
+use koloda_sync::metered::Network;
 use koloda_sync::runner::Budget;
 use koloda_sync::transport::Method;
 use koloda_sync_proto::payload::{Delete, Payload};
 use koloda_sync_proto::registry::Kind;
-use koloda_sync_proto::transport::{ErrorCode, PullPage};
+use koloda_sync_proto::transport::{DeviceInfo, ErrorCode, PullPage};
 use uuid::Uuid;
 
 use crate::common::{error_reply, Device, Fault, Space};
@@ -273,6 +274,38 @@ fn a_relaunch_mid_rebase_finishes_the_same_re_bootstrap() {
         1,
         "the library's card stays, the deleted deck's goes"
     );
+}
+
+/// Whether the server holds the device as `rebase_required`, as another device of the space reads its record.
+fn is_flagged(away: &Away, device: &Device) -> bool {
+    let (status, reply) = away.space.server.call::<DeviceInfo>(
+        Method::Get,
+        &format!("/v1/spaces/{}/devices/{}", away.space.space_id(), device_id(device)),
+        &away.b.token(),
+    );
+    assert_eq!(status, 200, "the record reads: {:?}", reply.error);
+    reply.ok.expect("a device record").rebase_required
+}
+
+#[test]
+fn a_re_bootstrap_that_waits_keeps_the_server_flag_until_one_finishes() {
+    let away = away();
+    let a = &away.space.device;
+    away.space.server.backdate(device_id(a), 91 * DAY_MS);
+    let metered = Network {
+        is_metered: true,
+        bulk_limit_bytes: 1,
+    };
+    a.engine.set_network(metered).expect("the network is set");
+
+    let paused = a.engine.sync_now();
+    let waiting = is_flagged(&away, a);
+    a.engine.allow_metered().expect("bulk sync is allowed");
+    a.engine.sync_now().expect("A re-bootstraps and syncs");
+
+    assert!(matches!(paused, Err(SyncError::Metered { .. })), "{paused:?}");
+    assert!(waiting, "a lease given back to wait leaves the device behind");
+    assert!(!is_flagged(&away, a), "the finished re-bootstrap clears it");
 }
 
 #[test]

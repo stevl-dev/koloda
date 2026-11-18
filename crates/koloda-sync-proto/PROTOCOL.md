@@ -785,8 +785,10 @@ Rules:
   (`cursor_too_old`).
   The refusal consumes nothing, replays included.
   Receipts, pull, the device calls, and bootstrap still answer, so the device can re-bootstrap first.
-- Releasing a snapshot lease clears `rebase_required`, because a device releases only once its snapshot and catch-up
-  are applied.
+- Releasing a snapshot lease with `finished=true` clears `rebase_required`.
+  A device says so only once its snapshot and catch-up are applied, or when the lease lapsed after its last page.
+  A lease given back to wait, for an unmetered network, room on disk, or a held entry, says `finished=false` and
+  leaves the flag, so the waiting device does not pin GC.
 - The space carries an `epoch`: an opaque generation UUID that changes on every server restore.
 
 Detaching on the device records when and why, then deletes the token.
@@ -894,7 +896,7 @@ Unknown `kind`, `group`, or `op`, and lane mismatches, are rejected at a header 
 | `POST /v1/spaces/{space}/bootstrap` | Opens a snapshot lease at live heads; returns `snapshot_id`, counts, byte estimate, TTL, absolute expiry; pages start at position 0 |
 | `GET /v1/spaces/{space}/bootstrap/{snapshot}` | Streams the pinned snapshot with the same per-entry metadata as pull; hot by kind, referents first, then `seq`; cold newest-first by `(hlc, stamp_device, seq)`; own sender included |
 | `POST /v1/spaces/{space}/bootstrap/{snapshot}/heartbeat` | Extends TTL up to the absolute expiry |
-| `DELETE /v1/spaces/{space}/bootstrap/{snapshot}` | Releases the lease |
+| `DELETE /v1/spaces/{space}/bootstrap/{snapshot}?finished` | Releases the lease, and says whether the bootstrap finished |
 | `GET /v1/spaces/{space}/events` | WebSocket; the lane heads on connect and on every change (§Events) |
 | `GET/DELETE /v1/spaces/{space}/devices[/{id}]` | Device list and revocation; `DELETE` of self is detach |
 | `POST /v1/spaces/{space}/devices/fork` | Current token authenticates; body has nonce and the new token; new device id out (§Devices) |
@@ -960,7 +962,7 @@ Names are 1 to 100 characters after trimming.
 | `POST /v1/spaces/{space}/bootstrap` | none | `snapshot_id`, `counts` per kind, `bytes`, `head_hot`, `head_cold`, `ttl_ms`, `expires_at`, `absolute_expiry` |
 | `GET /v1/spaces/{space}/bootstrap/{snapshot}?lane&after&limit` | `lane`; `after` is a stream position, 0 at the start | `entries` as pull returns them, `next` position, `done` |
 | `POST /v1/spaces/{space}/bootstrap/{snapshot}/heartbeat` | none | `expires_at`, `absolute_expiry` |
-| `DELETE /v1/spaces/{space}/bootstrap/{snapshot}` | none | empty |
+| `DELETE /v1/spaces/{space}/bootstrap/{snapshot}?finished` | `finished`, `true` or `false`, required | empty |
 | `GET /v1/spaces/{space}/receipts?sender&after&through` | `through - after` at most 5000 | `receipts`, each `sender_seq`, `digest`, `outcome` |
 | `PUT /v1/spaces/{space}/attachments/{id}` | `mime`, optional `width` and `height`, `bytes` | empty |
 | `GET /v1/spaces/{space}/attachments/{id}` | none | `mime`, optional `width` and `height`, `bytes` |
@@ -1452,8 +1454,8 @@ A cycle that finds the barrier open resumes it before anything else, as a joiner
    - The scan walks keyset batches and holds nothing in memory per entity.
 
    It then sets the `cold` cursor and closes the barrier.
-5. Release the lease, then push what remains.
-   Releasing clears `rebase_required`, so a lapsed or skipped release costs a second re-bootstrap.
+5. Release the lease as finished, then push what remains.
+   That release clears `rebase_required` (§Devices), so a lapsed or skipped one costs a second re-bootstrap.
    The heartbeat and the release spend no tick budget.
    Already-accepted envelopes replay; losers come back `stale`; a create the server fenced comes back `fenced`.
 

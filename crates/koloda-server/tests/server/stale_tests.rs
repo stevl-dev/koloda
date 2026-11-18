@@ -94,7 +94,7 @@ async fn a_device_unseen_for_90_days_must_re_bootstrap_before_it_pushes() {
 }
 
 #[tokio::test]
-async fn a_flagged_device_still_reads_and_bootstraps_and_a_release_clears_the_flag() {
+async fn a_flagged_device_still_reads_and_bootstraps_and_only_a_finished_release_clears_the_flag() {
     let harness = Harness::new();
     let (home, phone) = space_with_deck(&harness).await;
     push_title(&harness, &phone, 1, 1).await;
@@ -134,16 +134,33 @@ async fn a_flagged_device_still_reads_and_bootstraps_and_a_release_clears_the_fl
         "until the lease ends"
     );
 
-    harness
-        .call(
-            Method::DELETE,
-            format!("/v1/spaces/{space}/bootstrap/{}", uuid(lease.snapshot_id)),
-        )
-        .token(&phone.token)
-        .send::<Empty>()
-        .await
-        .ok();
+    let release = |lease: &Snapshot, query: &str| {
+        harness
+            .call(
+                Method::DELETE,
+                format!("/v1/spaces/{space}/bootstrap/{}{query}", uuid(lease.snapshot_id)),
+            )
+            .token(&phone.token)
+    };
+    assert_eq!(
+        release(&lease, "").send::<Empty>().await.error(),
+        (StatusCode::BAD_REQUEST, ErrorCode::BadRequest),
+        "a release says whether the bootstrap finished"
+    );
 
+    release(&lease, "?finished=false").send::<Empty>().await.ok();
+    assert!(
+        record(&harness, &home, &phone).await.rebase_required,
+        "a lease given back to wait leaves the flag"
+    );
+    assert_eq!(
+        push_title(&harness, &phone, 2, 2).await,
+        Some(ErrorCode::CursorTooOld),
+        "still refused while it waits"
+    );
+
+    let finished = open_lease(&harness, &phone).await;
+    release(&finished, "?finished=true").send::<Empty>().await.ok();
     assert!(!record(&harness, &home, &phone).await.rebase_required);
     assert_eq!(push_title(&harness, &phone, 2, 2).await, None, "the next push lands");
 }
