@@ -93,6 +93,52 @@ describe("SettingsAIEditProfile", () => {
     expect(updateProfile).toHaveBeenCalledWith({ id: profile.id, title: "" });
   });
 
+  const ollamaProfile: AIProfile = {
+    id: "00000000-0000-4000-8000-000000000003",
+    title: "Local",
+    secrets: { provider: "ollama", baseUrl: "http://localhost:11434", apiKey: null },
+    hasSecrets: true,
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  };
+
+  // WHY: a key-only provider sends secrets only with a new key, so a blank key keeps the stored one;
+  // a base-URL provider always sends them, and a blank key is left out (AI-PROVIDERS.md §Editing a Profile).
+  it.each([
+    {
+      case: "OpenRouter with a new key",
+      target: profile,
+      newKey: "sk-new",
+      secrets: { provider: "openrouter", apiKey: "sk-new" },
+    },
+    {
+      case: "Ollama with a blank key",
+      target: ollamaProfile,
+      newKey: null,
+      secrets: { provider: "ollama", baseUrl: "http://localhost:11434" },
+    },
+    {
+      case: "Ollama with a new key",
+      target: ollamaProfile,
+      newKey: "ollama-key",
+      secrets: { provider: "ollama", baseUrl: "http://localhost:11434", apiKey: "ollama-key" },
+    },
+  ])("sends secrets for $case", async ({ target, newKey, secrets }) => {
+    renderDialog(target);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.trigger" }));
+    });
+
+    if (newKey !== null) {
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.profiles.replace" }));
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.api-key.label"), { target: { value: newKey } });
+    }
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.submit" }));
+    });
+
+    expect(updateProfile).toHaveBeenCalledWith({ id: target.id, title: target.title, secrets });
+  });
+
   it("drops the profile's cached model list after a save", async () => {
     const { queryClient } = renderDialog();
     queryClient.setQueryData(queryKeys.ai.models(profile.id), [{ id: "old", name: "Old model", context_length: 0 }]);

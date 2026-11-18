@@ -319,7 +319,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Extract and test the dashboard progress label
   Depends on: none
 
-- [ ] 5. Test when the AI profile edit form sends secrets
+- [x] 5. Test when the AI profile edit form sends secrets
   Goal: Fix finding 4.
   In `libs/settings-react/src/lib/settings-ai-edit-profile.test.tsx`, add one table over OpenRouter with a new key
   (sends `{ provider, apiKey }`), Ollama with a blank key (sends `{ provider, baseUrl }` with no key), and Ollama with a
