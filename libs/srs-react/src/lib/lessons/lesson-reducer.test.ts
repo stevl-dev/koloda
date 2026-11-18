@@ -339,6 +339,16 @@ describe("lessonReducer", () => {
     expect(state.session?.content).toBeNull();
   });
 
+  it("skips a card that cannot be joined and studies the next one", () => {
+    const orphanedCard = createCard({ id: testId(98), deckId: testId(99) });
+    const joinableCard = createCard({ id: testId(97) });
+    const state = startLesson({ lessonData: createLessonData({ cards: [orphanedCard, joinableCard] }) });
+
+    expect(state.phase).toBe("studying");
+    expect(state.session?.content?.index).toBe(1);
+    expect(state.session?.content?.card.id).toBe(joinableCard.id);
+  });
+
   it("studies a card with its own template when its deck has moved to another", () => {
     const cardTemplate = createTemplate({ id: testId(1) });
     const deckTemplate = createTemplate({ id: testId(2) });

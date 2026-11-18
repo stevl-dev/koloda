@@ -332,7 +332,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Test when the AI profile edit form sends secrets
   Depends on: 2
 
-- [ ] 6. Test that a lesson skips an orphan card and studies the next
+- [x] 6. Test that a lesson skips an orphan card and studies the next
   Goal: Fix finding 5.
   In `libs/srs-react/src/lib/lessons/lesson-reducer.test.ts`, beside `:329`, add a case that loads an orphan card first
   and a joinable card second, and asserts the session studies index 1.
