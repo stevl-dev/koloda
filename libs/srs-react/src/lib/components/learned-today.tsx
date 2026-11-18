@@ -1,4 +1,3 @@
-import type { NumberFormatter } from "@koloda/app";
 import { queriesAtom, useNumberFormatter } from "@koloda/core-react";
 import { LESSON_TYPE_LABELS } from "@koloda/srs";
 import type { LessonType } from "@koloda/srs";
@@ -8,6 +7,7 @@ import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { tv } from "tailwind-variants";
+import { getLearnedTodayProgress } from "./learned-today-progress";
 import { progressBarTrack } from "./progress-bar-track";
 
 const learnedTodayAmount = tv({
@@ -63,15 +63,7 @@ export function LearnedToday() {
               {(["untouched", "learn", "review", "total"] as LessonType[]).map((type) => {
                 const limit = type === "total" ? data.dailyLimits.total : data.dailyLimits[type].value;
                 const isInfinity = limit == null;
-                const percentage = isInfinity
-                  ? 0
-                  : limit === 0
-                    ? data.reviewTotals[type] > 0
-                      ? 100
-                      : 0
-                    : (data.reviewTotals[type] / limit) * 100;
-                const progressWidth = Math.min(Math.max(percentage, 0), 100);
-                const progressLabel = formatProgressLabel(progressWidth, isInfinity, formatNumber);
+                const progress = getLearnedTodayProgress(limit, data.reviewTotals[type], formatNumber);
 
                 return (
                   <div className="flex flex-col gap-2 leading-6 border-b-2 border-main py-2 px-4" key={type}>
@@ -91,9 +83,9 @@ export function LearnedToday() {
                     </div>
                     <div className="flex flex-row items-center gap-2">
                       <div className={progressBarTrack}>
-                        <div className={learnedTodayProgressBar({ type })} style={{ width: `${progressWidth}%` }} />
+                        <div className={learnedTodayProgressBar({ type })} style={{ width: `${progress.width}%` }} />
                       </div>
-                      <span className={learnedTodayProgressPercentage({ isInfinity })}>{progressLabel}</span>
+                      <span className={learnedTodayProgressPercentage({ isInfinity })}>{progress.label}</span>
                     </div>
                   </div>
                 );
@@ -104,11 +96,4 @@ export function LearnedToday() {
       </Layout.Container>
     </>
   );
-}
-
-function formatProgressLabel(progressWidth: number, isInfinity: boolean, formatNumber: NumberFormatter): string {
-  if (isInfinity) return "–";
-  if (progressWidth === 0) return "0%";
-  if (progressWidth < 1) return `${formatNumber(progressWidth, 1)}%`;
-  return `${Math.round(progressWidth)}%`;
 }

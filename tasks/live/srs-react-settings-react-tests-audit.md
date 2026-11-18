@@ -306,7 +306,7 @@ A path that starts with `srs-react/` or `settings-react/` is under `libs/<packag
   Commit: Test the typed-answer comparison and the Enter submit rule
   Depends on: none
 
-- [ ] 4. Extract and test the dashboard progress label
+- [x] 4. Extract and test the dashboard progress label
   Goal: Fix finding 3.
   Move the rule at `libs/srs-react/src/lib/components/learned-today.tsx:66-73` and `formatProgressLabel` (`:109-114`)
   into a pure function in a sibling module that takes the limit, the reviewed count, and the number formatter, and
