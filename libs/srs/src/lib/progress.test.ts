@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cardRowSchema, cardValidation, insertCardSchema } from "./cards";
+import { cardRowSchema, cardValidation, insertCardSchema, updateCardProgressSchema } from "./cards";
 import { insertReviewSchema, reviewRowSchema } from "./reviews";
 import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
@@ -27,6 +27,23 @@ function validCardProgress(overrides: Record<string, unknown> = {}) {
 function validInsertCard(overrides: Record<string, unknown> = {}) {
   const { id: _id, ...rest } = validCardProgress(overrides);
   return rest;
+}
+
+function validUpdateCardProgress(overrides: Record<string, unknown> = {}) {
+  const { id, state, stability, difficulty, scheduledDays, learningSteps, reps, lapses, lastReviewedAt } =
+    validCardProgress(overrides);
+  return {
+    id,
+    dueAt: DEFAULT_DATE,
+    state,
+    stability,
+    difficulty,
+    scheduledDays,
+    learningSteps,
+    reps,
+    lapses,
+    lastReviewedAt,
+  };
 }
 
 function validReview(overrides: Record<string, unknown> = {}) {
@@ -60,6 +77,10 @@ describe.each([
   {
     name: "insertCardSchema",
     parse: (input: Record<string, unknown>) => insertCardSchema.safeParse(validInsertCard(input)),
+  },
+  {
+    name: "updateCardProgressSchema",
+    parse: (input: Record<string, unknown>) => updateCardProgressSchema.safeParse(validUpdateCardProgress(input)),
   },
 ])("$name progress", ({ parse }) => {
   it.each(readRuleCases("cards.json", "progress"))("$name", (ruleCase) => {

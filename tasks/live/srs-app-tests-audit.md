@@ -214,7 +214,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Test that a bucket that does not count ignores the shared total
   Depends on: none
 
-- [ ] 3. Run the card-progress table through updateCardProgressSchema
+- [x] 3. Run the card-progress table through updateCardProgressSchema
   Goal: Fix finding 3.
   In `libs/srs/src/lib/progress.test.ts`, add `updateCardProgressSchema` as a third row of the `describe.each` at
   `:55-70`, parsing a valid update payload with the case's input spread over it.
