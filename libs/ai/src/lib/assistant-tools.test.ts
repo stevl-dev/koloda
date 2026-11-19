@@ -22,41 +22,6 @@ import {
 } from "./assistant-tools";
 
 describe("assistant-tools binder", () => {
-  it("describes propose_cards as creating new cards, not listing existing ones", () => {
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/create new flashcards/i);
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/random card/i);
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/do not ask the user/i);
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/empty cards array/i);
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/rejectedCount/i);
-    expect(ASSISTANT_TOOL_SPECS.propose_cards.description).toMatch(/markdown table/i);
-    expect(ASSISTANT_TOOL_SPECS.list_decks.description).toMatch(/field titles/i);
-    expect(ASSISTANT_TOOL_SPECS.list_decks.description).toMatch(/do not ask the user for field titles/i);
-    expect(ASSISTANT_TOOL_SPECS.list_templates.description).toMatch(/field titles/i);
-    expect(ASSISTANT_TOOL_SPECS.list_templates.description).toMatch(/do not ask the user to list templates/i);
-    expect(ASSISTANT_TOOL_SPECS.list_algorithms.description).toMatch(/presets/i);
-    expect(ASSISTANT_TOOL_SPECS.list_algorithms.description).toMatch(/FSRS settings/i);
-    expect(ASSISTANT_TOOL_SPECS.list_algorithms.description).toMatch(/do not ask the user to list presets/i);
-    expect(ASSISTANT_TOOL_SPECS.list_decks.description).not.toMatch(
-      /call this first when the user asks about their decks or cards/i,
-    );
-    expect(ASSISTANT_TOOL_SPECS.get_deck.description).toMatch(/use the deckId from list_decks/i);
-    expect(ASSISTANT_TOOL_SPECS.get_deck.description).toMatch(/do not ask the user for an id/i);
-    expect(ASSISTANT_TOOL_SPECS.get_deck.description).toMatch(/does not return card bodies/i);
-    expect(ASSISTANT_TOOL_SPECS.get_template.description).toMatch(
-      /use the templateId from list_templates \(or another tool result that returned that id\)/i,
-    );
-    expect(ASSISTANT_TOOL_SPECS.get_template.description).toMatch(/do not ask the user for an id/i);
-    expect(ASSISTANT_TOOL_SPECS.get_template.description).toMatch(/does not return decks, cards, or create cards/i);
-    expect(ASSISTANT_TOOL_SPECS.get_deck_cards.description).toMatch(/cannot pick a single random card/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/call list_templates first for templateId/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/do not ask the user for ids/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/via list_algorithms/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/otherwise omit and use the app default/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/empty deck only/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/propose_cards/i);
-    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/does not edit templates or algorithms/i);
-  });
-
   it("binds only the requested specs with model-facing descriptions", () => {
     const bound = bindAssistantTools({ names: ["get_deck_cards"], execute: vi.fn() });
 
@@ -66,6 +31,69 @@ describe("assistant-tools binder", () => {
 
   it("rejects unknown tool names at bind time", () => {
     expect(() => bindAssistantTools({ names: ["nope"], execute: vi.fn() })).toThrow(/Unknown assistant tool/);
+  });
+});
+
+describe("deck, template, algorithm, and card tool descriptions", () => {
+  it("tells the model propose_cards creates new cards and how to report rejects", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.propose_cards;
+    expect(description).toMatch(/create new flashcards/i);
+    expect(description).toMatch(/random card/i);
+    expect(description).toMatch(/do not ask the user/i);
+    expect(description).toMatch(/empty cards array/i);
+    expect(description).toMatch(/rejectedCount/i);
+    expect(description).toMatch(/markdown table/i);
+  });
+
+  it("tells the model list_decks returns field titles, without making it the first call for every question", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.list_decks;
+    expect(description).toMatch(/field titles/i);
+    expect(description).toMatch(/do not ask the user for field titles/i);
+    expect(description).not.toMatch(/call this first when the user asks about their decks or cards/i);
+  });
+
+  it("tells the model list_templates returns field titles, so it need not ask", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.list_templates;
+    expect(description).toMatch(/field titles/i);
+    expect(description).toMatch(/do not ask the user to list templates/i);
+  });
+
+  it("tells the model list_algorithms returns presets with FSRS settings, so it need not ask", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.list_algorithms;
+    expect(description).toMatch(/presets/i);
+    expect(description).toMatch(/FSRS settings/i);
+    expect(description).toMatch(/do not ask the user to list presets/i);
+  });
+
+  it("tells the model get_deck takes an id from list_decks and returns no card bodies", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.get_deck;
+    expect(description).toMatch(/use the deckId from list_decks/i);
+    expect(description).toMatch(/do not ask the user for an id/i);
+    expect(description).toMatch(/does not return card bodies/i);
+  });
+
+  it("tells the model get_template takes a known id and returns no decks or cards", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.get_template;
+    expect(description).toMatch(
+      /use the templateId from list_templates \(or another tool result that returned that id\)/i,
+    );
+    expect(description).toMatch(/do not ask the user for an id/i);
+    expect(description).toMatch(/does not return decks, cards, or create cards/i);
+  });
+
+  it("tells the model get_deck_cards cannot pick a random card", () => {
+    expect(ASSISTANT_TOOL_SPECS.get_deck_cards.description).toMatch(/cannot pick a single random card/i);
+  });
+
+  it("tells the model add_deck creates an empty deck from listed ids and edits nothing else", () => {
+    const { description } = ASSISTANT_TOOL_SPECS.add_deck;
+    expect(description).toMatch(/call list_templates first for templateId/i);
+    expect(description).toMatch(/do not ask the user for ids/i);
+    expect(description).toMatch(/via list_algorithms/i);
+    expect(description).toMatch(/otherwise omit and use the app default/i);
+    expect(description).toMatch(/empty deck only/i);
+    expect(description).toMatch(/propose_cards/i);
+    expect(description).toMatch(/does not edit templates or algorithms/i);
   });
 });
 

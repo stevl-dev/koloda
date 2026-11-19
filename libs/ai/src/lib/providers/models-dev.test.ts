@@ -251,7 +251,7 @@ describe("fetchOpencodeZenModels catalog join", () => {
     expect(models[1]?.supported_reasoning_levels).toBeUndefined();
   });
 
-  it("reuses a successful catalog after a later models.dev failure", async () => {
+  it("reuses a filled catalog without requesting models.dev again", async () => {
     const catalogBody = catalogFor("opencode", {
       "deepseek-chat": {
         reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "high" }],
@@ -276,6 +276,7 @@ describe("fetchOpencodeZenModels catalog join", () => {
         default_reasoning_level: "high",
       },
     ]);
+    expect(vi.mocked(fetch).mock.calls.map(([input]) => String(input))).not.toContain(MODELS_DEV_API_URL);
   });
 
   it("sends a browser-like User-Agent to models.dev", async () => {
@@ -349,7 +350,7 @@ describe("fetchOpencodeGoModels catalog join", () => {
     expect(models[1]?.supported_reasoning_levels).toBeUndefined();
   });
 
-  it("reuses a successful catalog after a later models.dev failure", async () => {
+  it("reuses a filled catalog without requesting models.dev again", async () => {
     const catalogBody = catalogFor("opencode-go", {
       "deepseek-chat": {
         reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "high" }],
@@ -374,5 +375,6 @@ describe("fetchOpencodeGoModels catalog join", () => {
         default_reasoning_level: "high",
       },
     ]);
+    expect(vi.mocked(fetch).mock.calls.map(([input]) => String(input))).not.toContain(MODELS_DEV_API_URL);
   });
 });

@@ -393,15 +393,6 @@ describe("createAssistantToolExecutor", () => {
     expect(createDeck).not.toHaveBeenCalled();
   });
 
-  it("propose_cards shapes accepted cards through the write target", async () => {
-    const executor = createAssistantToolExecutor(makeDataSource());
-    const output = (await executor("propose_cards", {
-      deckId: DECK_ID,
-      cards: [{ fields: { [FRONT_ID]: "Front", [BACK_ID]: "Back" } }],
-    })) as { deckId: string };
-    expect(output.deckId).toBe(DECK_ID);
-  });
-
   it("propose_cards drops mixed invalid cards instead of throwing", async () => {
     const executor = createAssistantToolExecutor(makeDataSource());
     const output = (await executor("propose_cards", {

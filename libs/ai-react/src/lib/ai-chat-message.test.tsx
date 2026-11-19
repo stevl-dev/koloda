@@ -4,13 +4,13 @@ import { AIChatMessage } from "./ai-chat-message";
 
 describe("AIChatMessage", () => {
   it("renders text parts and skips step-start parts", () => {
-    render(
+    const { container } = render(
       <AIChatMessage
         role="assistant"
         parts={[{ type: "step-start" } as never, { type: "text", text: "Hello world" }]}
       />,
     );
-    expect(screen.getByText("Hello world")).toBeDefined();
+    expect(container.textContent).toBe("Hello world");
   });
 
   it("does not render reasoning parts as message text", () => {

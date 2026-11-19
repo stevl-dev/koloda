@@ -468,7 +468,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Wait for the model picker's loads before asserting
   Depends on: 7
 
-- [ ] 9. Make four tests assert what their names claim
+- [x] 9. Make four tests assert what their names claim
   Goal: Fix finding 6.
   - `libs/ai/src/lib/assistant-tool-executor.test.ts:391-398`: delete it.
   - `libs/ai-react/src/lib/ai-chat-message.test.tsx:6-14`: assert the container text equals `Hello world`.
@@ -479,6 +479,10 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
     Put each next to that tool's other tests where it has a describe, as the tools at `:242-301` do.
   Constraints: those four test files only.
   Done when: both suites pass; the phrase count across the split tests equals the count before.
+  Corrected at implementation: the OpenCode Go copy of the cache test (`models-dev.test.ts:352`) had the same flaw, so
+  both copies assert that models.dev is not requested again.
+  The input-schema describes do not fit description tests, so the split tests share one new describe, one test per
+  tool.
   Commit: Make four tests assert what their names claim
   Depends on: 1
 
