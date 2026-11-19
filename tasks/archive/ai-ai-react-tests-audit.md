@@ -1,6 +1,6 @@
 # AI and AI React tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md, agents/ADD-AI-PROVIDER.md
 Flow: local
 
@@ -613,7 +613,36 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
 
 ## Outcome
 
-<what shipped>
+Findings 1–8 and 10–18 are fixed by items 1–16.
+Finding 9 is fixed in part, by the human's choice at triage (below).
+
+- 35 files in `libs/ai`, `libs/ai-react`, `libs/app`, and `agents/ADD-AI-PROVIDER.md`: 1,511 lines added and 1,318
+  deleted, the move of item 1 included.
+  No non-test source changed.
+- `libs/ai` went from 359 to 418 tests, `libs/ai-react` from 78 to 107, and `libs/app` gained the moved descriptor
+  test.
+  `libs/ai` passes `--maxWorkers=1 --sequence.shuffle.files` at seeds 1 through 7.
+- The chat-stream tests and their fake model live in `chat-stream.test.ts`, with the one `ai-sdk-ollama` mock.
+  The D8 entry is removed from `tasks/DEFERRED.md`.
+- The chat stream's failure, reasoning, and usage paths, every provider's secret rules, the submit gate, the default
+  profile and its redaction filter, auto-scroll, the picker's selection, and the boundaries of finding 5 have tests.
+  Each was checked by breaking its source line by hand.
+- The over-claiming, second-door, duplicate, class-name, and dialog-guard tests are fixed or deleted as listed.
+- `agents/ADD-AI-PROVIDER.md` (§9 Add Tests) names the registry table and says what `chat-stream.test.ts` checks.
+- Self-review found two issues and fixed them in their own commits.
+  The provider table's listing test loaded the real `ollama` package beside two files that mock it at file level
+  (`agents/TESTING.md` (§Runner constraints)); it now skips the Ollama row.
+  A doc comment line in the ai-react test helper ran past the line width.
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `46cf0e63`.
+
+Fixed in part:
+
+- 9. Improvement, Later: `ai-model-profile-picker.test.tsx` fails intermittently.
+  Evidence: at `46cf0e63`, the first test of `libs/ai-react/src/lib/ai-model-profile-picker.test.tsx` waits for the
+  first model load and for both model rows instead of one empty `act` flush each.
+  The failure was never reproduced, so the fix is unconfirmed.
+  Decision: the human chose at triage to keep the deferred entry; the Archive commit updates its evidence.
 
 Spec: none — test and guide changes only; no user-visible behavior changed
 Review: not run

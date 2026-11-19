@@ -303,9 +303,11 @@ Entries are grouped under one heading per package directory.
 - Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
   Evidence: at `1c0661bb`, `libs/ai-react/src/lib/ai-model-profile-picker.test.tsx`; it passed on every rerun,
   in isolation, and on clean `main`.
+  At `46cf0e63`, `tasks/archive/ai-ai-react-tests-audit.md` (finding 9) replaced the first test's two empty `act`
+  flushes with waits for the model loads; the failure was never reproduced, so the fix is unconfirmed.
   Kind: handoff
   Source: `tasks/archive/entity-forms-architecture.md`
-  Deferred because: seen during the task, which does not touch the test.
+  Deferred because: seen during the task, which does not touch the test; drop it if no later run fails.
 
 ## libs/app
 
