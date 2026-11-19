@@ -422,7 +422,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the assistant submit gate and the default AI profile
   Depends on: none
 
-- [ ] 6. Test the chat auto-scroll threshold
+- [x] 6. Test the chat auto-scroll threshold
   Goal: Fix the auto-scroll part of finding 2.
   Add `libs/ai-react/src/lib/use-auto-scroll.test.tsx`.
   Render the hook with its two refs attached to elements whose `scrollHeight`, `scrollTop`, and `clientHeight` the test
@@ -435,6 +435,9 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   - `prepareSubmit` returns whether the viewport is near the bottom at submit (`:134-138`).
   Constraints: the new test file only.
   Done when: it passes; changing `<=` to `<` at `:40` fails the threshold case (check by hand, then revert).
+  Corrected at implementation: the file holds no JSX, so it is `use-auto-scroll.test.ts`.
+  jsdom has no layout, so the test defines the viewport's heights and stubs `scrollTo`; the setup file already stubs
+  `ResizeObserver`.
   Commit: Test the chat auto-scroll threshold
   Depends on: none
 
