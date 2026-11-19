@@ -181,7 +181,7 @@ Match these files when the shape fits:
 - `crates/koloda/tests/domain/cards_serde_tests.rs` — NAPI wire pins: exact JSON shape,
   null-vs-omitted keys, serde round-trip.
 - `libs/app/src/lib/error-parity.test.ts` — parses Rust `error_codes` from source
-  vs `ERROR_MESSAGES` keys (`ai.*` TS-only allow-list).
+  vs `ERROR_MESSAGES` keys (TS-only allow-list).
 
 ## Sync crates
 

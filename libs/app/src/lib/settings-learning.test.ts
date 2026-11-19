@@ -37,7 +37,7 @@ const RULES_BASE = {
 const RULE_CASES = readRuleCases("settings-learning.json", "rules");
 
 describe("learningSettingsValidation", () => {
-  it("accepts default preset via DEFAULT_LEARNING_SETTINGS", () => {
+  it("pins DEFAULT_LEARNING_SETTINGS to the persisted defaults", () => {
     expect(DEFAULT_LEARNING_SETTINGS).toEqual({
       defaults: {
         algorithm: "01a08376-dc00-7001-8000-000000000100",

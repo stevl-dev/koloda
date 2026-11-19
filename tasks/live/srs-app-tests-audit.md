@@ -268,7 +268,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Pin the loose FSRS and progress assertions and table the language-code cases
   Depends on: 4
 
-- [ ] 6. Rename two tests that claim something else
+- [x] 6. Rename two tests that claim something else
   Goal: Fix finding 6.
   - `libs/app/src/lib/error-parity.test.ts:71`: rename to say keys match Rust codes plus the TS-only allow-list.
   - `libs/app/src/lib/settings-learning.test.ts:40`: rename to say it pins the persisted defaults, and move it out of
