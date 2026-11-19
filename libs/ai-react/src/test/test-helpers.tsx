@@ -12,7 +12,8 @@ export type AppStoreWrapperOptions = {
 
 /**
  * Real `@koloda/core-react` wiring for components that read hotkey settings, AI profiles, or model lists.
- * There is no stored hotkeys row, so components get the default bindings; the language is English, as hosts set at boot.
+ * There is no stored hotkeys row, so components get the default bindings.
+ * The language is English, as hosts set it at boot.
  * WHY: a file-level mock of `@koloda/core-react` or `@koloda/ui` would leak to siblings under `isolate: false`.
  */
 export function createAppStoreWrapper({ listModels, profiles = [] }: AppStoreWrapperOptions = {}) {
