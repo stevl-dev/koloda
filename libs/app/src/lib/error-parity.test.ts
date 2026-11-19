@@ -62,12 +62,6 @@ function rustErrorCodes(): string[] {
 }
 
 describe("ERROR_MESSAGES parity", () => {
-  it("contains every Rust error code", () => {
-    for (const code of rustErrorCodes()) {
-      expect(ERROR_MESSAGES).toHaveProperty(code);
-    }
-  });
-
   it("keys match Rust codes plus TS-only ai.* codes", () => {
     expect(Object.keys(ERROR_MESSAGES).sort()).toEqual([...rustErrorCodes(), ...TS_ONLY_ERROR_CODES].sort());
   });

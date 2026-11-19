@@ -15,27 +15,6 @@ describe("interfaceSettingsValidation", () => {
     });
   });
 
-  it("accepts valid explicit values", () => {
-    const result = interfaceSettingsValidation.parse({
-      language: "ru",
-      scheme: "dark",
-      lightTheme: "atom-one-light",
-      darkTheme: "atom-one-dark",
-      motion: "off",
-      dateFormat: "dd.MM.yyyy",
-      timeFormat: "HH:mm",
-    });
-    expect(result).toEqual({
-      language: "ru",
-      scheme: "dark",
-      lightTheme: "atom-one-light",
-      darkTheme: "atom-one-dark",
-      motion: "off",
-      dateFormat: "dd.MM.yyyy",
-      timeFormat: "HH:mm",
-    });
-  });
-
   // WHY: enum fields pin against loosening to z.string(); the pattern rows pin the structural scan's rejects and
   // the quoting rules of INTERFACE-SETTINGS.md (§Date and Time Format).
   it.each(readRuleCases("settings-interface.json", "fields"))("$name", (ruleCase) => {

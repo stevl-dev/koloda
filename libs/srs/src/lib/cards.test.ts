@@ -10,7 +10,6 @@ import {
   getCardContentValidation,
   getCardGrades,
   getInsertCardSchema,
-  getUpdateCardSchema,
 } from "./cards";
 import type { Card } from "./cards";
 import { DEFAULT_TEMPLATE } from "./templates";
@@ -251,61 +250,16 @@ describe("getCardContentValidation", () => {
 });
 
 describe("getInsertCardSchema", () => {
-  it("produces a schema that validates cards against template fields", () => {
-    const template = createTemplate();
-    const schema = getInsertCardSchema(template);
-
-    const valid = schema.safeParse({
+  it("keeps the card progress check after adding the template's content", () => {
+    const result = getInsertCardSchema(createTemplate()).safeParse({
       deckId: ID,
-      templateId: template.id,
+      templateId: ID,
       content: {
         [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "Front text" },
         [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Back text" },
       },
+      reps: -1,
     });
-    expect(valid.success).toBe(true);
-  });
-
-  it("rejects missing required field content", () => {
-    const template = createTemplate();
-    const schema = getInsertCardSchema(template);
-
-    const result = schema.safeParse({
-      deckId: ID,
-      templateId: template.id,
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Back text" },
-      },
-    });
-    expect(result.success).toBe(false);
-  });
-});
-
-describe("getUpdateCardSchema", () => {
-  it("validates card content against template fields", () => {
-    const template = createTemplate();
-    const schema = getUpdateCardSchema(template);
-
-    const valid = schema.safeParse({
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "Updated front" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Updated back" },
-      },
-    });
-    expect(valid.success).toBe(true);
-  });
-
-  it("rejects empty required fields in content", () => {
-    const template = createTemplate();
-    const schema = getUpdateCardSchema(template);
-
-    const result = schema.safeParse({
-      content: {
-        [SEED_TEMPLATE_TYPE_FRONT_FIELD_ID]: { text: "" },
-        [SEED_TEMPLATE_TYPE_BACK_FIELD_ID]: { text: "Updated back" },
-      },
-    });
-    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual(["validation.cards-progress.reps"]);
   });
 });

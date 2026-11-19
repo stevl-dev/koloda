@@ -113,34 +113,4 @@ describe("resolvedLearningSettingsValidation", () => {
     const result = resolvedLearningSettingsValidation.safeParse({});
     expect(result.success).toBe(false);
   });
-
-  it("accepts a fully specified object", () => {
-    const result = resolvedLearningSettingsValidation.safeParse({
-      defaults,
-      dailyLimits: {
-        total: 200,
-        untouched: { value: 50, counts: true },
-        learn: { value: 0, counts: false },
-        review: { value: 200, counts: true },
-      },
-      dayStartsAt: "05:00",
-      learnAheadLimit: [0, 30],
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("keeps a resolved total of 0 as a hard cap", () => {
-    const result = resolvedLearningSettingsValidation.parse({
-      defaults,
-      dailyLimits: {
-        total: 0,
-        untouched: { value: 0, counts: true },
-        learn: { value: 0, counts: false },
-        review: { value: 0, counts: true },
-      },
-      dayStartsAt: "05:00",
-      learnAheadLimit: [0, 30],
-    });
-    expect(result.dailyLimits.total).toBe(0);
-  });
 });

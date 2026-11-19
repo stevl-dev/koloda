@@ -234,36 +234,4 @@ describe("algorithmFSRSValidation", () => {
     });
     expect(result.success).toBe(false);
   });
-
-  it("rejects non-boolean isFuzzEnabled", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...DEFAULT_FSRS_ALGORITHM,
-      isFuzzEnabled: "yes",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects non-array learning steps", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...DEFAULT_FSRS_ALGORITHM,
-      learningSteps: "1m, 10m",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects missing weights string", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...DEFAULT_FSRS_ALGORITHM,
-      weights: undefined,
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects non-numeric maximumInterval", () => {
-    const result = algorithmFSRSValidation.safeParse({
-      ...DEFAULT_FSRS_ALGORITHM,
-      maximumInterval: "36500",
-    });
-    expect(result.success).toBe(false);
-  });
 });

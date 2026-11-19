@@ -226,7 +226,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Run the card-progress table through updateCardProgressSchema
   Depends on: none
 
-- [ ] 4. Delete the FSRS type battery and the second-door tests
+- [x] 4. Delete the FSRS type battery and the second-door tests
   Goal: Fix findings 4 and 5.
   - In `libs/srs/src/lib/algorithms-fsrs.test.ts`, delete the tests at `:238-268` (fuzz flag, steps string, missing
     weights, string maximum interval).

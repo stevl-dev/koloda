@@ -1,4 +1,3 @@
-import type { AppError } from "@koloda/app";
 import { DEFAULT_LEARNING_SETTINGS } from "@koloda/app";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -24,18 +23,6 @@ describe("reviews", () => {
       from: new Date(2024, 0, 2, 5, 0, 0, 0).toISOString(),
       to: new Date(2024, 0, 3, 5, 0, 0, 0).toISOString(),
     });
-  });
-
-  it("rejects invalid learning day boundaries", () => {
-    expect(() => getCurrentLearningDayRange("25:00")).toThrow(
-      expect.objectContaining({ code: "validation.settings-learning.day-starts-at" } satisfies Partial<AppError>),
-    );
-  });
-
-  it("rejects unpadded learning day boundaries", () => {
-    expect(() => getCurrentLearningDayRange("5:00")).toThrow(
-      expect.objectContaining({ code: "validation.settings-learning.day-starts-at" } satisfies Partial<AppError>),
-    );
   });
 
   it("treats the boundary instant as the start of the current learning day", () => {
