@@ -1,4 +1,4 @@
-import type { AIRuntime } from "@koloda/ai";
+import type { AIProfile, AIRuntime } from "@koloda/ai";
 import { aiRuntimeAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,17 +7,19 @@ import type { PropsWithChildren } from "react";
 
 export type AppStoreWrapperOptions = {
   listModels?: AIRuntime["listModels"];
+  profiles?: AIProfile[];
 };
 
 /**
- * Real `@koloda/core-react` wiring for components that read hotkey settings or model lists.
+ * Real `@koloda/core-react` wiring for components that read hotkey settings, AI profiles, or model lists.
  * There is no stored hotkeys row, so components get the default bindings.
  * WHY: a file-level mock of `@koloda/core-react` or `@koloda/ui` would leak to siblings under `isolate: false`.
  */
-export function createAppStoreWrapper({ listModels }: AppStoreWrapperOptions = {}) {
+export function createAppStoreWrapper({ listModels, profiles = [] }: AppStoreWrapperOptions = {}) {
   const store = createStore();
   store.set(queriesAtom, {
     getSettingsQuery: () => ({ queryKey: queryKeys.settings.detail("hotkeys"), queryFn: async () => null }),
+    getAIProfilesQuery: () => ({ queryKey: queryKeys.ai.profiles(), queryFn: async () => profiles }),
   } as unknown as Queries);
   if (listModels) {
     store.set(aiRuntimeAtom, { listModels } as unknown as AIRuntime);

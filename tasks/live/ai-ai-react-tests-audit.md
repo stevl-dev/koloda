@@ -399,7 +399,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test each provider entry's secret rules in one registry table
   Depends on: none
 
-- [ ] 5. Test the assistant submit gate and the default AI profile
+- [x] 5. Test the assistant submit gate and the default AI profile
   Goal: Fix the gate and profile parts of finding 2.
   - Add `libs/ai-react/src/lib/use-ai-chat-validation.test.ts`.
     `useAIChatValidation` is a pure function of its options, so call it without a render.
@@ -415,6 +415,10 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: the two new test files only.
   Done when: both pass; dropping one gate condition, or inverting the redaction filter, fails them (check one each by
   hand, then revert).
+  Corrected at implementation: `createAppStoreWrapper` gains a `profiles` option, so the hook reads them through the
+  real `@koloda/core-react` wiring.
+  `canCancel` is `isLoading` passed through, so it has no case (`agents/TESTING.md` (§Banned patterns)).
+  A base-URL row checks that the redaction filter drops only the API key.
   Commit: Test the assistant submit gate and the default AI profile
   Depends on: none
 
