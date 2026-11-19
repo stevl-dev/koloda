@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// WHY: `libs/srs`, `libs/app`, and `libs/ai` each keep a byte-identical copy of this file, because test helpers are not
+// exported across packages; a change to one goes to all three.
 // WHY: the files sit outside this package, so they are listed in the `test` Nx inputs (project.json); without that,
 // Nx replays a cached pass after one changes. File shape: `crates/koloda/tests/cases/README.md`.
 const CASES_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../crates/koloda/tests/cases");

@@ -279,14 +279,18 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Rename two tests that claim something else
   Depends on: 4
 
-- [ ] 7. Say why the rule-case reader has two copies
+- [x] 7. Say why the rule-case reader has copies
   Goal: Fix finding 8.
   Add one `// WHY:` line at the top of `libs/srs/src/test/rule-cases.ts` and of `libs/app/src/test/rule-cases.ts`.
   Each names the other copy, says the two must stay identical, and says why it is a copy: `libs/srs` depends on
   `libs/app`, and test helpers are not exported.
   Constraints: those two files only; after the edit, `diff` of the two still prints only the line that names the other.
   Done when: both packages pass.
-  Commit: Say why the rule-case reader has two copies
+  Corrected at implementation: `libs/ai/src/test/rule-cases.ts` is a third byte-identical copy, which
+  `crates/koloda/tests/cases/README.md` lists.
+  All three carry the same `// WHY:` naming the three packages, so the copies stay identical; `libs/ai` gains only that
+  comment.
+  Commit: Say why the rule-case reader has copies
   Depends on: none
 
 ## Outcome
