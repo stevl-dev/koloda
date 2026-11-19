@@ -1,6 +1,6 @@
 # srs and app tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -295,8 +295,34 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
 
 ## Outcome
 
-<what shipped>
+Findings 1–8 are fixed by items 1–7.
 
-Spec: none — test-only change
+- 11 test and helper files in `libs/srs`, `libs/app`, and `libs/ai`, plus one line of `agents/TESTING.md`.
+  No non-test source changed.
+- `libs/srs` went from 355 to 367 tests and `libs/app` from 255 to 253; `libs/ai` is unchanged at 418.
+- `getCardGrades` has pinned review-card and learning-card cases; a wrong key in `FSRS_CARD_PROPERTIES` or an ignored
+  card fails them.
+- The daily-totals tests are one table, with the twin of the Rust case for a bucket that does not count.
+- The card-progress table also runs through `updateCardProgressSchema`.
+- The type battery and the second-door tests are gone; `getInsertCardSchema`'s re-applied progress check has a test.
+- The loose FSRS, progress, and language-code assertions are exact or tables; two misnamed tests are renamed, and the
+  `agents/TESTING.md` exemplar line matches the allow-list.
+- All three copies of `rule-cases.ts` carry the same `// WHY:` and stay byte-identical.
+- Each new or tightened case was checked by breaking its source line by hand.
+- Implementation corrected three plan details, recorded under items 1, 5, and 7.
+- Self-review found one issue and fixed it in its own commit:
+  the maximum-interval test kept a name that claimed a cap on every rating (`agents/TESTING.md`
+  (§Repetition and tables)).
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `40d9197c`.
+
+Left for later:
+
+- Handoff: Good and Easy can be scheduled past the user's maximum interval.
+  Item 5 found that ts-fsrs 5.2.3 caps each interval, then keeps Hard < Good < Easy, so with a maximum of 10 days Good
+  is 11 and Easy 12.
+  The test pins today's behavior; whether the cap should be strict is a product question.
+
+Spec: none — test and guide changes only; no user-visible behavior changed
 Review: not run
 Change rounds: 0

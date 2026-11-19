@@ -422,6 +422,17 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/typecheck-tests.md`
   Deferred because: open at landing; the task changed no production code.
 
+## libs/srs
+
+- Handoff: decide whether the maximum interval should hold for Good and Easy, which ts-fsrs schedules past it.
+  Evidence: at `40d9197c`, ts-fsrs 5.2.3 caps each interval, then keeps Hard < Good < Easy
+  (`node_modules/ts-fsrs/dist/index.mjs:1142-1146`).
+  With a maximum of 10 days, a review card gets Hard 10, Good 11, and Easy 12.
+  `libs/srs/src/lib/algorithms-fsrs.test.ts` ("caps Hard at maximumInterval and keeps Good and Easy past it") pins it.
+  Kind: handoff
+  Source: `tasks/archive/srs-app-tests-audit.md`
+  Deferred because: a product question found while tightening a test; the task changed no source.
+
 ## libs/srs-react
 
 - Improvement, Later: the prepare-error wait in `useLessonSession` has no test that can fail.
