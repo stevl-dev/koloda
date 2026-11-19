@@ -2,18 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiSecretsValidation } from "../provider-secrets";
 import { MODELS_DEV_API_URL, resetModelsDevCache } from "./models-dev";
 import { OPENAI_BASE_URL, fetchOpenAIModels, openaiProviderEntry } from "./openai";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
   resetModelsDevCache();
 });
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 describe("fetchOpenAIModels", () => {
   it("fetches the OpenAI-compatible models list with the api key", async () => {

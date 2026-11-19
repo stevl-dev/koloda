@@ -1,17 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiSecretsValidation } from "../provider-secrets";
 import { fetchXaiModels, XAI_LANGUAGE_MODELS_URL, XAI_MODELS_URL, xaiProviderEntry } from "./xai";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 function stubXaiFetch(languageModels: unknown, models: unknown) {
   const fetchMock = vi.fn((input: RequestInfo | URL) =>

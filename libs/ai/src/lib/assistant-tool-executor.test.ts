@@ -87,15 +87,8 @@ describe("createAssistantToolExecutor", () => {
   });
 
   it("get_deck shapes one deck row without reading cards", async () => {
-    let cardReads = 0;
-    const executor = createAssistantToolExecutor(
-      makeDataSource({
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
-      }),
-    );
+    const getCards = vi.fn(async () => []);
+    const executor = createAssistantToolExecutor(makeDataSource({ getCards }));
     const output = await executor("get_deck", { deckId: DECK_ID });
     expect(output).toEqual({
       deckId: DECK_ID,
@@ -104,40 +97,22 @@ describe("createAssistantToolExecutor", () => {
       templateTitle: "Basic",
       fieldTitles: ["Front", "Back"],
     });
-    expect(cardReads).toBe(0);
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("get_deck throws for a missing deck without reading cards", async () => {
-    let cardReads = 0;
-    const executor = createAssistantToolExecutor(
-      makeDataSource({
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
-      }),
-    );
+    const getCards = vi.fn(async () => []);
+    const executor = createAssistantToolExecutor(makeDataSource({ getCards }));
     await expect(executor("get_deck", { deckId: MISSING_DECK_ID })).rejects.toThrow(
       `Deck not found: ${MISSING_DECK_ID}`,
     );
-    expect(cardReads).toBe(0);
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("get_template shapes full field metadata without reading decks or cards", async () => {
-    let deckReads = 0;
-    let cardReads = 0;
-    const executor = createAssistantToolExecutor(
-      makeDataSource({
-        getDecks: async () => {
-          deckReads += 1;
-          return [{ id: DECK_ID, title: "Spanish", templateId: TEMPLATE_ID }];
-        },
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
-      }),
-    );
+    const getDecks = vi.fn(makeDataSource().getDecks);
+    const getCards = vi.fn(async () => []);
+    const executor = createAssistantToolExecutor(makeDataSource({ getDecks, getCards }));
     const output = await executor("get_template", { templateId: TEMPLATE_ID });
     expect(output).toEqual({
       templateId: TEMPLATE_ID,
@@ -147,30 +122,19 @@ describe("createAssistantToolExecutor", () => {
         { id: BACK_ID, title: "Back", type: "text", isRequired: true },
       ],
     });
-    expect(deckReads).toBe(0);
-    expect(cardReads).toBe(0);
+    expect(getDecks).not.toHaveBeenCalled();
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("get_template throws for a missing template without reading decks or cards", async () => {
-    let deckReads = 0;
-    let cardReads = 0;
-    const executor = createAssistantToolExecutor(
-      makeDataSource({
-        getDecks: async () => {
-          deckReads += 1;
-          return [{ id: DECK_ID, title: "Spanish", templateId: TEMPLATE_ID }];
-        },
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
-      }),
-    );
+    const getDecks = vi.fn(makeDataSource().getDecks);
+    const getCards = vi.fn(async () => []);
+    const executor = createAssistantToolExecutor(makeDataSource({ getDecks, getCards }));
     await expect(executor("get_template", { templateId: MISSING_TEMPLATE_ID })).rejects.toThrow(
       `Template not found: ${MISSING_TEMPLATE_ID}`,
     );
-    expect(deckReads).toBe(0);
-    expect(cardReads).toBe(0);
+    expect(getDecks).not.toHaveBeenCalled();
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("get_deck_cards reads the asked deck's cards and lists them by field title", async () => {
@@ -184,41 +148,31 @@ describe("createAssistantToolExecutor", () => {
   });
 
   it("get_deck_cards throws for a missing deck", async () => {
-    let cardReads = 0;
-    const executor = createAssistantToolExecutor(
-      makeDataSource({
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
-      }),
-    );
+    const getCards = vi.fn(async () => []);
+    const executor = createAssistantToolExecutor(makeDataSource({ getCards }));
     await expect(executor("get_deck_cards", { deckId: MISSING_DECK_ID })).rejects.toThrow(
       `Deck not found: ${MISSING_DECK_ID}`,
     );
-    expect(cardReads).toBe(0);
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("get_deck_cards throws when the deck's template is missing", async () => {
-    let cardReads = 0;
+    const getCards = vi.fn(async () => []);
     const executor = createAssistantToolExecutor(
       makeDataSource({
         getDecks: async () => [{ id: DECK_ID, title: "Spanish", templateId: MISSING_TEMPLATE_ID }],
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
+        getCards,
       }),
     );
     await expect(executor("get_deck_cards", { deckId: DECK_ID })).rejects.toThrow(
       `Template not found for deck: ${DECK_ID}`,
     );
-    expect(cardReads).toBe(0);
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("add_deck returns the stored deck with field titles and does not read cards", async () => {
     const createdId = "01900000-0000-7000-8000-000000000099";
-    let cardReads = 0;
+    const getCards = vi.fn(async () => []);
     const createDeck = vi.fn(async (input: { title: string; templateId: string; algorithmId: string }) => ({
       id: createdId,
       ...input,
@@ -228,10 +182,7 @@ describe("createAssistantToolExecutor", () => {
       makeDataSource({
         createDeck,
         getDefaultAlgorithmId,
-        getCards: async () => {
-          cardReads += 1;
-          return [];
-        },
+        getCards,
       }),
     );
 
@@ -256,7 +207,7 @@ describe("createAssistantToolExecutor", () => {
       algorithmId: ALGORITHM_ID,
     });
     expect(getDefaultAlgorithmId).not.toHaveBeenCalled();
-    expect(cardReads).toBe(0);
+    expect(getCards).not.toHaveBeenCalled();
   });
 
   it("add_deck does not write when the run is canceled during its reads", async () => {

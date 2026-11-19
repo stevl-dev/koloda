@@ -577,7 +577,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Move tests to the files that own them
   Depends on: 10
 
-- [ ] 15. Share the repeated test setup in libs/ai
+- [x] 15. Share the repeated test setup in libs/ai
   Goal: Fix finding 17 and the no-op line of finding 16.
   - `libs/ai/src/lib/providers/models-dev.test.ts`: make the two copies at `:209-279` and `:301-377` one
     `describe.each` over the two fetchers, keeping the cited `// WHY` at `:302-303`.
@@ -590,6 +590,13 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: `libs/ai/src` test files and `libs/ai/src/test/` only.
   Done when: `libs/ai` passes with the same test count as before this item, and at shuffle seeds 1 through 7 with
   `--maxWorkers=1`.
+  Corrected at implementation: the no-op line had moved into the User-Agent test, which now calls
+  `loadModelsDevCatalog` directly in the `loadModelsDevCatalog` describe.
+  `stubGatewayAndCatalog` now requires its models URL.
+  The read counters became `vi.fn` spies asserted `not.toHaveBeenCalled()`, so no helper was needed; seven were left
+  after item 10.
+  Only the two identical Basic copies share a fixture, `proposeDeck`.
+  The others differ on purpose: Front and Back only for the list shapes, a markdown Back, and a notes row.
   Commit: Share the repeated test setup in libs/ai
   Depends on: 4, 9, 10, 11
 

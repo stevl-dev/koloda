@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AIModel } from "../models";
 import { fetchLmStudioModels, lmStudioReasoningFromCapabilities, overlayLmStudioReasoning } from "./lmstudio";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -8,13 +9,6 @@ afterEach(() => {
 
 function gatewayModel(id: string, extra: Partial<AIModel> = {}): AIModel {
   return { id, name: id, context_length: 0, ...extra };
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
 describe("lmStudioReasoningFromCapabilities", () => {

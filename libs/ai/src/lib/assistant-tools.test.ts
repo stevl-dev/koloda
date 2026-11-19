@@ -531,8 +531,10 @@ describe("tool output shaping", () => {
   });
 });
 
-describe("propose_cards output shaping", () => {
-  const template: AssistantToolTemplate = {
+const proposeDeck: { id: string; title: string; template: AssistantToolTemplate } = {
+  id: "01900000-0000-7000-8000-000000000005",
+  title: "Spanish verbs",
+  template: {
     id: "01900000-0000-7000-8000-000000000001",
     title: "Basic",
     content: {
@@ -542,11 +544,14 @@ describe("propose_cards output shaping", () => {
         { id: "01900000-0000-7000-8000-00000000000c", title: "Hint", type: "text", isRequired: false },
       ],
     },
-  };
-  const deck = { id: "01900000-0000-7000-8000-000000000005", title: "Spanish verbs", template };
+  },
+};
 
+describe("propose_cards output shaping", () => {
   it("maps titles onto template field ids and returns title-keyed accepted cards", () => {
-    expect(shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello", Hint: "greeting" } }])).toEqual({
+    expect(
+      shapeProposeCardsOutput(proposeDeck, [{ fields: { Front: "hola", Back: "hello", Hint: "greeting" } }]),
+    ).toEqual({
       deckId: "01900000-0000-7000-8000-000000000005",
       deckTitle: "Spanish verbs",
       templateId: "01900000-0000-7000-8000-000000000001",
@@ -561,7 +566,7 @@ describe("propose_cards output shaping", () => {
   });
 
   it("drops all-empty cards", () => {
-    const output = shapeProposeCardsOutput(deck, [
+    const output = shapeProposeCardsOutput(proposeDeck, [
       { fields: { Front: "hola", Back: "hello" } },
       { fields: { Front: "  ", Back: "", Hint: "   " } },
       { fields: {} },
@@ -573,7 +578,7 @@ describe("propose_cards output shaping", () => {
   });
 
   it("rejects a card that leaves a required field blank and names the field", () => {
-    const output = shapeProposeCardsOutput(deck, [
+    const output = shapeProposeCardsOutput(proposeDeck, [
       { fields: { Front: "hola", Hint: "greeting" } },
       { fields: { Front: "gato", Back: "cat" } },
     ]);
@@ -586,7 +591,7 @@ describe("propose_cards output shaping", () => {
   });
 
   it("names every blank required field, in template order, when no card is accepted", () => {
-    const output = shapeProposeCardsOutput(deck, [
+    const output = shapeProposeCardsOutput(proposeDeck, [
       { fields: { Back: "hello" } },
       { fields: { Hint: "only optional" } },
     ]);
@@ -599,7 +604,7 @@ describe("propose_cards output shaping", () => {
   });
 
   it("rejects a key that matches no field as a blank required field", () => {
-    const output = shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Answer: "hello" } }]);
+    const output = shapeProposeCardsOutput(proposeDeck, [{ fields: { Front: "hola", Answer: "hello" } }]);
 
     expect(output.cards).toEqual([]);
     expect(output.rejectedCount).toBe(1);
@@ -607,11 +612,11 @@ describe("propose_cards output shaping", () => {
   });
 
   it("accepts lowercase field titles and field-id keys", () => {
-    expect(shapeProposeCardsOutput(deck, [{ fields: { front: "hola", BACK: "hello" } }]).cards).toEqual([
+    expect(shapeProposeCardsOutput(proposeDeck, [{ fields: { front: "hola", BACK: "hello" } }]).cards).toEqual([
       { fields: { Front: "hola", Back: "hello", Hint: "" } },
     ]);
     expect(
-      shapeProposeCardsOutput(deck, [
+      shapeProposeCardsOutput(proposeDeck, [
         {
           fields: {
             "01900000-0000-7000-8000-00000000000a": "hola",
@@ -634,13 +639,16 @@ describe("propose_cards output shaping", () => {
       front: "by id",
     },
   ])("takes $name when keys for one field collide", ({ fields, front }) => {
-    expect(shapeProposeCardsOutput(deck, [{ fields: { ...fields, Back: "hello" } }]).cards).toEqual([
+    expect(shapeProposeCardsOutput(proposeDeck, [{ fields: { ...fields, Back: "hello" } }]).cards).toEqual([
       { fields: { Front: front, Back: "hello", Hint: "" } },
     ]);
   });
 
   it("tells the model to retry when every card is rejected", () => {
-    const output = shapeProposeCardsOutput(deck, [{ fields: {} }, { fields: { Front: "  ", Back: "", Hint: "   " } }]);
+    const output = shapeProposeCardsOutput(proposeDeck, [
+      { fields: {} },
+      { fields: { Front: "  ", Back: "", Hint: "   " } },
+    ]);
 
     expect(output.cards).toEqual([]);
     expect(output.rejectedCount).toBe(2);
@@ -649,10 +657,10 @@ describe("propose_cards output shaping", () => {
 
   it("keeps a card with one value when the template requires no field", () => {
     const optionalDeck = {
-      ...deck,
+      ...proposeDeck,
       template: {
-        ...template,
-        content: { fields: template.content.fields.map((field) => ({ ...field, isRequired: false })) },
+        ...proposeDeck.template,
+        content: { fields: proposeDeck.template.content.fields.map((field) => ({ ...field, isRequired: false })) },
       },
     };
     const output = shapeProposeCardsOutput(optionalDeck, [{ fields: { Hint: "only optional" } }]);
@@ -663,14 +671,14 @@ describe("propose_cards output shaping", () => {
   });
 
   it("ignores unknown field titles", () => {
-    const output = shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello", Extra: "nope" } }]);
+    const output = shapeProposeCardsOutput(proposeDeck, [{ fields: { Front: "hola", Back: "hello", Extra: "nope" } }]);
 
     expect(output.cards).toEqual([{ fields: { Front: "hola", Back: "hello", Hint: "" } }]);
     expect(output.rejectedCount).toBe(0);
   });
 
   it("returns an empty accepted list for empty input without rejecting", () => {
-    expect(shapeProposeCardsOutput(deck, [])).toEqual({
+    expect(shapeProposeCardsOutput(proposeDeck, [])).toEqual({
       deckId: "01900000-0000-7000-8000-000000000005",
       deckTitle: "Spanish verbs",
       templateId: "01900000-0000-7000-8000-000000000001",
@@ -689,7 +697,7 @@ describe("propose_cards output shaping", () => {
       fields: { Front: `f${index}`, Back: `b${index}` },
     }));
 
-    const output = shapeProposeCardsOutput(deck, cards);
+    const output = shapeProposeCardsOutput(proposeDeck, cards);
 
     expect(output.cards).toHaveLength(ASSISTANT_TOOL_MAX_CARDS_PER_DECK);
     expect(output.rejectedCount).toBe(5);
@@ -745,26 +753,10 @@ describe("propose_cards output guard and mapper", () => {
   };
 
   it("accepts a shaped propose_cards payload", () => {
-    const deck = {
-      id: "01900000-0000-7000-8000-000000000005",
-      title: "Spanish verbs",
-      template: {
-        id: "01900000-0000-7000-8000-000000000001",
-        title: "Basic",
-        content: {
-          fields: [
-            { id: "01900000-0000-7000-8000-00000000000a", title: "Front", type: "text" as const, isRequired: true },
-            { id: "01900000-0000-7000-8000-00000000000b", title: "Back", type: "text" as const, isRequired: true },
-            { id: "01900000-0000-7000-8000-00000000000c", title: "Hint", type: "text" as const, isRequired: false },
-          ],
-        },
-      },
-    };
-
     expect(isProposeCardsOutput(validOutput)).toBe(true);
-    expect(isProposeCardsOutput(shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello" } }]))).toBe(
-      true,
-    );
+    expect(
+      isProposeCardsOutput(shapeProposeCardsOutput(proposeDeck, [{ fields: { Front: "hola", Back: "hello" } }])),
+    ).toBe(true);
   });
 
   it("rejects malformed payloads", () => {

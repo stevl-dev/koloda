@@ -1,17 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiSecretsValidation } from "../provider-secrets";
 import { ANTHROPIC_MODELS_URL, anthropicProviderEntry, fetchAnthropicModels } from "./anthropic";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 describe("fetchAnthropicModels", () => {
   it("lists every page with the api key and the browser access header", async () => {

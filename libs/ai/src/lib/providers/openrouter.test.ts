@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { OPENROUTER_MODELS_URL, fetchOpenRouterModels } from "./openrouter";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -8,15 +9,12 @@ afterEach(() => {
 describe("fetchOpenRouterModels", () => {
   it("filters out models without a vendor-qualified id and requests the public catalog", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          data: [
-            { id: "openai/gpt-5", name: "GPT-5" },
-            { id: "bare-id", name: "Bare" },
-          ],
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
+      jsonResponse({
+        data: [
+          { id: "openai/gpt-5", name: "GPT-5" },
+          { id: "bare-id", name: "Bare" },
+        ],
+      }),
     );
     vi.stubGlobal("fetch", fetchMock);
 
@@ -37,17 +35,14 @@ describe("fetchOpenRouterModels", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [
-              {
-                id: "deepseek/deepseek-r1",
-                reasoning: { supported_efforts: ["low", "high"], default_effort: "high" },
-              },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [
+            {
+              id: "deepseek/deepseek-r1",
+              reasoning: { supported_efforts: ["low", "high"], default_effort: "high" },
+            },
+          ],
+        }),
       ),
     );
 
@@ -66,12 +61,7 @@ describe("fetchOpenRouterModels", () => {
   it("keeps the default effort when no efforts are reported", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ data: [{ id: "a/b", reasoning: { default_effort: "medium" } }] }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
+      vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: "a/b", reasoning: { default_effort: "medium" } }] })),
     );
 
     await expect(fetchOpenRouterModels()).resolves.toEqual([
@@ -83,12 +73,9 @@ describe("fetchOpenRouterModels", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [{ id: "a/b", reasoning: { supported_efforts: [], default_effort: "low" } }],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [{ id: "a/b", reasoning: { supported_efforts: [], default_effort: "low" } }],
+        }),
       ),
     );
 
@@ -101,15 +88,12 @@ describe("fetchOpenRouterModels", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [
-              { id: "zulu/model", name: "Alpha" },
-              { id: "alpha/model", name: "Zulu" },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [
+            { id: "zulu/model", name: "Alpha" },
+            { id: "alpha/model", name: "Zulu" },
+          ],
+        }),
       ),
     );
 
@@ -122,15 +106,7 @@ describe("fetchOpenRouterModels", () => {
   });
 
   it("rejects a payload without a model list", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ data: { not: "a list" } }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: { not: "a list" } })));
 
     await expect(fetchOpenRouterModels()).rejects.toMatchObject({
       name: "AIError",

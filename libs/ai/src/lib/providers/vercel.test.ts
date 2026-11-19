@@ -1,17 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiSecretsValidation } from "../provider-secrets";
 import { fetchVercelModels, VERCEL_MODELS_URL, vercelProviderEntry } from "./vercel";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 function stubModels(data: unknown) {
   const fetchMock = vi.fn((_input: RequestInfo | URL, _init?: RequestInit) => Promise.resolve(jsonResponse(data)));

@@ -4,6 +4,7 @@ import { OPENCODE_GO_BASE_URL, OPENCODE_ZEN_BASE_URL } from "../provider-catalog
 import { MODELS_DEV_API_URL, loadModelsDevCatalog, overlayFromModelsDev, resetModelsDevCache } from "./models-dev";
 import { fetchOpencodeGoModels } from "./opencode-go";
 import { fetchOpencodeZenModels } from "./opencode-zen";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -24,13 +25,6 @@ function gatewayModel(id: string, extra: Partial<AIModel> = {}): AIModel {
   return { id, name: id, context_length: 0, ...extra };
 }
 
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 function catalogFor(providerKey: string, models: Record<string, unknown>): Record<string, unknown> {
   return { [providerKey]: { id: providerKey, name: providerKey, env: [], models } };
 }
@@ -44,6 +38,20 @@ describe("loadModelsDevCatalog", () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(second).toBe(first);
+  });
+
+  it("sends a browser-like User-Agent to models.dev", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await loadModelsDevCatalog();
+
+    expect(fetchMock).toHaveBeenCalledWith(MODELS_DEV_API_URL, {
+      headers: expect.objectContaining({
+        Accept: "application/json",
+        "User-Agent": expect.stringContaining("Mozilla/5.0"),
+      }),
+    });
   });
 });
 
@@ -213,10 +221,8 @@ describe("overlayFromModelsDev", () => {
 function stubGatewayAndCatalog(options: {
   gateway: unknown;
   catalog: Response | Promise<Response> | Error;
-  /** Provider gateway URL; defaults to the opencode-zen models endpoint. */
-  modelsUrl?: string;
+  modelsUrl: string;
 }): void {
-  const modelsUrl = options.modelsUrl ?? `${OPENCODE_ZEN_BASE_URL.replace(/\/$/, "")}/models`;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
@@ -225,7 +231,7 @@ function stubGatewayAndCatalog(options: {
         if (options.catalog instanceof Error) throw options.catalog;
         return options.catalog;
       }
-      if (url === modelsUrl) {
+      if (url === options.modelsUrl) {
         return jsonResponse(options.gateway);
       }
       throw new Error(`unexpected fetch: ${url}`);
@@ -233,111 +239,31 @@ function stubGatewayAndCatalog(options: {
   );
 }
 
-describe("fetchOpencodeZenModels catalog join", () => {
-  it("applies catalog effort values for a matching id", async () => {
-    stubGatewayAndCatalog({
-      gateway: { data: [{ id: "deepseek-chat", name: "DeepSeek Chat" }] },
-      catalog: jsonResponse(
-        catalogFor("opencode", {
-          "deepseek-chat": {
-            reasoning_options: [{ type: "effort", values: ["low", "high", "max"] }],
-            limit: { context: 128000, output: 8192 },
-          },
-        }),
-      ),
-    });
-
-    const models = await fetchOpencodeZenModels("key");
-
-    expect(models).toEqual([
-      {
-        id: "deepseek-chat",
-        name: "DeepSeek Chat",
-        context_length: 128000,
-        supported_reasoning_levels: [
-          { effort: "low", description: "" },
-          { effort: "high", description: "" },
-          { effort: "max", description: "" },
-        ],
-        default_reasoning_level: undefined,
-      },
-    ]);
-  });
-
-  it("falls back to the prefix table when models.dev fails and the cache is empty", async () => {
-    stubGatewayAndCatalog({
-      gateway: { data: [{ id: "deepseek-chat" }, { id: "plain" }] },
-      catalog: new Error("network"),
-    });
-
-    const models = await fetchOpencodeZenModels();
-
-    expect(models.map((model) => model.id)).toEqual(["deepseek-chat", "plain"]);
-    expect(models[0]?.supported_reasoning_levels).toEqual(prefixDeepseek.levels);
-    expect(models[0]?.default_reasoning_level).toBe("medium");
-    expect(models[1]?.supported_reasoning_levels).toBeUndefined();
-  });
-
-  it("reuses a filled catalog without requesting models.dev again", async () => {
-    const catalogBody = catalogFor("opencode", {
-      "deepseek-chat": {
-        reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "high" }],
-      },
-    });
-    const gateway = { data: [{ id: "deepseek-chat" }] };
-
-    stubGatewayAndCatalog({ gateway, catalog: jsonResponse(catalogBody) });
-    await expect(fetchOpencodeZenModels()).resolves.toMatchObject([
-      { id: "deepseek-chat", default_reasoning_level: "high" },
-    ]);
-
-    stubGatewayAndCatalog({ gateway, catalog: new Response("nope", { status: 403 }) });
-    await expect(fetchOpencodeZenModels()).resolves.toMatchObject([
-      {
-        id: "deepseek-chat",
-        supported_reasoning_levels: [
-          { effort: "low", description: "" },
-          { effort: "high", description: "" },
-          { effort: "max", description: "" },
-        ],
-        default_reasoning_level: "high",
-      },
-    ]);
-    expect(vi.mocked(fetch).mock.calls.map(([input]) => String(input))).not.toContain(MODELS_DEV_API_URL);
-  });
-
-  it("sends a browser-like User-Agent to models.dev", async () => {
-    stubGatewayAndCatalog({
-      gateway: { data: [] },
-      catalog: jsonResponse({}),
-    });
-
-    await fetchOpencodeZenModels();
-    await loadModelsDevCatalog();
-
-    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
-    const modelsDevCall = fetchMock.mock.calls.find(([input]) => String(input) === MODELS_DEV_API_URL);
-    expect(modelsDevCall?.[1]).toMatchObject({
-      headers: {
-        Accept: "application/json",
-        "User-Agent": expect.stringContaining("Mozilla/5.0"),
-      },
-    });
-  });
-});
-
-describe("fetchOpencodeGoModels catalog join", () => {
-  // Mirrors the opencode-zen cases: ADD-AI-PROVIDER step 9 requires the same
-  // fetchModels coverage for every provider in this family.
-  function stubGoGatewayAndCatalog(options: { gateway: unknown; catalog: Response | Promise<Response> | Error }) {
-    stubGatewayAndCatalog({ ...options, modelsUrl: `${OPENCODE_GO_BASE_URL.replace(/\/$/, "")}/models` });
+describe.each([
+  {
+    name: "fetchOpencodeZenModels",
+    fetchModels: fetchOpencodeZenModels,
+    catalogKey: "opencode",
+    modelsUrl: `${OPENCODE_ZEN_BASE_URL.replace(/\/$/, "")}/models`,
+  },
+  {
+    name: "fetchOpencodeGoModels",
+    fetchModels: fetchOpencodeGoModels,
+    catalogKey: "opencode-go",
+    modelsUrl: `${OPENCODE_GO_BASE_URL.replace(/\/$/, "")}/models`,
+  },
+])("$name catalog join", ({ fetchModels, catalogKey, modelsUrl }) => {
+  // WHY: ADD-AI-PROVIDER step 9 requires the same fetchModels coverage for every
+  // provider in this family.
+  function stub(options: { gateway: unknown; catalog: Response | Promise<Response> | Error }) {
+    stubGatewayAndCatalog({ ...options, modelsUrl });
   }
 
   it("applies catalog effort values for a matching id", async () => {
-    stubGoGatewayAndCatalog({
+    stub({
       gateway: { data: [{ id: "deepseek-chat", name: "DeepSeek Chat" }] },
       catalog: jsonResponse(
-        catalogFor("opencode-go", {
+        catalogFor(catalogKey, {
           "deepseek-chat": {
             reasoning_options: [{ type: "effort", values: ["low", "high", "max"] }],
             limit: { context: 128000, output: 8192 },
@@ -346,7 +272,7 @@ describe("fetchOpencodeGoModels catalog join", () => {
       ),
     });
 
-    const models = await fetchOpencodeGoModels("key");
+    const models = await fetchModels("key");
 
     expect(models).toEqual([
       {
@@ -364,12 +290,12 @@ describe("fetchOpencodeGoModels catalog join", () => {
   });
 
   it("falls back to the prefix table when models.dev fails and the cache is empty", async () => {
-    stubGoGatewayAndCatalog({
+    stub({
       gateway: { data: [{ id: "deepseek-chat" }, { id: "plain" }] },
       catalog: new Error("network"),
     });
 
-    const models = await fetchOpencodeGoModels();
+    const models = await fetchModels();
 
     expect(models.map((model) => model.id)).toEqual(["deepseek-chat", "plain"]);
     expect(models[0]?.supported_reasoning_levels).toEqual(prefixDeepseek.levels);
@@ -378,20 +304,18 @@ describe("fetchOpencodeGoModels catalog join", () => {
   });
 
   it("reuses a filled catalog without requesting models.dev again", async () => {
-    const catalogBody = catalogFor("opencode-go", {
+    const catalogBody = catalogFor(catalogKey, {
       "deepseek-chat": {
         reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "high" }],
       },
     });
     const gateway = { data: [{ id: "deepseek-chat" }] };
 
-    stubGoGatewayAndCatalog({ gateway, catalog: jsonResponse(catalogBody) });
-    await expect(fetchOpencodeGoModels()).resolves.toMatchObject([
-      { id: "deepseek-chat", default_reasoning_level: "high" },
-    ]);
+    stub({ gateway, catalog: jsonResponse(catalogBody) });
+    await expect(fetchModels()).resolves.toMatchObject([{ id: "deepseek-chat", default_reasoning_level: "high" }]);
 
-    stubGoGatewayAndCatalog({ gateway, catalog: new Response("nope", { status: 403 }) });
-    await expect(fetchOpencodeGoModels()).resolves.toMatchObject([
+    stub({ gateway, catalog: new Response("nope", { status: 403 }) });
+    await expect(fetchModels()).resolves.toMatchObject([
       {
         id: "deepseek-chat",
         supported_reasoning_levels: [

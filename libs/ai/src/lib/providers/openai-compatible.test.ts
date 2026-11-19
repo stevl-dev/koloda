@@ -4,6 +4,7 @@ import {
   fetchOpenAICompatibleModelsDetailed,
   resolveReasoningLevelsForModel,
 } from "./openai-compatible";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -43,20 +44,17 @@ describe("fetchOpenAICompatibleModelsDetailed", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [
-              {
-                id: "deepseek-chat",
-                name: "DeepSeek Chat",
-                description: "chat",
-                context_length: 128000,
-              },
-              { id: "mimo-v2", context_window: 64000 },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [
+            {
+              id: "deepseek-chat",
+              name: "DeepSeek Chat",
+              description: "chat",
+              context_length: 128000,
+            },
+            { id: "mimo-v2", context_window: 64000 },
+          ],
+        }),
       ),
     );
 
@@ -84,18 +82,15 @@ describe("fetchOpenAICompatibleModelsDetailed", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [
-              {
-                id: "deepseek-chat",
-                supported_reasoning_levels: [{ effort: "high", description: "from gateway" }],
-                default_reasoning_level: "high",
-              },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [
+            {
+              id: "deepseek-chat",
+              supported_reasoning_levels: [{ effort: "high", description: "from gateway" }],
+              default_reasoning_level: "high",
+            },
+          ],
+        }),
       ),
     );
 
@@ -109,15 +104,12 @@ describe("fetchOpenAICompatibleModelsDetailed", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            data: [
-              { id: "zulu", name: "Alpha" },
-              { id: "alpha", name: "Zulu" },
-            ],
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+        jsonResponse({
+          data: [
+            { id: "zulu", name: "Alpha" },
+            { id: "alpha", name: "Zulu" },
+          ],
+        }),
       ),
     );
 
@@ -132,15 +124,7 @@ describe("fetchOpenAICompatibleModelsDetailed", () => {
 
 describe("fetchOpenAICompatibleModels", () => {
   it("maps id-only listings", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ data: [{ id: "local-model" }] }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: "local-model" }] })));
 
     await expect(fetchOpenAICompatibleModels("http://localhost:1234")).resolves.toEqual([
       { id: "local-model", name: "local-model", context_length: 0 },
@@ -148,15 +132,7 @@ describe("fetchOpenAICompatibleModels", () => {
   });
 
   it("sorts id-only listings alphabetically", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ data: [{ id: "zeta" }, { id: "alpha" }] }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: "zeta" }, { id: "alpha" }] })));
 
     await expect(fetchOpenAICompatibleModels("http://localhost:1234")).resolves.toEqual([
       { id: "alpha", name: "alpha", context_length: 0 },

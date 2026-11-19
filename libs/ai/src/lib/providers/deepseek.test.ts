@@ -1,18 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MODELS_DEV_API_URL, resetModelsDevCache } from "./models-dev";
 import { DEEPSEEK_MODELS_URL, fetchDeepSeekModels } from "./deepseek";
+import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
   resetModelsDevCache();
 });
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 describe("fetchDeepSeekModels", () => {
   it("requests the models.dev catalog without waiting for DeepSeek's own list", async () => {
