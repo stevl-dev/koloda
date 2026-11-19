@@ -1,5 +1,5 @@
 import type { AIModel, AIProfile } from "@koloda/ai";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createAppStoreWrapper } from "../test/test-helpers";
 import { AIModelProfilePicker } from "./ai-model-profile-picker";
@@ -38,14 +38,14 @@ describe("AIModelProfilePicker", () => {
       { wrapper: createAppStoreWrapper({ listModels }) },
     );
 
-    await act(async () => {});
+    await waitFor(() => expect(listModels).toHaveBeenCalled());
     expect(listModels.mock.calls.map(([profileId]) => profileId)).toEqual(["profile-1"]);
 
     fireEvent.click(screen.getByRole("button", { name: /ai.model-picker.label/ }));
-    await act(async () => {});
+    const listbox = await screen.findByRole("listbox");
+    await waitFor(() => expect(within(listbox).getAllByText("GPT-4")).toHaveLength(2));
 
     expect(listModels.mock.calls.map(([profileId]) => profileId)).toEqual(["profile-1", "profile-2"]);
-    expect(within(screen.getByRole("listbox")).getAllByText("GPT-4")).toHaveLength(2);
   });
 
   it("shows the empty-models row when an empty-allowlist profile finishes loading", async () => {

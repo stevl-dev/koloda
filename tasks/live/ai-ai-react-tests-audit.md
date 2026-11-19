@@ -453,7 +453,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the model picker's selection and its key codec
   Depends on: none
 
-- [ ] 8. Wait for the model picker's loads before asserting
+- [x] 8. Wait for the model picker's loads before asserting
   Goal: Fix finding 9 as the human chose at triage.
   In "loads other profiles' model lists only once the picker opens"
   (`libs/ai-react/src/lib/ai-model-profile-picker.test.tsx:28`), replace both single empty
