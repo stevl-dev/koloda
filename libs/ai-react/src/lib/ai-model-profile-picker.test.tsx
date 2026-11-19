@@ -11,6 +11,7 @@ vi.mock("@lingui/react", () => ({
 }));
 
 const gpt: AIModel = { id: "openai/gpt-4", name: "GPT-4", context_length: 1 };
+const claude: AIModel = { id: "anthropic/claude-opus", name: "Claude Opus", context_length: 1 };
 
 function profile(overrides: Partial<AIProfile> = {}): AIProfile {
   return {
@@ -75,5 +76,27 @@ describe("AIModelProfilePicker", () => {
     const loaded = screen.getByRole("listbox");
     expect(await within(loaded).findByText("ai.model-picker.empty-models")).toBeTruthy();
     expect(within(loaded).queryByText("GPT-4")).toBeNull();
+  });
+
+  it("reports the profile and model of a pressed model", async () => {
+    const onChange = vi.fn();
+    render(
+      <AIModelProfilePicker
+        profiles={[profile(), profile({ id: "profile-2", title: "Second" })]}
+        profileId="profile-1"
+        modelId="openai/gpt-4"
+        onChange={onChange}
+      />,
+      {
+        wrapper: createAppStoreWrapper({
+          listModels: async (profileId) => (profileId === "profile-2" ? [claude] : [gpt]),
+        }),
+      },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /ai.model-picker.label/ }));
+    fireEvent.click(await screen.findByRole("option", { name: "Claude Opus" }));
+
+    expect(onChange).toHaveBeenCalledExactlyOnceWith({ profileId: "profile-2", modelId: "anthropic/claude-opus" });
   });
 });

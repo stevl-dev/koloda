@@ -441,7 +441,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the chat auto-scroll threshold
   Depends on: none
 
-- [ ] 7. Test the model picker's selection and its key codec
+- [x] 7. Test the model picker's selection and its key codec
   Goal: Fix finding 3.
   - In `libs/ai-react/src/lib/ai-model-profile-picker.test.tsx`, add a test that opens the picker, presses a model of
     the second profile, and asserts `onChange` receives `{ profileId, modelId }`.
