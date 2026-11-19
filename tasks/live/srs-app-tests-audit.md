@@ -173,7 +173,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
 
 ## Plan
 
-- [ ] 1. Pin where Good sends a review card and a learning card through getCardGrades
+- [x] 1. Pin where Good sends a review card and a learning card through getCardGrades
   Goal: Fix finding 1.
   In `libs/srs/src/lib/cards.test.ts`, `describe("getCardGrades")`, replace the tests at `:89` and `:105` with two
   fuzz-off pins, so that a wrong key in `FSRS_CARD_PROPERTIES` or a card ignored by `createFSRSCard` fails.
@@ -188,6 +188,11 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Done when: `libs/srs` passes; mapping `learningSteps` or `lastReviewedAt` to a wrong name in
   `FSRS_CARD_PROPERTIES`, or making `createFSRSCard` return the empty card, fails at least one new case
   (check each by hand, then revert).
+  Corrected at implementation: with the two default learning steps, a learning card graduates on Good from step 0 and
+  step 1 alike, because ts-fsrs 5.2.3 looks one step past the current one in Learning.
+  The learning case uses three steps (1m, 10m, 1h): from step 1 Good graduates, from step 0 it waits at the 1h step.
+  The review case pins 32 days; a new card would get a 10-minute step, and the card without its last review 11 days.
+  Each of the three breaks fails a new case.
   Commit: Pin where Good sends a review card and a learning card through getCardGrades
   Depends on: none
 

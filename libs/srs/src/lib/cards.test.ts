@@ -1,5 +1,5 @@
 import { SEED_TEMPLATE_TYPE_BACK_FIELD_ID, SEED_TEMPLATE_TYPE_FRONT_FIELD_ID } from "@koloda/app";
-import { Rating } from "ts-fsrs";
+import { Rating, State } from "ts-fsrs";
 import type { Card as CardFSRS } from "ts-fsrs";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_FSRS_ALGORITHM } from "./algorithms-fsrs";
@@ -86,41 +86,61 @@ describe("getCardGrades", () => {
     vi.useRealTimers();
   });
 
-  it("produces different due dates across grades for a new card", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(DEFAULT_DATE);
-
-    const card = createCard();
-    const algorithm = createAlgorithm();
-    const grades = getCardGrades(card, algorithm);
-
-    const dueDates = grades.map((g) => g.card.due.getTime());
-    const uniqueDates = new Set(dueDates);
-    // At minimum Again and Good should have different due dates
-    expect(uniqueDates.size).toBeGreaterThanOrEqual(2);
-
-    vi.useRealTimers();
-  });
-
-  it("works with a previously reviewed card", () => {
+  it("grades a review card from its own stability and last review", () => {
     vi.useFakeTimers();
     vi.setSystemTime(DEFAULT_DATE);
 
     const card = createCard({
-      state: 2,
-      dueAt: new Date("2024-01-05T00:00:00.000Z"),
-      stability: 5,
-      difficulty: 3,
+      state: State.Review,
+      dueAt: DEFAULT_DATE,
+      stability: 10,
+      difficulty: 5,
+      scheduledDays: 10,
       reps: 3,
-      lapses: 0,
-      lastReviewedAt: new Date("2023-12-30T00:00:00.000Z"),
+      lastReviewedAt: new Date("2023-12-22T00:00:00.000Z"),
     });
-    const algorithm = createAlgorithm();
-    const grades = getCardGrades(card, algorithm);
+    const algorithm = createAlgorithm({ content: { ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false } });
+    const [, , good] = getCardGrades(card, algorithm);
 
-    expect(grades).toHaveLength(4);
-    // Reviewed card should get rescheduled
-    expect(grades[Rating.Good].card.due.getTime()).toBeGreaterThan(DEFAULT_DATE.getTime());
+    // WHY: a new card's Good is a 10-minute learning step, and the same card without its last review gets 11 days.
+    expect(good.card.state).toBe(State.Review);
+    expect(good.card.scheduled_days).toBe(32);
+    expect(good.card.due).toEqual(new Date("2024-02-02T00:00:00.000Z"));
+
+    vi.useRealTimers();
+  });
+
+  it("grades a learning card from its own learning step", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(DEFAULT_DATE);
+
+    const card = createCard({
+      state: State.Learning,
+      dueAt: DEFAULT_DATE,
+      stability: 2.3065,
+      difficulty: 2.1,
+      learningSteps: 1,
+      reps: 2,
+      lastReviewedAt: new Date("2023-12-31T23:50:00.000Z"),
+    });
+    const algorithm = createAlgorithm({
+      content: {
+        ...DEFAULT_FSRS_ALGORITHM,
+        isFuzzEnabled: false,
+        learningSteps: [
+          [1, "m"],
+          [10, "m"],
+          [1, "h"],
+        ],
+      },
+    });
+    const [, , good] = getCardGrades(card, algorithm);
+
+    // WHY: three steps, because with two a learning card graduates on Good from either step.
+    // From step 1, Good graduates; from step 0 it would wait one hour at step 2.
+    expect(good.card.state).toBe(State.Review);
+    expect(good.card.scheduled_days).toBe(2);
+    expect(good.card.due).toEqual(new Date("2024-01-03T00:00:00.000Z"));
 
     vi.useRealTimers();
   });
