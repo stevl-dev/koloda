@@ -15,11 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `srs-app-tests-audit`: Triage the test audit of `libs/srs` and `libs/app`.
-  Area: `libs/srs`, `libs/app`
-  Why: The report, written at `dc9c7bb7`, is in no task file yet.
-  Brief: `tasks/backlog/srs-app-tests-audit.md`
-
 - `ui-core-react-app-react-tests-audit`: Triage the test audit of `libs/ui`, `libs/core-react`, and `libs/app-react`.
   Area: `libs/ui`, `libs/core-react`, `libs/app-react`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
