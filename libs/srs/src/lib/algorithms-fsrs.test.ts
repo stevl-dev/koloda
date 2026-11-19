@@ -73,7 +73,7 @@ describe("createFSRSAlgorithm", () => {
     expect(grades[Rating.Good].card.stability).toBeCloseTo(1.5, 5);
   });
 
-  it("applies maximumInterval to cap scheduled intervals", () => {
+  it("caps Hard at maximumInterval and keeps Good and Easy past it", () => {
     const instance = createFSRSAlgorithm({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false, maximumInterval: 10 });
     const now = new Date();
     const card = createReviewedCard(now);
