@@ -415,6 +415,40 @@ describe("AIToolActivity", () => {
     expect(screen.queryByText(/isTruncated/)).toBeNull();
   });
 
+  it("labels a truncated output as truncated and shows its preview", () => {
+    render(
+      <AIToolActivity
+        calls={[
+          call({
+            id: "c1",
+            name: "get_deck_cards",
+            status: "success",
+            input: { deckId: 9 },
+            output: { isTruncated: true, itemCount: 40, preview: '{"cards":[{' },
+          }),
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /ai\.chat\.tool-activity\.get-deck-cards/ }));
+    expect(screen.getByText("ai.chat.tool-activity.output-truncated")).toBeTruthy();
+    expect(screen.getByText('{"cards":[{')).toBeTruthy();
+  });
+
+  it("shows an output that cannot be serialized as plain text instead of failing the row", () => {
+    const cyclic: Record<string, unknown> = { name: "cycle" };
+    cyclic.self = cyclic;
+    render(
+      <AIToolActivity
+        calls={[call({ id: "c1", name: "get_deck_cards", status: "success", input: { deckId: 9 }, output: cyclic })]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /ai\.chat\.tool-activity\.get-deck-cards/ }));
+    expect(screen.getByText("ai.chat.tool-activity.output")).toBeTruthy();
+    expect(screen.getByText("[object Object]")).toBeTruthy();
+  });
+
   describe("activity elapsed time", () => {
     const startedAt = new Date("2026-07-01T12:00:00.000Z");
 

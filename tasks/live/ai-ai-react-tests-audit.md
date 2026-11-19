@@ -526,7 +526,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the untested boundaries in libs/ai
   Depends on: 1, 10
 
-- [ ] 12. Test the untested boundaries in libs/ai-react
+- [x] 12. Test the untested boundaries in libs/ai-react
   Goal: Fix the `libs/ai-react` bullets of finding 5, one case each in the file that tests the neighbor, or a new
   colocated test file where none exists:
   - a context length of 0 shows the usage as unknown, and usage over the context length is clamped at 100%
@@ -538,6 +538,10 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: `libs/ai-react/src` test files only.
   Done when: `libs/ai-react` passes; each case fails when its cited line is broken
   (spot-check two by hand, then revert).
+  Corrected at implementation: the usage tests read the tooltip, and `createAppStoreWrapper` now sets the language to
+  English, as hosts do at boot, so the number formatter has a locale.
+  The ring cannot show the clamp, because `CircularProgress` clamps too; the tooltip's `100.0%` does.
+  Breaking each cited line by hand failed its case.
   Commit: Test the untested boundaries in libs/ai-react
   Depends on: 10
 

@@ -47,3 +47,18 @@ describe("useAIChatInput submit", () => {
     expect(onChange).toHaveBeenCalledWith("");
   });
 });
+
+describe("useAIChatInput new conversation", () => {
+  it("keeps the draft of the conversation being left", () => {
+    const onChange = vi.fn();
+    const onReset = vi.fn();
+    const { result } = renderHook(() =>
+      useAIChatInput({ value: "draft", onChange, onSubmit: vi.fn(), onReset, canSubmit: true, scroll: makeScroll() }),
+    );
+
+    result.current.handleNewConversation();
+
+    expect(onReset).toHaveBeenCalledOnce();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});

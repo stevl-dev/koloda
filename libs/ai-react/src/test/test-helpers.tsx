@@ -1,5 +1,5 @@
 import type { AIProfile, AIRuntime } from "@koloda/ai";
-import { aiRuntimeAtom, queriesAtom, queryKeys } from "@koloda/core-react";
+import { aiRuntimeAtom, langAtom, queriesAtom, queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createStore, Provider as JotaiProvider } from "jotai";
@@ -12,11 +12,12 @@ export type AppStoreWrapperOptions = {
 
 /**
  * Real `@koloda/core-react` wiring for components that read hotkey settings, AI profiles, or model lists.
- * There is no stored hotkeys row, so components get the default bindings.
+ * There is no stored hotkeys row, so components get the default bindings; the language is English, as hosts set at boot.
  * WHY: a file-level mock of `@koloda/core-react` or `@koloda/ui` would leak to siblings under `isolate: false`.
  */
 export function createAppStoreWrapper({ listModels, profiles = [] }: AppStoreWrapperOptions = {}) {
   const store = createStore();
+  store.set(langAtom, "en");
   store.set(queriesAtom, {
     getSettingsQuery: () => ({ queryKey: queryKeys.settings.detail("hotkeys"), queryFn: async () => null }),
     getAIProfilesQuery: () => ({ queryKey: queryKeys.ai.profiles(), queryFn: async () => profiles }),
