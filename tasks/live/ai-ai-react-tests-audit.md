@@ -504,7 +504,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Delete tests that repeat a lower layer or a neighbor
   Depends on: 1, 4, 9
 
-- [ ] 11. Test the untested boundaries in libs/ai
+- [x] 11. Test the untested boundaries in libs/ai
   Goal: Fix the `libs/ai` bullets of finding 5, except `error-ai.ts:38` (item 10), and the fixture of finding 16.
   One case each, in the file that already tests the neighbor:
   - an `add_deck` title of 255 characters is accepted and 256 rejected;
@@ -520,6 +520,9 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
     `getCards` fixture at `assistant-tool-executor.test.ts:56-63`, or that fixture is deleted.
   Constraints: `libs/ai/src` test files only.
   Done when: `libs/ai` passes; each case fails when its cited line is broken (spot-check three by hand, then revert).
+  Corrected at implementation: the default-field table and the DeepSeek table replace the single cases they extend,
+  in this commit.
+  Breaking eight of the cited lines by hand failed their cases.
   Commit: Test the untested boundaries in libs/ai
   Depends on: 1, 10
 

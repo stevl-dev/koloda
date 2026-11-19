@@ -198,16 +198,17 @@ describe("provider option helpers pass a non-empty effort through", () => {
 });
 
 describe("deepseekProviderOptions", () => {
-  it("maps generic reasoning efforts onto canonical DeepSeek values", () => {
-    expect(deepseekProviderOptions("high")).toEqual({
-      deepseek: { reasoningEffort: "high" },
-    });
-    expect(deepseekProviderOptions("medium")).toEqual({
-      deepseek: { reasoningEffort: "high" },
-    });
-    expect(deepseekProviderOptions("xhigh")).toEqual({
-      deepseek: { reasoningEffort: "max" },
-    });
+  it.each([
+    ["minimal", "low"],
+    ["low", "low"],
+    ["medium", "high"],
+    ["high", "high"],
+    ["xhigh", "max"],
+    ["max", "max"],
+    ["ultra", "max"],
+    ["custom", "custom"],
+  ])("maps %s onto DeepSeek %s", (effort, mapped) => {
+    expect(deepseekProviderOptions(effort)).toEqual({ deepseek: { reasoningEffort: mapped } });
   });
 });
 

@@ -35,6 +35,18 @@ function catalogFor(providerKey: string, models: Record<string, unknown>): Recor
   return { [providerKey]: { id: providerKey, name: providerKey, env: [], models } };
 }
 
+describe("loadModelsDevCatalog", () => {
+  it("shares one models.dev request between concurrent callers", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(catalogFor("opencode", {})));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const [first, second] = await Promise.all([loadModelsDevCatalog(), loadModelsDevCatalog()]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(second).toBe(first);
+  });
+});
+
 describe("overlayFromModelsDev", () => {
   it("applies catalog effort values and leaves the default unset when no default field is set", () => {
     const catalog = catalogFor("opencode", {
@@ -54,16 +66,31 @@ describe("overlayFromModelsDev", () => {
     expect(model?.default_reasoning_level).toBeUndefined();
   });
 
-  it("uses a catalog default field when it is one of the effort values", () => {
+  it.each([
+    { name: "default on the effort option", option: { default: "high" }, row: {} },
+    { name: "default_effort on the effort option", option: { default_effort: "high" }, row: {} },
+    { name: "default_effort on the catalog row", option: {}, row: { default_effort: "high" } },
+  ])("takes the default level from $name", ({ option, row }) => {
     const catalog = catalogFor("opencode", {
-      "deepseek-chat": {
-        reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "high" }],
-      },
+      "deepseek-chat": { ...row, reasoning_options: [{ type: "effort", values: ["low", "high", "max"], ...option }] },
     });
 
     const [model] = overlayFromModelsDev([gatewayModel("deepseek-chat")], "opencode", catalog);
 
     expect(model?.default_reasoning_level).toBe("high");
+  });
+
+  it("drops a default that is not one of the effort values", () => {
+    const catalog = catalogFor("opencode", {
+      "deepseek-chat": {
+        reasoning_options: [{ type: "effort", values: ["low", "high", "max"], default: "medium" }],
+      },
+    });
+
+    const [model] = overlayFromModelsDev([gatewayModel("deepseek-chat")], "opencode", catalog);
+
+    expect(model?.supported_reasoning_levels).toHaveLength(3);
+    expect(model?.default_reasoning_level).toBeUndefined();
   });
 
   it("returns no levels when the catalog row has empty reasoning_options even for prefix ids", () => {

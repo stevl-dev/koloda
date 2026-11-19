@@ -49,6 +49,23 @@ describe("error", () => {
     expect(() => toAIError(new DOMException("Aborted", "AbortError"))).toThrow("Aborted");
   });
 
+  it.each([
+    { name: "cause", error: { cause: { status: 502 } }, code: "ai.http.502" },
+    { name: "data", error: { data: { statusCode: 401 } }, code: "ai.http.401" },
+  ])("reads an HTTP status nested in $name", ({ error, code }) => {
+    expect(toAIError(error)).toMatchObject({ code });
+  });
+
+  it.each([
+    { length: 800, message: `500 — ${"x".repeat(800)}` },
+    { length: 801, message: `500 — ${"x".repeat(800)}…` },
+  ])("keeps a response body of $length characters up to 800", async ({ length, message }) => {
+    await expect(throwForAIResponse(new Response("x".repeat(length), { status: 500 }))).rejects.toMatchObject({
+      code: "ai.http.500",
+      message,
+    });
+  });
+
   it("prefers APICallError responseBody over bare statusText like Forbidden", () => {
     const apiError = Object.assign(new Error("Forbidden"), {
       statusCode: 403,

@@ -188,6 +188,11 @@ describe("assistantSettingsValidation", () => {
     });
   });
 
+  it("reads a stored row with no temperature as 0.2", () => {
+    // Twin: test_assistant_temperature_defaults_when_omitted (settings_ai_tests.rs).
+    expect(assistantSettingsValidation.parse({ chatPromptMode: "default" }).temperature).toBe(0.2);
+  });
+
   it("accepts an empty custom template", () => {
     const parsed = assistantSettingsValidation.parse({
       temperature: 0.2,
@@ -249,6 +254,12 @@ describe("resolveChatPromptMode", () => {
       input: { chatPromptMode: "custom" as const, chatPromptTemplate: "" },
       mode: "custom",
       effective: "",
+    },
+    {
+      name: "explicit custom with a template sends it",
+      input: { chatPromptMode: "custom" as const, chatPromptTemplate: "mine" },
+      mode: "custom",
+      effective: "mine",
     },
   ] as const)("$name", ({ input, mode, effective }) => {
     expect(resolveChatPromptMode(input)).toBe(mode);

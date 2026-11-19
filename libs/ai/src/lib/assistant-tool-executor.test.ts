@@ -173,6 +173,16 @@ describe("createAssistantToolExecutor", () => {
     expect(cardReads).toBe(0);
   });
 
+  it("get_deck_cards reads the asked deck's cards and lists them by field title", async () => {
+    const getCards = vi.fn(makeDataSource().getCards);
+    const executor = createAssistantToolExecutor(makeDataSource({ getCards }));
+
+    const output = await executor("get_deck_cards", { deckId: DECK_ID });
+
+    expect(getCards).toHaveBeenCalledExactlyOnceWith({ deckId: DECK_ID });
+    expect(output).toMatchObject({ totalCards: 1, cards: [{ fields: { Front: "hola", Back: "" } }] });
+  });
+
   it("get_deck_cards throws for a missing deck", async () => {
     let cardReads = 0;
     const executor = createAssistantToolExecutor(

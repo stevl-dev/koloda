@@ -203,6 +203,11 @@ describe("add_deck input schema", () => {
     });
   });
 
+  it("accepts a 255-character title and rejects 256", () => {
+    expect(schema.safeParse({ title: "a".repeat(255), templateId }).success).toBe(true);
+    expect(schema.safeParse({ title: "a".repeat(256), templateId }).success).toBe(false);
+  });
+
   it("rejects a blank title, a missing templateId, and a bad uuid", () => {
     expect(() => schema.parse({ title: "   ", templateId })).toThrow();
     expect(() => schema.parse({ title: "Spanish" })).toThrow();
@@ -612,6 +617,23 @@ describe("propose_cards output shaping", () => {
         },
       ]).cards,
     ).toEqual([{ fields: { Front: "hola", Back: "hello", Hint: "" } }]);
+  });
+
+  it.each<{ name: string; fields: Record<string, string>; front: string }>([
+    {
+      name: "an exact title over an id and a lowercase title",
+      fields: { Front: "by title", "01900000-0000-7000-8000-00000000000a": "by id", front: "by lowercase" },
+      front: "by title",
+    },
+    {
+      name: "an id over a lowercase title",
+      fields: { "01900000-0000-7000-8000-00000000000a": "by id", front: "by lowercase" },
+      front: "by id",
+    },
+  ])("takes $name when keys for one field collide", ({ fields, front }) => {
+    expect(shapeProposeCardsOutput(deck, [{ fields: { ...fields, Back: "hello" } }]).cards).toEqual([
+      { fields: { Front: front, Back: "hello", Hint: "" } },
+    ]);
   });
 
   it("tells the model to retry when every card is rejected", () => {
