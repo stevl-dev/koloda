@@ -62,6 +62,7 @@ describe("provider-secrets", () => {
     { label: "ollamaSecretsValidation", parse: () => ollamaSecretsValidation.safeParse({ baseUrl: "not-a-url" }) },
     { label: "lmstudioSecretsValidation", parse: () => lmstudioSecretsValidation.safeParse({ baseUrl: "not-a-url" }) },
     { label: "ollamaSecretsValidation empty", parse: () => ollamaSecretsValidation.safeParse({ baseUrl: "" }) },
+    { label: "ollamaSecretsValidation whitespace", parse: () => ollamaSecretsValidation.safeParse({ baseUrl: "   " }) },
     { label: "lmstudioSecretsValidation empty", parse: () => lmstudioSecretsValidation.safeParse({ baseUrl: "" }) },
     {
       label: "openaiCompatibleSecretsValidation",

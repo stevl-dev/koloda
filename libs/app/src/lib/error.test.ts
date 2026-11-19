@@ -2,7 +2,23 @@ import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { z } from "zod";
 import type { ErrorCode } from "./error";
-import { AppError, ERROR_MESSAGES, formatAppError, isAbortError, throwKnownError, toFormErrors } from "./error";
+import {
+  AppError,
+  ERROR_MESSAGES,
+  formatAppError,
+  getAIHttpErrorMessageDescriptor,
+  isAbortError,
+  throwKnownError,
+  toFormErrors,
+} from "./error";
+
+describe("getAIHttpErrorMessageDescriptor", () => {
+  it("resolves direct and fallback AI http message descriptors", () => {
+    expect(getAIHttpErrorMessageDescriptor("ai.http.404")).toBe("ai.http.404");
+    expect(getAIHttpErrorMessageDescriptor("ai.http.418")).toBe("ai.http 418");
+    expect(getAIHttpErrorMessageDescriptor("db.get")).toBeNull();
+  });
+});
 
 describe("isAbortError", () => {
   it("returns true for DOMException with name AbortError", () => {

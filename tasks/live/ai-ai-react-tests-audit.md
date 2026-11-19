@@ -566,7 +566,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Drop class-name and dialog assertions, and assert issue paths
   Depends on: 10, 11
 
-- [ ] 14. Move tests to the files that own them
+- [x] 14. Move tests to the files that own them
   Goal: Fix the rest of finding 15.
   - Move the `getAIHttpErrorMessageDescriptor` test from `libs/ai/src/lib/error-ai.test.ts:8-12` into
     `libs/app/src/lib/error.test.ts`.

@@ -1,16 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AppError, getAIHttpErrorMessageDescriptor } from "@koloda/app";
+import { AppError } from "@koloda/app";
 import { AIError } from "./error";
 import { formatGenerateError, toAIAppError } from "./error-ai";
 
 describe("ai-error", () => {
   const translate = ((message: string) => message) as Parameters<typeof formatGenerateError>[1];
-
-  it("resolves direct and fallback AI http message descriptors", () => {
-    expect(getAIHttpErrorMessageDescriptor("ai.http.404")).toBe("ai.http.404");
-    expect(getAIHttpErrorMessageDescriptor("ai.http.418")).toBe("ai.http 418");
-    expect(getAIHttpErrorMessageDescriptor("db.get")).toBeNull();
-  });
 
   it("keeps an AI error's message as details only when it says more than the code", () => {
     const bare = toAIAppError(new AIError("ai.network"));

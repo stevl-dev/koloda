@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { aiSecretsValidation, ollamaSecretsValidation } from "../provider-secrets";
+import { aiSecretsValidation } from "../provider-secrets";
 import { fetchOllamaModels, ollamaProviderEntry } from "./ollama";
 
 const listMock = vi.fn();
@@ -128,17 +128,6 @@ describe("fetchOllamaModels", () => {
       code: "ai.invalid-response",
       message: "ai.invalid-response",
     });
-  });
-});
-
-describe("ollamaSecretsValidation", () => {
-  it("rejects a whitespace-only baseUrl with the base-url validation code", () => {
-    const result = ollamaSecretsValidation.safeParse({ baseUrl: "   " });
-
-    expect(result.success).toBe(false);
-    const issue = result.error!.issues[0];
-    expect(issue?.path).toEqual(["baseUrl"]);
-    expect(issue?.message).toBe("validation.settings-ai.providers.base-url");
   });
 });
 
