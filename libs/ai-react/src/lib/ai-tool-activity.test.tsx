@@ -598,15 +598,6 @@ describe("AIToolActivity", () => {
     expect(screen.getByText("ai.chat.tool-activity.input").closest(".border-main")).not.toBeNull();
   });
 
-  it("keeps a running tool row collapsed until opened", () => {
-    render(<AIToolActivity calls={[call({ id: "c1", name: "list_decks", status: "running", input: { q: 1 } })]} />);
-
-    expect(screen.queryByText("ai.chat.tool-activity.input")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /ai\.chat\.tool-activity\.list-decks/ }));
-    expect(screen.getByText("ai.chat.tool-activity.input")).toBeTruthy();
-    expect(screen.getByText(/"q": 1/)).toBeTruthy();
-  });
-
   it("keeps thinking collapsed while running and after it finishes", () => {
     const { rerender } = render(
       <AIToolActivity calls={[{ kind: "reasoning", id: "r1", text: "Quiet plan.", status: "running" }]} />,

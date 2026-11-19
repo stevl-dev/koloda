@@ -44,14 +44,18 @@ describe("provider-secrets", () => {
     expect(parsed).toEqual({ provider: "openrouter", apiKey: null });
   });
 
-  it("accepts ollamaCloud api-key-only secrets on the wire schema", () => {
-    const parsed = aiSecretsValidation.parse({ provider: "ollamaCloud", apiKey: "cloud-key" });
-    expect(parsed).toEqual({ provider: "ollamaCloud", apiKey: "cloud-key" });
-  });
-
-  it("accepts deepseek api-key-only secrets on the wire schema", () => {
-    const parsed = aiSecretsValidation.parse({ provider: "deepseek", apiKey: "deepseek-key" });
-    expect(parsed).toEqual({ provider: "deepseek", apiKey: "deepseek-key" });
+  it.each([
+    "openai",
+    "deepseek",
+    "openrouter",
+    "opencodeGo",
+    "opencodeZen",
+    "ollamaCloud",
+    "anthropic",
+    "xai",
+    "vercel",
+  ] as const)("accepts %s api-key-only secrets on the wire schema", (provider) => {
+    expect(aiSecretsValidation.parse({ provider, apiKey: "secret-key" })).toEqual({ provider, apiKey: "secret-key" });
   });
 
   it.each([

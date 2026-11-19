@@ -10,19 +10,13 @@ vi.mock("@lingui/react", () => ({
 
 describe("AIChatMessageStatus", () => {
   describe("success state", () => {
-    it("renders the modelName and elapsed time when both are provided", () => {
+    it("renders the modelName and the elapsed time, with a dot separator between them", () => {
       render(<AIChatMessageStatus state="success" elapsedSeconds={5} modelName="GPT-4" />);
 
       const status = screen.getByText("GPT-4").parentElement;
       expect(status).not.toBeNull();
       expect(status!.textContent).toContain("GPT-4");
       expect(status!.textContent).toMatch(/5/);
-    });
-
-    it("renders the modelName before a dot separator", () => {
-      render(<AIChatMessageStatus state="success" elapsedSeconds={5} modelName="GPT-4" />);
-
-      const status = screen.getByText("GPT-4").parentElement;
       const separator = status!.querySelector('[aria-hidden="true"]');
       expect(separator).not.toBeNull();
       expect(separator!.textContent).toBe("·");

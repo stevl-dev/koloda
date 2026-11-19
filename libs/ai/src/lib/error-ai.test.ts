@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AppError, getAIHttpErrorMessageDescriptor } from "@koloda/app";
+import { AIError } from "./error";
 import { formatGenerateError, toAIAppError } from "./error-ai";
 
 describe("ai-error", () => {
@@ -11,20 +12,14 @@ describe("ai-error", () => {
     expect(getAIHttpErrorMessageDescriptor("db.get")).toBeNull();
   });
 
-  it("maps structured, network, invalid-response, and abort errors", () => {
-    expect(toAIAppError({ status: 503, responseBody: "gateway timeout" })).toMatchObject({
-      code: "ai.http.503",
-      details: "503 — gateway timeout",
-    });
-    expect(toAIAppError(new TypeError("network down"))).toMatchObject({
+  it("keeps an AI error's message as details only when it says more than the code", () => {
+    const bare = toAIAppError(new AIError("ai.network"));
+    expect(bare).toMatchObject({ code: "ai.network" });
+    expect((bare as AppError).details).toBeUndefined();
+    expect(toAIAppError(new AIError("ai.network", "network down"))).toMatchObject({
       code: "ai.network",
       details: "network down",
     });
-    expect(toAIAppError(new SyntaxError("bad json"))).toMatchObject({
-      code: "ai.invalid-response",
-      details: "bad json",
-    });
-    expect(() => toAIAppError(new DOMException("Aborted", "AbortError"))).toThrow("Aborted");
   });
 
   it("translates a stored generate error code and keeps details separate", () => {

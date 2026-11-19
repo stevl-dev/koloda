@@ -486,7 +486,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Make four tests assert what their names claim
   Depends on: 1
 
-- [ ] 10. Delete tests that repeat a lower layer or a neighbor
+- [x] 10. Delete tests that repeat a lower layer or a neighbor
   Goal: Fix findings 10 and 11 as each entry lists, and the `error-ai.ts:38` case of finding 5.
   - Second doors (finding 10): delete the five higher-door tests in the table.
     Keep `assistant-tool-executor.test.ts:77-88`, `:117-152`, and `:400-419`.
@@ -498,6 +498,9 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Per `agents/TESTING.md` (§Repetition and tables), a replacement lands in this commit with what it replaces.
   Constraints: test files of both packages only.
   Done when: both suites pass, and every test the findings list is gone, merged, or folded as listed (about 250 lines).
+  Corrected at implementation: deleting the parse case left `aiSettingsValidation` used only as a type in
+  `settings.test.ts`, so its import became `import type`.
+  The key-only table covers nine providers; about 236 lines net are gone.
   Commit: Delete tests that repeat a lower layer or a neighbor
   Depends on: 1, 4, 9
 

@@ -399,50 +399,6 @@ describe("tool output shaping", () => {
     });
   });
 
-  it("returns an empty deck list for empty inputs", () => {
-    expect(shapeListDecksOutput([], templates)).toEqual({ decks: [] });
-  });
-
-  it("maps one deck row to get_deck output with template titles and field titles", () => {
-    expect(
-      shapeGetDeckOutput(
-        {
-          id: "01900000-0000-7000-8000-000000000005",
-          title: "Spanish verbs",
-          templateId: "01900000-0000-7000-8000-000000000001",
-          cardCount: 12,
-        },
-        templates,
-      ),
-    ).toEqual({
-      deckId: "01900000-0000-7000-8000-000000000005",
-      title: "Spanish verbs",
-      cardCount: 12,
-      templateTitle: "Basic",
-      fieldTitles: ["Front", "Back"],
-    });
-  });
-
-  it("maps a missing template to a null title and empty fieldTitles", () => {
-    expect(
-      shapeGetDeckOutput(
-        {
-          id: "01900000-0000-7000-8000-000000000006",
-          title: "Orphan",
-          templateId: "01900000-0000-7000-8000-000000000063",
-          cardCount: 0,
-        },
-        templates,
-      ),
-    ).toEqual({
-      deckId: "01900000-0000-7000-8000-000000000006",
-      title: "Orphan",
-      cardCount: 0,
-      templateTitle: null,
-      fieldTitles: [],
-    });
-  });
-
   it("maps one template to get_template output preserving field order, types, and required", () => {
     expect(
       shapeGetTemplateOutput({
@@ -666,14 +622,6 @@ describe("propose_cards output shaping", () => {
     expect(output.message).toBe(PROPOSE_CARDS_RETRY_MESSAGE);
   });
 
-  it("tells the model about partial rejects without failing the tool", () => {
-    const output = shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello" } }, { fields: {} }]);
-
-    expect(output.cards).toEqual([{ fields: { Front: "hola", Back: "hello", Hint: "" } }]);
-    expect(output.rejectedCount).toBe(1);
-    expect(output.message).toBe(proposeCardsRejectedMessage(1));
-  });
-
   it("keeps a card with one value when the template requires no field", () => {
     const optionalDeck = {
       ...deck,
@@ -729,22 +677,6 @@ describe("propose_cards output shaping", () => {
         Hint: "",
       },
     });
-  });
-
-  it("copies the source template id onto the shaped result", () => {
-    expect(shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello" } }]).templateId).toBe(
-      "01900000-0000-7000-8000-000000000001",
-    );
-  });
-
-  it("carries isRequired from the source template onto output fields", () => {
-    const output = shapeProposeCardsOutput(deck, [{ fields: { Front: "hola", Back: "hello" } }]);
-
-    expect(output.templateFields).toEqual([
-      { id: "01900000-0000-7000-8000-00000000000a", title: "Front", type: "text", isRequired: true },
-      { id: "01900000-0000-7000-8000-00000000000b", title: "Back", type: "text", isRequired: true },
-      { id: "01900000-0000-7000-8000-00000000000c", title: "Hint", type: "text", isRequired: false },
-    ]);
   });
 
   it("carries type: markdown from the source template onto output fields", () => {
@@ -877,10 +809,6 @@ describe("propose_cards output guard and mapper", () => {
         },
       },
     ]);
-  });
-
-  it("returns an empty list when no cards were accepted", () => {
-    expect(generatedCardsFromProposeOutput({ ...validOutput, cards: [] })).toEqual([]);
   });
 });
 

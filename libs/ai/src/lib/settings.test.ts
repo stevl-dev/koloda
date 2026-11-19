@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import {
   aiProfileValidation,
-  aiSettingsValidation,
   assistantSettingsFormSchema,
   assistantSettingsValidation,
   findDuplicateProfileId,
   resolveChatPromptMode,
   resolveEffectiveChatPromptTemplate,
 } from "./settings";
+import type { aiSettingsValidation } from "./settings";
 
 type AISettings = z.input<typeof aiSettingsValidation>;
 
@@ -42,20 +42,6 @@ describe("findDuplicateProfileId", () => {
       ],
     };
     expect(findDuplicateProfileId(settings)).toBe(dup);
-  });
-
-  it("accepts the parsed output of aiSettingsValidation", () => {
-    // Defense-in-depth parity with Rust: the validator runs on the parsed
-    // content at the add/update boundary, where field-level zod parsing has
-    // already succeeded.
-    const dup = "00000000-0000-0000-0000-000000000000";
-    const parsed = aiSettingsValidation.parse({
-      profiles: [
-        { id: dup, secrets, hasSecrets: false, createdAt: "2026-01-01T00:00:00Z" },
-        { id: dup, secrets, hasSecrets: false, createdAt: "2026-01-01T00:00:00Z" },
-      ],
-    });
-    expect(findDuplicateProfileId(parsed)).toBe(dup);
   });
 });
 

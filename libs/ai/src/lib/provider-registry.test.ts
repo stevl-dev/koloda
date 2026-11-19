@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { AI_PROVIDERS } from "./provider-catalog";
 import { AI_PROVIDER_REGISTRY } from "./provider-registry";
 
 // INVARIANT: TS↔Rust twin (agents/TESTING.md) — these ids must stay in sync
@@ -26,9 +25,5 @@ const RUST_AI_SECRETS_PROVIDER_TAGS = [
 describe("AI provider registry parity", () => {
   it("registry keys match the pinned Rust AISecrets provider tags", () => {
     expect(Object.keys(AI_PROVIDER_REGISTRY).sort()).toEqual([...RUST_AI_SECRETS_PROVIDER_TAGS].sort());
-  });
-
-  it("catalog covers exactly the registry ids", () => {
-    expect([...AI_PROVIDERS].sort()).toEqual([...RUST_AI_SECRETS_PROVIDER_TAGS].sort());
   });
 });
