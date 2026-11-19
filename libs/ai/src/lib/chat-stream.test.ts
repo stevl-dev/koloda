@@ -19,6 +19,7 @@ import {
   vercelReasoning,
   xaiProviderOptions,
 } from "./chat-stream";
+import { AIError } from "./error";
 import type { ChatStreamRequest } from "./generation";
 import { DEFAULT_CHAT_PROMPT_TEMPLATE } from "./prompts";
 
@@ -603,6 +604,104 @@ describe("chat tool streaming", () => {
     expect((error as DOMException).name).toBe("AbortError");
     expect(model.doStreamCalls).toHaveLength(2);
     expect(onChunk).toHaveBeenCalledWith({ kind: "text", text: "Partial " });
+  });
+});
+
+describe("chat stream failures, reasoning, and usage", () => {
+  beforeEach(() => {
+    fakeModelSlot.model = null;
+  });
+
+  function createChunksModel(chunks: MockStreamChunk[]) {
+    return new MockLanguageModelV3({ doStream: async (): Promise<MockStreamResult> => streamOf(chunks) });
+  }
+
+  async function streamError(request = createChatRequest()): Promise<unknown> {
+    return streamChatWithOllama(request, vi.fn(), new AbortController().signal, OLLAMA_OPTIONS).catch(
+      (caught: unknown) => caught,
+    );
+  }
+
+  it("rejects with the provider's error when the stream reports one mid-answer", async () => {
+    fakeModelSlot.model = createChunksModel([
+      { type: "text-start", id: "text-1" },
+      { type: "text-delta", id: "text-1", delta: "Partial " },
+      { type: "error", error: Object.assign(new Error("Rate limited"), { statusCode: 429 }) },
+    ]);
+
+    const error = await streamError();
+
+    expect(error).toBeInstanceOf(AIError);
+    expect(error).toMatchObject({ code: "ai.http.429", message: "429 Rate limited" });
+  });
+
+  it("rejects with the provider's error when the model call itself fails", async () => {
+    fakeModelSlot.model = new MockLanguageModelV3({
+      doStream: async () => {
+        throw Object.assign(new Error("Service unavailable"), { statusCode: 503 });
+      },
+    });
+
+    const error = await streamError();
+
+    expect(error).toBeInstanceOf(AIError);
+    expect(error).toMatchObject({ code: "ai.http.503", message: "503 Service unavailable" });
+  });
+
+  it("rejects a request that lists tools without an executor before calling the model", async () => {
+    const model = createTextOnlyModel();
+    fakeModelSlot.model = model;
+
+    const error = await streamError(createChatRequest({ tools: ["list_decks"] }));
+
+    expect(error).toBeInstanceOf(AIError);
+    expect(error).toMatchObject({ code: "unknown" });
+    expect(model.doStreamCalls).toHaveLength(0);
+  });
+
+  it("passes reasoning deltas on as reasoning chunks, apart from the text", async () => {
+    fakeModelSlot.model = createChunksModel([
+      { type: "reasoning-start", id: "reasoning-1" },
+      { type: "reasoning-delta", id: "reasoning-1", delta: "Count the decks." },
+      { type: "reasoning-end", id: "reasoning-1" },
+      { type: "text-start", id: "text-1" },
+      { type: "text-delta", id: "text-1", delta: "Two." },
+      { type: "text-end", id: "text-1" },
+      { type: "finish", finishReason: { unified: "stop", raw: "stop" }, usage: usage(3, 5) },
+    ]);
+    const onChunk = vi.fn();
+
+    await streamChatWithOllama(createChatRequest(), onChunk, new AbortController().signal, OLLAMA_OPTIONS);
+
+    expect(onChunk.mock.calls).toEqual([
+      [{ kind: "reasoning", text: "Count the decks." }],
+      [{ kind: "text", text: "Two." }],
+    ]);
+  });
+
+  it("returns no usage when the provider reports no token counts", async () => {
+    fakeModelSlot.model = createChunksModel([
+      { type: "text-start", id: "text-1" },
+      { type: "text-delta", id: "text-1", delta: "Two." },
+      { type: "text-end", id: "text-1" },
+      {
+        type: "finish",
+        finishReason: { unified: "stop", raw: "stop" },
+        usage: {
+          inputTokens: { total: undefined, noCache: undefined, cacheRead: undefined, cacheWrite: undefined },
+          outputTokens: { total: undefined, text: undefined, reasoning: undefined },
+        },
+      },
+    ]);
+
+    const result = await streamChatWithOllama(
+      createChatRequest(),
+      vi.fn(),
+      new AbortController().signal,
+      OLLAMA_OPTIONS,
+    );
+
+    expect(result).toBeUndefined();
   });
 });
 

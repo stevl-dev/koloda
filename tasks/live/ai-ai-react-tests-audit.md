@@ -340,7 +340,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Move the chat-stream tests and their fake model into chat-stream.test.ts
   Depends on: none
 
-- [ ] 2. Test the chat stream's failure, reasoning, and usage paths
+- [x] 2. Test the chat stream's failure, reasoning, and usage paths
   Goal: Fix finding 1.
   In the `chat tool streaming` block of `libs/ai/src/lib/chat-stream.test.ts`, on the fake-model harness, through
   `streamChatWithOllama`, add these cases:
@@ -354,6 +354,9 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: that test file only.
   Done when: the cases pass; removing the re-throw at `chat-stream.ts:121` fails at least one of them (check by hand,
   then revert).
+  Corrected at implementation: the cases are tool-free, so they sit in a describe of their own beside
+  `chat tool streaming`, on the same harness.
+  Breaking each of the five cited lines by hand fails its case.
   Commit: Test the chat stream's failure, reasoning, and usage paths
   Depends on: 1
 
