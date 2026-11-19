@@ -279,43 +279,25 @@ describe("AIToolActivity", () => {
     expect(activityDots(trigger)).toHaveLength(dots);
   });
 
-  it("shimmers the brain icon while thinking without masking the label", () => {
-    const { container, rerender } = render(
+  it("labels the thinking icon as running once, hiding its highlight copy, until thinking ends", () => {
+    const { rerender } = render(
       <AIToolActivity calls={[{ kind: "reasoning", id: "r1", text: "Quiet plan.", status: "running" }]} />,
     );
 
     const runningIcon = screen.getByLabelText("ai.chat.tool-activity.running");
-    expect(runningIcon.classList.contains("animate-shimmer-icon")).toBe(false);
-    expect(runningIcon.classList.contains("fg-level-4")).toBe(true);
-    const highlight = container.querySelector(".animate-shimmer-icon");
-    expect(highlight).not.toBeNull();
-    expect(highlight?.getAttribute("aria-hidden")).toBe("true");
-    expect(screen.getByText("ai.chat.tool-activity.thinking").closest(".animate-shimmer")).toBeNull();
-    expect(screen.getByText("ai.chat.tool-activity.thinking").closest(".animate-shimmer-icon")).toBeNull();
-    expect(screen.getByText("ai.chat.tool-activity.thinking").className).toContain(
-      "animate-shimmer-text--fg-level-4/fg-level-1",
-    );
+    expect(runningIcon.nextElementSibling?.getAttribute("aria-hidden")).toBe("true");
 
     rerender(<AIToolActivity calls={[{ kind: "reasoning", id: "r1", text: "Quiet plan.", status: "done" }]} />);
 
-    expect(container.querySelector(".animate-shimmer-icon")).toBeNull();
+    expect(screen.queryByLabelText("ai.chat.tool-activity.running")).toBeNull();
     expect(screen.getByText("ai.chat.tool-activity.thought")).toBeTruthy();
   });
 
-  it.each([
-    { name: "get_deck_cards", label: "ai.chat.tool-activity.get-deck-cards" },
-    { name: "list_decks", label: "ai.chat.tool-activity.list-decks" },
-  ])("shimmers the icon and label of a running $name row, not the row", ({ name, label }) => {
-    const { container } = render(<AIToolActivity calls={[call({ id: "c1", name, status: "running", input: {} })]} />);
+  it("labels a running tool row's icon once, hiding its highlight copy", () => {
+    render(<AIToolActivity calls={[call({ id: "c1", name: "get_deck_cards", status: "running", input: {} })]} />);
 
     const runningIcon = screen.getByLabelText("ai.chat.tool-activity.running");
-    expect(runningIcon.classList.contains("fg-level-4")).toBe(true);
-    expect(runningIcon.classList.contains("animate-shimmer-icon")).toBe(false);
-    const highlight = container.querySelector(".animate-shimmer-icon");
-    expect(highlight?.getAttribute("aria-hidden")).toBe("true");
-    expect(container.querySelector(".animate-shimmer")).toBeNull();
-    expect(screen.getByText(label).closest(".animate-shimmer")).toBeNull();
-    expect(screen.getByText(label).className).toContain("animate-shimmer-text--fg-level-4/fg-level-1");
+    expect(runningIcon.nextElementSibling?.getAttribute("aria-hidden")).toBe("true");
   });
 
   it.each([
@@ -378,12 +360,10 @@ describe("AIToolActivity", () => {
 
     const trigger = screen.getByRole("button", { name: /ai\.chat\.tool-activity\.get-deck-cards/ });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.queryByText("ai.chat.tool-activity.input")).toBeNull();
 
     fireEvent.click(trigger);
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.getByText("ai.chat.tool-activity.tool")).toBeTruthy();
     expect(screen.getByText("get_deck_cards")).toBeTruthy();
     expect(screen.getByText("ai.chat.tool-activity.input")).toBeTruthy();
@@ -609,27 +589,6 @@ describe("AIToolActivity", () => {
       expect(activityDots(toolTrigger)).toHaveLength(1);
       expect(screen.getAllByText("ai.chat.elapsed-time.periods.seconds")).toHaveLength(2);
     });
-  });
-
-  it("frames the disclosed tool payload and leaves the row and reasoning unframed", () => {
-    render(
-      <AIToolActivity
-        calls={[
-          { kind: "reasoning", id: "r1", text: "Quiet plan.", status: "running" },
-          call({ id: "c1", name: "list_decks", status: "success", output: { decks: [] } }),
-        ]}
-      />,
-    );
-
-    const reasoningTrigger = screen.getByRole("button", { name: /ai\.chat\.tool-activity\.thinking/ });
-    const toolTrigger = screen.getByRole("button", { name: /ai\.chat\.tool-activity\.list-decks/ });
-    expect(toolTrigger.closest("li")?.className).not.toContain("border-main");
-    expect(reasoningTrigger.closest("li")?.className).not.toContain("border-main");
-    fireEvent.click(reasoningTrigger);
-    expect(screen.getByText("Quiet plan.").className).not.toContain("border-main");
-
-    fireEvent.click(toolTrigger);
-    expect(screen.getByText("ai.chat.tool-activity.input").closest(".border-main")).not.toBeNull();
   });
 
   it("keeps thinking collapsed while running and after it finishes", () => {

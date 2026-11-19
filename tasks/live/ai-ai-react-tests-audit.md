@@ -545,7 +545,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the untested boundaries in libs/ai-react
   Depends on: 10
 
-- [ ] 13. Drop class-name and dialog assertions, and assert issue paths
+- [x] 13. Drop class-name and dialog assertions, and assert issue paths
   Goal: Fix findings 12, 13, and 14.
   - `libs/ai-react/src/lib/ai-tool-activity.test.tsx`: drop the two `dialog` guards (`:381`, `:386`).
     Drop the class-name checks at `:282-319` and `:580-599`.
@@ -559,6 +559,10 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: those three test files only.
   Done when: both suites pass; a search for `"dialog"`, `animate-shimmer`, and `border-main` over
   `ai-tool-activity.test.tsx` finds no assertion.
+  Corrected at implementation: the highlight is found as the running icon's next sibling, not by class.
+  The two running tool rows differed only by name, so they collapse into one test.
+  The payload-frame test held only class checks and is deleted.
+  The 256-character title row from item 11 joins the `add_deck` rejection table.
   Commit: Drop class-name and dialog assertions, and assert issue paths
   Depends on: 10, 11
 

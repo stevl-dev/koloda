@@ -165,9 +165,8 @@ describe("get_deck input schema", () => {
     expect(schema.parse({ deckId })).toEqual({ deckId });
   });
 
-  it("rejects a missing or non-uuid deckId", () => {
-    expect(() => schema.parse({})).toThrow();
-    expect(() => schema.parse({ deckId: "not-a-uuid" })).toThrow();
+  it.each([{}, { deckId: "not-a-uuid" }])("rejects deckId in %o", (input) => {
+    expect(schema.safeParse(input).error?.issues.map((issue) => issue.path)).toEqual([["deckId"]]);
   });
 });
 
@@ -179,10 +178,8 @@ describe("get_template input schema", () => {
     expect(schema.parse({ templateId })).toEqual({ templateId });
   });
 
-  it("rejects a missing or non-uuid templateId", () => {
-    expect(() => schema.parse({})).toThrow();
-    expect(() => schema.parse({ templateId: "not-a-uuid" })).toThrow();
-    expect(() => schema.parse({ deckId: templateId })).toThrow();
+  it.each([{}, { templateId: "not-a-uuid" }, { deckId: templateId }])("rejects templateId in %o", (input) => {
+    expect(schema.safeParse(input).error?.issues.map((issue) => issue.path)).toEqual([["templateId"]]);
   });
 });
 
@@ -203,16 +200,22 @@ describe("add_deck input schema", () => {
     });
   });
 
-  it("accepts a 255-character title and rejects 256", () => {
-    expect(schema.safeParse({ title: "a".repeat(255), templateId }).success).toBe(true);
-    expect(schema.safeParse({ title: "a".repeat(256), templateId }).success).toBe(false);
+  it.each([
+    { name: "a blank title", input: { title: "   ", templateId }, path: ["title"] },
+    { name: "a 256-character title", input: { title: "a".repeat(256), templateId }, path: ["title"] },
+    { name: "a missing templateId", input: { title: "Spanish" }, path: ["templateId"] },
+    { name: "a non-uuid templateId", input: { title: "Spanish", templateId: "not-a-uuid" }, path: ["templateId"] },
+    {
+      name: "a non-uuid algorithmId",
+      input: { title: "Spanish", templateId, algorithmId: "not-a-uuid" },
+      path: ["algorithmId"],
+    },
+  ])("rejects $name", ({ input, path }) => {
+    expect(schema.safeParse(input).error?.issues.map((issue) => issue.path)).toEqual([path]);
   });
 
-  it("rejects a blank title, a missing templateId, and a bad uuid", () => {
-    expect(() => schema.parse({ title: "   ", templateId })).toThrow();
-    expect(() => schema.parse({ title: "Spanish" })).toThrow();
-    expect(() => schema.parse({ title: "Spanish", templateId: "not-a-uuid" })).toThrow();
-    expect(() => schema.parse({ title: "Spanish", templateId, algorithmId: "not-a-uuid" })).toThrow();
+  it("accepts a 255-character title", () => {
+    expect(schema.safeParse({ title: "a".repeat(255), templateId }).success).toBe(true);
   });
 });
 

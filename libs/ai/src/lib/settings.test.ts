@@ -69,7 +69,10 @@ describe("aiProfileValidation whitelistModelIds", () => {
   });
 
   it("rejects empty model ids", () => {
-    expect(() => aiProfileValidation.parse({ ...base, whitelistModelIds: [""] })).toThrow();
+    const result = aiProfileValidation.safeParse({ ...base, whitelistModelIds: [""] });
+    expect(result.error?.issues.map(({ path, message }) => ({ path, message }))).toEqual([
+      { path: ["whitelistModelIds", 0], message: "validation.settings-ai.profiles.whitelist-model-ids" },
+    ]);
   });
 });
 
