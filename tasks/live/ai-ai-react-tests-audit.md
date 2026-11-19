@@ -360,7 +360,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Test the chat stream's failure, reasoning, and usage paths
   Depends on: 1
 
-- [ ] 3. Gate the cancel tests and fix a stale comment about the signal
+- [x] 3. Gate the cancel tests and fix a stale comment about the signal
   Goal: Fix findings 7 and 8.
   - In "rejects with an AbortError mid-tool-run though the host call ignores the signal" (moved by item 1), reword the
     comment that says production executors never receive the signal.

@@ -301,17 +301,22 @@ describe("createAssistantToolExecutor", () => {
   it("add_deck does not write when the run is canceled during its reads", async () => {
     const controller = new AbortController();
     const createDeck = vi.fn();
+    let markReading!: () => void;
+    const isReading = new Promise<void>((resolve) => {
+      markReading = resolve;
+    });
     let releaseAlgorithms!: () => void;
     const getAlgorithms = vi.fn(
       () =>
         new Promise<(typeof algorithm)[]>((resolve) => {
           releaseAlgorithms = () => resolve([algorithm]);
+          markReading();
         }),
     );
     const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getAlgorithms }));
 
     const adding = executor("add_deck", { title: "Spanish", templateId: TEMPLATE_ID }, controller.signal);
-    await vi.waitFor(() => expect(getAlgorithms).toHaveBeenCalledOnce());
+    await isReading;
     // The user cancels while the algorithm read is still in flight.
     controller.abort();
     releaseAlgorithms();

@@ -438,8 +438,8 @@ describe("chat tool streaming", () => {
     const controller = new AbortController();
     fakeModelSlot.model = createSingleToolCallModel();
     const events: AssistantToolEvent[] = [];
-    // WHY: production executors never receive the signal, so the host call keeps
-    // running past the cancel — like an add_deck write already in flight.
+    // WHY: this executor ignores the signal, so the host call keeps running past
+    // the cancel — like an add_deck write already in flight.
     let markExecuting!: () => void;
     const isExecuting = new Promise<void>((resolve) => {
       markExecuting = resolve;
@@ -537,12 +537,17 @@ describe("chat tool streaming", () => {
     const controller = new AbortController();
     fakeModelSlot.model = createSingleToolCallModel();
     let receivedSignal: AbortSignal | undefined;
+    let markExecuting!: () => void;
+    const isExecuting = new Promise<void>((resolve) => {
+      markExecuting = resolve;
+    });
     let finishHostCall!: (value: unknown) => void;
     const executeTool = vi.fn(
       (_name: string, _input: unknown, abortSignal?: AbortSignal) =>
         new Promise<unknown>((resolve) => {
           receivedSignal = abortSignal;
           finishHostCall = resolve;
+          markExecuting();
         }),
     );
 
@@ -552,7 +557,8 @@ describe("chat tool streaming", () => {
       controller.signal,
       OLLAMA_OPTIONS,
     ).catch((caught: unknown) => caught);
-    await vi.waitFor(() => expect(executeTool).toHaveBeenCalledOnce());
+    await isExecuting;
+    expect(executeTool).toHaveBeenCalledOnce();
     expect(receivedSignal?.aborted).toBe(false);
 
     controller.abort();
