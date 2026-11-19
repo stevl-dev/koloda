@@ -258,13 +258,6 @@ Entries are grouped under one heading per package directory.
 
 ## libs/ai
 
-- Improvement, Later: the `chat tool streaming` tests live in `assistant-tools.test.ts`, not `chat-stream.test.ts`.
-  Evidence: at `1c0661bb`, the block is at `libs/ai/src/lib/assistant-tools.test.ts:968`.
-  Kind: skipped
-  Source: `tasks/archive/assistant-data-access-card-generation-audit.md`, finding D8
-  Deferred because: the fake-model harness lives there, and a second file-level mock of `ai-sdk-ollama` would leak under
-  `isolate: false`; revisit only together with the harness.
-
 - Handoff: let the assistant read lesson and progress statistics, such as why only 10 new cards show today.
   Evidence: at `daa0ad62`, `docs/specs/ASSISTANT-DATA-ACCESS.md:90` says scheduling statistics and lesson history are not read.
   Kind: handoff

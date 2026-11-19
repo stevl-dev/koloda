@@ -320,7 +320,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
 
 ## Plan
 
-- [ ] 1. Move the chat-stream tests and their fake model into chat-stream.test.ts
+- [x] 1. Move the chat-stream tests and their fake model into chat-stream.test.ts
   Goal: Fix the D8 part of finding 15, the prompt block, and the misplaced notes comment.
   Move `describe("chat tool streaming")` (`libs/ai/src/lib/assistant-tools.test.ts:1029-1299`) and
   `describe("chat request prompt and temperature")` (`:1305-1350`) into `libs/ai/src/lib/chat-stream.test.ts`.
