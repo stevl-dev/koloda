@@ -176,9 +176,11 @@ describe("provider entry secret rules", () => {
     },
   );
 
-  // WHY: only the key rule is asserted here. The listing itself fails on the stubbed
-  // network, and `ollama` and `lmstudio` may reach a sibling file's module mock.
-  it.each(rules.filter((rule) => !rule.isKeyRequiredToListModels))(
+  // WHY: only the key rule is asserted; the listing hits a stubbed network. Ollama lists
+  // through the `ollama` package, which `ollama.test.ts` and `ollama-cloud.test.ts` mock
+  // at file level, so loading it here would break `isolate: false`; `ollama.test.ts`
+  // covers its keyless listing.
+  it.each(rules.filter((rule) => !rule.isKeyRequiredToListModels && rule.provider !== "ollama"))(
     "$provider lists models without a key",
     async ({ provider, keyless }) => {
       vi.stubGlobal(

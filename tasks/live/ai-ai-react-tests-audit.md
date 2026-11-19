@@ -394,8 +394,10 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Corrected at implementation: OpenRouter and the three base-URL providers also list models without a key, so six
   rows list and six reject.
   The listing rows assert only that the key rule does not reject them.
-  `ollama.test.ts` and `ollama-cloud.test.ts` file-mock `ollama`, which may reach the Ollama and LM Studio rows under
-  `isolate: false`, so the listing itself is not asserted.
+  The Ollama row is not listed: it would load the `ollama` package that `ollama.test.ts` and `ollama-cloud.test.ts`
+  mock at file level, which `agents/TESTING.md` (§Runner constraints) calls a bug under `isolate: false`.
+  `ollama.test.ts:156` covers its keyless listing.
+  Self-review fixed this in a later commit.
   Commit: Test each provider entry's secret rules in one registry table
   Depends on: none
 
