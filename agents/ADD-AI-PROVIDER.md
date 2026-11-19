@@ -318,8 +318,8 @@ After editing `docs/specs/AI-PROVIDERS.md`, run `bun run gen:help`; `bun run che
   `ai_secrets_provider_tags_match_ts_registry` in `crates/koloda/tests/domain/ai_tests.rs`
   (new variant in the `variants` array **and** the expected tag literal list) and
   `RUST_AI_SECRETS_PROVIDER_TAGS` in `libs/ai/src/lib/provider-registry.test.ts`
-- `libs/ai/src/lib/chat-stream.test.ts` — `streamText` gets this wrapper's `providerOptions`
-  for a non-empty effort and omits it when effort is empty
+- `libs/ai/src/lib/chat-stream.test.ts` — the provider's option helper maps a non-empty effort
+  and omits an empty one
 - Provider `fetchModels` tests — include a reasoning-capable model whose levels come from the provider list or catalog,
   and a model with no reported levels.
   When the provider joins a catalog, also cover the documented behavior when the catalog is unavailable.

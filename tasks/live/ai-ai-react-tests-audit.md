@@ -600,7 +600,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Share the repeated test setup in libs/ai
   Depends on: 4, 9, 10, 11
 
-- [ ] 16. Say what the chat-stream tests check in the provider playbook
+- [x] 16. Say what the chat-stream tests check in the provider playbook
   Goal: Fix finding 18.
   Reword the `chat-stream.test.ts` bullet in `agents/ADD-AI-PROVIDER.md` (§9 Add Tests) to: the provider's option
   helper maps a non-empty effort and omits an empty one.
