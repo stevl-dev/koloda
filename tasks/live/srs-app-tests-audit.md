@@ -196,7 +196,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Pin where Good sends a review card and a learning card through getCardGrades
   Depends on: none
 
-- [ ] 2. Test that a bucket that does not count ignores the shared total
+- [x] 2. Test that a bucket that does not count ignores the shared total
   Goal: Fix finding 2.
   In `libs/srs/src/lib/reviews.test.ts`, fold the six `calculateTodaysReviewTotals` tests (`:83`, `:111`, `:133`,
   `:155`, `:178`, `:203`) into one `it.each` table.

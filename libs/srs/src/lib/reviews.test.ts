@@ -80,146 +80,101 @@ describe("reviews", () => {
     });
   });
 
-  it("normalizes totals using counts flags and marks over-limit states", async () => {
+  // WHY: a counted bucket's limit may not exceed the total, or settings validation rejects the row before the
+  // totals are computed; the Rust twins in `reviews_totals_tests.rs` are not bound by that, so some limits differ.
+  it.each<{
+    name: string;
+    total: number | null;
+    untouched: [limit: number, counts: boolean, reviewed: number];
+    learn: [limit: number, counts: boolean, reviewed: number];
+    review: [limit: number, counts: boolean, reviewed: number];
+    countedTotal: number;
+    flagged: Array<"untouched" | "learn" | "review" | "total">;
+  }>([
+    {
+      name: "sums only counted buckets into the total",
+      total: 4,
+      untouched: [2, true, 3],
+      learn: [2, false, 5],
+      review: [3, true, 2],
+      countedTotal: 5,
+      flagged: ["untouched", "learn", "review", "total"],
+    },
+    {
+      name: "treats a null total limit as no cap",
+      total: null,
+      untouched: [10, true, 5],
+      learn: [10, true, 5],
+      review: [10, true, 5],
+      countedTotal: 15,
+      flagged: [],
+    },
+    {
+      name: "treats a zero total limit as a hard cap",
+      total: 0,
+      untouched: [0, true, 5],
+      learn: [0, true, 5],
+      review: [0, true, 5],
+      countedTotal: 15,
+      flagged: ["untouched", "learn", "review", "total"],
+    },
+    {
+      name: "does not flag a bucket exactly at its own limit",
+      total: 100,
+      untouched: [2, true, 2],
+      learn: [50, true, 0],
+      review: [50, true, 0],
+      countedTotal: 2,
+      flagged: [],
+    },
+    {
+      name: "flags counted buckets when the shared total reaches its limit",
+      total: 3,
+      untouched: [2, true, 1],
+      learn: [2, true, 1],
+      review: [2, true, 1],
+      countedTotal: 3,
+      flagged: ["untouched", "learn", "review", "total"],
+    },
+    // Twin of `test_calculate_todays_review_totals_non_counted_bucket_ignores_total_limit`.
+    {
+      name: "does not flag a bucket that does not count when the shared total is reached",
+      total: 1,
+      untouched: [10, false, 5],
+      learn: [1, true, 1],
+      review: [1, true, 1],
+      countedTotal: 2,
+      flagged: ["learn", "review", "total"],
+    },
+    {
+      name: "never flags zero activity",
+      total: 1,
+      untouched: [0, true, 0],
+      learn: [0, true, 0],
+      review: [0, true, 0],
+      countedTotal: 0,
+      flagged: [],
+    },
+  ])("daily totals: $name", async ({ total, untouched, learn, review, countedTotal, flagged }) => {
     const result = await calculateTodaysReviewTotals(
       {
         ...DEFAULT_LEARNING_SETTINGS,
         dailyLimits: {
-          total: 4,
-          untouched: { value: 2, counts: true },
-          learn: { value: 2, counts: false },
-          review: { value: 3, counts: true },
+          total,
+          untouched: { value: untouched[0], counts: untouched[1] },
+          learn: { value: learn[0], counts: learn[1] },
+          review: { value: review[0], counts: review[1] },
         },
       },
-      { untouched: 3, learn: 5, review: 2, total: 0 },
+      { untouched: untouched[2], learn: learn[2], review: review[2], total: 0 },
     );
 
-    expect(result.reviewTotals).toEqual({
-      untouched: 3,
-      learn: 5,
-      review: 2,
-      total: 5,
-    });
+    expect(result.reviewTotals.total).toBe(countedTotal);
     expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: true,
-      isLearnOverTheLimit: true,
-      isReviewOverTheLimit: true,
-      isTotalOverTheLimit: true,
-    });
-  });
-
-  it("treats a null total daily limit as no cap", async () => {
-    const result = await calculateTodaysReviewTotals(
-      {
-        ...DEFAULT_LEARNING_SETTINGS,
-        dailyLimits: {
-          total: null,
-          untouched: { value: 10, counts: true },
-          learn: { value: 10, counts: true },
-          review: { value: 10, counts: true },
-        },
-      },
-      { untouched: 5, learn: 5, review: 5, total: 0 },
-    );
-
-    expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: false,
-      isLearnOverTheLimit: false,
-      isReviewOverTheLimit: false,
-      isTotalOverTheLimit: false,
-    });
-  });
-
-  it("treats a zero total daily limit as a hard cap", async () => {
-    const result = await calculateTodaysReviewTotals(
-      {
-        ...DEFAULT_LEARNING_SETTINGS,
-        dailyLimits: {
-          total: 0,
-          untouched: { value: 0, counts: true },
-          learn: { value: 0, counts: true },
-          review: { value: 0, counts: true },
-        },
-      },
-      { untouched: 5, learn: 5, review: 5, total: 0 },
-    );
-
-    expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: true,
-      isLearnOverTheLimit: true,
-      isReviewOverTheLimit: true,
-      isTotalOverTheLimit: true,
-    });
-  });
-
-  it("does not flag a bucket exactly at its own limit", async () => {
-    // A bucket's own limit uses strictly-greater semantics.
-    const result = await calculateTodaysReviewTotals(
-      {
-        ...DEFAULT_LEARNING_SETTINGS,
-        dailyLimits: {
-          total: 100,
-          untouched: { value: 2, counts: true },
-          learn: { value: 50, counts: true },
-          review: { value: 50, counts: true },
-        },
-      },
-      { untouched: 2, learn: 0, review: 0, total: 0 },
-    );
-
-    expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: false,
-      isLearnOverTheLimit: false,
-      isReviewOverTheLimit: false,
-      isTotalOverTheLimit: false,
-    });
-  });
-
-  it("flags counted buckets when the shared total reaches its limit", async () => {
-    // The shared total limit uses >= semantics: exactly at the limit is over.
-    // Every bucket is under its own limit of 2; only the shared total trips.
-    // (Bucket limits must be <= total here — settings validation rejects otherwise.)
-    const result = await calculateTodaysReviewTotals(
-      {
-        ...DEFAULT_LEARNING_SETTINGS,
-        dailyLimits: {
-          total: 3,
-          untouched: { value: 2, counts: true },
-          learn: { value: 2, counts: true },
-          review: { value: 2, counts: true },
-        },
-      },
-      { untouched: 1, learn: 1, review: 1, total: 0 },
-    );
-
-    expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: true,
-      isLearnOverTheLimit: true,
-      isReviewOverTheLimit: true,
-      isTotalOverTheLimit: true,
-    });
-  });
-
-  it("never flags zero activity as over the limit", async () => {
-    const result = await calculateTodaysReviewTotals(
-      {
-        ...DEFAULT_LEARNING_SETTINGS,
-        dailyLimits: {
-          total: 1,
-          untouched: { value: 0, counts: true },
-          learn: { value: 0, counts: true },
-          review: { value: 0, counts: true },
-        },
-      },
-      { untouched: 0, learn: 0, review: 0, total: 0 },
-    );
-
-    expect(result.reviewTotals.total).toBe(0);
-    expect(result.meta).toEqual({
-      isUntouchedOverTheLimit: false,
-      isLearnOverTheLimit: false,
-      isReviewOverTheLimit: false,
-      isTotalOverTheLimit: false,
+      isUntouchedOverTheLimit: flagged.includes("untouched"),
+      isLearnOverTheLimit: flagged.includes("learn"),
+      isReviewOverTheLimit: flagged.includes("review"),
+      isTotalOverTheLimit: flagged.includes("total"),
     });
   });
 
