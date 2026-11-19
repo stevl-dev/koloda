@@ -24,19 +24,14 @@ describe("interfaceSettingsValidation", () => {
 });
 
 describe("getLanguageCode", () => {
-  it("strips region from en-US", () => {
-    expect(getLanguageCode("en-US")).toBe("en");
-  });
-
-  it("falls back to en for unsupported fr", () => {
-    expect(getLanguageCode("fr")).toBe("en");
-  });
-
-  it("strips region and falls back for unsupported zh-CN", () => {
-    expect(getLanguageCode("zh-CN")).toBe("en");
-  });
-
-  it("falls back to en for null", () => {
-    expect(getLanguageCode(null)).toBe("en");
+  it.each([
+    { input: "ru", code: "ru" },
+    { input: "ru-RU", code: "ru" },
+    { input: "en-US", code: "en" },
+    { input: "fr", code: "en" },
+    { input: "zh-CN", code: "en" },
+    { input: null, code: "en" },
+  ])("maps $input to $code", ({ input, code }) => {
+    expect(getLanguageCode(input)).toBe(code);
   });
 });

@@ -143,16 +143,8 @@ describe("review validation", () => {
     expect(insertReviewSchema.safeParse(validInsertReview({ dueAt: null })).success).toBe(false);
   });
 
-  it("rejects omitted dueAt", () => {
-    const { dueAt: _rowDueAt, ...rowWithout } = validReview();
-    expect(reviewRowSchema.safeParse(rowWithout).success).toBe(false);
-
-    const { dueAt: _insertDueAt, ...insertWithout } = validInsertReview();
-    expect(insertReviewSchema.safeParse(insertWithout).success).toBe(false);
-  });
-
   // Twin of koloda `InsertReviewData` / `Review`: serde rejects a missing key.
-  it.each(["stability", "difficulty", "scheduledDays", "learningSteps", "time", "isIgnored"] as const)(
+  it.each(["dueAt", "stability", "difficulty", "scheduledDays", "learningSteps", "time", "isIgnored"] as const)(
     "rejects omitted %s",
     (field) => {
       const { [field]: _rowOmitted, ...rowWithout } = validReview();

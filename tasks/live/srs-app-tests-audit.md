@@ -247,7 +247,7 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Commit: Delete the FSRS type battery and the second-door tests
   Depends on: 2
 
-- [ ] 5. Pin the loose FSRS and progress assertions and table the language-code cases
+- [x] 5. Pin the loose FSRS and progress assertions and table the language-code cases
   Goal: Fix finding 7.
   - `libs/srs/src/lib/algorithms-fsrs.test.ts:79`: turn fuzz off and assert Good's `scheduled_days` is 10.
   - `algorithms-fsrs.test.ts:63`: replace `not.toEqual` with a pin of a new card's Good stability, which is the custom
@@ -259,6 +259,12 @@ A path that starts with `srs/` or `app/` is under `libs/<package>/src/lib/`.
   Constraints: those three test files only.
   Done when: both packages pass; each changed case fails when its rule breaks (check the maximum interval and the
   weights parse by hand, then revert).
+  Corrected at implementation: with fuzz off and a maximum interval of 10, Good is 11, not 10.
+  ts-fsrs 5.2.3 caps each interval, then keeps Hard < Good < Easy (`node_modules/ts-fsrs/dist/index.mjs:1142-1146`),
+  so Hard is 10, Good 11, and Easy 12; the test pins all three with a `// WHY:`.
+  That Good and Easy pass the user's maximum interval is a handoff (Outcome), not a change here.
+  Corrected at implementation: every old `getLanguageCode` case expected `en`, so a function that always returned `en`
+  passed; the table adds `ru` and `ru-RU`, both `ru`.
   Commit: Pin the loose FSRS and progress assertions and table the language-code cases
   Depends on: 4
 

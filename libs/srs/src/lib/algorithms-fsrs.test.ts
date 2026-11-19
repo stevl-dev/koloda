@@ -61,37 +61,30 @@ describe("createFSRSAlgorithm", () => {
   });
 
   it("parses comma-separated weights string into number array", () => {
-    const defaultInstance = createFSRSAlgorithm(DEFAULT_FSRS_ALGORITHM);
-    const customInstance = createFSRSAlgorithm({
+    const instance = createFSRSAlgorithm({
       ...DEFAULT_FSRS_ALGORITHM,
       weights:
         "0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3",
     });
+    const now = new Date("2026-08-24T12:00:00.000Z");
+    const grades = instance.repeat(createEmptyCard(now), now);
 
-    const now = new Date();
-    const card = createReviewedCard(now);
-    const defaultGrades = defaultInstance.repeat(card, now);
-    const customGrades = customInstance.repeat(card, now);
-
-    expect(defaultGrades[Rating.Good].card).not.toEqual(customGrades[Rating.Good].card);
+    // A new card's Good stability is w[2].
+    expect(grades[Rating.Good].card.stability).toBeCloseTo(1.5, 5);
   });
 
   it("applies maximumInterval to cap scheduled intervals", () => {
-    const shortMax = createFSRSAlgorithm({ ...DEFAULT_FSRS_ALGORITHM, maximumInterval: 10 });
-    const longMax = createFSRSAlgorithm({ ...DEFAULT_FSRS_ALGORITHM, maximumInterval: 36500 });
-
+    const instance = createFSRSAlgorithm({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false, maximumInterval: 10 });
     const now = new Date();
     const card = createReviewedCard(now);
     card.stability = 100;
 
-    const shortGrades = shortMax.repeat(card, now);
-    const longGrades = longMax.repeat(card, now);
+    const grades = instance.repeat(card, now);
 
-    const shortInterval = shortGrades[Rating.Good].card.scheduled_days;
-    const longInterval = longGrades[Rating.Good].card.scheduled_days;
-
-    expect(shortInterval).toBeLessThan(longInterval);
-    expect(shortInterval).toBeLessThanOrEqual(15);
+    // WHY: ts-fsrs caps each interval, then keeps Hard < Good < Easy, so only Hard stays at the cap.
+    expect(grades[Rating.Hard].card.scheduled_days).toBe(10);
+    expect(grades[Rating.Good].card.scheduled_days).toBe(11);
+    expect(grades[Rating.Easy].card.scheduled_days).toBe(12);
   });
 
   it("pins a new card graded Easy to Review with an eight-day interval", () => {
