@@ -93,12 +93,6 @@ describe("fetchVercelModels", () => {
 });
 
 describe("vercelProviderEntry", () => {
-  it("requires apiKey when listing models", async () => {
-    await expect(vercelProviderEntry.fetchModels({ provider: "vercel", apiKey: null })).rejects.toMatchObject({
-      code: "validation.settings-ai.providers.api-key",
-    });
-  });
-
   it("lists models with a present apiKey", async () => {
     stubModels({ data: [] });
 

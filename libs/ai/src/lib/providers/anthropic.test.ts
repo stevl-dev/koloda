@@ -129,12 +129,6 @@ describe("fetchAnthropicModels", () => {
 });
 
 describe("anthropicProviderEntry", () => {
-  it("requires apiKey when listing models", async () => {
-    await expect(anthropicProviderEntry.fetchModels({ provider: "anthropic", apiKey: null })).rejects.toMatchObject({
-      code: "validation.settings-ai.providers.api-key",
-    });
-  });
-
   it("lists models with a present apiKey", async () => {
     vi.stubGlobal(
       "fetch",

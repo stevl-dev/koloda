@@ -323,6 +323,8 @@ After editing `docs/specs/AI-PROVIDERS.md`, run `bun run gen:help`; `bun run che
 - Provider `fetchModels` tests — include a reasoning-capable model whose levels come from the provider list or catalog,
   and a model with no reported levels.
   When the provider joins a catalog, also cover the documented behavior when the catalog is unavailable.
+- `libs/ai/src/lib/provider-registry-behavior.test.ts` — add the provider's row to `SECRET_RULES`:
+  the fields missing without a key, and whether chat and model listing need the key
 - `libs/ai/src/lib/provider-secrets.test.ts` — add the new schema to the shared rows:
   the whitespace-only key the form schema rejects, and the key the input schema rejects
 - `libs/settings-react/src/lib/settings-ai-add-profile.test.tsx` — the provider picker's option list gains the new label

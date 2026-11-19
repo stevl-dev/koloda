@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MODELS_DEV_API_URL, resetModelsDevCache } from "./models-dev";
-import { DEEPSEEK_MODELS_URL, deepseekProviderEntry, fetchDeepSeekModels } from "./deepseek";
+import { DEEPSEEK_MODELS_URL, fetchDeepSeekModels } from "./deepseek";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -122,15 +122,6 @@ describe("fetchDeepSeekModels", () => {
     await expect(fetchDeepSeekModels("secret-key")).rejects.toMatchObject({
       name: "AIError",
       code: "ai.invalid-response",
-    });
-  });
-});
-
-describe("deepseekProviderEntry", () => {
-  it("requires an API key before fetching models", async () => {
-    await expect(deepseekProviderEntry.fetchModels({ provider: "deepseek", apiKey: null })).rejects.toMatchObject({
-      name: "AIError",
-      code: "validation.settings-ai.providers.api-key",
     });
   });
 });

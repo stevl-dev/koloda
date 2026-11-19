@@ -90,12 +90,6 @@ describe("fetchOpenAIModels", () => {
 });
 
 describe("openaiProviderEntry", () => {
-  it("requires apiKey when listing models", async () => {
-    await expect(openaiProviderEntry.fetchModels({ provider: "openai", apiKey: null })).rejects.toMatchObject({
-      code: "validation.settings-ai.providers.api-key",
-    });
-  });
-
   it("lists models with a present apiKey", async () => {
     vi.stubGlobal(
       "fetch",

@@ -62,15 +62,6 @@ describe("fetchOllamaCloudModels", () => {
 });
 
 describe("ollamaCloudProviderEntry", () => {
-  it("requires apiKey when listing models", async () => {
-    await expect(ollamaCloudProviderEntry.fetchModels({ provider: "ollamaCloud", apiKey: null })).rejects.toMatchObject(
-      {
-        code: "validation.settings-ai.providers.api-key",
-      },
-    );
-    expect(OllamaMock).not.toHaveBeenCalled();
-  });
-
   it("lists models with the required apiKey", async () => {
     listMock.mockResolvedValueOnce({ models: [] });
 

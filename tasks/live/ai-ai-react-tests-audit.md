@@ -375,7 +375,7 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Commit: Gate the cancel tests and fix a stale comment about the signal
   Depends on: 1
 
-- [ ] 4. Test each provider entry's secret rules in one registry table
+- [x] 4. Test each provider entry's secret rules in one registry table
   Goal: Fix finding 4.
   In `libs/ai/src/lib/provider-registry-behavior.test.ts`, add one table over every provider in `AI_PROVIDER_REGISTRY`.
   Type its rows as `Record<AiProvider, …>`, so a new provider cannot compile without a row.
@@ -391,6 +391,11 @@ A path that starts with `ai/` or `ai-react/` is under `libs/<package>/src/lib/`.
   Constraints: `provider-registry-behavior.test.ts`, the six provider test files, and that one playbook bullet.
   Done when: `libs/ai` passes; making one keyed provider's `createClient` accept a blank key, or inverting one
   `getMissingSecretFields`, fails the table (check one each by hand, then revert); `bun run check:docs` passes.
+  Corrected at implementation: OpenRouter and the three base-URL providers also list models without a key, so six
+  rows list and six reject.
+  The listing rows assert only that the key rule does not reject them.
+  `ollama.test.ts` and `ollama-cloud.test.ts` file-mock `ollama`, which may reach the Ollama and LM Studio rows under
+  `isolate: false`, so the listing itself is not asserted.
   Commit: Test each provider entry's secret rules in one registry table
   Depends on: none
 

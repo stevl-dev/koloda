@@ -108,12 +108,6 @@ describe("fetchXaiModels", () => {
 });
 
 describe("xaiProviderEntry", () => {
-  it("requires apiKey when listing models", async () => {
-    await expect(xaiProviderEntry.fetchModels({ provider: "xai", apiKey: null })).rejects.toMatchObject({
-      code: "validation.settings-ai.providers.api-key",
-    });
-  });
-
   it("lists models with a present apiKey", async () => {
     stubXaiFetch({ models: [] }, { data: [] });
 
