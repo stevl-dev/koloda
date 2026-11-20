@@ -164,7 +164,7 @@ Entries use the report's numbers.
 
 ## Plan
 
-- [ ] 1. Test the desktop AI stream's abort and isolation rules
+- [x] 1. Test the desktop AI stream's abort and isolation rules
   Goal: Fix finding 1.
   Add `apps/electron/src/ai-ipc.test.ts` in the shape of `apps/electron/src/optimizer-ipc.test.ts`: mock `electron`
   to capture the `ipcMain.handle` handlers, mock `./app-sender` with the same `// WHY:`, and use a fake sender whose
