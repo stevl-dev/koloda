@@ -429,43 +429,6 @@ fn test_ai_profile_validate_title_max_length_in_emoji_fails() {
 }
 
 #[test]
-fn test_ai_secrets_deserialize_empty_api_key_as_none() {
-    let json = r#"{
-        "provider": "openrouter",
-        "apiKey": ""
-    }"#;
-
-    let secrets: AISecrets = serde_json::from_str(json).expect("legacy empty apiKey should deserialize");
-    assert_eq!(secrets.api_key(), None);
-
-    let serialized = serde_json::to_value(&secrets).expect("redacted secrets should serialize");
-    assert_eq!(serialized.get("apiKey"), Some(&serde_json::Value::Null));
-}
-
-#[test]
-fn test_ai_profile_serialization_renders_iso_string_for_created_at() {
-    let profile = AIProfile {
-        id: "01900000-0000-7000-8000-000000000001".to_string(),
-        title: None,
-        secrets: AISecrets::OpenRouter { api_key: None },
-        has_secrets: false,
-        whitelist_model_ids: None,
-        created_at: TEST_CREATED_AT,
-    };
-
-    let serialized = serde_json::to_value(&profile).expect("profile should serialize");
-    let created_at = serialized
-        .get("createdAt")
-        .and_then(|v| v.as_str())
-        .expect("createdAt should be a string");
-
-    assert!(
-        chrono::DateTime::parse_from_rfc3339(created_at).is_ok(),
-        "createdAt is not a valid RFC3339 string: {created_at}"
-    );
-}
-
-#[test]
 fn test_ai_profile_deserialization_accepts_iso_string_for_created_at() {
     let data = serde_json::json!({
         "id": "profile-1",
@@ -494,25 +457,6 @@ fn test_ai_profile_serialization_omits_unset_whitelist() {
     assert!(
         serialized.get("whitelistModelIds").is_none(),
         "unset whitelist must be omitted so older rows stay unchanged"
-    );
-}
-
-#[test]
-fn test_ai_profile_serialization_keeps_empty_whitelist() {
-    let profile = AIProfile {
-        id: "01900000-0000-7000-8000-000000000001".to_string(),
-        title: None,
-        secrets: AISecrets::OpenRouter { api_key: None },
-        has_secrets: false,
-        whitelist_model_ids: Some(vec![]),
-        created_at: TEST_CREATED_AT,
-    };
-
-    let serialized = serde_json::to_value(&profile).expect("profile should serialize");
-    assert_eq!(
-        serialized.get("whitelistModelIds"),
-        Some(&serde_json::json!([])),
-        "empty allowlist is distinct from unset"
     );
 }
 

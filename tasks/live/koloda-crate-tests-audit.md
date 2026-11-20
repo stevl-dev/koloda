@@ -100,8 +100,8 @@ Entries use the report's numbers.
     yet.
   - Found at triage: `AISettings::validate` runs `validate_for_storage` on every profile
     (`src/domain/settings_ai.rs:53-59`).
-    Every redacted row passes input validation too, so only the plaintext row of `settings_ai_tests.rs:79` would fail
-    if that call became input validation.
+    Every redacted row passes with or without that call, so only the plaintext row of `settings_ai_tests.rs:79` would
+    fail if it were dropped.
     That row is what `AISettings` owns, so it stays in the table with a `WHY` instead of being deleted.
 
 - 3. Improvement, Later: serde rejections are written one per test.
@@ -212,7 +212,7 @@ none
   Commit: Delete repo tests that a lower test or a neighbor covers
   Depends on: none
 
-- [ ] 3. Give each AI profile rule one home
+- [x] 3. Give each AI profile rule one home
   Goal: Each AI profile rule of finding 2 is asserted once.
   - `domain/ai_tests.rs`: delete `test_ai_secrets_deserialize_empty_api_key_as_none` (`:432`),
     `test_ai_profile_serialization_renders_iso_string_for_created_at` (`:446`), and

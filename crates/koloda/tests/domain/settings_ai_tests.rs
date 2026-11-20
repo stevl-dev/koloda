@@ -1,5 +1,6 @@
 use koloda::domain::settings::SettingsName;
 use koloda::domain::settings_ai::{AISettings, ChatPromptMode};
+use serde_json::json;
 
 #[test]
 fn test_valid_ai_settings_empty_profiles() {
@@ -12,285 +13,64 @@ fn test_valid_ai_settings_empty_profiles() {
 }
 
 #[test]
-fn test_valid_ai_settings_with_openrouter_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
+fn test_ai_settings_validate_stored_profiles_of_every_provider() {
+    let cases = [
+        ("anthropic", json!({ "provider": "anthropic", "apiKey": null }), None),
+        ("deepseek", json!({ "provider": "deepseek", "apiKey": null }), None),
+        (
+            "lmstudio",
+            json!({ "provider": "lmstudio", "baseUrl": "http://localhost:1234", "apiKey": null }),
+            None,
+        ),
+        (
+            "ollama",
+            json!({ "provider": "ollama", "baseUrl": "http://localhost:11434", "apiKey": null }),
+            None,
+        ),
+        (
+            "ollamaCloud",
+            json!({ "provider": "ollamaCloud", "apiKey": null }),
+            None,
+        ),
+        ("openai", json!({ "provider": "openai", "apiKey": null }), None),
+        (
+            "openaiCompatible",
+            json!({ "provider": "openaiCompatible", "baseUrl": "http://localhost:8000/v1", "apiKey": null }),
+            None,
+        ),
+        ("opencodeGo", json!({ "provider": "opencodeGo", "apiKey": null }), None),
+        (
+            "opencodeZen",
+            json!({ "provider": "opencodeZen", "apiKey": null }),
+            None,
+        ),
+        ("openrouter", json!({ "provider": "openrouter", "apiKey": null }), None),
+        ("vercel", json!({ "provider": "vercel", "apiKey": null }), None),
+        ("xai", json!({ "provider": "xai", "apiKey": null }), None),
+        // WHY: a redacted row passes whether or not `AISettings` checks its profiles; only a plaintext key shows that
+        // it runs storage validation on each one, which the profile tests in `ai_tests.rs` cannot see.
+        (
+            "plaintext key",
+            json!({ "provider": "openrouter", "apiKey": "sk-live-secret-key" }),
+            Some("validation.settings-ai.providers.api-key"),
+        ),
+    ];
+
+    for (name, secrets, expected_code) in cases {
+        let settings: AISettings = serde_json::from_value(json!({
+            "profiles": [{
                 "id": "01900000-0000-7000-8000-000000000001",
-                "title": "OpenRouter",
-                "secrets": {
-                    "provider": "openrouter",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_openai_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000007",
-                "title": "OpenAI",
-                "secrets": {
-                    "provider": "openai",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_legacy_empty_string_api_key() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000001",
-                "title": "OpenRouter",
-                "secrets": {
-                    "provider": "openrouter",
-                    "apiKey": ""
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("legacy empty apiKey should deserialize");
-    settings.validate().unwrap();
-    assert_eq!(settings.profiles[0].secrets.api_key(), None);
-}
-
-#[test]
-fn test_ai_settings_with_plaintext_api_key_fails_storage_validation() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000001",
-                "title": "OpenRouter",
-                "secrets": {
-                    "provider": "openrouter",
-                    "apiKey": "sk-live-secret-key"
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    let result = settings.validate();
-    assert_eq!(
-        result
-            .expect_err("Plaintext apiKey must not pass storage validation")
-            .code,
-        "validation.settings-ai.providers.api-key"
-    );
-}
-
-#[test]
-fn test_valid_ai_settings_with_lmstudio_profile_without_api_key() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000002",
                 "title": null,
-                "secrets": {
-                    "provider": "lmstudio",
-                    "baseUrl": "http://localhost:1234",
-                    "apiKey": null
-                },
+                "secrets": secrets,
                 "hasSecrets": false,
                 "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
+            }]
+        }))
+        .unwrap_or_else(|error| panic!("{name}: should deserialize: {error}"));
 
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_openai_compatible_profile_without_api_key() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-00000000000b",
-                "title": "vLLM",
-                "secrets": {
-                    "provider": "openaiCompatible",
-                    "baseUrl": "http://localhost:8000/v1",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_opencode_go_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000004",
-                "title": "OpenCode Go",
-                "secrets": {
-                    "provider": "opencodeGo",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_deepseek_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000007",
-                "title": "DeepSeek",
-                "secrets": {
-                    "provider": "deepseek",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_opencode_zen_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000005",
-                "title": "OpenCode Zen",
-                "secrets": {
-                    "provider": "opencodeZen",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_ollama_cloud_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000006",
-                "title": "Ollama Cloud",
-                "secrets": {
-                    "provider": "ollamaCloud",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_anthropic_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000008",
-                "title": "Anthropic",
-                "secrets": {
-                    "provider": "anthropic",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_xai_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000009",
-                "title": "xAI",
-                "secrets": {
-                    "provider": "xai",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
-}
-
-#[test]
-fn test_valid_ai_settings_with_vercel_profile_redacted() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-00000000000a",
-                "title": "Vercel AI Gateway",
-                "secrets": {
-                    "provider": "vercel",
-                    "apiKey": null
-                },
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    settings.validate().unwrap();
+        let observed = settings.validate().err().map(|error| error.code);
+        assert_eq!(observed.as_deref(), expected_code, "{name}");
+    }
 }
 
 #[test]
@@ -316,28 +96,6 @@ fn test_valid_ai_settings_with_whitelist_model_ids() {
     assert_eq!(
         settings.profiles[0].whitelist_model_ids,
         Some(vec!["openai/gpt-4".to_string(), "anthropic/claude".to_string()])
-    );
-}
-
-#[test]
-fn test_ai_settings_empty_whitelist_model_id_fails() {
-    let json = r#"{
-        "profiles": [
-            {
-                "id": "01900000-0000-7000-8000-000000000001",
-                "secrets": { "provider": "openrouter", "apiKey": null },
-                "whitelistModelIds": [""],
-                "hasSecrets": false,
-                "createdAt": "2026-01-01T00:00:00Z"
-            }
-        ]
-    }"#;
-
-    let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
-    let result = settings.validate();
-    assert_eq!(
-        result.expect_err("Empty whitelist model id must fail").code,
-        "validation.settings-ai.profiles.whitelist-model-ids"
     );
 }
 
