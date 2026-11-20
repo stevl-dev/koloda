@@ -49,7 +49,9 @@ Done when:
 ## Scope
 
 In: every finding below, fixed as its decision says.
-Only files under `crates/koloda/tests/` change.
+Only files under `crates/koloda/tests/` change,
+plus one comment in `libs/db-sqlite/src/lib/cards.integration.test.ts` that named a Rust test item 2 deleted
+(found at self-review).
 
 Out:
 

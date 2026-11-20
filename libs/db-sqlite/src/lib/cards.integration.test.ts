@@ -127,7 +127,8 @@ describe("cards repository integration", () => {
     expect(stored).toMatchObject({ stability: 0, difficulty: 0 });
   });
 
-  // WHY: twin of Rust `add_card_rejects_invalid_progress_state`; the web insert used to store the row first.
+  // WHY: the web insert used to store the row before validating it.
+  // The Rust twin of the rule is `test_insert_card_progress_rules`.
   it("addCard rejects invalid progress fields and stores no row", async () => {
     const { db } = testDb;
     const { deck, template } = await seedDeckContext(db);
