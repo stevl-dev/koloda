@@ -85,50 +85,6 @@ fn test_algorithm_with_extra_fields_ignored() {
 }
 
 #[test]
-fn test_title_empty_fails() {
-    let json = format!(
-        r#"{{
-            "title": "",
-            "content": {}
-        }}"#,
-        VALID_FSRS_CONTENT
-    );
-
-    let data: InsertAlgorithmData = serde_json::from_str(&json).expect("Should deserialize");
-    assert!(data.validate().is_err());
-}
-
-#[test]
-fn test_title_too_long_fails() {
-    let json = format!(
-        r#"{{
-            "title": "{}",
-            "content": {}
-        }}"#,
-        "a".repeat(256),
-        VALID_FSRS_CONTENT
-    );
-
-    let data: InsertAlgorithmData = serde_json::from_str(&json).expect("Should deserialize");
-    assert!(data.validate().is_err());
-}
-
-#[test]
-fn test_title_unicode_ok() {
-    let json = format!(
-        r#"{{
-            "title": "Алгоритм ФСРС 🧠",
-            "content": {}
-        }}"#,
-        VALID_FSRS_CONTENT
-    );
-
-    let data: InsertAlgorithmData = serde_json::from_str(&json).expect("Should deserialize");
-    data.validate().unwrap();
-    assert_eq!(data.title, "Алгоритм ФСРС 🧠");
-}
-
-#[test]
 fn test_unknown_algorithm_type_fails() {
     let json = r#"{
             "title": "Test Algorithm",

@@ -56,20 +56,6 @@ fn test_conversation_json_round_trips() {
 }
 
 #[test]
-fn test_conversation_deserialization_invalid_updated_at_string_fails() {
-    let data = json!({
-        "id": "conv-1",
-        "title": null,
-        "state": {},
-        "createdAt": 1_700_000_000_000_i64,
-        "updatedAt": "not-a-timestamp",
-    });
-
-    let result = serde_json::from_value::<Conversation>(data);
-    assert!(result.is_err(), "invalid updatedAt string should fail deserialization");
-}
-
-#[test]
 fn test_set_conversation_input_deserialization_accepts_f64_updated_at() {
     let data = json!({
         "id": "conv-1",

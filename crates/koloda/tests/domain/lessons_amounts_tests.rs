@@ -13,48 +13,26 @@ fn lesson_amounts_zero_ok() {
 }
 
 #[test]
-fn lesson_amounts_negative_untouched_fails() {
-    let amounts = LessonAmounts {
-        untouched: -1,
+fn lesson_amounts_negative_bucket_fails() {
+    let zero = LessonAmounts {
+        untouched: 0,
         learn: 0,
         review: 0,
         total: 0,
     };
-    let result = amounts.validate();
-    assert_eq!(
-        result.unwrap_err().code,
-        error_codes::VALIDATION_LESSONS_AMOUNTS_NEGATIVE
-    );
-}
+    let cases = [
+        ("untouched", LessonAmounts { untouched: -1, ..zero }),
+        ("learn", LessonAmounts { learn: -1, ..zero }),
+        ("review", LessonAmounts { review: -1, ..zero }),
+    ];
 
-#[test]
-fn lesson_amounts_negative_learn_fails() {
-    let amounts = LessonAmounts {
-        untouched: 0,
-        learn: -1,
-        review: 0,
-        total: 0,
-    };
-    let result = amounts.validate();
-    assert_eq!(
-        result.unwrap_err().code,
-        error_codes::VALIDATION_LESSONS_AMOUNTS_NEGATIVE
-    );
-}
-
-#[test]
-fn lesson_amounts_negative_review_fails() {
-    let amounts = LessonAmounts {
-        untouched: 0,
-        learn: 0,
-        review: -1,
-        total: 0,
-    };
-    let result = amounts.validate();
-    assert_eq!(
-        result.unwrap_err().code,
-        error_codes::VALIDATION_LESSONS_AMOUNTS_NEGATIVE
-    );
+    for (bucket, amounts) in cases {
+        assert_eq!(
+            amounts.validate().unwrap_err().code,
+            error_codes::VALIDATION_LESSONS_AMOUNTS_NEGATIVE,
+            "{bucket}"
+        );
+    }
 }
 
 #[test]

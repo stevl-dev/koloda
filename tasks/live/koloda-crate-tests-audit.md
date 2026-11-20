@@ -257,7 +257,7 @@ none
   Commit: Table the settings and lesson result rejections
   Depends on: 3
 
-- [ ] 5. Move three domain checks to their one home
+- [x] 5. Move three domain checks to their one home
   Goal: Settle findings 4 and 7.
   - `domain/algorithms_tests.rs`: delete `test_title_empty_fails` (`:88`), `test_title_too_long_fails` (`:102`), and
     `test_title_unicode_ok` (`:117`); `entity_title_notes_tests.rs:38` runs `cases/titles.json` through both algorithm

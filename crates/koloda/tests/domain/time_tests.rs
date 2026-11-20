@@ -53,6 +53,15 @@ fn test_required_and_optional_round_trip_rfc3339() {
     assert_eq!(optional.ts, Some(MS));
 }
 
+#[test]
+fn test_required_and_optional_reject_a_malformed_string() {
+    let required: Result<RequiredTs, _> = serde_json::from_value(json!({ "ts": "not-a-timestamp" }));
+    assert!(required.is_err(), "required timestamp must reject a malformed string");
+
+    let optional: Result<OptionalTs, _> = serde_json::from_value(json!({ "ts": "not-a-timestamp" }));
+    assert!(optional.is_err(), "optional timestamp must reject a malformed string");
+}
+
 // INVARIANT: `{value|timestamp|time}` objects are a Tauri leftover, not on the NAPI wire.
 #[test]
 fn test_required_rejects_timestamp_objects() {
