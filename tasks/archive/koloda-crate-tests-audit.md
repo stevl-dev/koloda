@@ -1,6 +1,6 @@
 # Koloda crate tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/RUST.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -276,8 +276,28 @@ none
 
 ## Outcome
 
-<what shipped>
+Findings 1–7 are fixed by items 1–5; the settings pair of finding 5 was already resolved by `119a534f`.
 
-Spec: none — test-only change
+- 16 files under `crates/koloda/tests/` changed, and `integration/e2e_learning_workflow_tests.rs` is deleted.
+  No non-test source changed.
+- Tests went from 244 to 210 in the domain binary and from 328 to 322 in the integration binary.
+- No test in the crate sleeps; the conversation tests seed the stamps they compare.
+- `InsertCardData` runs the shared `progress` cases of `cases/cards.json`, replacing the repo test that was its only
+  check of the state range.
+- The redacted-profile table covers every `AISecrets` variant, Ollama included, plus the plaintext row with a `WHY`.
+- The learning-settings table has no empty-object row; it failed for the same reason as the missing `dailyLimits` row.
+- Each new or rewritten case that guards a source rule was checked by breaking that rule by hand: either key of the
+  conversation order, an upsert overwriting `created_at`, the insert state check, and the per-profile check in
+  `AISettings`.
+- Self-review found one issue and fixed it in its own commit: the twin comment in
+  `libs/db-sqlite/src/lib/cards.integration.test.ts` named a Rust test item 2 deleted
+  (`agents/TESTING.md` (§The TS ↔ Rust twin rule)).
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `03aea390`.
+
+Left for later: nothing.
+The deferred entries listed under Scope are not about the findings and stay as they are.
+
+Spec: none — test changes only; no user-visible behavior changed
 Review: not run
 Change rounds: 0
