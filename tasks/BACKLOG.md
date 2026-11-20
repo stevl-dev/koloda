@@ -15,11 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `koloda-crate-tests-audit`: Triage the test audit of `crates/koloda`.
-  Area: `crates/koloda`
-  Why: The report, written at `dc9c7bb7`, is in no task file yet.
-  Brief: `tasks/backlog/koloda-crate-tests-audit.md`
-
 - `rust-addons-tests-audit`: Triage the test audit of the desktop and mobile Rust addons.
   Area: `apps/electron/src-rust`, `apps/mobile/src-rust`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
