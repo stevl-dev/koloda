@@ -212,8 +212,10 @@ A full `bun run test:libs` is not required to justify a unit change.
   Each package with tests has a `tsconfig.spec.json` that its `tsconfig.json` references.
   A package that gains its first test copies a sibling's; `bun run check:workspace-deps` fails until it does.
 - App unit tests: `bun run test:app-unit`.
-  It runs `nx run @koloda/web:test-unit` and `nx run @koloda/electron:test:unit`.
-  The apps' plain `test` targets run Playwright; see `agents/VERIFY.md`.
+  It runs `nx run @koloda/web:test-unit`, `nx run @koloda/electron:test:unit` (electron and electron-react),
+  and `nx run @koloda/mobile:test` (Jest).
+  The web app's plain `test` target runs Playwright, and the desktop's runs the unit tests, then Playwright.
+  See `agents/VERIFY.md`.
 - Rust: `cargo test -p koloda`.
   Domain vs persistence: `cargo test -p koloda --test domain` / `--test integration`.
   The integration harness is self-contained (in-memory SQLite); no external services.

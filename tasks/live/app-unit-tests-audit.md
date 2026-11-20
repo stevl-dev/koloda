@@ -239,7 +239,7 @@ Entries use the report's numbers.
   Commit: Cut two desktop renderer tests to what they own
   Depends on: 2
 
-- [ ] 5. Name the web and mobile unit commands in the guides
+- [x] 5. Name the web and mobile unit commands in the guides
   Goal: Fix finding 6.
   - `agents/TESTING.md:214-216`: say `bun run test:app-unit` runs `nx run @koloda/web:test-unit`,
     `nx run @koloda/electron:test:unit` (electron and electron-react), and `nx run @koloda/mobile:test` (Jest).

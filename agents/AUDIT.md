@@ -67,6 +67,8 @@ The tests are part of the audited surface.
    - TypeScript libs: `bun run test:libs`
    - Rust: `cargo test`
    - Desktop unit: `nx run @koloda/electron:test:unit`
+   - Web unit: `nx run @koloda/web:test-unit`
+   - Mobile unit: `nx run @koloda/mobile:test`
    - Desktop e2e: `nx run @koloda/electron:test:e2e`
    - Web e2e: `nx run web-e2e:e2e`
    Record which command ran.
