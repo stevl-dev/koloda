@@ -39,4 +39,15 @@ describe("useHotkeysSettings", () => {
 
     expect(result.current).toEqual(DEFAULT_HOTKEYS_SETTINGS);
   });
+
+  it("uses a stored row in place of the defaults, with no bindings for a category it omits", async () => {
+    const { queryClient, result } = renderWithRead(() =>
+      Promise.resolve({ content: { navigation: { dashboard: ["G"] } } }),
+    );
+
+    await waitFor(() => expect(queryClient.getQueryState(["settings", "hotkeys"])?.status).toBe("success"));
+
+    expect(result.current.navigation.dashboard).toEqual(["G"]);
+    expect(result.current.form.submit).toEqual([]);
+  });
 });
