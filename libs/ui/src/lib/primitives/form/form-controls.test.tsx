@@ -1,8 +1,19 @@
+import type * as CoreReact from "@koloda/core-react";
 import { TextField, useAppForm } from "@koloda/ui";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+// WHY: the shared stub in test-setup.ts ignores scopes and options; Controls needs the real form scope and
+// `ignoreInputs: false`, so this file runs on the real hotkey manager.
+vi.mock("@koloda/core-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof CoreReact>();
+  return {
+    ...actual,
+    useHotkeysSettings: () => ({ form: { submit: ["Mod+S"], reset: ["Mod+D"] } }),
+  };
+});
 
 i18n.loadAndActivate({ locale: "en", messages: {} });
 
@@ -57,16 +68,20 @@ function FlaggedTitleForm({ onSubmit }: FlaggedTitleFormProps) {
   );
 }
 
-async function pressDiscard() {
+async function pressWithCtrl(key: string, code: string) {
+  const target = document.activeElement ?? document.body;
   await act(async () => {
-    fireEvent.keyDown(document.body, { key: "d", code: "KeyD", ctrlKey: true });
+    fireEvent.keyDown(target, { key, code, ctrlKey: true });
+    fireEvent.keyUp(target, { key, code, ctrlKey: true });
   });
 }
 
+async function pressDiscard() {
+  await pressWithCtrl("d", "KeyD");
+}
+
 async function pressSave() {
-  await act(async () => {
-    fireEvent.keyDown(document.body, { key: "s", code: "KeyS", ctrlKey: true });
-  });
+  await pressWithCtrl("s", "KeyS");
 }
 
 describe("Controls", () => {
@@ -79,6 +94,19 @@ describe("Controls", () => {
 
     fireEvent.change(screen.getByRole("textbox", { name: "Title" }), { target: { value: "Renamed" } });
     await pressSave();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("saves by hotkey while the cursor is in a field", async () => {
+    const onSubmit = vi.fn();
+    render(<TitleForm onSubmit={onSubmit} />);
+    const title = screen.getByRole("textbox", { name: "Title" });
+
+    title.focus();
+    fireEvent.change(title, { target: { value: "Renamed" } });
+    await pressSave();
+
+    expect(document.activeElement).toBe(title);
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
