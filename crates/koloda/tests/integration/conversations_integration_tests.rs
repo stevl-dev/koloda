@@ -21,6 +21,19 @@ fn set(
     )
 }
 
+// WHY: the repo stamps `created_at` with the current time; raw rows let a test choose both stamps, so any order it
+// asserts follows from them and never from the clock advancing between two writes.
+fn insert_row(db: &koloda::app::db::Database, id: &str, created_at: i64, updated_at: Option<i64>) {
+    db.with_conn(|conn| {
+        conn.execute(
+            "INSERT INTO conversations (id, state, created_at, updated_at) VALUES (?1, '{}', ?2, ?3)",
+            rusqlite::params![id, created_at, updated_at],
+        )?;
+        Ok(())
+    })
+    .expect("raw insert should succeed");
+}
+
 #[test]
 fn set_conversation_inserts_new_row_with_timestamps() {
     let db = test_db();
@@ -62,23 +75,8 @@ fn set_conversation_inserts_new_row_with_timestamps() {
 fn set_conversation_upserts_existing_row_and_advances_updated_at() {
     let db = test_db();
     let id = "conv-upsert";
-
-    let initial = repo::set_conversation(
-        &db,
-        SetConversationInput {
-            id: id.to_string(),
-            state: json!({"version": 1}),
-            title: None,
-            updated_at: None,
-        },
-    )
-    .expect("initial insert should succeed");
-    assert!(initial.updated_at.is_some(), "updated_at is stamped on insert");
-    let initial_updated_at = initial.updated_at.unwrap();
-
-    // 50ms exceeds the default Windows timer resolution (~15ms), guaranteeing
-    // a strictly later timestamp on every platform.
-    std::thread::sleep(std::time::Duration::from_millis(50));
+    let initial_updated_at = 1_700_000_000_000_i64;
+    insert_row(&db, id, initial_updated_at, Some(initial_updated_at));
 
     let updated = repo::set_conversation(
         &db,
@@ -104,11 +102,8 @@ fn set_conversation_upserts_existing_row_and_advances_updated_at() {
 fn set_conversation_preserves_created_at_on_update() {
     let db = test_db();
     let id = "conv-preserve";
-
-    let initial = set(&db, id, json!({"v": 1})).expect("initial insert should succeed");
-    let original_created_at = initial.created_at;
-
-    std::thread::sleep(std::time::Duration::from_millis(50));
+    let original_created_at = 1_700_000_000_000_i64;
+    insert_row(&db, id, original_created_at, Some(original_created_at));
 
     let updated = set(&db, id, json!({"v": 2})).expect("upsert should succeed");
 
@@ -150,7 +145,6 @@ fn set_conversation_with_explicit_updated_at_preserves_timestamp() {
 
     // A follow-up save without an updated_at should still bump it via the
     // server-side fallback.
-    std::thread::sleep(std::time::Duration::from_millis(50));
     let _ = set(&db, id, json!({"v": 2})).expect("follow-up upsert should succeed");
 
     let after = repo::get_conversation(&db, id)
@@ -279,50 +273,28 @@ fn get_conversations_returns_all_rows() {
 #[test]
 fn get_conversations_orders_by_updated_at_desc_then_created_at_desc() {
     let db = test_db();
-
-    let older = set(&db, "older", json!({"v": 1})).expect("insert should succeed");
-
-    // Ensure a strictly later created_at (50ms exceeds Windows ~15ms timer resolution).
-    std::thread::sleep(std::time::Duration::from_millis(50));
-
-    let newer = set(&db, "newer", json!({"v": 1})).expect("insert should succeed");
-    assert!(newer.created_at > older.created_at);
-
-    std::thread::sleep(std::time::Duration::from_millis(50));
-
-    // Touch the older conversation: it should now have an updated_at and jump
-    // to the front of the order.
-    let touched = set(&db, "older", json!({"v": 2})).expect("upsert should succeed");
-    assert!(touched.updated_at.is_some());
+    insert_row(&db, "oldest-touched-last", 1_000, Some(9_000));
+    insert_row(&db, "tied-older", 2_000, Some(5_000));
+    insert_row(&db, "tied-newer", 3_000, Some(5_000));
 
     let result = repo::get_conversations(&db).expect("query should succeed");
+    let ids: Vec<&str> = result.iter().map(|c| c.id.as_str()).collect();
 
-    assert_eq!(result.len(), 2);
-    assert_eq!(result[0].id, "older", "touched row should be first (updated_at DESC)");
-    assert_eq!(result[1].id, "newer");
+    assert_eq!(
+        ids,
+        vec!["oldest-touched-last", "tied-newer", "tied-older"],
+        "updated_at DESC first, then created_at DESC breaks the tie"
+    );
 }
 
 #[test]
 fn get_conversations_groups_rows_with_null_updated_at_after_touched_rows() {
     let db = test_db();
 
-    // Seed a legacy/untouched row with NULL updated_at via raw SQL — normal
-    // set_conversation inserts always stamp updated_at now.
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .expect("clock should be after unix epoch")
-        .as_millis() as i64;
-    db.with_conn(|conn| {
-        conn.execute(
-            "INSERT INTO conversations (id, state, created_at, updated_at) VALUES (?1, ?2, ?3, NULL)",
-            rusqlite::params!["untouched", "{}", now + 50],
-        )?;
-        Ok(())
-    })
-    .expect("raw insert should succeed");
-
-    std::thread::sleep(std::time::Duration::from_millis(50));
-    let _touched = set(&db, "touched", json!({"v": 1})).expect("insert should succeed");
+    // WHY: set_conversation always stamps updated_at, so only a legacy row holds NULL.
+    // It is created later than the touched row, so created_at alone would put it first.
+    insert_row(&db, "untouched", 9_000, None);
+    insert_row(&db, "touched", 1_000, Some(2_000));
 
     let result = repo::get_conversations(&db).expect("query should succeed");
     assert_eq!(result.len(), 2);

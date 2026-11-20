@@ -164,7 +164,7 @@ none
 
 ## Plan
 
-- [ ] 1. Order the conversation stamps without sleeping
+- [x] 1. Order the conversation stamps without sleeping
   Goal: Remove the six `std::thread::sleep` calls in `crates/koloda/tests/integration/conversations_integration_tests.rs`
   (`:81`, `:111`, `:153`, `:286`, `:291`, `:324`) while keeping what each test proves (finding 1).
   - `set_conversation_upserts_existing_row_and_advances_updated_at` (`:62`):
