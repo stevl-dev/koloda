@@ -1,6 +1,6 @@
 # App unit tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -285,7 +285,29 @@ Entries use the report's numbers.
 
 ## Outcome
 
-<what shipped>
+Findings 1–7 are fixed by items 1–6.
+
+- 10 test files in the four apps (two of them new: `apps/electron/src/ai-ipc.test.ts` and
+  `apps/web/src/app/setup.test.ts`), the app unit command lines of `agents/TESTING.md` (§Running), and the unit
+  command list of `agents/AUDIT.md` (§Method).
+  No non-test source changed.
+- Tests went from 38 to 41 in web and from 58 to 70 in electron; electron-react stays at 51 and mobile at 36.
+- The desktop main process's AI stream has a test for each of its three rules, plus the settings tool the human added
+  at triage.
+- The renderer chat is tested against another request's events, and a saved window at each display edge is tested
+  at the limit and one past it.
+- The sync-event second door and the subsumed runtime test are gone.
+- The guides name the web and mobile unit commands.
+- The five untested branches of finding 7 each have a case.
+- Each new or tightened case was checked by breaking its source line by hand.
+- Implementation corrected two plan details, recorded under item 6.
+- Self-review found one issue and fixed it in its own commit: the setup test's comment gave a reason without a tag
+  (`agents/CODE-DOCUMENTATION.md` (§Strict Commenting Rules)).
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `b88d392a`.
+
+Left for later: nothing.
+The deferred entries listed under Scope are not about these tests and stay as they are.
 
 Spec: none — test and guide changes only; no user-visible behavior changed
 Review: not run
