@@ -12,7 +12,7 @@ vi.mock("@lingui/react", () => ({
 
 describe("QueryError", () => {
   it("shows the catalog message for an AppError", () => {
-    render(<QueryError error={new AppError("db.get", "SQLITE_BUSY")} />);
+    render(<QueryError error={new AppError("db.get")} />);
 
     expect(screen.getByText("db.get")).toBeTruthy();
   });
