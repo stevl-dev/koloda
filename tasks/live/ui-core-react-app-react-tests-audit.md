@@ -49,7 +49,7 @@ Done when:
 
 In: every finding below, fixed as its decision says.
 Test files of the three packages change, plus the `ui` bullet of `agents/TESTING.md` (finding 7).
-No non-test source changes.
+Non-test source changes in one place only: item 5 drops one `export` the deleted test copy used.
 
 Out:
 
@@ -187,7 +187,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
 
 ## Plan
 
-- [ ] 1. Test the form hotkeys on the real hotkey engine with focus in a field
+- [x] 1. Test the form hotkeys on the real hotkey engine with focus in a field
   Goal: Fix finding 1.
   In `libs/ui/src/lib/primitives/form/form-controls.test.tsx`, mock `@koloda/core-react` over the real module as
   `libs/ui/src/lib/primitives/overlay/dialog.test.tsx:7-14` does, overriding only `useHotkeysSettings` to return the
@@ -204,7 +204,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Test the form hotkeys on the real hotkey engine with focus in a field
   Depends on: none
 
-- [ ] 2. Test that useHotkeysSettings uses a stored row
+- [x] 2. Test that useHotkeysSettings uses a stored row
   Goal: Fix finding 2.
   In `libs/core-react/src/lib/hooks/use-hotkeys-settings.test.ts`, add one case whose read resolves a stored row with
   content `{ navigation: { dashboard: ["G"] } }`, in the shape `getSettingsQuery` returns (the hook reads
@@ -217,7 +217,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Test that useHotkeysSettings uses a stored row
   Depends on: none
 
-- [ ] 3. Trim the error-display second doors and test one line per error code
+- [x] 3. Trim the error-display second doors and test one line per error code
   Goal: Fix finding 3.
   - `libs/ui/src/lib/ui/query-error.test.tsx`: delete the tests at `:14` (unknown code) and `:30` (no details); cut
     `:22` to its first assertion, the catalog headline, and rename it to say only that.
@@ -235,7 +235,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Trim the error-display second doors and test one line per error code
   Depends on: none
 
-- [ ] 4. Delete the passthrough and mock-echo tests
+- [x] 4. Delete the passthrough and mock-echo tests
   Goal: Fix finding 4.
   - `libs/ui/src/lib/primitives/overlay/tooltip/tooltip-geometry.test.ts`: delete "passes through side placements"
     (`:87`).
@@ -249,7 +249,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Delete the passthrough and mock-echo tests
   Depends on: none
 
-- [ ] 5. Pin the tooltip clamp with literals and test the change threshold
+- [x] 5. Pin the tooltip clamp with literals and test the change threshold
   Goal: Fix finding 5.
   In `libs/ui/src/lib/primitives/overlay/tooltip/tooltip-geometry.test.ts`:
   - Rewrite "clamps an out-of-range arrow center into the drawable edge" to assert literal tips for the 120 × 40 top
@@ -262,6 +262,10 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Constraints: that test file only.
   Done when: `libs/ui` passes; changing `TOOLTIP_RADIUS` or `TOOLTIP_ARROW_HALF_WIDTH` in `tooltip-geometry.ts` fails
   the clamp case, and changing `< 0.1` to `<= 0.1` fails the new threshold case (check each by hand, then revert).
+  Corrected at implementation: 50.1 − 50 is 0.10000000000000142, so a case at 50 and 50.1 also passes `<= 0.1`.
+  The case runs from 0 to 0.1, whose difference is exactly the double 0.1, with a `// WHY:`.
+  Corrected at implementation: with the copy gone, nothing imported `TOOLTIP_ARROW_HALF_WIDTH`, and `knip` failed.
+  `tooltip-geometry.ts:11` no longer exports it.
   Commit: Pin the tooltip clamp with literals and test the change threshold
   Depends on: 4
 

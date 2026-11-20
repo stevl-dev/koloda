@@ -8,7 +8,7 @@ export type TooltipSurfaceGeometry = {
 };
 
 export const TOOLTIP_ARROW_DEPTH = 7;
-export const TOOLTIP_ARROW_HALF_WIDTH = 10;
+const TOOLTIP_ARROW_HALF_WIDTH = 10;
 const TOOLTIP_ARROW_TIP_HALF_WIDTH = 2.5;
 export const TOOLTIP_BORDER_WIDTH = 2;
 const TOOLTIP_RADIUS = 6;
