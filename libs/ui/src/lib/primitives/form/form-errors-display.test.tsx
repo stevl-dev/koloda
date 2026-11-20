@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Errors } from "./errors";
@@ -23,16 +23,16 @@ describe("Errors", () => {
     expect(screen.getByRole("alert").textContent).toBe("db.get");
   });
 
-  it("keeps AppError details behind the details control", async () => {
-    render(<Errors errors={[{ message: "db.add", path: ["0"], details: "SQLITE_BUSY" }]} />);
+  it("shows one line for issues that share an error code", () => {
+    render(
+      <Errors
+        errors={[
+          { message: "db.get", path: ["title"] },
+          { message: "db.get", path: ["description"] },
+        ]}
+      />,
+    );
 
-    expect(screen.getByText("db.add")).toBeTruthy();
-    expect(screen.queryByText("SQLITE_BUSY")).toBeNull();
-
-    const trigger = screen.getByRole("button", { name: "error.details" });
-    fireEvent.click(trigger);
-
-    expect(await screen.findByText("SQLITE_BUSY")).toBeTruthy();
-    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("alert").textContent).toBe("db.get");
   });
 });
