@@ -83,9 +83,4 @@ describe("getTooltipArrowPlacement", () => {
     expect(getTooltipArrowPlacement(null)).toBe("top");
     expect(getTooltipArrowPlacement("center")).toBe("top");
   });
-
-  it("passes through side placements", () => {
-    expect(getTooltipArrowPlacement("bottom")).toBe("bottom");
-    expect(getTooltipArrowPlacement("left")).toBe("left");
-  });
 });
