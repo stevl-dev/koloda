@@ -283,7 +283,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Table the toggle-group tab tests and test the focus wrap
   Depends on: none
 
-- [ ] 7. Name every mock that keeps the ui tests isolated
+- [x] 7. Name every mock that keeps the ui tests isolated
   Goal: Fix finding 7.
   In `agents/TESTING.md` (§Runner constraints), reword the `ui` bullet (`:246-247`) to name, beside the three
   `@lingui/react` mocks, the `motion/react` mock in `use-motion-settings.test.tsx` (`form-controls.test.tsx` renders
