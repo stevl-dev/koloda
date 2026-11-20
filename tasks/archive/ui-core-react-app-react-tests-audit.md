@@ -1,6 +1,6 @@
 # ui, core-react, and app-react tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -296,8 +296,30 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
 
 ## Outcome
 
-<what shipped>
+Findings 1–7 are fixed by items 1–7.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- 13 test files in `libs/ui`, `libs/core-react`, and `libs/app-react`, the `ui` bullet of `agents/TESTING.md`
+  (§Runner constraints), and one dropped `export` in `libs/ui/src/lib/primitives/overlay/tooltip/tooltip-geometry.ts`.
+- `libs/ui` went from 76 to 74 tests, `libs/core-react` from 30 to 31; `libs/app-react` stays at 6.
+- `form-controls.test.tsx` runs on the real hotkey engine; Save with the cursor in a field has a test, and dropping
+  `ignoreInputs: false` or the `form` scope fails it.
+- `useHotkeysSettings` has a stored-row case, including a category the row omits.
+- The error-display second doors are gone; `Errors` showing one line per code has a test.
+- The five passthrough and mock-echo tests are gone.
+- The tooltip clamp is pinned with literals, and the 0.1 threshold is tested at its limit.
+- The toggle-group tab tests are one table, and the focus wrap has a test.
+- Each new or tightened case was checked by breaking its source line by hand.
+- Implementation corrected two plan details, recorded under item 5.
+- Self-review found two issues and fixed them in their own commit:
+  the `ui` isolation bullet called the router mock a mock of something siblings import for real
+  (`agents/TESTING.md` (§Runner constraints)), and a trimmed `query-error.test.tsx` case still passed details it no
+  longer asserted (`agents/CODE-STYLE.md` (§Change Discipline)).
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `c030073a`.
+
+Left for later: nothing.
+The four deferred entries for the area are not about tests and stay as they are.
+
+Spec: none — test and guide changes only; no user-visible behavior changed
+Review: not run
+Change rounds: 0
