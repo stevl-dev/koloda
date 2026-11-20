@@ -59,10 +59,12 @@ describe("web AI profile save path", () => {
     });
   });
 
-  it("accepts an ollama profile without an apiKey on create", async () => {
-    await expect(
-      addAIProfile(TEST_DB, { secrets: { provider: "ollama", baseUrl: "http://localhost:11434" } }),
-    ).resolves.toBeUndefined();
+  it("stores an ollama profile created without an apiKey as keyless", async () => {
+    await addAIProfile(TEST_DB, { secrets: { provider: "ollama", baseUrl: "http://localhost:11434" } });
+
+    expect(storedProfiles()[0]).toMatchObject({ hasSecrets: false });
+    expect(storedProfiles()[0]?.secrets).toEqual({ provider: "ollama", baseUrl: "http://localhost:11434" });
+    expect((await getAIProfiles(TEST_DB))[0]?.hasSecrets).toBe(false);
   });
 
   it("rejects a blank apiKey on update and leaves the stored profile unchanged", async () => {

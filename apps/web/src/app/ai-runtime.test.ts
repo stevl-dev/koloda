@@ -56,7 +56,10 @@ describe("web AIRuntime secrets read", () => {
   function stubModels() {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => new Response(JSON.stringify({ data: [{ id: "model-1" }] }), { status: 200 })),
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ data: [{ id: "vendor/model-1", name: "Model 1" }] }), { status: 200 }),
+      ),
     );
   }
 
@@ -72,7 +75,7 @@ describe("web AIRuntime secrets read", () => {
     await runtime.listModels("profile-1");
     loadAIProfileSecrets.mockRejectedValueOnce(readError);
 
-    await expect(runtime.listModels("profile-1")).resolves.toEqual(expect.any(Array));
+    await expect(runtime.listModels("profile-1")).resolves.toEqual([expect.objectContaining({ id: "vendor/model-1" })]);
   });
 });
 

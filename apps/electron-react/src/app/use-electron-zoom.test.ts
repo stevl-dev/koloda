@@ -42,6 +42,7 @@ describe("useElectronZoom", () => {
   it.each([
     ["a stored level is applied", "1.5", [[1.5]]],
     ["no stored level keeps the default", null, []],
+    ["a stored level that is not a number keeps the default", "abc", []],
   ] as const)("at mount, %s", (_name, stored, expected) => {
     if (stored !== null) localStorage.setItem("zoom-level", stored);
     const api = stubZoomApi();

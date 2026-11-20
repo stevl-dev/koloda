@@ -252,7 +252,7 @@ Entries use the report's numbers.
   Commit: Name the web and mobile unit commands in the guides
   Depends on: none
 
-- [ ] 6. Test the untested app branches
+- [x] 6. Test the untested app branches
   Goal: Fix finding 7.
   - `apps/web/src/app/browser-support.test.ts`: add that missing WebAssembly cannot run, as `:71` does for
     IndexedDB, and fold the five `isChromiumBased` tests (`:8-57`) into one `it.each` table of input and expected
@@ -272,6 +272,14 @@ Entries use the report's numbers.
   (check each by hand, then revert): dropping `&& hasWasm` from `canRun`; making the fallback read return `[]`;
   storing `hasSecrets: true` for a keyless Ollama profile; moving the migrations out of the setup transaction;
   dropping the `Number.isNaN` check in `use-electron-zoom.ts:13`.
+  Corrected at implementation: the fallback case's stub model id, `model-1`, has no `/`, so the OpenRouter catalog
+  drops it and both reads returned `[]`.
+  The stub now returns `vendor/model-1`, and the case asserts that id.
+  The fallback mutation was checked as `listModels` returning `[]`.
+  Corrected at implementation: the setup failure is a real one, an invalid `scheme` that
+  `interfaceSettingsValidation` rejects inside the transaction, after the migrations, algorithms, and templates.
+  The case asserts that error, so an earlier failure cannot pass it.
+  `setup.test.ts` mocks only `./db`, which opens the app's one database at module load, to give the run its own.
   Commit: Test the untested app branches
   Depends on: none
 
