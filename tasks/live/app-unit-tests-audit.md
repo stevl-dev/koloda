@@ -212,7 +212,7 @@ Entries use the report's numbers.
   Commit: Show the renderer chat ignores another request's stream events
   Depends on: none
 
-- [ ] 3. Test a saved window off every display at the edge
+- [x] 3. Test a saved window off every display at the edge
   Goal: Fix finding 3.
   In `apps/electron/src/window-state.test.ts`, add rows to the `loadWindowState` table (`:26`) for an 800 × 600
   window with `y: 0` on the mocked 1920 × 1080 display:

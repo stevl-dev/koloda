@@ -47,6 +47,22 @@ describe("loadWindowState", () => {
 
     expect(loadWindowState()).toStrictEqual(state);
   });
+
+  it.each([
+    { name: "one pixel on the right edge", x: 1919, y: 0, isKept: true },
+    { name: "just past the right edge", x: 1920, y: 0, isKept: false },
+    { name: "one pixel on the left edge", x: -799, y: 0, isKept: true },
+    { name: "just past the left edge", x: -800, y: 0, isKept: false },
+    { name: "one pixel on the bottom edge", x: 0, y: 1079, isKept: true },
+    { name: "just past the bottom edge", x: 0, y: 1080, isKept: false },
+    { name: "one pixel on the top edge", x: 0, y: -599, isKept: true },
+    { name: "just past the top edge", x: 0, y: -600, isKept: false },
+  ])("keeps a saved window only while it overlaps a display: $name", ({ x, y, isKept }) => {
+    const saved = { width: 800, height: 600, x, y };
+    writeFileSync(join(userData.dir, "window-state.json"), JSON.stringify(saved));
+
+    expect(loadWindowState()).toStrictEqual(isKept ? saved : defaults);
+  });
 });
 
 describe("saveWindowState", () => {
