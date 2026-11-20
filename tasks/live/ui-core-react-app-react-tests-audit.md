@@ -269,7 +269,7 @@ A path that starts with `ui/`, `core-react/`, or `app-react/` is under `libs/<pa
   Commit: Pin the tooltip clamp with literals and test the change threshold
   Depends on: 4
 
-- [ ] 6. Table the toggle-group tab tests and test the focus wrap
+- [x] 6. Table the toggle-group tab tests and test the focus wrap
   Goal: Fix finding 6.
   In `libs/ui/src/lib/core/focus.test.tsx`:
   - Fold the four tests at `:60`, `:81`, `:102`, and `:123` into one `it.each` table of start item, function
