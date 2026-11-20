@@ -200,7 +200,7 @@ Entries use the report's numbers.
   Commit: Test the desktop AI stream's abort and isolation rules
   Depends on: none
 
-- [ ] 2. Show the renderer chat ignores another request's stream events
+- [x] 2. Show the renderer chat ignores another request's stream events
   Goal: Fix finding 2.
   In `apps/electron-react/src/app/ai-runtime.test.ts`, in "streams chat chunks and resolves usage on done" (`:43`),
   emit a `chunk` and a `done` for another `requestId` before the real events, and assert neither reaches the chat:

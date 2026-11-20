@@ -40,11 +40,13 @@ beforeEach(() => {
 });
 
 describe("createElectronAIRuntime", () => {
-  it("streams chat chunks and resolves usage on done", async () => {
+  it("streams chat chunks and resolves usage on done, ignoring another request's events", async () => {
     invokeMock.mockImplementation(async (cmd, args) => {
       if (cmd !== "cmd_ai_chat_stream") return undefined;
       const { requestId } = args as { requestId: string };
       queueMicrotask(() => {
+        emit(AI_STREAM_CHANNEL, { requestId: "another-run", type: "chunk", chunk: { kind: "text", text: "other" } });
+        emit(AI_STREAM_CHANNEL, { requestId: "another-run", type: "done", usage: { promptTokens: 9 } });
         emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: { kind: "text", text: "Hel" } });
         emit(AI_STREAM_CHANNEL, { requestId, type: "chunk", chunk: { kind: "text", text: "lo" } });
         emit(AI_STREAM_CHANNEL, {
