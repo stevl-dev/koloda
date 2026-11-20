@@ -9,7 +9,7 @@ vi.mock("./db", async () => {
 
 describe("web setup from scratch", () => {
   it("leaves the status blank when setup fails partway", async () => {
-    // The interface settings are validated after the migrations, algorithms, and templates are written.
+    // WHY: the interface settings are validated after the migrations, algorithms, and templates are written.
     await expect(setupFromScratch({ scheme: "neon" as never })).rejects.toThrow("validation.settings-interface.scheme");
 
     await expect(getStatus()).resolves.toBe("blank");
