@@ -227,7 +227,7 @@ Entries use the report's numbers.
   Commit: Test a saved window off every display at the edge
   Depends on: none
 
-- [ ] 4. Cut two desktop renderer tests to what they own
+- [x] 4. Cut two desktop renderer tests to what they own
   Goal: Fix findings 4 and 5.
   - `apps/electron-react/src/app/sync-events.test.ts:43`: keep one key that a `cards` change marks stale (the deck's
     cards) and one it leaves fresh (the deck list); drop the other keys and the template-lock comment.

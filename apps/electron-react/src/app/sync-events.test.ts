@@ -40,23 +40,14 @@ describe("applySyncEvent", () => {
     expect(Object.keys(DATA_KIND_QUERY_KEYS).sort()).toEqual(registryKinds().sort());
   });
 
-  it("refreshes the screens that show a changed kind and leaves the others", () => {
+  it("passes the changed kinds on to the screens that show them", () => {
     const deckCards = queryKeys.cards.deck({ deckId: "d1" });
-    const lessons = queryKeys.lessons.all({ deckIds: ["d1"] });
-    const totals = queryKeys.lessons.todayReviewTotals();
-    // A card on a template locks it, so the open template editor shows a new lock status.
-    const template = queryKeys.templates.detail("t1");
-    const conversations = queryKeys.conversations.all();
     const decks = queryKeys.decks.all();
-    const queryClient = clientWith([deckCards, lessons, totals, template, conversations, decks]);
+    const queryClient = clientWith([deckCards, decks]);
 
     applySyncEvent(queryClient, createStore(), { type: "changed", kinds: ["cards"] });
 
     expect(isInvalidated(queryClient, deckCards)).toBe(true);
-    expect(isInvalidated(queryClient, lessons)).toBe(true);
-    expect(isInvalidated(queryClient, totals)).toBe(true);
-    expect(isInvalidated(queryClient, template)).toBe(true);
-    expect(isInvalidated(queryClient, conversations)).toBe(false);
     expect(isInvalidated(queryClient, decks)).toBe(false);
   });
 

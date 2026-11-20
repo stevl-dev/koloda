@@ -73,32 +73,7 @@ describe("createElectronAIRuntime", () => {
     expect(usage).toEqual({ promptTokens: 1, completionTokens: 2, totalTokens: 3 });
   });
 
-  it("uses a provided requestId for chat IPC", async () => {
-    invokeMock.mockImplementation(async (cmd, args) => {
-      if (cmd !== "cmd_ai_chat_stream") return undefined;
-      const { requestId } = args as { requestId: string };
-      queueMicrotask(() => {
-        emit(AI_STREAM_CHANNEL, { requestId, type: "done" });
-      });
-    });
-
-    const runtime = createElectronAIRuntime();
-    await runtime.chat(
-      "profile-1",
-      { messages: [], input: { modelId: "m" } },
-      () => {},
-      new AbortController().signal,
-      "host-req-chat",
-    );
-
-    expect(invokeMock).toHaveBeenCalledWith("cmd_ai_chat_stream", {
-      requestId: "host-req-chat",
-      profileId: "profile-1",
-      request: { messages: [], input: { modelId: "m" } },
-    });
-  });
-
-  it("forwards tool names and strips non-serializable callbacks from the chat payload", async () => {
+  it("forwards the provided requestId and tool names, and strips non-serializable callbacks from the chat payload", async () => {
     invokeMock.mockImplementation(async (cmd, args) => {
       if (cmd !== "cmd_ai_chat_stream") return undefined;
       const { requestId } = args as { requestId: string };
