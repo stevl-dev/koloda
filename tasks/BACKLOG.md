@@ -15,11 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `app-unit-tests-audit`: Triage the unit test audit of the four apps.
-  Area: `apps/web`, `apps/electron`, `apps/electron-react`, `apps/mobile`
-  Why: The report, written at `dc9c7bb7`, is in no task file yet.
-  Brief: `tasks/backlog/app-unit-tests-audit.md`
-
 - `koloda-crate-tests-audit`: Triage the test audit of `crates/koloda`.
   Area: `crates/koloda`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
