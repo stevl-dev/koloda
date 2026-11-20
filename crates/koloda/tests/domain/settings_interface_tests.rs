@@ -52,14 +52,6 @@ fn test_extra_fields_ignored() {
 }
 
 #[test]
-fn test_settings_name_interface_validation_with_non_object_content() {
-    let content = serde_json::json!("not an object");
-
-    let result = SettingsName::Interface.normalize(content);
-    assert_eq!(result.expect_err("Should fail on non-object content").code, "unknown");
-}
-
-#[test]
 fn test_settings_name_interface_all_valid_combinations() {
     let languages = vec!["en", "ru"];
     let schemes = vec!["light", "dark", "system"];

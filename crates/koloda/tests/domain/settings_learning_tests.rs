@@ -43,33 +43,41 @@ fn build_learning_settings_json(daily_limits: &str, day_starts_at: &str, learn_a
 }
 
 #[test]
-fn test_missing_daily_limits_fails() {
-    // WHY: the TS twin `learningSettingsValidation` also requires the
-    // `dailyLimits` key — only its contents are defaulted. Valid defaults
-    // isolate the failure to the missing key.
-    let json = r#"{
-        "defaults": {"algorithm": "01900000-0000-7000-8000-000000000001", "template": "01900000-0000-7000-8000-000000000002"},
-        "dayStartsAt": "04:00",
-        "learnAheadLimit": [4, 0]
-    }"#;
+fn test_learning_settings_reject_wrong_shapes() {
+    let valid: Value = serde_json::from_str(&build_learning_settings_json(
+        standard_daily_limits(),
+        r#""04:00""#,
+        "[4, 0]",
+    ))
+    .unwrap();
+    serde_json::from_value::<LearningSettings>(valid.clone()).expect("baseline should deserialize");
+    let with = |key: &str, value: Option<Value>| {
+        let mut payload = valid.clone();
+        let object = payload.as_object_mut().unwrap();
+        match value {
+            Some(value) => object.insert(key.to_string(), value),
+            None => object.remove(key),
+        };
+        payload
+    };
 
-    let result: Result<LearningSettings, _> = serde_json::from_str(json);
-    assert!(result.is_err(), "Should fail when dailyLimits is missing");
-}
+    let cases = [
+        // WHY: the TS twin `learningSettingsValidation` also requires the `dailyLimits` key; only its contents are
+        // defaulted.
+        ("dailyLimits missing", with("dailyLimits", None)),
+        // WHY: serde `default` fills an omitted key only; `null` is not a string, the same as on the Zod side.
+        ("dayStartsAt null", with("dayStartsAt", Some(Value::Null))),
+        ("dayStartsAt a number", with("dayStartsAt", Some(json!(400)))),
+        (
+            "learnAheadLimit an object",
+            with("learnAheadLimit", Some(json!({ "hours": 4, "minutes": 0 }))),
+        ),
+        ("learnAheadLimit a string", with("learnAheadLimit", Some(json!("4:00")))),
+    ];
 
-#[test]
-fn test_null_day_starts_at_fails() {
-    // WHY: serde `default` fills an omitted key only; `null` is not a string, the same as on the Zod side.
-    let json = build_learning_settings_json(standard_daily_limits(), r#"null"#, "[4, 0]");
-    serde_json::from_str::<LearningSettings>(&json).unwrap_err();
-}
-
-#[test]
-fn test_empty_json_object_fails() {
-    let json = r#"{}"#;
-
-    let result: Result<LearningSettings, _> = serde_json::from_str(json);
-    assert!(result.is_err(), "Should fail with empty JSON");
+    for (name, payload) in cases {
+        assert!(serde_json::from_value::<LearningSettings>(payload).is_err(), "{name}");
+    }
 }
 
 #[test]
@@ -92,44 +100,6 @@ fn parse_day_starts_at_returns_hours_and_minutes() {
     assert_eq!(parse_day_starts_at("00:00").unwrap(), (0, 0));
     assert_eq!(parse_day_starts_at("05:00").unwrap(), (5, 0));
     assert_eq!(parse_day_starts_at("23:59").unwrap(), (23, 59));
-}
-
-#[test]
-fn test_day_starts_at_as_number_fails() {
-    let json = build_learning_settings_json(standard_daily_limits(), "400", "[4, 0]");
-
-    let result: Result<LearningSettings, _> = serde_json::from_str(&json);
-    assert!(result.is_err(), "Should fail when dayStartsAt is a number");
-}
-
-#[test]
-fn test_learn_ahead_limit_as_object_fails() {
-    let json = build_learning_settings_json(standard_daily_limits(), r#""04:00""#, r#"{"hours": 4, "minutes": 0}"#);
-
-    let result: Result<LearningSettings, _> = serde_json::from_str(&json);
-    assert!(result.is_err(), "Should fail when learnAheadLimit is an object");
-}
-
-#[test]
-fn test_learn_ahead_limit_as_string_fails() {
-    let json = build_learning_settings_json(standard_daily_limits(), r#""04:00""#, r#""4:00""#);
-
-    let result: Result<LearningSettings, _> = serde_json::from_str(&json);
-    assert!(result.is_err(), "Should fail when learnAheadLimit is a string");
-}
-
-#[test]
-fn test_settings_name_learning_validation_with_non_object_content() {
-    let content = serde_json::json!("not an object");
-    let result = SettingsName::Learning.normalize(content);
-    result.unwrap_err();
-}
-
-#[test]
-fn test_settings_name_learning_validation_with_array_content() {
-    let content = serde_json::json!([1, 2, 3]);
-    let result = SettingsName::Learning.normalize(content);
-    result.unwrap_err();
 }
 
 #[test]

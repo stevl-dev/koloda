@@ -237,7 +237,7 @@ none
   Commit: Give each AI profile rule one home
   Depends on: none
 
-- [ ] 4. Table the settings and lesson result rejections
+- [x] 4. Table the settings and lesson result rejections
   Goal: Replace the per-cell serde rejections of finding 3 with one table per DTO.
   - `domain/settings_learning_tests.rs`: one table for `LearningSettings` replacing `:46`, `:61`, `:68`, `:98`,
     `:106`, `:114`; keep `test_settings_with_extra_fields_ignored` (`:76`) as an accepted row or as is.

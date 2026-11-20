@@ -26,6 +26,23 @@ fn test_settings_name_uses_kebab_case() {
     }
 }
 
+#[test]
+fn test_every_settings_name_refuses_non_object_content() {
+    for name in [
+        SettingsName::Interface,
+        SettingsName::Learning,
+        SettingsName::Hotkeys,
+        SettingsName::Ai,
+    ] {
+        for content in [json!("not an object"), json!([1, 2, 3])] {
+            let error = name
+                .normalize(content.clone())
+                .expect_err(&format!("{name:?} should refuse {content}"));
+            assert_eq!(error.code, "unknown", "{name:?} with {content}");
+        }
+    }
+}
+
 /// Pins the settings row envelope as it crosses the NAPI layer: `content` is
 /// the embedded JSON object (never a stringified column), `name` is kebab-case,
 /// and timestamps serialize as RFC 3339 strings like every other entity — the

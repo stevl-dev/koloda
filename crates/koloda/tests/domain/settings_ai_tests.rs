@@ -100,11 +100,13 @@ fn test_valid_ai_settings_with_whitelist_model_ids() {
 }
 
 #[test]
-fn test_missing_profiles_fails() {
-    let json = r#"{}"#;
-
-    let result: Result<AISettings, _> = serde_json::from_str(json);
-    assert!(result.is_err(), "Should fail when profiles is missing");
+fn test_ai_settings_reject_wrong_profiles_shapes() {
+    for (name, content) in [
+        ("profiles missing", json!({})),
+        ("profiles an object", json!({ "profiles": {} })),
+    ] {
+        assert!(serde_json::from_value::<AISettings>(content).is_err(), "{name}");
+    }
 }
 
 #[test]
@@ -116,32 +118,6 @@ fn test_ai_settings_extra_fields_ignored() {
 
     let settings: AISettings = serde_json::from_str(json).expect("Should deserialize");
     settings.validate().unwrap();
-}
-
-#[test]
-fn test_profiles_as_object_fails() {
-    let json = r#"{
-        "profiles": {}
-    }"#;
-
-    let result: Result<AISettings, _> = serde_json::from_str(json);
-    assert!(result.is_err(), "Should fail when profiles is not an array");
-}
-
-#[test]
-fn test_settings_name_ai_validation_with_non_object_content() {
-    let content = serde_json::json!("not an object");
-
-    let result = SettingsName::Ai.normalize(content);
-    result.unwrap_err();
-}
-
-#[test]
-fn test_settings_name_ai_validation_with_array_content() {
-    let content = serde_json::json!([1, 2, 3]);
-
-    let result = SettingsName::Ai.normalize(content);
-    result.unwrap_err();
 }
 
 #[test]

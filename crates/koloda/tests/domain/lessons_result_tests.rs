@@ -3,21 +3,23 @@ use koloda::domain::lessons::LessonResultData;
 use serde_json::json;
 
 #[test]
-fn test_lesson_result_missing_card() {
-    let data = json!({
-        "review": valid_review_json()
-    });
-    let result = serde_json::from_value::<LessonResultData>(data);
-    result.unwrap_err();
-}
+fn test_lesson_result_rejects_wrong_shapes() {
+    let cases = [
+        ("card missing", json!({ "review": valid_review_json() })),
+        ("review missing", json!({ "card": valid_card_progress_json() })),
+        (
+            "card not an object",
+            json!({ "card": "not-an-object", "review": valid_review_json() }),
+        ),
+        (
+            "review not an object",
+            json!({ "card": valid_card_progress_json(), "review": "not-an-object" }),
+        ),
+    ];
 
-#[test]
-fn test_lesson_result_missing_review() {
-    let data = json!({
-        "card": valid_card_progress_json()
-    });
-    let result = serde_json::from_value::<LessonResultData>(data);
-    result.unwrap_err();
+    for (name, payload) in cases {
+        assert!(serde_json::from_value::<LessonResultData>(payload).is_err(), "{name}");
+    }
 }
 
 #[test]
@@ -29,26 +31,6 @@ fn test_lesson_result_extra_fields_ok() {
     });
     let result = serde_json::from_value::<LessonResultData>(data);
     result.unwrap();
-}
-
-#[test]
-fn test_lesson_result_card_invalid_type() {
-    let data = json!({
-        "card": "not-an-object",
-        "review": valid_review_json()
-    });
-    let result = serde_json::from_value::<LessonResultData>(data);
-    result.unwrap_err();
-}
-
-#[test]
-fn test_lesson_result_review_invalid_type() {
-    let data = json!({
-        "card": valid_card_progress_json(),
-        "review": "not-an-object"
-    });
-    let result = serde_json::from_value::<LessonResultData>(data);
-    result.unwrap_err();
 }
 
 #[test]

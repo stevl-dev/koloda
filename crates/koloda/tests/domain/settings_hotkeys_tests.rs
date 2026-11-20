@@ -164,14 +164,6 @@ fn test_duplicate_keys_between_ui_and_navigation_fails() {
 }
 
 #[test]
-fn test_settings_name_hotkeys_validation_with_non_object_content() {
-    let content = serde_json::json!("not an object");
-
-    let result = SettingsName::Hotkeys.normalize(content);
-    result.unwrap_err();
-}
-
-#[test]
 fn test_settings_name_hotkeys_validation_via_json() {
     let json = r#"{
         "navigation": {
