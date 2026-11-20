@@ -1,3 +1,4 @@
+use crate::common::cases::rule_cases;
 use crate::common::{valid_card_content, valid_template_fields};
 use koloda::domain::cards::InsertCardData;
 use serde_json::{json, Value};
@@ -83,4 +84,14 @@ fn minimal_insert_card_data() -> serde_json::Value {
 fn test_insert_card_progress_defaults_valid() {
     let card_data = serde_json::from_value::<InsertCardData>(minimal_insert_card_data()).unwrap();
     card_data.validate(&valid_template_fields()).unwrap();
+}
+
+#[test]
+fn test_insert_card_progress_rules() {
+    for case in rule_cases("cards.json", "progress") {
+        let observed = case.parse_and_observe(case.patch(valid_payload()), |data: InsertCardData| {
+            data.validate(&valid_template_fields()).map(|()| Value::Null)
+        });
+        assert_eq!(observed, case.expect, "{}", case.name);
+    }
 }

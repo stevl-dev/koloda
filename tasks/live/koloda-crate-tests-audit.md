@@ -190,7 +190,7 @@ none
   Commit: Order the conversation stamps without sleeping
   Depends on: none
 
-- [ ] 2. Delete repo tests that a lower test or a neighbor covers
+- [x] 2. Delete repo tests that a lower test or a neighbor covers
   Goal: Delete integration tests that protect nothing their neighbors or the domain suite do not (findings 5 and 6).
   - `integration/conversations_integration_tests.rs`: `get_conversation_returns_some_for_existing_id` (`:244`),
     `get_conversations_returns_empty_list_when_table_empty` (`:257`), `get_conversations_returns_all_rows` (`:264`).

@@ -545,33 +545,3 @@ fn get_lesson_data_includes_unique_related_entities_for_multiple_decks() {
     sorted_algorithm_keys.sort();
     assert_eq!(sorted_algorithm_keys, vec!["content", "id"]);
 }
-
-#[test]
-fn get_lesson_cards_rejects_negative_amounts() {
-    let db = test_db();
-    let algorithm_id = add_algorithm(&db, "FSRS");
-    let template_id = add_template(&db, "Basic");
-    let deck_id = add_deck(&db, &algorithm_id, &template_id, "Deck");
-    let _ = add_card(&db, &deck_id, &template_id, "question");
-
-    let result = lessons::get_lesson_cards(
-        &db,
-        &GetLessonDataParams {
-            due_at: 1_000,
-            filters: LessonFilters {
-                deck_ids: Some(vec![deck_id.clone()]),
-            },
-            amounts: LessonAmounts {
-                untouched: -1,
-                learn: 0,
-                review: 0,
-                total: 0,
-            },
-        },
-    );
-
-    assert_eq!(
-        result.unwrap_err().code,
-        error_codes::VALIDATION_LESSONS_AMOUNTS_NEGATIVE
-    );
-}

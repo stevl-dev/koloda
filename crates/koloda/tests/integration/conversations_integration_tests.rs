@@ -235,42 +235,6 @@ fn get_conversation_returns_none_for_missing_id() {
 }
 
 #[test]
-fn get_conversation_returns_some_for_existing_id() {
-    let db = test_db();
-    let id = add_conversation(&db, "conv-get", json!({"k": "v"}));
-
-    let result = repo::get_conversation(&db, &id)
-        .expect("query should succeed")
-        .expect("conversation should exist");
-
-    assert_eq!(result.id, id);
-    assert_eq!(result.state, json!({"k": "v"}));
-}
-
-#[test]
-fn get_conversations_returns_empty_list_when_table_empty() {
-    let db = test_db();
-    let result = repo::get_conversations(&db).expect("query should succeed");
-    assert!(result.is_empty());
-}
-
-#[test]
-fn get_conversations_returns_all_rows() {
-    let db = test_db();
-    add_conversation(&db, "conv-a", json!({"a": 1}));
-    add_conversation(&db, "conv-b", json!({"b": 2}));
-    add_conversation(&db, "conv-c", json!({"c": 3}));
-
-    let result = repo::get_conversations(&db).expect("query should succeed");
-
-    assert_eq!(result.len(), 3);
-    let ids: Vec<&str> = result.iter().map(|c| c.id.as_str()).collect();
-    assert!(ids.contains(&"conv-a"));
-    assert!(ids.contains(&"conv-b"));
-    assert!(ids.contains(&"conv-c"));
-}
-
-#[test]
 fn get_conversations_orders_by_updated_at_desc_then_created_at_desc() {
     let db = test_db();
     insert_row(&db, "oldest-touched-last", 1_000, Some(9_000));
