@@ -15,11 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `ui-core-react-app-react-tests-audit`: Triage the test audit of `libs/ui`, `libs/core-react`, and `libs/app-react`.
-  Area: `libs/ui`, `libs/core-react`, `libs/app-react`
-  Why: The report, written at `dc9c7bb7`, is in no task file yet.
-  Brief: `tasks/backlog/ui-core-react-app-react-tests-audit.md`
-
 - `app-unit-tests-audit`: Triage the unit test audit of the four apps.
   Area: `apps/web`, `apps/electron`, `apps/electron-react`, `apps/mobile`
   Why: The report, written at `dc9c7bb7`, is in no task file yet.
