@@ -1,4 +1,5 @@
-//! FSRS weight optimization — Rust-only and desktop-only, with no TS twin.
+//! FSRS weight optimization, and the card memory replay that applying its weights runs — Rust-only and desktop-only,
+//! with no TS twin.
 //!
 //! Fitting lives here; scheduling stays in `@koloda/srs` (ts-fsrs). What the two must agree on, the model, the weight
 //! count, and how days between reviews are counted, is `docs/decisions/FSRS-OPTIMIZER.md`.
@@ -58,17 +59,23 @@ struct DatedItem<'a> {
     item: FSRSItem,
 }
 
-pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
+/// Each card's reviews, oldest first, keyed by card id.
+fn card_histories(reviews: &[ReviewRecord]) -> BTreeMap<&str, Vec<&ReviewRecord>> {
     let mut by_card: BTreeMap<&str, Vec<&ReviewRecord>> = BTreeMap::new();
     for review in reviews {
         by_card.entry(review.card_id.as_str()).or_default().push(review);
     }
+    for history in by_card.values_mut() {
+        history.sort_by(|a, b| a.reviewed_at.cmp(&b.reviewed_at).then_with(|| a.id.cmp(&b.id)));
+    }
+    by_card
+}
 
+pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
     let mut dated = Vec::new();
     let mut review_count = 0;
     let mut next_card_index: i64 = 0;
-    for mut history in by_card.into_values() {
-        history.sort_by(|a, b| a.reviewed_at.cmp(&b.reviewed_at).then_with(|| a.id.cmp(&b.id)));
+    for history in card_histories(reviews).into_values() {
         let Some(card_items) = card_items(&history, next_card_index) else {
             continue;
         };
@@ -98,23 +105,14 @@ pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
 }
 
 /// One item per prefix of the history that ends at a review some time after the previous one.
-/// `None` drops the whole card: its history does not start at New, or a review cannot be read.
 fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<DatedItem<'a>>> {
-    if history.first()?.state != CardState::New.as_i32() {
-        return None;
-    }
+    let reviews = card_reviews(history)?;
 
     let mut items = Vec::new();
-    let mut prefix = Vec::with_capacity(history.len());
-    let mut previous: Option<i64> = None;
-    for review in history {
-        let rating = u32::try_from(review.rating)
-            .ok()
-            .filter(|rating| (1..=4).contains(rating))?;
-        let days = previous.map_or(0.0, |previous| elapsed_days(previous, review.reviewed_at));
-        previous = Some(review.reviewed_at);
-
-        prefix.push(FSRSReview { rating, delta_t: days });
+    let mut prefix = Vec::with_capacity(reviews.len());
+    for (review, fsrs_review) in history.iter().zip(reviews) {
+        let days = fsrs_review.delta_t;
+        prefix.push(fsrs_review);
         // WHY: FSRS-7 learns from same-day reviews too; only a review at the same instant has nothing to predict.
         if days > 0.0 {
             items.push(DatedItem {
@@ -128,6 +126,61 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
         }
     }
     Some(items)
+}
+
+/// A sorted history as the crate reads it.
+/// `None` drops the whole card: its history does not start at New, or a review cannot be read.
+fn card_reviews(history: &[&ReviewRecord]) -> Option<Vec<FSRSReview>> {
+    if history.first()?.state != CardState::New.as_i32() {
+        return None;
+    }
+
+    let mut reviews = Vec::with_capacity(history.len());
+    let mut previous: Option<i64> = None;
+    for review in history {
+        let rating = u32::try_from(review.rating)
+            .ok()
+            .filter(|rating| (1..=4).contains(rating))?;
+        let days = previous.map_or(0.0, |previous| elapsed_days(previous, review.reviewed_at));
+        previous = Some(review.reviewed_at);
+        reviews.push(FSRSReview { rating, delta_t: days });
+    }
+    Some(reviews)
+}
+
+/// A card's FSRS-7 memory after its last review: the card columns a grade writes besides its schedule.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CardMemory {
+    pub stability: f64,
+    pub stability_fast: f64,
+    pub difficulty: f64,
+}
+
+/// Each card's memory after replaying its reviews with `weights`, keyed by card id.
+///
+/// A card the optimizer would not train on, whose history does not start at New, is left out and keeps its memory.
+/// INVARIANT: equals what grading the same history with ts-fsrs stores (docs/decisions/FSRS-OPTIMIZER.md);
+/// the crate clips the weights to the FSRS-7 bounds as the scheduler does.
+pub fn replay_card_memories(weights: &str, reviews: &[ReviewRecord]) -> Result<BTreeMap<String, CardMemory>, AppError> {
+    let fsrs = FSRS::new(&parse_weights(weights)?).map_err(|err| optimizer_failed(&err))?;
+    let mut memories = BTreeMap::new();
+    for (card_id, history) in card_histories(reviews) {
+        let Some(reviews) = card_reviews(&history) else {
+            continue;
+        };
+        let state = fsrs
+            .memory_state(FSRSItem { reviews }, None)
+            .map_err(|err| optimizer_failed(&err))?;
+        memories.insert(
+            card_id.to_string(),
+            CardMemory {
+                stability: f64::from(state.stability),
+                stability_fast: f64::from(state.stability_fast),
+                difficulty: f64::from(state.difficulty),
+            },
+        );
+    }
+    Ok(memories)
 }
 
 /// INVARIANT: twin of ts-fsrs `dateChrono` with `fractionalDays` — elapsed time in fixed 24-hour days, not calendar

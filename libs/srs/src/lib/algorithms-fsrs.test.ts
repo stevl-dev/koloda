@@ -42,6 +42,57 @@ function minutesUntil(card: FSRSCard, from: Date) {
 
 const NO_FUZZ = { ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false };
 
+// 1000 is past the FSRS-7 bound for the Again stability.
+const CUSTOM_WEIGHTS = [1000, 1.5, 5, 20, ...DEFAULT_FSRS_ALGORITHM.weights.split(",").map(Number).slice(4)].join(", ");
+
+/** Name, weights, grades as `[ms after NOW, rating]`, and the stability, fast stability, and difficulty stored. */
+const MEMORY_CASES = [
+  ["one Good", DEFAULT_FSRS_ALGORITHM.weights, [[0, Rating.Good]], [3.9221, 3.13768, 3.53072398]],
+  [
+    "same-day learning steps",
+    DEFAULT_FSRS_ALGORITHM.weights,
+    [
+      [0, Rating.Again],
+      [MINUTE_MS, Rating.Again],
+      [11 * MINUTE_MS, Rating.Good],
+      [DAY_MS, Rating.Good],
+    ],
+    [0.83018672, 50.08849393, 8.67121609],
+  ],
+  [
+    "a lapse days later",
+    DEFAULT_FSRS_ALGORITHM.weights,
+    [
+      [0, Rating.Good],
+      [4 * DAY_MS, Rating.Good],
+      [20 * DAY_MS, Rating.Again],
+      [20 * DAY_MS + 10 * MINUTE_MS, Rating.Good],
+      [25 * DAY_MS, Rating.Good],
+    ],
+    [7.4692048, 74.54883607, 8.65874806],
+  ],
+  [
+    "Easy first",
+    DEFAULT_FSRS_ALGORITHM.weights,
+    [
+      [0, Rating.Easy],
+      [30 * DAY_MS, Rating.Good],
+    ],
+    [32.65648178, 375.51949322, 1],
+  ],
+  [
+    "clipped custom weights",
+    CUSTOM_WEIGHTS,
+    [
+      [0, Rating.Again],
+      [10 * MINUTE_MS, Rating.Good],
+      [3 * DAY_MS, Rating.Good],
+      [12 * DAY_MS, Rating.Hard],
+    ],
+    [75.17760026, 331.12856497, 7.59131099],
+  ],
+] as const;
+
 function validPayload() {
   return {
     type: "fsrs" as const,
@@ -229,6 +280,19 @@ describe("createFSRSScheduler", () => {
 
     expect(goodDays(false).size).toBe(1);
     expect(goodDays(true).size).toBeGreaterThan(1);
+  });
+
+  // WHY: applying optimized weights replays each card's reviews in Rust and stores the result, so grading must
+  // store the same memory (docs/decisions/FSRS-OPTIMIZER.md).
+  // Rust twin: `replayed_memory_matches_what_the_scheduler_stores` (optimizer_replay_tests.rs).
+  it.each(MEMORY_CASES)("stores the memory the optimizer's replay recomputes: %s", (_, weights, grades, expected) => {
+    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, weights });
+    let card = scheduler.newCard({ now: NOW, cardId: "card" });
+    for (const [offset, grade] of grades) card = scheduler.review({ card, grade, now: new Date(+NOW + offset) }).card;
+
+    expect([card.stability, card.stabilityFast, card.difficulty]).toEqual(
+      expected.map((value) => expect.closeTo(value, 6)),
+    );
   });
 });
 

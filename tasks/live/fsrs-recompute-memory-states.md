@@ -62,7 +62,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Replay card memory states from review history
+- [x] 1. Replay card memory states from review history
   Goal: `crates/koloda/src/domain/optimizer.rs` gains a pure function that, given algorithm weights and
   each card's reviews, returns each card's FSRS-7 memory state (stability, fast stability, difficulty)
   after its last review.

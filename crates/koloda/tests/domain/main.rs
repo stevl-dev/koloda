@@ -21,6 +21,7 @@ mod learning_day_tests;
 mod lessons_amounts_tests;
 mod lessons_result_tests;
 mod lessons_serde_tests;
+mod optimizer_replay_tests;
 mod optimizer_tests;
 mod optimizer_training_tests;
 mod reviews_serde_tests;
