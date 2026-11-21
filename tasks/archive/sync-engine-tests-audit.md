@@ -1,6 +1,6 @@
 # Sync engine tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-DOCUMENTATION.md, crates/koloda-sync/README.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -96,8 +96,19 @@ none
 
 ## Outcome
 
-<what shipped>
+Finding 1 is fixed by item 1.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- Only one test changed: `the_skew_estimate_is_server_time_minus_local_time` in
+  `crates/koloda-sync/tests/engine/client_tests.rs` now asserts `60_000..=120_000`, and its message says the server
+  reads as about +120 s, less the reply's travel time.
+  No non-test source changed.
+- `cargo test -p koloda-sync` passed 183 (180 at the audit; the rest came with commits to `main` since `dc9c7bb7`).
+- Self-review found nothing to change.
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `3fa43b0c`.
+
+The deferred entries listed under Scope are not about the finding and stay as they are.
+
+Spec: none — test change only; no user-visible behavior changed
+Review: not run
+Change rounds: 0
