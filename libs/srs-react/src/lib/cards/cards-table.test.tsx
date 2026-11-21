@@ -34,7 +34,8 @@ function setup(initialCards: Card[], { templates = [createTemplate()], deckTempl
     getDeckQuery: (id: string) => ({ queryKey: queryKeys.decks.detail(id), queryFn: async () => deck }),
     getTemplateQuery: (id: string) => ({
       queryKey: queryKeys.templates.detail(id),
-      queryFn: async () => templates.find((template) => template.id === id) ?? null,
+      // WHY: a repo read parses a new row each time, and its Dates defeat TanStack's structural sharing.
+      queryFn: async () => structuredClone(templates.find((template) => template.id === id) ?? null),
     }),
     getSettingsQuery: (name: "hotkeys") => ({ queryKey: queryKeys.settings.detail(name), queryFn: async () => null }),
     deleteCardMutation: () => ({ mutationFn: async () => undefined }),
@@ -62,7 +63,9 @@ function setup(initialCards: Card[], { templates = [createTemplate()], deckTempl
     await act(() => queryClient.invalidateQueries({ queryKey: queryKeys.cards.deck({ deckId: deck.id }) }));
   };
 
-  return { controls, refetchCards, deleteCards };
+  const refetchTemplates = () => act(() => queryClient.invalidateQueries({ queryKey: queryKeys.templates.all() }));
+
+  return { controls, refetchCards, refetchTemplates, deleteCards };
 }
 
 function createCards(count: number) {
@@ -288,5 +291,18 @@ describe("CardsTable content columns", () => {
     setup([], { templates: [createTemplate(), t2], deckTemplateId: t2.id });
 
     await waitFor(() => expect(headerTexts().slice(0, 2)).toEqual(["Question", "Answer"]));
+  });
+});
+
+describe("CardsTable refetch", () => {
+  // WHY: a card save refreshes templates too (cache-refresh), while the editor dialog in the row is open.
+  it("keeps a row's open dialog when the cards' template is refetched", async () => {
+    const { refetchTemplates } = setup(createCards(1));
+    fireEvent.click(await screen.findByRole("button", { name: "delete-card.trigger" }));
+    await screen.findByRole("dialog");
+
+    await refetchTemplates();
+
+    expect(screen.queryByRole("dialog")).not.toBeNull();
   });
 });

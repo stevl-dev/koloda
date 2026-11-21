@@ -56,9 +56,9 @@ function SubmitButton(props: ButtonProps) {
   return (
     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
       {([canSubmit, isSubmitting]) => (
-        // WHY: a pending save keeps Save focusable. Disabling the focused button drops focus out of the form, and in
-        // a dialog that leaves focus outside it, so the dialog closes. `canSubmit` is false while submitting, so
-        // `handleSubmit` still refuses a second save.
+        // WHY: a pending save keeps Save focusable. Disabling the focused button drops focus out of the form, and out
+        // of a dialog that holds it. `canSubmit` is false while submitting, so `handleSubmit` still refuses a second
+        // save.
         <Button
           variants={{ style: "primary", class: "w-full" }}
           type="submit"

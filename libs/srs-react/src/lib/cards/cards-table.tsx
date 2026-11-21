@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ColumnVisibilityState, RowSelectionState } from "@tanstack/react-table";
 import { useAtomValue } from "jotai";
 import { AnimatePresence } from "motion/react";
+import type { ComponentProps } from "react";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { CardsTableCell } from "./cards-table-cell";
@@ -22,6 +23,13 @@ import { useCardsTemplates } from "./use-cards-templates";
 const PAGE_SIZES = [15, 20, 25];
 
 const columnHelper = createCardsColumnHelper<Card>();
+
+// WHY: flexRender renders a column's `cell` as a component, so its identity is the cell's component type.
+// The columns rebuild when the templates refetch, which every card save does; an inline arrow there would remount
+// every cell and close the dialog open in it, such as the card editor.
+function renderCell(cell: ComponentProps<typeof CardsTableCell>["cell"]) {
+  return <CardsTableCell cell={cell} />;
+}
 
 type CardState = NonNullable<Card["state"]>;
 
@@ -64,7 +72,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           minSize: 2,
           enableHiding: false,
           enableSorting: false,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         ...getCardsTableContentColumns(templates).map((field) =>
           columnHelper.accessor(
@@ -79,7 +87,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
             {
               id: `content.field.${field.index}`,
               header: field.header,
-              cell: (cell) => <CardsTableCell cell={cell} />,
+              cell: renderCell,
             },
           ),
         ),
@@ -89,7 +97,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           filterFn: (row, columnId, filterValue: CardState[]) =>
             filterValue.length === 0 || filterValue.includes(row.getValue(columnId)),
           size: 8,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         columnHelper.accessor("dueAt", {
           header: _(msg`cards.table.columns.due-at`),
@@ -104,7 +112,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
             return true;
           },
           size: 14,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         // WHY: the template filter is a column filter so selection treats it like the others:
         // hidden rows stay selected but drop out of the count and the bulk delete.
@@ -119,13 +127,13 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           header: _(msg`cards.table.columns.created-at`),
           enableGlobalFilter: false,
           size: 14,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         columnHelper.accessor("updatedAt", {
           header: _(msg`cards.table.columns.updated-at`),
           enableGlobalFilter: false,
           size: 14,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         columnHelper.display({
           id: "preview",
@@ -134,7 +142,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           enableGlobalFilter: false,
           minSize: 4,
           size: 4,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         columnHelper.display({
           id: "edit",
@@ -143,7 +151,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           enableGlobalFilter: false,
           minSize: 4,
           size: 4,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
         columnHelper.display({
           id: "delete",
@@ -152,7 +160,7 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
           enableGlobalFilter: false,
           minSize: 4,
           size: 4,
-          cell: (cell) => <CardsTableCell cell={cell} />,
+          cell: renderCell,
         }),
       ]),
     [_, templates, templateMapRef],
