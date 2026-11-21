@@ -4,7 +4,7 @@ What the app's scheduling terms mean for a learner, and how to choose their valu
 
 ## Spaced Repetition
 
-The app schedules each card with FSRS, a spaced repetition algorithm.
+The app schedules each card with FSRS-7, a spaced repetition algorithm.
 FSRS estimates how well the user remembers each card and when that memory will fade.
 It shows the card again shortly before the user would likely forget it.
 Each successful review makes the memory more stable, so the next gap is longer.
@@ -36,7 +36,7 @@ Grading Again on a remembered card makes it come back too soon.
 
 Again on a card in review counts as a lapse.
 The card's memory estimate drops, and it goes through the relearning steps, if the preset has any.
-With no relearning steps, it stays in review with a much shorter gap.
+With no relearning steps, FSRS picks the delay; while that delay is under a day, the card is relearning.
 
 Hard grows the gap less than Good.
 Easy grows it more than Good.
@@ -53,10 +53,10 @@ The user reviews more often and forgets less.
 Lowering retention makes gaps longer.
 The user reviews less often and forgets more.
 
-The cost grows steeply near the top of the range.
-With the built-in weights, a gap at 95 is about two-fifths of the gap at 90.
-At 97 it is under a quarter, and at 99 it is about a fifteenth.
-At 80 it is more than three times the gap at 90.
+The cost grows steeply near the top of the range, and how steeply depends on how well the card is known.
+With the built-in weights, a gap at 95 is between a fiftieth and a third of the gap at 90.
+At 97 and above, gaps shrink to a small fraction of that.
+At 80 a gap is about six to ten times the gap at 90.
 
 The built-in preset uses 90.
 A higher value suits material the user must not forget by a fixed date, such as an exam, and costs more reviews.
@@ -65,7 +65,8 @@ Changing retention affects later grades only; see ALGORITHMS.md (§What it is).
 
 ## Learning and Relearning Steps
 
-Steps are short, fixed delays used before FSRS takes over.
+Steps are short delays used before FSRS takes over.
+Each step is a minimum: when FSRS predicts the card is remembered for longer, it uses its longer delay.
 Learning steps apply to a new card.
 Relearning steps apply to a card that lapsed from review.
 
@@ -75,13 +76,16 @@ While a card is on its steps:
 - Hard keeps it on its current step, with a delay between the first and second steps.
 - Good moves it forward; once it has passed its steps, it graduates to review.
 - Easy graduates it to review at once.
+- Any grade whose delay from FSRS reaches a day graduates it to review, even with steps left.
+
+With the built-in weights, Good on a new card usually graduates it at once, a few days out.
 
 Steps let the user see a new or forgotten card again within the same session.
 With learn-ahead, a card due within the next few minutes can come back in the same lesson;
 see LEARNING-SETTINGS.md (§Learn Ahead).
 
 A step of a day or longer is still followed, but the card counts as review from then on.
-Empty steps send a new card straight to review on its first grade.
+With empty steps, FSRS sets every delay; a card stays in learning while its delay is under a day.
 
 The built-in preset uses learning steps of 1 minute and 10 minutes, and one relearning step of 10 minutes.
 
@@ -104,7 +108,7 @@ A lower value keeps even well-known cards coming back, at the cost of extra revi
 
 ## Weights
 
-Weights are the twenty-one numbers FSRS uses to model memory.
+Weights are the thirty-four numbers FSRS-7 uses to model memory.
 They decide how fast memory fades and how much each grade changes it.
 
 The built-in weights fit an average learner.

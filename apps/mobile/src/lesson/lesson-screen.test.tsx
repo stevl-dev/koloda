@@ -101,14 +101,15 @@ describe("LessonScreen", () => {
       </Provider>,
     );
 
-    // The starter algorithm steps a new card 1m then 10m: Again repeats the first, Good moves to the second.
+    // The starter algorithm's first step is 1m, which Again keeps; FSRS-7 lengthens Good past the steps to days.
+    // WHY: fuzz is on and seeded by card id, so the day count differs between cards.
     for (const word of ["uno", "dos", "tres"]) {
       expect(await screen.findByText(word)).toBeTruthy();
       expect(screen.queryByText(`answer ${word}`)).toBeNull();
       await fireEvent.press(screen.getByText("Continue"));
       expect(screen.getByText(`answer ${word}`)).toBeTruthy();
       expect(screen.getByText("1 minute")).toBeTruthy();
-      expect(screen.getByText("10 minutes")).toBeTruthy();
+      expect(screen.getByText(/^\d+ days$/)).toBeTruthy();
       await fireEvent.press(screen.getByText("Good"));
     }
 

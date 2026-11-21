@@ -13,13 +13,14 @@ describe("DebugIntervals", () => {
       </I18nProvider>,
     );
 
-    // The starter algorithm's learning steps are 1m and 10m: Again repeats the first, Good moves to the second,
-    // and Easy graduates the card to days.
+    // The starter algorithm's first step is 1m, which Again keeps. FSRS-7 lengthens the other grades past the steps:
+    // Hard stays under a day, and Good and Easy graduate the card.
     expect(screen.getByText("Again")).toBeTruthy();
     expect(screen.getByText("1 minute")).toBeTruthy();
+    expect(screen.getByText("14 hours")).toBeTruthy();
+    // WHY: fuzz is on, so Good's few days and Easy's two months shift by a day or so.
     expect(screen.getByText("Good")).toBeTruthy();
-    expect(screen.getByText("10 minutes")).toBeTruthy();
-    expect(screen.getAllByText(/^\d+ (minutes?|days?)$/)).toHaveLength(4);
-    expect(screen.getAllByText(/^\d+ days?$/)).toHaveLength(1);
+    expect(screen.getByText(/^\d+ days$/)).toBeTruthy();
+    expect(screen.getByText(/^\d+ months?$/)).toBeTruthy();
   });
 });

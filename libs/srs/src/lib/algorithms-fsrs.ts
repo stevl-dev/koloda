@@ -11,7 +11,7 @@ import {
   schedulerStatsMiddleware,
 } from "ts-fsrs";
 import type { StepUnit } from "ts-fsrs";
-import { clipFSRS6Parameters, FSRS6Model } from "ts-fsrs/models/fsrs-6";
+import { clipFSRS7Parameters, FSRS7Model } from "ts-fsrs/models/fsrs-7";
 import { z } from "zod";
 
 export const LEARNING_STEPS_UNITS = [
@@ -29,7 +29,7 @@ export const FSRS_GRADES = [
 ];
 
 const LEARNING_STEP_UNITS = LEARNING_STEPS_UNITS.map(({ id }) => id);
-const FSRS6_WEIGHT_COUNT = 21;
+const FSRS7_WEIGHT_COUNT = 34;
 
 // Decimal float grammar mirroring Rust `str::parse::<f64>()` (finite values):
 // optional sign, digits with optional fraction or leading-dot fraction,
@@ -118,7 +118,7 @@ export const algorithmFSRSValidation = algorithmFSRSBaseValidation.superRefine((
   }
 
   const weightParts = data.weights.split(",");
-  if (weightParts.length !== FSRS6_WEIGHT_COUNT) {
+  if (weightParts.length !== FSRS7_WEIGHT_COUNT) {
     ctx.addIssue({
       code: "custom",
       message: "validation.algorithm.fsrs.weights",
@@ -148,9 +148,11 @@ export type AlgorithmFSRS = z.infer<typeof algorithmFSRSValidation>;
 export const DEFAULT_FSRS_ALGORITHM: AlgorithmFSRS = {
   type: "fsrs",
   retention: 90,
+  // INVARIANT: ts-fsrs 6.0.0 `FSRS7_DEFAULT_WEIGHTS`, written out so the stored default does not move with a bump.
   weights: [
-    0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796, 1.4835, 0.0614, 0.2629, 1.6483,
-    0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542,
+    0.1104, 2.2395, 3.9221, 11.7841, 6.1686, 0.6457, 3.6807, 1.9795, 0, 1.3826, 0.7024, 0.5999, 0.8146, 0.6398, 1,
+    1.3207, 0.6707, 3.8668, 0.4416, 0.0934, 1.8631, 0.6162, 1.0869, 0.1567, 0.0801, 0.2421, 0.9464, 0.1433, 0.7145, 0,
+    0.5667, 0.3734, 0.5333, 0.3048,
   ].join(", "),
   isFuzzEnabled: true,
   learningSteps: [
@@ -162,7 +164,7 @@ export const DEFAULT_FSRS_ALGORITHM: AlgorithmFSRS = {
 };
 
 // INVARIANT: maximum-interval runs after learning-steps, so a step longer than the cap still holds as the chain unwinds.
-const FSRS_SCHEDULER = defineScheduler({ model: FSRS6Model, chrono: dateChrono }).use(
+const FSRS_SCHEDULER = defineScheduler({ model: FSRS7Model, chrono: dateChrono }).use(
   schedulerDesiredRetentionMiddleware,
   schedulerFuzzingMiddleware,
   schedulerStatsMiddleware,
@@ -178,20 +180,21 @@ function toStepUnit([amount, unit]: AlgorithmFSRS["learningSteps"][number]): Ste
 }
 
 export function createFSRSScheduler(algorithm: AlgorithmFSRS) {
-  const relearningSteps = algorithm.relearningSteps.map(toStepUnit);
   return FSRS_SCHEDULER.create({
     config: {
       // WHY: `create` builds the model with `bypass: true`, so it never clips; the bounds would go unenforced.
-      weights: clipFSRS6Parameters(algorithm.weights.split(",").map(Number), relearningSteps.length),
+      // The optimizer's crate clips to the same bounds (docs/decisions/FSRS-OPTIMIZER.md).
+      weights: clipFSRS7Parameters(algorithm.weights.split(",").map(Number)),
       desiredRetention: algorithm.retention / 100,
       enableFuzz: algorithm.isFuzzEnabled,
       maximumInterval: algorithm.maximumInterval,
+      // INVARIANT: steps are minimums. The model may lengthen one, or skip the rest when it predicts a day or more.
       enableShortTerm: true,
       learningSteps: algorithm.learningSteps.map(toStepUnit),
-      relearningSteps,
-      numRelearningSteps: relearningSteps.length,
-      allowModelOverride: false,
-      fractionalDays: false,
+      relearningSteps: algorithm.relearningSteps.map(toStepUnit),
+      graduatingInterval: 1,
+      allowModelOverride: true,
+      fractionalDays: true,
       // WHY: progress reset is its own write and never calls `forget`; the v6 default would clear reps and lapses.
       clearStatsOnForget: false,
     },

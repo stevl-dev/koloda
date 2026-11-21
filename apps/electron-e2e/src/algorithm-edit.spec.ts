@@ -12,7 +12,8 @@ test("creates an algorithm, modifies parameters, and keeps them after reopening"
   const updatedTitle = "E2E Algorithm Updated";
   const notes = "E2E preset notes";
   const weights =
-    "0.3, 1.3, 2.3, 8.3, 6.4, 0.8, 3, 0.001, 1.9, 0.2, 0.8, 1.5, 0.06, 0.3, 1.6, 0.6, 1.9, 0.5, 0.1, 0.07, 0.15";
+    "0.2, 2.3, 4, 12, 6.2, 0.65, 3.7, 2, 0.01, 1.4, 0.7, 0.6, 0.8, 0.64, 1, 1.32, 0.67, 3.87, 0.44, 0.09, 1.86, " +
+    "0.62, 1.09, 0.16, 0.08, 0.24, 0.95, 0.14, 0.71, 0.01, 0.57, 0.37, 0.53, 0.3";
 
   await setupApp(page);
   await createAlgorithm(page, algorithmTitle);

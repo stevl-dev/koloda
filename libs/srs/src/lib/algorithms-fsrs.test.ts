@@ -1,22 +1,29 @@
 import { Rating, State } from "ts-fsrs";
 import { describe, expect, it } from "vitest";
 import { algorithmFSRSValidation, createFSRSScheduler, DEFAULT_FSRS_ALGORITHM } from "./algorithms-fsrs";
-import type { AlgorithmFSRS, FSRSCard, FSRSScheduler } from "./algorithms-fsrs";
+import type { FSRSCard, FSRSScheduler } from "./algorithms-fsrs";
 import { observeRuleOutcome, readRuleCases } from "../test/rule-cases";
 
-function createReviewedCard(lastReviewAt: Date): FSRSCard {
+const NOW = new Date("2026-08-24T12:00:00.000Z");
+const MINUTE_MS = 60_000;
+const DAY_MS = 86_400_000;
+
+/** A Review card due at `NOW`, last reviewed seven days before. */
+function createReviewedCard(overrides: Partial<FSRSCard> = {}): FSRSCard {
   return {
     cardId: "card",
     state: State.Review,
     scheduleStatus: "review",
-    dueAt: lastReviewAt,
-    lastReviewAt,
-    stability: 5,
-    difficulty: 3,
+    dueAt: NOW,
+    lastReviewAt: new Date(+NOW - 7 * DAY_MS),
+    stability: 7,
+    stabilityFast: 3,
+    difficulty: 5,
     scheduledDays: 7,
     learningStep: 0,
     reps: 3,
     lapses: 0,
+    ...overrides,
   };
 }
 
@@ -25,15 +32,21 @@ function preview(scheduler: FSRSScheduler, card: FSRSCard, now: Date) {
   return (grade: (typeof Rating)["Again" | "Hard" | "Good" | "Easy"]) => {
     const item = items.find((candidate) => candidate.grade === grade);
     if (!item) throw new Error(`no preview for grade ${grade}`);
-    return item.card;
+    return item;
   };
 }
+
+function minutesUntil(card: FSRSCard, from: Date) {
+  return (+card.dueAt - +from) / MINUTE_MS;
+}
+
+const NO_FUZZ = { ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false };
 
 function validPayload() {
   return {
     type: "fsrs" as const,
     retention: 90,
-    weights: "0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5",
+    weights: Array.from({ length: 34 }, () => "0.5").join(","),
     isFuzzEnabled: true,
     learningSteps: [] as Array<[number, string]>,
     relearningSteps: [] as Array<[number, string]>,
@@ -42,155 +55,176 @@ function validPayload() {
 }
 
 describe("createFSRSScheduler", () => {
-  it("returns a working scheduler from the default algorithm", () => {
+  it("starts a new card from the initial weights, with the fast trace at 0.8 of the slow one", () => {
     const scheduler = createFSRSScheduler(DEFAULT_FSRS_ALGORITHM);
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    const grade = preview(scheduler, scheduler.newCard({ now, cardId: "card" }), now);
+    const grade = preview(scheduler, scheduler.newCard({ now: NOW, cardId: "card" }), NOW);
 
-    // Initial stability is w[grade - 1]; fuzz jitters intervals, never stability,
-    // so these pins hold with the default algorithm's fuzz enabled.
-    expect(grade(Rating.Again).stability).toBeCloseTo(0.212, 5);
-    expect(grade(Rating.Hard).stability).toBeCloseTo(1.2931, 5);
-    expect(grade(Rating.Good).stability).toBeCloseTo(2.3065, 5);
-    expect(grade(Rating.Easy).stability).toBeCloseTo(8.2956, 5);
-
-    // Default learning steps (1m, 10m): Again/Hard/Good stay in Learning, Easy jumps to Review.
-    expect(grade(Rating.Again).state).toBe(State.Learning);
-    expect(grade(Rating.Hard).state).toBe(State.Learning);
-    expect(grade(Rating.Good).state).toBe(State.Learning);
-    expect(grade(Rating.Easy).state).toBe(State.Review);
-    expect(grade(Rating.Easy).dueAt.getTime()).toBeGreaterThan(+now);
+    // Initial stability is w[grade - 1]; fuzz jitters intervals, never memory, so these hold with fuzz on.
+    const initial = [
+      [Rating.Again, 0.1104],
+      [Rating.Hard, 2.2395],
+      [Rating.Good, 3.9221],
+      [Rating.Easy, 11.7841],
+    ] as const;
+    for (const [rating, stability] of initial) {
+      expect(grade(rating).card.stability).toBeCloseTo(stability, 8);
+      expect(grade(rating).card.stabilityFast).toBeCloseTo(stability * 0.8, 8);
+    }
   });
 
   it("divides retention by 100 before passing it as desired retention", () => {
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    const card = createReviewedCard(new Date("2026-08-17T12:00:00.000Z"));
     const goodDays = (retention: number) =>
-      preview(createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, retention }), card, now)(Rating.Good).scheduledDays;
+      preview(createFSRSScheduler({ ...NO_FUZZ, retention }), createReviewedCard(), NOW)(Rating.Good).card
+        .scheduledDays;
 
     expect(goodDays(70)).toBeGreaterThan(goodDays(99));
   });
 
   it("parses comma-separated weights string into number array", () => {
-    const scheduler = createFSRSScheduler({
-      ...DEFAULT_FSRS_ALGORITHM,
-      weights:
-        "0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3",
-    });
-    const now = new Date("2026-08-24T12:00:00.000Z");
+    const weights = DEFAULT_FSRS_ALGORITHM.weights.split(",").map(Number);
+    weights[2] = 3;
+    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, weights: weights.join(", ") });
 
     // A new card's Good stability is w[2].
-    expect(preview(scheduler, scheduler.newCard({ now }), now)(Rating.Good).stability).toBeCloseTo(1.5, 5);
+    expect(preview(scheduler, scheduler.newCard({ now: NOW }), NOW)(Rating.Good).card.stability).toBeCloseTo(3, 8);
+  });
+
+  it("clips weights to the FSRS-7 bounds", () => {
+    // WHY: the optimizer's crate clips to the same bounds before it scores weights. Rust twin:
+    // `current_weights_are_scored_as_the_scheduler_clips_them` (crates/koloda/tests/domain/optimizer_tests.rs).
+    const weights = DEFAULT_FSRS_ALGORITHM.weights.split(",").map(Number);
+    weights[0] = 1000;
+    weights[25] = 0.8;
+    weights[26] = 0.6;
+    const clipped = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, weights: weights.join(", ") }).model.config
+      .weights;
+
+    expect(clipped[0]).toBe(50);
+    expect(clipped[26]).toBe(0.8);
   });
 
   it("caps Hard, Good, and Easy at maximumInterval", () => {
-    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false, maximumInterval: 10 });
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    const card = { ...createReviewedCard(new Date("2026-08-17T12:00:00.000Z")), stability: 100 };
-    const grade = preview(scheduler, card, now);
+    const scheduler = createFSRSScheduler({ ...NO_FUZZ, maximumInterval: 10 });
+    const grade = preview(scheduler, createReviewedCard({ stability: 100, stabilityFast: 100 }), NOW);
 
-    expect(grade(Rating.Hard).scheduledDays).toBe(10);
-    expect(grade(Rating.Good).scheduledDays).toBe(10);
-    expect(grade(Rating.Easy).scheduledDays).toBe(10);
+    expect(grade(Rating.Hard).card.scheduledDays).toBe(10);
+    expect(grade(Rating.Good).card.scheduledDays).toBe(10);
+    expect(grade(Rating.Easy).card.scheduledDays).toBe(10);
   });
 
-  it("pins a new card graded Easy to Review with an eight-day interval", () => {
-    // WHY: Fuzz off so the interval math is deterministic and pinnable.
-    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false });
-    const now = new Date("2026-08-24T12:00:00.000Z");
+  it("treats learning steps as minimums the model may lengthen", () => {
+    // WHY: Fuzz off so the interval math is deterministic and pinnable. Default steps are 1m and 10m.
+    const scheduler = createFSRSScheduler(NO_FUZZ);
+    const grade = preview(scheduler, scheduler.newCard({ now: NOW }), NOW);
 
-    const easy = preview(scheduler, scheduler.newCard({ now }), now)(Rating.Easy);
+    // Again keeps the one-minute step.
+    expect(grade(Rating.Again).card.state).toBe(State.Learning);
+    expect(minutesUntil(grade(Rating.Again).card, NOW)).toBe(1);
+    // Hard takes the model's longer, still sub-day interval and stays in Learning.
+    expect(grade(Rating.Hard).card.state).toBe(State.Learning);
+    expect(grade(Rating.Hard).card.scheduledDays).toBeCloseTo(0.59746117, 6);
+    // Good and Easy reach a day or more, so they skip the remaining steps.
+    expect(grade(Rating.Good).card.state).toBe(State.Review);
+    expect(grade(Rating.Good).card.scheduledDays).toBeCloseTo(4.77772181, 6);
+    expect(grade(Rating.Easy).card.state).toBe(State.Review);
+    expect(grade(Rating.Easy).card.scheduledDays).toBeCloseTo(53.86951316, 6);
 
-    expect(easy.state).toBe(State.Review);
-    expect(easy.scheduledDays).toBe(8);
-    expect(+easy.dueAt - +now).toBe(8 * 86_400_000);
-    expect(easy.stability).toBeCloseTo(8.2956, 5); // initial stability w[3]
-    expect(easy.difficulty).toBe(1); // initial difficulty clamped to the [1, 10] floor
+    // From the first step, Good advances to the second and waits longer than its ten minutes.
+    const learning = grade(Rating.Again).card;
+    const good = preview(scheduler, learning, learning.dueAt)(Rating.Good).card;
+    expect(good.state).toBe(State.Learning);
+    expect(good.learningStep).toBe(1);
+    expect(minutesUntil(good, learning.dueAt)).toBeCloseTo(27.467, 3);
   });
 
-  it("pins Again on a learning card to the first one-minute learning step", () => {
-    // WHY: Fuzz off so the interval math is deterministic and pinnable.
-    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false });
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    // Good on a new card leaves it in Learning, due at the second learning step (10m).
-    const learningCard = preview(scheduler, scheduler.newCard({ now }), now)(Rating.Good);
-    expect(learningCard.state).toBe(State.Learning);
+  it("keeps a relearning step that is longer than the model interval, as a fraction of a day", () => {
+    const scheduler = createFSRSScheduler(NO_FUZZ);
 
-    const reviewedAt = learningCard.dueAt;
-    const again = preview(scheduler, learningCard, reviewedAt)(Rating.Again);
+    const again = preview(scheduler, createReviewedCard(), NOW)(Rating.Again).card;
 
-    expect(again.state).toBe(State.Learning);
-    expect(+again.dueAt - +reviewedAt).toBe(60_000);
-    expect(again.stability).toBeCloseTo(0.77508398, 5);
-    expect(again.difficulty).toBeCloseTo(7.39450274, 5);
+    expect(again.state).toBe(State.Relearning);
+    expect(minutesUntil(again, NOW)).toBe(10);
+    expect(again.scheduledDays).toBeCloseTo(10 / 1440, 12);
+  });
+
+  it("graduates a relearning card once its steps are finished", () => {
+    const scheduler = createFSRSScheduler(NO_FUZZ);
+    const relearning = preview(scheduler, createReviewedCard(), NOW)(Rating.Again).card;
+
+    const good = preview(scheduler, relearning, relearning.dueAt)(Rating.Good).card;
+
+    expect(good.state).toBe(State.Review);
+    expect(good.learningStep).toBe(0);
+    expect(good.scheduledDays).toBe(1);
+  });
+
+  it("maps a sub-day model interval to Learning or Relearning when there are no steps", () => {
+    // WHY: without the learning-steps middleware ts-fsrs would leave these in Review; the state follows the interval.
+    const scheduler = createFSRSScheduler({ ...NO_FUZZ, learningSteps: [], relearningSteps: [] });
+    const newGrade = preview(scheduler, scheduler.newCard({ now: NOW }), NOW);
+    const reviewGrade = preview(scheduler, createReviewedCard(), NOW);
+
+    expect(newGrade(Rating.Again).card.state).toBe(State.Learning);
+    expect(newGrade(Rating.Again).card.scheduledDays).toBeCloseTo(0.0000383, 7);
+    expect(newGrade(Rating.Good).card.state).toBe(State.Review);
+    expect(reviewGrade(Rating.Again).card.state).toBe(State.Relearning);
+    expect(minutesUntil(reviewGrade(Rating.Again).card, NOW)).toBeCloseTo(5.283, 3);
+    expect(reviewGrade(Rating.Good).card.state).toBe(State.Review);
   });
 
   it("schedules learning and relearning steps in their own units", () => {
     const scheduler = createFSRSScheduler({
-      ...DEFAULT_FSRS_ALGORITHM,
-      isFuzzEnabled: false,
-      learningSteps: [
-        [5, "s"],
-        [2, "h"],
-      ],
+      ...NO_FUZZ,
+      learningSteps: [[5, "s"]],
       relearningSteps: [[3, "h"]],
     });
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    const learning = preview(scheduler, scheduler.newCard({ now }), now);
-    const relearning = preview(scheduler, createReviewedCard(new Date("2026-08-17T12:00:00.000Z")), now);
+    const learning = preview(scheduler, scheduler.newCard({ now: NOW }), NOW);
+    const relearning = preview(scheduler, createReviewedCard(), NOW);
 
-    expect(+learning(Rating.Again).dueAt - +now).toBe(5_000);
-    expect(+learning(Rating.Good).dueAt - +now).toBe(2 * 3_600_000);
-    expect(relearning(Rating.Again).state).toBe(State.Relearning);
-    expect(+relearning(Rating.Again).dueAt - +now).toBe(3 * 3_600_000);
+    // WHY: five seconds go to ts-fsrs as a fraction of a minute, so the due time can land a millisecond short.
+    expect(+learning(Rating.Again).card.dueAt - +NOW).toBeCloseTo(5_000, -1);
+    expect(relearning(Rating.Again).card.state).toBe(State.Relearning);
+    expect(minutesUntil(relearning(Rating.Again).card, NOW)).toBe(180);
   });
 
-  it("caps w17 and w18 by the relearning step count", () => {
-    // WHY: the optimizer caps found weights the same way before scoring them; its Rust twin is
-    // `w17_and_w18_are_capped_as_ts_fsrs_caps_them` (crates/koloda/tests/domain/optimizer_tests.rs).
-    const cases: Array<[AlgorithmFSRS["relearningSteps"], number]> = [
-      [[[10, "m"]], 0.5425],
-      [
-        [
-          [10, "m"],
-          [1, "h"],
-          [1, "d"],
-        ],
-        0.49027301,
-      ],
-    ];
+  it.each([
+    { name: "early", reviewTime: new Date(+NOW - 3 * DAY_MS), goodStability: 15.04362214 },
+    { name: "on time", reviewTime: NOW, goodStability: 17.00091057 },
+    { name: "overdue", reviewTime: new Date(+NOW + 7 * DAY_MS), goodStability: 20.25253789 },
+  ])("logs the pre-review due date, the previous review, and the review time apart: $name", (row) => {
+    const card = createReviewedCard();
 
-    for (const [relearningSteps, expectedW17] of cases) {
-      const { weights } = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, relearningSteps }).model.config;
+    const { card: good, revlog } = preview(createFSRSScheduler(NO_FUZZ), card, row.reviewTime)(Rating.Good);
 
-      expect(weights[17]).toBeCloseTo(expectedW17, 8);
-      expect(weights[18]).toBe(0.0912);
-    }
+    expect(revlog.dueAt).toEqual(card.dueAt);
+    expect(revlog.lastReviewAt).toEqual(card.lastReviewAt);
+    expect(revlog.reviewTime).toEqual(row.reviewTime);
+    expect(good.lastReviewAt).toEqual(row.reviewTime);
+    expect(good.stability).toBeCloseTo(row.goodStability, 6);
   });
 
-  it("counts one elapsed day across UTC midnight, even minutes apart", () => {
+  it("counts elapsed time in fixed 24-hour days, not calendar dates", () => {
     // WHY: the optimizer counts days the same way (docs/decisions/FSRS-OPTIMIZER.md).
-    // Rust twin: `gap_across_utc_midnight_counts_one_day_even_minutes_apart` (optimizer_training_tests.rs).
-    // The count is read through the stability it schedules.
-    const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false });
-    const card = createReviewedCard(new Date("2026-01-01T23:55:00.000Z"));
-    const stabilityAt = (at: string) => preview(scheduler, card, new Date(at))(Rating.Good).stability;
+    // Rust twin: `elapsed_time_counts_fixed_24_hour_days_across_utc_midnight` (optimizer_training_tests.rs).
+    const scheduler = createFSRSScheduler(NO_FUZZ);
+    const goodStability = (lastReview: string, at: string) => {
+      const lastReviewAt = new Date(lastReview);
+      const card = createReviewedCard({ lastReviewAt, dueAt: lastReviewAt });
+      return preview(scheduler, card, new Date(at))(Rating.Good).card.stability;
+    };
 
-    const sameDate = stabilityAt("2026-01-01T23:59:00.000Z");
-    const acrossMidnight = stabilityAt("2026-01-02T00:05:00.000Z");
-    const nextDay = stabilityAt("2026-01-02T23:55:00.000Z");
+    const acrossMidnight = goodStability("2026-01-01T23:55:00.000Z", "2026-01-02T00:05:00.000Z");
+    const sameDate = goodStability("2026-01-01T12:00:00.000Z", "2026-01-01T12:10:00.000Z");
 
-    expect(acrossMidnight).toBe(nextDay);
-    expect(acrossMidnight).not.toBe(sameDate);
+    expect(acrossMidnight).toBe(sameDate);
   });
 
   it("spreads intervals across cards only when fuzz is enabled", () => {
-    const now = new Date("2026-08-24T12:00:00.000Z");
-    const card = { ...createReviewedCard(new Date("2026-08-17T12:00:00.000Z")), stability: 40 };
+    const card = createReviewedCard({ stability: 40, stabilityFast: 40 });
     const goodDays = (isFuzzEnabled: boolean) => {
       const scheduler = createFSRSScheduler({ ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled });
       const ids = ["a", "b", "c", "d", "e", "f", "g", "h"];
-      return new Set(ids.map((cardId) => preview(scheduler, { ...card, cardId }, now)(Rating.Good).scheduledDays));
+      return new Set(ids.map((cardId) => preview(scheduler, { ...card, cardId }, NOW)(Rating.Good).card.scheduledDays));
     };
 
     expect(goodDays(false).size).toBe(1);

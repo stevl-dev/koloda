@@ -1,25 +1,24 @@
 //! FSRS weight optimization — Rust-only and desktop-only, with no TS twin.
 //!
-//! Fitting lives here; scheduling stays in `@koloda/srs` (ts-fsrs). What the two must agree on, the weight count, how
-//! days between reviews are counted, and the w17/w18 cap, is `docs/decisions/FSRS-OPTIMIZER.md`.
+//! Fitting lives here; scheduling stays in `@koloda/srs` (ts-fsrs). What the two must agree on, the model, the weight
+//! count, and how days between reviews are counted, is `docs/decisions/FSRS-OPTIMIZER.md`.
 
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex, PoisonError};
 
-use chrono::{DateTime, NaiveDate};
 use fsrs::{
-    compute_parameters, CombinedProgressState, ComputeParametersInput, FSRSError, FSRSItem, FSRSReview,
-    DEFAULT_PARAMETERS, FSRS,
+    compute_parameters, CombinedProgressState, ComputeParametersInput, ComputeParametersVersion, FSRSError, FSRSItem,
+    FSRSReview, DEFAULT_PARAMETERS, FSRS,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::app::error::{error_codes, AppError};
-use crate::domain::algorithms_fsrs::{AlgorithmFSRS, FSRS6_WEIGHT_COUNT};
+use crate::domain::algorithms_fsrs::{AlgorithmFSRS, FSRS7_WEIGHT_COUNT};
 use crate::domain::cards::CardState;
 
 /// One review as the optimizer reads it.
 ///
-/// `state` is the card's state before the grade (ts-fsrs `ReviewLog.state`), so a complete history starts at New.
+/// `state` is the card's state before the grade (the ts-fsrs review log's), so a complete history starts at New.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReviewRecord {
     pub id: String,
@@ -98,7 +97,7 @@ pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
     set
 }
 
-/// One item per prefix of the history that ends at a review on a later day than the previous one.
+/// One item per prefix of the history that ends at a review some time after the previous one.
 /// `None` drops the whole card: its history does not start at New, or a review cannot be read.
 fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<DatedItem<'a>>> {
     if history.first()?.state != CardState::New.as_i32() {
@@ -107,18 +106,17 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
 
     let mut items = Vec::new();
     let mut prefix = Vec::with_capacity(history.len());
-    let mut previous_date: Option<NaiveDate> = None;
+    let mut previous: Option<i64> = None;
     for review in history {
         let rating = u32::try_from(review.rating)
             .ok()
             .filter(|rating| (1..=4).contains(rating))?;
-        let date = utc_date(review.reviewed_at)?;
-        let days = u32::try_from(previous_date.map_or(0, |previous| (date - previous).num_days())).ok()?;
-        previous_date = Some(date);
+        let days = previous.map_or(0.0, |previous| elapsed_days(previous, review.reviewed_at));
+        previous = Some(review.reviewed_at);
 
         prefix.push(FSRSReview { rating, delta_t: days });
-        // WHY: a same-day review stays in the history but is no item of its own; it teaches no long-term recall.
-        if days > 0 {
+        // WHY: FSRS-7 learns from same-day reviews too; only a review at the same instant has nothing to predict.
+        if days > 0.0 {
             items.push(DatedItem {
                 reviewed_at: review.reviewed_at,
                 review_id: &review.id,
@@ -132,11 +130,13 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
     Some(items)
 }
 
-/// INVARIANT: twin of ts-fsrs `dateDiffInDays` — elapsed days are differences of UTC calendar dates, not of the
-/// learning day (`dayStartsAt`), so the fitted model matches the scheduler that uses it.
-fn utc_date(reviewed_at: i64) -> Option<NaiveDate> {
-    DateTime::from_timestamp_millis(reviewed_at).map(|time| time.date_naive())
+/// INVARIANT: twin of ts-fsrs `dateChrono` with `fractionalDays` — elapsed time in fixed 24-hour days, not calendar
+/// dates or the learning day (`dayStartsAt`), so the fitted model matches the scheduler that uses it.
+fn elapsed_days(from: i64, to: i64) -> f32 {
+    ((to - from).max(0) as f64 / DAY_MS) as f32
 }
+
+const DAY_MS: f64 = 86_400_000.0;
 
 /// How well weights predict the reviews they were scored on; lower is better.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -207,44 +207,37 @@ pub fn optimize(input: &OptimizationInput, progress: &OptimizationProgress) -> R
         card_ids: Some(set.card_indices.clone()),
         progress: Some(Arc::clone(progress)),
         enable_short_term: true,
-        num_relearning_steps: Some(input.content.relearning_steps.len()),
-        training_config: None,
+        model_version: ComputeParametersVersion::Fsrs7,
+        ..ComputeParametersInput::default()
     });
     let trained = match trained {
         Ok(trained) => trained,
         Err(FSRSError::Interrupted) => return Ok(OptimizationOutcome::Cancelled),
         Err(err) => return Err(optimizer_failed(&err)),
     };
-    // INVARIANT: the scheduler takes exactly FSRS6_WEIGHT_COUNT weights (docs/decisions/FSRS-OPTIMIZER.md).
-    if trained.len() != FSRS6_WEIGHT_COUNT || trained.iter().any(|weight| !weight.is_finite()) {
+    // INVARIANT: the scheduler takes exactly FSRS7_WEIGHT_COUNT weights (docs/decisions/FSRS-OPTIMIZER.md).
+    if trained.len() != FSRS7_WEIGHT_COUNT || trained.iter().any(|weight| !weight.is_finite()) {
         return Err(AppError::new(
             error_codes::ALGORITHMS_OPTIMIZER_INVALID_OUTPUT,
             Some(format!("{} weights: {:?}", trained.len(), trained)),
         ));
     }
-    // WHY: on a small set the pinned crate does not train (fsrs 6.6.2, `compute_parameters`).
-    // Below 8 training items it returns `DEFAULT_PARAMETERS`. Below 64, or when every item is a card's first, it fits
-    // only the four initial stabilities and keeps the other defaults. Those paths copy the constant, and training
-    // moves the long-term weights off it, so equal weights mean nothing was learned.
+    // WHY: on a small set the pinned crate does not train (fsrs 7.0.0, `compute_parameters`).
+    // Below 64 training items, or when no item has two reviews a day or more apart, it returns `DEFAULT_PARAMETERS`.
+    // Training moves the weights off that constant, so equal weights mean nothing was learned.
     // A crate bump revisits this (docs/decisions/FSRS-OPTIMIZER.md).
-    if trained.get(4..) == DEFAULT_PARAMETERS.get(4..) {
+    if trained.as_slice() == DEFAULT_PARAMETERS.as_slice() {
         if is_aborted(progress) {
             return Ok(OptimizationOutcome::Cancelled);
         }
         return Ok(OptimizationOutcome::NotEnoughData { based_on });
     }
 
-    let relearning_steps = input.content.relearning_steps.len();
-    let mut trained = trained;
-    cap_w17_w18(&mut trained, relearning_steps);
     let weights = format_weights(&trained);
-    let mut current = parse_weights(&input.content.weights)?;
+    let current = parse_weights(&input.content.weights)?;
     // WHY: score the weights as they will be stored, after rounding, not the raw training output.
-    let mut found = parse_weights(&weights)?;
-    // WHY: ts-fsrs caps both on every load, so the scores describe what the scheduler grades with. Rounding can lift a
-    // stored capped value by under 0.00005; capping again here matches the scheduler.
-    cap_w17_w18(&mut current, relearning_steps);
-    cap_w17_w18(&mut found, relearning_steps);
+    // The crate clips both to the FSRS-7 bounds as ts-fsrs does when it schedules, so the scores describe those.
+    let found = parse_weights(&weights)?;
     let (current, optimized) = match (score(&current, &set, progress), score(&found, &set, progress)) {
         (Ok(current), Ok(optimized)) => (current, optimized),
         (Err(FSRSError::Interrupted), _) | (_, Err(FSRSError::Interrupted)) => {
@@ -269,26 +262,6 @@ pub fn optimize(input: &OptimizationInput, progress: &OptimizationProgress) -> R
             current,
             optimized,
         })
-    }
-}
-
-// INVARIANT: twin of ts-fsrs 6.0.0 `clipFSRS6Parameters`, which the scheduler runs each time it loads weights.
-// With two or more relearning steps it caps w17 and w18 at the square root of a ceiling from the raw w11, w13, and w14.
-// The crate trains under the same ceiling but scores with a single step, so current weights can sit above it.
-// So the optimizer applies this cap before it scores and stores weights.
-pub fn cap_w17_w18(weights: &mut [f32], relearning_steps: usize) {
-    if relearning_steps <= 1 {
-        return;
-    }
-    let (Some(&w11), Some(&w13), Some(&w14)) = (weights.get(11), weights.get(13), weights.get(14)) else {
-        return;
-    };
-    let ceiling = -(f64::from(w11).ln() + (2_f64.powf(f64::from(w13)) - 1.0).ln() + f64::from(w14) * 0.3)
-        / relearning_steps as f64;
-    // WHY: ts-fsrs rounds the square root to 8 decimals before clamping it.
-    let ceiling = ((ceiling.max(0.0).sqrt() * 1e8).round() / 1e8).clamp(0.01, 2.0) as f32;
-    for weight in weights.iter_mut().skip(17).take(2) {
-        *weight = weight.min(ceiling);
     }
 }
 

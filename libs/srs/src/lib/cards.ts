@@ -171,6 +171,7 @@ function createFSRSCard(scheduler: FSRSScheduler, card: Card, now: Date): FSRSCa
     dueAt: card.dueAt,
     lastReviewAt: card.lastReviewedAt,
     stability: card.stability,
+    stabilityFast: card.stabilityFast,
     difficulty: card.difficulty,
     scheduledDays: card.scheduledDays,
     learningStep: card.learningSteps,
@@ -184,14 +185,24 @@ export function createCardFromCardFSRS(card: Card, input: FSRSCard): Card {
 }
 
 export function createUpdateCardProgress(cardId: Card["id"], input: FSRSCard): UpdateCardProgress {
-  const { state, dueAt, stability, difficulty, scheduledDays, learningStep, reps, lapses, lastReviewAt } = input;
+  const {
+    state,
+    dueAt,
+    stability,
+    stabilityFast,
+    difficulty,
+    scheduledDays,
+    learningStep,
+    reps,
+    lapses,
+    lastReviewAt,
+  } = input;
   return {
     id: cardId,
     state,
     dueAt,
     stability,
-    // WHY: FSRS-6 has no fast trace.
-    stabilityFast: 0,
+    stabilityFast,
     difficulty,
     scheduledDays,
     learningSteps: learningStep,

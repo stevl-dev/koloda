@@ -94,6 +94,7 @@ describe("getCardGrades", () => {
       state: State.Review,
       dueAt: DEFAULT_DATE,
       stability: 10,
+      stabilityFast: 4,
       difficulty: 5,
       scheduledDays: 10,
       reps: 3,
@@ -102,10 +103,10 @@ describe("getCardGrades", () => {
     const algorithm = createAlgorithm({ content: { ...DEFAULT_FSRS_ALGORITHM, isFuzzEnabled: false } });
     const [, , good] = getCardGrades(card, algorithm);
 
-    // WHY: a new card's Good is a 10-minute learning step, and the same card without its last review gets 11 days.
+    // WHY: with fuzz off FSRS-7 keeps the fractional interval, and the due time is that many 24-hour days on.
     expect(good.card.state).toBe(State.Review);
-    expect(good.card.scheduledDays).toBe(32);
-    expect(good.card.dueAt).toEqual(new Date("2024-02-02T00:00:00.000Z"));
+    expect(good.card.scheduledDays).toBeCloseTo(43.0604331, 6);
+    expect(+good.card.dueAt - +DEFAULT_DATE).toBeCloseTo(good.card.scheduledDays * 86_400_000, -1);
 
     vi.useRealTimers();
   });
@@ -117,8 +118,9 @@ describe("getCardGrades", () => {
     const card = createCard({
       state: State.Learning,
       dueAt: DEFAULT_DATE,
-      stability: 2.3065,
-      difficulty: 2.1,
+      stability: 0.1,
+      stabilityFast: 0.05,
+      difficulty: 8,
       learningSteps: 1,
       reps: 2,
       lastReviewedAt: new Date("2023-12-31T23:50:00.000Z"),
@@ -136,8 +138,8 @@ describe("getCardGrades", () => {
     });
     const [, , good] = getCardGrades(card, algorithm);
 
-    // WHY: three steps, because with two a learning card graduates on Good from step 1.
-    // From step 1, Good waits one hour at step 2; from step 0 it would wait ten minutes at step 1.
+    // WHY: three steps, because with two a learning card graduates on Good from step 1. A weak memory keeps the
+    // model under the steps. From step 1, Good waits one hour at step 2; from step 0 it would wait ten minutes.
     expect(good.card.state).toBe(State.Learning);
     expect(good.card.learningStep).toBe(2);
     expect(good.card.dueAt).toEqual(new Date("2024-01-01T01:00:00.000Z"));
@@ -153,8 +155,9 @@ const GRADED_CARD: FSRSCard = {
   dueAt: new Date("2024-01-03T00:00:00.000Z"),
   lastReviewAt: new Date("2024-01-01T00:00:00.000Z"),
   stability: 2.5,
+  stabilityFast: 1.75,
   difficulty: 4.2,
-  scheduledDays: 7,
+  scheduledDays: 0.5,
   learningStep: 2,
   reps: 1,
   lapses: 0,
@@ -170,9 +173,9 @@ describe("createCardFromCardFSRS", () => {
       dueAt: new Date("2024-01-03T00:00:00.000Z"),
       lastReviewedAt: new Date("2024-01-01T00:00:00.000Z"),
       stability: 2.5,
-      stabilityFast: 0,
+      stabilityFast: 1.75,
       difficulty: 4.2,
-      scheduledDays: 7,
+      scheduledDays: 0.5,
       learningSteps: 2,
       reps: 1,
       lapses: 0,
@@ -191,9 +194,9 @@ describe("createUpdateCardProgress", () => {
       state: 1,
       dueAt: new Date("2024-01-03T00:00:00.000Z"),
       stability: 2.5,
-      stabilityFast: 0,
+      stabilityFast: 1.75,
       difficulty: 4.2,
-      scheduledDays: 7,
+      scheduledDays: 0.5,
       learningSteps: 2,
       reps: 1,
       lapses: 0,

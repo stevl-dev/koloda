@@ -149,7 +149,18 @@ export type TodaysReviewTotals = Awaited<ReturnType<typeof calculateTodaysReview
 // Twin of `createUpdateCardProgress`: the submit payload must carry exactly the fields
 // Rust `InsertReviewData` deserializes — other ts-fsrs revlog keys (cardId, scheduleStatus) must not leak.
 export function createReviewFromReviewFSRS(input: FSRSRevlog): Omit<InsertReviewData, "cardId" | "time" | "isIgnored"> {
-  const { rating, state, dueAt, lastReviewAt, reviewTime, stability, difficulty, scheduledDays, learningStep } = input;
+  const {
+    rating,
+    state,
+    dueAt,
+    lastReviewAt,
+    reviewTime,
+    stability,
+    stabilityFast,
+    difficulty,
+    scheduledDays,
+    learningStep,
+  } = input;
   return {
     rating,
     state,
@@ -157,8 +168,7 @@ export function createReviewFromReviewFSRS(input: FSRSRevlog): Omit<InsertReview
     lastReviewedAt: lastReviewAt,
     reviewedAt: reviewTime,
     stability,
-    // WHY: FSRS-6 has no fast trace.
-    stabilityFast: 0,
+    stabilityFast,
     difficulty,
     scheduledDays,
     learningSteps: learningStep,

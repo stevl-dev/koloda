@@ -1,7 +1,7 @@
 use koloda::domain::algorithms_fsrs::AlgorithmFSRS;
 use koloda::domain::cards::CardState;
 use koloda::domain::optimizer::{
-    cap_w17_w18, new_progress, optimize, request_abort, FitScores, OptimizationInput, OptimizationOutcome, ReviewRecord,
+    new_progress, optimize, request_abort, FitScores, OptimizationInput, OptimizationOutcome, ReviewRecord,
 };
 use serde_json::json;
 
@@ -10,17 +10,23 @@ use crate::common::fsrs_algorithm_content;
 const DAY_MS: i64 = 86_400_000;
 const START_MS: i64 = 1_767_261_600_000; // 2026-01-01T10:00:00Z
 
-// WHY: initial stabilities of 100 days predict near-certain recall, so weights fitted to the forgetful synthetic
-// history below must beat them.
+const FSRS7_DEFAULT_WEIGHTS: [&str; 34] = [
+    "0.1104", "2.2395", "3.9221", "11.7841", "6.1686", "0.6457", "3.6807", "1.9795", "0", "1.3826", "0.7024", "0.5999",
+    "0.8146", "0.6398", "1", "1.3207", "0.6707", "3.8668", "0.4416", "0.0934", "1.8631", "0.6162", "1.0869", "0.1567",
+    "0.0801", "0.2421", "0.9464", "0.1433", "0.7145", "0", "0.5667", "0.3734", "0.5333", "0.3048",
+];
+
+// WHY: initial stabilities at their upper bounds predict near-certain recall, so weights fitted to the forgetful
+// synthetic history below must beat them.
 fn overconfident_content() -> AlgorithmFSRS {
-    let mut weights = vec!["100".to_string(); 4];
-    weights.extend(
-        [
-            "6.4133", "0.8334", "3.0194", "0.001", "1.8722", "0.1666", "0.796", "1.4835", "0.0614", "0.2629",
-        ]
-        .map(String::from),
-    );
-    weights.extend(["1.6483", "0.6014", "1.8729", "0.5425", "0.0912", "0.0658", "0.1542"].map(String::from));
+    with_initial_stabilities(["50", "100", "100", "100"])
+}
+
+fn with_initial_stabilities(initial: [&str; 4]) -> AlgorithmFSRS {
+    let mut weights = FSRS7_DEFAULT_WEIGHTS.map(String::from);
+    for (weight, value) in weights.iter_mut().zip(initial) {
+        *weight = value.to_string();
+    }
     AlgorithmFSRS {
         weights: weights.join(", "),
         ..fsrs_algorithm_content()
@@ -94,7 +100,7 @@ fn improved_weights_validate_and_score_better_than_current() {
         .split(", ")
         .map(|weight| weight.split('.').nth(1).map_or(0, str::len))
         .collect();
-    assert_eq!(decimals.len(), 21);
+    assert_eq!(decimals.len(), 34);
     assert!(
         decimals.iter().all(|count| *count <= 4),
         "weights are rounded to 4 decimals: {weights}"
@@ -132,7 +138,7 @@ fn weights_already_found_are_no_improvement() {
 }
 
 #[test]
-fn histories_without_a_later_day_are_not_enough_data() {
+fn histories_too_short_to_train_on_are_not_enough_data() {
     let cases = [
         ("no reviews", vec![]),
         (
@@ -173,55 +179,27 @@ fn histories_without_a_later_day_are_not_enough_data() {
 }
 
 #[test]
-fn w17_and_w18_are_capped_as_ts_fsrs_caps_them() {
-    // Expected w17 from ts-fsrs 6.0.0 `clipFSRS6Parameters` on its default weights, by relearning-step count.
-    // w18 (0.0912) sits under every cap.
-    let defaults = "0.212, 1.2931, 2.3065, 8.2956, 6.4133, 0.8334, 3.0194, 0.001, 1.8722, 0.1666, 0.796, 1.4835, \
-                    0.0614, 0.2629, 1.6483, 0.6014, 1.8729, 0.5425, 0.0912, 0.0658, 0.1542";
-    let cases = [(0, 0.5425), (1, 0.5425), (2, 0.5425), (3, 0.490273), (10, 0.2685336)];
-
-    for (relearning_steps, expected_w17) in cases {
-        let mut weights: Vec<f32> = defaults.split(", ").map(|weight| weight.parse().unwrap()).collect();
-        cap_w17_w18(&mut weights, relearning_steps);
-
-        assert!(
-            (weights[17] - expected_w17).abs() < 1e-6,
-            "{relearning_steps} steps: w17 {}",
-            weights[17]
-        );
-        assert!(
-            (weights[18] - 0.0912).abs() < 1e-6,
-            "{relearning_steps} steps: w18 {}",
-            weights[18]
-        );
-    }
-}
-
-#[test]
-fn found_weights_are_stored_under_the_schedulers_w17_w18_cap() {
-    // WHY: ten relearning steps put the ts-fsrs ceiling near 0.27, under the w17 the crate trains (its default here).
-    let relearning_steps = vec![(10, "m".to_string()); 10];
-    let input = OptimizationInput {
-        content: AlgorithmFSRS {
-            relearning_steps,
-            ..overconfident_content()
-        },
-        reviews: forgetful_history(),
+fn current_weights_are_scored_as_the_scheduler_clips_them() {
+    // WHY: ts-fsrs clips weights to the FSRS-7 bounds before it schedules; the crate must score them the same way, or
+    // the scores the user compares would not describe the scheduler (docs/decisions/FSRS-OPTIMIZER.md).
+    // TS twin: "clips weights to the FSRS-7 bounds" (libs/srs/src/lib/algorithms-fsrs.test.ts).
+    let current = |initial: [&str; 4]| {
+        let input = OptimizationInput {
+            content: with_initial_stabilities(initial),
+            reviews: forgetful_history(),
+        };
+        match optimize(&input, &new_progress()).expect("optimization should run") {
+            OptimizationOutcome::Improved { current, .. } | OptimizationOutcome::NoImprovement { current, .. } => {
+                current
+            }
+            outcome => panic!("expected scores, got {outcome:?}"),
+        }
     };
 
-    let outcome = optimize(&input, &new_progress()).expect("optimization should run");
-
-    let OptimizationOutcome::Improved { weights, .. } = outcome else {
-        panic!("expected improved weights, got {outcome:?}");
-    };
-    let stored: Vec<f32> = weights.split(", ").map(|weight| weight.parse().unwrap()).collect();
-    let mut capped = stored.clone();
-    cap_w17_w18(&mut capped, 10);
-    assert!(capped[17] < 0.5, "the cap binds: {}", capped[17]);
-    // Rounding to four decimals can lift a capped value a little.
-    for index in [17, 18] {
-        assert!(stored[index] - capped[index] < 1e-4, "w{index}: {weights}");
-    }
+    assert_eq!(
+        current(["1000", "100", "100", "100"]),
+        current(["50", "100", "100", "100"])
+    );
 }
 
 /// `cards` cards graded on each of `days`, the first from New.
@@ -249,20 +227,16 @@ fn short_history(cards: i64, days: &[i64], is_last_again: bool) -> Vec<ReviewRec
 
 #[test]
 fn histories_the_crate_does_not_train_on_are_not_enough_data() {
-    // WHY: below its training floors the crate returns its defaults, whole or with only the initial stabilities fitted.
+    // WHY: below its training floors the crate returns its defaults.
     // Each row was offered as improved or scored before; applying it would swap fitted weights for the defaults.
     let cases = [
         ("1 card, Good then Again 2 days later", short_history(1, &[0, 2], true)),
-        (
-            "7 cards, 2 reviews each: below 8 items",
-            short_history(7, &[0, 3], false),
-        ),
         (
             "20 cards, 3 reviews each: below 64 items",
             short_history(20, &[0, 2, 6], false),
         ),
         (
-            "70 cards, 2 reviews each: every item a card's first",
+            "70 cards, 2 reviews each: no item with two reviews a day or more apart",
             short_history(70, &[0, 3], false),
         ),
     ];

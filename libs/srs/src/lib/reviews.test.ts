@@ -179,8 +179,9 @@ describe("reviews", () => {
       lastReviewAt: new Date("2024-01-01T00:00:00.000Z"),
       reviewTime: new Date("2024-01-04T00:00:00.000Z"),
       stability: 2.5,
+      stabilityFast: 1.75,
       difficulty: 4.2,
-      scheduledDays: 7,
+      scheduledDays: 0.5,
       learningStep: 2,
     };
 
@@ -191,9 +192,9 @@ describe("reviews", () => {
       lastReviewedAt: new Date("2024-01-01T00:00:00.000Z"),
       reviewedAt: new Date("2024-01-04T00:00:00.000Z"),
       stability: 2.5,
-      stabilityFast: 0,
+      stabilityFast: 1.75,
       difficulty: 4.2,
-      scheduledDays: 7,
+      scheduledDays: 0.5,
       learningSteps: 2,
     });
   });

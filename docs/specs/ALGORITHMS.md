@@ -10,7 +10,7 @@ How decks pick an algorithm is covered lightly; deck management itself is not.
 
 ## What it is
 
-An algorithm is a named FSRS parameter set used by decks when scheduling cards.
+An algorithm is a named FSRS-7 parameter set used by decks when scheduling cards.
 It can also carry optional notes.
 The product lists these under Presets.
 Each deck points at one algorithm.
@@ -40,10 +40,14 @@ Every algorithm is FSRS and has:
 
 - **Retention** — integer from 70 through 99
 - **Fuzz** — on or off
-- **Weights** — exactly twenty-one comma-separated numbers
+- **Weights** — exactly thirty-four comma-separated numbers
 - **Learning steps** — ordered delays used while a card is in learning
 - **Relearning steps** — ordered delays used while a card is in relearning
 - **Maximum interval** — a whole number of days, at least one
+
+A step is the shortest delay at that point.
+When FSRS predicts the card is remembered for longer, it uses its longer delay instead.
+A delay of a day or more takes the card to review, skipping the steps left.
 
 Each learning or relearning step is an amount and a unit.
 Units are seconds, minutes, hours, or days.
@@ -128,7 +132,7 @@ An optimization ends with one of these results:
 - **Already the best fit** — the current weights predict the reviews at least as well as the weights it found
 - **New weights** — the weights it found predict the reviews better than the current ones
 
-With only a few reviews of cards seen on more than one day, it reports Not enough reviews.
+With few reviews to learn from, or none a day or more after the card's previous review, it reports Not enough reviews.
 It does not offer weights it could not fit.
 
 The last two results show how many reviews were used.

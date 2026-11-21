@@ -76,7 +76,7 @@ Out:
   Commit: Store the ts-fsrs 6 card and review fields
   Depends on: 1
 
-- [ ] 3. Move scheduling and the optimizer to FSRS-7
+- [x] 3. Move scheduling and the optimizer to FSRS-7
   Goal: Schedule with `FSRS7Model`, `fractionalDays: true`, the algorithm's explicit steps,
   `enableShortTerm: true`, `graduatingInterval: 1`, `allowModelOverride: true`.
   Weights are 34 numbers on both sides, defaulting to `FSRS7_DEFAULT_WEIGHTS`; update the seeds,
