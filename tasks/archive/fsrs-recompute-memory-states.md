@@ -1,6 +1,6 @@
 # Recompute memory states when optimized weights are applied
 
-Status: ready
+Status: done
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/decisions/CACHE-REFRESH.md, apps/electron/IPC.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/VERIFY.md
 Flow: local
 
@@ -115,8 +115,21 @@ Out:
 
 ## Outcome
 
-<what shipped>
+Applying optimized weights on the desktop now recomputes the stability, fast stability, and difficulty of every card
+in the algorithm's decks whose history the app holds from its first grade.
+The recompute replays each card's non-ignored reviews through the `fsrs` crate, in the same transaction and sync commit
+as the weights and the revision.
+Due times, intervals, counts, and `updated_at` stay; a card whose stored memory already matches is not rewritten.
+The apply dialog refreshes the `cards` kind too.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+Parity was checked before any code: the crate's replay matches what ts-fsrs grading stores to f32 precision.
+A test pair pins five histories on both sides, including same-day steps, a lapse, and clipped out-of-bound weights.
+`docs/decisions/FSRS-OPTIMIZER.md` now allows this one Rust write of card memory,
+and `PROTOCOL.md` (§Collision outcomes) records an apply racing an offline grade.
+
+Manual verify on the desktop (optimize and apply, then check a card's details) was left to the human.
+No e2e cases were added or changed.
+
+Spec: docs/specs/ALGORITHMS.md, docs/specs/CARDS.md
+Review: not run — self-review only, blocking 2 (CODE-DOCUMENTATION §Strict Commenting Rules, DECISIONS §Living document)
+Change rounds: 0
