@@ -1,6 +1,6 @@
 # Recompute memory states when optimized weights are applied
 
-Status: draft
+Status: ready
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/decisions/CACHE-REFRESH.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/VERIFY.md
 Flow: local
 
@@ -53,12 +53,12 @@ Out:
 - [x] What changes on existing cards? — Stability, fast stability, and difficulty only (human, 2026-11-21).
 - [x] What triggers it? — Applying optimized weights only (human, 2026-11-21).
 - [x] Can the user opt out when applying? — No; apply always recomputes (human, 2026-11-21).
-- [ ] A card graded offline on another device before the apply, but with an older stamp, loses that grade's
+- [x] A card graded offline on another device before the apply, but with an older stamp, loses that grade's
   scheduling to the recompute; its review is kept.
-  Accept it and add the row to PROTOCOL.md (§Collision outcomes)? — open.
-  Proposed: accept, as two offline grades already resolve to the later stamp's scheduling.
-- [ ] A card whose first non-ignored review is not a New card's keeps its stored state? — open.
-  Proposed: yes, the optimizer's rule; its history is incomplete, so a replay would invent a state.
+  Accept it and add the row to PROTOCOL.md (§Collision outcomes)? — Accept, and add the row (human, 2026-11-21).
+  Two offline grades already resolve to the later stamp's scheduling.
+- [x] A card whose first non-ignored review is not a New card's keeps its stored state? — Yes (human, 2026-11-21).
+  It is the optimizer's rule; the history is incomplete, so a replay would invent a state.
 
 ## Plan
 
@@ -99,7 +99,7 @@ Out:
   `docs/decisions/FSRS-OPTIMIZER.md` amends the ruling: the optimizer rewrites card memory state on apply, never due
   dates or reviews, through the crate's replay pinned to ts-fsrs by the parity test.
   `crates/koloda-sync-proto/PROTOCOL.md` §Collision outcomes gains the row for an offline grade against an apply,
-  per open question 5.
+  per Open questions.
   Regenerate the help corpus with `bun run gen:help`.
   Constraints: no schema or wire change; `cards.scheduling` keeps its columns.
   Done when: integration tests in `crates/koloda/tests/integration/algorithms_integration_tests.rs` show
