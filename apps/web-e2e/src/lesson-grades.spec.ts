@@ -54,9 +54,9 @@ test("grades cards with all four FSRS grades and checks their states after reope
   await expectDeckCardCount(page, 4);
 
   const rows = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Delete card" }) });
-  // WHY: FSRS-7 treats steps as minimums. Again keeps the first step and Hard's delay stays under a day, so both
-  // cards stay in learning; Good and Easy reach a day or more and graduate (ALGORITHMS.md §Parameters).
-  await expect(rows.filter({ hasText: "Learning" })).toHaveCount(2);
-  await expect(rows.filter({ hasText: "Review" })).toHaveCount(2);
+  // WHY: FSRS-7 treats steps as minimums (ALGORITHMS.md §Parameters). The web's starter preset keeps retention at 85,
+  // where Hard on a new card already reaches days; only Again stays on its one-minute step.
+  await expect(rows.filter({ hasText: "Learning" })).toHaveCount(1);
+  await expect(rows.filter({ hasText: "Review" })).toHaveCount(3);
   await expect(rows.filter({ hasText: "New" })).toHaveCount(0);
 });
