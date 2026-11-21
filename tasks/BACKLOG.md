@@ -49,10 +49,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
 
-- `fsrs-7`: Move to FSRS-7 once ts-fsrs 6 is stable.
-  Area: `libs/srs`, `crates/koloda`
-  Why: Both hosts are on FSRS-6; the move changes the weight count and needs a migration for stored algorithms.
-
 - `fsrs-recompute-memory-states`: Recompute stored stability and difficulty when optimized weights are applied.
   Area: `libs/srs`, `crates/koloda`
   Why: Applied weights affect only later grades, so existing cards keep states fitted to the old weights.
@@ -64,10 +60,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 - `settings-data-typed-name`: Type `name` as `T` in `SetSettingsData` and `PatchSettingsData`.
   Area: `libs/settings`
   Why: A call can pair one setting's name with another's content, since `T` is never inferred from `name`.
-
-- `max-interval-all-grades`: Hold the maximum interval for Good and Easy, not only Hard.
-  Area: `libs/srs`, `crates/koloda`
-  Why: With a 10-day maximum, a review card is scheduled 11 days out on Good and 12 on Easy.
 
 - `ai-plain-http-key-warning`: Warn in settings when an API key goes to a plain-http base URL on another host.
   Area: `crates/koloda`, `libs/settings-react`
