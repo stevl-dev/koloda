@@ -163,15 +163,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-audit-fixes.md`
   Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
 
-- Product decision, Later: an API key may go to a plain-http base URL on another host.
-  Evidence: at `537bfe0d`, `require_base_url` accepts any URL that parses (`crates/koloda/src/domain/ai.rs:261-270`).
-  The optional key of an Ollama, LM Studio, or OpenAI-compatible profile is sent to it.
-  `docs/specs/AI-PROVIDERS.md` §Validation asks only for a valid URL.
-  Kind: skipped
-  Source: `tasks/archive/koloda-correctness-security.md`, finding 6
-  Deferred because: refusing breaks Ollama, LM Studio, vLLM, and LiteLLM on another machine of the local network.
-  Every `ai` write validates every profile, so one stored profile would also fail later AI settings saves.
-
 ## crates/koloda-server
 
 - Handoff: ending a lease scans `versions` once per lease.
@@ -264,48 +255,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/media-audit.md`
   Deferred because: left for the mobile phase (`sync-transport` Out).
 
-## libs/ai
-
-- Handoff: let the assistant read lesson and progress statistics, such as why only 10 new cards show today.
-  Evidence: at `daa0ad62`, `docs/specs/ASSISTANT-DATA-ACCESS.md:90` says scheduling statistics and lesson history are not read.
-  Kind: handoff
-  Source: `tasks/archive/assistant-self-awareness.md`
-  Deferred because: the human left it out of the self-awareness task; it needs its own read of lesson data.
-
-- Handoff: give assistant answers in-app deep links to the screen where a setting or feature lives.
-  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` tells the model to say where the user changes settings,
-  because no link exists.
-  Kind: handoff
-  Source: `tasks/archive/assistant-self-awareness.md`
-  Deferred because: the human left it out of the self-awareness task; the first version reads only and does not act.
-
-- Handoff: add a `propose_settings_change` tool, so the assistant can propose a settings change for the user to apply.
-  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` says the settings tool cannot change settings.
-  Kind: handoff
-  Source: `tasks/archive/assistant-self-awareness.md`
-  Deferred because: the human left it out of the self-awareness task; it is an action, and the first version reads only.
-
-- Handoff: let the assistant write settings directly.
-  Evidence: at `daa0ad62`, `libs/ai/src/lib/assistant-tools.ts:367` says the settings tool cannot change settings.
-  Kind: handoff
-  Source: `tasks/archive/assistant-self-awareness.md`
-  Deferred because: the human left it out of the self-awareness task; it is an action, and the first version reads only.
-
-- Handoff: ask Anthropic for reasoning summaries, so the reasoning panel is not empty on Opus 4.7 and later.
-  Evidence: at `75bef231`, `libs/ai/src/lib/chat-stream.ts:258` sends no `thinking` option;
-  those models return empty thinking text unless a run sends `thinking: { type: "adaptive", display: "summarized" }`.
-  Opus 4.5 reports effort levels but rejects adaptive thinking, and the chat stream knows only the model ID and effort.
-  Kind: handoff
-  Source: `tasks/archive/anthropic-provider.md`, question 1
-  Deferred because: the human left it out of the provider task; it needs the model's thinking capabilities at run time.
-
-- Handoff: let an OpenAI-compatible profile list model IDs by hand, for servers that do not serve `/models`.
-  Evidence: at `6a590204`, `libs/ai/src/lib/providers/openai-compatible-provider.ts` lists models only from
-  `<base URL>/models`, and `docs/specs/AI-PROVIDERS.md` (§Fetching) disables sending while the list has not loaded.
-  Kind: handoff
-  Source: `tasks/archive/openai-compatible-provider.md`
-  Deferred because: most targets serve `/models`; the field is added when a real endpoint needs it.
-
 ## libs/ai-react
 
 - Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
@@ -316,17 +265,6 @@ Entries are grouped under one heading per package directory.
   Kind: handoff
   Source: `tasks/archive/entity-forms-architecture.md`
   Deferred because: seen during the task, which does not touch the test; drop it if no later run fails.
-
-## libs/app
-
-- Open question: where should `deepMerge` live?
-  Evidence: at `1c0661bb`, `libs/app/src/lib/utility.ts:25` exports it; its callers are the `libs/srs-react` and
-  `libs/assistant-react` test helpers and its own test.
-  `libs/app/README.md:29` lists it without saying it serves test fixtures.
-  Recommended: keep it in `@koloda/app` and describe it in the README as the test fixtures' merge.
-  Kind: open question
-  Source: `tasks/archive/app-audit.md`, question 7
-  Deferred because: the human has not answered; `dead-code-audit` handed it on too.
 
 ## libs/app-react
 
@@ -339,19 +277,6 @@ Entries are grouped under one heading per package directory.
   new `AppProviders` API or a reorder in both host stores.
 
 ## libs/assistant-react
-
-- Handoff: test files mock `@koloda/core-react` and `@koloda/ai-react` at file level under `isolate: false`.
-  Evidence: at `1c0661bb`, `libs/assistant-react/src/lib/ui/use-assistant-chat-hotkeys.test.tsx:26` and
-  `assistant-settings.test.tsx:14` mock `@koloda/core-react`; `use-assistant-message-renderer.test.tsx:26` mocks
-  `@koloda/ai-react`.
-  `agents/TESTING.md` (§Runner constraints) calls such a mock a bug when a sibling imports the package for real.
-  The suite passed with `--maxWorkers=1 --sequence.shuffle.files`, seeds 1–8.
-  At `abca5a8a` the three mocks are unchanged, and the WHY at `libs/assistant-react/vitest.config.mjs:17-19` says
-  such a mock leaks to later files and belongs in `src/test-setup.ts`.
-  Kind: handoff
-  Source: `tasks/archive/assistant-conversation-list-audit.md`
-  Deferred because: seen while working; every probed order passed. `assistant-conversations-audit` saw the same shape;
-  `assistant-react-tests-audit` (finding 15) left the mocks in place by the human's choice.
 
 - Improvement, Later: a run's terminal status enters the store from the UI or the shell, then again from the engine.
   Evidence: at `467d8b36`, user cancel writes `cancelRun` and `markRead` itself
@@ -403,13 +328,6 @@ Entries are grouped under one heading per package directory.
   `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`), and a WASM `koloda` for web needs a new decision.
   Rule disagreements are covered by the shared rule cases.
 
-- Improvement, Later: the connection's I/O recovery and the stale-IndexedDB wipe have no test.
-  Evidence: at `91c9b3d4`, `libs/db-sqlite/src/lib/db.ts:158-165` and `:197-218` (an I/O error drops and reopens the
-  connection) and `:114-133` (a leftover IndexedDB without a `blocks` store is wiped).
-  Kind: skipped
-  Source: `tasks/archive/db-sqlite-assistant-tests-audit.md`, finding 11
-  Deferred because: testing either path needs a fake failing VFS call; the human chose to skip them at triage.
-
 ## libs/e2e
 
 - Improvement, Later: the two AI-mock transports repeat the response decision, and hold differently after a cancel.
@@ -420,26 +338,6 @@ Entries are grouped under one heading per package directory.
   Kind: skipped
   Source: `tasks/archive/e2e-suites-audit.md`, finding 17
   Deferred because: no test reads `isHolding()` after a cancel; then move the decision into `libs/e2e`.
-
-## libs/settings
-
-- Open question: should `SetSettingsData` and `PatchSettingsData` type `name` as `T`?
-  Evidence: at `1c0661bb`, both type it as `SettingsName` (`libs/settings/src/index.ts:47-55`), so `T` is never inferred
-  from `name`, a call can pair one setting's name with another's content, and `content` is the union of all four.
-  Kind: open question
-  Source: `tasks/archive/typecheck-tests.md`
-  Deferred because: open at landing; the task changed no production code.
-
-## libs/srs
-
-- Handoff: decide whether the maximum interval should hold for Good and Easy, which ts-fsrs schedules past it.
-  Evidence: at `40d9197c`, ts-fsrs 5.2.3 caps each interval, then keeps Hard < Good < Easy
-  (`node_modules/ts-fsrs/dist/index.mjs:1142-1146`).
-  With a maximum of 10 days, a review card gets Hard 10, Good 11, and Easy 12.
-  `libs/srs/src/lib/algorithms-fsrs.test.ts` ("caps Hard at maximumInterval and keeps Good and Easy past it") pins it.
-  Kind: handoff
-  Source: `tasks/archive/srs-app-tests-audit.md`
-  Deferred because: a product question found while tightening a test; the task changed no source.
 
 ## libs/srs-react
 
@@ -547,21 +445,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: no cost is measured, and a summary column should cover `hasTurns` and `isUnread` at once, with a
   schema change on both hosts (question 3).
 
-- Handoff: move to FSRS-7 once ts-fsrs 6 is stable.
-  Evidence: at `1c0661bb`, `package.json:79` pins `ts-fsrs` `5.2.3`, and `crates/koloda/Cargo.toml:33` pins `fsrs`
-  `=6.6.2`, both FSRS-6 (21 weights).
-  It changes the weight count on both sides and needs a migration for stored algorithms.
-  Kind: handoff
-  Source: `tasks/archive/fsrs-optimizer.md`
-  Deferred because: a separate task once ts-fsrs 6 is stable.
-
-- Handoff: recompute stored stability and difficulty of existing cards when optimized weights are applied.
-  Evidence: at `1c0661bb`, `docs/specs/ALGORITHMS.md:144`: applied weights affect later grades like any other
-  parameter change.
-  Kind: handoff
-  Source: `tasks/archive/fsrs-optimizer.md`
-  Deferred because: the human chose later (2026-10-12).
-
 - Risk, Should-fix: repository behavior that is not validation is kept equal on both hosts only by a written rule.
   Evidence: at `8c285ffa`, the twin rule is `agents/TESTING.md:79-86`, and the shared cases in
   `crates/koloda/tests/cases/` cover validation rules only.
@@ -569,37 +452,3 @@ Entries are grouped under one heading per package directory.
   Kind: skipped
   Source: `tasks/archive/agentic-setup-audit.md`, finding 5
   Deferred because: it needs shared repository cases on both hosts, a task of its own.
-
-- Risk, Should-fix: the agent can push branches and call the GitHub API, held back only by written rules.
-  Evidence: at `8c285ffa`, the repository holds no permission rules, a `gh` credential is stored, and not pushing
-  unasked is a written rule (`AGENTS.md:7-9`).
-  The `main` ruleset, read from the GitHub API on 2026-11-12, requires the status check `checks`, blocks
-  non-fast-forward pushes and deletion, and has no bypass actors.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 14a
-  Deferred because: the human chose to skip; the `main` ruleset is verified and the written rules have held.
-
-- Product decision, Later: no commit or task records which agent or model produced a change.
-  Evidence: at `8c285ffa`, `Task:` trailers tie commits to tasks (`tools/hooks/commit-msg` and the land gate enforce
-  them), and nothing names the agent or model.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 7
-  Deferred because: accepted by the human on 2026-11-12.
-
-- Risk, Later: nothing mechanical notices a weakened check, and self-review is not independent of the author.
-  Evidence: at `8c285ffa`, 9 `oxlint-disable` comments, 3 `#[ignore]` with reasons, and no skipped TS test.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 11
-  Deferred because: accepted by the human on 2026-11-12; the human reads most changes before they land.
-
-- Risk, Later: `Escapes:` lines are a written rule only.
-  Evidence: at `8c285ffa`, `AGENTS.md:14-15`; nothing can tell that a commit fixes a bug that escaped onto `main`.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 16b
-  Deferred because: accepted by the human on 2026-11-12.
-
-- Product decision, Later: spend and the choice of model are not recorded.
-  Evidence: at `8c285ffa`, no task file, commit trailer, or tool records either.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 16c
-  Deferred because: accepted by the human on 2026-11-12; reopen when a second person joins or spend is tracked.

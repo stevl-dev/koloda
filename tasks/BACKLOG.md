@@ -24,3 +24,51 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`, `libs/ai-react`, `libs/assistant-react`, `libs/srs`, `libs/db-sqlite`, `crates/koloda`, `apps/electron`, `apps/web`
   Why: A screenshot or a photo is often the source of the cards the user wants, and today it has to be retyped.
   Brief: `tasks/backlog/assistant-attachments.md`
+
+- `assistant-lesson-statistics`: Let the assistant read lesson and progress statistics.
+  Area: `libs/ai`
+  Why: The assistant cannot explain lesson amounts, such as why only 10 new cards show today.
+
+- `assistant-deep-links`: Give assistant answers in-app deep links to the screen where a setting or feature lives.
+  Area: `libs/ai`
+  Why: Answers can only describe where a setting lives, not link to it.
+
+- `assistant-propose-settings-change`: Add a `propose_settings_change` tool that proposes a change for the user to apply.
+  Area: `libs/ai`
+  Why: The settings tool only reads, so the user applies every suggested change by hand.
+
+- `assistant-write-settings`: Let the assistant write settings directly.
+  Area: `libs/ai`
+  Why: The settings tool only reads, so the assistant cannot act on a settings request.
+
+- `anthropic-reasoning-summaries`: Ask Anthropic for reasoning summaries on models that return empty thinking text.
+  Area: `libs/ai`
+  Why: The reasoning panel is empty on Opus 4.7 and later.
+
+- `openai-compatible-manual-models`: Let an OpenAI-compatible profile list model IDs by hand.
+  Area: `libs/ai`
+  Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
+
+- `fsrs-7`: Move to FSRS-7 once ts-fsrs 6 is stable.
+  Area: `libs/srs`, `crates/koloda`
+  Why: Both hosts are on FSRS-6; the move changes the weight count and needs a migration for stored algorithms.
+
+- `fsrs-recompute-memory-states`: Recompute stored stability and difficulty when optimized weights are applied.
+  Area: `libs/srs`, `crates/koloda`
+  Why: Applied weights affect only later grades, so existing cards keep states fitted to the old weights.
+
+- `app-deep-merge-readme`: Describe `deepMerge` in `libs/app/README.md` as the test fixtures' merge.
+  Area: `libs/app`
+  Why: The human kept it in `@koloda/app`, and the README lists it without saying it serves test fixtures.
+
+- `settings-data-typed-name`: Type `name` as `T` in `SetSettingsData` and `PatchSettingsData`.
+  Area: `libs/settings`
+  Why: A call can pair one setting's name with another's content, since `T` is never inferred from `name`.
+
+- `max-interval-all-grades`: Hold the maximum interval for Good and Easy, not only Hard.
+  Area: `libs/srs`, `crates/koloda`
+  Why: With a 10-day maximum, a review card is scheduled 11 days out on Good and 12 on Easy.
+
+- `ai-plain-http-key-warning`: Warn in settings when an API key goes to a plain-http base URL on another host.
+  Area: `crates/koloda`, `libs/settings-react`
+  Why: The key travels unencrypted; refusing such URLs would break Ollama and similar servers on the local network.
