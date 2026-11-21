@@ -1,6 +1,6 @@
 # Move to ts-fsrs 6 and FSRS-7
 
-Status: draft
+Status: ready
 Guides: agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/DB.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, crates/koloda-sync-proto/PROTOCOL.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/I18N.md, agents/VERIFY.md
 Flow: local
 
