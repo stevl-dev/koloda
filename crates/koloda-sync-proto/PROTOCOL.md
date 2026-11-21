@@ -455,6 +455,7 @@ The client runs it because it must be correct against any server, and it alone s
 | Rename a deck on A, edit its notes on B | Both survive; different groups |
 | Rename an algorithm on A, change its parameters on B | Both survive; both devices' revisions are kept |
 | Two devices change the same algorithm's parameters | Later stamp wins `content`; both revisions are kept |
+| Apply optimized weights on A, grade one of its cards offline on B | As with two offline grades: `cards.scheduling` is the later stamp's, the recompute's from A's base or the grade's from B's; B's review is kept |
 | Delete an algorithm on A, change its parameters on B | Delete wins; both devices' revisions survive |
 | Algorithm successor on A vs deck still pointing at the old algorithm on B | Only `decks.algorithm` is repaired or LWW'd |
 | Two devices edit template structure concurrently | Last writer wins on `structure`; orphan keys in card content are ignored by the renderer |

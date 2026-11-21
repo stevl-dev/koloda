@@ -4,11 +4,12 @@ use koloda::domain::algorithms::{
     Algorithm, CloneAlgorithmData, DeleteAlgorithmData, InsertAlgorithmData, UpdateAlgorithmData, UpdateAlgorithmValues,
 };
 use koloda::domain::algorithms_fsrs::AlgorithmFSRS;
-use koloda::domain::optimizer::ApplyAlgorithmOptimizationData;
+use koloda::domain::cards::Card;
+use koloda::domain::optimizer::{replay_card_memories, ApplyAlgorithmOptimizationData, ReviewRecord};
 use koloda::domain::settings::SettingsName;
-use koloda::repo::algorithms;
+use koloda::repo::{algorithms, cards};
 
-use crate::common::fixtures::{add_algorithm, add_deck, add_template};
+use crate::common::fixtures::{add_algorithm, add_deck, add_graded_card, add_template};
 use crate::common::{fsrs_algorithm_content, invalid_learning_rows, learning_settings, store_learning_row, test_db};
 
 #[test]
@@ -544,6 +545,69 @@ fn applying_an_optimization_replaces_only_weights_as_an_optimizer_revision() {
     assert_eq!(Some(revisions[1].created_at), applied.updated_at);
 }
 
+const DAY_MS: i64 = 86_400_000;
+const GRADED_AT: [i64; 3] = [
+    1_767_261_600_000,
+    1_767_261_600_000 + 3 * DAY_MS,
+    1_767_261_600_000 + 10 * DAY_MS,
+];
+
+fn card(db: &Database, id: &str) -> Card {
+    cards::get_card(db, id).expect("card reads").expect("card exists")
+}
+
+#[test]
+fn applying_an_optimization_recomputes_only_the_memory_of_its_cards() {
+    let db = test_db();
+    let algorithm_id = add_algorithm(&db, "FSRS");
+    let other_algorithm = add_algorithm(&db, "Other");
+    let template = add_template(&db, "Basic");
+    let deck = add_deck(&db, &algorithm_id, &template, "Deck");
+    let other_deck = add_deck(&db, &other_algorithm, &template, "Other");
+    let graded = add_graded_card(&db, &deck, &template, &GRADED_AT, true);
+    let partial = add_graded_card(&db, &deck, &template, &GRADED_AT, false);
+    let elsewhere = add_graded_card(&db, &other_deck, &template, &GRADED_AT, true);
+    let before = [&graded, &partial, &elsewhere].map(|id| card(&db, id));
+
+    algorithms::apply_algorithm_optimization(&db, apply_data(&algorithm_id)).expect("apply should succeed");
+
+    let history: Vec<ReviewRecord> = GRADED_AT
+        .iter()
+        .enumerate()
+        .map(|(index, &reviewed_at)| ReviewRecord {
+            id: index.to_string(),
+            card_id: graded.clone(),
+            rating: 3,
+            state: if index == 0 { 0 } else { 2 },
+            reviewed_at,
+        })
+        .collect();
+    let replayed = replay_card_memories(FOUND_WEIGHTS, &history).unwrap()[&graded];
+    let [graded_before, partial_before, elsewhere_before] = before;
+    let expected = Card {
+        stability: replayed.stability,
+        stability_fast: replayed.stability_fast,
+        difficulty: replayed.difficulty,
+        ..graded_before.clone()
+    };
+    assert_ne!(expected, graded_before, "the replay moves the stored memory");
+    assert_eq!(
+        card(&db, &graded),
+        expected,
+        "only the memory changes; the schedule and update time stay"
+    );
+    assert_eq!(
+        card(&db, &partial),
+        partial_before,
+        "an incomplete history keeps its memory"
+    );
+    assert_eq!(
+        card(&db, &elsewhere),
+        elsewhere_before,
+        "another algorithm's card keeps its memory"
+    );
+}
+
 #[test]
 fn applying_an_optimization_is_refused_without_writing_anything() {
     type Change = fn(&mut ApplyAlgorithmOptimizationData);
@@ -568,6 +632,10 @@ fn applying_an_optimization_is_refused_without_writing_anything() {
     for (case, change, code) in cases {
         let db = test_db();
         let algorithm_id = add_algorithm(&db, "FSRS");
+        let template = add_template(&db, "Basic");
+        let deck = add_deck(&db, &algorithm_id, &template, "Deck");
+        let graded = add_graded_card(&db, &deck, &template, &GRADED_AT, true);
+        let graded_before = card(&db, &graded);
         let mut data = apply_data(&algorithm_id);
         change(&mut data);
 
@@ -579,5 +647,6 @@ fn applying_an_optimization_is_refused_without_writing_anything() {
             .expect("algorithm stays");
         assert_eq!(stored.content, fsrs_algorithm_content(), "{case}");
         assert_eq!(revisions(&db, &algorithm_id).len(), 1, "{case}");
+        assert_eq!(card(&db, &graded), graded_before, "{case}");
     }
 }

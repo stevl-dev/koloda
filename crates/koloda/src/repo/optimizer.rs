@@ -1,6 +1,6 @@
 //! Reads what FSRS weight optimization learns from. Rust-only, like `domain/optimizer`.
 
-use rusqlite::{params, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension};
 
 use crate::app::db::{parse_json_column, Database};
 use crate::app::error::{error_codes, throw_known_error, AppError};
@@ -28,28 +28,34 @@ pub fn get_optimization_input(db: &Database, algorithm_id: &str) -> Result<Optim
                     )
                 })?;
 
-            let mut statement = conn.prepare(
-                r#"
-                SELECT r.id, r.card_id, r.rating, r.state, r.reviewed_at
-                FROM reviews r
-                JOIN cards c ON c.id = r.card_id
-                JOIN decks d ON d.id = c.deck_id
-                WHERE d.algorithm_id = ?1 AND r.is_ignored = 0
-                "#,
-            )?;
-            let reviews = statement
-                .query_map(params![algorithm_id], |row| {
-                    Ok(ReviewRecord {
-                        id: row.get(0)?,
-                        card_id: row.get(1)?,
-                        rating: row.get(2)?,
-                        state: row.get(3)?,
-                        reviewed_at: row.get(4)?,
-                    })
-                })?
-                .collect::<Result<Vec<_>, _>>()?;
+            let reviews = algorithm_reviews(conn, algorithm_id)?;
 
             Ok(OptimizationInput { content, reviews })
         })
     })
+}
+
+/// Every non-ignored review of the cards in decks that use the algorithm now, in no order.
+pub(crate) fn algorithm_reviews(conn: &Connection, algorithm_id: &str) -> Result<Vec<ReviewRecord>, AppError> {
+    let mut statement = conn.prepare(
+        r#"
+        SELECT r.id, r.card_id, r.rating, r.state, r.reviewed_at
+        FROM reviews r
+        JOIN cards c ON c.id = r.card_id
+        JOIN decks d ON d.id = c.deck_id
+        WHERE d.algorithm_id = ?1 AND r.is_ignored = 0
+        "#,
+    )?;
+    let reviews = statement
+        .query_map(params![algorithm_id], |row| {
+            Ok(ReviewRecord {
+                id: row.get(0)?,
+                card_id: row.get(1)?,
+                rating: row.get(2)?,
+                state: row.get(3)?,
+                reviewed_at: row.get(4)?,
+            })
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(reviews)
 }

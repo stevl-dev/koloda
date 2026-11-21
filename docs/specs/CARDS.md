@@ -86,6 +86,7 @@ On the card details view, the user sees stability, difficulty, and lapses, plus 
 The remaining scheduling fields are not shown in the management UI.
 
 The user does not edit these numbers directly, except through resetting progress.
+Applying optimized weights recomputes stability and difficulty; see ALGORITHMS.md (§Optimization).
 
 ## Adding Cards
 

@@ -35,7 +35,7 @@ type OptimizeAlgorithmDialogProps = OptimizeAlgorithmProps & { optimizer: Optimi
 function OptimizeAlgorithmDialog({ id, isDisabled, onApplied, optimizer }: OptimizeAlgorithmDialogProps) {
   const queryClient = useQueryClient();
   const { _ } = useLingui();
-  const { mutate, isPending } = useWriteMutation(optimizer.applyOptimizationMutation(), ["algorithms"]);
+  const { mutate, isPending } = useWriteMutation(optimizer.applyOptimizationMutation(), ["algorithms", "cards"]);
   const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState<OptimizationState>({ phase: "running", progress: null });
   const runRef = useRef<AbortController | null>(null);

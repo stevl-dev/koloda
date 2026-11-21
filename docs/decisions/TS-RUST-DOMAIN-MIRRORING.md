@@ -26,7 +26,7 @@ Product tables and columns stay structurally equivalent on both hosts.
 | Concern | Source of truth | Mirror / consumer |
 | --- | --- | --- |
 | AI provider identity and secrets redaction | Rust (`koloda` domain + repo) | `@koloda/ai` catalog and secrets schemas |
-| FSRS scheduling | TypeScript (`@koloda/srs`, lesson flow in `@koloda/srs-react`) | Backends persist client-computed card/review results; they do not re-schedule |
+| FSRS scheduling | TypeScript (`@koloda/srs`, lesson flow in `@koloda/srs-react`) | Backends persist client-computed card/review results; they do not re-schedule. Applying optimized weights recomputes card memory in Rust (`docs/decisions/FSRS-OPTIMIZER.md`) |
 | FSRS weight fitting | Rust (`koloda`, desktop only; `docs/decisions/FSRS-OPTIMIZER.md`) | No TS twin; the renderer shows results and applies weights |
 | Shared product entities (cards, decks, templates, settings, …) | Both sides must agree | Update Zod (`libs/srs`, `libs/app`) and Rust domain together |
 

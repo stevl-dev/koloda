@@ -118,6 +118,39 @@ pub fn insert_review_row(db: &Database, card_id: &str, state: i32, is_ignored: i
     .expect("review row should insert");
 }
 
+/// A card in Review graded Good at each of `reviewed_at`, with stored memory `[1, 1, 5]`, due a day after the last.
+/// `is_complete` false leaves out the first review, from New, as a card whose history the app does not hold.
+pub fn add_graded_card(
+    db: &Database,
+    deck_id: &str,
+    template_id: &str,
+    reviewed_at: &[i64],
+    is_complete: bool,
+) -> String {
+    let id = add_card(db, deck_id, template_id, "graded");
+    let last = *reviewed_at.last().expect("a graded card has reviews");
+    db.with_conn(|conn| {
+        conn.execute(
+            r#"
+            UPDATE cards
+            SET state = 2, due_at = ?1, stability = 1, stability_fast = 1, difficulty = 5, scheduled_days = 1,
+                reps = ?2, last_reviewed_at = ?3, updated_at = 1700000000000
+            WHERE id = ?4
+            "#,
+            rusqlite::params![last + 86_400_000, reviewed_at.len(), last, id],
+        )?;
+        Ok(())
+    })
+    .expect("card schedule should update");
+    for (index, &at) in reviewed_at.iter().enumerate() {
+        if index == 0 && !is_complete {
+            continue;
+        }
+        insert_review_row(db, &id, if index == 0 { 0 } else { 2 }, 0, at);
+    }
+    id
+}
+
 pub fn add_conversation(db: &Database, id: &str, state: serde_json::Value) -> String {
     use koloda::domain::conversations::SetConversationInput;
     use koloda::repo::conversations;

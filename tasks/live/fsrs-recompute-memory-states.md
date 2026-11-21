@@ -1,7 +1,7 @@
 # Recompute memory states when optimized weights are applied
 
 Status: ready
-Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/decisions/CACHE-REFRESH.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/VERIFY.md
+Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, crates/koloda/src/repo/sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/decisions/CACHE-REFRESH.md, apps/electron/IPC.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/VERIFY.md
 Flow: local
 
 ## Intent
@@ -83,7 +83,7 @@ Out:
   Commit: Replay card memory states from review history
   Depends on: none
 
-- [ ] 2. Recompute memory states when optimized weights are applied
+- [x] 2. Recompute memory states when optimized weights are applied
   Goal: `apply_algorithm_optimization` (`crates/koloda/src/repo/algorithms.rs`) reads, in its transaction,
   the non-ignored reviews of the cards in decks that use the algorithm, replays them with the new weights (item 1),
   and updates `stability`, `stability_fast`, and `difficulty` of each card whose values changed.

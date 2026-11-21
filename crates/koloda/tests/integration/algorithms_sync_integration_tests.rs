@@ -1,12 +1,13 @@
 use koloda::domain::algorithms::{
     CloneAlgorithmData, DeleteAlgorithmData, InsertAlgorithmData, UpdateAlgorithmData, UpdateAlgorithmValues,
 };
-use koloda::domain::optimizer::ApplyAlgorithmOptimizationData;
-use koloda::repo::algorithms;
-use koloda_sync_proto::payload::{DeckAlgorithm, Delete, Payload};
+use koloda::domain::optimizer::{replay_card_memories, ApplyAlgorithmOptimizationData};
+use koloda::repo::optimizer::get_optimization_input;
+use koloda::repo::{algorithms, cards};
+use koloda_sync_proto::payload::{CardScheduling, DeckAlgorithm, Delete, Payload};
 use koloda_sync_proto::registry::{Group, Kind};
 
-use crate::common::fixtures::{add_algorithm, add_deck, add_template};
+use crate::common::fixtures::{add_algorithm, add_deck, add_graded_card, add_template};
 use crate::common::sync::{enroll, outbox};
 use crate::common::{fsrs_algorithm_content, test_db};
 
@@ -141,17 +142,40 @@ fn deleting_an_algorithm_reassigns_its_decks_then_tombstones_it_with_the_success
 }
 
 #[test]
-fn applying_an_optimization_records_the_new_content_and_an_optimizer_revision() {
+fn applying_an_optimization_records_the_new_content_a_revision_and_each_recomputed_card_in_one_commit() {
+    const DAY_MS: i64 = 86_400_000;
+    let graded_at = [1_767_261_600_000, 1_767_261_600_000 + 3 * DAY_MS];
+    let weights = "0.1104, 2.2395, 3.9221, 11.7841, 6.1686, 0.6457, 3.6807, 1.9795, 0, 1.3826, 0.7024, 0.5999, \
+                   0.8146, 0.6398, 1, 1.3207, 0.6707, 3.8668, 0.4416, 0.0934, 1.8631, 0.6162, 1.0869, 0.1567, \
+                   0.0801, 0.2421, 0.9464, 0.1433, 0.7145, 0, 0.5667, 0.3734, 0.5333, 0.3048";
     let db = test_db();
     let algorithm = add_algorithm(&db, "FSRS");
+    let template = add_template(&db, "Basic");
+    let deck = add_deck(&db, &algorithm, &template, "Deck");
+    let graded = add_graded_card(&db, &deck, &template, &graded_at, true);
+    add_graded_card(&db, &deck, &template, &graded_at, false);
+    // A card whose stored memory already equals the replay changes nothing, so it captures nothing.
+    let settled = add_graded_card(&db, &deck, &template, &graded_at, true);
+    let history = get_optimization_input(&db, &algorithm).unwrap().reviews;
+    let replayed = replay_card_memories(weights, &history).unwrap()[&settled];
+    db.with_conn(|conn| {
+        conn.execute(
+            "UPDATE cards SET stability = ?1, stability_fast = ?2, difficulty = ?3 WHERE id = ?4",
+            rusqlite::params![
+                replayed.stability,
+                replayed.stability_fast,
+                replayed.difficulty,
+                settled
+            ],
+        )?;
+        Ok(())
+    })
+    .unwrap();
     enroll(&db);
     let data = ApplyAlgorithmOptimizationData {
         id: algorithm,
         based_on: fsrs_algorithm_content(),
-        weights: "0.1104, 2.2395, 3.9221, 11.7841, 6.1686, 0.6457, 3.6807, 1.9795, 0, 1.3826, \
-                  0.7024, 0.5999, 0.8146, 0.6398, 1, 1.3207, 0.6707, 3.8668, 0.4416, 0.0934, 1.8631, 0.6162, 1.0869, \
-                  0.1567, 0.0801, 0.2421, 0.9464, 0.1433, 0.7145, 0, 0.5667, 0.3734, 0.5333, 0.3048"
-            .to_string(),
+        weights: weights.to_string(),
     };
 
     let mut stale = data.clone();
@@ -171,14 +195,31 @@ fn applying_an_optimization_records_the_new_content_and_an_optimizer_revision() 
         vec![
             (Kind::Algorithms, Some(Group::Content)),
             (Kind::AlgorithmRevisions, Some(Group::Row)),
+            (Kind::Cards, Some(Group::Scheduling)),
         ]
     );
     let Payload::AlgorithmRevision(row) = &entries[1].payload else {
         panic!("expected a revision, got {:?}", entries[1].payload);
     };
     assert_eq!(row.actor, r#"{"kind":"optimizer"}"#);
+    assert_eq!(entries[2].envelope.header.id, graded);
+    let card = cards::get_card(&db, &graded).unwrap().unwrap();
     assert_eq!(
-        entries[0].envelope.header.commit_id,
-        entries[1].envelope.header.commit_id
+        entries[2].payload,
+        Payload::CardScheduling(CardScheduling {
+            state: i64::from(card.state),
+            due_at: card.due_at,
+            stability: card.stability,
+            stability_fast: card.stability_fast,
+            difficulty: card.difficulty,
+            scheduled_days: card.scheduled_days,
+            learning_steps: i64::from(card.learning_steps),
+            reps: i64::from(card.reps),
+            lapses: i64::from(card.lapses),
+            last_reviewed_at: card.last_reviewed_at,
+        })
     );
+    assert!(entries
+        .iter()
+        .all(|entry| entry.envelope.header.commit_id == entries[0].envelope.header.commit_id));
 }

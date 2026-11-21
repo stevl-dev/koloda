@@ -15,7 +15,9 @@ use crate::domain::algorithms::{
 };
 use crate::domain::algorithms_fsrs::AlgorithmFSRS;
 use crate::domain::common::{normalize_optional_notes, normalize_required_title};
-use crate::domain::optimizer::ApplyAlgorithmOptimizationData;
+use crate::domain::optimizer::{replay_card_memories, ApplyAlgorithmOptimizationData};
+use crate::repo::cards::{scheduling_payload, select_card};
+use crate::repo::optimizer::algorithm_reviews;
 use crate::repo::settings;
 use crate::repo::sync::capture::Capture;
 
@@ -269,7 +271,8 @@ pub fn update_algorithm(db: &Database, data: UpdateAlgorithmData) -> Result<Algo
     })
 }
 
-/// Replaces only the weights, as a revision by the optimizer. Rust-only; see `docs/decisions/FSRS-OPTIMIZER.md`.
+/// Replaces only the weights, as a revision by the optimizer, and recomputes the memory of the cards that use them.
+/// Rust-only; see `docs/decisions/FSRS-OPTIMIZER.md`.
 pub fn apply_algorithm_optimization(
     db: &Database,
     data: ApplyAlgorithmOptimizationData,
@@ -308,12 +311,30 @@ pub fn apply_algorithm_optimization(
                 return Ok(());
             }
 
+            let memories = replay_card_memories(&content.weights, &algorithm_reviews(tx, &data.id)?)?;
             let content = serde_json::to_string(&content)?;
             tx.execute(
                 "UPDATE algorithms SET content = ?1, updated_at = ?2 WHERE id = ?3",
                 params![content, now, data.id],
             )?;
             let revision = insert_algorithm_revision(tx, &data.id, &content, AlgorithmRevisionActor::Optimizer, now)?;
+
+            // INVARIANT: only the memory a grade writes changes; the schedule and `updated_at` stay, as after a grade.
+            let mut recomputed = Vec::new();
+            for (card_id, memory) in memories {
+                let changed = tx.execute(
+                    r#"
+                    UPDATE cards SET stability = ?1, stability_fast = ?2, difficulty = ?3
+                    WHERE id = ?4 AND (stability IS NOT ?1 OR stability_fast IS NOT ?2 OR difficulty IS NOT ?3)
+                    "#,
+                    params![memory.stability, memory.stability_fast, memory.difficulty, card_id],
+                )?;
+                if changed > 0 {
+                    recomputed.extend(select_card(tx, &card_id)?);
+                }
+            }
+
+            // INVARIANT: the weights and the memory they recompute publish in one commit.
             let mut capture = Capture::begin(tx)?;
             capture.write(
                 &data.id,
@@ -324,6 +345,13 @@ pub fn apply_algorithm_optimization(
                 }),
             )?;
             capture.write(&revision.id, None, &Payload::AlgorithmRevision(revision.payload))?;
+            for card in recomputed {
+                capture.write(
+                    &card.id,
+                    Some(&card.deck_id),
+                    &Payload::CardScheduling(scheduling_payload(&card)),
+                )?;
+            }
             Ok(())
         })?;
 

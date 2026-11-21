@@ -146,8 +146,8 @@ Runs queue on that thread in call order.
   - Closing that window cancels the run.
 - `cmd_cancel_algorithm_optimization` `{ requestId }` — flags the run and returns at once; the run resolves as
   `cancelled`. An unknown or finished `requestId` is ignored.
-- `cmd_apply_algorithm_optimization` `{ data: { id, basedOn, weights } }` — a data command: replaces only the weights
-  and records a revision by the optimizer.
+- `cmd_apply_algorithm_optimization` `{ data: { id, basedOn, weights } }` — a data command: replaces only the weights,
+  records a revision by the optimizer, and recomputes the memory of the cards in the algorithm's decks.
   It fails with `algorithms.optimizer.stale` when the stored parameters no longer equal `basedOn`.
 
 ## Window and Lifecycle

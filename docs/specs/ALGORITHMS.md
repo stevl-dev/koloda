@@ -16,6 +16,7 @@ The product lists these under Presets.
 Each deck points at one algorithm.
 Editing an algorithm, or pointing a deck at a different algorithm, changes the parameters used for later grades.
 It does not rewrite existing card scheduling numbers until those cards are graded again.
+Applying optimized weights is the one exception; see §Optimization.
 Its weights can be fitted to the user's own reviews; see §Optimization.
 
 ## Core model
@@ -145,13 +146,20 @@ Discarding changes nothing.
 
 Applying replaces the algorithm's weights.
 It leaves the other parameters, the title, and the notes unchanged.
-Applied weights affect later grades like any other parameter change; see §What it is.
+Applied weights affect later grades like any other parameter change.
 Applying records a revision; see §History.
+
+Applying also recomputes the memory of the cards in decks that use the algorithm when the weights are applied.
+Each card's stability and difficulty become what grading its reviews with the new weights would have given.
+It reads the same reviews optimization learns from.
+A card whose history the app does not hold from its first grade keeps its numbers, and so does a card never graded.
+Due times, intervals, and the other scheduling numbers stay as they are, until each card's next grade.
+The recomputed numbers reach the user's other devices like a grade's.
 
 If the algorithm's parameters changed after the optimization started, applying is refused.
 The weights stay as they are, and the user can optimize again.
 
-Optimization does not change cards or reviews.
+Running an optimization changes nothing until its weights are applied, and applying changes no reviews.
 There is no automatic optimization; it runs only when the user starts it.
 
 ## Deleting Algorithms
