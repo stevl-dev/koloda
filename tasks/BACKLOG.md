@@ -49,10 +49,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
 
-- `fsrs-recompute-memory-states`: Recompute stored stability and difficulty when optimized weights are applied.
-  Area: `libs/srs`, `crates/koloda`
-  Why: Applied weights affect only later grades, so existing cards keep states fitted to the old weights.
-
 - `app-deep-merge-readme`: Describe `deepMerge` in `libs/app/README.md` as the test fixtures' merge.
   Area: `libs/app`
   Why: The human kept it in `@koloda/app`, and the README lists it without saying it serves test fixtures.
