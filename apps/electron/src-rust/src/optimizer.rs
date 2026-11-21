@@ -120,7 +120,7 @@ mod tests {
         let first = host.register("first");
         let queued = host.register("queued");
 
-        // The first run still holds the optimizer thread when the cancel for the queued one arrives.
+        // The cancel arrives after both runs are registered and before either starts, as for a run still queued.
         host.cancel("queued");
         let outcome = host
             .run("queued", &algorithm_id, &queued, |_, _| {})

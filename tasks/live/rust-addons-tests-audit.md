@@ -97,7 +97,7 @@ none
 
 ## Plan
 
-- [ ] 1. Say what the optimizer host's queued-cancel test proves
+- [x] 1. Say what the optimizer host's queued-cancel test proves
   Goal: In `apps/electron/src-rust/src/optimizer.rs`, test `a_run_cancelled_while_queued_resolves_cancelled`, replace
   the comment "The first run still holds the optimizer thread when the cancel for the queued one arrives".
   The test runs both runs one after the other on the test thread, so nothing holds the thread at the cancel.
