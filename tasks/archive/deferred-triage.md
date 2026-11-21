@@ -1,6 +1,6 @@
 # Triage deferred work
 
-Status: ready
+Status: done
 Guides: agents/TASKS.md, agents/MARKDOWN.md
 Flow: local
 
@@ -120,7 +120,7 @@ Each answer creates work, so each entry moves to the backlog.
 
 ## Plan
 
-- [ ] 1. Triage the deferred entries
+- [x] 1. Triage the deferred entries
   Goal: remove D1–D7 and M1–M12 from `tasks/DEFERRED.md`, with any heading left empty.
   Append M1–M12 to the end of `tasks/BACKLOG.md` in that order.
   Each entry gives the work in one sentence, its area, and why it is wanted; none has a brief.
@@ -132,7 +132,27 @@ Each answer creates work, so each entry moves to the backlog.
 
 ## Outcome
 
-<what shipped>
+Item 1 removed 19 entries from `tasks/DEFERRED.md` (70 to 51) and added 12 to `tasks/BACKLOG.md` (2 to 14).
+The `libs/ai`, `libs/app`, `libs/settings`, and `libs/srs` headings went with their last entries.
+
+Dropped, with the reason for each:
+
+- D1: the human chose to skip it; the `main` ruleset is verified and the written rules have held
+  (`agentic-setup-audit` finding 14a).
+- D2: accepted by the human on 2026-11-12 (`agentic-setup-audit` finding 7).
+- D3: accepted by the human on 2026-11-12; the human reads most changes before they land
+  (`agentic-setup-audit` finding 11).
+- D4: accepted by the human on 2026-11-12 (`agentic-setup-audit` finding 16b).
+- D5: accepted by the human on 2026-11-12 (`agentic-setup-audit` finding 16c).
+- D6: the human chose to skip it at triage; testing either path needs a fake failing VFS call
+  (`db-sqlite-assistant-tests-audit` finding 11).
+- D7: the human chose to leave the mocks in place (`assistant-react-tests-audit` finding 15).
+
+Moved: M1–M8 as listed, then M9–M12 from the decisions (open questions 3–6), in that order.
+`ai-plain-http-key-warning` also names `libs/settings-react` in its Area, where the AI profile form lives.
+No other entry changed, and none was found resolved or wrong.
+No e2e case changed, so no suite run is recorded.
+`bun run check:docs` and `bun run check:push` passed on `1a8b11d8`.
 
 Spec: none — task bookkeeping only
 Review: not run
