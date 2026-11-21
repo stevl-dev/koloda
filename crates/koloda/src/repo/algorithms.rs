@@ -319,7 +319,8 @@ pub fn apply_algorithm_optimization(
             )?;
             let revision = insert_algorithm_revision(tx, &data.id, &content, AlgorithmRevisionActor::Optimizer, now)?;
 
-            // INVARIANT: only the memory a grade writes changes; the schedule and `updated_at` stay, as after a grade.
+            // INVARIANT: only the memory changes; the schedule stays, and `updated_at` too, as a grade leaves it.
+            // WHY: a card already holding the replayed memory is not rewritten, so it captures nothing to sync.
             let mut recomputed = Vec::new();
             for (card_id, memory) in memories {
                 let changed = tx.execute(

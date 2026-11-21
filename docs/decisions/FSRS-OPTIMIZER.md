@@ -9,7 +9,7 @@
   It holds exactly `FSRS7_WEIGHT_COUNT` numbers, for FSRS-7, the model ts-fsrs schedules with.
 - Applying optimized weights is the one place Rust writes card memory.
   In the apply transaction, it replays each card's reviews through the crate and stores stability, fast stability,
-  and difficulty; due dates and the rest of the schedule stay TypeScript's, written only by grades and resets.
+  and difficulty; due dates and the rest of the schedule stay as the TypeScript scheduler computed them.
   The replay must equal what grading the same history with ts-fsrs stores.
   A test pair pins it on both sides (`replayed_memory_matches_what_the_scheduler_stores` and its TS twin).
 - The crate is pinned to an exact version, because a bump can change the fitted weights or the model it trains.
