@@ -161,7 +161,7 @@ const SCHEDULE_STATUSES = {
 } as const;
 
 function createFSRSCard(scheduler: FSRSScheduler, card: Card, now: Date): FSRSCard {
-  // WHY: an untouched row has no due date; ts-fsrs starts a new card due now, as v5 `createEmptyCard` did.
+  // WHY: an untouched row has no due date; a ts-fsrs card needs one, and a new card is due now.
   if (card.dueAt === null) return scheduler.newCard({ now, cardId: card.id });
   return {
     cardId: card.id,
