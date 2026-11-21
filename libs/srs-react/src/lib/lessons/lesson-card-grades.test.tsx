@@ -3,16 +3,16 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { render, screen } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
-import type { RecordLogItem } from "ts-fsrs";
+import type { CardGrade } from "@koloda/srs";
 import { describe, expect, it } from "vitest";
 import { LessonCardGrades } from "./lesson-card-grades";
 
 i18n.loadAndActivate({ locale: "en", messages: {} });
 
 const TEN_MINUTES_GRADE = {
-  card: { due: new Date("2024-01-01T00:10:00.000Z") },
-  log: { review: new Date("2024-01-01T00:00:00.000Z") },
-} as unknown as RecordLogItem;
+  card: { dueAt: new Date("2024-01-01T00:10:00.000Z") },
+  revlog: { reviewTime: new Date("2024-01-01T00:00:00.000Z") },
+} as unknown as CardGrade;
 
 describe("LessonCardGrades", () => {
   it.each([

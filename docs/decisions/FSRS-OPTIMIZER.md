@@ -13,7 +13,8 @@
   A `libs/srs` test pins each of them, beside its Rust twin.
 - Days between reviews are counted the way ts-fsrs counts elapsed days: differences of UTC calendar dates.
   They are not counted by the learning day (`dayStartsAt`).
-- With two or more relearning steps, ts-fsrs caps w17 and w18 lower than the crate trains them.
+- With two or more relearning steps, ts-fsrs caps w17 and w18 by the algorithm's relearning step count.
+  The crate scores with a single step, so current weights can sit above that cap.
   The optimizer caps found and current weights the way ts-fsrs does for the algorithm's relearning steps.
   It does so before it scores them, and it stores the found weights capped.
 - Moving to another FSRS model is one change across the crate pin, ts-fsrs, the weight count on both sides,

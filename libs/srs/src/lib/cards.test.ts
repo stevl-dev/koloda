@@ -1,8 +1,8 @@
 import { SEED_TEMPLATE_TYPE_BACK_FIELD_ID, SEED_TEMPLATE_TYPE_FRONT_FIELD_ID } from "@koloda/app";
 import { Rating, State } from "ts-fsrs";
-import type { Card as CardFSRS } from "ts-fsrs";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_FSRS_ALGORITHM } from "./algorithms-fsrs";
+import type { FSRSCard } from "./algorithms-fsrs";
 import type { Algorithm } from "./algorithms";
 import {
   createCardFromCardFSRS,
@@ -77,10 +77,10 @@ describe("getCardGrades", () => {
     const grades = getCardGrades(card, algorithm);
 
     expect(grades).toHaveLength(4);
-    expect(grades[0].log.rating).toBe(Rating.Again);
-    expect(grades[1].log.rating).toBe(Rating.Hard);
-    expect(grades[2].log.rating).toBe(Rating.Good);
-    expect(grades[3].log.rating).toBe(Rating.Easy);
+    expect(grades[0].revlog.rating).toBe(Rating.Again);
+    expect(grades[1].revlog.rating).toBe(Rating.Hard);
+    expect(grades[2].revlog.rating).toBe(Rating.Good);
+    expect(grades[3].revlog.rating).toBe(Rating.Easy);
 
     vi.useRealTimers();
   });
@@ -103,8 +103,8 @@ describe("getCardGrades", () => {
 
     // WHY: a new card's Good is a 10-minute learning step, and the same card without its last review gets 11 days.
     expect(good.card.state).toBe(State.Review);
-    expect(good.card.scheduled_days).toBe(32);
-    expect(good.card.due).toEqual(new Date("2024-02-02T00:00:00.000Z"));
+    expect(good.card.scheduledDays).toBe(32);
+    expect(good.card.dueAt).toEqual(new Date("2024-02-02T00:00:00.000Z"));
 
     vi.useRealTimers();
   });
@@ -135,98 +135,67 @@ describe("getCardGrades", () => {
     });
     const [, , good] = getCardGrades(card, algorithm);
 
-    // WHY: three steps, because with two a learning card graduates on Good from either step.
-    // From step 1, Good graduates; from step 0 it would wait one hour at step 2.
-    expect(good.card.state).toBe(State.Review);
-    expect(good.card.scheduled_days).toBe(2);
-    expect(good.card.due).toEqual(new Date("2024-01-03T00:00:00.000Z"));
+    // WHY: three steps, because with two a learning card graduates on Good from step 1.
+    // From step 1, Good waits one hour at step 2; from step 0 it would wait ten minutes at step 1.
+    expect(good.card.state).toBe(State.Learning);
+    expect(good.card.learningStep).toBe(2);
+    expect(good.card.dueAt).toEqual(new Date("2024-01-01T01:00:00.000Z"));
 
     vi.useRealTimers();
   });
 });
+
+const GRADED_CARD: FSRSCard = {
+  cardId: ID,
+  state: State.Learning,
+  scheduleStatus: "learning",
+  dueAt: new Date("2024-01-03T00:00:00.000Z"),
+  lastReviewAt: new Date("2024-01-01T00:00:00.000Z"),
+  stability: 2.5,
+  difficulty: 4.2,
+  scheduledDays: 7,
+  learningStep: 2,
+  reps: 1,
+  lapses: 0,
+};
 
 describe("createCardFromCardFSRS", () => {
-  it("maps fsrs card properties to app card properties", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(DEFAULT_DATE);
+  it("keeps the session card's identity and content and takes the graded progress", () => {
+    const card = createCard();
 
-    const fsrsCard: CardFSRS = {
-      due: new Date("2024-01-03T00:00:00.000Z"),
-      stability: 2.5,
-      difficulty: 4.2,
-      elapsed_days: 2,
-      scheduled_days: 7,
-      reps: 1,
-      lapses: 0,
-      state: 1,
-      last_review: new Date("2024-01-01T00:00:00.000Z"),
-      learning_steps: 2,
-    } as CardFSRS;
-
-    const result = createCardFromCardFSRS(fsrsCard);
-
-    expect(result.dueAt).toEqual(new Date("2024-01-03T00:00:00.000Z"));
-    expect(result.lastReviewedAt).toEqual(new Date("2024-01-01T00:00:00.000Z"));
-    expect(result.learningSteps).toBe(2);
-    expect(result.scheduledDays).toBe(7);
-    expect(result.stability).toBe(2.5);
-    expect(result.difficulty).toBe(4.2);
-    expect(result.state).toBe(1);
-    expect(result.reps).toBe(1);
-
-    vi.useRealTimers();
-  });
-});
-
-describe("createUpdateCardProgress", () => {
-  const CARD_ID = "01900000-0000-7000-8000-000000000009";
-  const DUE = new Date("2024-01-03T00:00:00.000Z");
-
-  // INVARIANT: Twin of koloda `cards_progress_tests.rs` UpdateCardProgress shape pins — the submit
-  // payload must carry exactly the fields the Rust struct deserializes, nothing more.
-  it("maps the graded FSRS card to exactly the submit progress fields", () => {
-    const lastReview = new Date("2024-01-01T00:00:00.000Z");
-    const result = createUpdateCardProgress(CARD_ID, {
-      due: DUE,
-      stability: 2.5,
-      difficulty: 4.2,
-      elapsed_days: 2,
-      scheduled_days: 7,
-      reps: 1,
-      lapses: 0,
-      state: 1,
-      last_review: lastReview,
-      learning_steps: 2,
-    } as CardFSRS);
-
-    expect(result).toEqual({
-      id: CARD_ID,
-      state: 1,
-      dueAt: DUE,
+    expect(createCardFromCardFSRS(card, GRADED_CARD)).toEqual({
+      ...card,
+      state: State.Learning,
+      dueAt: new Date("2024-01-03T00:00:00.000Z"),
+      lastReviewedAt: new Date("2024-01-01T00:00:00.000Z"),
       stability: 2.5,
       difficulty: 4.2,
       scheduledDays: 7,
       learningSteps: 2,
       reps: 1,
       lapses: 0,
-      lastReviewedAt: lastReview,
     });
   });
+});
 
-  it("maps a missing last_review to null", () => {
-    const result = createUpdateCardProgress(CARD_ID, {
-      due: DUE,
-      stability: 0,
-      difficulty: 0,
-      elapsed_days: 0,
-      scheduled_days: 0,
-      reps: 0,
+describe("createUpdateCardProgress", () => {
+  const CARD_ID = "01900000-0000-7000-8000-000000000009";
+
+  // INVARIANT: Twin of koloda `cards_progress_tests.rs` UpdateCardProgress shape pins — the submit
+  // payload must carry exactly the fields the Rust struct deserializes, nothing more.
+  it("maps the graded FSRS card to exactly the submit progress fields", () => {
+    expect(createUpdateCardProgress(CARD_ID, GRADED_CARD)).toEqual({
+      id: CARD_ID,
+      state: 1,
+      dueAt: new Date("2024-01-03T00:00:00.000Z"),
+      stability: 2.5,
+      difficulty: 4.2,
+      scheduledDays: 7,
+      learningSteps: 2,
+      reps: 1,
       lapses: 0,
-      state: 0,
-      learning_steps: 0,
-    } as CardFSRS);
-
-    expect(result.lastReviewedAt).toBeNull();
+      lastReviewedAt: new Date("2024-01-01T00:00:00.000Z"),
+    });
   });
 });
 

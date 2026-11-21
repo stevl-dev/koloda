@@ -37,7 +37,7 @@ async function getReviewTotals(db: DB, { from, to }: GetReviewTotalsProps) {
        WHERE is_ignored = 0
          AND created_at >= ?
          AND created_at < ?`,
-      [toUnixMs(from as Date | string | number), toUnixMs(to as Date | string | number)],
+      [toUnixMs(from), toUnixMs(to)],
     );
 
     return parseRow(reviewTotalsSchema, result ?? {});

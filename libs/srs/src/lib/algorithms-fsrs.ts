@@ -1,8 +1,17 @@
-import { mapObjectProperties } from "@koloda/app";
-import type { ObjectPropertiesMapping } from "@koloda/app";
 import { msg } from "@lingui/core/macro";
-import { fsrs, generatorParameters } from "ts-fsrs";
-import type { FSRSParameters } from "ts-fsrs";
+import {
+  dateChrono,
+  defineScheduler,
+  schedulerDesiredRetentionMiddleware,
+  schedulerFuzzingMiddleware,
+  schedulerLearningStepsMiddleware,
+  schedulerMaximumIntervalMiddleware,
+  schedulerMonotonicIntervalMiddleware,
+  schedulerScheduledDaysMiddleware,
+  schedulerStatsMiddleware,
+} from "ts-fsrs";
+import type { StepUnit } from "ts-fsrs";
+import { clipFSRS6Parameters, FSRS6Model } from "ts-fsrs/models/fsrs-6";
 import { z } from "zod";
 
 export const LEARNING_STEPS_UNITS = [
@@ -152,24 +161,45 @@ export const DEFAULT_FSRS_ALGORITHM: AlgorithmFSRS = {
   maximumInterval: 36500,
 };
 
-const FSRS_ALGORITHM_PROPERTIES: ObjectPropertiesMapping<AlgorithmFSRS, FSRSParameters> = {
-  retention: "request_retention",
-  weights: "w",
-  learningSteps: "learning_steps",
-  relearningSteps: "relearning_steps",
-  isFuzzEnabled: "enable_fuzz",
-  maximumInterval: "maximum_interval",
-} as const;
+// INVARIANT: maximum-interval runs after learning-steps, so a step longer than the cap still holds as the chain unwinds.
+const FSRS_SCHEDULER = defineScheduler({ model: FSRS6Model, chrono: dateChrono }).use(
+  schedulerDesiredRetentionMiddleware,
+  schedulerFuzzingMiddleware,
+  schedulerStatsMiddleware,
+  schedulerScheduledDaysMiddleware,
+  schedulerLearningStepsMiddleware,
+  schedulerMaximumIntervalMiddleware,
+  schedulerMonotonicIntervalMiddleware,
+);
 
-export function createFSRSAlgorithm(algorithm: AlgorithmFSRS) {
-  const retention = algorithm.retention / 100;
-  const weights = algorithm.weights.split(",").map(Number);
-  // WHY: ts-fsrs takes StepUnit[] ("1m"); a joined string makes generatorParameters silently fall back to its default steps.
-  const learningSteps = algorithm.learningSteps.map((step) => step.join(""));
-  const relearningSteps = algorithm.relearningSteps.map((step) => step.join(""));
-  const params = mapObjectProperties(
-    { ...algorithm, retention, weights, learningSteps, relearningSteps },
-    FSRS_ALGORITHM_PROPERTIES,
-  );
-  return fsrs(generatorParameters(params));
+// WORKAROUND: ts-fsrs step units are m, h, and d; a seconds step goes as fractional minutes, which it accepts.
+function toStepUnit([amount, unit]: AlgorithmFSRS["learningSteps"][number]): StepUnit {
+  return unit === "s" ? `${amount / 60}m` : (`${amount}${unit}` as StepUnit);
 }
+
+export function createFSRSScheduler(algorithm: AlgorithmFSRS) {
+  const relearningSteps = algorithm.relearningSteps.map(toStepUnit);
+  return FSRS_SCHEDULER.create({
+    config: {
+      // WHY: `create` builds the model with `bypass: true`, so it never clips; the bounds would go unenforced.
+      weights: clipFSRS6Parameters(algorithm.weights.split(",").map(Number), relearningSteps.length),
+      desiredRetention: algorithm.retention / 100,
+      enableFuzz: algorithm.isFuzzEnabled,
+      maximumInterval: algorithm.maximumInterval,
+      enableShortTerm: true,
+      learningSteps: algorithm.learningSteps.map(toStepUnit),
+      relearningSteps,
+      numRelearningSteps: relearningSteps.length,
+      allowModelOverride: false,
+      fractionalDays: false,
+      // WHY: progress reset is its own write and never calls `forget`; the v6 default would clear reps and lapses.
+      clearStatsOnForget: false,
+    },
+  });
+}
+
+export type FSRSScheduler = ReturnType<typeof createFSRSScheduler>;
+
+export type FSRSCard = ReturnType<FSRSScheduler["newCard"]>;
+
+export type FSRSRevlog = ReturnType<FSRSScheduler["review"]>["revlog"];

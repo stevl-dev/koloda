@@ -1,5 +1,7 @@
 import { DEFAULT_LEARNING_SETTINGS } from "@koloda/app";
+import { Rating, State } from "ts-fsrs";
 import { describe, expect, it, vi } from "vitest";
+import type { FSRSRevlog } from "./algorithms-fsrs";
 import {
   calculateTodaysReviewTotals,
   createReviewFromReviewFSRS,
@@ -167,24 +169,28 @@ describe("reviews", () => {
 
   // Twin of koloda `reviews_serde_tests.rs` InsertReviewData shape pins: the submit
   // payload must carry exactly the fields the Rust struct deserializes, nothing more.
-  it("maps the graded FSRS log to exactly the submit review fields", () => {
-    const result = createReviewFromReviewFSRS({
-      rating: 3,
-      state: 1,
-      due: new Date("2024-01-03T00:00:00.000Z"),
+  it.each([
+    { name: "a reviewed card stores its previous review time", lastReviewAt: new Date("2024-01-01T00:00:00.000Z") },
+    { name: "a new card stores its pre-review due date", lastReviewAt: null },
+  ])("maps the graded FSRS log to exactly the submit review fields: $name", ({ lastReviewAt }) => {
+    const revlog: FSRSRevlog = {
+      cardId: "card",
+      rating: Rating.Good,
+      state: State.Learning,
+      scheduleStatus: "learning",
+      dueAt: new Date("2024-01-03T00:00:00.000Z"),
+      lastReviewAt,
+      reviewTime: new Date("2024-01-04T00:00:00.000Z"),
       stability: 2.5,
       difficulty: 4.2,
-      elapsed_days: 0,
-      last_elapsed_days: 0,
-      scheduled_days: 7,
-      learning_steps: 2,
-      review: new Date("2024-01-01T00:00:00.000Z"),
-    } as any);
+      scheduledDays: 7,
+      learningStep: 2,
+    };
 
-    expect(result).toEqual({
+    expect(createReviewFromReviewFSRS(revlog)).toEqual({
       rating: 3,
       state: 1,
-      dueAt: new Date("2024-01-03T00:00:00.000Z"),
+      dueAt: lastReviewAt ?? new Date("2024-01-03T00:00:00.000Z"),
       stability: 2.5,
       difficulty: 4.2,
       scheduledDays: 7,

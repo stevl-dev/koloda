@@ -272,9 +272,9 @@ pub fn optimize(input: &OptimizationInput, progress: &OptimizationProgress) -> R
     }
 }
 
-// INVARIANT: twin of ts-fsrs 5.2.3 `clipParameters`, which the scheduler runs each time it loads weights.
-// With two or more relearning steps it caps w17 and w18 at a ceiling from the raw w11, w13, and w14.
-// The crate trains under the square root of that ceiling, which is looser, and scores with a single step.
+// INVARIANT: twin of ts-fsrs 6.0.0 `clipFSRS6Parameters`, which the scheduler runs each time it loads weights.
+// With two or more relearning steps it caps w17 and w18 at the square root of a ceiling from the raw w11, w13, and w14.
+// The crate trains under the same ceiling but scores with a single step, so current weights can sit above it.
 // So the optimizer applies this cap before it scores and stores weights.
 pub fn cap_w17_w18(weights: &mut [f32], relearning_steps: usize) {
     if relearning_steps <= 1 {
@@ -285,8 +285,8 @@ pub fn cap_w17_w18(weights: &mut [f32], relearning_steps: usize) {
     };
     let ceiling = -(f64::from(w11).ln() + (2_f64.powf(f64::from(w13)) - 1.0).ln() + f64::from(w14) * 0.3)
         / relearning_steps as f64;
-    // WHY: ts-fsrs rounds the ceiling to 8 decimals (`toFixed(8)`) before clamping it.
-    let ceiling = ((ceiling * 1e8).round() / 1e8).clamp(0.01, 2.0) as f32;
+    // WHY: ts-fsrs rounds the square root to 8 decimals before clamping it.
+    let ceiling = ((ceiling.max(0.0).sqrt() * 1e8).round() / 1e8).clamp(0.01, 2.0) as f32;
     for weight in weights.iter_mut().skip(17).take(2) {
         *weight = weight.min(ceiling);
     }

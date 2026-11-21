@@ -1,10 +1,10 @@
-import type { ObjectPropertiesMapping, UpdateData } from "@koloda/app";
-import { mapObjectProperties, mapObjectPropertiesReverse, timestampsValidation } from "@koloda/app";
-import { createEmptyCard, Rating } from "ts-fsrs";
-import type { Card as CardFSRS, ReviewLog as ReviewFSRS } from "ts-fsrs";
+import type { UpdateData } from "@koloda/app";
+import { timestampsValidation } from "@koloda/app";
+import { Rating, State } from "ts-fsrs";
 import { z } from "zod";
 import type { Algorithm, LessonAlgorithm } from "./algorithms";
-import { createFSRSAlgorithm } from "./algorithms-fsrs";
+import { createFSRSScheduler } from "./algorithms-fsrs";
+import type { FSRSCard, FSRSRevlog, FSRSScheduler } from "./algorithms-fsrs";
 import { deckValidation } from "./decks";
 import type { Template, TemplateFields } from "./templates";
 import type { ProgressFieldValues } from "./progress";
@@ -133,50 +133,66 @@ export type DeleteCardData = Pick<Card, "id">;
 export type DeleteCardsData = { ids: Card["id"][] };
 
 export type CardGrade = {
-  card: CardFSRS;
-  log: ReviewFSRS;
+  card: FSRSCard;
+  revlog: FSRSRevlog;
 };
 
-export function getCardGrades(card: Card, algorithm: Pick<Algorithm, "content"> | LessonAlgorithm) {
-  const fsrsCard = createFSRSCard(card);
-  const fsrsAlgorithm = createFSRSAlgorithm(algorithm.content);
-  const grades = fsrsAlgorithm.repeat(fsrsCard, new Date());
-  return [grades[Rating.Again], grades[Rating.Hard], grades[Rating.Good], grades[Rating.Easy]] as CardGrade[];
-}
+const CARD_GRADES = [Rating.Again, Rating.Hard, Rating.Good, Rating.Easy] as const;
 
-const FSRS_CARD_PROPERTIES: ObjectPropertiesMapping<Card, CardFSRS> = {
-  dueAt: "due",
-  lastReviewedAt: "last_review",
-  learningSteps: "learning_steps",
-  scheduledDays: "scheduled_days",
-} as const;
-
-function createFSRSCard(card: Card): CardFSRS {
-  return createEmptyCard(Date.now(), (handlerCard: CardFSRS) => {
-    const mapped = mapObjectProperties(card, FSRS_CARD_PROPERTIES);
-    // WHY: null dueAt/lastReviewedAt (untouched rows) must not override the due/last_review defaults createEmptyCard just set.
-    const filtered = Object.fromEntries(Object.entries(mapped).filter(([_, v]) => v !== null));
-    return { ...handlerCard, ...filtered };
+export function getCardGrades(card: Card, algorithm: Pick<Algorithm, "content"> | LessonAlgorithm): CardGrade[] {
+  const scheduler = createFSRSScheduler(algorithm.content);
+  const now = new Date();
+  const preview = [...scheduler.preview({ card: createFSRSCard(scheduler, card, now), now })];
+  return CARD_GRADES.map((grade) => {
+    const item = preview.find((candidate) => candidate.grade === grade);
+    if (!item) throw new Error(`ts-fsrs preview has no grade ${grade}`);
+    return { card: item.card, revlog: item.revlog };
   });
 }
 
-export function createCardFromCardFSRS(input: CardFSRS) {
-  return mapObjectPropertiesReverse(input, FSRS_CARD_PROPERTIES) as Card;
+const SCHEDULE_STATUSES = {
+  [State.New]: "new",
+  [State.Learning]: "learning",
+  [State.Relearning]: "learning",
+  [State.Review]: "review",
+} as const;
+
+function createFSRSCard(scheduler: FSRSScheduler, card: Card, now: Date): FSRSCard {
+  // WHY: an untouched row has no due date; ts-fsrs starts a new card due now, as v5 `createEmptyCard` did.
+  if (card.dueAt === null) return scheduler.newCard({ now, cardId: card.id });
+  return {
+    cardId: card.id,
+    state: card.state as FSRSCard["state"],
+    // INVARIANT: not stored; no middleware here adds a status beyond the one each state maps to.
+    scheduleStatus: SCHEDULE_STATUSES[card.state as FSRSCard["state"]],
+    dueAt: card.dueAt,
+    lastReviewAt: card.lastReviewedAt,
+    stability: card.stability,
+    difficulty: card.difficulty,
+    scheduledDays: card.scheduledDays,
+    learningStep: card.learningSteps,
+    reps: card.reps,
+    lapses: card.lapses,
+  };
 }
 
-export function createUpdateCardProgress(cardId: Card["id"], input: CardFSRS): UpdateCardProgress {
-  const { state, due, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review } = input;
+export function createCardFromCardFSRS(card: Card, input: FSRSCard): Card {
+  return { ...card, ...createUpdateCardProgress(card.id, input) };
+}
+
+export function createUpdateCardProgress(cardId: Card["id"], input: FSRSCard): UpdateCardProgress {
+  const { state, dueAt, stability, difficulty, scheduledDays, learningStep, reps, lapses, lastReviewAt } = input;
   return {
     id: cardId,
     state,
-    dueAt: due,
+    dueAt,
     stability,
     difficulty,
-    scheduledDays: scheduled_days,
-    learningSteps: learning_steps,
+    scheduledDays,
+    learningSteps: learningStep,
     reps,
     lapses,
-    lastReviewedAt: last_review ?? null,
+    lastReviewedAt: lastReviewAt,
   };
 }
 

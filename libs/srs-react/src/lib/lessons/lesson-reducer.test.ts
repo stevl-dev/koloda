@@ -384,7 +384,7 @@ describe("lessonReducer", () => {
     // INVARIANT: the queue item is the wire payload — exactly the submit fields, not the session Card.
     expect(state.upload.queue[0]?.card).toEqual(createUpdateCardProgress(card.id, again!.card));
     expect(state.upload.queue[0]?.review).toEqual({
-      ...createReviewFromReviewFSRS(again!.log),
+      ...createReviewFromReviewFSRS(again!.revlog),
       cardId: card.id,
       isIgnored: false,
       time: 60 * 60 * 1000,
@@ -414,7 +414,7 @@ describe("lessonReducer", () => {
     const lessonData = createLessonData();
     const [card, algorithm] = [lessonData.cards[0]!, lessonData.algorithms[0]!];
     const [again] = getCardGrades(card, algorithm);
-    const minutesToDue = (again!.card.due.getTime() - Date.now()) / 60_000;
+    const minutesToDue = (again!.card.dueAt.getTime() - Date.now()) / 60_000;
     const minutes = minutesToDue + (minutesPastDue ?? 0);
     const learnAheadLimit: [number, number] | undefined =
       minutesPastDue === null ? undefined : [Math.floor(minutes / 60), minutes % 60];

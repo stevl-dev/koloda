@@ -59,10 +59,10 @@ export function LessonCard({ content }: LessonCardProps) {
       </SwipeableCard>
       {isRevealed ? (
         <View style={styles.grades}>
-          {grades.map(({ card: next, log }, i) => (
+          {grades.map(({ card: next, revlog }, i) => (
             <Pressable key={i} style={[styles.grade, { borderColor: colors.border }]} onPress={() => grade(i)}>
               <Text style={[styles.interval, { color: colors.muted }]}>
-                {formatDistanceStrict(next.due, log.review, { locale: dateFnsLocale("en") })}
+                {formatDistanceStrict(next.dueAt, revlog.reviewTime, { locale: dateFnsLocale("en") })}
               </Text>
               <Text style={[styles.gradeLabel, { color: colors.text }]}>{_(FSRS_GRADES[i])}</Text>
             </Pressable>

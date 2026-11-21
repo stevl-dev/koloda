@@ -6,8 +6,8 @@ import {
   resolvedLearningSettingsValidation,
 } from "@koloda/app";
 import type { AllowedSettings } from "@koloda/settings";
-import type { DateInput, ReviewLog as ReviewFSRS } from "ts-fsrs";
 import { z } from "zod";
+import type { FSRSRevlog } from "./algorithms-fsrs";
 import { cardValidation } from "./cards";
 import type { Card } from "./cards";
 import type { LessonType } from "./lessons";
@@ -89,8 +89,8 @@ export function getCurrentLearningDayRange(dayStartsAt: string) {
 }
 
 export type GetReviewTotalsProps = {
-  from: DateInput;
-  to: DateInput;
+  from: Date | string | number;
+  to: Date | string | number;
 };
 
 type ReviewTotals = Record<LessonType, number>;
@@ -143,17 +143,17 @@ export async function calculateTodaysReviewTotals(
 export type TodaysReviewTotals = Awaited<ReturnType<typeof calculateTodaysReviewTotals>>;
 
 // Twin of `createUpdateCardProgress`: the submit payload must carry exactly the fields
-// Rust `InsertReviewData` deserializes — other ts-fsrs `ReviewLog` keys (elapsed_days,
-// last_elapsed_days, review) must not leak into it.
-export function createReviewFromReviewFSRS(input: ReviewFSRS): Omit<InsertReviewData, "cardId" | "time" | "isIgnored"> {
-  const { rating, state, due, stability, difficulty, scheduled_days, learning_steps } = input;
+// Rust `InsertReviewData` deserializes — other ts-fsrs revlog keys (cardId, scheduleStatus, reviewTime) must not leak.
+export function createReviewFromReviewFSRS(input: FSRSRevlog): Omit<InsertReviewData, "cardId" | "time" | "isIgnored"> {
+  const { rating, state, dueAt, lastReviewAt, stability, difficulty, scheduledDays, learningStep } = input;
   return {
     rating,
     state,
-    dueAt: due,
+    // INVARIANT: the column keeps the ts-fsrs 5 log meaning, the previous review time or else the pre-review due date.
+    dueAt: lastReviewAt ?? dueAt,
     stability,
     difficulty,
-    scheduledDays: scheduled_days,
-    learningSteps: learning_steps,
+    scheduledDays,
+    learningSteps: learningStep,
   };
 }

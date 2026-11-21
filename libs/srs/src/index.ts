@@ -17,7 +17,7 @@ export type {
   UpdateAlgorithmData,
   UpdateAlgorithmValues,
 } from "./lib/algorithms";
-export { DEFAULT_FSRS_ALGORITHM, FSRS_GRADES, LEARNING_STEPS_UNITS } from "./lib/algorithms-fsrs";
+export { createFSRSScheduler, DEFAULT_FSRS_ALGORITHM, FSRS_GRADES, LEARNING_STEPS_UNITS } from "./lib/algorithms-fsrs";
 export type { AlgorithmFSRS } from "./lib/algorithms-fsrs";
 export {
   ATTACHMENT_MAX_BYTES,

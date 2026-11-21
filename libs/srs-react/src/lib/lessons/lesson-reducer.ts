@@ -385,12 +385,12 @@ function gradeSelected(draft: LessonReducerState, payload: number) {
   const grade = draft.session.content.grades[payload];
   const time = Math.min(Date.now() - draft.session.content.startedAt, MAX_REVIEW_TIME_MS);
   const review = {
-    ...createReviewFromReviewFSRS(grade.log),
+    ...createReviewFromReviewFSRS(grade.revlog),
     cardId: draft.session.content.card.id,
     isIgnored: false,
     time,
   };
-  const card = createCardFromCardFSRS(grade.card);
+  const card = createCardFromCardFSRS(draft.session.content.card, grade.card);
 
   const { index } = draft.session.content;
   draft.upload.queue.push({

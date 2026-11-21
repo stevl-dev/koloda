@@ -43,7 +43,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Upgrade ts-fsrs to 6.0.0 on FSRS-6
+- [x] 1. Upgrade ts-fsrs to 6.0.0 on FSRS-6
   Goal: Bump `ts-fsrs` from 5.2.3 to 6.0.0 (adds `@open-spaced-repetition/srs-kit` 1.0.0) and move `libs/srs`
   to `defineScheduler({ model: FSRS6Model, chrono: dateChrono })` with the desired-retention, fuzzing, stats,
   scheduled-days, learning-steps, maximum-interval, and monotonic-interval middleware.
