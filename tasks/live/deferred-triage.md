@@ -1,6 +1,6 @@
 # Triage deferred work
 
-Status: draft
+Status: ready
 Guides: agents/TASKS.md, agents/MARKDOWN.md
 Flow: local
 
