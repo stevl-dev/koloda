@@ -22,6 +22,14 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/algorithms-audit.md`
   Deferred because: seen in passing and not planned; no user sees it.
 
+- Improvement, Later: no test runs the optimizer host's progress reporting, which reports only when progress moved.
+  Evidence: at `b23dc2b7`, `apps/electron/src-rust/src/optimizer.rs:68` skips a report when `current` is unchanged;
+  both host tests pass `|_, _| {}` on a history too small to train.
+  Kind: skipped
+  Source: `tasks/archive/rust-addons-tests-audit.md`, finding 1
+  Deferred because: training a small history takes about 30 ms, under the 200 ms poll, so a test cannot reach the
+  repeat check without control over timing.
+
 ## apps/mobile
 
 - Handoff: run the Android device checks and record the mobile host verdict, with its measurements.

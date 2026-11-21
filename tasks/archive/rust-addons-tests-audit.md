@@ -1,6 +1,6 @@
 # Rust addons tests audit fixes
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/TESTING.md, agents/CODE-DOCUMENTATION.md, apps/electron/README.md, apps/mobile/README.md, agents/MARKDOWN.md, agents/REVIEW.md
 Flow: local
 
@@ -128,3 +128,27 @@ none
 
 ## Outcome
 
+Finding 2 is fixed by item 2; finding 1's comment is fixed by item 1, and its progress test is skipped.
+
+- Only two test modules changed: `apps/electron/src-rust/src/optimizer.rs` (one comment) and
+  `apps/mobile/src-rust/tests/facade_tests.rs` (one overwrite and one assertion).
+  No non-test source changed, and the test counts stay at 11 and 7.
+- The queued-cancel test keeps its name: a run registered and not yet started is the queued case it names.
+- The mobile cache test was checked by removing the `!path.exists()` guard in `cached_image` by hand.
+  It failed on "a cached file is not written again", and the guard was restored.
+- Self-review found nothing to change.
+- No e2e case changed, so no suite run is recorded.
+- `bun run check:push` passed on `3dad9564`.
+
+Skipped:
+
+- Finding 1's progress test.
+  Training the crate's synthetic history takes about 30 ms, under the host's 200 ms poll, so a test would see about
+  one callback and never reach the rule that reports progress only when it moved.
+  The Archive commit adds it to `tasks/DEFERRED.md` under `apps/electron`.
+
+The deferred entries listed under Scope are not about the findings and stay as they are.
+
+Spec: none — test changes only; no user-visible behavior changed
+Review: not run
+Change rounds: 0
