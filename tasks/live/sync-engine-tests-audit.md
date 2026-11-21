@@ -78,7 +78,7 @@ none
 
 ## Plan
 
-- [ ] 1. Keep the skew estimate test from depending on reply latency
+- [x] 1. Keep the skew estimate test from depending on reply latency
   Goal: In `crates/koloda-sync/tests/engine/client_tests.rs`, test
   `the_skew_estimate_is_server_time_minus_local_time`, widen the asserted range from `119_000..=120_000` to
   `60_000..=120_000`.
