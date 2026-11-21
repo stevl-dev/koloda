@@ -181,12 +181,19 @@ async fn a_card_image_is_written_to_the_cache_once_and_keeps_its_path() {
     assert_eq!(std::fs::read(&first).expect("cache file"), bytes);
     assert!(first.ends_with(".png"));
 
+    // WHY: other bytes under the cached path show whether the second call writes the file again.
+    std::fs::write(&first, b"already cached").expect("overwrite");
     let second = mobile
         .attachment_file(id, cache.clone())
         .await
         .expect("second")
         .expect("a file");
     assert_eq!(second, first);
+    assert_eq!(
+        std::fs::read(&second).expect("cache file"),
+        b"already cached",
+        "a cached file is not written again"
+    );
 
     let missing = mobile
         .attachment_file("0".repeat(64), cache.clone())

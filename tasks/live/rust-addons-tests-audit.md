@@ -111,7 +111,7 @@ none
   Commit: Say what the optimizer host's queued-cancel test proves
   Depends on: none
 
-- [ ] 2. Check that the mobile image cache keeps a file it already wrote
+- [x] 2. Check that the mobile image cache keeps a file it already wrote
   Goal: In `apps/mobile/src-rust/tests/facade_tests.rs`, test
   `a_card_image_is_written_to_the_cache_once_and_keeps_its_path`, make the "written once" claim checked.
   After the first `attachment_file` call and its byte check, overwrite the cached file at the returned path with
