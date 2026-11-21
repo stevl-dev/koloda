@@ -1,6 +1,6 @@
 # Move to ts-fsrs 6 and FSRS-7
 
-Status: ready
+Status: done
 Guides: agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/DEPENDENCIES.md, agents/DB.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/FSRS-OPTIMIZER.md, docs/specs/ALGORITHMS.md, crates/koloda-sync-proto/PROTOCOL.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/I18N.md, agents/VERIFY.md
 Flow: local
 
@@ -93,3 +93,26 @@ Out:
   Depends on: 2
 
 ## Outcome
+
+Cards are scheduled by FSRS-7 through ts-fsrs 6.0.0 (`defineScheduler` with `FSRS7Model`) on every host.
+Learning steps are minimums the model may lengthen (`allowModelOverride: true`), and intervals are fractional days.
+Cards store `stabilityFast`; reviews store the v6 review log, keeping the pre-review due date, the previous review,
+and the actual review time apart.
+The desktop optimizer trains FSRS-7 with the `fsrs` crate 7.0.0 on fractional elapsed days and returns 34 weights.
+`V1__init.sql` was rewritten as a baseline reset, at the human's request: local databases and sync spaces are wiped,
+and nothing is migrated.
+
+Found on the way and fixed:
+
+- Seconds learning steps threw in ts-fsrs; they now go as fractional minutes (`Escapes: a60b6943`).
+- The card editor closed itself after a save, on `main` since `0630543d`.
+  Fixed on `main` before this landed, by `8a476b97`, as a separate change.
+
+E2e: the human waived the recorded green run of both suites for this landing and asked for a follow-up.
+Last runs, by the human: on `1cfa55ef`, both suites failed only `card-edit` (fixed by `8a476b97`).
+On `5ee66cdd`, web failed only `lesson-grades`, whose web expectation `b63d8d8e` then corrected; not rerun.
+The desktop suite was not rerun after the rebase.
+
+Spec: docs/specs/ALGORITHMS.md
+Review: not run — self-review only, nit 1 (DECISIONS §Ruling over diary)
+Change rounds: 2

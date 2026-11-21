@@ -115,6 +115,16 @@ Entries are grouped under one heading per package directory.
   Deferred because: found in the device checks after the task was archived; the human deferred the cause to a later
   session. Until it is fixed, "a review on either device shows on the other" is not met.
 
+## apps/web-e2e
+
+- Handoff: run both e2e suites on the FSRS-7 tip and fix what fails.
+  Evidence: at `b63d8d8e`, the web `lesson-grades.spec.ts` expectation was corrected but not rerun,
+  and the desktop suite was not run after the rebase onto `8a476b97`.
+  The algorithm-edit and lesson-grades specs on both suites changed for FSRS-7.
+  Kind: handoff
+  Source: `tasks/archive/fsrs-7.md`
+  Deferred because: the human chose to land FSRS-7 first and fix e2e as a follow-up.
+
 ## crates/koloda
 
 - Improvement, Should-fix: no test cancels an optimizer run during training or scoring.
