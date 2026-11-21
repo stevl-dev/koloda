@@ -61,7 +61,7 @@ Out:
   Commit: Upgrade ts-fsrs to 6.0.0
   Depends on: none
 
-- [ ] 2. Store the ts-fsrs 6 card and review fields
+- [x] 2. Store the ts-fsrs 6 card and review fields
   Goal: Baseline reset of `crates/koloda/src/migrations/V1__init.sql`.
   `cards` gains `stability_fast` (real, default 0) and `scheduled_days` becomes real.
   `reviews` stores the v6 review log: `due_at` is the pre-review due date, plus `last_reviewed_at`

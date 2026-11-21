@@ -69,8 +69,11 @@ pub struct Card {
     #[serde(default)]
     pub stability: f64,
     #[serde(default)]
+    pub stability_fast: f64,
+    #[serde(default)]
     pub difficulty: f64,
-    pub scheduled_days: i32,
+    // WHY: fractional — FSRS-7 schedules sub-day steps as parts of a day.
+    pub scheduled_days: f64,
     pub learning_steps: i32,
     pub reps: i32,
     pub lapses: i32,
@@ -112,8 +115,9 @@ pub struct InsertCardData {
     #[serde(default, deserialize_with = "deserialize_optional_timestamp")]
     pub due_at: Option<i64>,
     pub stability: Option<f64>,
+    pub stability_fast: Option<f64>,
     pub difficulty: Option<f64>,
-    pub scheduled_days: Option<i32>,
+    pub scheduled_days: Option<f64>,
     pub learning_steps: Option<i32>,
     pub reps: Option<i32>,
     pub lapses: Option<i32>,
@@ -142,8 +146,9 @@ pub struct UpdateCardProgress {
     #[serde(deserialize_with = "deserialize_timestamp")]
     pub due_at: i64,
     pub stability: f64,
+    pub stability_fast: f64,
     pub difficulty: f64,
-    pub scheduled_days: i32,
+    pub scheduled_days: f64,
     pub learning_steps: i32,
     pub reps: i32,
     pub lapses: i32,
@@ -212,11 +217,14 @@ impl InsertCardData {
         if let Some(stability) = self.stability {
             validate_stability(stability, error_codes::VALIDATION_CARDS_PROGRESS_STABILITY)?;
         }
+        if let Some(stability_fast) = self.stability_fast {
+            validate_stability(stability_fast, error_codes::VALIDATION_CARDS_PROGRESS_STABILITY_FAST)?;
+        }
         if let Some(difficulty) = self.difficulty {
             validate_difficulty(difficulty, error_codes::VALIDATION_CARDS_PROGRESS_DIFFICULTY)?;
         }
         validate_scheduled_days(
-            self.scheduled_days.unwrap_or(0),
+            self.scheduled_days.unwrap_or(0.0),
             error_codes::VALIDATION_CARDS_PROGRESS_SCHEDULED_DAYS,
         )?;
         validate_learning_steps(
@@ -239,6 +247,10 @@ impl UpdateCardProgress {
     pub fn validate(&self) -> Result<(), AppError> {
         validate_state(self.state, error_codes::VALIDATION_CARDS_PROGRESS_STATE)?;
         validate_stability(self.stability, error_codes::VALIDATION_CARDS_PROGRESS_STABILITY)?;
+        validate_stability(
+            self.stability_fast,
+            error_codes::VALIDATION_CARDS_PROGRESS_STABILITY_FAST,
+        )?;
         validate_difficulty(self.difficulty, error_codes::VALIDATION_CARDS_PROGRESS_DIFFICULTY)?;
         validate_scheduled_days(
             self.scheduled_days,

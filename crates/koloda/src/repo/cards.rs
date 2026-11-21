@@ -34,14 +34,15 @@ pub fn get_card_row(row: &rusqlite::Row<'_>) -> Result<Card, rusqlite::Error> {
         state: row.get(4)?,
         due_at: row.get(5)?,
         stability: row.get(6)?,
-        difficulty: row.get(7)?,
-        scheduled_days: row.get(8)?,
-        learning_steps: row.get(9)?,
-        reps: row.get(10)?,
-        lapses: row.get(11)?,
-        last_reviewed_at: row.get(12)?,
-        created_at: row.get(13)?,
-        updated_at: row.get(14)?,
+        stability_fast: row.get(7)?,
+        difficulty: row.get(8)?,
+        scheduled_days: row.get(9)?,
+        learning_steps: row.get(10)?,
+        reps: row.get(11)?,
+        lapses: row.get(12)?,
+        last_reviewed_at: row.get(13)?,
+        created_at: row.get(14)?,
+        updated_at: row.get(15)?,
     })
 }
 
@@ -50,7 +51,7 @@ pub fn get_cards(db: &Database, deck_id: &str) -> Result<Vec<Card>, AppError> {
         db.with_conn(|conn| {
             let mut stmt = conn.prepare(
                 r#"
-                SELECT id, deck_id, template_id, content, state, due_at, stability, difficulty,
+                SELECT id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                        scheduled_days, learning_steps, reps, lapses, last_reviewed_at, created_at, updated_at
                 FROM cards
                 WHERE deck_id = ?1
@@ -93,7 +94,7 @@ pub fn get_card(db: &Database, id: &str) -> Result<Option<Card>, AppError> {
 pub(crate) fn select_card(conn: &Connection, id: &str) -> Result<Option<Card>, AppError> {
     conn.query_row(
         r#"
-        SELECT id, deck_id, template_id, content, state, due_at, stability, difficulty,
+        SELECT id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                scheduled_days, learning_steps, reps, lapses, last_reviewed_at, created_at, updated_at
         FROM cards
         WHERE id = ?1
@@ -111,8 +112,9 @@ pub(crate) fn scheduling_payload(card: &Card) -> wire::CardScheduling {
         state: i64::from(card.state),
         due_at: card.due_at,
         stability: card.stability,
+        stability_fast: card.stability_fast,
         difficulty: card.difficulty,
-        scheduled_days: i64::from(card.scheduled_days),
+        scheduled_days: card.scheduled_days,
         learning_steps: i64::from(card.learning_steps),
         reps: i64::from(card.reps),
         lapses: i64::from(card.lapses),
@@ -236,10 +238,10 @@ fn insert_card_data(db: &Database, data: &InsertCardData, template: &Template) -
         let id = minted_uuidv7(None);
         tx.execute(
             r#"
-            INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability,
+            INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability, stability_fast,
                               difficulty, scheduled_days, learning_steps, reps, lapses,
                               last_reviewed_at, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, NULL)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, NULL)
             "#,
             params![
                 id,
@@ -251,8 +253,9 @@ fn insert_card_data(db: &Database, data: &InsertCardData, template: &Template) -
                 // WHY: NULL here desyncs desktop IPC from web `z.number()`;
                 // omitted InsertCardData must persist 0, not SQL NULL.
                 data.stability.unwrap_or(0.0),
+                data.stability_fast.unwrap_or(0.0),
                 data.difficulty.unwrap_or(0.0),
-                data.scheduled_days.unwrap_or(0),
+                data.scheduled_days.unwrap_or(0.0),
                 data.learning_steps.unwrap_or(0),
                 data.reps.unwrap_or(0),
                 data.lapses.unwrap_or(0),
@@ -388,7 +391,7 @@ pub fn reset_card_progress(db: &Database, data: ResetCardProgressData) -> Result
                 &format!(
                     r#"
                 UPDATE cards
-                SET {reset_to_new}, due_at = NULL, stability = 0, difficulty = 0,
+                SET {reset_to_new}, due_at = NULL, stability = 0, stability_fast = 0, difficulty = 0,
                     scheduled_days = 0, learning_steps = 0, reps = 0, lapses = 0,
                     last_reviewed_at = NULL
                 WHERE id = ?1

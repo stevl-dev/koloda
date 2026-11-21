@@ -46,10 +46,10 @@ async function getCard(db: DB, id: Card["id"]) {
 async function insertCardRow(db: DB, data: InsertCardData) {
   const rowId = mintedUuidv7();
   await db.run(
-    `INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability,
+    `INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability, stability_fast,
                         difficulty, scheduled_days, learning_steps, reps, lapses,
                         last_reviewed_at, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
     [
       rowId,
       data.deckId,
@@ -58,6 +58,7 @@ async function insertCardRow(db: DB, data: InsertCardData) {
       data.state ?? 0,
       data.dueAt ?? null,
       data.stability ?? 0,
+      data.stabilityFast ?? 0,
       data.difficulty ?? 0,
       data.scheduledDays ?? 0,
       data.learningSteps ?? 0,
@@ -192,7 +193,7 @@ export async function resetCardProgress(db: DB, { id }: ResetCardProgressData) {
       await tx.run(`DELETE FROM reviews WHERE card_id = ?`, [id]);
       await tx.run(
         `UPDATE cards
-         SET state = ?, due_at = NULL, stability = 0, difficulty = 0,
+         SET state = ?, due_at = NULL, stability = 0, stability_fast = 0, difficulty = 0,
              scheduled_days = 0, learning_steps = 0, reps = 0, lapses = 0,
              last_reviewed_at = NULL
          WHERE id = ?`,

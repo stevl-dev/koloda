@@ -169,17 +169,14 @@ describe("reviews", () => {
 
   // Twin of koloda `reviews_serde_tests.rs` InsertReviewData shape pins: the submit
   // payload must carry exactly the fields the Rust struct deserializes, nothing more.
-  it.each([
-    { name: "a reviewed card stores its previous review time", lastReviewAt: new Date("2024-01-01T00:00:00.000Z") },
-    { name: "a new card stores its pre-review due date", lastReviewAt: null },
-  ])("maps the graded FSRS log to exactly the submit review fields: $name", ({ lastReviewAt }) => {
+  it("maps the graded FSRS log to exactly the submit review fields, keeping its three timestamps apart", () => {
     const revlog: FSRSRevlog = {
       cardId: "card",
       rating: Rating.Good,
       state: State.Learning,
       scheduleStatus: "learning",
       dueAt: new Date("2024-01-03T00:00:00.000Z"),
-      lastReviewAt,
+      lastReviewAt: new Date("2024-01-01T00:00:00.000Z"),
       reviewTime: new Date("2024-01-04T00:00:00.000Z"),
       stability: 2.5,
       difficulty: 4.2,
@@ -190,8 +187,11 @@ describe("reviews", () => {
     expect(createReviewFromReviewFSRS(revlog)).toEqual({
       rating: 3,
       state: 1,
-      dueAt: lastReviewAt ?? new Date("2024-01-03T00:00:00.000Z"),
+      dueAt: new Date("2024-01-03T00:00:00.000Z"),
+      lastReviewedAt: new Date("2024-01-01T00:00:00.000Z"),
+      reviewedAt: new Date("2024-01-04T00:00:00.000Z"),
       stability: 2.5,
+      stabilityFast: 0,
       difficulty: 4.2,
       scheduledDays: 7,
       learningSteps: 2,

@@ -59,6 +59,7 @@ pub fn add_card(db: &Database, deck_id: &str, template_id: &str, front: &str) ->
             state: None,
             due_at: None,
             stability: None,
+            stability_fast: None,
             difficulty: None,
             scheduled_days: None,
             learning_steps: None,
@@ -96,20 +97,20 @@ pub fn insert_card_row(
     .expect("card row should insert")
 }
 
-pub fn insert_review_row(db: &Database, card_id: &str, state: i32, is_ignored: i32, created_at: i64) {
+pub fn insert_review_row(db: &Database, card_id: &str, state: i32, is_ignored: i32, reviewed_at: i64) {
     db.with_conn(|conn| {
         conn.execute(
             r#"
-            INSERT INTO reviews (id, card_id, rating, state, due_at, stability, difficulty,
+            INSERT INTO reviews (id, card_id, rating, state, due_at, reviewed_at, stability, difficulty,
                                 scheduled_days, learning_steps, time, is_ignored, created_at)
-            VALUES (?1, ?2, 3, ?3, 1900000000000, 1.0, 5.0, 0, 0, 10, ?4, ?5)
+            VALUES (?1, ?2, 3, ?3, 1900000000000, ?5, 1.0, 5.0, 0, 0, 10, ?4, ?5)
             "#,
             rusqlite::params![
                 koloda::app::utility::generate_uuidv7(),
                 card_id,
                 state,
                 is_ignored,
-                created_at
+                reviewed_at
             ],
         )?;
         Ok(())

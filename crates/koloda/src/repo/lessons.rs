@@ -137,7 +137,7 @@ pub fn get_lesson_cards(db: &Database, params: &GetLessonDataParams) -> Result<V
             let query = format!(
                 r#"
             SELECT * FROM (
-                SELECT id, deck_id, template_id, content, state, due_at, stability, difficulty,
+                SELECT id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                        scheduled_days, learning_steps, reps, lapses, last_reviewed_at,
                        created_at, updated_at
                 FROM cards
@@ -149,7 +149,7 @@ pub fn get_lesson_cards(db: &Database, params: &GetLessonDataParams) -> Result<V
             UNION ALL
 
             SELECT * FROM (
-                SELECT id, deck_id, template_id, content, state, due_at, stability, difficulty,
+                SELECT id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                        scheduled_days, learning_steps, reps, lapses, last_reviewed_at,
                        created_at, updated_at
                 FROM cards
@@ -161,7 +161,7 @@ pub fn get_lesson_cards(db: &Database, params: &GetLessonDataParams) -> Result<V
             UNION ALL
 
             SELECT * FROM (
-                SELECT id, deck_id, template_id, content, state, due_at, stability, difficulty,
+                SELECT id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                        scheduled_days, learning_steps, reps, lapses, last_reviewed_at,
                        created_at, updated_at
                 FROM cards
@@ -334,15 +334,16 @@ pub fn submit_lesson_result(db: &Database, data: LessonResultData) -> Result<(),
             tx.execute(
                 r#"
                 UPDATE cards
-                SET state = ?1, due_at = ?2, stability = ?3, difficulty = ?4,
-                    scheduled_days = ?5, learning_steps = ?6, reps = ?7, lapses = ?8,
-                    last_reviewed_at = ?9
-                WHERE id = ?10
+                SET state = ?1, due_at = ?2, stability = ?3, stability_fast = ?4, difficulty = ?5,
+                    scheduled_days = ?6, learning_steps = ?7, reps = ?8, lapses = ?9,
+                    last_reviewed_at = ?10
+                WHERE id = ?11
                 "#,
                 rusqlite::params![
                     data.card.state,
                     data.card.due_at,
                     data.card.stability,
+                    data.card.stability_fast,
                     data.card.difficulty,
                     data.card.scheduled_days,
                     data.card.learning_steps,

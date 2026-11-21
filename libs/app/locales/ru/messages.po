@@ -530,6 +530,10 @@ msgid "validation.cards-progress.stability"
 msgstr "Стабильность не может быть отрицательной"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.cards-progress.stability-fast"
+msgstr "Быстрая стабильность не может быть отрицательной"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.cards-progress.state"
 msgstr "Недопустимое состояние карточки"
 
@@ -584,6 +588,10 @@ msgstr "Запланированные дни не могут быть отри�
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.reviews.stability"
 msgstr "Стабильность не может быть отрицательной"
+
+#: ../../libs/app/src/lib/error.ts
+msgid "validation.reviews.stability-fast"
+msgstr "Быстрая стабильность не может быть отрицательной"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.reviews.state"

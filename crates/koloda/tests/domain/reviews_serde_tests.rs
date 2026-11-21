@@ -9,7 +9,9 @@ fn valid_payload() -> Value {
         "rating": 1,
         "state": 0,
         "dueAt": 1_000_000_000,
+        "reviewedAt": 1_000_000_000,
         "stability": 5.0,
+        "stabilityFast": 4.0,
         "difficulty": 5.0,
         "scheduledDays": 0,
         "learningSteps": 0,
@@ -28,6 +30,8 @@ fn test_insert_review_data_input_shapes() {
         ("missing cardId", "cardId", None),
         ("mistyped rating", "rating", Some(json!("not-a-number"))),
         ("null isIgnored", "isIgnored", Some(json!(null))),
+        ("missing reviewedAt", "reviewedAt", None),
+        ("missing stabilityFast", "stabilityFast", None),
     ];
 
     for (label, field, offending) in reject {
@@ -57,9 +61,12 @@ fn review_fixture() -> Review {
         rating: 3,
         state: 2,
         due_at: 1_700_000_000_000,
+        last_reviewed_at: Some(1_699_999_400_000),
+        reviewed_at: 1_700_000_400_000,
         stability: 12.5,
+        stability_fast: 3.25,
         difficulty: 4.75,
-        scheduled_days: 9,
+        scheduled_days: 0.5,
         learning_steps: 1,
         time: 12_345,
         is_ignored: false,
@@ -68,7 +75,7 @@ fn review_fixture() -> Review {
 }
 
 /// Pins the exact JSON the NAPI layer hands the renderer for a review row:
-/// camelCase keys, and `dueAt`/`createdAt` as RFC 3339 strings — not the i64
+/// camelCase keys, and timestamps as RFC 3339 strings — not the i64
 /// millis the struct stores. Mirrored by `Review` in `@koloda/srs`.
 #[test]
 fn test_review_serializes_wire_shape() {
@@ -82,9 +89,12 @@ fn test_review_serializes_wire_shape() {
             "rating": 3,
             "state": 2,
             "dueAt": "2023-11-14T22:13:20+00:00",
+            "lastReviewedAt": "2023-11-14T22:03:20+00:00",
+            "reviewedAt": "2023-11-14T22:20:00+00:00",
             "stability": 12.5,
+            "stabilityFast": 3.25,
             "difficulty": 4.75,
-            "scheduledDays": 9,
+            "scheduledDays": 0.5,
             "learningSteps": 1,
             "time": 12345,
             "isIgnored": false,

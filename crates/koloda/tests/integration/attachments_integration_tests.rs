@@ -155,6 +155,7 @@ fn sweep_removes_only_old_unreferenced_attachments() {
             state: None,
             due_at: None,
             stability: None,
+            stability_fast: None,
             difficulty: None,
             scheduled_days: None,
             learning_steps: None,

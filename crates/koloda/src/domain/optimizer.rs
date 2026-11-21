@@ -26,7 +26,7 @@ pub struct ReviewRecord {
     pub card_id: String,
     pub rating: i32,
     pub state: i32,
-    pub created_at: i64,
+    pub reviewed_at: i64,
 }
 
 /// Applies an optimization's weights (TS twin: `ApplyAlgorithmOptimizationData` in `@koloda/srs`).
@@ -53,7 +53,7 @@ pub struct TrainingSet {
 }
 
 struct DatedItem<'a> {
-    created_at: i64,
+    reviewed_at: i64,
     review_id: &'a str,
     card_index: i64,
     item: FSRSItem,
@@ -69,7 +69,7 @@ pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
     let mut review_count = 0;
     let mut next_card_index: i64 = 0;
     for mut history in by_card.into_values() {
-        history.sort_by(|a, b| a.created_at.cmp(&b.created_at).then_with(|| a.id.cmp(&b.id)));
+        history.sort_by(|a, b| a.reviewed_at.cmp(&b.reviewed_at).then_with(|| a.id.cmp(&b.id)));
         let Some(card_items) = card_items(&history, next_card_index) else {
             continue;
         };
@@ -82,8 +82,8 @@ pub fn build_training_set(reviews: &[ReviewRecord]) -> TrainingSet {
 
     // WHY: the crate weights later items more (recency weighting), so items must be in review order across cards.
     dated.sort_by(|a, b| {
-        a.created_at
-            .cmp(&b.created_at)
+        a.reviewed_at
+            .cmp(&b.reviewed_at)
             .then_with(|| a.review_id.cmp(b.review_id))
     });
 
@@ -112,7 +112,7 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
         let rating = u32::try_from(review.rating)
             .ok()
             .filter(|rating| (1..=4).contains(rating))?;
-        let date = utc_date(review.created_at)?;
+        let date = utc_date(review.reviewed_at)?;
         let days = u32::try_from(previous_date.map_or(0, |previous| (date - previous).num_days())).ok()?;
         previous_date = Some(date);
 
@@ -120,7 +120,7 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
         // WHY: a same-day review stays in the history but is no item of its own; it teaches no long-term recall.
         if days > 0 {
             items.push(DatedItem {
-                created_at: review.created_at,
+                reviewed_at: review.reviewed_at,
                 review_id: &review.id,
                 card_index,
                 item: FSRSItem {
@@ -134,8 +134,8 @@ fn card_items<'a>(history: &[&'a ReviewRecord], card_index: i64) -> Option<Vec<D
 
 /// INVARIANT: twin of ts-fsrs `dateDiffInDays` — elapsed days are differences of UTC calendar dates, not of the
 /// learning day (`dayStartsAt`), so the fitted model matches the scheduler that uses it.
-fn utc_date(created_at: i64) -> Option<NaiveDate> {
-    DateTime::from_timestamp_millis(created_at).map(|time| time.date_naive())
+fn utc_date(reviewed_at: i64) -> Option<NaiveDate> {
+    DateTime::from_timestamp_millis(reviewed_at).map(|time| time.date_naive())
 }
 
 /// How well weights predict the reviews they were scored on; lower is better.

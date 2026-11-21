@@ -47,11 +47,11 @@ pub fn validate_difficulty(difficulty: f64, code: &str) -> Result<(), AppError> 
     Ok(())
 }
 
-pub fn validate_scheduled_days(days: i32, code: &str) -> Result<(), AppError> {
-    if days < 0 {
+pub fn validate_scheduled_days(days: f64, code: &str) -> Result<(), AppError> {
+    if !days.is_finite() || days < 0.0 {
         return Err(AppError::new(
             code,
-            Some(format!("Scheduled days must be non-negative, got {}", days)),
+            Some(format!("Scheduled days must be finite and non-negative, got {}", days)),
         ));
     }
     Ok(())

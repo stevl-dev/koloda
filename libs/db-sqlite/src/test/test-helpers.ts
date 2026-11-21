@@ -164,16 +164,19 @@ export async function seedLearningSettings(
 export async function insertReview(db: DB, review: Omit<Review, "id">) {
   const rowId = mintedUuidv7();
   await db.run(
-    `INSERT INTO reviews (id, card_id, rating, state, due_at, stability, difficulty,
-                          scheduled_days, learning_steps, time, is_ignored, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO reviews (id, card_id, rating, state, due_at, last_reviewed_at, reviewed_at, stability,
+                          stability_fast, difficulty, scheduled_days, learning_steps, time, is_ignored, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       rowId,
       review.cardId,
       review.rating,
       review.state,
       review.dueAt,
+      review.lastReviewedAt,
+      review.reviewedAt,
       review.stability,
+      review.stabilityFast,
       review.difficulty,
       review.scheduledDays,
       review.learningSteps,
@@ -192,9 +195,12 @@ export async function insertReviewFor(db: DB, cardId: string) {
     rating: 3,
     state: 2,
     dueAt: new Date("2026-01-15T09:00:00.000Z"),
+    lastReviewedAt: new Date("2026-01-05T09:00:00.000Z"),
+    reviewedAt: new Date("2026-01-10T08:59:00.000Z"),
     stability: 7.5,
+    stabilityFast: 2.5,
     difficulty: 3.25,
-    scheduledDays: 12,
+    scheduledDays: 0.25,
     learningSteps: 2,
     time: 4200,
     isIgnored: false,

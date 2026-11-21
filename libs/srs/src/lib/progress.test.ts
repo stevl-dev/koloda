@@ -14,6 +14,7 @@ function validCardProgress(overrides: Record<string, unknown> = {}) {
     state: 0,
     dueAt: null,
     stability: 5.0,
+    stabilityFast: 4.0,
     difficulty: 5.0,
     scheduledDays: 1,
     learningSteps: 0,
@@ -30,13 +31,24 @@ function validInsertCard(overrides: Record<string, unknown> = {}) {
 }
 
 function validUpdateCardProgress(overrides: Record<string, unknown> = {}) {
-  const { id, state, stability, difficulty, scheduledDays, learningSteps, reps, lapses, lastReviewedAt } =
-    validCardProgress(overrides);
+  const {
+    id,
+    state,
+    stability,
+    stabilityFast,
+    difficulty,
+    scheduledDays,
+    learningSteps,
+    reps,
+    lapses,
+    lastReviewedAt,
+  } = validCardProgress(overrides);
   return {
     id,
     dueAt: DEFAULT_DATE,
     state,
     stability,
+    stabilityFast,
     difficulty,
     scheduledDays,
     learningSteps,
@@ -53,7 +65,10 @@ function validReview(overrides: Record<string, unknown> = {}) {
     rating: 1,
     state: 0,
     dueAt: DEFAULT_DATE,
+    lastReviewedAt: null,
+    reviewedAt: DEFAULT_DATE,
     stability: 5.0,
+    stabilityFast: 4.0,
     difficulty: 5.0,
     scheduledDays: 1,
     learningSteps: 0,

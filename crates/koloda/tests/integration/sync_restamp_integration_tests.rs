@@ -83,8 +83,9 @@ fn grade(db: &Database, card: &str) {
                 state: 2,
                 due_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
-                scheduled_days: 9,
+                scheduled_days: 9.0,
                 learning_steps: 0,
                 reps: 1,
                 lapses: 0,
@@ -95,9 +96,12 @@ fn grade(db: &Database, card: &str) {
                 rating: 3,
                 state: 2,
                 due_at: 1_900_000_000_000,
+                last_reviewed_at: None,
+                reviewed_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
-                scheduled_days: 9,
+                scheduled_days: 9.0,
                 learning_steps: 0,
                 time: 12,
                 is_ignored: false,
@@ -384,5 +388,8 @@ fn a_re_stamped_grade_still_beats_a_reset_applied_before_it() {
     let reviews = count(&b, &format!("SELECT COUNT(*) FROM reviews WHERE card_id = '{card}'"));
     assert_eq!(reviews, 1, "the grade's review survives the reset");
     let scheduled = get_card(&b, &card).expect("card reads").expect("card exists");
-    assert_eq!(scheduled.scheduled_days, 9, "the grade's scheduling survives with it");
+    assert!(
+        (scheduled.scheduled_days - 9.0).abs() < f64::EPSILON,
+        "the grade's scheduling survives with it"
+    );
 }

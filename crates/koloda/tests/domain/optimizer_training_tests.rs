@@ -8,7 +8,7 @@ fn review(card_id: &str, id: &str, rating: i32, state: CardState, at: &str) -> R
         card_id: card_id.to_string(),
         rating,
         state: state.as_i32(),
-        created_at: DateTime::parse_from_rfc3339(at)
+        reviewed_at: DateTime::parse_from_rfc3339(at)
             .expect("valid timestamp")
             .timestamp_millis(),
     }

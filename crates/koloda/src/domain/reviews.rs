@@ -7,11 +7,17 @@ use crate::domain::progress::{
     validate_difficulty, validate_learning_steps, validate_scheduled_days, validate_stability, validate_state,
 };
 use crate::domain::settings_learning::{is_bucket_over_daily_limit, is_finite_daily_limit_over, DailyLimits};
-use crate::domain::time::{deserialize_timestamp, serialize_timestamp};
+use crate::domain::time::{
+    deserialize_optional_timestamp, deserialize_timestamp, serialize_optional_timestamp, serialize_timestamp,
+};
 
 const RATING_MIN: i32 = 1;
 const RATING_MAX: i32 = 4;
 
+/// One ts-fsrs review log — mirrors `@koloda/srs` `reviewRowSchema`.
+///
+/// `state` through `learning_steps` and both `due_at` and `last_reviewed_at` are the card's values before the grade.
+/// `reviewed_at` is when the grade happened in the scheduler; `created_at` is when the row was written.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Review {
@@ -19,13 +25,22 @@ pub struct Review {
     pub card_id: String,
     pub rating: i32,
     pub state: i32,
-    // INVARIANT: required timestamp — FSRS always supplies `due`. Twin of `@koloda/srs` `z.date()`.
+    // INVARIANT: required timestamp — ts-fsrs always supplies the pre-review `dueAt`. Twin of `@koloda/srs` `z.date()`.
     // Card `due_at` stays optional (untouched rows).
     #[serde(deserialize_with = "deserialize_timestamp", serialize_with = "serialize_timestamp")]
     pub due_at: i64,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_timestamp",
+        serialize_with = "serialize_optional_timestamp"
+    )]
+    pub last_reviewed_at: Option<i64>,
+    #[serde(deserialize_with = "deserialize_timestamp", serialize_with = "serialize_timestamp")]
+    pub reviewed_at: i64,
     pub stability: f64,
+    pub stability_fast: f64,
     pub difficulty: f64,
-    pub scheduled_days: i32,
+    pub scheduled_days: f64,
     pub learning_steps: i32,
     pub time: i32,
     pub is_ignored: bool,
@@ -42,13 +57,18 @@ pub struct InsertReviewData {
     pub card_id: String,
     pub rating: i32,
     pub state: i32,
-    // INVARIANT: required timestamp — FSRS always supplies `due`. Twin of `@koloda/srs` `z.date()`.
+    // INVARIANT: required timestamp — ts-fsrs always supplies the pre-review `dueAt`. Twin of `@koloda/srs` `z.date()`.
     // Card `due_at` stays optional (untouched rows).
     #[serde(deserialize_with = "deserialize_timestamp")]
     pub due_at: i64,
+    #[serde(default, deserialize_with = "deserialize_optional_timestamp")]
+    pub last_reviewed_at: Option<i64>,
+    #[serde(deserialize_with = "deserialize_timestamp")]
+    pub reviewed_at: i64,
     pub stability: f64,
+    pub stability_fast: f64,
     pub difficulty: f64,
-    pub scheduled_days: i32,
+    pub scheduled_days: f64,
     pub learning_steps: i32,
     pub time: i32,
     pub is_ignored: bool,
@@ -59,6 +79,7 @@ impl InsertReviewData {
         validate_rating(self.rating)?;
         validate_state(self.state, error_codes::VALIDATION_REVIEWS_STATE)?;
         validate_stability(self.stability, error_codes::VALIDATION_REVIEWS_STABILITY)?;
+        validate_stability(self.stability_fast, error_codes::VALIDATION_REVIEWS_STABILITY_FAST)?;
         validate_difficulty(self.difficulty, error_codes::VALIDATION_REVIEWS_DIFFICULTY)?;
         validate_scheduled_days(self.scheduled_days, error_codes::VALIDATION_REVIEWS_SCHEDULED_DAYS)?;
         validate_learning_steps(self.learning_steps, error_codes::VALIDATION_REVIEWS_LEARNING_STEPS)?;

@@ -11,6 +11,7 @@ const RATING_MAX = 4;
 type ProgressFieldCodes = {
   state: string;
   stability: string;
+  stabilityFast: string;
   difficulty: string;
   scheduledDays: string;
   learningSteps: string;
@@ -21,6 +22,7 @@ type ProgressFieldCodes = {
 export type ProgressFieldValues = {
   state: number;
   stability: number;
+  stabilityFast: number;
   difficulty: number;
   scheduledDays: number;
   learningSteps: number;
@@ -31,6 +33,7 @@ export type ProgressFieldValues = {
 export const CARDS_PROGRESS_FIELD_CODES = {
   state: "validation.cards-progress.state",
   stability: "validation.cards-progress.stability",
+  stabilityFast: "validation.cards-progress.stability-fast",
   difficulty: "validation.cards-progress.difficulty",
   scheduledDays: "validation.cards-progress.scheduled-days",
   learningSteps: "validation.cards-progress.learning-steps",
@@ -41,6 +44,7 @@ export const CARDS_PROGRESS_FIELD_CODES = {
 export const REVIEWS_PROGRESS_FIELD_CODES = {
   state: "validation.reviews.state",
   stability: "validation.reviews.stability",
+  stabilityFast: "validation.reviews.stability-fast",
   difficulty: "validation.reviews.difficulty",
   scheduledDays: "validation.reviews.scheduled-days",
   learningSteps: "validation.reviews.learning-steps",
@@ -57,6 +61,9 @@ export function validateProgressFields(data: ProgressFieldValues, codes: Progres
   }
   if (data.stability < 0) {
     addFieldIssue(ctx, ["stability"], codes.stability);
+  }
+  if (data.stabilityFast < 0) {
+    addFieldIssue(ctx, ["stabilityFast"], codes.stabilityFast);
   }
   if (data.difficulty < DIFFICULTY_MIN || data.difficulty > DIFFICULTY_MAX) {
     addFieldIssue(ctx, ["difficulty"], codes.difficulty);

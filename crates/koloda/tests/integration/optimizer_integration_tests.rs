@@ -28,9 +28,9 @@ fn input_reads_saved_parameters_and_unignored_reviews_of_the_algorithms_decks() 
     let mut read: Vec<(String, i32, i64)> = input
         .reviews
         .into_iter()
-        .map(|review| (review.card_id, review.state, review.created_at))
+        .map(|review| (review.card_id, review.state, review.reviewed_at))
         .collect();
-    read.sort_by_key(|(_, _, created_at)| *created_at);
+    read.sort_by_key(|(_, _, reviewed_at)| *reviewed_at);
     assert_eq!(
         read,
         vec![(first_card, 0, 1_000), (second_card, 0, 3_000)],

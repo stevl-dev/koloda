@@ -530,6 +530,10 @@ msgid "validation.cards-progress.stability"
 msgstr "Stability must be non-negative"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.cards-progress.stability-fast"
+msgstr "Fast stability must be non-negative"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.cards-progress.state"
 msgstr "Invalid card state"
 
@@ -584,6 +588,10 @@ msgstr "Scheduled days must be non-negative"
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.reviews.stability"
 msgstr "Stability must be non-negative"
+
+#: ../../libs/app/src/lib/error.ts
+msgid "validation.reviews.stability-fast"
+msgstr "Fast stability must be non-negative"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "validation.reviews.state"

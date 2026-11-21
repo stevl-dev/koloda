@@ -176,9 +176,9 @@ a revision's actor, and each learning-settings value.
 | --- | --- |
 | `cards` / `create` | `deck_id`, `template_id`, `content`, `scheduling` (the scheduling map below), `created_at`, `initial_product_ts`, `legacy_product_ts_floor` |
 | `cards` / `content` | `content`, `updated_at` |
-| `cards` / `scheduling` | `state`, `due_at`, `stability`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_reviewed_at` |
+| `cards` / `scheduling` | `state`, `due_at`, `stability`, `stability_fast`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_reviewed_at` |
 | `cards` / `reset` | `wall_ms` |
-| `reviews` / `row` | `card_id`, `rating`, `state`, `due_at`, `stability`, `difficulty`, `scheduled_days`, `learning_steps`, `time`, `is_ignored`, `created_at` |
+| `reviews` / `row` | `card_id`, `rating`, `state`, `due_at`, `last_reviewed_at`, `reviewed_at`, `stability`, `stability_fast`, `difficulty`, `scheduled_days`, `learning_steps`, `time`, `is_ignored`, `created_at` |
 | `decks` / `create` | `title`, `notes`, `created_at`, `initial_product_ts`, `legacy_product_ts_floor` |
 | `templates`, `algorithms` / `create` | `title`, `notes`, `content`, `created_at`, `initial_product_ts`, `legacy_product_ts_floor` |
 | `decks`, `templates`, `algorithms` / `title` | `title`, `updated_at` |
@@ -272,7 +272,7 @@ Kinds, groups, ops, and lanes travel as the strings in the tables below.
 | --- | --- | --- | --- | --- |
 | `cards` | `create` | create | Whole row as inserted, including `deck_id` and `template_id` | hot |
 | `cards` | `content` | update | `content`, `updated_at` | hot |
-| `cards` | `scheduling` | update | `state`, `due_at`, `stability`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_reviewed_at` | hot |
+| `cards` | `scheduling` | update | `state`, `due_at`, `stability`, `stability_fast`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_reviewed_at` | hot |
 | `cards` | `reset` | update | `wall_ms` (display time of the reset) | hot |
 | `reviews` | `row` | immutable | Every column | cold |
 | `decks` | `create` | create | Whole row as inserted, except `algorithm_id` and `template_id` | hot |
@@ -1191,7 +1191,7 @@ It is also a value this app's readers refuse, so that, applied, it would break e
 
 - card, template, or algorithm content that does not parse as that document;
 - a card scheduling number past the 32-bit integer the app reads it as;
-- a stability or difficulty that is not finite;
+- a stability, fast stability, difficulty, or scheduled-days number that is not finite;
 - a timestamp outside the range the app can show, whether a creation time, a due or review time, or an update time.
 
 It is also a payload that disagrees with its header, which no writer seals:

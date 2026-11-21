@@ -203,7 +203,7 @@ export async function submitLessonResult(db: DB, data: LessonResultData) {
     await db.transaction(async (tx) => {
       await tx.run(
         `UPDATE cards
-         SET state = ?, due_at = ?, stability = ?, difficulty = ?,
+         SET state = ?, due_at = ?, stability = ?, stability_fast = ?, difficulty = ?,
              scheduled_days = ?, learning_steps = ?, reps = ?, lapses = ?,
              last_reviewed_at = ?
          WHERE id = ?`,
@@ -211,6 +211,7 @@ export async function submitLessonResult(db: DB, data: LessonResultData) {
           progress.state,
           progress.dueAt,
           progress.stability,
+          progress.stabilityFast,
           progress.difficulty,
           progress.scheduledDays,
           progress.learningSteps,
@@ -223,16 +224,19 @@ export async function submitLessonResult(db: DB, data: LessonResultData) {
 
       const reviewId = mintedUuidv7();
       await tx.run(
-        `INSERT INTO reviews (id, card_id, rating, state, due_at, stability, difficulty,
-                              scheduled_days, learning_steps, time, is_ignored, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO reviews (id, card_id, rating, state, due_at, last_reviewed_at, reviewed_at, stability,
+                              stability_fast, difficulty, scheduled_days, learning_steps, time, is_ignored, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           reviewId,
           reviewData.cardId,
           reviewData.rating,
           reviewData.state,
           reviewData.dueAt,
+          reviewData.lastReviewedAt,
+          reviewData.reviewedAt,
           reviewData.stability,
+          reviewData.stabilityFast,
           reviewData.difficulty,
           reviewData.scheduledDays,
           reviewData.learningSteps,

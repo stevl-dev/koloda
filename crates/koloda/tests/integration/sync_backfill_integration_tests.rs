@@ -111,7 +111,7 @@ fn legacy_rows(db: &Database) -> Legacy {
         },
     )
     .expect("card updates");
-    grade(db, &card, 3);
+    grade(db, &card, 3.0);
     add_card(db, &deck, SEED_TEMPLATE_TYPE_ID, "adiós");
 
     set_learning(db, &algorithm, &template);
@@ -408,7 +408,7 @@ fn the_scan_keeps_registers_that_remote_writes_set_on_a_legacy_row() {
     }
 }
 
-fn grade(db: &Database, card: &str, scheduled_days: i32) {
+fn grade(db: &Database, card: &str, scheduled_days: f64) {
     submit_lesson_result(
         db,
         LessonResultData {
@@ -417,6 +417,7 @@ fn grade(db: &Database, card: &str, scheduled_days: i32) {
                 state: 2,
                 due_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
                 scheduled_days,
                 learning_steps: 0,
@@ -429,7 +430,10 @@ fn grade(db: &Database, card: &str, scheduled_days: i32) {
                 rating: 3,
                 state: 2,
                 due_at: 1_900_000_000_000,
+                last_reviewed_at: None,
+                reviewed_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
                 scheduled_days,
                 learning_steps: 0,
@@ -496,7 +500,7 @@ fn an_edit_or_grade_of_a_legacy_card_backfills_the_card_before_the_write() {
         let (creator, legacy) = legacy_creator();
 
         if is_grade {
-            grade(&creator, &legacy.card, 7);
+            grade(&creator, &legacy.card, 7.0);
         } else {
             update_card(
                 &creator,
@@ -676,7 +680,7 @@ fn a_card_reset_before_sync_reaches_a_joiner_with_its_surviving_review_and_final
         },
     )
     .unwrap();
-    grade(&creator, &legacy.card, 11);
+    grade(&creator, &legacy.card, 11.0);
     enroll_as(&creator, SpaceRole::Creator);
     let mut space = FakeSpace::default();
 
@@ -690,7 +694,7 @@ fn a_card_reset_before_sync_reaches_a_joiner_with_its_surviving_review_and_final
         1,
         "the reset removed the earlier review"
     );
-    assert_eq!(get_card(&joiner, &legacy.card).unwrap().unwrap().scheduled_days, 11);
+    assert!((get_card(&joiner, &legacy.card).unwrap().unwrap().scheduled_days - 11.0).abs() < f64::EPSILON);
 }
 
 #[test]
@@ -728,7 +732,7 @@ fn a_card_graded_remotely_before_phase_three_keeps_that_grade_and_gets_no_snapsh
     let joiner = joiner(&space);
     space.pull(&joiner);
 
-    grade(&joiner, &legacy.card, 13);
+    grade(&joiner, &legacy.card, 13.0);
     let joiner_device = device(&joiner);
     space.push(&joiner);
     space.pull(&creator);
@@ -743,7 +747,7 @@ fn a_card_graded_remotely_before_phase_three_keeps_that_grade_and_gets_no_snapsh
     space.push(&creator);
     space.pull(&joiner);
     for db in [&creator, &joiner] {
-        assert_eq!(get_card(db, &legacy.card).unwrap().unwrap().scheduled_days, 13);
+        assert!((get_card(db, &legacy.card).unwrap().unwrap().scheduled_days - 13.0).abs() < f64::EPSILON);
     }
 }
 

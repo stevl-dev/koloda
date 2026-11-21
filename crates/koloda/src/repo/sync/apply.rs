@@ -237,6 +237,8 @@ fn breaks_domain_rule(payload: &Payload) -> bool {
         || match payload {
             Payload::Review(review) => {
                 is_bad_timestamp(review.due_at)
+                    || review.last_reviewed_at.is_some_and(is_bad_timestamp)
+                    || is_bad_timestamp(review.reviewed_at)
                     || is_bad_timestamp(review.created_at)
                     || review_data(review).and_then(|data| data.validate()).is_err()
             }
@@ -289,13 +291,11 @@ fn is_unreadable<T: DeserializeOwned>(json: &str) -> bool {
 // an infinity reaches the renderer as `null`.
 fn is_unreadable_scheduling(scheduling: &CardScheduling) -> bool {
     let fits = |value: i64| i32::try_from(value).is_ok();
-    !(fits(scheduling.state)
-        && fits(scheduling.scheduled_days)
-        && fits(scheduling.learning_steps)
-        && fits(scheduling.reps)
-        && fits(scheduling.lapses))
+    !(fits(scheduling.state) && fits(scheduling.learning_steps) && fits(scheduling.reps) && fits(scheduling.lapses))
         || !scheduling.stability.is_finite()
+        || !scheduling.stability_fast.is_finite()
         || !scheduling.difficulty.is_finite()
+        || !scheduling.scheduled_days.is_finite()
         || scheduling.due_at.is_some_and(is_bad_timestamp)
         || scheduling.last_reviewed_at.is_some_and(is_bad_timestamp)
 }
@@ -566,9 +566,9 @@ fn insert_card(conn: &Connection, id: &str, create: &CardCreate) -> Result<(), A
     let scheduling = &create.scheduling;
     conn.execute(
         r#"
-        INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability, difficulty,
+        INSERT INTO cards (id, deck_id, template_id, content, state, due_at, stability, stability_fast, difficulty,
                            scheduled_days, learning_steps, reps, lapses, last_reviewed_at, created_at, updated_at)
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, NULL)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, NULL)
         "#,
         params![
             id,
@@ -578,6 +578,7 @@ fn insert_card(conn: &Connection, id: &str, create: &CardCreate) -> Result<(), A
             scheduling.state,
             scheduling.due_at,
             scheduling.stability,
+            scheduling.stability_fast,
             scheduling.difficulty,
             scheduling.scheduled_days,
             scheduling.learning_steps,
@@ -709,8 +710,9 @@ fn blank_scheduling() -> CardScheduling {
         state: i64::from(CardState::New.as_i32()),
         due_at: None,
         stability: 0.0,
+        stability_fast: 0.0,
         difficulty: 0.0,
-        scheduled_days: 0,
+        scheduled_days: 0.0,
         learning_steps: 0,
         reps: 0,
         lapses: 0,
@@ -801,14 +803,15 @@ fn write_scheduling(conn: &Connection, id: &str, scheduling: &CardScheduling) ->
     conn.execute(
         r#"
         UPDATE cards
-        SET state = ?1, due_at = ?2, stability = ?3, difficulty = ?4, scheduled_days = ?5, learning_steps = ?6,
-            reps = ?7, lapses = ?8, last_reviewed_at = ?9
-        WHERE id = ?10
+        SET state = ?1, due_at = ?2, stability = ?3, stability_fast = ?4, difficulty = ?5, scheduled_days = ?6,
+            learning_steps = ?7, reps = ?8, lapses = ?9, last_reviewed_at = ?10
+        WHERE id = ?11
         "#,
         params![
             scheduling.state,
             scheduling.due_at,
             scheduling.stability,
+            scheduling.stability_fast,
             scheduling.difficulty,
             scheduling.scheduled_days,
             scheduling.learning_steps,
@@ -1036,9 +1039,12 @@ fn review_data(review: &Review) -> Result<InsertReviewData, AppError> {
         rating: i32::try_from(review.rating).map_err(protocol_error)?,
         state: i32::try_from(review.state).map_err(protocol_error)?,
         due_at: review.due_at,
+        last_reviewed_at: review.last_reviewed_at,
+        reviewed_at: review.reviewed_at,
         stability: review.stability,
+        stability_fast: review.stability_fast,
         difficulty: review.difficulty,
-        scheduled_days: i32::try_from(review.scheduled_days).map_err(protocol_error)?,
+        scheduled_days: review.scheduled_days,
         learning_steps: i32::try_from(review.learning_steps).map_err(protocol_error)?,
         time: i32::try_from(review.time).map_err(protocol_error)?,
         is_ignored: review.is_ignored,

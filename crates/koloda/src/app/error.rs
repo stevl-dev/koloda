@@ -92,6 +92,7 @@ pub mod error_codes {
     pub const VALIDATION_REVIEWS_RATING: &str = "validation.reviews.rating";
     pub const VALIDATION_REVIEWS_STATE: &str = "validation.reviews.state";
     pub const VALIDATION_REVIEWS_STABILITY: &str = "validation.reviews.stability";
+    pub const VALIDATION_REVIEWS_STABILITY_FAST: &str = "validation.reviews.stability-fast";
     pub const VALIDATION_REVIEWS_DIFFICULTY: &str = "validation.reviews.difficulty";
     pub const VALIDATION_REVIEWS_SCHEDULED_DAYS: &str = "validation.reviews.scheduled-days";
     pub const VALIDATION_REVIEWS_LEARNING_STEPS: &str = "validation.reviews.learning-steps";
@@ -99,6 +100,7 @@ pub mod error_codes {
 
     pub const VALIDATION_CARDS_PROGRESS_STATE: &str = "validation.cards-progress.state";
     pub const VALIDATION_CARDS_PROGRESS_STABILITY: &str = "validation.cards-progress.stability";
+    pub const VALIDATION_CARDS_PROGRESS_STABILITY_FAST: &str = "validation.cards-progress.stability-fast";
     pub const VALIDATION_CARDS_PROGRESS_DIFFICULTY: &str = "validation.cards-progress.difficulty";
     pub const VALIDATION_CARDS_PROGRESS_SCHEDULED_DAYS: &str = "validation.cards-progress.scheduled-days";
     pub const VALIDATION_CARDS_PROGRESS_LEARNING_STEPS: &str = "validation.cards-progress.learning-steps";

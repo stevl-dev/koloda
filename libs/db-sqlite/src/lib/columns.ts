@@ -7,11 +7,14 @@ export const DECK_SELECT =
   "id, title, algorithm_id AS algorithmId, template_id AS templateId, notes, created_at AS createdAt, updated_at AS updatedAt";
 
 export const CARD_SELECT = `id, deck_id AS deckId, template_id AS templateId, content, state, due_at AS dueAt,
-  stability, difficulty, scheduled_days AS scheduledDays, learning_steps AS learningSteps, reps, lapses,
+  stability, stability_fast AS stabilityFast, difficulty, scheduled_days AS scheduledDays,
+  learning_steps AS learningSteps, reps, lapses,
   last_reviewed_at AS lastReviewedAt, created_at AS createdAt, updated_at AS updatedAt`;
 
-export const REVIEW_SELECT = `id, card_id AS cardId, rating, state, due_at AS dueAt, stability, difficulty,
-  scheduled_days AS scheduledDays, learning_steps AS learningSteps, time, is_ignored AS isIgnored, created_at AS createdAt`;
+export const REVIEW_SELECT = `id, card_id AS cardId, rating, state, due_at AS dueAt,
+  last_reviewed_at AS lastReviewedAt, reviewed_at AS reviewedAt, stability, stability_fast AS stabilityFast,
+  difficulty, scheduled_days AS scheduledDays, learning_steps AS learningSteps, time, is_ignored AS isIgnored,
+  created_at AS createdAt`;
 
 export const SETTINGS_SELECT = "id, name, content, created_at AS createdAt, updated_at AS updatedAt";
 

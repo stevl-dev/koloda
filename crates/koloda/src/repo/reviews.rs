@@ -25,13 +25,16 @@ fn get_review_row(row: &Row) -> Result<Review, rusqlite::Error> {
         rating: row.get(2)?,
         state: row.get(3)?,
         due_at: row.get(4)?,
-        stability: row.get(5)?,
-        difficulty: row.get(6)?,
-        scheduled_days: row.get(7)?,
-        learning_steps: row.get(8)?,
-        time: row.get(9)?,
-        is_ignored: row.get(10)?,
-        created_at: row.get(11)?,
+        last_reviewed_at: row.get(5)?,
+        reviewed_at: row.get(6)?,
+        stability: row.get(7)?,
+        stability_fast: row.get(8)?,
+        difficulty: row.get(9)?,
+        scheduled_days: row.get(10)?,
+        learning_steps: row.get(11)?,
+        time: row.get(12)?,
+        is_ignored: row.get(13)?,
+        created_at: row.get(14)?,
     })
 }
 
@@ -50,9 +53,9 @@ pub(crate) fn insert_review(
     let id = minted_uuidv7(id);
     conn.execute(
         r#"
-        INSERT INTO reviews (id, card_id, rating, state, due_at, stability, difficulty,
-                            scheduled_days, learning_steps, time, is_ignored, created_at)
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+        INSERT INTO reviews (id, card_id, rating, state, due_at, last_reviewed_at, reviewed_at, stability,
+                            stability_fast, difficulty, scheduled_days, learning_steps, time, is_ignored, created_at)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
         "#,
         params![
             id,
@@ -60,7 +63,10 @@ pub(crate) fn insert_review(
             data.rating,
             data.state,
             data.due_at,
+            data.last_reviewed_at,
+            data.reviewed_at,
             data.stability,
+            data.stability_fast,
             data.difficulty,
             data.scheduled_days,
             data.learning_steps,
@@ -76,8 +82,8 @@ pub(crate) fn insert_review(
 pub(crate) fn review_payload(conn: &Connection, id: &str) -> Result<wire::Review, AppError> {
     let review = conn.query_row(
         r#"
-        SELECT id, card_id, rating, state, due_at, stability, difficulty,
-               scheduled_days, learning_steps, time, is_ignored, created_at
+        SELECT id, card_id, rating, state, due_at, last_reviewed_at, reviewed_at, stability, stability_fast,
+               difficulty, scheduled_days, learning_steps, time, is_ignored, created_at
         FROM reviews
         WHERE id = ?1
         "#,
@@ -90,9 +96,12 @@ pub(crate) fn review_payload(conn: &Connection, id: &str) -> Result<wire::Review
         rating: i64::from(review.rating),
         state: i64::from(review.state),
         due_at: review.due_at,
+        last_reviewed_at: review.last_reviewed_at,
+        reviewed_at: review.reviewed_at,
         stability: review.stability,
+        stability_fast: review.stability_fast,
         difficulty: review.difficulty,
-        scheduled_days: i64::from(review.scheduled_days),
+        scheduled_days: review.scheduled_days,
         learning_steps: i64::from(review.learning_steps),
         time: i64::from(review.time),
         is_ignored: review.is_ignored,
@@ -105,8 +114,8 @@ pub fn get_reviews(db: &Database, data: GetReviewsData) -> Result<Vec<Review>, A
         db.with_conn(|conn| {
             let mut stmt = conn.prepare(
                 r#"
-                SELECT id, card_id, rating, state, due_at, stability, difficulty,
-                       scheduled_days, learning_steps, time, is_ignored, created_at
+                SELECT id, card_id, rating, state, due_at, last_reviewed_at, reviewed_at, stability, stability_fast,
+                       difficulty, scheduled_days, learning_steps, time, is_ignored, created_at
                 FROM reviews
                 WHERE card_id = ?1
                 ORDER BY created_at, id

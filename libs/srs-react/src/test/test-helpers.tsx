@@ -80,6 +80,7 @@ export function createCard(overrides: DeepPartial<Card> = {}): Card {
     state: 0,
     dueAt: null,
     stability: 0,
+    stabilityFast: 0,
     difficulty: 0,
     scheduledDays: 0,
     learningSteps: 0,

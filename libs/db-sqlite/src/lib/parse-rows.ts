@@ -16,6 +16,7 @@ const JSON_KEYS = new Set(["content", "state"]);
 const BOOL_KEYS = new Set(["isIgnored", "isLocked"]);
 const ZERO_KEYS = new Set([
   "stability",
+  "stabilityFast",
   "difficulty",
   "scheduledDays",
   "learningSteps",

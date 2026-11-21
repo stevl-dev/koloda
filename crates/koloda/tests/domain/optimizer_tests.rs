@@ -55,7 +55,7 @@ fn forgetful_history() -> Vec<ReviewRecord> {
                 } else {
                     CardState::Review.as_i32()
                 },
-                created_at: START_MS + day * DAY_MS + card,
+                reviewed_at: START_MS + day * DAY_MS + card,
             });
         }
     }
@@ -143,14 +143,14 @@ fn histories_without_a_later_day_are_not_enough_data() {
                     card_id: "a".to_string(),
                     rating: 3,
                     state: CardState::New.as_i32(),
-                    created_at: START_MS,
+                    reviewed_at: START_MS,
                 },
                 ReviewRecord {
                     id: "2".to_string(),
                     card_id: "a".to_string(),
                     rating: 3,
                     state: CardState::Learning.as_i32(),
-                    created_at: START_MS + 600_000,
+                    reviewed_at: START_MS + 600_000,
                 },
             ],
         ),
@@ -240,7 +240,7 @@ fn short_history(cards: i64, days: &[i64], is_last_again: bool) -> Vec<ReviewRec
                 } else {
                     CardState::Review.as_i32()
                 },
-                created_at: START_MS + day * DAY_MS + card,
+                reviewed_at: START_MS + day * DAY_MS + card,
             });
         }
     }

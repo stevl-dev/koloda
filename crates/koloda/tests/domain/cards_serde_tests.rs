@@ -28,8 +28,9 @@ fn card_fixture() -> Card {
         state: 2,
         due_at: Some(1_700_000_000_000),
         stability: 12.5,
+        stability_fast: 3.25,
         difficulty: 4.75,
-        scheduled_days: 9,
+        scheduled_days: 0.5,
         learning_steps: 1,
         reps: 3,
         lapses: 1,
@@ -57,8 +58,9 @@ fn test_card_serializes_wire_shape() {
             "state": 2,
             "dueAt": "2023-11-14T22:13:20+00:00",
             "stability": 12.5,
+            "stabilityFast": 3.25,
             "difficulty": 4.75,
-            "scheduledDays": 9,
+            "scheduledDays": 0.5,
             "learningSteps": 1,
             "reps": 3,
             "lapses": 1,
@@ -70,7 +72,7 @@ fn test_card_serializes_wire_shape() {
 }
 
 /// WHY: unset optionals serialize as `null`, not omitted keys.
-/// `stability`/`difficulty` are numbers (untouched is `0`), never JSON null.
+/// `stability`/`stabilityFast`/`difficulty` are numbers (untouched is `0`), never JSON null.
 #[test]
 fn test_card_serializes_null_optional_fields() {
     let mut card = card_fixture();
@@ -84,15 +86,16 @@ fn test_card_serializes_null_optional_fields() {
         assert_eq!(value.get(key), Some(&Value::Null), "{key} must be present and null");
     }
     assert_eq!(value.get("stability"), Some(&json!(12.5)));
+    assert_eq!(value.get("stabilityFast"), Some(&json!(3.25)));
     assert_eq!(value.get("difficulty"), Some(&json!(4.75)));
-    assert_eq!(value.as_object().unwrap().len(), 15, "key set must not change");
+    assert_eq!(value.as_object().unwrap().len(), 16, "key set must not change");
 }
 
 #[test]
 fn test_card_rejects_null_stability_and_difficulty() {
     let value = serde_json::to_value(card_fixture()).unwrap();
 
-    for key in ["stability", "difficulty"] {
+    for key in ["stability", "stabilityFast", "difficulty"] {
         let mut payload = value.clone();
         payload[key] = json!(null);
         assert!(
@@ -106,12 +109,18 @@ fn test_card_rejects_null_stability_and_difficulty() {
 fn test_card_deserializes_omitted_stability_and_difficulty_as_zero() {
     let mut omitted = serde_json::to_value(card_fixture()).unwrap();
     omitted.as_object_mut().unwrap().remove("stability");
+    omitted.as_object_mut().unwrap().remove("stabilityFast");
     omitted.as_object_mut().unwrap().remove("difficulty");
     let card: Card = serde_json::from_value(omitted).expect("omitted keys default to 0");
     assert!(
         card.stability.abs() < f64::EPSILON,
         "omitted stability should default to 0, got {}",
         card.stability
+    );
+    assert!(
+        card.stability_fast.abs() < f64::EPSILON,
+        "omitted stabilityFast should default to 0, got {}",
+        card.stability_fast
     );
     assert!(
         card.difficulty.abs() < f64::EPSILON,
@@ -178,6 +187,7 @@ fn test_insert_card_data_input_shapes() {
     for field in [
         "state",
         "stability",
+        "stabilityFast",
         "difficulty",
         "scheduledDays",
         "learningSteps",

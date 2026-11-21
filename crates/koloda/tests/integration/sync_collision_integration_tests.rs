@@ -73,7 +73,7 @@ fn pending_stamp(db: &Database, kind: &str, id: &str, group: &str) -> Stamp {
         .stamp
 }
 
-fn grade(db: &Database, card: &str, scheduled_days: i32) {
+fn grade(db: &Database, card: &str, scheduled_days: f64) {
     submit_lesson_result(
         db,
         LessonResultData {
@@ -82,6 +82,7 @@ fn grade(db: &Database, card: &str, scheduled_days: i32) {
                 state: 2,
                 due_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
                 scheduled_days,
                 learning_steps: 0,
@@ -94,7 +95,10 @@ fn grade(db: &Database, card: &str, scheduled_days: i32) {
                 rating: 3,
                 state: 2,
                 due_at: 1_900_000_000_000,
+                last_reviewed_at: None,
+                reviewed_at: 1_900_000_000_000,
                 stability: 5.5,
+                stability_fast: 0.0,
                 difficulty: 4.25,
                 scheduled_days,
                 learning_steps: 0,
@@ -183,13 +187,16 @@ fn a_card_edited_on_one_replica_while_graded_on_the_other_keeps_both() {
             },
         )
         .unwrap();
-        grade(&pair.b, &card, 7);
+        grade(&pair.b, &card, 7.0);
         pair.settle(is_a_first);
 
         for db in [&pair.a, &pair.b] {
             let stored = get_card(db, &card).unwrap().unwrap();
             assert_eq!(stored.content, card_content("hola", "hello"), "A first: {is_a_first}");
-            assert_eq!(stored.scheduled_days, 7, "A first: {is_a_first}");
+            assert!(
+                (stored.scheduled_days - 7.0).abs() < f64::EPSILON,
+                "A first: {is_a_first}"
+            );
             assert_eq!(count(db, "SELECT COUNT(*) FROM reviews"), 1, "A first: {is_a_first}");
         }
     }
@@ -205,15 +212,15 @@ fn two_offline_grades_of_one_card_keep_both_reviews_and_the_later_scheduling() {
         card = add_card(a, &deck, &template, "hola");
     });
 
-    grade(&pair.a, &card, 1);
-    grade(&pair.b, &card, 2);
+    grade(&pair.a, &card, 1.0);
+    grade(&pair.b, &card, 2.0);
     let is_b_later =
         pending_stamp(&pair.b, "cards", &card, "scheduling") > pending_stamp(&pair.a, "cards", &card, "scheduling");
     pair.settle(true);
 
-    let expected = if is_b_later { 2 } else { 1 };
+    let expected = if is_b_later { 2.0 } else { 1.0 };
     for db in [&pair.a, &pair.b] {
-        assert_eq!(get_card(db, &card).unwrap().unwrap().scheduled_days, expected);
+        assert!((get_card(db, &card).unwrap().unwrap().scheduled_days - expected).abs() < f64::EPSILON);
         assert_eq!(count(db, "SELECT COUNT(*) FROM reviews"), 2);
     }
 }

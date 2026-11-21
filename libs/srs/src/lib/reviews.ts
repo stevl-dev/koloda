@@ -31,11 +31,15 @@ const reviewFieldsSchema = z.object({
   cardId: cardValidation.shape.id,
   rating: z.int(),
   state: z.int(),
-  // INVARIANT: required — FSRS always supplies `due`. Twin of desktop `i64`. Card `dueAt` stays optional.
+  // INVARIANT: required — ts-fsrs always supplies the pre-review `dueAt`. Twin of desktop `i64`.
+  // Card `dueAt` stays optional.
   dueAt: z.date(),
+  lastReviewedAt: z.date().nullable(),
+  reviewedAt: z.date(),
   stability: z.number(),
+  stabilityFast: z.number(),
   difficulty: z.number(),
-  scheduledDays: z.int(),
+  scheduledDays: z.number(),
   learningSteps: z.int(),
   time: z.int(),
   isIgnored: z.boolean(),
@@ -143,15 +147,18 @@ export async function calculateTodaysReviewTotals(
 export type TodaysReviewTotals = Awaited<ReturnType<typeof calculateTodaysReviewTotals>>;
 
 // Twin of `createUpdateCardProgress`: the submit payload must carry exactly the fields
-// Rust `InsertReviewData` deserializes — other ts-fsrs revlog keys (cardId, scheduleStatus, reviewTime) must not leak.
+// Rust `InsertReviewData` deserializes — other ts-fsrs revlog keys (cardId, scheduleStatus) must not leak.
 export function createReviewFromReviewFSRS(input: FSRSRevlog): Omit<InsertReviewData, "cardId" | "time" | "isIgnored"> {
-  const { rating, state, dueAt, lastReviewAt, stability, difficulty, scheduledDays, learningStep } = input;
+  const { rating, state, dueAt, lastReviewAt, reviewTime, stability, difficulty, scheduledDays, learningStep } = input;
   return {
     rating,
     state,
-    // INVARIANT: the column keeps the ts-fsrs 5 log meaning, the previous review time or else the pre-review due date.
-    dueAt: lastReviewAt ?? dueAt,
+    dueAt,
+    lastReviewedAt: lastReviewAt,
+    reviewedAt: reviewTime,
     stability,
+    // WHY: FSRS-6 has no fast trace.
+    stabilityFast: 0,
     difficulty,
     scheduledDays,
     learningSteps: learningStep,

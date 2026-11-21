@@ -20,8 +20,10 @@ const cardFieldsSchema = z.object({
   dueAt: z.nullable(z.date()).default(null),
   // INVARIANT: desktop Card is `f64`; untouched is 0. Do not make these nullable.
   stability: z.number().default(0),
+  stabilityFast: z.number().default(0),
   difficulty: z.number().default(0),
-  scheduledDays: z.int().default(0),
+  // WHY: fractional — FSRS-7 schedules sub-day steps as parts of a day.
+  scheduledDays: z.number().default(0),
   learningSteps: z.int().default(0),
   reps: z.int().default(0),
   lapses: z.int().default(0),
@@ -117,8 +119,9 @@ export const updateCardProgressSchema = z
     dueAt: z.date(),
     state: z.int(),
     stability: z.number(),
+    stabilityFast: z.number(),
     difficulty: z.number(),
-    scheduledDays: z.int(),
+    scheduledDays: z.number(),
     learningSteps: z.int(),
     reps: z.int(),
     lapses: z.int(),
@@ -187,6 +190,8 @@ export function createUpdateCardProgress(cardId: Card["id"], input: FSRSCard): U
     state,
     dueAt,
     stability,
+    // WHY: FSRS-6 has no fast trace.
+    stabilityFast: 0,
     difficulty,
     scheduledDays,
     learningSteps: learningStep,

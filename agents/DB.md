@@ -43,7 +43,9 @@ When modifying database schema:
    No backticks in SQL.
    Add `IF NOT EXISTS` to `CREATE TABLE` / `CREATE INDEX` / `CREATE UNIQUE INDEX`.
    Storage conventions: timestamps are unix-ms integers, JSON is `text`, booleans are `0/1`.
-   `reviews.due_at` is NOT NULL (FSRS always supplies `due`); `cards.due_at` is nullable (untouched cards).
+   `reviews.due_at` is NOT NULL (the card's due date before the grade); `cards.due_at` is nullable (untouched cards).
+   A review row is the ts-fsrs review log: its scheduling columns and `last_reviewed_at` hold the card's values before
+   the grade, and `reviewed_at` is when the grade happened, not when the row was written (`created_at`).
    Product entity ids are client-minted UUIDv7 text primary keys.
    `attachments.id` is the exception: the repo sets it to the lowercase hex SHA-256 of the bytes
    (`docs/decisions/MEDIA-STORAGE.md`).

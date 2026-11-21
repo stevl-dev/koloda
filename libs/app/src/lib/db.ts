@@ -15,4 +15,4 @@ export const timestampsValidation = z.object({
 // the desktop renderer reviver (apps/electron-react ipc) — so a new timestamp
 // field must be added here or it arrives as a string on one host and a Date on
 // the other.
-export const TIMESTAMP_FIELD_KEYS = ["createdAt", "updatedAt", "dueAt", "lastReviewedAt"] as const;
+export const TIMESTAMP_FIELD_KEYS = ["createdAt", "updatedAt", "dueAt", "lastReviewedAt", "reviewedAt"] as const;
