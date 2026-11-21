@@ -17,7 +17,7 @@ vi.mock("@koloda/core-react", async (importOriginal) => {
 
 i18n.loadAndActivate({ locale: "en", messages: {} });
 
-type TitleFormProps = { onSubmit: () => void };
+type TitleFormProps = { onSubmit: () => void | Promise<void> };
 
 function TitleForm({ onSubmit }: TitleFormProps) {
   const form = useAppForm({ defaultValues: { title: "Deck" }, onSubmit });
@@ -108,6 +108,25 @@ describe("Controls", () => {
 
     expect(document.activeElement).toBe(title);
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps Save focused and enabled while a save is pending, and saves once", async () => {
+    // WHY: disabling the focused Save moves focus out of the form; in a dialog, focus then lands outside it.
+    let finishSave = () => {};
+    const onSubmit = vi.fn(() => new Promise<void>((resolve) => (finishSave = resolve)));
+    render(<TitleForm onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Title" }), { target: { value: "Renamed" } });
+    const save = screen.getByRole("button", { name: "form.save" });
+    save.focus();
+
+    await pressSave();
+    await pressSave();
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect((save as HTMLButtonElement).disabled).toBe(false);
+    expect(save.getAttribute("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(save);
+    await act(async () => finishSave());
   });
 
   it("discards by hotkey only after the form changes", async () => {

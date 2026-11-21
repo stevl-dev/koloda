@@ -54,9 +54,18 @@ function SubmitButton(props: ButtonProps) {
   const { _ } = useLingui();
 
   return (
-    <form.Subscribe selector={(state) => [state.canSubmit]}>
-      {([canSubmit]) => (
-        <Button variants={{ style: "primary", class: "w-full" }} type="submit" isDisabled={!canSubmit} {...props}>
+    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+      {([canSubmit, isSubmitting]) => (
+        // WHY: a pending save keeps Save focusable. Disabling the focused button drops focus out of the form, and in
+        // a dialog that leaves focus outside it, so the dialog closes. `canSubmit` is false while submitting, so
+        // `handleSubmit` still refuses a second save.
+        <Button
+          variants={{ style: "primary", class: "w-full" }}
+          type="submit"
+          isDisabled={!canSubmit && !isSubmitting}
+          isPending={isSubmitting}
+          {...props}
+        >
           {_(msg`form.save`)}
         </Button>
       )}
