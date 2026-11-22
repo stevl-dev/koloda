@@ -383,13 +383,6 @@ Entries are grouped under one heading per package directory.
 
 ## Repository
 
-- Waste, Medium: the per-crate Rust test targets could run as one `cargo test --workspace`.
-  Evidence: at `1c0661bb`, `package.json:15` (`test:rust`) runs `koloda`, `koloda-sync-proto`, `koloda-server`, and
-  `koloda-sync` as separate Nx targets.
-  Kind: skipped
-  Source: `tasks/archive/ci-audit.md`, finding 2
-  Deferred because: one target loses per-crate Nx caching and the check that each crate builds with its own features.
-
 - Contention, Medium: the ts and rust tracks share one 4-core runner in one CI job.
   Evidence: at `1c0661bb`, `.github/workflows/ci.yml:24` defines the single `checks` job, and `tools/check-push.ts` runs
   the tracks at once.
