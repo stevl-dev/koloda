@@ -372,15 +372,6 @@ Entries are grouped under one heading per package directory.
 
 ## Repository
 
-- Contention, Medium: the ts and rust tracks share one 4-core runner in one CI job.
-  Evidence: at `1c0661bb`, `.github/workflows/ci.yml:24` defines the single `checks` job, and `tools/check-push.ts` runs
-  the tracks at once.
-  The proposed split is a rust job and a ts-and-format job, plus a final `checks` job that needs both with
-  `if: always()`.
-  Kind: needs-decision
-  Source: `tasks/archive/ci-audit.md`, finding 3
-  Deferred because: decide from a task branch run on warm caches after `ci-audit` landed (its question 5).
-
 - Size, Low–Medium: `CARGO_PROFILE_DEV_DEBUG=line-tables-only` for workspace crates in CI.
   Evidence: at `1c0661bb`, `Cargo.toml:12-13` gives dependencies `debug = 1`; workspace crates keep full debuginfo, and
   `.github/workflows/ci.yml` does not set the variable.

@@ -6,6 +6,11 @@ name: CI
 # Main's own run fills the caches. A branch can read only its own caches and
 # main's, so branches restore and only main saves. `bun run land` does not wait
 # for main's run: main only fast-forwards to checked commits.
+#
+# WHY: the rust and ts tracks of `bun run check:push` run as separate jobs.
+# On one 4-core runner they contended for CPU: an uncached run took 6m22s as one
+# job, against 3m51s for rust and about 4m05s for ts on their own runners.
+# `checks` only gathers their results.
 on:
   push:
     branches: ["**"]
@@ -21,15 +26,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
+  rust:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # Main only moves to checked commits, so a branch whose diff against main
-      # is all markdown has checked code. Then only the format check and the
-      # docs tests (check:docs) need to run.
+      # is all markdown has checked code. Then this job runs nothing.
       # An empty diff, or a failed fetch, runs the full check.
       - name: Classify changes
         id: scope
@@ -46,13 +50,14 @@ jobs:
           echo "Markdown-only: $docs_only"
 
       - name: Set up Bun
+        if: steps.scope.outputs.docs_only != 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: package.json
 
-      # Also needed for docs-only checks: dprint runs rustfmt on every .rs file.
       # Installs the toolchain and components pinned in rust-toolchain.toml.
       - name: Set up Rust
+        if: steps.scope.outputs.docs_only != 'true'
         run: rustup toolchain install && rustc --version
 
       # A prebuilt binary; the version matches MACHETE_VERSION in tools/check-rust-deps.ts.
@@ -73,19 +78,89 @@ jobs:
 
       # WHY: Nx 23 keeps its cache, and the database that indexes it, under
       # ~/.nx/<workspace id>/, not .nx/cache.
+      # Each job keeps its own Nx cache: both saving one key would drop the second.
       - name: Restore Nx cache
         id: nx-cache
         if: steps.scope.outputs.docs_only != 'true'
         uses: actions/cache/restore@v4
         with:
           path: ~/.nx
-          key: nx-${{ runner.os }}-${{ github.run_id }}
+          key: nx-rust-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
-            nx-${{ runner.os }}-
+            nx-rust-${{ runner.os }}-
 
       # WORKAROUND: Nx names its database after /etc/machine-id and ignores cached
       # outputs that have no row in it. A database from another runner misses
       # every task until it carries this runner's id.
+      - name: Adopt Nx cache
+        if: steps.nx-cache.outputs.cache-matched-key != ''
+        run: |
+          id=$(cat /etc/machine-id)
+          for file in "$HOME"/.nx/*/databases/*-*; do
+            [[ -e "$file" ]] || continue
+            target="$(dirname "$file")/${id:?}-$(basename "$file" | cut -d- -f2-)"
+            [[ "$file" == "$target" ]] || mv "$file" "$target"
+          done
+
+      # WHY: no Bun cache. A cold install takes about 5s, less than restoring or
+      # saving the ~300 MB cache.
+      - name: Install
+        if: steps.scope.outputs.docs_only != 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Check rust
+        if: steps.scope.outputs.docs_only != 'true'
+        run: bun run check:rust-push
+
+      - name: Save Nx cache
+        if: github.ref == 'refs/heads/main' && steps.scope.outputs.docs_only != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.nx
+          key: ${{ steps.nx-cache.outputs.cache-primary-key }}
+
+  ts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Same rule as the rust job. A markdown-only diff runs only the format
+      # check and the docs tests (check:docs).
+      - name: Classify changes
+        id: scope
+        shell: bash
+        run: |
+          docs_only=false
+          if git fetch --no-tags --depth=1 origin main; then
+            files=$(git diff --name-only --no-renames FETCH_HEAD HEAD || true)
+            if [[ -n "$files" ]] && ! grep -qvE '\.md$' <<< "$files"; then
+              docs_only=true
+            fi
+          fi
+          echo "docs_only=$docs_only" >> "$GITHUB_OUTPUT"
+          echo "Markdown-only: $docs_only"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      # Also needed for docs-only checks: dprint runs rustfmt on every .rs file.
+      - name: Set up Rust
+        run: rustup toolchain install && rustc --version
+
+      - name: Restore Nx cache
+        id: nx-cache
+        if: steps.scope.outputs.docs_only != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.nx
+          key: nx-ts-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            nx-ts-${{ runner.os }}-
+
+      # WORKAROUND: see the rust job.
       - name: Adopt Nx cache
         if: steps.nx-cache.outputs.cache-matched-key != ''
         run: |
@@ -104,21 +179,25 @@ jobs:
           path: ~/.cache/dprint
           key: dprint-${{ runner.os }}-${{ hashFiles('dprint.json') }}
 
-      # WHY: no Bun cache. A cold install takes about 5s, less than restoring or
-      # saving the ~300 MB cache.
       - name: Install
         run: bun install --frozen-lockfile
 
-      - name: Check push
+      # The ts and format tracks of check:push, run together; both run to the end.
+      - name: Check ts and format
         env:
           DOCS_ONLY: ${{ steps.scope.outputs.docs_only }}
         run: |
+          bun run check:format & format=$!
+          ts=0
           if [[ "$DOCS_ONLY" == "true" ]]; then
-            bun run check:format
-            bun run check:docs
+            bun run check:docs || ts=$?
           else
-            bun run check:push
+            bun run check:ts || ts=$?
           fi
+          fmt=0
+          wait "$format" || fmt=$?
+          echo "ts: $ts, format: $fmt"
+          [[ "$ts" == 0 && "$fmt" == 0 ]]
 
       - name: Save Nx cache
         if: github.ref == 'refs/heads/main' && steps.scope.outputs.docs_only != 'true'
@@ -133,3 +212,19 @@ jobs:
         with:
           path: ~/.cache/dprint
           key: ${{ steps.dprint-cache.outputs.cache-primary-key }}
+
+  # INVARIANT: green only when both tracks succeeded. `always()` makes it report
+  # on a failed or cancelled track too, so the ruleset sees red instead of a
+  # skipped job.
+  checks:
+    needs: [rust, ts]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require both tracks
+        env:
+          RUST: ${{ needs.rust.result }}
+          TS: ${{ needs.ts.result }}
+        run: |
+          echo "rust: $RUST, ts: $TS"
+          [[ "$RUST" == success && "$TS" == success ]]

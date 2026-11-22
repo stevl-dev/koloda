@@ -146,7 +146,8 @@ Gate: the branch lands only if all of these hold.
   including its `Spec:`, `Review:`, and `Change rounds:` lines (§File).
   It adds to `tasks/DEFERRED.md` an entry for each item the task leaves undone (§Deferred work).
 - Every commit carries `Task: <slug>`.
-- The tip is green: its CI job `checks` (`bun run check:push`) passed.
+- The tip is green: its CI job `checks` passed.
+  It gathers the `rust` and `ts` jobs, which run the tracks of `bun run check:push`.
   No e2e suite run is required (`agents/VERIFY.md` §Suite runs).
 
 Check the order with `git log origin/main..HEAD --oneline` before landing.
