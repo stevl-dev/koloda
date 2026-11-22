@@ -80,7 +80,7 @@ Out:
   Commit: Store hand-written model IDs on OpenAI-compatible profiles
   Depends on: none
 
-- [ ] 2. List an OpenAI-compatible profile's models from its hand-written IDs
+- [x] 2. List an OpenAI-compatible profile's models from its hand-written IDs
   Goal: when an OpenAI-compatible profile has a non-empty `modelIds`, its model list is those IDs,
   and `<base URL>/models` is never requested.
   Each becomes a model whose name is its ID, with context length 0 and no reasoning levels,

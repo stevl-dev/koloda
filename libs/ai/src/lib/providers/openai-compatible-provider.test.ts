@@ -87,6 +87,36 @@ describe("openaiCompatibleProviderEntry.fetchModels", () => {
   });
 });
 
+describe("openaiCompatibleProviderEntry hand-written model IDs", () => {
+  const secrets = {
+    provider: "openaiCompatible" as const,
+    baseUrl: "http://localhost:8000/v1",
+    apiKey: null,
+    modelIds: ["qwen3-32b", "llama-3.1-8b"],
+  };
+  const listed = [
+    { id: "llama-3.1-8b", name: "llama-3.1-8b", context_length: 0 },
+    { id: "qwen3-32b", name: "qwen3-32b", context_length: 0 },
+  ];
+
+  it("lists them sorted, without requesting /models", async () => {
+    const fetchMock = stubModelsResponse({ data: [] });
+
+    await expect(openaiCompatibleProviderEntry.fetchModels(secrets)).resolves.toEqual(listed);
+    await expect(openaiCompatibleProviderEntry.createClient(secrets).listModels()).resolves.toEqual(listed);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("requests /models when the list is empty", async () => {
+    const fetchMock = stubModelsResponse({ data: [{ id: "served-model" }] });
+
+    const models = await openaiCompatibleProviderEntry.fetchModels({ ...secrets, modelIds: [] });
+
+    expect(models.map((model) => model.id)).toEqual(["served-model"]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("openaiCompatibleProviderEntry custom headers", () => {
   const secrets = {
     provider: "openaiCompatible" as const,

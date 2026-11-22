@@ -7,9 +7,18 @@ import { fetchOpenAICompatibleModelsDetailed } from "./openai-compatible";
 
 type OpenaiCompatibleSecrets = Extract<AISecrets, { provider: "openaiCompatible" }>;
 
-type ResolvedSecrets = { baseUrl: string; apiKey?: string; headers?: Record<string, string> };
+type ResolvedSecrets = { baseUrl: string; apiKey?: string; headers?: Record<string, string>; modelIds: string[] };
 
-function fetchOpenaiCompatibleProviderModels({ baseUrl, apiKey, headers }: ResolvedSecrets): Promise<AIModel[]> {
+async function fetchOpenaiCompatibleProviderModels({
+  baseUrl,
+  apiKey,
+  headers,
+  modelIds,
+}: ResolvedSecrets): Promise<AIModel[]> {
+  // INVARIANT: a hand-written list replaces `/models`, since it serves servers that lack that endpoint.
+  if (modelIds.length > 0) {
+    return modelIds.map((id) => ({ id, name: id, context_length: 0 })).sort((a, b) => a.name.localeCompare(b.name));
+  }
   // WHY: joined like the SDK joins `/chat/completions` (one trailing slash dropped, the base's
   // path kept), so the list and chat always hit the same server prefix.
   return fetchOpenAICompatibleModelsDetailed(`${baseUrl.replace(/\/$/, "")}/models`, apiKey, headers);
@@ -22,6 +31,7 @@ function resolveSecrets(secrets: OpenaiCompatibleSecrets): ResolvedSecrets {
     baseUrl: secrets.baseUrl,
     apiKey: isPresentApiKey(secrets.apiKey) ? secrets.apiKey : undefined,
     ...(headers.length > 0 ? { headers: Object.fromEntries(headers) } : {}),
+    modelIds: secrets.modelIds ?? [],
   };
 }
 
