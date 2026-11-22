@@ -45,11 +45,11 @@ export function settingsRowSchema<T extends SettingsName>(name: T) {
 }
 
 export type SetSettingsData<T extends SettingsName> = {
-  name: SettingsName;
+  name: T;
   content: SettingsContent<T>;
 };
 
 export type PatchSettingsData<T extends SettingsName> = {
-  name: SettingsName;
+  name: T;
   content: DeepPartial<SettingsContent<T>>;
 };

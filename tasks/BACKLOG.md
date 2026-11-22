@@ -49,10 +49,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
 
-- `settings-data-typed-name`: Type `name` as `T` in `SetSettingsData` and `PatchSettingsData`.
-  Area: `libs/settings`
-  Why: A call can pair one setting's name with another's content, since `T` is never inferred from `name`.
-
 - `ai-plain-http-key-warning`: Warn in settings when an API key goes to a plain-http base URL on another host.
   Area: `crates/koloda`, `libs/settings-react`
   Why: The key travels unencrypted; refusing such URLs would break Ollama and similar servers on the local network.
