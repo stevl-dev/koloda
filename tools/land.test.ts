@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkState, landingBranch, taskGateProblems, taskSlug, waitStep } from "./land.ts";
+import { checkState, landingBranch, taskGateProblems, taskSlug, waitStep, workflowRunUrl } from "./land.ts";
 import type { CheckRun, TaskCommit } from "./land.ts";
 
 const sha = "0123456789abcdef0123456789abcdef01234567";
@@ -212,6 +212,16 @@ describe("checkState", () => {
   });
 });
 
+describe("workflowRunUrl", () => {
+  it("finds the CI run and ignores other workflows", () => {
+    const ci = { name: "CI", html_url: "https://github.com/o/r/actions/runs/2" };
+    const docker = { name: "Docker", html_url: "https://github.com/o/r/actions/runs/3" };
+    expect(workflowRunUrl([docker, ci])).toBe(ci.html_url);
+    expect(workflowRunUrl([docker])).toBeNull();
+    expect(workflowRunUrl([])).toBeNull();
+  });
+});
+
 describe("waitStep", () => {
   const minute = 60_000;
   const pending = { kind: "pending", url: "https://github.com/o/r/runs/1" } as const;
@@ -221,12 +231,12 @@ describe("waitStep", () => {
     expect(waitStep({ kind: "missing" }, true, 4 * minute, sha)).toEqual({ kind: "wait" });
   });
 
-  it("fails when no run appeared within three minutes, failed polls included", () => {
+  it("fails when no CI run appeared within three minutes, failed polls included", () => {
     expect(waitStep(null, false, 3 * minute, sha)).toEqual({ kind: "wait" });
     for (const state of [null, { kind: "missing" } as const]) {
       expect(waitStep(state, false, 3 * minute + 1, sha)).toEqual({
         kind: "fail",
-        message: expect.stringContaining("no `checks` run appeared for 01234567"),
+        message: expect.stringContaining("no CI run appeared for 01234567"),
       });
     }
   });

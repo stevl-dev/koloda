@@ -2,6 +2,8 @@
  * Lands the current branch on main.
  * Rebases onto origin/main, pushes the branch, waits for the CI job `checks`
  * on that exact commit, then fast-forwards main to it.
+ * A push that starts no CI run within three minutes fails; `checks` itself starts only once the
+ * `rust` and `ts` jobs end, so its own appearance is not timed.
  * The main ruleset only accepts commits whose `checks` passed, so this is the way onto main.
  * If main moves while checks run, it rebases and checks again. It never force-pushes main.
  *
@@ -18,6 +20,7 @@ import { spawnSync } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const CHECK = "checks";
+const WORKFLOW = "CI";
 const MAX_ATTEMPTS = 5;
 const POLL_MS = 10_000;
 const START_TIMEOUT_MS = 3 * 60_000;
@@ -28,6 +31,11 @@ export type CheckRun = {
   conclusion: string | null;
   html_url: string;
   app: { slug: string } | null;
+};
+
+export type WorkflowRun = {
+  name: string;
+  html_url: string;
 };
 
 type CheckState =
@@ -62,6 +70,12 @@ export function checkState(runs: readonly CheckRun[]): CheckState {
   return { kind: "failure", url, conclusion: checkRun.conclusion ?? "unknown" };
 }
 
+// WHY: the start timeout waits for the workflow run, not for `checks`: that job starts only after `rust` and `ts` end,
+// minutes into the run.
+export function workflowRunUrl(runs: readonly WorkflowRun[]): string | null {
+  return runs.find((item) => item.name === WORKFLOW)?.html_url ?? null;
+}
+
 // WHY: a null state is a failed poll. It is unknown, not missing: once a run was seen, an API error must not end the
 // wait as "no run appeared".
 export function waitStep(state: CheckState | null, hasSeenRun: boolean, waited: number, sha: string): WaitStep {
@@ -70,7 +84,7 @@ export function waitStep(state: CheckState | null, hasSeenRun: boolean, waited: 
     return { kind: "fail", message: `\`${CHECK}\` ${state.conclusion} on ${short(sha)}: ${state.url}` };
   }
   if (!hasSeenRun && waited > START_TIMEOUT_MS) {
-    return { kind: "fail", message: `no \`${CHECK}\` run appeared for ${short(sha)}; check the CI workflow triggers.` };
+    return { kind: "fail", message: `no ${WORKFLOW} run appeared for ${short(sha)}; check the CI workflow triggers.` };
   }
   if (waited > RUN_TIMEOUT_MS) {
     return { kind: "fail", message: `\`${CHECK}\` still running on ${short(sha)} after 30 minutes.` };
@@ -196,6 +210,15 @@ function fetchCheckRuns(sha: string): CheckRun[] | null {
   return JSON.parse(result.stdout) as CheckRun[];
 }
 
+function fetchWorkflowRuns(sha: string): WorkflowRun[] | null {
+  const result = run("gh", ["api", `repos/{owner}/{repo}/actions/runs?head_sha=${sha}`, "--jq", ".workflow_runs"]);
+  if (result.code !== 0) {
+    console.error(`land: gh api failed, retrying: ${result.stderr}`);
+    return null;
+  }
+  return JSON.parse(result.stdout) as WorkflowRun[];
+}
+
 function taskCommits(): TaskCommit[] {
   return git("rev-list", "--reverse", "origin/main..HEAD")
     .split("\n")
@@ -224,15 +247,25 @@ function checkTaskGate(current: string | null): void {
 
 async function waitForChecks(sha: string): Promise<void> {
   const started = Date.now();
+  let hasSeenRun = false;
   let shown = false;
   for (;;) {
+    if (!hasSeenRun) {
+      const workflowRuns = fetchWorkflowRuns(sha);
+      const url = workflowRuns == null ? null : workflowRunUrl(workflowRuns);
+      if (url != null) {
+        console.log(`land: ${WORKFLOW} is running on ${short(sha)}: ${url}`);
+        hasSeenRun = true;
+      }
+    }
     const runs = fetchCheckRuns(sha);
     const state = runs == null ? null : checkState(runs);
     if (state != null && state.kind !== "missing" && !shown) {
       console.log(`land: waiting for \`${CHECK}\` on ${short(sha)}: ${state.url}`);
       shown = true;
+      hasSeenRun = true;
     }
-    const step = waitStep(state, shown, Date.now() - started, sha);
+    const step = waitStep(state, hasSeenRun, Date.now() - started, sha);
     if (step.kind === "done") return;
     if (step.kind === "fail") fail(step.message);
     await sleep(POLL_MS);
