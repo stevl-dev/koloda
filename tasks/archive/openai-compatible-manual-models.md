@@ -1,6 +1,6 @@
 # OpenAI-compatible manual model IDs
 
-Status: ready
+Status: done
 Guides: agents/ADD-AI-PROVIDER.md, docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/RUST.md, agents/TESTING.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -127,3 +127,24 @@ Out:
   Depends on: 1, 2
 
 ## Outcome
+
+An OpenAI-compatible profile can now list its model IDs by hand, on both hosts.
+The list is stored with the profile's base URL and header names, outside the keyring,
+and the redacted public read keeps it.
+TS and Rust check it with one rule (no empty ID, no surrounding whitespace or line break, no repeat, case-sensitive),
+pinned by the `model-ids` table in `crates/koloda/tests/cases/ai-secrets.json`.
+A profile with a list uses it as its model list and never requests `/models`;
+each model is named by its ID, with no context length and no effort picker.
+The add and edit dialogs have a "Model IDs" text area, one ID per line; clearing it on edit removes the list.
+
+One change from item 3's Goal: the one-ID-per-line guidance is the text area's placeholder, not a description,
+because the `@koloda/ui` text field has no description slot and adding one was outside the item's constraints.
+`agents/ADD-AI-PROVIDER.md` now lists the `modelIds` field type.
+
+`bun run check:push` passed on the item 3 tip.
+Manual verify on web and desktop (item 3) was left to the human.
+No e2e cases were added or changed.
+
+Spec: docs/specs/AI-PROVIDERS.md
+Review: not run — self-review only, none
+Change rounds: 0
