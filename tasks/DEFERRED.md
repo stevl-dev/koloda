@@ -115,47 +115,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: found in the device checks after the task was archived; the human deferred the cause to a later
   session. Until it is fixed, "a review on either device shows on the other" is not met.
 
-## crates/koloda
-
-- Improvement, Should-fix: no test cancels an optimizer run during training or scoring.
-  Evidence: at `1c0661bb`, `crates/koloda/tests/domain/optimizer_tests.rs:287` tests only an abort set before the run.
-  Kind: skipped
-  Source: `tasks/archive/algorithms-audit.md`, finding A9
-  Deferred because: the `fsrs` crate has no hook between batches.
-  A test would order the abort by sleeping or polling, which `agents/TESTING.md` bans.
-
-- Improvement, Later: the desktop today-totals repo test reads the real clock.
-  Evidence: at `1c0661bb`, `get_todays_review_totals` reaches `Local::now()`
-  (`crates/koloda/src/domain/learning_day.rs:43`), and
-  `crates/koloda/tests/integration/reviews_integration_tests.rs:13-15` takes the current timestamp.
-  Kind: skipped
-  Source: `tasks/archive/learning-settings-audit.md`, finding LS5
-  Deferred because: the domain DST suites on both hosts pin the window.
-  A repo clock seam only for this test is not worth it.
-
-- Risk, Should-fix: no test interleaves a template update with a write between the lock check and the update.
-  Evidence: at `1c0661bb`, the check runs inside the transaction (`crates/koloda/src/repo/templates.rs:233-246`,
-  web twin `libs/db-sqlite/src/lib/templates.ts`), and `templates_integration_tests.rs` has no interleaving case.
-  Kind: skipped
-  Source: `tasks/archive/templates-audit.md`, finding T4
-  Deferred because: neither repo has a seam between its read and its write, and the delete twin has no such test either.
-
-- Handoff: sync apply stores card content as received, without dropping keys outside the card's template.
-  Evidence: at `1c0661bb`, local writes keep only template fields
-  (`template_content`, `crates/koloda/src/repo/cards.rs:233`, `:291`; CARDS.md §Card Content).
-  Apply writes the payload's content as is (`crates/koloda/src/repo/sync/apply.rs:704`).
-  Kind: handoff
-  Source: `tasks/archive/cards-audit.md`
-  Deferred because: the cards audit changed only local writes.
-
-- Handoff: `join_mode` reads a file with sync state but no settings rows as blank.
-  Evidence: at `1c0661bb`, `crates/koloda/src/repo/sync/join.rs:81-83` returns `JoinMode::Blank` when `settings`
-  is empty.
-  Real files always have settings.
-  Kind: handoff
-  Source: `tasks/archive/sync-audit-fixes.md`
-  Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
-
 ## crates/koloda-server
 
 - Handoff: ending a lease scans `versions` once per lease.
