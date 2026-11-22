@@ -2,7 +2,7 @@ const IPV4 = /^(\d+)\.(\d+)\.\d+\.\d+$/;
 
 // WHY: the URL parser has already normalized the host (IPv4 to dotted decimal, IPv6 to compressed lowercase in
 // brackets), so plain string and prefix checks are enough. These hosts are this machine or a private network,
-// where self-hosted servers such as Ollama are reached over plain http on purpose (AI-PROVIDERS.md §Secrets).
+// where self-hosted servers such as Ollama are reached over plain http on purpose (AI-PROVIDERS.md §Plain HTTP).
 function isLocalOrPrivateHost(hostname: string): boolean {
   if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) return true;
 
