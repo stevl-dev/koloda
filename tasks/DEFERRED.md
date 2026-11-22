@@ -381,16 +381,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: `@koloda/app` has no motion union to type it with, its sibling atoms are untyped too, and moving it
   to `core-react` has no concrete payoff.
 
-## tools
-
-- Improvement, Later: the land gate does not check the e2e suite-run record.
-  Evidence: at `59aa04f0`, `taskGateProblems` (`tools/land.ts:87`) checks the trailers, the Add and Archive commits,
-  `Status: done`, and the three fixed Outcome lines.
-  `agents/TASKS.md` (§Done) also requires the record when a plan item adds or edits e2e cases.
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 17
-  Deferred because: the record has no fixed line shape yet, and few tasks have needed it.
-
 ## Repository
 
 - Handoff: both hosts build the assistant's tool data source by hand.

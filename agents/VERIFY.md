@@ -24,16 +24,16 @@ Do not treat either suite as the agent's proof loop.
 
 ## Suite runs
 
-A task whose plan items add or edit e2e cases archives only after a run of both suites is recorded in it.
-A typecheck proves the specs compile, not that they pass.
-Cases closed as "typechecked only" once let a red suite sit on `main` until the next deploy.
+While the project is early, no task waits on an e2e suite run.
+Making both suites green before Archive slowed tasks down too much.
+Neither Archive nor the landing gate asks for a run.
 
-- An item that adds or edits e2e cases keeps "Done when: typecheck" for its own commit.
-  The task's suite run is what closes it.
-- The human runs the suites, or asks the agent to run that command in the session.
-  Agents still do not run a suite unasked (§Agents must not).
-- The run is on the tip being archived, and Outcome records it: date, commit, passed and failed counts per suite.
-  `agents/TASKS.md` (§Done) makes it part of the landing gate.
+- An item that adds or edits e2e cases is done when the specs typecheck.
+  A typecheck proves the specs compile, not that they pass.
+- A red suite can sit on `main` until the human runs it and chooses when to fix it.
+- The web suite still gates the GitHub Pages deploy (`docs/decisions/APP-ROLES.md`).
+  A red web suite holds the demo at its last published build.
+- Bring back a recorded suite run per task when the desktop app ships to users.
 
 ## Agents must not
 
@@ -113,4 +113,3 @@ Do not include it for pure domain or schema work that has no UI surface.
 - [ ] User-visible change → Manual verify with concrete paths, or an explicit none
 - [ ] Paths are actions and observables, not module names
 - [ ] Desktop listed only when the diff needs it
-- [ ] Task adds or edits e2e cases → a run of both suites recorded before Archive
