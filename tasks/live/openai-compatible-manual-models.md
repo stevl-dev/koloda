@@ -53,7 +53,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Store hand-written model IDs on OpenAI-compatible profiles
+- [x] 1. Store hand-written model IDs on OpenAI-compatible profiles
   Goal: an OpenAI-compatible profile's secrets take an optional `modelIds` list of strings on both hosts.
   Absent and empty mean the same thing: no hand-written list.
   - Rule: each ID is non-empty, equals its trimmed form, and holds no CR, LF, or NUL; no ID repeats (case-sensitive).

@@ -255,7 +255,7 @@ describe("web AI profile read path", () => {
     store.clear();
   });
 
-  it("redacts stored keys and header values, and keeps local base URLs and header names", async () => {
+  it("redacts stored keys and header values, and keeps local base URLs, header names, and model IDs", async () => {
     // Twin: test_redacted_profile_keeps_empty_allowlist_and_null_key (crates/koloda/tests/domain/ai_serde_tests.rs).
     // WHY: the stored hasSecrets is stale on purpose; the public flag must come from the stored key.
     seedAiSettings([
@@ -277,6 +277,7 @@ describe("web AI profile read path", () => {
           provider: "openaiCompatible",
           baseUrl: "http://localhost:8000/v1",
           headers: { "X-Team": "team-1" },
+          modelIds: ["llama-3.1-8b"],
         },
         hasSecrets: false,
         createdAt: CREATED_AT,
@@ -294,6 +295,7 @@ describe("web AI profile read path", () => {
           baseUrl: "http://localhost:8000/v1",
           apiKey: null,
           headers: { "X-Team": null },
+          modelIds: ["llama-3.1-8b"],
         },
         hasSecrets: false,
       },

@@ -110,6 +110,9 @@ pub enum AISecrets {
         // left out is removed (`resolve_header_values`).
         #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
         headers: BTreeMap<String, Option<String>>,
+        // INVARIANT: empty means no hand-written list, so the model list comes from `<base URL>/models`.
+        #[serde(rename = "modelIds", default, skip_serializing_if = "Vec::is_empty")]
+        model_ids: Vec<String>,
     },
 }
 
@@ -212,6 +215,22 @@ impl AISecrets {
         Ok(())
     }
 
+    // WHY: twin of `modelIdsValidation` in `libs/ai/src/lib/provider-secrets.ts`. An ID is kept as written, so it must
+    // already be trimmed; IDs compare case-sensitively, as servers do. Boundary cases: `tests/cases/ai-secrets.json`.
+    fn validate_model_ids(model_ids: &[String], provider: &str) -> Result<(), AppError> {
+        let mut seen = HashSet::new();
+        for id in model_ids {
+            let is_valid = !id.is_empty() && id.trim() == id && !id.contains(['\r', '\n', '\0']);
+            if !is_valid || !seen.insert(id.as_str()) {
+                return Err(AppError::new(
+                    error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_MODEL_IDS,
+                    Some(format!("{provider}.modelIds.{id} is invalid")),
+                ));
+            }
+        }
+        Ok(())
+    }
+
     fn invalid_header(provider: &str, name: &str) -> AppError {
         AppError::new(
             error_codes::VALIDATION_SETTINGS_AI_PROVIDERS_HEADERS,
@@ -284,9 +303,15 @@ impl AISecrets {
             AISecrets::Anthropic { api_key } => Self::require_api_key_for_input(api_key, "anthropic"),
             AISecrets::Xai { api_key } => Self::require_api_key_for_input(api_key, "xai"),
             AISecrets::Vercel { api_key } => Self::require_api_key_for_input(api_key, "vercel"),
-            AISecrets::OpenaiCompatible { base_url, headers, .. } => {
+            AISecrets::OpenaiCompatible {
+                base_url,
+                headers,
+                model_ids,
+                ..
+            } => {
                 Self::require_base_url(base_url, "openaiCompatible")?;
-                Self::validate_headers(headers, "openaiCompatible")
+                Self::validate_headers(headers, "openaiCompatible")?;
+                Self::validate_model_ids(model_ids, "openaiCompatible")
             }
         }
     }
@@ -317,11 +342,13 @@ impl AISecrets {
                 base_url,
                 api_key,
                 headers,
+                model_ids,
             } => {
                 Self::require_base_url(base_url, "openaiCompatible")?;
                 Self::reject_stored_api_key(api_key, "openaiCompatible")?;
                 Self::validate_headers(headers, "openaiCompatible")?;
-                Self::reject_stored_header_values(headers, "openaiCompatible")
+                Self::reject_stored_header_values(headers, "openaiCompatible")?;
+                Self::validate_model_ids(model_ids, "openaiCompatible")
             }
         }
     }

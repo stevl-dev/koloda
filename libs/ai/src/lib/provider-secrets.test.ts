@@ -214,6 +214,15 @@ describe("provider-secrets", () => {
     expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
   });
 
+  it.each(readRuleCases("ai-secrets.json", "model-ids"))("openaiCompatible model IDs: $name", (ruleCase) => {
+    const result = aiSecretsInputValidation.safeParse({
+      provider: "openaiCompatible",
+      baseUrl: "http://localhost:8000/v1",
+      modelIds: ruleCase.input,
+    });
+    expect(observeRuleOutcome(ruleCase, result, () => undefined)).toEqual(ruleCase.expect);
+  });
+
   it("keeps stored header values on the wire schema", () => {
     const secrets = { provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1", headers: { "X-Team": "t" } };
     expect(aiSecretsValidation.parse(secrets)).toEqual(secrets);

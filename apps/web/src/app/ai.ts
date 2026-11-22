@@ -42,6 +42,7 @@ function redactSecrets(secrets: AISecrets): AISecrets {
         ...(secrets.headers
           ? { headers: Object.fromEntries(Object.keys(secrets.headers).map((name) => [name, null])) }
           : {}),
+        ...(secrets.modelIds ? { modelIds: secrets.modelIds } : {}),
       };
   }
 }

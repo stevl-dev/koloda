@@ -626,6 +626,10 @@ msgid "validation.settings-ai.providers.id"
 msgstr "Идентификатор профиля обязателен"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.providers.model-ids"
+msgstr "Некорректный ID модели: каждый ID должен быть уникальным, занимать одну строку и не начинаться или заканчиваться пробелом"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-hotkeys.duplicate-keys"
 msgstr "Есть конфликтующие комбинации клавиш"
 

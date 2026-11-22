@@ -98,10 +98,16 @@ fn redact_secrets(secrets: &AISecrets) -> AISecrets {
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: None },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: None },
         AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: None },
-        AISecrets::OpenaiCompatible { base_url, headers, .. } => AISecrets::OpenaiCompatible {
+        AISecrets::OpenaiCompatible {
+            base_url,
+            headers,
+            model_ids,
+            ..
+        } => AISecrets::OpenaiCompatible {
             base_url: base_url.clone(),
             api_key: None,
             headers: redact_header_values(headers),
+            model_ids: model_ids.clone(),
         },
     }
 }
@@ -125,10 +131,16 @@ fn reconstruct_secrets(secrets: &AISecrets, api_key: String) -> AISecrets {
         AISecrets::Anthropic { .. } => AISecrets::Anthropic { api_key: Some(api_key) },
         AISecrets::Xai { .. } => AISecrets::Xai { api_key: Some(api_key) },
         AISecrets::Vercel { .. } => AISecrets::Vercel { api_key: Some(api_key) },
-        AISecrets::OpenaiCompatible { base_url, headers, .. } => AISecrets::OpenaiCompatible {
+        AISecrets::OpenaiCompatible {
+            base_url,
+            headers,
+            model_ids,
+            ..
+        } => AISecrets::OpenaiCompatible {
             base_url: base_url.clone(),
             api_key: Some(api_key),
             headers: headers.clone(),
+            model_ids: model_ids.clone(),
         },
     }
 }

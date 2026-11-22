@@ -73,6 +73,7 @@ fn test_openai_compatible_key_is_optional_on_input_and_rejected_in_storage() {
         base_url: "http://localhost:8000/v1".to_string(),
         api_key: None,
         headers: BTreeMap::new(),
+        model_ids: Vec::new(),
     };
     keyless.validate_for_input().unwrap();
 
@@ -80,6 +81,7 @@ fn test_openai_compatible_key_is_optional_on_input_and_rejected_in_storage() {
         base_url: "http://localhost:8000/v1".to_string(),
         api_key: Some("sk-local".to_string()),
         headers: BTreeMap::new(),
+        model_ids: Vec::new(),
     };
     keyed.validate_for_input().unwrap();
     assert_eq!(
@@ -100,11 +102,39 @@ fn test_openai_compatible_header_rules() {
 }
 
 #[test]
+fn test_openai_compatible_model_id_rules() {
+    for case in rule_cases("ai-secrets.json", "model-ids") {
+        let payload =
+            json!({ "provider": "openaiCompatible", "baseUrl": "http://localhost:8000/v1", "modelIds": case.input });
+        let outcome =
+            case.parse_and_observe::<AISecrets>(payload, |secrets| secrets.validate_for_input().map(|()| Value::Null));
+        assert_eq!(outcome, case.expect, "{}", case.name);
+    }
+}
+
+// WHY: the rule cases run on input; storage must hold the same rule, since every `ai` write revalidates stored profiles.
+#[test]
+fn test_openai_compatible_storage_rejects_a_repeated_model_id() {
+    let secrets = AISecrets::OpenaiCompatible {
+        base_url: "http://localhost:8000/v1".to_string(),
+        api_key: None,
+        headers: BTreeMap::new(),
+        model_ids: vec!["gpt-4o".to_string(), "gpt-4o".to_string()],
+    };
+
+    assert_eq!(
+        secrets.validate_for_storage().unwrap_err().code,
+        "validation.settings-ai.providers.model-ids"
+    );
+}
+
+#[test]
 fn test_openai_compatible_storage_keeps_header_names_and_rejects_values() {
     let named = |value: Option<&str>| AISecrets::OpenaiCompatible {
         base_url: "http://localhost:8000/v1".to_string(),
         api_key: None,
         headers: BTreeMap::from([("X-Api-Key".to_string(), value.map(str::to_string))]),
+        model_ids: Vec::new(),
     };
 
     named(None).validate_for_storage().unwrap();
@@ -165,6 +195,7 @@ const LOCAL_PROVIDER_ROWS: &[LocalProviderRow] = &[
         base_url,
         api_key: None,
         headers: BTreeMap::new(),
+        model_ids: Vec::new(),
     }),
 ];
 
@@ -545,6 +576,7 @@ fn ai_secrets_provider_tags_match_ts_registry() {
             base_url: "http://localhost".into(),
             api_key: None,
             headers: BTreeMap::new(),
+            model_ids: Vec::new(),
         },
     ];
 

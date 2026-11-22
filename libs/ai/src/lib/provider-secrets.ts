@@ -29,6 +29,24 @@ export function isValidHeaderValue(value: string): boolean {
   return value.trim() !== "" && !["\r", "\n", "\0"].some((c) => value.includes(c));
 }
 
+// WHY: twin of `validate_model_ids` in `crates/koloda/src/domain/ai.rs`; boundary cases are in
+// `crates/koloda/tests/cases/ai-secrets.json`. An ID is kept as written, so it must already be trimmed;
+// IDs compare case-sensitively, as servers do.
+export function isValidModelId(id: string): boolean {
+  return id !== "" && id.trim() === id && !["\r", "\n", "\0"].some((c) => id.includes(c));
+}
+
+const modelIdsValidation = z.array(z.string()).superRefine((ids, ctx) => {
+  const seen = new Set<string>();
+  for (const [index, id] of ids.entries()) {
+    if (!isValidModelId(id) || seen.has(id)) {
+      ctx.addIssue({ code: "custom", message: "validation.settings-ai.providers.model-ids", path: [index] });
+      return;
+    }
+    seen.add(id);
+  }
+});
+
 // WHY: a `null` value keeps the value stored under that name.
 const inputHeaders = z.record(z.string(), z.string().nullable()).superRefine((headers, ctx) => {
   const seen = new Set<string>();
@@ -69,6 +87,7 @@ export const openaiCompatibleSecretsValidation = z.object({
   baseUrl: z.url("validation.settings-ai.providers.base-url"),
   apiKey: optionalApiKey,
   headers: inputHeaders.optional(),
+  modelIds: modelIdsValidation.optional(),
 });
 
 export const opencodeGoSecretsValidation = z.object({
@@ -129,6 +148,7 @@ export const aiSecretsValidation = z.discriminatedUnion("provider", [
     apiKey: storedApiKey.optional(),
     // WHY: values are `null` in public reads and in desktop settings; web stores them here.
     headers: z.record(z.string(), z.string().nullable()).optional(),
+    modelIds: modelIdsValidation.optional(),
   }),
 ]);
 

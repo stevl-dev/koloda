@@ -626,6 +626,10 @@ msgid "validation.settings-ai.providers.id"
 msgstr "Profile id is required"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.providers.model-ids"
+msgstr "Invalid model ID: each ID must be unique, one line, and have no spaces at either end"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-hotkeys.duplicate-keys"
 msgstr "There are conflicting hotkeys"
 

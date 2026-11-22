@@ -305,6 +305,7 @@ fn openai_compatible_secrets(api_key: Option<&str>, headers: &[(&str, Option<&st
             .iter()
             .map(|(name, value)| (name.to_string(), value.map(str::to_string)))
             .collect(),
+        model_ids: Vec::new(),
     }
 }
 
@@ -316,22 +317,22 @@ fn stored_headers(secrets: AISecrets) -> Option<BTreeMap<String, Option<String>>
 }
 
 #[test]
-fn openai_compatible_profile_round_trips_base_url_key_and_headers() {
+fn openai_compatible_profile_round_trips_base_url_key_headers_and_model_ids() {
     let (guard, data) = test_store::setup_shared();
     let db = test_db();
+    let model_ids = vec!["llama-3.1-8b".to_string(), "qwen3-32b".to_string()];
 
-    let added = ai::add_ai_profile(
-        &db,
-        None,
-        openai_compatible_secrets(
-            Some("sk-local"),
-            &[
-                ("X-Team", Some("team-1")),
-                ("cf-aig-authorization", Some("Bearer gateway")),
-            ],
-        ),
-    )
-    .expect("profile should be added");
+    let mut secrets = openai_compatible_secrets(
+        Some("sk-local"),
+        &[
+            ("X-Team", Some("team-1")),
+            ("cf-aig-authorization", Some("Bearer gateway")),
+        ],
+    );
+    if let AISecrets::OpenaiCompatible { model_ids: ids, .. } = &mut secrets {
+        ids.clone_from(&model_ids);
+    }
+    let added = ai::add_ai_profile(&db, None, secrets).expect("profile should be added");
 
     let settings = settings::get_settings(&db, SettingsName::Ai)
         .expect("should read settings")
@@ -357,8 +358,10 @@ fn openai_compatible_profile_round_trips_base_url_key_and_headers() {
             base_url,
             api_key,
             headers,
+            model_ids: public_model_ids,
         } => {
             assert_eq!(base_url, "http://localhost:8000/v1");
+            assert_eq!(public_model_ids, &model_ids, "public read keeps the model IDs");
             assert!(api_key.is_none(), "public read must redact apiKey");
             assert_eq!(
                 headers,
@@ -373,6 +376,10 @@ fn openai_compatible_profile_round_trips_base_url_key_and_headers() {
         .expect("should load secrets")
         .expect("secrets should exist");
     assert_eq!(stored.api_key(), Some("sk-local"));
+    assert!(
+        matches!(&stored, AISecrets::OpenaiCompatible { model_ids: ids, .. } if ids == &model_ids),
+        "loaded secrets keep the model IDs"
+    );
     assert_eq!(
         stored_headers(stored),
         Some(BTreeMap::from([
