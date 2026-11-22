@@ -40,7 +40,3 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 - `assistant-write-settings`: Let the assistant write settings directly.
   Area: `libs/ai`
   Why: The settings tool only reads, so the assistant cannot act on a settings request.
-
-- `ai-plain-http-key-warning`: Warn in settings when an API key goes to a plain-http base URL on another host.
-  Area: `crates/koloda`, `libs/settings-react`
-  Why: The key travels unencrypted; refusing such URLs would break Ollama and similar servers on the local network.
