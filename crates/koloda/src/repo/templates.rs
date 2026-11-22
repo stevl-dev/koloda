@@ -201,21 +201,32 @@ pub(crate) fn create_payload(conn: &Connection, id: &str) -> Result<Payload, App
     .map_err(AppError::from)
 }
 
+/// A template's columns as stored, for comparing a save against them; `content` is the raw JSON text.
 struct StoredTemplate {
     title: String,
     notes: Option<String>,
     content: String,
+    is_locked: bool,
 }
 
 fn select_stored_template(conn: &Connection, id: &str) -> Result<Option<StoredTemplate>, AppError> {
     conn.query_row(
-        "SELECT title, notes, content FROM templates WHERE id = ?1",
+        r#"
+        SELECT
+            t.title,
+            t.notes,
+            t.content,
+            EXISTS(SELECT 1 FROM cards c WHERE c.template_id = ?1 LIMIT 1) as is_locked
+        FROM templates t
+        WHERE t.id = ?1
+        "#,
         params![id],
         |row| {
             Ok(StoredTemplate {
                 title: row.get(0)?,
                 notes: row.get(1)?,
                 content: row.get(2)?,
+                is_locked: row.get(3)?,
             })
         },
     )
@@ -234,21 +245,19 @@ pub fn update_template(db: &Database, data: UpdateTemplateData) -> Result<Templa
         // WHY: the lock check runs inside the transaction (twin of web `updateTemplate`, like `delete_template` below)
         // so a card the sync worker applies on its own connection cannot land between the check and the update.
         db.with_transaction(|tx| {
-            let original = select_template(tx, &data.id)?.ok_or_else(|| {
+            let stored = select_stored_template(tx, &data.id)?.ok_or_else(|| {
                 AppError::new(
                     error_codes::NOT_FOUND_TEMPLATES_UPDATE_TEMPLATE,
                     Some(format!("Template id: {}", data.id)),
                 )
             })?;
-            if original.is_locked {
-                data.values.validate(Some(&original.content))?;
+            if stored.is_locked {
+                let original: TemplateContent = serde_json::from_str(&stored.content)?;
+                data.values.validate(Some(&original))?;
             } else {
                 data.values.validate(None)?;
             }
 
-            let Some(stored) = select_stored_template(tx, &data.id)? else {
-                return Ok(());
-            };
             let title_changed = stored.title != title;
             let notes_changed = stored.notes != notes;
             let content_changed = stored.content != content;

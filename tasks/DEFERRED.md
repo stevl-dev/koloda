@@ -140,13 +140,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/templates-audit.md`, finding T4
   Deferred because: neither repo has a seam between its read and its write, and the delete twin has no such test either.
 
-- Handoff: Rust `update_template` keeps a `let Some(stored) = stored else` branch that cannot run.
-  Evidence: at `1c0661bb`, `crates/koloda/src/repo/templates.rs:248` reads the row that `:236` already found in the same
-  transaction, so the `else` at `:263-265` is unreachable.
-  Kind: handoff
-  Source: `tasks/archive/templates-audit.md`
-  Deferred because: seen in passing and not planned.
-
 - Handoff: sync apply stores card content as received, without dropping keys outside the card's template.
   Evidence: at `1c0661bb`, local writes keep only template fields
   (`template_content`, `crates/koloda/src/repo/cards.rs:233`, `:291`; CARDS.md §Card Content).
