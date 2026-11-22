@@ -394,11 +394,3 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/assistant-conversation-list-audit.md`, finding 10
   Deferred because: no cost is measured, and a summary column should cover `hasTurns` and `isUnread` at once, with a
   schema change on both hosts (question 3).
-
-- Risk, Should-fix: repository behavior that is not validation is kept equal on both hosts only by a written rule.
-  Evidence: at `8c285ffa`, the twin rule is `agents/TESTING.md:79-86`, and the shared cases in
-  `crates/koloda/tests/cases/` cover validation rules only.
-  `tasks/archive/host-desync-audit.md` fixed seven such disagreements (HD1–HD7).
-  Kind: skipped
-  Source: `tasks/archive/agentic-setup-audit.md`, finding 5
-  Deferred because: it needs shared repository cases on both hosts, a task of its own.

@@ -40,3 +40,8 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 - `assistant-write-settings`: Let the assistant write settings directly.
   Area: `libs/ai`
   Why: The settings tool only reads, so the assistant cannot act on a settings request.
+
+- `shared-repository-cases`: Run repository behavior cases, written once as data, on both hosts' test suites.
+  Area: `crates/koloda`, `libs/db-sqlite`
+  Why: Repository twins stay equal only by a written rule, and audits keep finding host-only defects.
+  Brief: `tasks/backlog/shared-repository-cases.md`
