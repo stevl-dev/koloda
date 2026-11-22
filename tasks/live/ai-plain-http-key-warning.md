@@ -1,6 +1,6 @@
 # Plain-http API key warning
 
-Status: draft
+Status: ready
 Guides: docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -43,8 +43,8 @@ Out:
   `localhost` and names ending in `.localhost`, `127.0.0.0/8`, `[::1]`,
   `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, and names ending in `.local`.
   Every other host warns, judged on the host the URL parser normalizes.
-- [ ] 2. Do the IPv6 and link-local twins of those ranges count as private too:
-  `fc00::/7`, `fe80::/10`, and `169.254.0.0/16`? — open; the plan assumes yes.
+- [x] 2. Do the IPv6 and link-local twins of those ranges count as private too:
+  `fc00::/7`, `fe80::/10`, and `169.254.0.0/16`? — yes; the human approved the plan that assumed it.
 - [x] 3. Where does it show? — below the base URL in the add and edit dialogs while it applies,
   and as a note on the profile's row in AI settings, as the browser note shows, so saved profiles are flagged too.
 - [x] 4. What counts as sending a secret? — an API key, stored or typed, or any custom header row.
