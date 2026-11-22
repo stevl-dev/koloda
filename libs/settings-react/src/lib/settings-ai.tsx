@@ -8,6 +8,14 @@ import { SettingsAIAddProfile } from "./settings-ai-add-profile";
 import { SettingsAIDeleteProfile } from "./settings-ai-delete-profile";
 import { SettingsAIEditProfile } from "./settings-ai-edit-profile";
 import { SettingsAIProfileModels } from "./settings-ai-profile-models";
+import { isPlainHttpToPublicHost } from "./ai-providers/plain-http-base-url";
+
+// WHY: the public profile redacts keys and header values, so the stored flag and the header names stand for them.
+function isStoredSecretSentOverPlainHttp({ secrets, hasSecrets }: AIProfile) {
+  if (!("baseUrl" in secrets)) return false;
+  const hasHeaders = secrets.provider === "openaiCompatible" && Object.keys(secrets.headers ?? {}).length > 0;
+  return (hasSecrets || hasHeaders) && isPlainHttpToPublicHost(secrets.baseUrl);
+}
 
 export type SettingsAiProps = { data: AIProfile[] };
 
@@ -50,6 +58,9 @@ export function SettingsAi({ data }: SettingsAiProps) {
                 </div>
                 {isUnsupported ? (
                   <p className="fg-level-3 text-sm">{_(msg`settings.ai.browser-cors.profile`)}</p>
+                ) : null}
+                {isStoredSecretSentOverPlainHttp(profile) ? (
+                  <p className="fg-level-3 text-sm">{_(msg`settings.ai.profiles.plain-http.profile`)}</p>
                 ) : null}
               </div>
             );

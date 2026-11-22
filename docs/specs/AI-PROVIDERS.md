@@ -197,6 +197,7 @@ These hosts count as this machine or a private network:
 - `169.254.0.0/16`, and IPv6 unique local and link-local addresses
 
 The warning never blocks saving.
+After saving, the profile's row in AI settings keeps a note while the same conditions hold for the stored profile.
 
 ## Models
 

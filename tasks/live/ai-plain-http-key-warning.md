@@ -80,7 +80,7 @@ Out:
   Commit: Warn in the AI profile dialogs when a key would go over plain http
   Depends on: none
 
-- [ ] 2. Flag saved profiles whose key goes over plain http
+- [x] 2. Flag saved profiles whose key goes over plain http
   Goal: a profile row in AI settings (`libs/settings-react/src/lib/settings-ai.tsx`) shows a note under the row,
   styled like the browser note, when its stored base URL fails item 1's check
   and it has a stored API key or at least one custom header name.
