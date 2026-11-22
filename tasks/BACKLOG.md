@@ -49,10 +49,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
 
-- `app-deep-merge-readme`: Describe `deepMerge` in `libs/app/README.md` as the test fixtures' merge.
-  Area: `libs/app`
-  Why: The human kept it in `@koloda/app`, and the README lists it without saying it serves test fixtures.
-
 - `settings-data-typed-name`: Type `name` as `T` in `SetSettingsData` and `PatchSettingsData`.
   Area: `libs/settings`
   Why: A call can pair one setting's name with another's content, since `T` is never inferred from `name`.

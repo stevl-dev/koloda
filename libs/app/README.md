@@ -27,6 +27,8 @@ Desktop mirrors live in `crates/koloda/src/domain/` (settings, hotkeys, conversa
 - Timestamps: `timestamp-format.ts` — date and time formatting by the interface settings' formats and locale.
 - Numbers: `number-format.ts` — number formatting by locale, with a fixed count of fraction digits.
 - Shared shapes: `db.ts` (`Timestamps`), `utility.ts` (`DeepPartial`, `deepMerge`, form helpers, id helpers).
+  `deepMerge` is the test fixtures' merge: it overlays overrides on a fixture's base.
+  It is not the settings patch merge, which follows RFC 7386 to match desktop.
 - Sync: `sync.ts` — `SyncStatus` as the desktop sync engine reports it; only the desktop syncs.
 
 Subpath exports `@koloda/app/titles` and `@koloda/app/db` skip the root barrel.
