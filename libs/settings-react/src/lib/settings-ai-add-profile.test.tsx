@@ -233,4 +233,55 @@ describe("SettingsAIAddProfile", () => {
       expect(addProfile).not.toHaveBeenCalled();
     });
   });
+
+  describe("plain-http key warning", () => {
+    const warning = () => screen.queryByText("settings.ai.profiles.plain-http.warning");
+
+    async function openOllama(baseUrl: string, apiKey: string) {
+      renderDialog(["ollama"]);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.add" }));
+      });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.base-url.label"), { target: { value: baseUrl } });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.api-key.label"), { target: { value: apiKey } });
+    }
+
+    it("shows for a key sent over http to a public host, and still submits", async () => {
+      await openOllama("http://192.0.2.10:11434", "ollama-key");
+      expect(warning()).not.toBeNull();
+
+      await act(async () => {
+        fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
+      });
+
+      expect(addProfile).toHaveBeenCalledWith({
+        title: undefined,
+        secrets: { provider: "ollama", baseUrl: "http://192.0.2.10:11434", apiKey: "ollama-key" },
+      });
+    });
+
+    it.each([
+      { case: "without a key", baseUrl: "http://192.0.2.10:11434", apiKey: "" },
+      { case: "over https", baseUrl: "https://192.0.2.10:11434", apiKey: "ollama-key" },
+      { case: "to a private network address", baseUrl: "http://192.168.1.10:11434", apiKey: "ollama-key" },
+    ])("stays hidden $case", async ({ baseUrl, apiKey }) => {
+      await openOllama(baseUrl, apiKey);
+      expect(warning()).toBeNull();
+    });
+
+    it("shows for a custom header sent without a key", async () => {
+      renderDialog(["openaiCompatible"]);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.add" }));
+      });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.base-url.label"), {
+        target: { value: "http://203.0.113.5/v1" },
+      });
+      expect(warning()).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.profiles.headers.add" }));
+
+      expect(warning()).not.toBeNull();
+    });
+  });
 });

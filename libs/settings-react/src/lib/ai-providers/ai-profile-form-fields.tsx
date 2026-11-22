@@ -4,8 +4,14 @@ import { Label, TextField } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import type { ReactNode } from "react";
-import type { AIProfileHeaderRow, AIProfileProviderField, AIProfileTextFieldType } from "./ai-provider-form-config";
+import type {
+  AIProfileFormValues,
+  AIProfileHeaderRow,
+  AIProfileProviderField,
+  AIProfileTextFieldType,
+} from "./ai-provider-form-config";
 import { AIProfileHeadersField } from "./ai-profile-headers-field";
+import { AIProfilePlainHttpWarning } from "./ai-profile-plain-http-warning";
 import { AIProfileSecretsField } from "./ai-profile-secrets-field";
 
 type FieldApi = {
@@ -32,6 +38,10 @@ export type AIProfileForm = {
       children: (field: FieldApi) => ReactNode;
     }): ReactNode;
   };
+  Subscribe: <TSelected>(props: {
+    selector: (state: { values: AIProfileFormValues }) => TSelected;
+    children: (selected: TSelected) => ReactNode;
+  }) => ReactNode;
 };
 
 export type AIProfileFormFieldsProps = {
@@ -97,6 +107,9 @@ export function AIProfileFormFields({ form, fields, mode, hasSecrets = false }: 
               <Label>{label}</Label>
               <TextField.Input placeholder={placeholder} />
               {!field.state.meta.isValid && <TextField.Errors errors={field.state.meta.errors as ZodIssue[]} />}
+              {fieldConfig.type === "baseUrl" && (
+                <AIProfilePlainHttpWarning form={form} hasStoredKey={mode === "edit" && hasSecrets} />
+              )}
             </TextField>
           );
         }}

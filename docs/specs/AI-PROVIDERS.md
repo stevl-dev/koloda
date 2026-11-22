@@ -177,6 +177,27 @@ A title that is empty or contains only whitespace is stored as absent (no title)
 Whitespace-only secret values are treated as absent, so they never overwrite a stored key.
 If form validation passes but save rejects, the error is shown in the form.
 
+### Plain HTTP
+
+A base URL may use plain `http`, so a key sent to it travels unencrypted.
+The app does not refuse such a URL: Ollama, LM Studio, and similar servers on the local network are reached that way.
+
+Instead, the add and edit dialogs warn below the base URL while all of these hold:
+
+- The base URL uses `http`.
+- Its host is neither this machine nor a private network address.
+- The profile sends a secret: an API key, typed or already stored, or any custom header.
+
+These hosts count as this machine or a private network:
+
+- `localhost`, and names ending in `.localhost`
+- names ending in `.local`
+- `127.0.0.0/8`, and the IPv6 loopback address
+- `10.0.0.0/8`, `172.16.0.0/12`, and `192.168.0.0/16`
+- `169.254.0.0/16`, and IPv6 unique local and link-local addresses
+
+The warning never blocks saving.
+
 ## Models
 
 Each provider exposes a list of models fetched at runtime.

@@ -196,6 +196,10 @@ msgstr "Model IDs"
 msgid "settings.ai.profiles.model-ids.placeholder"
 msgstr "One ID per line. Leave empty to load the list from the server"
 
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-plain-http-warning.tsx
+msgid "settings.ai.profiles.plain-http.warning"
+msgstr "The API key and headers will be sent unencrypted over http. Use https, or an address on this computer or your local network."
+
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Provider"

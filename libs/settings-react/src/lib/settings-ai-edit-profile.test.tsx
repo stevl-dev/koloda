@@ -269,4 +269,26 @@ describe("SettingsAIEditProfile", () => {
       });
     });
   });
+
+  describe("plain-http key warning", () => {
+    const ollamaProfile = (hasSecrets: boolean): AIProfile => ({
+      id: "00000000-0000-4000-8000-000000000004",
+      title: "Ollama on the office server",
+      secrets: { provider: "ollama", baseUrl: "http://192.0.2.10:11434", apiKey: null },
+      hasSecrets,
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+
+    it.each([
+      { case: "shows for a stored key left as it is", hasSecrets: true, isShown: true },
+      { case: "stays hidden without a stored key", hasSecrets: false, isShown: false },
+    ])("$case", async ({ hasSecrets, isShown }) => {
+      renderDialog(ollamaProfile(hasSecrets));
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.trigger" }));
+      });
+
+      expect(screen.queryByText("settings.ai.profiles.plain-http.warning") !== null).toBe(isShown);
+    });
+  });
 });

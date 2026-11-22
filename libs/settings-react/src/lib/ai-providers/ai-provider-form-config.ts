@@ -31,7 +31,7 @@ export type AIProfileProviderField =
 /** A stored row's value is masked: left blank, it keeps the value stored under that name. */
 export type AIProfileHeaderRow = { name: string; value: string; isStored: boolean };
 
-type AIProfileFormValues = {
+export type AIProfileFormValues = {
   title?: string;
   baseUrl?: string;
   apiKey?: string;

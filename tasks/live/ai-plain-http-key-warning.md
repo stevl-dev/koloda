@@ -53,7 +53,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Warn in the profile dialogs when a key would go over plain http
+- [x] 1. Warn in the profile dialogs when a key would go over plain http
   Goal: the add and edit dialogs for Ollama, LM Studio, and OpenAI-compatible profiles show a warning
   below the base URL field while all of these hold:
   - the base URL parses, its scheme is `http:`, and its host is not exempt (open questions 1 and 2);
