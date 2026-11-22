@@ -41,10 +41,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: The settings tool only reads, so the assistant cannot act on a settings request.
 
-- `openai-compatible-manual-models`: Let an OpenAI-compatible profile list model IDs by hand.
-  Area: `libs/ai`
-  Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.
-
 - `ai-plain-http-key-warning`: Warn in settings when an API key goes to a plain-http base URL on another host.
   Area: `crates/koloda`, `libs/settings-react`
   Why: The key travels unencrypted; refusing such URLs would break Ollama and similar servers on the local network.
