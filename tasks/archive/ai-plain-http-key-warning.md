@@ -1,6 +1,6 @@
 # Plain-http API key warning
 
-Status: ready
+Status: done
 Guides: docs/specs/AI-PROVIDERS.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/CSS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -100,3 +100,23 @@ Out:
   Depends on: 1
 
 ## Outcome
+
+AI settings now warns when an Ollama, LM Studio, or OpenAI-compatible profile would send a secret over plain http
+to a host that is neither this machine nor a private network address.
+A secret is an API key, typed or stored, or any custom header.
+The add and edit dialogs show the warning below the base URL while it applies, and it never blocks saving.
+A profile's row in AI settings keeps a note while its stored base URL, key, or header names meet the same conditions.
+The host check reads the host the URL parser normalized.
+Exempt: `localhost` and `*.localhost`, `*.local`, `127.0.0.0/8`, `::1`, `10/8`, `172.16/12`, `192.168/16`,
+`169.254/16`, `fc00::/7`, and `fe80::/10`.
+It lives in `libs/settings-react`; `crates/koloda` did not change.
+
+Self-review found one slip, fixed in its own commit: the host check's comment cited `§Secrets`
+instead of the new `§Plain HTTP`.
+`bun run check:push` passed on the tip before Archive.
+Manual verify on web and desktop (item 2) was left to the human.
+No e2e cases were added or changed.
+
+Spec: docs/specs/AI-PROVIDERS.md
+Review: not run — self-review only, nit 1 (FUNCTIONAL-SPECIFICATIONS §Formatting)
+Change rounds: 0
