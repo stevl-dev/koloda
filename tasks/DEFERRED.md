@@ -255,17 +255,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/media-audit.md`
   Deferred because: left for the mobile phase (`sync-transport` Out).
 
-## libs/ai-react
-
-- Handoff: `ai-model-profile-picker.test.tsx` failed on the first `check:ts` after a change, five times.
-  Evidence: at `1c0661bb`, `libs/ai-react/src/lib/ai-model-profile-picker.test.tsx`; it passed on every rerun,
-  in isolation, and on clean `main`.
-  At `46cf0e63`, `tasks/archive/ai-ai-react-tests-audit.md` (finding 9) replaced the first test's two empty `act`
-  flushes with waits for the model loads; the failure was never reproduced, so the fix is unconfirmed.
-  Kind: handoff
-  Source: `tasks/archive/entity-forms-architecture.md`
-  Deferred because: seen during the task, which does not touch the test; drop it if no later run fails.
-
 ## libs/app-react
 
 - Risk, Later: the boot language is activated twice, once by each host store and once by `AppProviders`.

@@ -39,9 +39,6 @@ testem.log
 
 .env*
 *.local.env
-# The root .env is committed for shared non-secret Nx flags.
-# .env.local, .local.env, and nested .env* files stay ignored.
-!/.env
 
 # System Files
 .DS_Store

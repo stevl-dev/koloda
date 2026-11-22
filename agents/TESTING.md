@@ -230,8 +230,11 @@ A full `bun run test:libs` is not required to justify a unit change.
 Lib Vitest configs use `pool: "threads"` and `maxWorkers: 2`.
 All twelve lib test targets set `cache: true`.
 `nx.json` `parallel` is `8`, so `test:libs` runs at most eight of those projects at once.
-Root `.env` sets `NX_ISOLATE_PLUGINS=false`.
-The file is committed, allowed by a `.gitignore` negation.
+Nx plugin isolation stays on, its default; do not set `NX_ISOLATE_PLUGINS=false`.
+It costs a worker per plugin on each Nx call, about 0.2–1.8s.
+Without it, `@nx/vite/plugin` resolves the Vite configs in the Nx process while it builds the project graph,
+and Vite sets `NODE_ENV=development` there.
+Every task of that run inherits it: Vitest keeps it instead of `test`, and `vite build` ships React's development build.
 
 Ten of twelve libs set `isolate: false`, so their files share one worker's module registry.
 A file-level `vi.mock(...)` there rewrites that import for the whole worker.
