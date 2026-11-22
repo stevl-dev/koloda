@@ -110,13 +110,6 @@ function toToolErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-async function readDefaultAlgorithmId(db: AiIpcDb): Promise<string> {
-  const learning = await db.getSettings({ name: "learning" });
-  const algorithmId = learning?.content.defaults.algorithm;
-  if (!algorithmId) throw new Error("Algorithm not found: default");
-  return algorithmId;
-}
-
 function createChatToolExecutor(db: AiIpcDb) {
   return createAssistantToolExecutor({
     getDecks: () => db.getDecks(),
@@ -124,19 +117,10 @@ function createChatToolExecutor(db: AiIpcDb) {
     getAlgorithms: () => db.getAlgorithms(),
     getCards: ({ deckId }) => db.getCards({ deckId }),
     getCardCounts: async () => Object.fromEntries((await db.getCardCounts()).map((row) => [row.deckId, row.count])),
-    getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
     getSettings: async (name) => (await db.getSettings({ name }))?.content ?? null,
     getAIProfiles: () => db.getAiProfiles(),
     getAppInfo: async () => ({ app: "desktop", syncStatus: await db.syncStatus() }),
-    createDeck: async ({ title, templateId, algorithmId }) => {
-      const deck = await db.addDeck({ title, templateId, algorithmId });
-      return {
-        id: deck.id,
-        title: deck.title,
-        templateId: deck.templateId,
-        algorithmId: deck.algorithmId,
-      };
-    },
+    createDeck: (input) => db.addDeck(input),
   });
 }
 

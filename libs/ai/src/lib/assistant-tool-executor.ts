@@ -1,3 +1,4 @@
+import type { ResolvedLearningSettings } from "@koloda/app";
 import {
   ASSISTANT_TOOL_SPECS,
   shapeAddDeckOutput,
@@ -31,8 +32,6 @@ type AssistantToolDataSource = {
   getAlgorithms: () => Promise<AssistantToolAlgorithm[]>;
   getCards: (params: { deckId: string }) => Promise<AssistantToolCard[]>;
   getCardCounts: () => Promise<Record<string, number>>;
-  /** App default algorithm — the same id manual deck create stores when the user does not pick one. */
-  getDefaultAlgorithmId: () => Promise<string>;
   /**
    * One settings row's content as the host's own read validates it, or null when no row is stored.
    * A present row that fails validation rejects.
@@ -43,7 +42,8 @@ type AssistantToolDataSource = {
   /** The host kind, and on the desktop the sync status; the web demo has no sync (`SYNC.md` (§Platform Availability)). */
   getAppInfo: () => Promise<AssistantToolAppInfo>;
   /**
-   * Persist an empty deck. Called only after template and algorithm resolution succeed.
+   * Persist an empty deck and return the stored row; the executor shapes the output.
+   * Called only after template and algorithm resolution succeed.
    * `algorithmId` is always explicit here; the host does not invent cards.
    */
   createDeck: (input: {
@@ -59,6 +59,15 @@ type AssistantToolDataSource = {
  * `createDeck`. It does not create cards or set a propose write target.
  */
 export function createAssistantToolExecutor(data: AssistantToolDataSource): AssistantToolExecutor {
+  // WHY: the same default that manual deck create stores when the user does not pick one.
+  // `getSettings` returns the content its host read validated, so only the row's absence is checked here.
+  const readDefaultAlgorithmId = async () => {
+    const learning = (await data.getSettings("learning")) as ResolvedLearningSettings | null;
+    const algorithmId = learning?.defaults.algorithm;
+    if (!algorithmId) throw new Error("Algorithm not found: default");
+    return algorithmId;
+  };
+
   const resolveDeckTemplate = async (deckId: string) => {
     const [decks, templates] = await Promise.all([data.getDecks(), data.getTemplates()]);
     const deck = decks.find((row) => row.id === deckId);
@@ -136,7 +145,7 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
       const templates = await data.getTemplates();
       const template = templates.find((row) => row.id === templateId);
       if (template == null) throw new Error(`Template not found: ${templateId}`);
-      const algorithmId = requestedAlgorithmId ?? (await data.getDefaultAlgorithmId());
+      const algorithmId = requestedAlgorithmId ?? (await readDefaultAlgorithmId());
       const algorithms = await data.getAlgorithms();
       if (!algorithms.some((row) => row.id === algorithmId)) {
         throw new Error(`Algorithm not found: ${algorithmId}`);

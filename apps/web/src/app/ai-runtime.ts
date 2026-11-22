@@ -13,13 +13,6 @@ import {
 } from "@koloda/db-sqlite";
 import { getAIProfiles, loadAIProfileSecrets } from "./ai";
 
-async function readDefaultAlgorithmId(db: DB): Promise<string> {
-  const learning = await getSettings(db, "learning");
-  const algorithmId = learning?.content.defaults.algorithm;
-  if (!algorithmId) throw new Error("Algorithm not found: default");
-  return algorithmId;
-}
-
 function createWebToolExecutor(db: DB) {
   return createAssistantToolExecutor({
     getDecks: () => getDecks(db),
@@ -27,19 +20,10 @@ function createWebToolExecutor(db: DB) {
     getAlgorithms: () => getAlgorithms(db),
     getCards: ({ deckId }) => getCards(db, { deckId }),
     getCardCounts: () => getCardCounts(db),
-    getDefaultAlgorithmId: () => readDefaultAlgorithmId(db),
     getSettings: async (name) => (await getSettings(db, name))?.content ?? null,
     getAIProfiles: () => getAIProfiles(db),
     getAppInfo: async () => ({ app: "web" }),
-    createDeck: async ({ title, templateId, algorithmId }) => {
-      const deck = await addDeck(db, { title, templateId, algorithmId });
-      return {
-        id: deck.id,
-        title: deck.title,
-        templateId: deck.templateId,
-        algorithmId: deck.algorithmId,
-      };
-    },
+    createDeck: (input) => addDeck(db, input),
   });
 }
 

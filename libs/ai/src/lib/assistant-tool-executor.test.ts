@@ -42,7 +42,7 @@ const algorithm = {
 };
 
 const settingsRows = {
-  learning: { dailyLimits: { new: 20 }, dayStartsAt: "04:00" },
+  learning: { defaults: { algorithm: ALGORITHM_ID }, dailyLimits: { new: 20 }, dayStartsAt: "04:00" },
   interface: { language: "ru", scheme: "dark" },
   hotkeys: { grades: { again: ["1"] } },
   ai: null,
@@ -62,7 +62,6 @@ function makeDataSource(overrides: Partial<Parameters<typeof createAssistantTool
       },
     ],
     getCardCounts: async () => ({ [DECK_ID]: 3 }),
-    getDefaultAlgorithmId: async () => ALGORITHM_ID,
     createDeck: async () => {
       throw new Error("createDeck should not be called");
     },
@@ -177,11 +176,11 @@ describe("createAssistantToolExecutor", () => {
       id: createdId,
       ...input,
     }));
-    const getDefaultAlgorithmId = vi.fn(async () => ALGORITHM_ID);
+    const getSettings = vi.fn(async () => settingsRows.learning);
     const executor = createAssistantToolExecutor(
       makeDataSource({
         createDeck,
-        getDefaultAlgorithmId,
+        getSettings,
         getCards,
       }),
     );
@@ -206,7 +205,7 @@ describe("createAssistantToolExecutor", () => {
       templateId: TEMPLATE_ID,
       algorithmId: ALGORITHM_ID,
     });
-    expect(getDefaultAlgorithmId).not.toHaveBeenCalled();
+    expect(getSettings).not.toHaveBeenCalled();
     expect(getCards).not.toHaveBeenCalled();
   });
 
@@ -239,27 +238,27 @@ describe("createAssistantToolExecutor", () => {
 
   it("add_deck does not create a deck when the template is missing", async () => {
     const createDeck = vi.fn();
-    const getDefaultAlgorithmId = vi.fn(async () => ALGORITHM_ID);
-    const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getDefaultAlgorithmId }));
+    const getSettings = vi.fn(async () => settingsRows.learning);
+    const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getSettings }));
 
     await expect(executor("add_deck", { title: "Spanish", templateId: MISSING_TEMPLATE_ID })).rejects.toThrow(
       `Template not found: ${MISSING_TEMPLATE_ID}`,
     );
     expect(createDeck).not.toHaveBeenCalled();
-    expect(getDefaultAlgorithmId).not.toHaveBeenCalled();
+    expect(getSettings).not.toHaveBeenCalled();
   });
 
   it("add_deck does not create a deck when the requested algorithm is missing", async () => {
     const missingAlgorithmId = "01900000-0000-7000-8000-000000000032";
     const createDeck = vi.fn();
-    const getDefaultAlgorithmId = vi.fn(async () => ALGORITHM_ID);
-    const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getDefaultAlgorithmId }));
+    const getSettings = vi.fn(async () => settingsRows.learning);
+    const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getSettings }));
 
     await expect(
       executor("add_deck", { title: "Spanish", templateId: TEMPLATE_ID, algorithmId: missingAlgorithmId }),
     ).rejects.toThrow(`Algorithm not found: ${missingAlgorithmId}`);
     expect(createDeck).not.toHaveBeenCalled();
-    expect(getDefaultAlgorithmId).not.toHaveBeenCalled();
+    expect(getSettings).not.toHaveBeenCalled();
   });
 
   it("add_deck stores the default algorithm id when algorithmId is omitted", async () => {
@@ -288,12 +287,24 @@ describe("createAssistantToolExecutor", () => {
     const missingAlgorithmId = "01900000-0000-7000-8000-000000000032";
     const createDeck = vi.fn();
     const executor = createAssistantToolExecutor(
-      makeDataSource({ createDeck, getDefaultAlgorithmId: async () => missingAlgorithmId }),
+      makeDataSource({ createDeck, getSettings: async () => ({ defaults: { algorithm: missingAlgorithmId } }) }),
     );
 
     await expect(executor("add_deck", { title: "Spanish", templateId: TEMPLATE_ID })).rejects.toThrow(
       `Algorithm not found: ${missingAlgorithmId}`,
     );
+    expect(createDeck).not.toHaveBeenCalled();
+  });
+
+  it("add_deck does not create a deck when no learning settings are stored", async () => {
+    const createDeck = vi.fn();
+    const getSettings = vi.fn(async () => null);
+    const executor = createAssistantToolExecutor(makeDataSource({ createDeck, getSettings }));
+
+    await expect(executor("add_deck", { title: "Spanish", templateId: TEMPLATE_ID })).rejects.toThrow(
+      "Algorithm not found: default",
+    );
+    expect(getSettings.mock.calls).toEqual([["learning"]]);
     expect(createDeck).not.toHaveBeenCalled();
   });
 

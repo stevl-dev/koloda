@@ -383,12 +383,6 @@ Entries are grouped under one heading per package directory.
 
 ## Repository
 
-- Handoff: both hosts build the assistant's tool data source by hand.
-  Evidence: at `467d8b36`, `apps/web/src/app/ai-runtime.ts` and `apps/electron/src/ai-ipc.ts` each assemble it.
-  Kind: handoff
-  Source: `tasks/archive/assistant-chat-runs-architecture.md`
-  Deferred because: the architecture review left it for a later review of the AI providers.
-
 - Waste, Medium: the per-crate Rust test targets could run as one `cargo test --workspace`.
   Evidence: at `1c0661bb`, `package.json:15` (`test:rust`) runs `koloda`, `koloda-sync-proto`, `koloda-server`, and
   `koloda-sync` as separate Nx targets.

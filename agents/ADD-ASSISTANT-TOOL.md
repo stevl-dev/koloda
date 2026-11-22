@@ -28,7 +28,7 @@ Pick one before editing code.
    - First successful write target wins for the run.
 
 3. **Direct write** (like `add_deck`):
-   - Named host mutation (`createDeck`, and `getDefaultAlgorithmId` when the caller omits the algorithm).
+   - Named host mutation (`createDeck`, which returns the stored row; the executor shapes the output).
    - Writes immediately after title, template, and algorithm validate. A failed validation leaves no row.
    - Does not invent cards and does not set a propose write target.
    - Undo is the existing product action (the user deletes the deck the same way as one they created by hand).
@@ -132,6 +132,8 @@ Shaping and budgets stay in `@koloda/ai`.
 - Forward `onToolEvent` on the existing AI stream channel.
 
 If `AssistantToolDataSource` gains a method, update both binders in the same change.
+A binder only adapts the host's call shape.
+Logic both hosts would repeat, such as reading a default out of settings, goes in the executor.
 
 ### 5. Wire names on the chat request
 
@@ -175,7 +177,8 @@ Follow `add_deck`:
 - Validate template and algorithm before calling the host write.
   A missing template, a missing requested algorithm,
   or a missing default algorithm fails the call and does not create a deck.
-- When the caller omits the algorithm, store `getDefaultAlgorithmId()`, the same default as manual deck create.
+- When the caller omits the algorithm, store the learning settings' default algorithm,
+  the same default as manual deck create; the executor reads it through `getSettings("learning")`.
 - Do not map the result onto run cards or write targets.
 - On recorded success, refresh the kinds the write changed, as the hand-created mutation does
   (`docs/decisions/CACHE-REFRESH.md`).
