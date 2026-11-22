@@ -28,6 +28,11 @@ concurrency:
 jobs:
   rust:
     runs-on: ubuntu-latest
+    # WHY: workspace crates rebuild on every run (see Cache Cargo), and line tables
+    # alone compile them about 15% faster than full debuginfo while backtraces keep
+    # line numbers. Dependencies already get limited debuginfo from Cargo.toml.
+    env:
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -372,13 +372,6 @@ Entries are grouped under one heading per package directory.
 
 ## Repository
 
-- Size, Low–Medium: `CARGO_PROFILE_DEV_DEBUG=line-tables-only` for workspace crates in CI.
-  Evidence: at `1c0661bb`, `Cargo.toml:12-13` gives dependencies `debug = 1`; workspace crates keep full debuginfo, and
-  `.github/workflows/ci.yml` does not set the variable.
-  Kind: skipped
-  Source: `tasks/archive/ci-audit.md`, finding 4
-  Deferred because: unmeasured.
-
 - Improvement, Later: the desktop command path restates the data command list in eight files.
   Evidence: at `99e4fdf2`, `updateTemplate` is written by hand in ten places; six of them, from
   `apps/electron-react/src/app/queries.ts:136` to `apps/electron/src-rust/src/lib.rs:482`, forward the same payload.
