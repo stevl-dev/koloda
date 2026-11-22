@@ -210,4 +210,63 @@ describe("SettingsAIEditProfile", () => {
       });
     });
   });
+
+  describe("OpenAI-compatible model IDs", () => {
+    const listedProfile: AIProfile = {
+      id: "00000000-0000-4000-8000-000000000003",
+      title: "No models endpoint",
+      secrets: {
+        provider: "openaiCompatible",
+        baseUrl: "http://localhost:8000/v1",
+        apiKey: null,
+        modelIds: ["llama-3.1-8b", "qwen3-32b"],
+      },
+      hasSecrets: false,
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    };
+
+    async function openEdit() {
+      renderDialog(listedProfile);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.trigger" }));
+      });
+      return screen.getByLabelText("settings.ai.profiles.model-ids.label") as HTMLTextAreaElement;
+    }
+
+    async function submit() {
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.submit" }));
+      });
+    }
+
+    it("shows the stored IDs one per line and sends them back unchanged", async () => {
+      const field = await openEdit();
+      expect(field.value).toBe("llama-3.1-8b\nqwen3-32b");
+
+      await submit();
+
+      expect(updateProfile).toHaveBeenCalledWith({
+        id: listedProfile.id,
+        title: "No models endpoint",
+        secrets: {
+          provider: "openaiCompatible",
+          baseUrl: "http://localhost:8000/v1",
+          modelIds: ["llama-3.1-8b", "qwen3-32b"],
+        },
+      });
+    });
+
+    it("sends no list once the field is cleared", async () => {
+      const field = await openEdit();
+      fireEvent.change(field, { target: { value: "" } });
+
+      await submit();
+
+      expect(updateProfile).toHaveBeenCalledWith({
+        id: listedProfile.id,
+        title: "No models endpoint",
+        secrets: { provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1" },
+      });
+    });
+  });
 });

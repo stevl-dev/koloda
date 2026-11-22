@@ -3,6 +3,7 @@ import {
   anthropicSecretsValidation,
   isValidHeaderName,
   isValidHeaderValue,
+  isValidModelId,
   deepseekSecretsValidation,
   lmstudioSecretsValidation,
   openaiCompatibleSecretsValidation,
@@ -19,7 +20,7 @@ import type { AiProvider, AISecrets } from "@koloda/ai";
 import { z } from "zod";
 import type { ZodObject, ZodRawShape } from "zod";
 
-type AIProfileFieldType = "title" | "baseUrl" | "apiKey" | "headers";
+type AIProfileFieldType = "title" | "baseUrl" | "apiKey" | "headers" | "modelIds";
 
 export type AIProfileTextFieldType = Exclude<AIProfileFieldType, "headers">;
 
@@ -35,13 +36,14 @@ type AIProfileFormValues = {
   baseUrl?: string;
   apiKey?: string;
   headers?: AIProfileHeaderRow[];
+  modelIds?: string;
 };
 
 type AIProviderFormConfig = {
   fields: AIProfileProviderField[];
   schema: ZodObject<ZodRawShape>;
   toSecrets: (values: AIProfileFormValues) => AISecrets;
-  fromSecrets: (secrets: AISecrets) => Pick<AIProfileFormValues, "baseUrl" | "apiKey" | "headers">;
+  fromSecrets: (secrets: AISecrets) => Pick<AIProfileFormValues, "baseUrl" | "apiKey" | "headers" | "modelIds">;
 };
 
 function isKeptHeaderRow(row: AIProfileHeaderRow) {
@@ -64,6 +66,21 @@ const headerRowsValidation = z
       }
     });
   });
+
+function toModelIds(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+}
+
+// WHY: the form checks the lines it will send, so the rules are the secrets schema's (`isValidModelId` in @koloda/ai).
+const modelIdsTextValidation = z.string().superRefine((text, ctx) => {
+  const ids = toModelIds(text);
+  if (!ids.every(isValidModelId) || new Set(ids).size !== ids.length) {
+    ctx.addIssue({ code: "custom", message: "validation.settings-ai.providers.model-ids" });
+  }
+});
 
 const titleField: AIProfileProviderField = {
   type: "title",
@@ -145,13 +162,16 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
       { type: "baseUrl", isRequired: true, defaultValue: "" },
       { type: "apiKey", isRequired: false, defaultValue: "" },
       { type: "headers", isRequired: false },
+      { type: "modelIds", isRequired: false, defaultValue: "" },
     ],
     schema: openaiCompatibleSecretsValidation.extend({
       title: aiProfileValidation.shape.title,
       headers: headerRowsValidation,
+      modelIds: modelIdsTextValidation,
     }),
     toSecrets: (values) => {
       const rows = values.headers ?? [];
+      const modelIds = toModelIds(values.modelIds ?? "");
       return {
         provider: "openaiCompatible",
         baseUrl: values.baseUrl ?? "",
@@ -160,14 +180,17 @@ export const AI_PROVIDER_FORM_CONFIG: Record<AiProvider, AIProviderFormConfig> =
         ...(rows.length > 0
           ? { headers: Object.fromEntries(rows.map((row) => [row.name, isKeptHeaderRow(row) ? null : row.value])) }
           : {}),
+        // INVARIANT: an empty field sends no list, so clearing it on edit puts the profile back on `/models`.
+        ...(modelIds.length > 0 ? { modelIds } : {}),
       };
     },
     fromSecrets: (secrets) => {
-      if (secrets.provider !== "openaiCompatible") return { baseUrl: "", apiKey: "", headers: [] };
+      if (secrets.provider !== "openaiCompatible") return { baseUrl: "", apiKey: "", headers: [], modelIds: "" };
       return {
         baseUrl: secrets.baseUrl,
         apiKey: secrets.apiKey ?? "",
         headers: Object.keys(secrets.headers ?? {}).map((name) => ({ name, value: "", isStored: true })),
+        modelIds: (secrets.modelIds ?? []).join("\n"),
       };
     },
   },

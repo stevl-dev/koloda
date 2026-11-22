@@ -96,7 +96,7 @@ Out:
   Commit: List an OpenAI-compatible profile's models from its hand-written IDs
   Depends on: 1
 
-- [ ] 3. Add a model IDs field to the OpenAI-compatible profile form
+- [x] 3. Add a model IDs field to the OpenAI-compatible profile form
   Goal: the add and edit dialogs for an OpenAI-compatible profile show an optional "Model IDs" text area
   after the custom headers.
   Its description says to write one ID per line, and that an empty field loads the list from the server.

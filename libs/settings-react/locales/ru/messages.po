@@ -188,6 +188,14 @@ msgstr "Удалить заголовок {rowNumber}"
 msgid "settings.ai.profiles.headers.value.{rowNumber}"
 msgstr "Значение заголовка {rowNumber}"
 
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+msgid "settings.ai.profiles.model-ids.label"
+msgstr "ID моделей"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+msgid "settings.ai.profiles.model-ids.placeholder"
+msgstr "По одному ID в строке. Оставьте пустым, чтобы загрузить список с сервера"
+
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Провайдер"

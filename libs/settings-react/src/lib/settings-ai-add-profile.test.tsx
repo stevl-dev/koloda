@@ -185,4 +185,52 @@ describe("SettingsAIAddProfile", () => {
       expect(addProfile).not.toHaveBeenCalled();
     });
   });
+
+  describe("OpenAI-compatible model IDs", () => {
+    async function openWithModelIds(text: string) {
+      renderDialog(["openaiCompatible"]);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "settings.ai.add" }));
+      });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.base-url.label"), {
+        target: { value: "http://localhost:8000/v1" },
+      });
+      fireEvent.change(screen.getByLabelText("settings.ai.profiles.model-ids.label"), { target: { value: text } });
+      await act(async () => {
+        fireEvent.click(await screen.findByRole("button", { name: "settings.ai.add.submit" }));
+      });
+    }
+
+    it("sends one trimmed ID per line, dropping blank lines", async () => {
+      await openWithModelIds("  llama-3.1-8b \n\n qwen3-32b\n   \n");
+
+      expect(addProfile).toHaveBeenCalledWith({
+        title: undefined,
+        secrets: {
+          provider: "openaiCompatible",
+          baseUrl: "http://localhost:8000/v1",
+          modelIds: ["llama-3.1-8b", "qwen3-32b"],
+        },
+      });
+    });
+
+    it("sends no list for a field of blank lines", async () => {
+      await openWithModelIds(" \n\n");
+
+      expect(addProfile).toHaveBeenCalledWith({
+        title: undefined,
+        secrets: { provider: "openaiCompatible", baseUrl: "http://localhost:8000/v1" },
+      });
+    });
+
+    it("reports a repeated ID on the field and does not submit", async () => {
+      await openWithModelIds("qwen3-32b\n qwen3-32b");
+
+      const [alert, ...others] = screen.getAllByRole("alert");
+      expect(others).toEqual([]);
+      expect(alert?.textContent).toBe("validation.settings-ai.providers.model-ids");
+      expect(alert?.parentElement?.contains(screen.getByLabelText("settings.ai.profiles.model-ids.label"))).toBe(true);
+      expect(addProfile).not.toHaveBeenCalled();
+    });
+  });
 });

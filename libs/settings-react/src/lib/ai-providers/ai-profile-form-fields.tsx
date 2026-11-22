@@ -47,6 +47,20 @@ export function AIProfileFormFields({ form, fields, mode, hasSecrets = false }: 
   return fields.map((fieldConfig) => {
     if (fieldConfig.type === "headers") return <AIProfileHeadersField key="headers" form={form} />;
 
+    if (fieldConfig.type === "modelIds") {
+      return (
+        <form.Field key="modelIds" name="modelIds">
+          {(field) => (
+            <TextField value={field.state.value ?? ""} onBlur={field.handleBlur} onChange={field.handleChange}>
+              <Label>{_(msg`settings.ai.profiles.model-ids.label`)}</Label>
+              <TextField.TextArea rows={3} placeholder={_(msg`settings.ai.profiles.model-ids.placeholder`)} />
+              {!field.state.meta.isValid && <TextField.Errors errors={field.state.meta.errors as ZodIssue[]} />}
+            </TextField>
+          )}
+        </form.Field>
+      );
+    }
+
     const placeholder =
       fieldConfig.type === "title"
         ? _(msg`settings.ai.profiles.title.placeholder`)

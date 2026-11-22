@@ -188,6 +188,14 @@ msgstr "Remove header {rowNumber}"
 msgid "settings.ai.profiles.headers.value.{rowNumber}"
 msgstr "Header {rowNumber} value"
 
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+msgid "settings.ai.profiles.model-ids.label"
+msgstr "Model IDs"
+
+#: ../../libs/settings-react/src/lib/ai-providers/ai-profile-form-fields.tsx
+msgid "settings.ai.profiles.model-ids.placeholder"
+msgstr "One ID per line. Leave empty to load the list from the server"
+
 #: ../../libs/settings-react/src/lib/settings-ai-add-profile.tsx
 msgid "settings.ai.profiles.provider.label"
 msgstr "Provider"

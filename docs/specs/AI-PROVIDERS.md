@@ -121,16 +121,19 @@ Secrets are the per-provider credentials stored inside a profile.
 - **Custom headers** — extra HTTP headers, each a name and a value, sent with every request to the provider.
   Only OpenAI-compatible profiles have them.
   They serve servers that do not authenticate with the API key, such as a gateway's own header.
+- **Model IDs** — the profile's own list of models, written one per line.
+  Only OpenAI-compatible profiles have them.
+  They serve servers that do not list their models; see §Fetching.
 
 A profile must have all required fields filled in before it can be used for a run.
 Optional API keys are stored only when provided.
-Custom headers are optional.
+Custom headers and model IDs are optional.
 
 ### Storage
 
 On desktop, API keys and custom header values are kept in the operating system's credential store:
 Windows Credential Manager, the macOS Keychain, or the Secret Service on Linux.
-The rest of the profile, including the base URL and the header names, is kept in the app's database.
+The rest of the profile, including the base URL, the header names, and the model IDs, is kept in the app's database.
 A stored key survives restarts.
 
 In the browser, API keys and header values are kept in the app's local database in that browser,
@@ -154,8 +157,11 @@ The form rejects:
 - A custom header name that is empty, has a space or other character not allowed in a header name,
   or repeats another name in the profile, ignoring case.
 - A custom header value that is empty, contains only whitespace, or spans more than one line.
+- A model ID that repeats another, comparing letter case exactly.
 
 Whitespace in an optional API key is treated as absent, not as a value.
+Each model ID line is trimmed, and blank lines are dropped.
+A field with no IDs left means the profile has no list.
 
 Validation runs on submit.
 Failed validation shows an error per field and prevents the request from being sent.
@@ -182,6 +188,10 @@ and whenever else the list is needed for that profile.
 The list is sorted alphabetically by display name.
 For a provider with a base URL, the list comes from that URL, path included, just as runs do.
 A base URL that runs cannot use fails the model list too.
+
+An OpenAI-compatible profile with model IDs uses them as its list, and the app does not ask the server.
+Each model is named by its ID, and its context size is unknown.
+Removing every model ID on edit makes the profile ask the server again.
 
 If the fetch fails or the response is malformed,
 the error is surfaced to the user in the model picker: the profile section shows an error row with a retry action.
@@ -236,7 +246,7 @@ The app learns the supported levels and the default for a model by a fixed rule 
 - Vercel AI Gateway reports the levels in its model list, without a default.
   The app offers only the levels it can send: none, minimal, low, medium, high, and xhigh.
 - An OpenAI-compatible server reports the levels and the default in its model list, when it reports them at all.
-  A model it lists without levels gets no picker.
+  A model it lists without levels gets no picker, and neither does a model from the profile's own model IDs.
 - LM Studio reports the levels and the default in the model's capabilities.
   A model without a valid reported default has no default level.
 - Ollama and Ollama Cloud report only whether a model can think.

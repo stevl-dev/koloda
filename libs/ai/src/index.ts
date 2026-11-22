@@ -23,6 +23,7 @@ export {
   isPresentApiKey,
   isValidHeaderName,
   isValidHeaderValue,
+  isValidModelId,
   lmstudioSecretsValidation,
   openaiCompatibleSecretsValidation,
   openaiSecretsValidation,
