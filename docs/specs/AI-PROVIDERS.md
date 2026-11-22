@@ -292,6 +292,13 @@ Provider-facing details that matter here:
   The UI and catalog still use the generic levels low, medium, high, and xhigh (fallback families default to medium).
   When sending a run, the app maps minimal and low to low; medium and high to high; xhigh, max, and ultra to max.
   Any other stored value is passed through unchanged.
+- Some Anthropic models send empty reasoning text unless the request asks for a summary of it.
+  These are the models that think adaptively but refuse a fixed thinking budget: Opus 4.7 and later.
+  For them, the run asks for adaptive thinking with a summary, so the reasoning panel has text.
+  Opus 4.7 and 4.8 do not think unless asked, so on them this also turns thinking on.
+  The model decides how much to think; reasoning effort, when set, still applies.
+  Before each run, the app reads the model's capabilities from Anthropic.
+  If that read fails, the run fails with the same error a request would show.
 - An OpenAI-compatible profile sends its custom headers with every request, including the model list.
   A custom Authorization header replaces the one the API key would send.
 - All providers stream responses.

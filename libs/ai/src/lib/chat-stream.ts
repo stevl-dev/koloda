@@ -171,8 +171,17 @@ export function deepseekProviderOptions(reasoningEffort: string | undefined): Pr
   return { deepseek: { reasoningEffort: mappedEffort } };
 }
 
-export function anthropicProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
-  return reasoningEffort ? { anthropic: { effort: reasoningEffort } } : undefined;
+export function anthropicProviderOptions(
+  reasoningEffort: string | undefined,
+  shouldSummarizeThinking: boolean,
+): ProviderOptions | undefined {
+  if (!reasoningEffort && !shouldSummarizeThinking) return undefined;
+  return {
+    anthropic: {
+      ...(reasoningEffort ? { effort: reasoningEffort } : {}),
+      ...(shouldSummarizeThinking ? { thinking: { type: "adaptive", display: "summarized" } } : {}),
+    },
+  };
 }
 
 export function xaiProviderOptions(reasoningEffort: string | undefined): ProviderOptions | undefined {
@@ -273,7 +282,7 @@ export function streamChatWithAnthropic(
   request: ChatStreamRequest,
   onChunk: (chunk: ChatStreamChunk) => void,
   abortSignal: AbortSignal,
-  { apiKey }: { apiKey: string },
+  { apiKey, shouldSummarizeThinking }: { apiKey: string; shouldSummarizeThinking: boolean },
 ) {
   return wrapAIError(async () => {
     const { createAnthropic } = await import("@ai-sdk/anthropic");
@@ -283,7 +292,7 @@ export function streamChatWithAnthropic(
       request,
       onChunk,
       abortSignal,
-      anthropicProviderOptions(request.input.reasoningEffort),
+      anthropicProviderOptions(request.input.reasoningEffort, shouldSummarizeThinking),
     );
   });
 }

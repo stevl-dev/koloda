@@ -41,10 +41,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: The settings tool only reads, so the assistant cannot act on a settings request.
 
-- `anthropic-reasoning-summaries`: Ask Anthropic for reasoning summaries on models that return empty thinking text.
-  Area: `libs/ai`
-  Why: The reasoning panel is empty on Opus 4.7 and later.
-
 - `openai-compatible-manual-models`: Let an OpenAI-compatible profile list model IDs by hand.
   Area: `libs/ai`
   Why: A server that does not serve `/models` cannot be used, because sending stays disabled until the list loads.

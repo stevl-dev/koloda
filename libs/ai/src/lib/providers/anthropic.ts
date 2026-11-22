@@ -1,5 +1,5 @@
 import { streamChatWithAnthropic } from "../chat-stream";
-import { AIError, throwForAIResponse } from "../error";
+import { AIError, throwForAIResponse, wrapAIError } from "../error";
 import type { AIModel } from "../models";
 import { ANTHROPIC_BROWSER_ACCESS_HEADERS } from "../provider-catalog";
 import type { AIGenerationClient, AIProviderEntry } from "../provider-registry";
@@ -16,7 +16,10 @@ type AnthropicModel = {
   id: string;
   display_name?: string;
   max_input_tokens?: number;
-  capabilities?: { effort?: Record<string, { supported?: boolean }> };
+  capabilities?: {
+    effort?: Record<string, { supported?: boolean }>;
+    thinking?: { types?: Record<string, { supported?: boolean }> };
+  };
 };
 
 type AnthropicModelsPage = {
@@ -39,6 +42,18 @@ function isAnthropicModelsPage(value: unknown): value is AnthropicModelsPage {
     "has_more" in value &&
     typeof value.has_more === "boolean"
   );
+}
+
+// WHY: a model that takes adaptive thinking but not budget thinking (Opus 4.7 and later) streams
+// empty thinking text unless the request asks for summaries. Asking also turns thinking on for
+// Opus 4.7 and 4.8, which do not think by default; Claude 5 and later already do.
+function omitsThinkingText(model: AnthropicModel): boolean {
+  const types = model.capabilities?.thinking?.types;
+  return types?.adaptive?.supported === true && types.enabled?.supported === false;
+}
+
+function anthropicHeaders(apiKey: string) {
+  return { "x-api-key": apiKey, "anthropic-version": "2023-06-01", ...ANTHROPIC_BROWSER_ACCESS_HEADERS };
 }
 
 function toAIModel(model: AnthropicModel): AIModel {
@@ -64,15 +79,7 @@ export async function fetchAnthropicModels(apiKey: string): Promise<AIModel[]> {
     const url = new URL(ANTHROPIC_MODELS_URL);
     url.searchParams.set("limit", "1000");
     if (afterId) url.searchParams.set("after_id", afterId);
-    const response = await throwForAIResponse(
-      await fetch(url, {
-        headers: {
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          ...ANTHROPIC_BROWSER_ACCESS_HEADERS,
-        },
-      }),
-    );
+    const response = await throwForAIResponse(await fetch(url, { headers: anthropicHeaders(apiKey) }));
     const page: unknown = await response.json();
     if (!isAnthropicModelsPage(page)) throw new AIError("ai.invalid-response");
     models.push(...page.data);
@@ -80,6 +87,18 @@ export async function fetchAnthropicModels(apiKey: string): Promise<AIModel[]> {
   } while (afterId);
 
   return models.map(toAIModel).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function fetchAnthropicModel(apiKey: string, modelId: string, abortSignal: AbortSignal) {
+  const response = await throwForAIResponse(
+    await fetch(`${ANTHROPIC_MODELS_URL}/${encodeURIComponent(modelId)}`, {
+      headers: anthropicHeaders(apiKey),
+      signal: abortSignal,
+    }),
+  );
+  const model: unknown = await response.json();
+  if (!isAnthropicModel(model)) throw new AIError("ai.invalid-response");
+  return model;
 }
 
 function createAnthropicClient(secrets: Extract<AISecrets, { provider: "anthropic" }>): AIGenerationClient {
@@ -90,7 +109,14 @@ function createAnthropicClient(secrets: Extract<AISecrets, { provider: "anthropi
   return {
     provider: "anthropic",
     listModels: () => fetchAnthropicModels(resolved.apiKey),
-    chat: (request, onChunk, abortSignal) => streamChatWithAnthropic(request, onChunk, abortSignal, resolved),
+    chat: (request, onChunk, abortSignal) =>
+      wrapAIError(async () => {
+        const model = await fetchAnthropicModel(resolved.apiKey, request.input.modelId, abortSignal);
+        return streamChatWithAnthropic(request, onChunk, abortSignal, {
+          apiKey: resolved.apiKey,
+          shouldSummarizeThinking: omitsThinkingText(model),
+        });
+      }),
   };
 }
 

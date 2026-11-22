@@ -189,7 +189,11 @@ describe("provider option helpers pass a non-empty effort through", () => {
     ["opencode-go", opencodeGoProviderOptions, { "opencode-go": { reasoningEffort: "high" } }],
     ["opencode-zen", opencodeZenProviderOptions, { "opencode-zen": { reasoningEffort: "high" } }],
     ["Ollama", ollamaProviderOptions, { ollama: { think: "high" } }],
-    ["Anthropic", anthropicProviderOptions, { anthropic: { effort: "high" } }],
+    [
+      "Anthropic",
+      (effort: string | undefined) => anthropicProviderOptions(effort, false),
+      { anthropic: { effort: "high" } },
+    ],
     ["xAI", xaiProviderOptions, { xai: { reasoningEffort: "high" } }],
     ["OpenAI-compatible", openaiCompatibleProviderOptions, { openaiCompatible: { reasoningEffort: "high" } }],
   ] as const)("maps %s high onto provider options", (_label, providerOptions, expected) => {
@@ -245,12 +249,20 @@ describe("provider option helpers omit an empty effort", () => {
     ["Ollama", ollamaProviderOptions],
     ["LM Studio", lmstudioProviderOptions],
     ["opencode-zen", opencodeZenProviderOptions],
-    ["Anthropic", anthropicProviderOptions],
+    ["Anthropic", (effort: string | undefined) => anthropicProviderOptions(effort, false)],
     ["xAI", xaiProviderOptions],
     ["OpenAI-compatible", openaiCompatibleProviderOptions],
   ] as const)("omits %s providerOptions when effort is missing or empty", (_label, providerOptions) => {
     expect(providerOptions(undefined)).toBeUndefined();
     expect(providerOptions("")).toBeUndefined();
+  });
+});
+
+describe("anthropicProviderOptions", () => {
+  it("asks for summarized adaptive thinking, with or without an effort", () => {
+    const thinking = { type: "adaptive", display: "summarized" };
+    expect(anthropicProviderOptions(undefined, true)).toEqual({ anthropic: { thinking } });
+    expect(anthropicProviderOptions("high", true)).toEqual({ anthropic: { effort: "high", thinking } });
   });
 });
 
@@ -276,7 +288,7 @@ describe("streamChatWithAnthropic", () => {
         { input: { modelId: "claude-opus-5-5" }, messages: [{ role: "user", content: "Hi" }] },
         () => {},
         new AbortController().signal,
-        { apiKey: "sk-ant" },
+        { apiKey: "sk-ant", shouldSummarizeThinking: false },
       ),
     ).rejects.toThrow();
 

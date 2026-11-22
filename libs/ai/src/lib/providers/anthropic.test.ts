@@ -132,4 +132,50 @@ describe("anthropicProviderEntry", () => {
     const secrets = aiSecretsValidation.parse({ provider: "anthropic", apiKey: "sk-ant" });
     await expect(anthropicProviderEntry.fetchModels(secrets)).resolves.toEqual([]);
   });
+
+  describe("chat", () => {
+    async function sentThinking(thinkingTypes: Record<string, { supported: boolean }>) {
+      const fetchMock = vi.fn((input: RequestInfo | URL, _init?: RequestInit) => {
+        if (String(input) === `${ANTHROPIC_MODELS_URL}/claude-opus-5-5`) {
+          return Promise.resolve(
+            jsonResponse({ id: "claude-opus-5-5", capabilities: { thinking: { types: thinkingTypes } } }),
+          );
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify({ type: "error", error: { type: "authentication_error", message: "bad key" } }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const secrets = aiSecretsValidation.parse({ provider: "anthropic", apiKey: "sk-ant" });
+      const client = anthropicProviderEntry.createClient(secrets);
+      // WHY: the 401 ends the run; only the request the SDK built matters here.
+      await expect(
+        client.chat(
+          { input: { modelId: "claude-opus-5-5" }, messages: [{ role: "user", content: "Hi" }] },
+          () => {},
+          new AbortController().signal,
+        ),
+      ).rejects.toThrow();
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      return JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)).thinking;
+    }
+
+    it("asks for thinking summaries when the model rejects budget thinking", async () => {
+      await expect(sentThinking({ adaptive: { supported: true }, enabled: { supported: false } })).resolves.toEqual({
+        type: "adaptive",
+        display: "summarized",
+      });
+    });
+
+    it("leaves thinking unset when the model accepts budget thinking", async () => {
+      await expect(
+        sentThinking({ adaptive: { supported: true }, enabled: { supported: true } }),
+      ).resolves.toBeUndefined();
+    });
+  });
 });
