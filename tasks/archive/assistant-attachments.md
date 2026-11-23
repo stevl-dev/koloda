@@ -1,6 +1,6 @@
 # Image attachments in assistant messages
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/DB.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/STORAGE-BUCKETS.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/CACHE-REFRESH.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
 Flow: local
 
@@ -217,8 +217,22 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
 
 ## Outcome
 
-<what shipped>
+The user attaches images to an assistant message by button, paste, or drop, and the model receives them.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+- Each model's image input comes from its provider's list, or from models.dev by exact id;
+  an unknown model gets a per-model "accepts images" switch in the profile's models dialog, off by default.
+- Conversation images live in device-local `conversation_attachments` (migration `V19`), keyed by SHA-256,
+  apart from the synced card store; a startup sweep removes images no saved conversation names after a day.
+- A request carries image ids; each host reads the bytes when it calls the provider.
+  A refused part is `ai.unsupported-input`, a missing image `ai.image-missing`.
+- The attach button is disabled with a reason for a model that does not take images and hidden with no model.
+  Draft images are saved with the conversation; a message can be images alone and shows thumbnails.
+  Submit and retry are blocked while the draft or history holds images the model does not take.
+- Retry resends a turn's images, revert puts them back in the composer, restore returns the held ones, and
+  copy copies text only.
+- The card editor's image-file checks moved to `libs/core-react` (`image-files.ts`), shared by both composers.
+- Text files and PDF remain on the backlog as `assistant-file-attachments`.
+
+Spec: docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-CONVERSATION-LIST.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/MEDIA.md
+Review: blocking 1 (ASSISTANT-MESSAGES §Attaching Images: an attach that minted its conversation dropped earlier files' errors)
+Change rounds: 0
