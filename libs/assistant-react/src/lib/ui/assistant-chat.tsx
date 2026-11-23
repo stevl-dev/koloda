@@ -14,15 +14,18 @@ import {
   useAIChatValidation,
   useAutoScroll,
 } from "@koloda/ai-react";
+import type { Mention } from "@koloda/ai";
 import { formatGenerateError } from "@koloda/ai/app-error";
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
+import { queriesAtom } from "@koloda/core-react";
 import { Fade, QueryError } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
+import { useQuery } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { AnimatePresence } from "motion/react";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssistantConversationRecovery } from "./assistant-conversation-recovery";
 import { renderAssistantMarkdown } from "./assistant-markdown";
 import { AssistantNoProfiles } from "./assistant-no-profiles";
@@ -88,6 +91,18 @@ export function AssistantChat({
   const [areSettingsOpen, setAreSettingsOpen] = useState(false);
   const [isAddProfileOpen, setIsAddProfileOpen] = useState(false);
   const modelProfilePickerRef = useRef<HTMLButtonElement>(null);
+  const { getDecksQuery, getTemplatesQuery, getAlgorithmsQuery } = useAtomValue(queriesAtom);
+  const { data: decks } = useQuery(getDecksQuery());
+  const { data: templates } = useQuery(getTemplatesQuery());
+  const { data: algorithms } = useQuery(getAlgorithmsQuery());
+  const mentions = useMemo<Mention[]>(
+    () => [
+      ...(decks ?? []).map(({ id, title }) => ({ kind: "deck" as const, id, title })),
+      ...(templates ?? []).map(({ id, title }) => ({ kind: "template" as const, id, title })),
+      ...(algorithms ?? []).map(({ id, title }) => ({ kind: "algorithm" as const, id, title })),
+    ],
+    [decks, templates, algorithms],
+  );
   const scroll = useAutoScroll({ messages, isLoading: isProcessing });
 
   const openAddProfile = useCallback(() => setIsAddProfileOpen(true), []);
@@ -228,7 +243,7 @@ export function AssistantChat({
             {saveErr && <AIChatError {...saveErr} onDismiss={handleDismissSave} onRetry={retrySave} />}
             {revertState && <RevertBanner onRestore={handleRestore} />}
             <AIChatPromptPanel onSubmit={handleSubmit}>
-              <AIChatPromptInput value={inputValue} onChange={setInputValue} onSubmit={submit} />
+              <AIChatPromptInput value={inputValue} onChange={setInputValue} onSubmit={submit} mentions={mentions} />
               <div className="self-end p-1">
                 <AIChatSubmit canSubmit={canSubmit} canCancel={canCancel} onCancel={controller.cancel} />
               </div>

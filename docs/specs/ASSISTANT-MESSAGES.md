@@ -107,6 +107,30 @@ A run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§
 If that run fails, the user message and the assistant message with any partial text remain,
 so the conversation is not empty.
 
+### Mentions
+
+The user can mention a deck, template, or preset in a prompt.
+Cards cannot be mentioned.
+
+Typing `@` at the start of the prompt or after a space opens a list of the user's decks, templates, and presets.
+It is one list sorted by title, and each row names its kind.
+Text typed after `@` filters the list by title, ignoring case.
+An `@` inside a word opens no list.
+
+- The list closes when nothing matches; the typed text stays as written.
+- Enter or a click picks an item.
+  Enter picks the highlighted item, or the first one when none is highlighted, and does not send the prompt.
+- Escape closes the list; it opens again only for a new `@`.
+
+Picking replaces the `@` and the filter text with a chip that shows the title.
+The message carries each mention's id and title to the model; see ASSISTANT-DATA-ACCESS.md (§What it is).
+
+A chip shows the title the item had when it was picked.
+Renaming or deleting the deck, template, or preset later does not change the chip.
+When the model looks up a deleted one, that tool call fails visibly, like any failed tool call.
+
+An unsent prompt keeps its chips when it is saved and restored with the conversation.
+
 ### Canceling a Run
 
 The user can press a stop button or use a hotkey while a run is active.

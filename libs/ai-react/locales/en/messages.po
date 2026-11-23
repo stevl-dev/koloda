@@ -72,6 +72,22 @@ msgstr "Prompt input"
 msgid "ai.chat.input.placeholder"
 msgstr "Type your prompt here"
 
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.algorithm"
+msgstr "Preset"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.deck"
+msgstr "Deck"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.template"
+msgstr "Template"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.list.label"
+msgstr "Decks, templates, and presets"
+
 #: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.retry"
 msgstr "Retry"

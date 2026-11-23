@@ -25,6 +25,10 @@ It behaves the same for every provider, local or cloud.
 Every run discovers data by calling tools during the run.
 Nothing about the user's decks is baked into the system prompt.
 There is no submit-time snapshot of decks or cards.
+A mention is the one pointer a message carries at submit.
+It is the id and title of a deck, template, or preset the user picked.
+It is not a snapshot; the model still reads the entity through tools.
+See ASSISTANT-MESSAGES.md (§Mentions).
 The app does not check proposed cards for duplicates.
 The model can inspect existing cards through a tool before it proposes new ones.
 
@@ -165,6 +169,7 @@ They tell the model:
 - to take deck ids and field titles from `list_decks`
 - to take template ids from `list_templates` and algorithm ids from `list_algorithms`
 - not to ask the user for ids or field titles
+- to use the id of a mentioned deck, template, or preset without listing first
 - to call `propose_cards` for any request to generate, create, make, add, or invent cards, including a random card
 - to pass an algorithm id to `add_deck` only when the user asked for a specific algorithm
 - to use `get_deck_cards` only to inspect existing cards, for example to avoid duplicates

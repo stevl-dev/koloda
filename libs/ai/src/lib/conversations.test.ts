@@ -11,6 +11,16 @@ function userMessage(text: string): UIMessage {
 }
 
 describe("computeConversationTitle", () => {
+  it("names a mention by @ and its title, never by its token", () => {
+    const deckToken = "@[Spanish verbs](deck:0b9e3c1a-6f2d-4e8b-9a71-3c5d2e8f1a40)";
+    expect(computeConversationTitle({ messages: [], promptInput: `Quiz me on ${deckToken}` })).toBe(
+      "Quiz me on @Spanish verbs",
+    );
+    expect(computeConversationTitle({ messages: [userMessage(`${deckToken} cards`)], promptInput: "" })).toBe(
+      "@Spanish verbs cards",
+    );
+  });
+
   it("uses the prompt when there is no user message", () => {
     expect(computeConversationTitle({ messages: [], promptInput: "  hello   world  " })).toBe("hello world");
   });

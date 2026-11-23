@@ -3,6 +3,8 @@ export { ASSISTANT_TOOL_SPECS, generatedCardsFromProposeOutput, isProposeCardsOu
 export type { AssistantToolEvent, AssistantToolName, OnToolEvent } from "./lib/assistant-tools";
 export { computeConversationTitle, getTextMessageContent } from "./lib/conversations";
 export { AIError, isAIError, toAIError, wrapAIError } from "./lib/error";
+export { formatMention, parseMentionText } from "./lib/mentions";
+export type { Mention, MentionKind, MentionTextPart } from "./lib/mentions";
 export { chatInputSchema } from "./lib/generation";
 export type { ChatInput, ChatStreamChunk, ChatStreamRequest, GeneratedCard, Message } from "./lib/generation";
 export type { AIModel, ModelParameter, StreamUsage } from "./lib/models";

@@ -1,4 +1,5 @@
 import type { TextUIPart, UIMessage } from "ai";
+import { replaceMentionsWithTitles } from "./mentions";
 
 export function getTextMessageContent(message: UIMessage): string {
   return message.parts
@@ -17,7 +18,7 @@ type ConversationLike = {
 };
 
 function formatConversationTitle(raw: string): string | null {
-  const text = raw.trim().replace(COLLAPSE_WHITESPACE, " ");
+  const text = replaceMentionsWithTitles(raw).trim().replace(COLLAPSE_WHITESPACE, " ");
   if (!text) return null;
 
   if (text.length <= TITLE_MAX_LENGTH) return text;

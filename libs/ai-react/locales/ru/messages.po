@@ -72,6 +72,22 @@ msgstr "Поле ввода сообщения"
 msgid "ai.chat.input.placeholder"
 msgstr "Введите сообщение"
 
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.algorithm"
+msgstr "Алгоритм"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.deck"
+msgstr "Колода"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.kind.template"
+msgstr "Шаблон"
+
+#: ../../libs/ai-react/src/lib/ai-chat-prompt-input.tsx
+msgid "ai.chat.mention.list.label"
+msgstr "Колоды, шаблоны и алгоритмы"
+
 #: ../../libs/ai-react/src/lib/ai-chat-message-status.tsx
 msgid "ai.chat.message.retry"
 msgstr "Повторить"

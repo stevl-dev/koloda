@@ -87,6 +87,7 @@ export {
   overlayFrame,
   overlayFrameContent,
 } from "./lib/primitives/overlay/overlay";
+export { Popover } from "./lib/primitives/overlay/popover";
 export { Tooltip } from "./lib/primitives/overlay/tooltip/tooltip";
 export { SearchField } from "./lib/primitives/search-field";
 export { Select } from "./lib/primitives/select/select";

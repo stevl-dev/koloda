@@ -81,6 +81,23 @@ describe("deck, template, algorithm, and card tool descriptions", () => {
     expect(description).toMatch(/does not return decks, cards, or create cards/i);
   });
 
+  it.each([
+    ["get_deck", "deck"],
+    ["get_template", "template"],
+    ["list_algorithms", "algorithm"],
+    ["add_deck", "template"],
+    ["add_deck", "algorithm"],
+    ["propose_cards", "deck"],
+  ] as const)("tells the model %s how to read a %s mention", (tool, kind) => {
+    expect(ASSISTANT_TOOL_SPECS[tool].description).toContain(`@[<title>](${kind}:<id>)`);
+  });
+
+  it("tells the model to use a mentioned id without listing first", () => {
+    expect(ASSISTANT_TOOL_SPECS.get_deck.description).toMatch(/without calling list_decks first/i);
+    expect(ASSISTANT_TOOL_SPECS.get_template.description).toMatch(/without calling list_templates first/i);
+    expect(ASSISTANT_TOOL_SPECS.add_deck.description).toMatch(/without listing first/i);
+  });
+
   it("tells the model get_deck_cards cannot pick a random card", () => {
     expect(ASSISTANT_TOOL_SPECS.get_deck_cards.description).toMatch(/cannot pick a single random card/i);
   });

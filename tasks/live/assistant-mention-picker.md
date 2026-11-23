@@ -195,13 +195,13 @@ Taken from the documentation and release notes, not checked against the types:
   Commit: Build the assistant composer on TokenField
   Depends on: 2
 
-- [ ] 4. Mention decks, templates, and algorithms in the assistant composer
+- [x] 4. Mention decks, templates, and algorithms in the assistant composer
   Goal:
   - `libs/ai`: a mention codec. Kinds are `deck`, `template`, and `algorithm`.
     Formatting writes `@[<title>](<kind>:<id>)`, escaping `\` and `]` in the title.
     Parsing splits a string into text and mention segments; text that does not match stays text.
     `computeConversationTitle` shows a mention as `@<title>` (open question 5).
-  - Tool guidance: the descriptions of `get_deck`, `get_template`, `list_algorithms`, and `add_deck`
+  - Tool guidance: the descriptions of `get_deck`, `get_template`, `list_algorithms`, `add_deck`, and `propose_cards`
     say a user message may hold `@[<title>](<kind>:<id>)`, that the id is the entity the user picked,
     to use it without listing first, and that the title is the one at the time it was picked.
   - `libs/ai-react`: the composer converts the string to and from `TokenFieldValue` with the codec,
@@ -211,12 +211,16 @@ Taken from the documentation and release notes, not checked against the types:
     filtered by the text after `@`, case-insensitive, by contains.
     Picking an item replaces `@<query>` with a token segment; Escape closes the list;
     Enter picks while the list is open and submits otherwise.
+    Autocomplete highlights the first item only when the filter changes while the list is mounted,
+    so Enter with nothing highlighted picks the first match itself.
+    The list closes when nothing matches, so it needs no empty-state copy.
   - `libs/assistant-react`: `assistant-chat.tsx` supplies decks, templates, and algorithms
     from `getDecksQuery`, `getTemplatesQuery`, and `getAlgorithmsQuery`.
   - Specs: `docs/specs/ASSISTANT-DATA-ACCESS.md` (§What it is: a mention sends the id and title the user picked
-    at submit, a pointer and not a snapshot; §Tool Guidance), `docs/specs/ASSISTANT-MESSAGES.md`
-    (§Sending a Message), `docs/specs/HOTKEYS.md` if the open list changes a hotkey; then `bun run gen:help`.
-  - i18n for the kind labels and the empty list.
+    at submit, a pointer and not a snapshot; §Tool Guidance), `docs/specs/ASSISTANT-MESSAGES.md` (a new §Mentions),
+    `docs/specs/ASSISTANT-CONVERSATION-LIST.md` (§Conversation Name); then `bun run gen:help`.
+    The open list changes no hotkey, so `docs/specs/HOTKEYS.md` stays.
+  - i18n for the kind labels and the list's label.
   Constraints: no new tool, no schema change, no card mentions.
   Done when: codec tests (round trip, escaping, malformed text), title tests, composer tests for opening,
   filtering, and picking; `bun run check:push` green; a Manual verify block on both hosts,

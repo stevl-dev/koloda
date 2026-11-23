@@ -50,8 +50,12 @@ This README owns the package boundary.
   Field titles come from tools, not the system prompt.
   `chat-stream.ts` trims the saved (or default) prompt when sending.
 - Conversation helpers (pure): `conversations.ts` — `getTextMessageContent` and
-  `computeConversationTitle` (255-char truncation) over Vercel AI SDK `UIMessage`.
+  `computeConversationTitle` (255-char truncation, mentions shown as `@` and their title)
+  over Vercel AI SDK `UIMessage`.
   No state.
+- Mentions (pure): `mentions.ts` — the `@[<title>](<kind>:<id>)` text a mentioned deck, template, or preset
+  is written as in a prompt; `formatMention` and `parseMentionText`.
+  Stored drafts and sent messages hold that text, and the tool descriptions tell the model how to read it.
 - Errors: `error.ts` — `AIError`, `throwForAIResponse` (HTTP → `AIError`), `wrapAIError`.
   `error-ai.ts` — the AIError→AppError bridge (`formatGenerateError`, `toAIAppError`),
   exported via the `./app-error` subpath (renderer-only: it pulls `@koloda/app`, whose error catalog

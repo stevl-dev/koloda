@@ -87,6 +87,7 @@ The conversation is named after the first user message, truncated to 255 charact
 If the message is longer, it's trimmed with an ellipsis.
 If there are no user messages yet, the name follows the unsent prompt, using the same trimming.
 If that prompt is empty or only whitespace, the name is Untitled.
+A mention in that text is named by `@` and its title; see ASSISTANT-MESSAGES.md (§Mentions).
 After the first user message exists, later prompt edits do not change the name.
 
 ## Clone

@@ -1,4 +1,5 @@
-import { act, render, screen } from "@testing-library/react";
+import type { Mention } from "@koloda/ai";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createAppStoreWrapper } from "../test/test-helpers";
 import { AIChatPromptInput } from "./ai-chat-prompt-input";
@@ -6,6 +7,7 @@ import { AIChatPromptInput } from "./ai-chat-prompt-input";
 vi.mock("@lingui/react", () => ({
   useLingui: () => ({
     _: (message: { toString(): string }) => message.toString(),
+    i18n: { locale: "en" },
   }),
 }));
 
@@ -29,10 +31,17 @@ function fireInput(input: HTMLElement, inputType: string, data?: string) {
   });
 }
 
+const deckId = "0b9e3c1a-6f2d-4e8b-9a71-3c5d2e8f1a40";
+const mentions: Mention[] = [
+  { kind: "template", id: "6d1f0a52-2b8e-4c3a-9f17-5e4b3a2c1d00", title: "Vocabulary" },
+  { kind: "deck", id: deckId, title: "Spanish verbs" },
+  { kind: "algorithm", id: "9c2e7b14-0d3f-4a6b-8e51-7f6a5b4c3d00", title: "Intensive" },
+];
+
 function renderInput(value: string) {
   const onChange = vi.fn();
   const onSubmit = vi.fn();
-  const view = render(<AIChatPromptInput value={value} onChange={onChange} onSubmit={onSubmit} />, {
+  const view = render(<AIChatPromptInput value={value} onChange={onChange} onSubmit={onSubmit} mentions={mentions} />, {
     wrapper: createAppStoreWrapper(),
   });
   const input = screen.getByRole("textbox", { name: "ai.chat.input.label" });
@@ -73,5 +82,98 @@ describe("AIChatPromptInput", () => {
 
     expect(onChange).toHaveBeenLastCalledWith("Makes");
     expect(input.textContent).toBe("Makes");
+  });
+
+  it("lists every mention source by title after @, and filters by the text after it", () => {
+    const { input } = renderInput("Quiz me on");
+
+    fireInput(input, "insertText", " @");
+    const menu = screen.getByRole("menu", { name: "ai.chat.mention.list.label" });
+    expect(
+      within(menu)
+        .getAllByRole("menuitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "Intensiveai.chat.mention.kind.algorithm",
+      "Spanish verbsai.chat.mention.kind.deck",
+      "Vocabularyai.chat.mention.kind.template",
+    ]);
+
+    fireInput(input, "insertText", "VER");
+    expect(
+      within(menu)
+        .getAllByRole("menuitem")
+        .map((item) => item.textContent),
+    ).toEqual(["Spanish verbsai.chat.mention.kind.deck"]);
+  });
+
+  it("does not open the list for an @ inside a word", () => {
+    const { input } = renderInput("mail me");
+
+    fireInput(input, "insertText", "@");
+
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("closes the list when nothing matches", () => {
+    const { input } = renderInput("");
+
+    fireInput(input, "insertText", "@zzz");
+
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("replaces @ and the filter with the picked mention's token", () => {
+    const { input, onChange } = renderInput("Quiz me on ");
+
+    fireInput(input, "insertText", "@spa");
+    fireEvent.click(screen.getByRole("menuitem", { name: /Spanish verbs/ }));
+
+    expect(onChange).toHaveBeenLastCalledWith(`Quiz me on @[Spanish verbs](deck:${deckId}) `);
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("picks the first match on Enter and keeps the Enter from submitting", () => {
+    const { input, onChange } = renderInput("");
+
+    fireInput(input, "insertText", "@in");
+    expect(input.hasAttribute("aria-activedescendant")).toBe(false);
+    // WHY: a prevented keydown fires no `beforeinput`, so the browser never sends the Enter to `onSubmit`.
+    const isEnterLeftToBrowser = fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(isEnterLeftToBrowser).toBe(false);
+    expect(onChange).toHaveBeenLastCalledWith(`@[Intensive](algorithm:${mentions[2].id}) `);
+  });
+
+  it("picks the highlighted match on Enter", () => {
+    const { input, onChange } = renderInput("");
+
+    fireInput(input, "insertText", "@");
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    const isEnterLeftToBrowser = fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(isEnterLeftToBrowser).toBe(false);
+    expect(onChange).toHaveBeenLastCalledWith(`@[Spanish verbs](deck:${deckId}) `);
+  });
+
+  it("closes the list on Escape until a new @ is typed", () => {
+    const { input } = renderInput("");
+
+    fireInput(input, "insertText", "@");
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(screen.queryByRole("menu")).toBeNull();
+
+    fireInput(input, "insertText", "s");
+    expect(screen.queryByRole("menu")).toBeNull();
+
+    fireInput(input, "insertText", " @");
+    expect(screen.getByRole("menu")).toBeTruthy();
+  });
+
+  it("shows a stored mention as a chip with its title", () => {
+    const { input } = renderInput(`Quiz me on @[Spanish verbs](deck:${deckId})`);
+
+    expect(input.textContent).toBe("Quiz me on \u200bSpanish verbs\u200b");
   });
 });
