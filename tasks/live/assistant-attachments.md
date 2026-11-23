@@ -211,6 +211,13 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   and copy copies the text.
   `docs/specs/ASSISTANT-CONVERSATIONS.md` (§Retry) and `docs/specs/ASSISTANT-MESSAGES.md` follow;
   run `bun run gen:help`.
+  Notes from the session that stopped before this item:
+  copy already copies text only, and a message of images alone has no copy button (item 6).
+  Retry: `handleRetry` in `runs/use-run-orchestration.ts` must pass `getMessageImageIds(userMessage)` as
+  `promptImageIds`; disable retry (`canRetry` in `ui/use-assistant-message-renderer.tsx`) while `areImagesBlocked`.
+  Revert: `RevertState` gains `preRevertImages`; revert sets the composer images to the message's,
+  restore puts the held ones back, and `toPersistedState` saves `preRevertImages` while a revert is active.
+  `handleRevert` returns null for a message with no text today; it must accept images alone.
   Done when: retry, revert, and copy tests; `bun run check:push` passes.
   Commit: Carry images through retry, revert, and copy
   Depends on: 6
