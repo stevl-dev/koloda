@@ -689,7 +689,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Copying a Message",
         "depth": 3,
-        "markdown": "### Copying a Message\n\nEach user message has a copy action that copies its text.\n\nAn assistant turn has a copy action once its run has ended, whatever the outcome.\nIt copies the turn's text.\nWhat a turn with cards copies is in ASSISTANT-CARD-GENERATION.md (§Card Display).\nThe action shows only when the turn has something to copy.\nWhile the run is streaming, the turn has no copy action.\n\n"
+        "markdown": "### Copying a Message\n\nEach user message has a copy action that copies its text.\nA mention is copied as `@` and its title, without its id, so pasting it back gives plain text, not a chip.\n\nAn assistant turn has a copy action once its run has ended, whatever the outcome.\nIt copies the turn's text.\nWhat a turn with cards copies is in ASSISTANT-CARD-GENERATION.md (§Card Display).\nThe action shows only when the turn has something to copy.\nWhile the run is streaming, the turn has no copy action.\n\n"
       },
       {
         "heading": "Reverting the Conversation",

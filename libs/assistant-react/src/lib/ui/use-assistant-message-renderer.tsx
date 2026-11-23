@@ -1,4 +1,4 @@
-import { getTextMessageContent } from "@koloda/ai";
+import { getTextMessageContent, replaceMentionsWithTitles } from "@koloda/ai";
 import { AIChatMessage, AIChatMessageLayout, AIChatMessageStatus, AIToolActivity } from "@koloda/ai-react";
 import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
@@ -73,7 +73,7 @@ function renderUserMessage(
       {content}
       <div className="flex flex-row items-center justify-end gap-2 mx-3">
         <div className="flex flex-row items-center justify-end gap-1">
-          <CopyMessageButton text={getTextMessageContent(message)} />
+          <CopyMessageButton text={replaceMentionsWithTitles(getTextMessageContent(message))} />
           <RevertMessageButton onPress={() => handleRevert(message.id)} />
         </div>
         {timestamp ? <MessageTimestamp timestamp={timestamp} /> : null}

@@ -150,10 +150,8 @@ Taken from the documentation and release notes, not checked against the types:
 - [x] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — yes, as the human chose:
   the field grows from 1 to 6 rows, then scrolls, as the `<textarea>` does today.
 
-- [ ] 10. What does a user message's copy action copy when the message holds a mention? — open;
-  it copies the stored text, token syntax included (`@[Spanish verbs](deck:<id>)`), as before this task.
-  Pasting that into the prompt keeps it as plain text until the draft is reopened, when it shows as a chip.
-  Copying `@<title>` instead would read better but drops the id.
+- [x] 10. What does a user message's copy action copy when the message holds a mention? — `@<title>`, as the human
+  chose, not the stored token; the id is dropped, so a pasted copy is plain text, not a chip.
 
 ## Plan
 

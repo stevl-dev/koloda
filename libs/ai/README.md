@@ -54,7 +54,7 @@ This README owns the package boundary.
   over Vercel AI SDK `UIMessage`.
   No state.
 - Mentions (pure): `mentions.ts` — the `@[<title>](<kind>:<id>)` text a mentioned deck, template, or preset
-  is written as in a prompt; `formatMention` and `parseMentionText`.
+  is written as in a prompt; `formatMention`, `parseMentionText`, and `replaceMentionsWithTitles` (`@<title>` text).
   Stored drafts and sent messages hold that text, and the tool descriptions tell the model how to read it.
 - Errors: `error.ts` — `AIError`, `throwForAIResponse` (HTTP → `AIError`), `wrapAIError`.
   `error-ai.ts` — the AIError→AppError bridge (`formatGenerateError`, `toAIAppError`),

@@ -148,6 +148,7 @@ which run it reuses, and which AI profile state it uses.
 ### Copying a Message
 
 Each user message has a copy action that copies its text.
+A mention is copied as `@` and its title, without its id, so pasting it back gives plain text, not a chip.
 
 An assistant turn has a copy action once its run has ended, whatever the outcome.
 It copies the turn's text.
