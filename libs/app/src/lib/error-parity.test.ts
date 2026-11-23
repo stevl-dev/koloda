@@ -22,6 +22,8 @@ const TS_ONLY_ERROR_CODES = [
   "ai.network",
   "ai.invalid-response",
   "ai.aborted",
+  "ai.unsupported-input",
+  "ai.image-missing",
   "ai.http.400",
   "ai.http.401",
   "ai.http.402",

@@ -12,6 +12,8 @@ export const ERROR_MESSAGES = {
   "ai.network": msg`ai.network`,
   "ai.invalid-response": msg`ai.invalid-response`,
   "ai.aborted": msg`ai.aborted`,
+  "ai.unsupported-input": msg`ai.unsupported-input`,
+  "ai.image-missing": msg`ai.image-missing`,
   "ai.http.400": msg`ai.http.400`,
   "ai.http.401": msg`ai.http.401`,
   "ai.http.402": msg`ai.http.402`,

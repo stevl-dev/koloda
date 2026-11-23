@@ -131,6 +131,31 @@ describe("desktop AI chat streams", () => {
   });
 });
 
+describe("desktop chat images", () => {
+  afterEach(() => {
+    electron.handlers.clear();
+    clientChat.mockReset();
+  });
+
+  it("binds an image loader that reads the conversation store in main and decodes its bytes", async () => {
+    const chats = pendingChats();
+    const getConversationAttachment = vi.fn(async ({ id }: { id: string }) =>
+      id === "img-1" ? { id, mime: "image/png", size: 3, bytes: Buffer.from([1, 2, 3]).toString("base64") } : null,
+    );
+    const { start } = registered({ getConversationAttachment });
+
+    // WHY: the renderer strips functions, so the request arrives without a loader.
+    await start("req-a");
+    await flush();
+    const loadImage = chats[0]!.request.loadImage!;
+
+    const image = await loadImage("img-1");
+    expect(image?.mime).toBe("image/png");
+    expect(Array.from(image?.bytes ?? [])).toEqual([1, 2, 3]);
+    expect(await loadImage("missing")).toBeNull();
+  });
+});
+
 describe("desktop assistant settings tool", () => {
   afterEach(() => {
     electron.handlers.clear();

@@ -1,3 +1,5 @@
+import { UnsupportedFunctionalityError } from "ai";
+
 export class AIError extends Error {
   constructor(
     public readonly code: string,
@@ -47,6 +49,8 @@ export function toAIError(error: unknown): AIError {
     return new AIError(code, getErrorDetails(error) ?? String(status));
   }
 
+  // WHY: a provider package refuses a part it cannot send, such as an image format, before any request.
+  if (UnsupportedFunctionalityError.isInstance(error)) return new AIError("ai.unsupported-input", error.message);
   if (error instanceof SyntaxError) return new AIError("ai.invalid-response", getErrorDetails(error));
   if (error instanceof TypeError) return new AIError("ai.network", getErrorDetails(error));
   return new AIError("unknown", getErrorDetails(error));

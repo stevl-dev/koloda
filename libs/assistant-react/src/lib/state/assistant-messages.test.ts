@@ -114,6 +114,48 @@ describe("buildConversationMessages", () => {
     expect(buildConversationMessages([message], {})).toEqual(expected);
   });
 
+  it("sends a user message's images before its text, and a message of images alone", () => {
+    const imageA = "a".repeat(64);
+    const imageB = "b".repeat(64);
+    const withText: UIMessage = {
+      id: "u1",
+      role: "user",
+      parts: [
+        { type: "text", text: "What is this?" },
+        { type: "file", mediaType: "image/png", url: `conversation-attachment:${imageA}` },
+      ],
+    };
+    const imagesOnly: UIMessage = {
+      id: "u2",
+      role: "user",
+      parts: [{ type: "file", mediaType: "image/jpeg", url: `conversation-attachment:${imageB}` }],
+    };
+
+    expect(buildConversationMessages([withText, imagesOnly], {})).toEqual([
+      {
+        role: "user",
+        content: [
+          { type: "image", attachmentId: imageA },
+          { type: "text", text: "What is this?" },
+        ],
+      },
+      { role: "user", content: [{ type: "image", attachmentId: imageB }] },
+    ]);
+  });
+
+  it("ignores a file part that is not a conversation image", () => {
+    const message: UIMessage = {
+      id: "u1",
+      role: "user",
+      parts: [
+        { type: "text", text: "Hi" },
+        { type: "file", mediaType: "image/png", url: "https://example.com/cat.png" },
+      ],
+    };
+
+    expect(buildConversationMessages([message], {})).toEqual([{ role: "user", content: "Hi" }]);
+  });
+
   it("skips messages without assistant metadata", () => {
     const msg: UIMessage = {
       id: "a1",
@@ -266,10 +308,12 @@ describe("buildConversationMessages", () => {
     const result = buildConversationMessages([assistantChatTextMessage("a1", "r1", "Proposed.")], {
       r1: createRunData({ status: "success", cards: [proposedCard], templateFields: runFields }),
     });
-    expect(result[0].content).toContain("**Prompt**: hola");
-    expect(result[0].content).toContain("**Response**: hello");
-    expect(result[0].content).not.toContain("**Front**");
-    expect(result[0].content.startsWith("## Card 1")).toBe(true);
-    expect(result[0].content.endsWith("Proposed.")).toBe(true);
+    // WHY: assistant content is always text; only user messages carry image parts.
+    const content = result[0]?.content as string;
+    expect(content).toContain("**Prompt**: hola");
+    expect(content).toContain("**Response**: hello");
+    expect(content).not.toContain("**Front**");
+    expect(content.startsWith("## Card 1")).toBe(true);
+    expect(content.endsWith("Proposed.")).toBe(true);
   });
 });

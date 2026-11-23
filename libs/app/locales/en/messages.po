@@ -86,12 +86,20 @@ msgid "ai.http.504"
 msgstr "AI provider took too long to respond"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "ai.image-missing"
+msgstr "An attached image is no longer stored on this device"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "ai.invalid-response"
 msgstr "AI provider returned an invalid response"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.network"
 msgstr "Could not reach the AI provider (network error or browser CORS block)"
+
+#: ../../libs/app/src/lib/error.ts
+msgid "ai.unsupported-input"
+msgstr "This model does not accept one of the attached files"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "algorithms.optimizer.failed"

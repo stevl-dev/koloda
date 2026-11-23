@@ -7,6 +7,8 @@ import {
   getAlgorithms,
   getCardCounts,
   getCards,
+  getConversationAttachment,
+  getConversationAttachmentBytes,
   getDecks,
   getSettings,
   getTemplates,
@@ -25,6 +27,14 @@ function createWebToolExecutor(db: DB) {
     getAppInfo: async () => ({ app: "web" }),
     createDeck: (input) => addDeck(db, input),
   });
+}
+
+async function loadWebImage(db: DB, attachmentId: string) {
+  const [attachment, bytes] = await Promise.all([
+    getConversationAttachment(db, attachmentId),
+    getConversationAttachmentBytes(db, attachmentId),
+  ]);
+  return attachment && bytes ? { bytes, mime: attachment.mime } : null;
 }
 
 // INVARIANT: Web host adapter. Loads usable secrets from SQLite only at call
@@ -70,7 +80,8 @@ export function createWebAIRuntime(db: DB): AIRuntime {
       // WHY: unlike desktop, web has no IPC hop, so the executor binds directly and onToolEvent passes through.
       const requestWithExecutor =
         request.tools != null && request.tools.length > 0 ? { ...request, executeTool: webToolExecutor } : request;
-      return client.chat(requestWithExecutor, onChunk, abortSignal);
+      const loadImage = (attachmentId: string) => loadWebImage(db, attachmentId);
+      return client.chat({ ...requestWithExecutor, loadImage }, onChunk, abortSignal);
     },
   };
 }

@@ -167,7 +167,7 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Commit: Store conversation images in a device-local table
   Depends on: none
 
-- [ ] 4. Send a message's images to the model
+- [x] 4. Send a message's images to the model
   Goal: a request message's content is text or a list of text and image parts; an image part carries its id.
   Each host binds an image loader beside the tool executor: web reads SQLite, desktop main reads through the addon.
   Nothing but ids crosses IPC.

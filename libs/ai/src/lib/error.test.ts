@@ -1,3 +1,4 @@
+import { UnsupportedFunctionalityError } from "ai";
 import { describe, expect, it } from "vitest";
 import { AIError, getAIHttpErrorCode, getErrorDetails, throwForAIResponse, toAIError, wrapAIError } from "./error";
 
@@ -47,6 +48,11 @@ describe("error", () => {
     });
 
     expect(() => toAIError(new DOMException("Aborted", "AbortError"))).toThrow("Aborted");
+  });
+
+  it("maps a part the provider package cannot send to ai.unsupported-input", () => {
+    const refused = new UnsupportedFunctionalityError({ functionality: "media type: image/avif" });
+    expect(toAIError(refused)).toMatchObject({ code: "ai.unsupported-input", message: refused.message });
   });
 
   it.each([

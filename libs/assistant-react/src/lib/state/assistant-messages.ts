@@ -1,4 +1,4 @@
-import { getTextMessageContent } from "@koloda/ai";
+import { getMessageImageIds, getTextMessageContent } from "@koloda/ai";
 import type { GeneratedCard, Message } from "@koloda/ai";
 import type { TemplateFields } from "@koloda/srs";
 import type { TextUIPart, UIMessage } from "ai";
@@ -83,7 +83,18 @@ export function buildConversationMessages(
   for (const message of messages) {
     if (message.role === "user") {
       const content = getTextMessageContent(message);
-      if (content) conversation.push({ role: "user", content });
+      const imageIds = getMessageImageIds(message);
+      if (imageIds.length > 0) {
+        conversation.push({
+          role: "user",
+          content: [
+            ...imageIds.map((attachmentId) => ({ type: "image" as const, attachmentId })),
+            ...(content ? [{ type: "text" as const, text: content }] : []),
+          ],
+        });
+      } else if (content) {
+        conversation.push({ role: "user", content });
+      }
       continue;
     }
 

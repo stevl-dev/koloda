@@ -86,12 +86,20 @@ msgid "ai.http.504"
 msgstr "Провайдер слишком долго отвечает"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "ai.image-missing"
+msgstr "Прикреплённое изображение больше не хранится на этом устройстве"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "ai.invalid-response"
 msgstr "Провайдер вернул некорректный ответ"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.network"
 msgstr "Не удалось связаться с провайдером (ошибка сети или блокировка CORS в браузере)"
+
+#: ../../libs/app/src/lib/error.ts
+msgid "ai.unsupported-input"
+msgstr "Эта модель не принимает один из прикреплённых файлов"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "algorithms.optimizer.failed"

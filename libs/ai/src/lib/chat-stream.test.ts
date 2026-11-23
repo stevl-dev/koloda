@@ -348,6 +348,63 @@ describe("streamChatWithVercel", () => {
   });
 });
 
+describe("chat image parts", () => {
+  beforeEach(() => {
+    fakeModelSlot.model = null;
+  });
+
+  function imageRequest(loadImage: ChatStreamRequest["loadImage"]) {
+    return createChatRequest({
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "image", attachmentId: "img-1" },
+            { type: "text", text: "What is this?" },
+          ],
+        },
+        { role: "assistant", content: "A cat." },
+        { role: "user", content: "And its color?" },
+      ],
+      loadImage,
+    });
+  }
+
+  it("sends each image part as a file part with the bytes and type the host loaded", async () => {
+    const model = new MockLanguageModelV3({ doStream: async () => textOnlyChunks() });
+    fakeModelSlot.model = model;
+    const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const loadImage = vi.fn(async (_attachmentId: string) => ({ bytes, mime: "image/png" }));
+
+    await streamChatWithOllama(imageRequest(loadImage), vi.fn(), new AbortController().signal, OLLAMA_OPTIONS);
+
+    expect(loadImage.mock.calls).toEqual([["img-1"]]);
+    const userMessages = (model.doStreamCalls[0]?.prompt ?? []).filter((message) => message.role === "user");
+    expect(userMessages.map((message) => message.content)).toEqual([
+      [
+        expect.objectContaining({ type: "file", mediaType: "image/png" }),
+        expect.objectContaining({ type: "text", text: "What is this?" }),
+      ],
+      [expect.objectContaining({ type: "text", text: "And its color?" })],
+    ]);
+  });
+
+  it("fails with ai.image-missing before calling the model when the host has no such image", async () => {
+    const model = new MockLanguageModelV3({ doStream: async () => textOnlyChunks() });
+    fakeModelSlot.model = model;
+
+    await expect(
+      streamChatWithOllama(
+        imageRequest(async () => null),
+        vi.fn(),
+        new AbortController().signal,
+        OLLAMA_OPTIONS,
+      ),
+    ).rejects.toMatchObject({ code: "ai.image-missing" });
+    expect(model.doStreamCalls).toHaveLength(0);
+  });
+});
+
 describe("chat tool streaming", () => {
   beforeEach(() => {
     fakeModelSlot.model = null;

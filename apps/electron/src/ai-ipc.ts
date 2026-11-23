@@ -32,6 +32,7 @@ type AiIpcDb = Pick<
   | "getAiProfiles"
   | "syncStatus"
   | "addDeck"
+  | "getConversationAttachment"
 > &
   AiProfileSecretsSource;
 
@@ -138,19 +139,26 @@ function sendToolEvent(sender: WebContents, requestId: string, toolEvent: Assist
   });
 }
 
+async function loadChatImage(db: AiIpcDb, attachmentId: string) {
+  const attachment = await db.getConversationAttachment({ id: attachmentId });
+  return attachment && { bytes: Buffer.from(attachment.bytes, "base64"), mime: attachment.mime };
+}
+
 // WHY: functions do not cross IPC — the renderer strips them; main recreates the
-// executor over KolodaDb and streams tool events back on the existing channel.
+// executor and the image loader over KolodaDb and streams tool events back on the existing channel.
 function bindChatTools(
   db: AiIpcDb,
   sender: WebContents,
   requestId: string,
   request: ChatStreamRequest,
 ): ChatStreamRequest {
-  if (request.tools == null || request.tools.length === 0) return request;
+  const loadImage = (attachmentId: string) => loadChatImage(db, attachmentId);
+  if (request.tools == null || request.tools.length === 0) return { ...request, loadImage };
   return {
     ...request,
     executeTool: createChatToolExecutor(db),
     onToolEvent: (toolEvent) => sendToolEvent(sender, requestId, toolEvent),
+    loadImage,
   };
 }
 

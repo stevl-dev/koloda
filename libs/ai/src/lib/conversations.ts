@@ -1,4 +1,4 @@
-import type { TextUIPart, UIMessage } from "ai";
+import type { FileUIPart, TextUIPart, UIMessage } from "ai";
 import { replaceMentionsWithTitles } from "./mentions";
 
 export function getTextMessageContent(message: UIMessage): string {
@@ -7,6 +7,22 @@ export function getTextMessageContent(message: UIMessage): string {
     .map((part) => part.text.trim())
     .filter(Boolean)
     .join("\n\n");
+}
+
+// INVARIANT: the ref shape the conversation image sweep scans for, on both hosts
+// (`libs/db-sqlite/src/lib/conversation-attachments.ts`, `crates/koloda/src/repo/conversation_attachments.rs`).
+const CONVERSATION_IMAGE_URL = /^conversation-attachment:([0-9a-f]{64})$/;
+
+export function conversationImageUrl(attachmentId: string): string {
+  return `conversation-attachment:${attachmentId}`;
+}
+
+export function getMessageImageIds(message: UIMessage): string[] {
+  return message.parts.flatMap((part) => {
+    if (part.type !== "file") return [];
+    const match = CONVERSATION_IMAGE_URL.exec((part as FileUIPart).url);
+    return match?.[1] ? [match[1]] : [];
+  });
 }
 
 const TITLE_MAX_LENGTH = 255;

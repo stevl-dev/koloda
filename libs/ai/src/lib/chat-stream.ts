@@ -1,8 +1,9 @@
 import type { ProviderOptions } from "@ai-sdk/provider-utils";
 import { createGateway, isStepCount, streamText } from "ai";
+import type { ModelMessage } from "ai";
 import { bindAssistantTools } from "./assistant-tools";
 import { AIError, wrapAIError } from "./error";
-import type { ChatStreamChunk, ChatStreamRequest } from "./generation";
+import type { ChatStreamChunk, ChatStreamRequest, Message } from "./generation";
 import type { StreamUsage } from "./models";
 import { DEFAULT_CHAT_PROMPT_TEMPLATE, GENERATION_TEMPERATURE } from "./prompts";
 import {
@@ -30,6 +31,29 @@ function resolveGenerationTemperature(value?: number) {
 // and for a help answer that reads the settings and two or three help topics first.
 const CHAT_TOOL_STEP_BUDGET = 12;
 
+async function toModelMessages(
+  messages: Message[],
+  loadImage: ChatStreamRequest["loadImage"],
+): Promise<ModelMessage[]> {
+  return Promise.all(
+    messages.map(async ({ role, content }): Promise<ModelMessage> => {
+      if (typeof content === "string") return { role: role as "user" | "assistant", content };
+      const parts = await Promise.all(
+        content.map(async (part) => {
+          if (part.type === "text") return part;
+          // WHY: images without a loader mean a mis-wired host; fail before the provider is called.
+          if (!loadImage) throw new AIError("unknown", "Chat request has images without an image loader");
+          const image = await loadImage(part.attachmentId);
+          if (!image) throw new AIError("ai.image-missing", part.attachmentId);
+          return { type: "file" as const, data: image.bytes, mediaType: image.mime };
+        }),
+      );
+      // INVARIANT: only user messages carry images (ASSISTANT-MESSAGES.md).
+      return { role: "user", content: parts };
+    }),
+  );
+}
+
 async function runChatStream(
   modelFactory: (modelId: string) => Parameters<typeof wrapModelWithReasoningExtraction>[0],
   request: ChatStreamRequest,
@@ -51,13 +75,14 @@ async function runChatStream(
     executeTool != null && toolNames.length > 0
       ? bindAssistantTools({ names: toolNames, execute: executeTool })
       : undefined;
+  const messages = await toModelMessages(request.messages, request.loadImage);
   const result = streamText({
     model: wrapModelWithReasoningExtraction(modelFactory(request.input.modelId)),
 
     temperature: resolveGenerationTemperature(request.input.temperature),
     // WHY: empty custom prompts are allowed; trim so whitespace-only is sent empty.
     instructions: (request.systemPromptTemplate ?? DEFAULT_CHAT_PROMPT_TEMPLATE).trim(),
-    messages: request.messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+    messages,
     abortSignal,
     // WHY: multi-step only exists for tool runs; stopWhen keeps them bounded. Without
     // tools there is exactly one step and the extra options would be dead weight.
