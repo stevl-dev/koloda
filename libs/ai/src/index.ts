@@ -7,6 +7,7 @@ export { formatMention, parseMentionText, replaceMentionsWithTitles } from "./li
 export type { Mention, MentionKind, MentionTextPart } from "./lib/mentions";
 export { chatInputSchema } from "./lib/generation";
 export type { ChatInput, ChatStreamChunk, ChatStreamRequest, GeneratedCard, Message } from "./lib/generation";
+export { modelAcceptsImages } from "./lib/models";
 export type { AIModel, ModelParameter, StreamUsage } from "./lib/models";
 export { DEFAULT_CHAT_PROMPT_TEMPLATE, GENERATION_TEMPERATURE } from "./lib/prompts";
 export { AI_PROVIDERS, AI_PROVIDER_LABELS } from "./lib/provider-catalog";

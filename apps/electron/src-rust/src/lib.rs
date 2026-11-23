@@ -694,8 +694,15 @@ impl KolodaDb {
     pub fn update_ai_profile(&self, env: Env, data: serde_json::Value) -> Result<JsObject> {
         self.run(env, move |db| {
             let data: koloda::domain::ai::UpdateProfileData = from_wire(data)?;
-            let profile = repo::ai::update_ai_profile(db, &data.id, data.title, data.secrets, data.whitelist_model_ids)
-                .map_err(to_napi_error)?;
+            let profile = repo::ai::update_ai_profile(
+                db,
+                &data.id,
+                data.title,
+                data.secrets,
+                data.whitelist_model_ids,
+                data.image_input_model_ids,
+            )
+            .map_err(to_napi_error)?;
             to_value(&profile)
         })
     }

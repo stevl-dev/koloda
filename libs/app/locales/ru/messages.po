@@ -606,6 +606,10 @@ msgid "validation.seed.learning-settings"
 msgstr "Недопустимые настройки обучения"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.profiles.image-input-model-ids"
+msgstr "ID модели не может быть пустым"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.profiles.whitelist-model-ids"
 msgstr "ID модели не может быть пустым"
 

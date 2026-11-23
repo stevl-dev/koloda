@@ -81,6 +81,7 @@ function toPublicProfile(profile: {
   title?: string;
   secrets: AISecrets;
   whitelistModelIds?: string[];
+  imageInputModelIds?: string[];
   createdAt: string | Date;
 }): AIProfile {
   return {
@@ -90,6 +91,7 @@ function toPublicProfile(profile: {
     hasSecrets: profileHasSecrets(profile.secrets),
     secrets: redactSecrets(profile.secrets),
     whitelistModelIds: profile.whitelistModelIds,
+    imageInputModelIds: profile.imageInputModelIds,
     createdAt: new Date(profile.createdAt),
   };
 }
@@ -174,6 +176,7 @@ export async function updateAIProfile(db: DB, data: UpdateAIProfileData): Promis
             profile.whitelistModelIds = data.whitelistModelIds;
           }
         }
+        if (data.imageInputModelIds !== undefined) profile.imageInputModelIds = data.imageInputModelIds;
         if (secrets !== undefined) {
           const previous = profile.secrets;
           // WHY: Edit submits may omit apiKey when the user did not replace it.

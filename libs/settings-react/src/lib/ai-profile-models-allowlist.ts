@@ -10,6 +10,7 @@ export type AllowlistDraft = {
 type SettingsModelRow = {
   id: string;
   name: string;
+  hasUnknownImageInput: boolean;
 };
 
 export function createAllowlistDraft(whitelistModelIds?: string[]): AllowlistDraft {
@@ -41,6 +42,11 @@ export function toWhitelistModelIdsUpdate(draft: AllowlistDraft): string[] | nul
   return draft.mode === "all" ? null : draft.selectedIds;
 }
 
+export function setImageInputModel(ids: string[], modelId: string, isSelected: boolean): string[] {
+  if (isSelected === ids.includes(modelId)) return ids;
+  return isSelected ? [...ids, modelId] : ids.filter((id) => id !== modelId);
+}
+
 function modelMatchesQuery(name: string, id: string, query: string): boolean {
   const needle = query.trim().toLowerCase();
   if (!needle) return true;
@@ -54,14 +60,14 @@ export function buildSettingsModelRows(models: AIModel[], draft: AllowlistDraft,
 
   for (const model of models) {
     if (!modelMatchesQuery(model.name, model.id, query)) continue;
-    rows.push({ id: model.id, name: model.name });
+    rows.push({ id: model.id, name: model.name, hasUnknownImageInput: model.has_image_input === undefined });
   }
 
   if (draft.mode === "selected") {
     for (const id of draft.selectedIds) {
       if (catalogIds.has(id)) continue;
       if (!modelMatchesQuery(id, id, query)) continue;
-      rows.push({ id, name: id });
+      rows.push({ id, name: id, hasUnknownImageInput: false });
     }
   }
 

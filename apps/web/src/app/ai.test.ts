@@ -217,6 +217,26 @@ describe("web AI profile save path", () => {
     expect(storedProfiles()[0]?.title).toBeUndefined();
   });
 
+  it("sets, preserves, and replaces the image input model ids, and returns them on reads", async () => {
+    // Twin: update_ai_profile_sets_preserves_and_replaces_image_input_model_ids
+    // (crates/koloda/tests/integration/ai_integration_tests.rs).
+    seedAiSettings([
+      {
+        id: PROFILE_ID,
+        secrets: { provider: "openrouter", apiKey: "sk-or" },
+        hasSecrets: true,
+        createdAt: CREATED_AT,
+      },
+    ]);
+
+    await updateAIProfile(TEST_DB, { id: PROFILE_ID, imageInputModelIds: ["local/vision"] });
+    await updateAIProfile(TEST_DB, { id: PROFILE_ID, whitelistModelIds: [] });
+    expect((await getAIProfiles(TEST_DB))[0]?.imageInputModelIds).toEqual(["local/vision"]);
+
+    await updateAIProfile(TEST_DB, { id: PROFILE_ID, imageInputModelIds: [] });
+    expect(storedProfiles()[0]?.imageInputModelIds).toEqual([]);
+  });
+
   it("throws not-found on update when the ai settings row is absent", async () => {
     // Twin: update_ai_profile_not_found (crates/koloda/tests/integration/ai_integration_tests.rs).
     await expect(updateAIProfile(TEST_DB, { id: PROFILE_ID, title: "X" })).rejects.toMatchObject({

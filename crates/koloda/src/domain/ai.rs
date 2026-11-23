@@ -22,6 +22,10 @@ pub struct AIProfile {
     // WHY: Unset = all models. A present array is the allowlist (`[]` means none).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub whitelist_model_ids: Option<Vec<String>>,
+    // WHY: the user's answer for models whose provider does not say whether they accept images
+    // (AI-PROVIDERS.md §Image Input). A provider's own answer wins over this list.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub image_input_model_ids: Option<Vec<String>>,
     #[serde(serialize_with = "serialize_timestamp", deserialize_with = "deserialize_timestamp")]
     pub created_at: i64,
 }
@@ -142,6 +146,9 @@ pub struct UpdateProfileData {
     // (show all models); an array replaces it (`[]` is an empty allowlist).
     #[serde(default, deserialize_with = "deserialize_optional_patch")]
     pub whitelist_model_ids: Option<Option<Vec<String>>>,
+    // WHY: `undefined` leaves the stored list unchanged; an array replaces it.
+    #[serde(default)]
+    pub image_input_model_ids: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -360,7 +367,14 @@ impl AIProfile {
 
         self.secrets.validate_for_storage()?;
 
-        Self::validate_whitelist_model_ids(self.whitelist_model_ids.as_deref())?;
+        Self::validate_model_id_list(
+            self.whitelist_model_ids.as_deref(),
+            error_codes::VALIDATION_SETTINGS_AI_PROFILES_WHITELIST_MODEL_IDS,
+        )?;
+        Self::validate_model_id_list(
+            self.image_input_model_ids.as_deref(),
+            error_codes::VALIDATION_SETTINGS_AI_PROFILES_IMAGE_INPUT_MODEL_IDS,
+        )?;
 
         Ok(())
     }
@@ -374,16 +388,13 @@ impl AIProfile {
         Ok(())
     }
 
-    fn validate_whitelist_model_ids(ids: Option<&[String]>) -> Result<(), AppError> {
+    fn validate_model_id_list(ids: Option<&[String]>, code: &str) -> Result<(), AppError> {
         let Some(ids) = ids else {
             return Ok(());
         };
 
         if ids.iter().any(|id| id.is_empty()) {
-            return Err(AppError::new(
-                error_codes::VALIDATION_SETTINGS_AI_PROFILES_WHITELIST_MODEL_IDS,
-                None,
-            ));
+            return Err(AppError::new(code, None));
         }
 
         Ok(())

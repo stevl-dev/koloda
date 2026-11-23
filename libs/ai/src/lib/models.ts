@@ -8,6 +8,12 @@ export type AIModel = {
   has_image_input?: boolean;
 };
 
+// INVARIANT: the provider's answer wins; the profile's list answers only for models it says nothing about
+// (AI-PROVIDERS.md §Image Input).
+export function modelAcceptsImages(model: AIModel, imageInputModelIds: readonly string[] | undefined): boolean {
+  return model.has_image_input ?? imageInputModelIds?.includes(model.id) ?? false;
+}
+
 export type ModelParameter = {
   type: "reasoning_effort";
   value: string;

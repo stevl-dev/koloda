@@ -134,7 +134,7 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Commit: Read each model's image input from its provider
   Depends on: none
 
-- [ ] 2. Add a per-model image input switch for models with unknown capabilities
+- [x] 2. Add a per-model image input switch for models with unknown capabilities
   Goal: an AI profile gains a list of model ids the user marked as accepting images.
   TS schema in `libs/ai/src/lib/settings.ts` and the Rust twin in `crates/koloda/src/domain/ai.rs`
   and `crates/koloda/src/repo/ai.rs`, the same way `whitelistModelIds` is held and updated.

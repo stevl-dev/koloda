@@ -2,7 +2,17 @@ import type { AIProfile } from "@koloda/ai";
 import { useAIProfilesModels } from "@koloda/ai-react";
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
 import { queriesAtom, queryKeys } from "@koloda/core-react";
-import { Button, Checkbox, Dialog, ErrorMessage, ModelsIcon, RefreshIcon, SearchField, ToggleGroup } from "@koloda/ui";
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorMessage,
+  ModelsIcon,
+  RefreshIcon,
+  SearchField,
+  Switch,
+  ToggleGroup,
+} from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +25,7 @@ import {
   isSettingsModelRowSelected,
   setAllowlistMode,
   setAllowlistModelSelected,
+  setImageInputModel,
   toWhitelistModelIdsUpdate,
 } from "./ai-profile-models-allowlist";
 
@@ -28,6 +39,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState<AllowlistDraft>(() => createAllowlistDraft(profile.whitelistModelIds));
+  const [imageInputIds, setImageInputIds] = useState(() => profile.imageInputModelIds ?? []);
   const { byProfileId } = useAIProfilesModels(isOpen ? [profile.id] : []);
   const modelsState = byProfileId[profile.id];
   const isLoading = modelsState?.isLoading ?? false;
@@ -38,6 +50,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
     setIsOpen(next);
     if (next) {
       setDraft(createAllowlistDraft(profile.whitelistModelIds));
+      setImageInputIds(profile.imageInputModelIds ?? []);
       setSearch("");
       // WHY: the dialog fetches on every open (AI-PROVIDERS.md §Allowlist). Model
       // queries do not refetch on mount, so drop the cached list first.
@@ -49,7 +62,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
 
   const handleSave = () => {
     mutate(
-      { id: profile.id, whitelistModelIds: toWhitelistModelIdsUpdate(draft) },
+      { id: profile.id, whitelistModelIds: toWhitelistModelIdsUpdate(draft), imageInputModelIds: imageInputIds },
       {
         onSuccess: () => {
           setIsOpen(false);
@@ -122,20 +135,34 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
                     {_(msg`settings.ai.models.empty`)}
                   </p>
                 ) : (
-                  rows.map((row) => (
-                    <Checkbox
-                      isSelected={isSettingsModelRowSelected(draft, row.id)}
-                      isDisabled={draft.mode === "all"}
-                      onChange={(isSelected) =>
-                        setDraft((current) => setAllowlistModelSelected(current, row.id, isSelected))
-                      }
-                      key={row.id}
-                    >
-                      <Checkbox.Indicator />
-                      <Checkbox.Label variants={{ class: "truncate group-disabled:fg-level-2" }}>
-                        {row.name}
-                      </Checkbox.Label>
-                    </Checkbox>
+                  rows.map(({ id, name, hasUnknownImageInput }) => (
+                    <div className="flex items-center gap-3" key={id}>
+                      <Checkbox
+                        variants={{ class: "grow min-w-0" }}
+                        isSelected={isSettingsModelRowSelected(draft, id)}
+                        isDisabled={draft.mode === "all"}
+                        onChange={(isSelected) =>
+                          setDraft((current) => setAllowlistModelSelected(current, id, isSelected))
+                        }
+                      >
+                        <Checkbox.Indicator />
+                        <Checkbox.Label variants={{ class: "truncate group-disabled:fg-level-2" }}>
+                          {name}
+                        </Checkbox.Label>
+                      </Checkbox>
+                      {hasUnknownImageInput && (
+                        <Switch
+                          aria-label={_(msg`settings.ai.models.image-input.label ${name}`)}
+                          isSelected={imageInputIds.includes(id)}
+                          onChange={(isSelected) =>
+                            setImageInputIds((current) => setImageInputModel(current, id, isSelected))
+                          }
+                        >
+                          <Switch.Indicator />
+                          <Switch.Label>{_(msg`settings.ai.models.image-input`)}</Switch.Label>
+                        </Switch>
+                      )}
+                    </div>
                   ))
                 )}
               </div>

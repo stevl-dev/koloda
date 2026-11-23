@@ -82,6 +82,31 @@ describe("SettingsAIProfileModels", () => {
     expect(listModels).toHaveBeenCalledTimes(2);
   });
 
+  it("offers the image input switch only for models whose image input is unknown, and saves the answers", async () => {
+    listModels.mockResolvedValue([
+      { id: "vision", name: "Vision model", context_length: 0, has_image_input: true },
+      { id: "text", name: "Text model", context_length: 0, has_image_input: false },
+      { id: "unknown", name: "Unknown model", context_length: 0 },
+    ]);
+    renderDialog();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.models.trigger" }));
+    });
+    await screen.findByText("Unknown model");
+
+    const switches = screen.getAllByRole("switch");
+    expect(switches).toHaveLength(1);
+    await act(async () => {
+      fireEvent.click(switches[0]!);
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "settings.ai.edit.submit" }));
+    });
+
+    expect(updateProfile).toHaveBeenCalledWith(expect.objectContaining({ imageInputModelIds: ["unknown"] }));
+  });
+
   it("shows the catalog message for a failed save", async () => {
     updateProfile.mockRejectedValueOnce(new AppError("db.update", "SQLITE_BUSY"));
     renderDialog();

@@ -606,6 +606,10 @@ msgid "validation.seed.learning-settings"
 msgstr "Invalid learning settings"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "validation.settings-ai.profiles.image-input-model-ids"
+msgstr "Model id can't be empty"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "validation.settings-ai.profiles.whitelist-model-ids"
 msgstr "Model id can't be empty"
 

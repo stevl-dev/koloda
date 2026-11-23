@@ -76,6 +76,22 @@ describe("aiProfileValidation whitelistModelIds", () => {
   });
 });
 
+describe("aiProfileValidation imageInputModelIds", () => {
+  const base = {
+    id: "01900000-0000-7000-8000-000000000001",
+    secrets,
+    hasSecrets: false,
+    createdAt: "2026-01-01T00:00:00.000Z",
+  };
+
+  it("rejects empty model ids", () => {
+    const result = aiProfileValidation.safeParse({ ...base, imageInputModelIds: [""] });
+    expect(result.error?.issues.map(({ path, message }) => ({ path, message }))).toEqual([
+      { path: ["imageInputModelIds", 0], message: "validation.settings-ai.profiles.image-input-model-ids" },
+    ]);
+  });
+});
+
 describe("aiProfileValidation createdAt", () => {
   const base = { id: "01900000-0000-7000-8000-000000000001", secrets, hasSecrets: false };
 

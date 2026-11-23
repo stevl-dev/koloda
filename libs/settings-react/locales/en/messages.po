@@ -124,6 +124,14 @@ msgid "settings.ai.models.error"
 msgstr "Error"
 
 #: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+msgid "settings.ai.models.image-input"
+msgstr "Accepts images"
+
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+msgid "settings.ai.models.image-input.label {name}"
+msgstr "{name} accepts images"
+
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.loading"
 msgstr "Loading"
 
