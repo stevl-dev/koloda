@@ -144,7 +144,9 @@ Taken from the documentation and release notes, not checked against the types:
   Typing after `@` filters titles, case-insensitive, by contains (the filter part is the plan's assumption).
 - [ ] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — open;
   the plan assumes Shift+Enter inserts a newline and paste inserts plain text.
-  Item 3 checks it hands-on in Electron's Chromium and the browser, and records the result here.
+  The installed source confirms the first two (§TokenField), and the composer tests pin Enter and Shift+Enter.
+  IME and paste still need the human's hands-on check in Electron's Chromium and the browser;
+  agents do not start the app (`agents/VERIFY.md`).
 - [x] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — yes, as the human chose:
   the field grows from 1 to 6 rows, then scrolls, as the `<textarea>` does today.
 
@@ -179,7 +181,7 @@ Taken from the documentation and release notes, not checked against the types:
   Commit: Add a TokenField primitive to @koloda/ui
   Depends on: 1
 
-- [ ] 3. Build the assistant composer on TokenField
+- [x] 3. Build the assistant composer on TokenField
   Goal: `AIChatPromptInput` (`libs/ai-react/src/lib/ai-chat-prompt-input.tsx`) uses the item 2 primitive
   in place of the `<textarea>`, with the same props and behavior: a string `value` and `onChange`,
   Enter submits, Shift+Enter inserts a newline, autofocus, the placeholder and label,
