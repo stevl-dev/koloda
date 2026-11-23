@@ -1,6 +1,6 @@
 # Mention picker in the assistant composer
 
-Status: ready
+Status: done
 Guides: agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-DATA-ACCESS.md, agents/DEPENDENCIES.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -142,11 +142,10 @@ Taken from the documentation and release notes, not checked against the types:
   A stale id already fails the tool call visibly.
 - [x] 7. Is the list grouped by kind? — no: one flat list of all kinds, sorted by title, each row marked with its kind.
   Typing after `@` filters titles, case-insensitive, by contains (the filter part is the plan's assumption).
-- [ ] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — open;
-  the plan assumes Shift+Enter inserts a newline and paste inserts plain text.
-  The installed source confirms the first two (§TokenField), and the composer tests pin Enter and Shift+Enter.
-  IME and paste still need the human's hands-on check in Electron's Chromium and the browser;
-  agents do not start the app (`agents/VERIFY.md`).
+- [x] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — Shift+Enter inserts a newline,
+  and paste inserts plain text.
+  The installed source confirms both (§TokenField), and the composer tests pin Enter and Shift+Enter.
+  IME and paste were left to the human's hands-on check; the human reported the manual checks good before landing.
 - [x] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — yes, as the human chose:
   the field grows from 1 to 6 rows, then scrolls, as the `<textarea>` does today.
 
@@ -241,3 +240,26 @@ Taken from the documentation and release notes, not checked against the types:
   a Manual verify block for sending, reverting, and reopening a conversation with mentions.
   Commit: Show mention chips in user messages
   Depends on: 4
+
+## Outcome
+
+`@` in the assistant composer opens one list of the user's decks, templates, and presets, sorted by title.
+Typing filters it, Enter or a click picks, and Escape closes it until a new `@`.
+A pick becomes a chip; the prompt stores it as `@[<title>](<kind>:<id>)`, so drafts, revert, and history needed
+no schema change.
+User messages show the chips, conversation names and the copy action show `@<title>`,
+and the tool descriptions tell the model to use a mentioned id without listing first.
+
+- `react-aria-components` moved to 1.22.1 with `react-aria` 3.53.1, `react-stately` 3.51.0,
+  and the `@react-aria/*` wrappers, so the lockfile holds one copy of each.
+- `@koloda/ui` gained a `TokenField` primitive, chip tokens `bg-token` and `fg-token`, and exports `Popover`.
+- The composer is a contenteditable `TokenField`, not a `<textarea>`, with the same keys and 1-to-6-row height.
+- Two react-aria traps are worked around in the composer, with tagged comments:
+  Autocomplete highlights no item right after `@`, so Enter picks the first match itself;
+  and an `onKeyDown` on `TokenField` stops every key's propagation, so key handling sits in a capture handler
+  on a wrapper, and keys Autocomplete forwards to the list stop at the list instead of reaching the app's hotkeys.
+- Commits 2 and 3 were rewritten before any push, to drop unused exports that failed `check:dead-code`.
+
+Spec: docs/specs/ASSISTANT-CONVERSATION-LIST.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/ASSISTANT-MESSAGES.md
+Review: blocking 2 (ASSISTANT-MESSAGES §Mentions, CSS §Decision flow)
+Change rounds: 2
