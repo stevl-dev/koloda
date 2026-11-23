@@ -148,8 +148,8 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Commit: Add a per-model image input switch for models with unknown capabilities
   Depends on: 1
 
-- [ ] 3. Store conversation images in a device-local table
-  Goal: migration `V10__conversation_attachments.sql` adds `conversation_attachments` (id, mime, size, width,
+- [x] 3. Store conversation images in a device-local table
+  Goal: migration `V19__conversation_attachments.sql` adds `conversation_attachments` (id, mime, size, width,
   height, created_at) and `conversation_attachment_bytes` (id, bytes, cascade from the first), keyed by the
   lowercase hex SHA-256 of the bytes.
   Both repos add (validated with the card image check and cap), get, read bytes, and sweep.

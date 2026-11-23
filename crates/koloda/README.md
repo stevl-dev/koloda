@@ -24,7 +24,9 @@ Rust is the source of truth for the AI provider enum and secrets redaction; `@ko
   `ai`, attachments (format sniffing, size cap), timestamp serde (`time`).
 - Repos: `repo/` — SQLite repos parallel to `@koloda/db-sqlite` (plus AI secrets redaction/reconstruction).
   Owns `rusqlite` adapters (e.g. `FromSql` for `SettingsName`).
-  `repo/attachment_bytes.rs` is the only reader and writer of `attachment_bytes` (`docs/decisions/MEDIA-STORAGE.md`).
+  `repo/attachment_bytes.rs` is the only reader and writer of `attachment_bytes` and `conversation_attachment_bytes`
+  (`docs/decisions/MEDIA-STORAGE.md`).
+  `repo/conversation_attachments.rs` is the device-local store of images attached in the assistant.
   `repo/sync/` owns the `sync_*` tables.
   Its module map is the `repo/sync/mod.rs` rustdoc; how each sync path works is in `src/repo/sync/README.md`.
 - App runtime: `app/` — DB connection (`parse_json_column` for JSON TEXT columns),

@@ -18,6 +18,7 @@
 | `settings.hotkeys` | Device-local |
 | `settings.ai` (profiles and `assistant`) | Device-local |
 | `conversations` | Device-local |
+| `conversation_attachments`, `conversation_attachment_bytes` (images attached in the assistant) | Device-local |
 | AI API keys (OS keyring) | Device-local |
 | `window-state.json`, `ui-prefs.json` (desktop main process) | Device-local |
 | `localStorage`: `koloda-ui-prefs`, `lang`, `nav-collapsed`, `activeConversationId`, `koloda:global-ai-profile-state` | Device-local |

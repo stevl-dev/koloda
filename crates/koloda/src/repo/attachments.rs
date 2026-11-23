@@ -16,7 +16,7 @@ use crate::repo::attachment_bytes;
 const ATTACHMENT_REF_PREFIX: &str = "attachment:";
 const ATTACHMENT_ID_LEN: usize = 64;
 
-fn get_attachment_row(row: &Row) -> Result<Attachment, rusqlite::Error> {
+pub(crate) fn get_attachment_row(row: &Row) -> Result<Attachment, rusqlite::Error> {
     Ok(Attachment {
         id: row.get(0)?,
         mime: row.get(1)?,

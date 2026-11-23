@@ -38,6 +38,7 @@ import type { DB } from "@koloda/db-sqlite";
 import {
   addAlgorithm,
   addAttachment,
+  addConversationAttachment,
   addCard,
   addCards,
   addDeck,
@@ -55,6 +56,8 @@ import {
   getAlgorithms,
   getAttachment,
   getAttachmentBytes,
+  getConversationAttachment,
+  getConversationAttachmentBytes,
   getCards,
   getConversation,
   getConversations,
@@ -74,6 +77,7 @@ import {
   setSettings,
   submitLessonResult,
   sweepAttachments,
+  sweepConversationAttachments,
   updateAlgorithm,
   updateCard,
   updateDeck,
@@ -198,6 +202,22 @@ export const queriesFn = (db: DB): Queries => ({
   }),
   addAttachmentMutation: () => ({ mutationFn: (data: AddAttachmentData) => addAttachment(db, data) }),
   sweepAttachmentsMutation: () => ({ mutationFn: (data: SweepAttachmentsData) => sweepAttachments(db, data) }),
+  getConversationAttachmentQuery: (id: Attachment["id"]) => ({
+    queryKey: queryKeys.conversationAttachments.detail(id),
+    queryFn: async () => {
+      const [attachment, bytes] = await Promise.all([
+        getConversationAttachment(db, id),
+        getConversationAttachmentBytes(db, id),
+      ]);
+      return attachment && bytes ? { ...attachment, bytes } : null;
+    },
+  }),
+  addConversationAttachmentMutation: () => ({
+    mutationFn: (data: AddAttachmentData) => addConversationAttachment(db, data),
+  }),
+  sweepConversationAttachmentsMutation: () => ({
+    mutationFn: (data: SweepAttachmentsData) => sweepConversationAttachments(db, data),
+  }),
   addAIProfileMutation: () => ({ mutationFn: (data: AddAIProfileData) => addAIProfile(db, data) }),
   updateAIProfileMutation: () => ({ mutationFn: (data: UpdateAIProfileData) => updateAIProfile(db, data) }),
   removeAIProfileMutation: () => ({ mutationFn: (data: RemoveAIProfileData) => removeAIProfile(db, data) }),

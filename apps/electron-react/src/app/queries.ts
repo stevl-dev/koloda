@@ -198,6 +198,20 @@ export const queriesFn = (): Queries => ({
   sweepAttachmentsMutation: () => ({
     mutationFn: (data: SweepAttachmentsData) => invoke("cmd_sweep_attachments", { data }),
   }),
+  getConversationAttachmentQuery: (id: Attachment["id"]) => ({
+    queryKey: queryKeys.conversationAttachments.detail(id),
+    queryFn: async () => {
+      const attachment = await invoke("cmd_get_conversation_attachment", { id });
+      return attachment && { ...attachment, bytes: base64ToBytes(attachment.bytes) };
+    },
+  }),
+  addConversationAttachmentMutation: () => ({
+    mutationFn: (data: AddAttachmentData) =>
+      invoke("cmd_add_conversation_attachment", { data: { ...data, bytes: bytesToBase64(data.bytes) } }),
+  }),
+  sweepConversationAttachmentsMutation: () => ({
+    mutationFn: (data: SweepAttachmentsData) => invoke("cmd_sweep_conversation_attachments", { data }),
+  }),
   getAIProfilesQuery: () => ({
     queryKey: queryKeys.ai.profiles(),
     queryFn: () => invoke("cmd_get_ai_profiles", undefined),

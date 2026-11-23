@@ -182,6 +182,12 @@ function buildQueries(): Queries {
     getAttachmentQuery: (id) => ({ queryKey: queryKeys.attachments.detail(id), queryFn: unused }),
     addAttachmentMutation: () => ({ mutationFn: unused }),
     sweepAttachmentsMutation: () => ({ mutationFn: unused }),
+    getConversationAttachmentQuery: (id) => ({
+      queryKey: queryKeys.conversationAttachments.detail(id),
+      queryFn: unused,
+    }),
+    addConversationAttachmentMutation: () => ({ mutationFn: unused }),
+    sweepConversationAttachmentsMutation: () => ({ mutationFn: unused }),
   };
 }
 

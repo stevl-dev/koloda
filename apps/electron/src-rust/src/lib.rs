@@ -664,6 +664,55 @@ impl KolodaDb {
     }
 
     #[napi]
+    pub fn get_conversation_attachment(&self, env: Env, params: serde_json::Value) -> Result<JsObject> {
+        self.run(env, move |db| {
+            let id = extract_id(params)?;
+            let Some(attachment) =
+                repo::conversation_attachments::get_conversation_attachment(db, &id).map_err(to_napi_error)?
+            else {
+                return Ok(None);
+            };
+            let Some(bytes) =
+                repo::conversation_attachments::get_conversation_attachment_bytes(db, &id).map_err(to_napi_error)?
+            else {
+                return Ok(None);
+            };
+            to_value(&AttachmentContentWire {
+                attachment,
+                bytes: BASE64_STANDARD.encode(bytes),
+            })
+            .map(Some)
+        })
+    }
+
+    // WHY: `run`, not `run_write`: conversation images are device-local and capture nothing for sync.
+    #[napi]
+    pub fn add_conversation_attachment(&self, env: Env, data: serde_json::Value) -> Result<JsObject> {
+        self.run(env, move |db| {
+            let wire: AddAttachmentWire = from_wire(data)?;
+            let bytes = BASE64_STANDARD
+                .decode(wire.bytes)
+                .map_err(|e| to_napi_error(AppError::new(error_codes::UNKNOWN, Some(e.to_string()))))?;
+            let data = AddAttachmentData {
+                bytes,
+                width: wire.width,
+                height: wire.height,
+            };
+            let attachment =
+                repo::conversation_attachments::add_conversation_attachment(db, data).map_err(to_napi_error)?;
+            to_value(&attachment)
+        })
+    }
+
+    #[napi]
+    pub fn sweep_conversation_attachments(&self, env: Env, data: serde_json::Value) -> Result<JsObject> {
+        self.run(env, move |db| {
+            let data: SweepAttachmentsData = from_wire(data)?;
+            repo::conversation_attachments::sweep_conversation_attachments(db, data).map_err(to_napi_error)
+        })
+    }
+
+    #[napi]
     pub fn get_ai_profiles(&self, env: Env) -> Result<JsObject> {
         self.run(env, move |db| {
             let profiles = repo::ai::get_ai_profiles(db).map_err(to_napi_error)?;

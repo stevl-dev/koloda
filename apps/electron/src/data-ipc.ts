@@ -70,6 +70,13 @@ const dataHandlers = {
   cmd_add_attachment: (db, { data }: IpcArgs<"cmd_add_attachment">) => db.addAttachment(data),
   cmd_sweep_attachments: (db, { data }: IpcArgs<"cmd_sweep_attachments">) => db.sweepAttachments(data),
 
+  cmd_get_conversation_attachment: (db, args: IpcArgs<"cmd_get_conversation_attachment">) =>
+    db.getConversationAttachment(args),
+  cmd_add_conversation_attachment: (db, { data }: IpcArgs<"cmd_add_conversation_attachment">) =>
+    db.addConversationAttachment(data),
+  cmd_sweep_conversation_attachments: (db, { data }: IpcArgs<"cmd_sweep_conversation_attachments">) =>
+    db.sweepConversationAttachments(data),
+
   cmd_get_ai_profiles: (db) => db.getAiProfiles(),
   cmd_add_ai_profile: (db, { data }: IpcArgs<"cmd_add_ai_profile">) => db.addAiProfile(data),
   cmd_update_ai_profile: (db, { data }: IpcArgs<"cmd_update_ai_profile">) => db.updateAiProfile(data),

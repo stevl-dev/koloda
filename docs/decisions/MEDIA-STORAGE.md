@@ -24,12 +24,20 @@
   That check is the editor's alone, so an image stored another way, such as from a link, may not decode.
 - Card content is the only thing that keeps an attachment alive.
   Nothing else, such as conversation state, holds an attachment.
+- Images attached in the assistant are a second store of the same shape: `conversation_attachments` and
+  `conversation_attachment_bytes`, with the same validation and hash ids.
+  It is device-local and never syncs (`docs/decisions/STORAGE-BUCKETS.md`).
+  Conversation state refers to one as `conversation-attachment:<id>`, and only conversation state keeps it alive.
+  The two stores never share a row: the same bytes in a card and in a conversation are stored once in each.
+  The byte-store modules above are the only code that reads or writes either bytes table.
 
 ## Why
 
 Data URLs bloat every card read and make the text unusable to edit.
 Remote URLs break offline review, leave caching to the network, and leak each review to another site.
 A content hash gives deduplication and stable cache keys without bookkeeping, and refs survive any move of the bytes.
+Conversation images get their own store because cards sync and conversations do not.
+In the card store, a conversation ref would have to keep a global row alive, and a sync path could carry it away.
 Keeping bytes in the database keeps them atomic with card writes and inside one backup.
 Splitting metadata from bytes lets large media (audio, video) pick another store by size later
 without a content migration.

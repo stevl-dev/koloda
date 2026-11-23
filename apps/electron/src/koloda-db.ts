@@ -144,6 +144,11 @@ export interface KolodaDb {
   addAttachment(data: AddAttachmentWire): Promise<Attachment>;
   sweepAttachments(data: SweepAttachmentsData): Promise<void>;
 
+  // Conversation images: the device-local store, same wire shapes
+  getConversationAttachment(params: { id: string }): Promise<AttachmentContentWire | null>;
+  addConversationAttachment(data: AddAttachmentWire): Promise<Attachment>;
+  sweepConversationAttachments(data: SweepAttachmentsData): Promise<void>;
+
   // AI profiles (no secrets — see the INVARIANT above)
   getAiProfiles(): Promise<AIProfile[]>;
   addAiProfile(data: AddAIProfileData): Promise<AIProfile>;

@@ -9,6 +9,12 @@ export {
 } from "./lib/algorithms";
 export { addAttachment, getAttachment, getAttachmentBytes, sweepAttachments } from "./lib/attachments";
 export {
+  addConversationAttachment,
+  getConversationAttachment,
+  getConversationAttachmentBytes,
+  sweepConversationAttachments,
+} from "./lib/conversation-attachments";
+export {
   addCard,
   addCards,
   deleteCard,

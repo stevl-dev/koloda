@@ -55,6 +55,8 @@ The full method list lives in `src-rust/src/lib.rs`.
   `cmd_get_reviews`, `cmd_get_todays_review_totals`
 - Attachments: `cmd_get_attachment` (meta plus base64 bytes, or `null`), `cmd_add_attachment` (base64 bytes),
   `cmd_sweep_attachments`
+- Conversation images, with the same shapes: `cmd_get_conversation_attachment`, `cmd_add_conversation_attachment`,
+  `cmd_sweep_conversation_attachments`
 - AI profiles: `cmd_get_ai_profiles`, `cmd_add_ai_profile`, `cmd_update_ai_profile`, `cmd_remove_ai_profile`
 
 There is deliberately no command for reading AI profile secrets.
@@ -93,8 +95,8 @@ over `KolodaDb`, streaming tool events back on the same channel.
 The `koloda-sync` engine runs inside the addon on the app's database (`src-rust/src/sync.rs`).
 Its host calls wait on the network, so they run on a sync thread of their own, never on the database thread.
 `cmd_sync_status` only reads, so it runs on the database thread; `cmd_sync_nudge` waits on neither.
-Every product write command tells the engine a local commit happened; conversations, AI profiles, and attachment
-writes capture nothing and do not.
+Every product write command tells the engine a local commit happened; conversations, conversation images,
+AI profiles, and attachment writes capture nothing and do not.
 
 - `cmd_sync_start` `{ starter }` — starts the engine on the first call and returns the status.
   - `starter` is the algorithm and template sync repair creates when none is left.

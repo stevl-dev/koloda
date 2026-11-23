@@ -278,6 +278,10 @@ export interface DataIpc {
   cmd_add_attachment: { args: { data: AddAttachmentWire }; result: Attachment };
   cmd_sweep_attachments: { args: { data: SweepAttachmentsData }; result: void };
 
+  cmd_get_conversation_attachment: { args: { id: string }; result: AttachmentContentWire | null };
+  cmd_add_conversation_attachment: { args: { data: AddAttachmentWire }; result: Attachment };
+  cmd_sweep_conversation_attachments: { args: { data: SweepAttachmentsData }; result: void };
+
   // Media commands (`media-ipc.ts`): the fetch runs in main, which CORS does not apply to.
   cmd_add_attachment_from_url: { args: { url: string }; result: Attachment };
 

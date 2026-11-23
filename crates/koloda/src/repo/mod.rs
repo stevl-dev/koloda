@@ -8,6 +8,7 @@ pub mod algorithms;
 pub mod attachment_bytes;
 pub mod attachments;
 pub mod cards;
+pub mod conversation_attachments;
 pub mod conversations;
 pub mod decks;
 pub mod fsrs_sql;

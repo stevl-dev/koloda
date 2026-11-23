@@ -16,9 +16,9 @@ Wired to `apps/web`. Desktop apps do not use this package; they call `koloda` vi
   `_migrations` bookkeeping (shared name with desktop) records each file's name and SHA-256.
   `getStatus` reports `"incompatible"` for a changed, missing, or out-of-order entry, as Refinery refuses one.
 - Repos: `algorithms.ts`, `templates.ts`, `decks.ts`, `cards.ts`, `reviews.ts`,
-  `lessons.ts`, `settings.ts`, `conversations.ts`, `attachments.ts`.
+  `lessons.ts`, `settings.ts`, `conversations.ts`, `attachments.ts`, `conversation-attachments.ts`.
 - Attachment bytes: `attachment-bytes.ts` — the only reader and writer of `attachment_bytes`
-  (`docs/decisions/MEDIA-STORAGE.md`).
+  and `conversation_attachment_bytes` (`docs/decisions/MEDIA-STORAGE.md`).
 - `getConversations` returns trimmed list items from `toConversationListItem` (`@koloda/app`), which derives `hasTurns`
   and `isUnread` from `state` in TS;
   desktop `get_conversations` returns full rows including `state` (deliberate — see `crates/koloda/README.md`).

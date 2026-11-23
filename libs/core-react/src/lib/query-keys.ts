@@ -32,6 +32,9 @@ export const queryKeys = {
   attachments: {
     detail: (id: Attachment["id"]) => ["attachments", id] as const,
   },
+  conversationAttachments: {
+    detail: (id: Attachment["id"]) => ["conversation_attachments", id] as const,
+  },
   cards: {
     all: () => ["cards"] as const,
     deck: ({ deckId }: GetCardsParams) => ["cards", String(deckId)] as const,
