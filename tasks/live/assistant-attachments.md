@@ -1,6 +1,6 @@
 # Image attachments in assistant messages
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/DB.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/STORAGE-BUCKETS.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/CACHE-REFRESH.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
 Flow: local
 
@@ -112,10 +112,10 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
 - [x] Can a message be images alone? — Yes.
 - [x] Are older images left out of later turns? — No, every turn sends every image.
 - [x] Are a draft's images saved with the conversation, as `promptInput` is? — Yes.
-- [ ] Revert puts a reverted turn's images back in the composer with its text — proposed, open
-- [ ] Retry resends the turn's images — proposed, open
-- [ ] Copying a user message copies its text only — proposed, open
-- [ ] The title of a conversation whose first message has no text — proposed: the default new-conversation title, open
+- [x] Does revert restore a turn's images? — Yes, back in the composer with its text.
+- [x] Does retry resend a turn's images? — Yes.
+- [x] What does copying a user message with images copy? — Its text only.
+- [x] The title of a conversation whose first message has no text? — The default new-conversation title.
 
 ## Plan
 
@@ -200,14 +200,14 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Submit is blocked, with a message naming the reason, when the draft or the history holds images
   and the model does not accept them.
   The user bubble shows thumbnails.
-  The conversation title falls back as Open questions settles.
+  A conversation whose first message has no text keeps the default new-conversation title.
   The specs describe sending and display; run `bun run gen:help`.
   Done when: submit, validation, and bubble tests; `bunx nx test @koloda/ai-react @koloda/assistant-react` pass.
   Commit: Send images with an assistant message
   Depends on: 4, 5
 
 - [ ] 7. Carry images through retry, revert, and copy
-  Goal: as Open questions settles: retry resends the turn's images, revert puts them back in the composer,
+  Goal: retry resends the turn's images, revert puts them back in the composer,
   and copy copies the text.
   `docs/specs/ASSISTANT-CONVERSATIONS.md` (§Retry) and `docs/specs/ASSISTANT-MESSAGES.md` follow;
   run `bun run gen:help`.
