@@ -47,6 +47,10 @@ type Feedback = { errors: FormError[]; reason: MessageDescriptor | null };
 
 const NO_FEEDBACK: Feedback = { errors: [], reason: null };
 
+// INVARIANT: feedback belongs to the draft it was shown for; another conversation shows none.
+// A key, not an effect on the id: an attach that mints a conversation keeps its errors for the minted one.
+type KeyedFeedback = Feedback & { conversationId: string | null };
+
 export type UseAssistantImageAttachOptions = {
   imageInput: ImageInputState;
   onConversationIdChange: (id: string) => void;
@@ -57,23 +61,21 @@ export function useAssistantImageAttach({ imageInput, onConversationIdChange }: 
   const addImage = useSetAtom(addAssistantPromptImageAtom);
   const { addConversationAttachmentMutation } = useAtomValue(queriesAtom);
   const { mutateAsync } = useMutation(addConversationAttachmentMutation());
-  const [feedback, setFeedback] = useState<Feedback>(NO_FEEDBACK);
+  const [keyedFeedback, setKeyedFeedback] = useState<KeyedFeedback>({ ...NO_FEEDBACK, conversationId: null });
   const [isAttaching, setIsAttaching] = useState(false);
   const isAttachingRef = useRef(false);
-
-  // INVARIANT: feedback belongs to the draft it was shown for; switching conversations hides it.
-  useEffect(() => setFeedback(NO_FEEDBACK), [conversationId]);
+  const feedback = keyedFeedback.conversationId === conversationId ? keyedFeedback : NO_FEEDBACK;
 
   const attach = async (files: File[]) => {
     if (files.length === 0) return;
     if (imageInput === "unsupported" || imageInput === "unknown") {
-      setFeedback({ errors: [], reason: DISABLED_REASONS[imageInput] });
+      setKeyedFeedback({ errors: [], reason: DISABLED_REASONS[imageInput], conversationId });
       return;
     }
     if (imageInput === "hidden" || isAttachingRef.current) return;
     isAttachingRef.current = true;
     setIsAttaching(true);
-    setFeedback(NO_FEEDBACK);
+    setKeyedFeedback({ ...NO_FEEDBACK, conversationId });
     let mintedId: string | null = null;
     const errors: FormError[] = [];
     try {
@@ -91,7 +93,7 @@ export function useAssistantImageAttach({ imageInput, onConversationIdChange }: 
       isAttachingRef.current = false;
       setIsAttaching(false);
     }
-    setFeedback({ errors, reason: null });
+    setKeyedFeedback({ errors, reason: null, conversationId: conversationId ?? mintedId });
     if (mintedId) onConversationIdChange(mintedId);
   };
 

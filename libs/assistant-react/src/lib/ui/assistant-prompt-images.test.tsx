@@ -57,4 +57,36 @@ describe("useAssistantImageAttach", () => {
     expect(addImage).not.toHaveBeenCalled();
     expect(result.current.feedback.reason).toEqual(msg`ai.chat.images.unsupported`);
   });
+
+  it("keeps a failed file's error when a later file of the same attach mints the conversation", async () => {
+    vi.stubGlobal("createImageBitmap", async () => ({ width: 1, height: 1, close() {} }));
+    const store = createStore();
+    store.set(queriesAtom, {
+      addConversationAttachmentMutation: () => ({
+        mutationFn: async () => ({ id: "a".repeat(64), mime: "image/png" }),
+      }),
+    } as unknown as Queries);
+    const queryClient = createQueryClient();
+    function Wrapper({ children }: PropsWithChildren) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <JotaiProvider store={store}>{children}</JotaiProvider>
+        </QueryClientProvider>
+      );
+    }
+    const onConversationIdChange = vi.fn();
+    const { result } = renderHook(() => useAssistantImageAttach({ imageInput: "enabled", onConversationIdChange }), {
+      wrapper: Wrapper,
+    });
+    const notAnImage = new File([new TextEncoder().encode("plain text")], "a.png", { type: "image/png" });
+    const png = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "b.png", {
+      type: "image/png",
+    });
+
+    await act(() => result.current.attach([notAnImage, png]));
+
+    expect(onConversationIdChange).toHaveBeenCalledTimes(1);
+    expect(result.current.feedback.errors.map((error) => error.message)).toEqual(["validation.attachments.format"]);
+    vi.unstubAllGlobals();
+  });
 });
