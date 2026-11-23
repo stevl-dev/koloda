@@ -1,5 +1,7 @@
+import { parseMentionText } from "@koloda/ai";
+import { tokenFieldToken } from "@koloda/ui";
 import type { UIMessage, UIMessagePart } from "ai";
-import { memo } from "react";
+import { Fragment, memo } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 import { tv } from "tailwind-variants";
 
@@ -13,7 +15,7 @@ export type AIChatMessageProps = {
 // references stable, so streamed chunks skip this message's text. It covers the
 // text only; a caller that adds rows around it memoizes the whole turn.
 export const AIChatMessage = memo(function AIChatMessage({ role, parts, renderText }: AIChatMessageProps) {
-  const textRenderer = role === "user" ? undefined : renderText;
+  const textRenderer = role === "user" ? renderUserText : renderText;
 
   return (
     <AIChatMessageLayout role={role}>
@@ -23,6 +25,18 @@ export const AIChatMessage = memo(function AIChatMessage({ role, parts, renderTe
     </AIChatMessageLayout>
   );
 });
+
+function renderUserText(text: string) {
+  return (
+    <p className="whitespace-pre-wrap leading-6">
+      {parseMentionText(text).map((part, index) => (
+        <Fragment key={index}>
+          {part.type === "text" ? part.text : <span className={tokenFieldToken()}>{part.mention.title}</span>}
+        </Fragment>
+      ))}
+    </p>
+  );
+}
 
 const aiChatMessage = tv({
   base: "flex flex-col gap-4 px-3",

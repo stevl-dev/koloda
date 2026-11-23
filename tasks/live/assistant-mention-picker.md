@@ -150,6 +150,11 @@ Taken from the documentation and release notes, not checked against the types:
 - [x] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — yes, as the human chose:
   the field grows from 1 to 6 rows, then scrolls, as the `<textarea>` does today.
 
+- [ ] 10. What does a user message's copy action copy when the message holds a mention? — open;
+  it copies the stored text, token syntax included (`@[Spanish verbs](deck:<id>)`), as before this task.
+  Pasting that into the prompt keeps it as plain text until the draft is reopened, when it shows as a chip.
+  Copying `@<title>` instead would read better but drops the id.
+
 ## Plan
 
 - [x] 1. Upgrade react-aria-components to 1.22.1
@@ -228,7 +233,7 @@ Taken from the documentation and release notes, not checked against the types:
   Commit: Mention decks, templates, and algorithms in the assistant composer
   Depends on: 3
 
-- [ ] 5. Show mention chips in user messages
+- [x] 5. Show mention chips in user messages
   Goal: a user bubble (`libs/ai-react/src/lib/ai-chat-message.tsx`) renders mention tokens with the codec
   as the same chip the composer shows, read-only, with the title written in the token (open question 6).
   Revert puts the message back in the composer with its chips.

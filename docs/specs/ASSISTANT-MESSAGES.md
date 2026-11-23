@@ -46,6 +46,7 @@ Its content fills in as the AI stream progresses.
 Messages are rendered differently based on their type.
 
 User messages always render as text.
+A mention in a user message shows as a chip with its title, not as its token; see §Mentions.
 Each user message shows when it was sent.
 A message sent today shows "Today" and the time; an older one shows the date and the time.
 The date and time follow INTERFACE-SETTINGS.md (§Date and Time Format).
@@ -123,6 +124,8 @@ An `@` inside a word opens no list.
 - Escape closes the list; it opens again only for a new `@`.
 
 Picking replaces the `@` and the filter text with a chip that shows the title.
+A sent message keeps its chips; see §Message Display.
+Reverting to a message puts it back in the prompt with its chips.
 The message carries each mention's id and title to the model; see ASSISTANT-DATA-ACCESS.md (§What it is).
 
 A chip shows the title the item had when it was picked.

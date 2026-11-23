@@ -49,4 +49,27 @@ describe("AIChatMessage", () => {
     expect(screen.queryByTestId("custom-text")).toBeNull();
     expect(screen.getByText("**hi**").tagName).toBe("P");
   });
+
+  it("shows a mention in a user message as its title, not its token", () => {
+    const { container } = render(
+      <AIChatMessage
+        role="user"
+        parts={[{ type: "text", text: "Quiz me on @[Spanish verbs](deck:0b9e3c1a-6f2d-4e8b-9a71-3c5d2e8f1a40) today" }]}
+      />,
+    );
+    expect(container.textContent).toBe("Quiz me on Spanish verbs today");
+    expect(screen.getByText("Spanish verbs").tagName).toBe("SPAN");
+  });
+
+  it("leaves mention syntax in assistant text to the text renderer", () => {
+    const text = "See @[Spanish verbs](deck:0b9e3c1a-6f2d-4e8b-9a71-3c5d2e8f1a40)";
+    render(
+      <AIChatMessage
+        role="assistant"
+        renderText={(value) => <div data-testid="custom-text">{value}</div>}
+        parts={[{ type: "text", text }]}
+      />,
+    );
+    expect(screen.getByTestId("custom-text").textContent).toBe(text);
+  });
 });
