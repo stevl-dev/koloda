@@ -205,6 +205,7 @@ export function AssistantChat({
   const renderMessage = useAssistantMessageRenderer({
     handleRetry: controller.retry,
     handleRevert,
+    isRetryBlocked: areImagesBlocked,
   });
 
   useAssistantChatHotkeys({

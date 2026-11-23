@@ -66,7 +66,10 @@ describe("revert state in-memory lifecycle", () => {
       "assistant-r2",
     ]);
 
-    dispatchTo(store, "A", ["setRevertState", { revertedToUserMessageId: "user-r2", preRevertInputText: "draft" }]);
+    dispatchTo(store, "A", [
+      "setRevertState",
+      { revertedToUserMessageId: "user-r2", preRevertInputText: "draft", preRevertImages: [] },
+    ]);
 
     expect(store.get(assistantMessagesAtom).map((m) => m.id)).toEqual(["user-r1", "assistant-r1"]);
     // WHY: The hidden messages are still in the conversation state so

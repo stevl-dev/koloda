@@ -1,11 +1,11 @@
-import { getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
+import { getMessageImageIds, getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
 import { generateUUID } from "@koloda/app";
 import { AssistantDuplicateRunError, AssistantEngineClosedError } from "@koloda/assistant";
 import type { AssistantCommand } from "@koloda/assistant";
 import type { RefObject } from "react";
 import { useCallback, useRef } from "react";
 import type { AssistantConversationConfig } from "../state/assistant-conversation-config";
-import { assistantMessageId, userMessageId } from "../state/assistant-messages";
+import { assistantMessageId, getMessagePromptImages, userMessageId } from "../state/assistant-messages";
 import type { ConversationReducerAction } from "../state/conversation-reducer";
 import type { ConversationReducerState } from "../state/conversation-types";
 import { findLatestErroredRun, getVisibleMessages, hasRetryableTurn } from "../state/conversation-run-helpers";
@@ -83,6 +83,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         // already in visibleMessages and promptText is appended once more.
         const prepared = prepareRunRequest(cfg, promptText, visibleMessages, currentState.runs, {
           excludeRunId: runId,
+          promptImageIds: getMessageImageIds(userMessage),
         });
         if (!prepared) return;
 
@@ -190,7 +191,8 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
       const userMessage = state.messages.find((m) => m.id === userMessageId);
       if (!userMessage) return null;
       const promptText = getTextMessageContent(userMessage);
-      if (!promptText) return null;
+      const images = getMessagePromptImages(userMessage);
+      if (!promptText && images.length === 0) return null;
 
       // WHY: Revert is visual; the actual deletion happens on the next
       // prompt submit. We just set the in-memory revert state. Any active
@@ -204,8 +206,10 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
           // WHY: on a second revert the composer holds the first revert's
           // pre-fill, not the user's draft. Keep the draft the first revert held.
           preRevertInputText: state.revertState?.preRevertInputText ?? currentInputText,
+          preRevertImages: state.revertState?.preRevertImages ?? state.promptImages,
         },
       ]);
+      dispatchLocal(["setPromptImages", images]);
       return promptText;
     },
     [readState, cancelActiveRun, dispatchLocal],
@@ -214,9 +218,10 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
   const handleRestore = useCallback(() => {
     const state = readState();
     if (!state.revertState) return null;
-    const text = state.revertState.preRevertInputText;
+    const { preRevertInputText, preRevertImages } = state.revertState;
     dispatchLocal(["setRevertState", null]);
-    return text;
+    dispatchLocal(["setPromptImages", preRevertImages]);
+    return preRevertInputText;
   }, [readState, dispatchLocal]);
 
   return {

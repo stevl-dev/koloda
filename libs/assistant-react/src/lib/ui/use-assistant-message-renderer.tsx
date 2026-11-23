@@ -22,9 +22,15 @@ import { RevertMessageButton } from "./revert-message-button";
 export type UseAssistantMessageRendererProps = {
   handleRetry: (runId: string) => Promise<void>;
   handleRevert: (userMessageId: string) => void;
+  // WHY: a retry resends the history's images, so it is blocked when submit is (ASSISTANT-MESSAGES.md §Retrying a Run).
+  isRetryBlocked: boolean;
 };
 
-export function useAssistantMessageRenderer({ handleRetry, handleRevert }: UseAssistantMessageRendererProps) {
+export function useAssistantMessageRenderer({
+  handleRetry,
+  handleRevert,
+  isRetryBlocked,
+}: UseAssistantMessageRendererProps) {
   const runs = useAtomValue(assistantRunsAtom);
   const messages = useAtomValue(assistantMessagesAtom);
   const activeRunId = useAtomValue(assistantActiveRunIdAtom);
@@ -50,7 +56,7 @@ export function useAssistantMessageRenderer({ handleRetry, handleRevert }: UseAs
               run={run}
               runId={chatMetadata.runId}
               isCurrentRun={chatMetadata.runId === activeRunId}
-              isTail={isTail}
+              canRetry={isTail && !isRetryBlocked}
               handleRetry={handleRetry}
             />
           );
@@ -59,7 +65,7 @@ export function useAssistantMessageRenderer({ handleRetry, handleRevert }: UseAs
 
       return content;
     },
-    [tailMessageId, runs, activeRunId, handleRetry, handleRevert],
+    [tailMessageId, runs, activeRunId, handleRetry, handleRevert, isRetryBlocked],
   );
 }
 
@@ -145,13 +151,13 @@ function shouldShowStreamingPending(run: AssistantRun, text: string): boolean {
 type RenderRunStatusOptions = {
   run: AssistantRun;
   runId: string;
-  isTail: boolean;
+  canRetry: boolean;
   copyAction: ReactNode;
   handleRetry: (runId: string) => Promise<void>;
 };
 
 function renderRunStatus(options: RenderRunStatusOptions): ReactNode {
-  const { run, runId, isTail, copyAction, handleRetry } = options;
+  const { run, runId, canRetry, copyAction, handleRetry } = options;
   if (run.status === "success") {
     return (
       <AIChatMessageStatus
@@ -168,7 +174,7 @@ function renderRunStatus(options: RenderRunStatusOptions): ReactNode {
       <AIChatMessageStatus
         state={run.status}
         elapsedSeconds={run.elapsedSeconds ?? undefined}
-        canRetry={isTail}
+        canRetry={canRetry}
         onRetry={() => handleRetry(runId)}
         actions={copyAction}
       />
@@ -185,16 +191,16 @@ type RenderChatProposalOptions = {
   copyAction: ReactNode;
   run: AssistantRun;
   runId: string;
-  isTail: boolean;
+  canRetry: boolean;
   handleRetry: (runId: string) => Promise<void>;
 };
 
 function renderChatProposal(options: RenderChatProposalOptions) {
-  const { toolActivity, cardsBlock, text, content, copyAction, run, runId, isTail, handleRetry } = options;
+  const { toolActivity, cardsBlock, text, content, copyAction, run, runId, canRetry, handleRetry } = options;
   const status = shouldShowStreamingPending(run, text) ? (
     <AIChatMessageStatus state="pending" startedAt={run.startedAt} />
   ) : (
-    renderRunStatus({ run, runId, isTail, copyAction, handleRetry })
+    renderRunStatus({ run, runId, canRetry, copyAction, handleRetry })
   );
 
   return (
@@ -212,7 +218,7 @@ type AssistantTurnProps = {
   run: AssistantRun;
   runId: string;
   isCurrentRun: boolean;
-  isTail: boolean;
+  canRetry: boolean;
   handleRetry: (runId: string) => Promise<void>;
 };
 
@@ -225,7 +231,7 @@ const AssistantTurn = memo(function AssistantTurn({
   run,
   runId,
   isCurrentRun,
-  isTail,
+  canRetry,
   handleRetry,
 }: AssistantTurnProps) {
   const content = <AIChatMessage role="assistant" parts={message.parts} renderText={renderAssistantMarkdown} />;
@@ -256,7 +262,7 @@ const AssistantTurn = memo(function AssistantTurn({
       copyAction,
       run,
       runId,
-      isTail,
+      canRetry,
       handleRetry,
     });
   }
@@ -281,7 +287,7 @@ const AssistantTurn = memo(function AssistantTurn({
     <div className="group flex flex-col gap-2 self-start w-full">
       {toolActivity}
       {content}
-      {renderRunStatus({ run, runId, isTail, copyAction, handleRetry })}
+      {renderRunStatus({ run, runId, canRetry, copyAction, handleRetry })}
     </div>
   );
 });

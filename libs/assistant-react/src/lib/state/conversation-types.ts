@@ -79,6 +79,7 @@ export type AssistantRun = {
 export type RevertState = {
   revertedToUserMessageId: string;
   preRevertInputText: string;
+  preRevertImages: PromptImage[];
 };
 
 export type ConversationReducerState = {

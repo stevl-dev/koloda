@@ -28,6 +28,7 @@ import {
   setAIModel,
   setAIModelParameter,
   setAIProfile,
+  setPromptImages,
   setPromptInput,
   setRevertState,
 } from "./conversation-session";
@@ -56,6 +57,7 @@ const actions = {
   setPromptInput,
   addPromptImage,
   removePromptImage,
+  setPromptImages,
   setRevertState,
   commitRevert,
 };

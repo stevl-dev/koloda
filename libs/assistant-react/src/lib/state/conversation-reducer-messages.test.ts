@@ -537,7 +537,7 @@ describe("getVisibleMessages", () => {
         metadata: { kind: "chat-text", runId: "r2" },
       },
     ];
-    const revertState = { revertedToUserMessageId: "user-r2", preRevertInputText: "" };
+    const revertState = { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertImages: [] };
     expect(getVisibleMessages(messages, revertState)).toEqual([messages[0], messages[1]]);
   });
 
@@ -550,7 +550,7 @@ describe("getVisibleMessages", () => {
         metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
       },
     ];
-    const revertState = { revertedToUserMessageId: "user-missing", preRevertInputText: "" };
+    const revertState = { revertedToUserMessageId: "user-missing", preRevertInputText: "", preRevertImages: [] };
     expect(getVisibleMessages(messages, revertState)).toBe(messages);
   });
 });

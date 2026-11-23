@@ -172,10 +172,12 @@ The text accumulated so far is kept.
 
 See ASSISTANT-CONVERSATIONS.md (§Retry) for when retry is available,
 which run it reuses, and which AI profile state it uses.
+Retry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Images.
 
 ### Copying a Message
 
-Each user message has a copy action that copies its text.
+Each user message has a copy action that copies its text, never its images.
+A message of images alone has no copy action.
 A mention is copied as `@` and its title, without its id, so pasting it back gives plain text, not a chip.
 
 An assistant turn has a copy action once its run has ended, whatever the outcome.
@@ -224,8 +226,8 @@ Restore does not delete anything.
 
 #### Re-trigger
 
-After revert, the prompt input is pre-filled with the text of the reverted user message.
-Any text the user had typed in the input before the revert is held in the revert state and replaced by the pre-fill.
+After revert, the prompt input is pre-filled with the text and the images of the reverted user message.
+Any text and images the user had in the input before the revert are held in the revert state and replaced by the pre-fill.
 The next submit is a chat run.
 
 Sending the pre-filled prompt — edited or as-is — does two things in order:

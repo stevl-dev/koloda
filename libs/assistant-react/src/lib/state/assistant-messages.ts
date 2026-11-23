@@ -1,7 +1,8 @@
-import { getMessageImageIds, getTextMessageContent } from "@koloda/ai";
+import { getMessageImageIds, getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
 import type { GeneratedCard, Message } from "@koloda/ai";
 import type { TemplateFields } from "@koloda/srs";
-import type { TextUIPart, UIMessage } from "ai";
+import type { FileUIPart, TextUIPart, UIMessage } from "ai";
+import type { PromptImage } from "./conversation-types";
 
 type AssistantMessageMetadata = { kind: "chat-text"; runId: string };
 
@@ -40,6 +41,14 @@ export function getMessageRunId(message: UIMessage): string | null {
     return getAssistantMetadata(message)?.runId ?? null;
   }
   return null;
+}
+
+export function getMessagePromptImages(message: UIMessage): PromptImage[] {
+  return message.parts.flatMap((part) =>
+    part.type === "file" && parseConversationImageUrl((part as FileUIPart).url)
+      ? [{ url: (part as FileUIPart).url, mediaType: (part as FileUIPart).mediaType }]
+      : [],
+  );
 }
 
 export function userMessageId(runId: string) {

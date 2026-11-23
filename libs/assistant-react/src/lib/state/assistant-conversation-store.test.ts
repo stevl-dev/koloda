@@ -566,7 +566,10 @@ describe("updatedAt stamping (only on run start)", () => {
     { label: "setPromptInput", action: ["setPromptInput", "draft"] },
     {
       label: "setRevertState",
-      action: ["setRevertState", { revertedToUserMessageId: "user-r1", preRevertInputText: "draft" }],
+      action: [
+        "setRevertState",
+        { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertImages: [] },
+      ],
     },
     {
       label: "commitRevert",
@@ -589,7 +592,10 @@ describe("updatedAt stamping (only on run start)", () => {
         runs: { r1: makeRun("r1", "success") },
       },
       prefixDispatch: (store) =>
-        dispatchTo(store, "A", ["setRevertState", { revertedToUserMessageId: "user-r1", preRevertInputText: "" }]),
+        dispatchTo(store, "A", [
+          "setRevertState",
+          { revertedToUserMessageId: "user-r1", preRevertInputText: "", preRevertImages: [] },
+        ]),
     },
   ];
 

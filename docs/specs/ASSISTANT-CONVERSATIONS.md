@@ -257,7 +257,7 @@ Save errors are dismissed separately and are cleared by a successful save.
 
 The user can retry a failed, canceled, or interrupted run.
 Successful runs are not retryable.
-Retry re-executes the same prompt as a chat request with tools.
+Retry re-executes the same prompt, with its images, as a chat request with tools.
 
 - The retry reuses the same run — the existing message pair is overwritten
 - Previous response text, cards, and tool rows are cleared and replaced with the new stream

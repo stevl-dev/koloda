@@ -96,6 +96,7 @@ function mountRenderer(
     assistantText?: string;
     kind?: "chat-text";
     activeRunId?: string | null;
+    isRetryBlocked?: boolean;
   } = {},
 ) {
   const conversationId = "c1";
@@ -130,6 +131,7 @@ function mountRenderer(
       useAssistantMessageRenderer({
         handleRetry,
         handleRevert,
+        isRetryBlocked: options.isRetryBlocked ?? false,
       }),
     { wrapper: Wrapper },
   );
@@ -152,6 +154,12 @@ describe("useAssistantMessageRenderer", () => {
     expect(screen.getByTestId(`status-${label}`)).toBeTruthy();
     screen.getByRole("button", { name: "retry" }).click();
     expect(handleRetry).toHaveBeenCalledWith(runId);
+  });
+
+  it("offers no retry while the conversation's images block submit", () => {
+    mountRenderer({ r1: { ...makeRun("r1", "failed"), elapsedSeconds: 1 } }, { isRetryBlocked: true });
+
+    expect(screen.queryByRole("button", { name: "retry" })).toBeNull();
   });
 
   it.each([
@@ -511,7 +519,7 @@ describe("useAssistantMessageRenderer", () => {
     // User rows are left out; their send time needs a locale this file does not set up.
     function Transcript(_props: { promptInput: string }) {
       const messages = useAtomValue(assistantMessagesAtom);
-      const renderMessage = useAssistantMessageRenderer({ handleRetry, handleRevert });
+      const renderMessage = useAssistantMessageRenderer({ handleRetry, handleRevert, isRetryBlocked: false });
       return (
         <>
           {messages

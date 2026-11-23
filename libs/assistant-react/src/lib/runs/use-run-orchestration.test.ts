@@ -14,6 +14,7 @@ import {
   currentConversationIdAtom,
   upsertConversationAtom,
 } from "../state/conversation-store";
+import { toPersistedState } from "../persistence/conversation-persistence";
 import { useRunOrchestration } from "./use-run-orchestration";
 
 const CHAT_TOOLS = Object.keys(ASSISTANT_TOOL_SPECS);
@@ -186,6 +187,24 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     // WHY: Retry reuses the tail pair as the new prompt — history must exclude
     // it so the provider sees the prompt exactly once, not [user, user].
     expect(command.input.request.messages).toEqual([{ role: "user", content: "hello" }]);
+  });
+
+  it("a retry resends the retried message's images", async () => {
+    seedConversation("conv-1");
+    const imageId = "a".repeat(64);
+    const image = { url: `conversation-attachment:${imageId}`, mediaType: "image/png" };
+    dispatch(["submitTurn", { runId: "run-1", text: "", images: [image], kind: "chat-text", assistantText: "" }]);
+    dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
+
+    const { result } = orchestrate(store, { dispatchCommand });
+    await act(async () => {
+      await result.current.handleRetry("run-1");
+    });
+
+    const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "retry" }>;
+    expect(command.input.request.messages).toEqual([
+      { role: "user", content: [{ type: "image", attachmentId: imageId }] },
+    ]);
   });
 });
 
@@ -383,6 +402,31 @@ describe("useRunOrchestration — handleRevert", () => {
     expect(restored).toBe("my draft");
     expect(readState().revertState).toBeNull();
   });
+
+  it("puts a reverted message's images in the composer and gives the held ones back on restore", () => {
+    store.set(upsertConversationAtom, { ...initialConversationState, id: "conv-1", createdAt: new Date(1) });
+    store.set(currentConversationIdAtom, "conv-1");
+    const sent = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const held = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "image/jpeg" };
+    dispatch(["submitTurn", { runId: "run-1", text: "", images: [sent], kind: "chat-text", assistantText: "" }]);
+    dispatch(["completeRun", { runId: "run-1" }]);
+    dispatch(["addPromptImage", held]);
+
+    const { result } = orchestrate(store, { dispatchLocal });
+
+    let prompt: string | null = null;
+    act(() => {
+      prompt = result.current.handleRevert(userMessageId("run-1"), "");
+    });
+    expect(prompt).toBe("");
+    expect(readState().promptImages).toEqual([sent]);
+    expect(toPersistedState(readState()).promptImages).toEqual([held]);
+
+    act(() => {
+      result.current.handleRestore();
+    });
+    expect(readState().promptImages).toEqual([held]);
+  });
 });
 
 describe("useRunOrchestration — submit in-flight guard", () => {
@@ -447,7 +491,10 @@ describe("useRunOrchestration — submit in-flight guard", () => {
       seedConversation("conv-1");
       dispatch(["submitTurn", { runId: "run-1", text: "make cards", kind: "chat-text", assistantText: "reply" }]);
       dispatch(["completeRun", { runId: "run-1" }]);
-      dispatch(["setRevertState", { revertedToUserMessageId: userMessageId("run-1"), preRevertInputText: "draft" }]);
+      dispatch([
+        "setRevertState",
+        { revertedToUserMessageId: userMessageId("run-1"), preRevertInputText: "draft", preRevertImages: [] },
+      ]);
 
       const dispatchCommand = vi.fn<DispatchCommand>(() => Promise.resolve());
       const cfg = makeConfig(overrides);
@@ -500,7 +547,10 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     // WHY: Mimic handleRevert while the aborted execute* has not settled —
     // revertState is set but the conversation remains in the in-flight set.
     act(() => {
-      dispatch(["setRevertState", { revertedToUserMessageId: revertTarget, preRevertInputText: "" }]);
+      dispatch([
+        "setRevertState",
+        { revertedToUserMessageId: revertTarget, preRevertInputText: "", preRevertImages: [] },
+      ]);
     });
     expect(readState().revertState).not.toBeNull();
 

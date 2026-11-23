@@ -71,7 +71,7 @@ describe("toPersistedState / fromPersistedState", () => {
     const state: ConversationReducerState = {
       ...initialConversationState,
       id: "conv-1",
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft" },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertImages: [] },
     };
     const persisted = toPersistedState(state);
     expect("revertState" in persisted).toBe(false);
@@ -96,7 +96,7 @@ describe("toPersistedState / fromPersistedState", () => {
       ...initialConversationState,
       id: "conv-1",
       promptInput: "First",
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "my draft" },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "my draft", preRevertImages: [] },
     };
     expect(fromPersistedState(toPersistedState(state)).promptInput).toBe("my draft");
   });
@@ -740,7 +740,7 @@ describe("coerceConversationState", () => {
         ...storedRow,
         id: "conv-1",
         createdAt: new Date(1),
-        revertState: { revertedToUserMessageId: "u-r1", preRevertInputText: "hi" },
+        revertState: { revertedToUserMessageId: "u-r1", preRevertInputText: "hi", preRevertImages: [] },
       });
       expect(coerced.revertState).toBeNull();
     });

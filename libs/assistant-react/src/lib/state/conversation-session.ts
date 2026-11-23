@@ -94,6 +94,10 @@ export function addPromptImage(draft: ConversationReducerState, payload: PromptI
   draft.promptImages.push(payload);
 }
 
+export function setPromptImages(draft: ConversationReducerState, payload: PromptImage[]) {
+  draft.promptImages = payload;
+}
+
 export function removePromptImage(draft: ConversationReducerState, payload: string) {
   draft.promptImages = draft.promptImages.filter((image) => image.url !== payload);
 }

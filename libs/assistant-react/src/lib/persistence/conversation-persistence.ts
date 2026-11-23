@@ -29,9 +29,9 @@ function snapshotStreamingElapsed(run: AssistantRun, now: number): AssistantRun 
  * DB-writable conversation fields.
  * No `revertState` — revert is in-memory only
  * (ASSISTANT-CONVERSATIONS.md §Revert, §Persistence).
- * `promptInput` is persisted with the rest of the conversation; typing it
- * schedules a save and does not stamp `updatedAt`. While a revert is active it
- * holds the pre-revert draft, so a reload acts like Restore.
+ * `promptInput` and `promptImages` are persisted with the rest of the conversation; typing it
+ * schedules a save and does not stamp `updatedAt`. While a revert is active they
+ * hold the pre-revert draft, so a reload acts like Restore.
  * `schemaVersion` is persistence-boundary only (not live reducer state).
  */
 export type PersistedConversation = Omit<ConversationReducerState, "revertState"> & {
@@ -46,7 +46,8 @@ export function toPersistedState(state: ConversationReducerState): PersistedConv
     runs[runId] = snapshotStreamingElapsed(run, now);
   }
   const promptInput = revertState ? revertState.preRevertInputText : persisted.promptInput;
-  return { ...persisted, promptInput, runs, schemaVersion: CONVERSATION_SCHEMA_VERSION };
+  const promptImages = revertState ? revertState.preRevertImages : persisted.promptImages;
+  return { ...persisted, promptInput, promptImages, runs, schemaVersion: CONVERSATION_SCHEMA_VERSION };
 }
 
 export function fromPersistedState(persisted: PersistedConversation): ConversationReducerState {
