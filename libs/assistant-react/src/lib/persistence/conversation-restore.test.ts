@@ -164,6 +164,21 @@ describe("toPersistedState / fromPersistedState", () => {
     expect(computeConversationTitle(restored)).toBe("live title");
   });
 
+  it("round-trips the draft's images, and restores a row saved before draft images with none", () => {
+    const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const state: ConversationReducerState = {
+      ...initialConversationState,
+      id: "draft-1",
+      createdAt: new Date(1),
+      updatedAt: new Date(1),
+      promptImages: [image],
+    };
+    const { promptImages: _promptImages, ...olderRow } = { ...storedRow, id: "draft-2", createdAt: new Date(1) };
+
+    expect(expectOk(JSON.parse(JSON.stringify(toPersistedState(state))) as unknown).promptImages).toEqual([image]);
+    expect(expectOk(JSON.parse(JSON.stringify(olderRow)) as unknown).promptImages).toEqual([]);
+  });
+
   it("round-trips a wiped prompt as an empty composer with a null title", () => {
     const createdAt = new Date(1);
     const state: ConversationReducerState = {

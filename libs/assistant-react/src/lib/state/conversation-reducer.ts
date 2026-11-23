@@ -22,7 +22,9 @@ import {
   commitRevert,
   dismissRunError,
   markRead,
+  addPromptImage,
   newConversation,
+  removePromptImage,
   setAIModel,
   setAIModelParameter,
   setAIProfile,
@@ -52,6 +54,8 @@ const actions = {
   markRead,
   newConversation,
   setPromptInput,
+  addPromptImage,
+  removePromptImage,
   setRevertState,
   commitRevert,
 };

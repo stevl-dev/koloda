@@ -327,6 +327,7 @@ describe("conversationReducer", () => {
       let state = reduce([
         ["submitTurn", { runId: "r1", text: "Hi", kind: "chat-text", assistantText: "" }],
         ["setPromptInput", "leftover draft"],
+        ["addPromptImage", { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" }],
         ["setAIProfile", { profileId: "p1", modelId: "m1", modelParameters: { reasoning_effort: "high" } }],
         ["setAIModel", { modelId: "m2", modelParameters: { reasoning_effort: "low" } }],
         ["setAIModelParameter", { paramType: "reasoning_effort", value: "medium" }],
@@ -346,8 +347,24 @@ describe("conversationReducer", () => {
         modelParameters: {},
         lastReadRunId: null,
         promptInput: "",
+        promptImages: [],
         revertState: null,
       });
+    });
+  });
+
+  describe("prompt images", () => {
+    const imageA = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const imageB = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "image/jpeg" };
+
+    it("adds images in order, once each, and removes one by its url", () => {
+      const state = reduce([
+        ["addPromptImage", imageA],
+        ["addPromptImage", imageB],
+        ["addPromptImage", imageA],
+        ["removePromptImage", imageA.url],
+      ]);
+      expect(state.promptImages).toEqual([imageB]);
     });
   });
 

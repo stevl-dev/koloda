@@ -108,6 +108,28 @@ A run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§
 If that run fails, the user message and the assistant message with any partial text remain,
 so the conversation is not empty.
 
+### Attaching Images
+
+The user can attach images to a prompt in three ways:
+
+- the attach button beside the prompt
+- pasting an image
+- dropping image files on the composer
+
+The formats and the size limit are those of card images; see MEDIA.md (§Formats and Size).
+Each attached image shows as a preview above the prompt, with a button that removes it.
+A file that is too large or is not an image shows an error, and the other files still attach.
+
+The attach button is disabled when the selected model does not accept images.
+Its tooltip says why: the model does not accept images,
+or whether it does is unknown and can be turned on in AI settings; see AI-PROVIDERS.md (§Image Input).
+Pasting or dropping an image then shows the same reason and attaches nothing.
+With no model selected, the button is hidden.
+
+Attaching an image to a new chat gives it an identity, as typing does.
+An image goes to the conversation it was attached in, even if the user switches conversations while it is stored.
+Attached images stay on this device and never sync.
+
 ### Mentions
 
 The user can mention a deck, template, or preset in a prompt.

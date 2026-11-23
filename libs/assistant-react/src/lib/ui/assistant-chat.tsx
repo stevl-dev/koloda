@@ -29,6 +29,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssistantConversationRecovery } from "./assistant-conversation-recovery";
 import { renderAssistantMarkdown } from "./assistant-markdown";
 import { AssistantNoProfiles } from "./assistant-no-profiles";
+import {
+  AssistantAttachImage,
+  AssistantImageDropZone,
+  AssistantPromptImages,
+  getImageInputState,
+  useAssistantImageAttach,
+} from "./assistant-prompt-images";
 import { AssistantSettings } from "./assistant-settings";
 import { setAssistantPromptInputAtom } from "../state/conversation-actions";
 import {
@@ -123,7 +130,14 @@ export function AssistantChat({
     handleModelParameterChange,
   } = useAssistantProfileSelection();
   const hasRequiredSecrets = missingSecretFieldLabels.length === 0;
-  const contextLength = models.find((m) => m.id === modelId)?.context_length ?? 0;
+  const selectedModel = models.find((m) => m.id === modelId);
+  const contextLength = selectedModel?.context_length ?? 0;
+  const imageInput = getImageInputState(
+    modelId,
+    selectedModel,
+    profiles.find((p) => p.id === profileId),
+  );
+  const imageAttach = useAssistantImageAttach({ imageInput, onConversationIdChange });
 
   const { isRestoring, isDeleted, loadError, handleDismissSave, retrySave, retryLoad, blockedRestore } =
     useConversationPersistence({ conversationId });
@@ -242,12 +256,24 @@ export function AssistantChat({
             {generateErr && <AIChatError {...generateErr} onDismiss={controller.dismissGenerate} />}
             {saveErr && <AIChatError {...saveErr} onDismiss={handleDismissSave} onRetry={retrySave} />}
             {revertState && <RevertBanner onRestore={handleRestore} />}
-            <AIChatPromptPanel onSubmit={handleSubmit}>
-              <AIChatPromptInput value={inputValue} onChange={setInputValue} onSubmit={submit} mentions={mentions} />
-              <div className="self-end p-1">
-                <AIChatSubmit canSubmit={canSubmit} canCancel={canCancel} onCancel={controller.cancel} />
-              </div>
-            </AIChatPromptPanel>
+            <AssistantPromptImages feedback={imageAttach.feedback} />
+            <AssistantImageDropZone
+              onPaste={imageAttach.handlePaste}
+              onDragOver={imageAttach.handleDragOver}
+              onDrop={imageAttach.handleDrop}
+            >
+              <AIChatPromptPanel onSubmit={handleSubmit}>
+                <AssistantAttachImage
+                  imageInput={imageInput}
+                  isAttaching={imageAttach.isAttaching}
+                  onSelect={(files) => void imageAttach.attach(files)}
+                />
+                <AIChatPromptInput value={inputValue} onChange={setInputValue} onSubmit={submit} mentions={mentions} />
+                <div className="self-end p-1">
+                  <AIChatSubmit canSubmit={canSubmit} canCancel={canCancel} onCancel={controller.cancel} />
+                </div>
+              </AIChatPromptPanel>
+            </AssistantImageDropZone>
           </Fade>
         )}
       </AnimatePresence>

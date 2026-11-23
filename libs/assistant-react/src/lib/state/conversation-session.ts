@@ -1,5 +1,5 @@
 import type { ModelParameter } from "@koloda/ai";
-import type { ConversationReducerState, RevertState, RunIdPayload } from "./conversation-types";
+import type { ConversationReducerState, PromptImage, RevertState, RunIdPayload } from "./conversation-types";
 import { getMessageRunId } from "./assistant-messages";
 
 type SetAIProfilePayload = {
@@ -85,7 +85,17 @@ export function newConversation(draft: ConversationReducerState, payload: NewCon
   draft.modelParameters = payload.modelParameters ?? {};
   draft.lastReadRunId = null;
   draft.promptInput = "";
+  draft.promptImages = [];
   draft.revertState = null;
+}
+
+export function addPromptImage(draft: ConversationReducerState, payload: PromptImage) {
+  if (draft.promptImages.some((image) => image.url === payload.url)) return;
+  draft.promptImages.push(payload);
+}
+
+export function removePromptImage(draft: ConversationReducerState, payload: string) {
+  draft.promptImages = draft.promptImages.filter((image) => image.url !== payload);
 }
 
 export function setPromptInput(draft: ConversationReducerState, payload: string) {

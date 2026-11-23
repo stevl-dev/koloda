@@ -180,7 +180,7 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Commit: Send a message's images to the model
   Depends on: 1, 3
 
-- [ ] 5. Attach images to the assistant draft
+- [x] 5. Attach images to the assistant draft
   Goal: an attach button, paste, and drop in the composer store images through item 3 and show removable
   previews, with the card editor's format and size errors.
   The button is disabled with a tooltip for a model that does not accept images,

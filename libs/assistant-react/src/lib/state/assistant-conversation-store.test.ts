@@ -14,6 +14,7 @@ import {
   setAssistantAIProfileAtom,
   setAssistantCardStatusAtom,
   setAssistantPromptInputAtom,
+  addAssistantPromptImageAtom,
 } from "./conversation-actions";
 import { dispatchTo, makeConversation, makeRun } from "./assistant-conversation.fixtures";
 import type { ConversationReducerAction } from "./conversation-reducer";
@@ -419,6 +420,43 @@ describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
 
     store.set(setAssistantPromptInputAtom, "draft two");
     expect(pendingSave(store, "A")).toBe(2);
+  });
+  describe("addAssistantPromptImageAtom", () => {
+    const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+
+    it("adds to the conversation the attach started in, though the user switched meanwhile", () => {
+      const store = createStore();
+      store.set(upsertConversationAtom, makeConversation("A"));
+      store.set(upsertConversationAtom, makeConversation("B"));
+      store.set(setCurrentConversationIdAtom, "B");
+
+      expect(store.set(addAssistantPromptImageAtom, { conversationId: "A", image })).toBeNull();
+
+      expect(store.get(conversationsAtom)["A"]?.promptImages).toEqual([image]);
+      expect(store.get(conversationsAtom)["B"]?.promptImages).toEqual([]);
+      expect(pendingSave(store, "A")).toBe(1);
+    });
+
+    it("mints a conversation for an image attached with none open, keeping the draft text", () => {
+      const store = createStore();
+      store.set(setAssistantPromptInputAtom, "  ");
+
+      const mintedId = store.set(addAssistantPromptImageAtom, { conversationId: null, image });
+
+      expect(mintedId).not.toBeNull();
+      const minted = store.get(conversationsAtom)[mintedId!];
+      expect(minted?.promptImages).toEqual([image]);
+      expect(minted?.promptInput).toBe("  ");
+    });
+
+    it("drops an image attached with none open once the user opened a conversation", () => {
+      const store = createStore();
+      store.set(upsertConversationAtom, makeConversation("B"));
+      store.set(setCurrentConversationIdAtom, "B");
+
+      expect(store.set(addAssistantPromptImageAtom, { conversationId: null, image })).toBeNull();
+      expect(store.get(conversationsAtom)["B"]?.promptImages).toEqual([]);
+    });
   });
 });
 

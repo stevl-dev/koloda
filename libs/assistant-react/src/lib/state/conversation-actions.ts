@@ -2,7 +2,7 @@ import type { ModelParameter } from "@koloda/ai";
 import { generateUUID } from "@koloda/app";
 import { atom } from "jotai";
 import { dropRuns } from "./conversation-run-helpers";
-import type { CardStatus, ConversationReducerState } from "./conversation-types";
+import type { CardStatus, ConversationReducerState, PromptImage } from "./conversation-types";
 import { aiProfileStateAtom } from "./ai-profile-state";
 import {
   assistantConversationStateAtom,
@@ -122,6 +122,51 @@ export const setAssistantPromptInputAtom = atom(null, (get, set, text: string): 
   return mintedId;
 });
 
+type AddAssistantPromptImagePayload = {
+  // WHY: the conversation the attach started in. Storing the bytes is async, and the user may switch meanwhile.
+  conversationId: string | null;
+  image: PromptImage;
+};
+
+// INVARIANT: an image lands only in the draft it was attached to. Attached with no conversation yet, it mints one,
+// as typing does, unless the user opened a conversation meanwhile; a dropped image goes at the next cleanup.
+export const addAssistantPromptImageAtom = atom(
+  null,
+  (get, set, { conversationId, image }: AddAssistantPromptImagePayload): string | null => {
+    if (conversationId) {
+      if (!(conversationId in get(conversationsAtom))) return null;
+      dispatchToConversation(conversationId, ["addPromptImage", image])(get, set);
+      set(touchConversationAtom, conversationId);
+      return null;
+    }
+    if (get(currentConversationIdAtom)) return null;
+
+    const mintedId = generateUUID();
+    const stored = get(aiProfileStateAtom);
+    set(assistantConversationStateAtom, [
+      "newConversation",
+      {
+        id: mintedId,
+        createdAt: new Date(),
+        profileId: stored?.profileId,
+        modelId: stored?.modelId,
+        modelParameters: stored?.modelParameters,
+      },
+    ]);
+    set(assistantConversationStateAtom, ["setPromptInput", get(unassignedPromptInputAtom)]);
+    set(unassignedPromptInputAtom, "");
+    set(assistantConversationStateAtom, ["addPromptImage", image]);
+    set(touchAtom);
+    return mintedId;
+  },
+);
+
+export const removeAssistantPromptImageAtom = atom(null, (get, set, url: string) => {
+  if (!get(currentConversationIdAtom)) return;
+  set(assistantConversationStateAtom, ["removePromptImage", url]);
+  set(touchAtom);
+});
+
 export const setAssistantCardStatusAtom = atom(
   null,
   (get, set, payload: { conversationId: string; runId: string; index: number; status: CardStatus }) => {
@@ -188,6 +233,7 @@ export const cloneConversationAtom = atom(null, (get, set, payload: CloneConvers
     // WHY: Clone copies the thread, not the unsent composer. Spec lists
     // messages, completed runs, AI profile, and name — not prompt input.
     promptInput: "",
+    promptImages: [],
     revertState: null,
   };
 

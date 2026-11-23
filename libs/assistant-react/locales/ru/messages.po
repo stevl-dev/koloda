@@ -13,6 +13,31 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.alt"
+msgstr "Прикреплённое изображение"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.attach"
+msgstr "Прикрепить изображения"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.list"
+msgstr "Прикреплённые изображения"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.remove"
+msgstr "Убрать изображение"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.unknown"
+msgstr "Неизвестно, принимает ли эта модель изображения. Включите это в списке моделей в настройках ИИ."
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.test.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.unsupported"
+msgstr "Эта модель не принимает изображения"
+
 #: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx
 #: ../../libs/assistant-react/src/lib/ui/copy-message-button.tsx
 msgid "ai.chat.message.copy.tooltip"

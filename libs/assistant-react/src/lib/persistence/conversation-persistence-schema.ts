@@ -222,6 +222,8 @@ const persistedConversationStateSchema: z.ZodType<PersistedConversation> = z
     modelParameters: z.record(z.string(), z.string()),
     lastReadRunId: z.string().nullable(),
     promptInput: z.string(),
+    // WHY: rows saved before draft images have none.
+    promptImages: z.array(z.object({ url: z.string(), mediaType: z.string() })).default([]),
   })
   .transform(
     (state): PersistedConversation => ({
@@ -238,6 +240,7 @@ const persistedConversationStateSchema: z.ZodType<PersistedConversation> = z
       modelParameters: state.modelParameters,
       lastReadRunId: state.lastReadRunId,
       promptInput: state.promptInput,
+      promptImages: state.promptImages,
     }),
   );
 

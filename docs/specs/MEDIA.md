@@ -113,6 +113,7 @@ Once per app session, shortly after the app opens, the app removes stored images
 - Only images inserted more than 24 hours earlier are removed; inserting a stored image again restarts its day.
   An image inserted into a card not saved yet, in this window or another tab, is kept for at least a day.
 - Removing a reference, or deleting its card, does not remove the image right away.
-- Assistant conversations do not keep an image.
+- Assistant conversations do not keep a card image.
+  Images attached in the assistant are stored apart; see ASSISTANT-CONVERSATIONS.md (§What Doesn't Get Saved).
 - A reference to a removed image shows its alt text.
 - Cleanup happens without any notice; if it fails, nothing is shown and it runs again next session.

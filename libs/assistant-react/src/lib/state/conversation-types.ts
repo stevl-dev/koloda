@@ -100,8 +100,13 @@ export type ConversationReducerState = {
   // Switching conversations must restore this text. Updating it must not
   // stamp `updatedAt` — it is not a turn.
   promptInput: string;
+  // WHY: images attached to the unsent draft, saved like `promptInput`. Each `url` is the conversation image ref the
+  // startup sweep looks for, so a saved draft keeps its images (docs/decisions/MEDIA-STORAGE.md).
+  promptImages: PromptImage[];
   revertState: RevertState | null;
 };
+
+export type PromptImage = { url: string; mediaType: string };
 
 export const initialConversationState: ConversationReducerState = {
   id: "",
@@ -116,6 +121,7 @@ export const initialConversationState: ConversationReducerState = {
   modelParameters: {},
   lastReadRunId: null,
   promptInput: "",
+  promptImages: [],
   revertState: null,
 };
 
