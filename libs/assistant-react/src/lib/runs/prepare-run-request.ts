@@ -38,9 +38,10 @@ export function prepareRunRequest(
   promptText: string,
   messages: ConversationReducerState["messages"],
   runs: Record<string, AssistantRun>,
-  options?: { excludeRunId?: string },
+  options?: { excludeRunId?: string; promptImageIds?: string[] },
 ): PreparedRun | null {
-  if (!promptText || !cfg.profileId || !cfg.modelId) return null;
+  const promptImageIds = options?.promptImageIds ?? [];
+  if ((!promptText && promptImageIds.length === 0) || !cfg.profileId || !cfg.modelId) return null;
 
   // WHY: Retry reuses the visible tail pair as the new prompt. The pair is
   // already in `messages`, and buildStreamRequest appends `promptText` once
@@ -57,7 +58,7 @@ export function prepareRunRequest(
       )
     : messages;
   const conversationMessages = buildConversationMessages(historyMessages, runs);
-  const result = buildStreamRequest(cfg, promptText, conversationMessages);
+  const result = buildStreamRequest(cfg, promptText, conversationMessages, promptImageIds);
   return {
     ...result,
     modelName: cfg.modelName,

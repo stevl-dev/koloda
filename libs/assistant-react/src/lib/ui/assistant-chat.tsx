@@ -14,6 +14,7 @@ import {
   useAIChatValidation,
   useAutoScroll,
 } from "@koloda/ai-react";
+import { getMessageImageIds } from "@koloda/ai";
 import type { Mention } from "@koloda/ai";
 import { formatGenerateError } from "@koloda/ai/app-error";
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
@@ -43,6 +44,7 @@ import {
   assistantErroredRunAtom,
   assistantIsProcessingAtom,
   assistantMessagesAtom,
+  assistantPromptImagesAtom,
   assistantPromptInputAtom,
   assistantRevertStateAtom,
 } from "../state/conversation-selectors";
@@ -82,6 +84,7 @@ export function AssistantChat({
   const { _ } = useLingui();
   const messages = useAtomValue(assistantMessagesAtom);
   const promptInput = useAtomValue(assistantPromptInputAtom);
+  const promptImages = useAtomValue(assistantPromptImagesAtom);
   const applyPromptInput = useSetAtom(setAssistantPromptInputAtom);
   const setPromptInput = useCallback(
     (text: string) => {
@@ -138,6 +141,9 @@ export function AssistantChat({
     profiles.find((p) => p.id === profileId),
   );
   const imageAttach = useAssistantImageAttach({ imageInput, onConversationIdChange });
+  // WHY: every turn resends the whole history, so an image in any visible message needs a model that takes images.
+  const hasHistoryImages = useMemo(() => messages.some((m) => getMessageImageIds(m).length > 0), [messages]);
+  const areImagesBlocked = (promptImages.length > 0 || hasHistoryImages) && imageInput !== "enabled";
 
   const { isRestoring, isDeleted, loadError, handleDismissSave, retrySave, retryLoad, blockedRestore } =
     useConversationPersistence({ conversationId });
@@ -158,6 +164,8 @@ export function AssistantChat({
     profileId,
     modelId,
     prompt: promptInput.trim(),
+    hasImages: promptImages.length > 0,
+    areImagesBlocked,
     isLoading: isProcessing,
     hasRequiredSecrets,
     isModelsLoading,
@@ -256,7 +264,7 @@ export function AssistantChat({
             {generateErr && <AIChatError {...generateErr} onDismiss={controller.dismissGenerate} />}
             {saveErr && <AIChatError {...saveErr} onDismiss={handleDismissSave} onRetry={retrySave} />}
             {revertState && <RevertBanner onRestore={handleRestore} />}
-            <AssistantPromptImages feedback={imageAttach.feedback} />
+            <AssistantPromptImages feedback={imageAttach.feedback} areImagesBlocked={areImagesBlocked} />
             <AssistantImageDropZone
               onPaste={imageAttach.handlePaste}
               onDragOver={imageAttach.handleDragOver}

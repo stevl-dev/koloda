@@ -45,7 +45,8 @@ Its content fills in as the AI stream progresses.
 
 Messages are rendered differently based on their type.
 
-User messages always render as text.
+User messages render as text.
+A user message with attached images shows them as thumbnails above its text; a message of images alone has no text.
 A mention in a user message shows as a chip with its title, not as its token; see §Mentions.
 Each user message shows when it was sent.
 A message sent today shows "Today" and the time; an older one shows the date and the time.
@@ -103,6 +104,7 @@ On a mixed turn, content includes the tool rows and the proposed cards as well a
 ### Sending a Message
 
 The user types a prompt and presses Enter or clicks Submit.
+A prompt can be text, attached images, or both; see §Attaching Images.
 This creates a user message and an assistant message placeholder.
 A run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§Starting a Run).
 If that run fails, the user message and the assistant message with any partial text remain,
@@ -125,6 +127,9 @@ Its tooltip says why: the model does not accept images,
 or whether it does is unknown and can be turned on in AI settings; see AI-PROVIDERS.md (§Image Input).
 Pasting or dropping an image then shows the same reason and attaches nothing.
 With no model selected, the button is hidden.
+
+Submit is blocked while the prompt or the visible conversation holds images and the selected model does not accept them.
+A message above the prompt says why; nothing is sent without its images.
 
 Attaching an image to a new chat gives it an identity, as typing does.
 An image goes to the conversation it was attached in, even if the user switches conversations while it is stored.

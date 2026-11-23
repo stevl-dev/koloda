@@ -22,6 +22,10 @@ msgid "ai.chat.images.attach"
 msgstr "Прикрепить изображения"
 
 #: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.blocked"
+msgstr "В разговоре есть изображения, а выбранная модель их не принимает. Выберите модель, которая принимает изображения."
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
 msgid "ai.chat.images.list"
 msgstr "Прикреплённые изображения"
 

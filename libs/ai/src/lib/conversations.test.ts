@@ -41,6 +41,15 @@ describe("computeConversationTitle", () => {
     );
   });
 
+  it("keeps a null title when the first message is images alone, whatever is typed later", () => {
+    const imagesOnly: UIMessage = {
+      id: "user-1",
+      role: "user",
+      parts: [{ type: "file", mediaType: "image/png", url: `conversation-attachment:${"a".repeat(64)}` }],
+    };
+    expect(computeConversationTitle({ messages: [imagesOnly], promptInput: "a later draft" })).toBeNull();
+  });
+
   it("keeps the first user message after later prompt edits", () => {
     expect(
       computeConversationTitle({

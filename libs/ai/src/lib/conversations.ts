@@ -17,11 +17,14 @@ export function conversationImageUrl(attachmentId: string): string {
   return `conversation-attachment:${attachmentId}`;
 }
 
+export function parseConversationImageUrl(url: string): string | null {
+  return CONVERSATION_IMAGE_URL.exec(url)?.[1] ?? null;
+}
+
 export function getMessageImageIds(message: UIMessage): string[] {
   return message.parts.flatMap((part) => {
     if (part.type !== "file") return [];
-    const match = CONVERSATION_IMAGE_URL.exec((part as FileUIPart).url);
-    return match?.[1] ? [match[1]] : [];
+    return parseConversationImageUrl((part as FileUIPart).url) ?? [];
   });
 }
 

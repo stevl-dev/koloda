@@ -11,11 +11,24 @@ export type StreamRequestResult = {
 // chat always sends the full set — AIModel has no tools capability field.
 const CHAT_ASSISTANT_TOOL_NAMES: AssistantToolName[] = Object.keys(ASSISTANT_TOOL_SPECS) as AssistantToolName[];
 
+// INVARIANT: the same shape `buildConversationMessages` gives a stored user message with images.
+function toPromptMessage(promptText: string, promptImageIds: string[]): Message {
+  if (promptImageIds.length === 0) return { role: "user", content: promptText };
+  return {
+    role: "user",
+    content: [
+      ...promptImageIds.map((attachmentId) => ({ type: "image" as const, attachmentId })),
+      ...(promptText ? [{ type: "text" as const, text: promptText }] : []),
+    ],
+  };
+}
+
 /** Build the provider request for a chat run from current config + history. */
 export function buildStreamRequest(
   cfg: AssistantConversationConfig,
   promptText: string,
   conversationMessages: Message[],
+  promptImageIds: string[] = [],
 ): StreamRequestResult {
   const input: ChatInput = chatInputSchema.parse({
     modelId: cfg.modelId,
@@ -27,7 +40,7 @@ export function buildStreamRequest(
     kind: "chat",
     request: {
       input,
-      messages: [...conversationMessages, { role: "user", content: promptText }],
+      messages: [...conversationMessages, toPromptMessage(promptText, promptImageIds)],
       systemPromptTemplate: cfg.chatPromptTemplate ?? undefined,
       tools: CHAT_ASSISTANT_TOOL_NAMES,
     },

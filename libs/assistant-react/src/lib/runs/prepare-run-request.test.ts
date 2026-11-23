@@ -32,6 +32,24 @@ describe("prepareRunRequest", () => {
     expect(prepareRunRequest(makeConfig(), "", [], {})).toBeNull();
   });
 
+  it("sends the prompt's images before its text, and accepts a prompt of images alone", () => {
+    const imageId = "a".repeat(64);
+    const withText = prepareRunRequest(makeConfig(), "What is this?", [], {}, { promptImageIds: [imageId] });
+    const imagesOnly = prepareRunRequest(makeConfig(), "", [], {}, { promptImageIds: [imageId] });
+
+    expect(withText?.request.messages.at(-1)).toEqual({
+      role: "user",
+      content: [
+        { type: "image", attachmentId: imageId },
+        { type: "text", text: "What is this?" },
+      ],
+    });
+    expect(imagesOnly?.request.messages.at(-1)).toEqual({
+      role: "user",
+      content: [{ type: "image", attachmentId: imageId }],
+    });
+  });
+
   it("returns null when profileId is missing", () => {
     expect(prepareRunRequest(makeConfig({ profileId: "" }), "hi", [], {})).toBeNull();
   });

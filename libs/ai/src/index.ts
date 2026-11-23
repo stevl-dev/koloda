@@ -6,6 +6,7 @@ export {
   conversationImageUrl,
   getMessageImageIds,
   getTextMessageContent,
+  parseConversationImageUrl,
 } from "./lib/conversations";
 export { AIError, isAIError, toAIError, wrapAIError } from "./lib/error";
 export { formatMention, parseMentionText, replaceMentionsWithTitles } from "./lib/mentions";

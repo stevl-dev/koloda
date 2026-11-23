@@ -6,6 +6,8 @@ const ready: UseAIChatValidationOptions = {
   profileId: "profile-1",
   modelId: "openai/gpt-4",
   prompt: "Hi",
+  hasImages: false,
+  areImagesBlocked: false,
   isLoading: false,
   hasRequiredSecrets: true,
   isModelsLoading: false,
@@ -18,8 +20,13 @@ describe("useAIChatValidation", () => {
     expect(useAIChatValidation(ready).canSubmit).toBe(true);
   });
 
+  it("allows submit with images and no text", () => {
+    expect(useAIChatValidation({ ...ready, prompt: "", hasImages: true }).canSubmit).toBe(true);
+  });
+
   it.each([
     { name: "no profile", patch: { profileId: "" } },
+    { name: "images the model does not accept", patch: { hasImages: true, areImagesBlocked: true } },
     { name: "no model", patch: { modelId: "" } },
     { name: "an empty prompt", patch: { prompt: "" } },
     { name: "a run in flight", patch: { isLoading: true } },

@@ -52,9 +52,29 @@ describe("conversationReducer", () => {
       ]);
       expect(state.promptInput).toBe("");
     });
+
+    it("moves the draft's images into the user message, with no text part for a message of images alone", () => {
+      const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+      const state = reduce([
+        ["addPromptImage", image],
+        ["submitTurn", { runId: "r1", text: "", images: [image], kind: "chat-text", assistantText: "" }],
+      ]);
+      expect(state.messages[0]?.parts).toEqual([{ type: "file", ...image }]);
+      expect(state.promptImages).toEqual([]);
+    });
   });
 
   describe("rollbackSubmitTurn", () => {
+    it("restores the submitted images into an empty draft", () => {
+      const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+      const state = reduce([
+        ["submitTurn", { runId: "r1", text: "Hi", images: [image], kind: "chat-text", assistantText: "" }],
+        ["rollbackSubmitTurn", { runId: "r1", text: "Hi", images: [image] }],
+      ]);
+      expect(state.messages).toHaveLength(0);
+      expect(state.promptImages).toEqual([image]);
+    });
+
     it("removes a still-streaming submit turn, clears activeRunId, and restores the prompt", () => {
       const state = reduce([
         ["setPromptInput", "Hello"],

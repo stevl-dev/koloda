@@ -1,4 +1,4 @@
-import { getTextMessageContent } from "@koloda/ai";
+import { getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
 import { generateUUID } from "@koloda/app";
 import { AssistantDuplicateRunError, AssistantEngineClosedError } from "@koloda/assistant";
 import type { AssistantCommand } from "@koloda/assistant";
@@ -120,11 +120,12 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
       if (isSubmitInFlightByConversationRef.current.has(activeConversationId)) return;
 
       const promptText = (value ?? "").trim();
+      const promptImages = currentState.promptImages;
       // INVARIANT: Every early return comes BEFORE commitRevert — a submit
       // in a reverted state that starts no run would otherwise permanently
       // delete the hidden messages. That covers an empty prompt and a
       // missing profile or model.
-      if (!promptText) return;
+      if (!promptText && promptImages.length === 0) return;
 
       // WHY: Submit is always chat+tools. Cards injection is not resolved
       // here — propose_cards runs against current data when the model calls it.
@@ -135,6 +136,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         promptText,
         getVisibleMessages(currentState.messages, currentState.revertState),
         currentState.runs,
+        { promptImageIds: promptImages.flatMap(({ url }) => parseConversationImageUrl(url) ?? []) },
       );
       if (!prepared) return;
 
@@ -162,6 +164,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
           {
             runId,
             text: promptText,
+            images: promptImages,
             kind: "chat-text",
             assistantText: "",
             modelName: prepared.modelName,
@@ -172,7 +175,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         await pending;
       } catch (error) {
         if (submittedRunId && submittedText !== null)
-          dispatch(["rollbackSubmitTurn", { runId: submittedRunId, text: submittedText }]);
+          dispatch(["rollbackSubmitTurn", { runId: submittedRunId, text: submittedText, images: promptImages }]);
         logUnexpectedDispatchError(error);
       } finally {
         isSubmitInFlightByConversationRef.current.delete(activeConversationId);

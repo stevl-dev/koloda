@@ -22,6 +22,10 @@ msgid "ai.chat.images.attach"
 msgstr "Attach images"
 
 #: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+msgid "ai.chat.images.blocked"
+msgstr "This conversation has images, and the selected model does not accept them. Choose a model that accepts images."
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
 msgid "ai.chat.images.list"
 msgstr "Attached images"
 

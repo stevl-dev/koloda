@@ -1,4 +1,4 @@
-import { conversationImageUrl, modelAcceptsImages } from "@koloda/ai";
+import { conversationImageUrl, modelAcceptsImages, parseConversationImageUrl } from "@koloda/ai";
 import type { AIModel, AIProfile } from "@koloda/ai";
 import { toFormErrors } from "@koloda/app";
 import type { FormError } from "@koloda/app";
@@ -42,8 +42,6 @@ const DISABLED_REASONS: Record<"unsupported" | "unknown", MessageDescriptor> = {
   unsupported: msg`ai.chat.images.unsupported`,
   unknown: msg`ai.chat.images.unknown`,
 };
-
-const CONVERSATION_IMAGE_ID = /^conversation-attachment:(.+)$/;
 
 type Feedback = { errors: FormError[]; reason: MessageDescriptor | null };
 
@@ -161,14 +159,14 @@ export function AssistantAttachImage({ imageInput, isAttaching, onSelect }: Assi
   );
 }
 
-export type AssistantPromptImagesProps = { feedback: Feedback };
+export type AssistantPromptImagesProps = { feedback: Feedback; areImagesBlocked: boolean };
 
-export function AssistantPromptImages({ feedback }: AssistantPromptImagesProps) {
+export function AssistantPromptImages({ feedback, areImagesBlocked }: AssistantPromptImagesProps) {
   const { _ } = useLingui();
   const images = useAtomValue(assistantPromptImagesAtom);
   const removeImage = useSetAtom(removeAssistantPromptImageAtom);
   const hasFeedback = feedback.errors.length > 0 || feedback.reason !== null;
-  if (images.length === 0 && !hasFeedback) return null;
+  if (images.length === 0 && !hasFeedback && !areImagesBlocked) return null;
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto pb-2">
@@ -192,22 +190,23 @@ export function AssistantPromptImages({ feedback }: AssistantPromptImagesProps) 
           ))}
         </ul>
       )}
+      {areImagesBlocked && <ErrorMessage layout="inline" message={_(msg`ai.chat.images.blocked`)} />}
       {feedback.reason && <ErrorMessage layout="inline" message={_(feedback.reason)} />}
       {feedback.errors.length > 0 && <Errors errors={feedback.errors} />}
     </div>
   );
 }
 
-type ConversationImageProps = { url: string; className?: string };
+export type ConversationImageProps = { url: string; className?: string };
 
-function ConversationImage({ url, className }: ConversationImageProps) {
+export function ConversationImage({ url, className }: ConversationImageProps) {
   const { _ } = useLingui();
   const src = useConversationImageSrc(url);
   return <img src={src ?? undefined} alt={_(msg`ai.chat.images.alt`)} className={className} />;
 }
 
 function useConversationImageSrc(url: string) {
-  const id = CONVERSATION_IMAGE_ID.exec(url)?.[1] ?? "";
+  const id = parseConversationImageUrl(url) ?? "";
   const { getConversationAttachmentQuery } = useAtomValue(queriesAtom);
   const { data } = useQuery({ ...getConversationAttachmentQuery(id), enabled: id !== "" });
   const [src, setSrc] = useState<string | null>(null);

@@ -54,7 +54,7 @@ When sending a new message, the full conversation history is sent to the AI prov
 The history follows what the user sees in the conversation, with the exceptions below.
 This includes:
 
-- All user messages (if they have text content)
+- All user messages that have text or images; images are sent on every turn, not only the one that attached them
 - All assistant text (if they have text content), including partial text from failed, canceled, or interrupted runs
 - All successfully generated card outputs (serialized as markdown blocks), including cards from interrupted runs
 

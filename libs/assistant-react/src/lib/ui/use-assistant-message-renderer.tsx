@@ -1,4 +1,4 @@
-import { getTextMessageContent, replaceMentionsWithTitles } from "@koloda/ai";
+import { conversationImageUrl, getMessageImageIds, getTextMessageContent, replaceMentionsWithTitles } from "@koloda/ai";
 import { AIChatMessage, AIChatMessageLayout, AIChatMessageStatus, AIToolActivity } from "@koloda/ai-react";
 import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
@@ -14,6 +14,7 @@ import {
 } from "../state/assistant-messages";
 import type { AssistantRun } from "../state/conversation-types";
 import { assistantActiveRunIdAtom, assistantMessagesAtom, assistantRunsAtom } from "../state/conversation-selectors";
+import { ConversationImage } from "./assistant-prompt-images";
 import { CopyMessageButton } from "./copy-message-button";
 import { MessageTimestamp } from "./message-timestamp";
 import { RevertMessageButton } from "./revert-message-button";
@@ -68,12 +69,25 @@ function renderUserMessage(
   handleRevert: (id: string) => void,
   timestamp: Date | null,
 ) {
+  const text = getTextMessageContent(message);
+  const imageIds = getMessageImageIds(message);
   return (
     <div className="group self-end flex flex-col items-end gap-1 w-full not-first:mt-4">
-      {content}
+      {imageIds.length > 0 && (
+        <div className="flex flex-row flex-wrap justify-end gap-2 mx-2 max-w-5/6">
+          {imageIds.map((id) => (
+            <ConversationImage
+              key={id}
+              url={conversationImageUrl(id)}
+              className="max-h-40 max-w-60 rounded-xl object-contain border-2 border-chat-message"
+            />
+          ))}
+        </div>
+      )}
+      {text && content}
       <div className="flex flex-row items-center justify-end gap-2 mx-3">
         <div className="flex flex-row items-center justify-end gap-1">
-          <CopyMessageButton text={replaceMentionsWithTitles(getTextMessageContent(message))} />
+          {text && <CopyMessageButton text={replaceMentionsWithTitles(text)} />}
           <RevertMessageButton onPress={() => handleRevert(message.id)} />
         </div>
         {timestamp ? <MessageTimestamp timestamp={timestamp} /> : null}

@@ -193,7 +193,7 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
   Commit: Attach images to the assistant draft
   Depends on: 2, 3
 
-- [ ] 6. Send images with an assistant message
+- [x] 6. Send images with an assistant message
   Goal: submit writes the draft's images into the user message as file parts with
   `conversation-attachment:<id>` urls, and the run sends them through item 4.
   A message may be images alone.
