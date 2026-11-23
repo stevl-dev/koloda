@@ -1,4 +1,5 @@
 import type { Mention } from "@koloda/ai";
+import { useAppHotkey } from "@koloda/core-react";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { createAppStoreWrapper } from "../test/test-helpers";
@@ -46,6 +47,28 @@ function renderInput(value: string) {
   });
   const input = screen.getByRole("textbox", { name: "ai.chat.input.label" });
   return { ...view, input, onChange, onSubmit };
+}
+
+type HotkeyProbeProps = { onSingleKey: () => void; onChord: () => void };
+
+function HotkeyProbe({ onSingleKey, onChord }: HotkeyProbeProps) {
+  useAppHotkey(["D"], onSingleKey, "");
+  useAppHotkey(["Mod+E"], onChord, "", { ignoreInputs: false });
+  return null;
+}
+
+function renderWithHotkeys() {
+  const onSingleKey = vi.fn();
+  const onChord = vi.fn();
+  render(
+    <>
+      <HotkeyProbe onSingleKey={onSingleKey} onChord={onChord} />
+      <AIChatPromptInput value="" onChange={vi.fn()} onSubmit={vi.fn()} mentions={mentions} />
+    </>,
+    { wrapper: createAppStoreWrapper() },
+  );
+  const input = screen.getByRole("textbox", { name: "ai.chat.input.label" });
+  return { input, onSingleKey, onChord };
 }
 
 describe("AIChatPromptInput", () => {
@@ -186,5 +209,23 @@ describe("AIChatPromptInput", () => {
     const { input } = renderInput(`Quiz me on @[Spanish verbs](deck:${deckId})`);
 
     expect(input.textContent).toBe("Quiz me on \u200bSpanish verbs\u200b");
+  });
+
+  it("lets a chord hotkey fire while typing in the prompt", () => {
+    const { input, onChord } = renderWithHotkeys();
+
+    // WHY: jsdom reports a non-Mac platform, so `Mod` is Control.
+    fireEvent.keyDown(input, { key: "e", code: "KeyE", ctrlKey: true });
+    expect(onChord).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps keys typed while the list is open from single-key hotkeys", () => {
+    const { input, onSingleKey } = renderWithHotkeys();
+
+    fireInput(input, "insertText", "@");
+    expect(screen.getByRole("menu")).toBeTruthy();
+    fireEvent.keyDown(input, { key: "d", code: "KeyD" });
+
+    expect(onSingleKey).not.toHaveBeenCalled();
   });
 });

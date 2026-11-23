@@ -120,13 +120,16 @@ export function AIChatPromptInput({ value, onChange, onSubmit, mentions = [] }: 
     );
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (!isListOpen) return;
+  // WHY: a capture handler on a wrapper, not `TokenField`'s `onKeyDown`: react-aria stops the propagation of every
+  // key that reaches a handler passed there, and the app's hotkeys listen on the document.
+  // It checks the target because keys Autocomplete forwards to the list pass through here too.
+  const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (!isListOpen || e.target !== inputRef.current) return;
     if (e.key === "Escape") setDismissedAnchorKey(mentionQuery.anchorKey);
     // WORKAROUND: Autocomplete highlights the first item only when the filter changes while the list is mounted,
     // so right after `@` nothing is highlighted and Enter would submit. Pick the first match instead;
     // with an item highlighted, Autocomplete picks it.
-    if (e.key === "Enter" && !e.shiftKey && !e.currentTarget.hasAttribute("aria-activedescendant")) {
+    if (e.key === "Enter" && !e.shiftKey && !inputRef.current.hasAttribute("aria-activedescendant")) {
       e.preventDefault();
       pickMention(matches[0]);
     }
@@ -143,60 +146,65 @@ export function AIChatPromptInput({ value, onChange, onSubmit, mentions = [] }: 
   );
 
   return (
-    <Autocomplete>
-      <TokenField
-        variants={{ class: "w-full m-0.5 rounded-2xl outline-offset-1" }}
-        aria-label={_(msg`ai.chat.input.label`)}
-        value={field.fieldValue}
-        onChange={handleChange}
-        onSubmit={onSubmit}
-        onKeyDown={handleKeyDown}
-        allowsNewlines
-        autoFocus
-      >
-        <TokenField.Input
-          variants={{ style: "inline", class: "rounded-xl" }}
-          placeholder={_(msg`ai.chat.input.placeholder`)}
-          maxRows={6}
-          ref={inputRef}
+    <div className="contents" onKeyDownCapture={handleKeyDownCapture}>
+      <Autocomplete>
+        <TokenField
+          variants={{ class: "w-full m-0.5 rounded-2xl outline-offset-1" }}
+          aria-label={_(msg`ai.chat.input.label`)}
+          value={field.fieldValue}
+          onChange={handleChange}
+          onSubmit={onSubmit}
+          allowsNewlines
+          autoFocus
         >
-          {(segment) => <TokenField.Token>{segment.text}</TokenField.Token>}
-        </TokenField.Input>
-      </TokenField>
-      <Popover
-        variants={{ class: "min-w-64 max-w-96 max-h-80 overflow-y-auto" }}
-        triggerRef={inputRef}
-        isOpen={isListOpen}
-        isNonModal
-        placement="top start"
-        trigger="MenuTrigger"
-        getTargetRect={(target) =>
-          mentionQuery ? tokenFieldPositionToDOMRange(target, mentionQuery.anchor).getBoundingClientRect() : null
-        }
-      >
-        <Menu<Mention>
-          className="py-1 outline-none"
-          aria-label={_(msg`ai.chat.mention.list.label`)}
-          items={matches}
-          dependencies={[mentionQuery?.anchorKey]}
+          <TokenField.Input
+            variants={{ style: "inline", class: "rounded-xl" }}
+            placeholder={_(msg`ai.chat.input.placeholder`)}
+            maxRows={6}
+            ref={inputRef}
+          >
+            {(segment) => <TokenField.Token>{segment.text}</TokenField.Token>}
+          </TokenField.Input>
+        </TokenField>
+        <Popover
+          variants={{ class: "min-w-64 max-w-96 max-h-80 overflow-y-auto" }}
+          triggerRef={inputRef}
+          isOpen={isListOpen}
+          isNonModal
+          placement="top start"
+          trigger="MenuTrigger"
+          getTargetRect={(target) =>
+            mentionQuery ? tokenFieldPositionToDOMRange(target, mentionQuery.anchor).getBoundingClientRect() : null
+          }
         >
-          {(mention) => (
-            <MenuItem
-              id={`${mention.kind}:${mention.id}`}
-              textValue={mention.title}
-              className={mentionMenuItem}
-              onAction={() => pickMention(mention)}
+          {/* WHY: Autocomplete forwards the field's keys to the list, outside the field, and they would bubble to the
+            document as if typed there, where the app's single-key hotkeys would take them. */}
+          <div onKeyDown={(e) => e.stopPropagation()}>
+            <Menu<Mention>
+              className="py-1 outline-none"
+              aria-label={_(msg`ai.chat.mention.list.label`)}
+              items={matches}
+              dependencies={[mentionQuery?.anchorKey]}
             >
-              <Text slot="label" className="truncate fg-level-1">
-                {mention.title}
-              </Text>
-              <Text slot="description" className="shrink-0 text-sm fg-level-3">
-                {_(MENTION_KIND_LABELS[mention.kind])}
-              </Text>
-            </MenuItem>
-          )}
-        </Menu>
-      </Popover>
-    </Autocomplete>
+              {(mention) => (
+                <MenuItem
+                  id={`${mention.kind}:${mention.id}`}
+                  textValue={mention.title}
+                  className={mentionMenuItem}
+                  onAction={() => pickMention(mention)}
+                >
+                  <Text slot="label" className="truncate fg-level-1">
+                    {mention.title}
+                  </Text>
+                  <Text slot="description" className="shrink-0 text-sm fg-level-3">
+                    {_(MENTION_KIND_LABELS[mention.kind])}
+                  </Text>
+                </MenuItem>
+              )}
+            </Menu>
+          </div>
+        </Popover>
+      </Autocomplete>
+    </div>
   );
 }
