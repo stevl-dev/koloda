@@ -18,8 +18,9 @@ type AnthropicModel = {
   max_input_tokens?: number;
   capabilities?: {
     effort?: Record<string, { supported?: boolean }>;
+    image_input?: { supported?: boolean };
     thinking?: { types?: Record<string, { supported?: boolean }> };
-  };
+  } | null;
 };
 
 type AnthropicModelsPage = {
@@ -58,6 +59,7 @@ function anthropicHeaders(apiKey: string) {
 
 function toAIModel(model: AnthropicModel): AIModel {
   const effort = model.capabilities?.effort;
+  const imageInput = model.capabilities?.image_input?.supported;
   const levels = effort?.supported
     ? ANTHROPIC_EFFORT_LEVELS.filter((level) => effort[level]?.supported).map((level) => ({
         effort: level,
@@ -69,6 +71,7 @@ function toAIModel(model: AnthropicModel): AIModel {
     name: model.display_name ?? model.id,
     context_length: model.max_input_tokens ?? 0,
     ...(levels.length > 0 ? { supported_reasoning_levels: levels } : {}),
+    ...(typeof imageInput === "boolean" ? { has_image_input: imageInput } : {}),
   };
 }
 

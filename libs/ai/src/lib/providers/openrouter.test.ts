@@ -31,6 +31,29 @@ describe("fetchOpenRouterModels", () => {
     });
   });
 
+  it("reads image input from the input modalities, and leaves it unknown when none are reported", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        jsonResponse({
+          data: [
+            { id: "a/vision", name: "A", architecture: { input_modalities: ["text", "image"] } },
+            { id: "b/text", name: "B", architecture: { input_modalities: ["text", "file"] } },
+            { id: "c/unknown", name: "C", architecture: {} },
+          ],
+        }),
+      ),
+    );
+
+    const models = await fetchOpenRouterModels();
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["a/vision", true],
+      ["b/text", false],
+      ["c/unknown", undefined],
+    ]);
+  });
+
   it("maps reported reasoning efforts to levels with an empty description", async () => {
     vi.stubGlobal(
       "fetch",

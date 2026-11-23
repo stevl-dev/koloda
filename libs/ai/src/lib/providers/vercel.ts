@@ -13,6 +13,7 @@ type VercelModel = {
   type?: string;
   context_window?: number;
   reasoning_options?: Array<{ type?: string; values?: unknown }>;
+  modalities?: { input?: unknown };
 };
 
 function isVercelModel(value: unknown): value is VercelModel {
@@ -36,11 +37,13 @@ function toAIModel(model: VercelModel): AIModel {
   const levels = Array.isArray(values)
     ? SDK_REASONING_LEVELS.filter((level) => values.includes(level)).map((effort) => ({ effort, description: "" }))
     : [];
+  const inputModalities = model.modalities?.input;
   return {
     id: model.id,
     name: model.name ?? model.id,
     context_length: model.context_window ?? 0,
     ...(levels.length > 0 ? { supported_reasoning_levels: levels } : {}),
+    ...(Array.isArray(inputModalities) ? { has_image_input: inputModalities.includes("image") } : {}),
   };
 }
 

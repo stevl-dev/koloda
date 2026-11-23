@@ -5,6 +5,7 @@ import { XAI_BASE_URL } from "../provider-catalog";
 import type { AIGenerationClient, AIProviderEntry } from "../provider-registry";
 import type { AISecrets } from "../provider-secrets";
 import { isPresentApiKey } from "../provider-secrets";
+import { imageInputFromModelsDev, loadModelsDevCatalog } from "./models-dev";
 
 export const XAI_LANGUAGE_MODELS_URL = `${XAI_BASE_URL}/language-models`;
 export const XAI_MODELS_URL = `${XAI_BASE_URL}/models`;
@@ -48,11 +49,12 @@ function isModelList(value: unknown): value is { data: XaiModel[] } {
   );
 }
 
-function toAIModel(model: XaiLanguageModel, contextLengths: Map<string, number>): AIModel {
+function toAIModel(model: XaiLanguageModel, contextLengths: Map<string, number>, catalog: unknown | null): AIModel {
   const efforts = (model.capabilities?.reasoning_effort ?? []).filter(
     (effort): effort is string => typeof effort === "string" && effort.length > 0,
   );
   const defaultEffort = model.capabilities?.default_reasoning_effort;
+  const hasImageInput = imageInputFromModelsDev(catalog, "xai", model.id);
   return {
     id: model.id,
     name: model.id,
@@ -61,6 +63,7 @@ function toAIModel(model: XaiLanguageModel, contextLengths: Map<string, number>)
       ? { supported_reasoning_levels: efforts.map((effort) => ({ effort, description: "" })) }
       : {}),
     ...(defaultEffort && efforts.includes(defaultEffort) ? { default_reasoning_level: defaultEffort } : {}),
+    ...(hasImageInput === undefined ? {} : { has_image_input: hasImageInput }),
   };
 }
 
@@ -68,9 +71,11 @@ export async function fetchXaiModels(apiKey: string): Promise<AIModel[]> {
   const headers = { Authorization: `Bearer ${apiKey}` };
   // WHY: `/language-models` lists only the chat-capable models (`/models` also lists image and video
   // generation), but it has no context length, so that comes from `/models` by ID.
-  const [languageResponse, modelsResponse] = await Promise.all([
+  // Image input comes from models.dev: no xAI list documents it.
+  const [languageResponse, modelsResponse, catalog] = await Promise.all([
     fetch(XAI_LANGUAGE_MODELS_URL, { headers }).then(throwForAIResponse),
     fetch(XAI_MODELS_URL, { headers }).then(throwForAIResponse),
+    loadModelsDevCatalog(),
   ]);
   const languageModels: unknown = await languageResponse.json();
   const models: unknown = await modelsResponse.json();
@@ -84,7 +89,7 @@ export async function fetchXaiModels(apiKey: string): Promise<AIModel[]> {
     ),
   );
   return languageModels.models
-    .map((model) => toAIModel(model, contextLengths))
+    .map((model) => toAIModel(model, contextLengths, catalog))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 

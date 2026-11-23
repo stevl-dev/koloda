@@ -16,6 +16,7 @@ type OpenRouterReasoning = {
 
 type OpenRouterModelData = Omit<AIModel, "supported_reasoning_levels" | "default_reasoning_level"> & {
   reasoning?: OpenRouterReasoning;
+  architecture?: { input_modalities?: unknown };
 };
 
 type OpenRouterModelsResponse = { data: OpenRouterModelData[] };
@@ -35,8 +36,10 @@ export async function fetchOpenRouterModels(): Promise<AIModel[]> {
     .map((model) => {
       const { reasoning, ...rest } = model;
       const efforts = reasoning?.supported_efforts;
+      const inputModalities = model.architecture?.input_modalities;
       return {
         ...rest,
+        has_image_input: Array.isArray(inputModalities) ? inputModalities.includes("image") : undefined,
         supported_reasoning_levels:
           efforts && efforts.length > 0 ? efforts.map((effort) => ({ effort, description: "" })) : undefined,
         default_reasoning_level: reasoning?.default_effort,

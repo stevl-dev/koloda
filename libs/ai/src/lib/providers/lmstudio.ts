@@ -32,38 +32,42 @@ export function lmStudioReasoningFromCapabilities(capabilities: unknown): LmStud
   };
 }
 
-function nativeReasoningByKey(catalog: unknown): Map<string, LmStudioReasoning> | null {
+type LmStudioNative = LmStudioReasoning & Pick<AIModel, "has_image_input">;
+
+function nativeModelsByKey(catalog: unknown): Map<string, LmStudioNative> | null {
   if (!isPlainObject(catalog) || !Array.isArray(catalog.models)) return null;
 
-  const byKey = new Map<string, LmStudioReasoning>();
+  const byKey = new Map<string, LmStudioNative>();
   for (const row of catalog.models) {
     if (!isPlainObject(row) || typeof row.key !== "string") continue;
     const reasoning = lmStudioReasoningFromCapabilities(row.capabilities);
-    if (reasoning) byKey.set(row.key, reasoning);
+    const vision = isPlainObject(row.capabilities) ? row.capabilities.vision : undefined;
+    byKey.set(row.key, { ...reasoning, ...(typeof vision === "boolean" ? { has_image_input: vision } : {}) });
   }
   return byKey;
 }
 
-function lookupNativeReasoning(byKey: Map<string, LmStudioReasoning>, id: string): LmStudioReasoning | undefined {
+function lookupNativeModel(byKey: Map<string, LmStudioNative>, id: string): LmStudioNative | undefined {
   const exact = byKey.get(id);
   if (exact) return exact;
-  // WHY: /v1/models may list a selected variant (`key@quant`); reasoning lives on the family key.
+  // WHY: /v1/models may list a selected variant (`key@quant`); capabilities live on the family key.
   const variantAt = id.indexOf("@");
   if (variantAt > 0) return byKey.get(id.slice(0, variantAt));
   return undefined;
 }
 
-export function overlayLmStudioReasoning(models: AIModel[], catalog: unknown | null): AIModel[] {
-  const byKey = catalog == null ? null : nativeReasoningByKey(catalog);
+export function overlayLmStudioCapabilities(models: AIModel[], catalog: unknown | null): AIModel[] {
+  const byKey = catalog == null ? null : nativeModelsByKey(catalog);
   if (!byKey) return models;
 
   return models.map((model) => {
-    const reasoning = lookupNativeReasoning(byKey, model.id);
-    if (!reasoning) return model;
+    const native = lookupNativeModel(byKey, model.id);
+    if (!native) return model;
     return {
       ...model,
-      supported_reasoning_levels: model.supported_reasoning_levels ?? reasoning.supported_reasoning_levels,
-      default_reasoning_level: model.default_reasoning_level ?? reasoning.default_reasoning_level,
+      supported_reasoning_levels: model.supported_reasoning_levels ?? native.supported_reasoning_levels,
+      default_reasoning_level: model.default_reasoning_level ?? native.default_reasoning_level,
+      has_image_input: model.has_image_input ?? native.has_image_input,
     };
   });
 }
@@ -93,7 +97,7 @@ export async function fetchLmStudioModels(baseUrl: string, apiKey?: string): Pro
     fetchOpenAICompatibleModels(baseUrl, apiKey),
     loadLmStudioNativeModels(baseUrl, apiKey),
   ]);
-  return overlayLmStudioReasoning(models, catalog);
+  return overlayLmStudioCapabilities(models, catalog);
 }
 
 function createLmStudioClient(secrets: Extract<AISecrets, { provider: "lmstudio" }>): AIGenerationClient {

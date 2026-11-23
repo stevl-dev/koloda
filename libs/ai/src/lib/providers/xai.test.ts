@@ -1,16 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { aiSecretsValidation } from "../provider-secrets";
+import { MODELS_DEV_API_URL, resetModelsDevCache } from "./models-dev";
 import { fetchXaiModels, XAI_LANGUAGE_MODELS_URL, XAI_MODELS_URL, xaiProviderEntry } from "./xai";
 import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  resetModelsDevCache();
 });
 
-function stubXaiFetch(languageModels: unknown, models: unknown) {
-  const fetchMock = vi.fn((input: RequestInfo | URL) =>
-    Promise.resolve(jsonResponse(String(input) === XAI_LANGUAGE_MODELS_URL ? languageModels : models)),
-  );
+function stubXaiFetch(languageModels: unknown, models: unknown, catalog: unknown = {}) {
+  const responses: Record<string, unknown> = {
+    [XAI_LANGUAGE_MODELS_URL]: languageModels,
+    [XAI_MODELS_URL]: models,
+    [MODELS_DEV_API_URL]: catalog,
+  };
+  const fetchMock = vi.fn((input: RequestInfo | URL) => Promise.resolve(jsonResponse(responses[String(input)])));
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
@@ -35,6 +40,29 @@ describe("fetchXaiModels", () => {
     const headers = { headers: { Authorization: "Bearer xai-key" } };
     expect(fetchMock).toHaveBeenCalledWith(XAI_LANGUAGE_MODELS_URL, headers);
     expect(fetchMock).toHaveBeenCalledWith(XAI_MODELS_URL, headers);
+  });
+
+  it("reads image input from the models.dev row of the same id, and leaves other models unknown", async () => {
+    stubXaiFetch(
+      { models: [{ id: "grok-4.7" }, { id: "grok-text" }, { id: "grok-new" }] },
+      { data: [] },
+      {
+        xai: {
+          models: {
+            "grok-4.7": { modalities: { input: ["text", "image"] } },
+            "grok-text": { modalities: { input: ["text"] } },
+          },
+        },
+      },
+    );
+
+    const models = await fetchXaiModels("xai-key");
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["grok-4.7", true],
+      ["grok-new", undefined],
+      ["grok-text", false],
+    ]);
   });
 
   it("offers the reported effort levels in their order, with the reported default", async () => {

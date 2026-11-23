@@ -308,6 +308,26 @@ A stored reasoning-effort value that does not apply to the newly selected model 
 If a stored model ID is no longer in the provider's list, the first model the allowlist allows is used instead.
 With an empty allowlist, no model is selected and sending is disabled.
 
+### Image Input
+
+The app learns whether a model accepts images by a fixed rule per provider:
+
+- OpenRouter and Vercel AI Gateway report each model's input types in their model lists.
+- Anthropic reports image input in each model's capabilities.
+- LM Studio reports vision in each model's capabilities.
+- Ollama and Ollama Cloud report vision among a model's capabilities.
+- OpenAI, DeepSeek, xAI, and the OpenCode providers join the models.dev catalog by model ID.
+  Only a catalog row with the exact ID counts; there is no fallback by model family.
+
+A model is one of three kinds:
+
+- Accepts images: its source says so.
+- Does not accept images: its source lists what the model accepts, and images are not among it.
+- Unknown: its source says nothing about the model.
+  A model from an OpenAI-compatible profile is always unknown, and so is one the catalog does not list.
+
+The app does not guess image input outside these rules.
+
 ## Sending Requests
 
 Chat runs go through the selected profile's secrets.

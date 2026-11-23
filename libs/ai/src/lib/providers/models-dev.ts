@@ -63,11 +63,22 @@ function effortLevelsFromCatalogRow(row: unknown): ReasoningLevels | undefined {
   };
 }
 
+function imageInputFromCatalogRow(row: unknown): boolean | undefined {
+  if (!isPlainObject(row) || !isPlainObject(row.modalities) || !Array.isArray(row.modalities.input)) return undefined;
+  return row.modalities.input.includes("image");
+}
+
 function providerModelMap(catalog: unknown, providerKey: string): Record<string, unknown> | null {
   if (!isPlainObject(catalog)) return null;
   const provider = catalog[providerKey];
   if (!isPlainObject(provider) || !isPlainObject(provider.models)) return null;
   return provider.models;
+}
+
+export function imageInputFromModelsDev(catalog: unknown | null, providerKey: string, modelId: string) {
+  const modelMap = providerModelMap(catalog, providerKey);
+  if (!modelMap || !Object.hasOwn(modelMap, modelId)) return undefined;
+  return imageInputFromCatalogRow(modelMap[modelId]);
 }
 
 export function overlayFromModelsDev(models: AIModel[], providerKey: string, catalog: unknown | null): AIModel[] {
@@ -76,15 +87,17 @@ export function overlayFromModelsDev(models: AIModel[], providerKey: string, cat
   return models.map((model) => {
     let reasoning: ReasoningLevels | undefined;
     let contextLimit: number | undefined;
+    let hasImageInput: boolean | undefined;
     // WHY: prefix fallback is only for a missing catalog or missing id. An exact
     // catalog row with no effort must stay empty — do not invent levels from a prefix.
-    // The context limit has no prefix table: fill only from an exact catalog row.
+    // The context limit and image input have no prefix table: fill them only from an exact catalog row.
     if (!modelMap) {
       reasoning = resolveReasoningLevelsForModel(model.id);
     } else if (Object.hasOwn(modelMap, model.id)) {
       const row = modelMap[model.id];
       reasoning = effortLevelsFromCatalogRow(row);
       contextLimit = contextLimitFromCatalogRow(row);
+      hasImageInput = imageInputFromCatalogRow(row);
     } else {
       reasoning = resolveReasoningLevelsForModel(model.id);
     }
@@ -94,6 +107,7 @@ export function overlayFromModelsDev(models: AIModel[], providerKey: string, cat
       context_length: model.context_length > 0 ? model.context_length : (contextLimit ?? model.context_length),
       supported_reasoning_levels: model.supported_reasoning_levels ?? reasoning?.levels,
       default_reasoning_level: model.default_reasoning_level ?? reasoning?.default,
+      has_image_input: model.has_image_input ?? hasImageInput,
     };
   });
 }

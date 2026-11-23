@@ -64,6 +64,7 @@ describe("fetchOllamaModels", () => {
           { effort: "high", description: "" },
         ],
         default_reasoning_level: "medium",
+        has_image_input: false,
       },
     ]);
   });
@@ -85,6 +86,7 @@ describe("fetchOllamaModels", () => {
           { effort: "on", description: "" },
         ],
         default_reasoning_level: "on",
+        has_image_input: false,
       },
     ]);
   });
@@ -101,7 +103,25 @@ describe("fetchOllamaModels", () => {
 
     expect(models).toEqual([
       { id: "llama3.1", name: "Llama 3.1", context_length: 0 },
-      { id: "qwen2.5", name: "qwen2.5", context_length: 0 },
+      { id: "qwen2.5", name: "qwen2.5", context_length: 0, has_image_input: false },
+    ]);
+  });
+
+  it("reads image input from the vision capability, and leaves it unknown when capabilities is missing", async () => {
+    listMock.mockResolvedValueOnce({
+      models: [
+        { model: "a-vision", name: "a-vision", capabilities: ["completion", "vision"] },
+        { model: "b-text", name: "b-text", capabilities: ["completion", "tools"] },
+        { model: "c-unknown", name: "c-unknown" },
+      ],
+    });
+
+    const models = await fetchOllamaModels("http://localhost:11434");
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["a-vision", true],
+      ["b-text", false],
+      ["c-unknown", undefined],
     ]);
   });
 

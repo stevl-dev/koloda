@@ -216,6 +216,41 @@ describe("overlayFromModelsDev", () => {
     expect(missingId?.context_length).toBe(0);
     expect(noCatalog?.context_length).toBe(0);
   });
+
+  it("reads image input only from an exact catalog row", () => {
+    const catalog = catalogFor("opencode", {
+      "vision-model": { modalities: { input: ["text", "image"], output: ["text"] } },
+      "text-model": { modalities: { input: ["text", "pdf"], output: ["text"] } },
+      "bare-model": {},
+    });
+
+    const models = overlayFromModelsDev(
+      ["vision-model", "text-model", "bare-model", "vision-model-2"].map((id) => gatewayModel(id)),
+      "opencode",
+      catalog,
+    );
+    const [noCatalog] = overlayFromModelsDev([gatewayModel("vision-model")], "opencode", null);
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["vision-model", true],
+      ["text-model", false],
+      ["bare-model", undefined],
+      ["vision-model-2", undefined],
+    ]);
+    expect(noCatalog?.has_image_input).toBeUndefined();
+  });
+
+  it("keeps image input the provider already reported", () => {
+    const catalog = catalogFor("opencode", { "vision-model": { modalities: { input: ["text", "image"] } } });
+
+    const [model] = overlayFromModelsDev(
+      [gatewayModel("vision-model", { has_image_input: false })],
+      "opencode",
+      catalog,
+    );
+
+    expect(model?.has_image_input).toBe(false);
+  });
 });
 
 function stubGatewayAndCatalog(options: {

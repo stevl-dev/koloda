@@ -46,6 +46,11 @@ function ollamaThinkingReasoningLevels(
   };
 }
 
+function ollamaImageInput(capabilities: unknown): Pick<AIModel, "has_image_input"> | undefined {
+  if (!Array.isArray(capabilities)) return undefined;
+  return { has_image_input: capabilities.includes("vision") };
+}
+
 export async function fetchOllamaModels(baseUrl: string, apiKey?: string): Promise<AIModel[]> {
   const { Ollama } = await import("ollama");
   const client = new Ollama({
@@ -62,6 +67,7 @@ export async function fetchOllamaModels(baseUrl: string, apiKey?: string): Promi
       name: model.name ?? model.model,
       context_length: 0,
       ...ollamaThinkingReasoningLevels(model.model, ollamaListCapabilities(model)),
+      ...ollamaImageInput(ollamaListCapabilities(model)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

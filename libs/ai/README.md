@@ -72,6 +72,12 @@ This README owns the package boundary.
   OpenCode Zen/Go do the same (`opencode` / `opencode-go`).
   The same join fills `context_length` from models.dev `limit.context` when the gateway omitted it
   (no prefix fallback).
+- Image input (`AIModel.has_image_input`, absent when unknown): OpenRouter `architecture.input_modalities`,
+  Vercel `modalities.input`, Anthropic `capabilities.image_input.supported`, LM Studio native `capabilities.vision`,
+  Ollama/Cloud `/api/tags` `capabilities` including `vision`; OpenAI, DeepSeek, OpenCode Zen/Go, and xAI join
+  models.dev `modalities.input` by exact id (xAI documents no list field for it).
+  Formats the provider APIs refuse, though the packages send them: DeepSeek's package throws for AVIF;
+  xAI documents JPEG and PNG only; Anthropic documents JPEG, PNG, GIF, and WebP.
 - Reasoning extraction: `model-reasoning-extraction.ts` — `wrapModelWithReasoningExtraction`
   strips ` thinking`-tagged chain-of-thought from the text stream.
 - Host runtime contract: `runtime.ts` — `AIRuntime` (`listModels` / `chat` by `profileId`).

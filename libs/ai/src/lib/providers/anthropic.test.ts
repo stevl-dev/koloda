@@ -112,6 +112,33 @@ describe("fetchAnthropicModels", () => {
     ]);
   });
 
+  it("reads image input from the capabilities, and leaves it unknown when they are null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          jsonResponse({
+            data: [
+              { id: "claude-a", capabilities: { image_input: { supported: true } } },
+              { id: "claude-b", capabilities: { image_input: { supported: false } } },
+              { id: "claude-c", capabilities: null },
+            ],
+            has_more: false,
+            last_id: "claude-c",
+          }),
+        ),
+      ),
+    );
+
+    const models = await fetchAnthropicModels("sk-ant");
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["claude-a", true],
+      ["claude-b", false],
+      ["claude-c", undefined],
+    ]);
+  });
+
   it("rejects a malformed model list", async () => {
     vi.stubGlobal(
       "fetch",

@@ -197,6 +197,10 @@ documented fallback for a missing catalog row.
 A hidden picker is correct only after both the provider list and any applicable capability catalog report no levels.
 Product behavior lives in `docs/specs/AI-PROVIDERS.md` (§Reasoning Effort).
 
+Set `has_image_input` the same way: from the provider list, or from the `models.dev` join by exact ID.
+Leave it unset when neither says; unset means unknown, not text-only.
+Product behavior lives in `docs/specs/AI-PROVIDERS.md` (§Image Input).
+
 ### 5. Chat Streaming (`libs/ai/src/lib/chat-stream.ts`)
 
 Add a thin wrapper that supplies the AI SDK model factory to shared `runChatStream`.
@@ -324,6 +328,7 @@ After editing `docs/specs/AI-PROVIDERS.md`, run `bun run gen:help`; `bun run che
 - Provider `fetchModels` tests — include a reasoning-capable model whose levels come from the provider list or catalog,
   and a model with no reported levels.
   When the provider joins a catalog, also cover the documented behavior when the catalog is unavailable.
+- Provider `fetchModels` tests — image input for a model that accepts images, one that does not, and one unknown
 - `libs/ai/src/lib/provider-registry-behavior.test.ts` — add the provider's row to `SECRET_RULES`:
   the fields missing without a key, and whether chat and model listing need the key
 - `libs/ai/src/lib/provider-secrets.test.ts` — add the new schema to the shared rows:

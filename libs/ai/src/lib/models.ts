@@ -4,6 +4,8 @@ export type AIModel = {
   context_length: number;
   supported_reasoning_levels?: Array<{ effort: string; description: string }>;
   default_reasoning_level?: string;
+  // WHY: absent means the provider's list did not say; it is not the same as `false`.
+  has_image_input?: boolean;
 };
 
 export type ModelParameter = {

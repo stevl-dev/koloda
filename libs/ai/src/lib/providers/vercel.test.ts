@@ -32,6 +32,25 @@ describe("fetchVercelModels", () => {
     expect(fetchMock).toHaveBeenCalledWith(VERCEL_MODELS_URL, { headers: { Authorization: "Bearer vck-key" } });
   });
 
+  it("reads image input from the input modalities, and leaves it unknown when none are reported", async () => {
+    stubModels({
+      object: "list",
+      data: [
+        { id: "a/vision", type: "language", modalities: { input: ["text", "image"], output: ["text"] } },
+        { id: "b/text", type: "language", modalities: { input: ["text"], output: ["text"] } },
+        { id: "c/unknown", type: "language" },
+      ],
+    });
+
+    const models = await fetchVercelModels("vck-key");
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["a/vision", true],
+      ["b/text", false],
+      ["c/unknown", undefined],
+    ]);
+  });
+
   it("offers the reported effort levels the app can send, with no default", async () => {
     stubModels({
       data: [

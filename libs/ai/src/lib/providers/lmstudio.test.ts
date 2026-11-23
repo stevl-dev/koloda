@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AIModel } from "../models";
-import { fetchLmStudioModels, lmStudioReasoningFromCapabilities, overlayLmStudioReasoning } from "./lmstudio";
+import { fetchLmStudioModels, lmStudioReasoningFromCapabilities, overlayLmStudioCapabilities } from "./lmstudio";
 import { jsonResponse } from "../../test/json-response";
 
 afterEach(() => {
@@ -49,7 +49,7 @@ describe("lmStudioReasoningFromCapabilities", () => {
   });
 });
 
-describe("overlayLmStudioReasoning", () => {
+describe("overlayLmStudioCapabilities", () => {
   it("joins native reasoning onto OpenAI ids and variant ids", () => {
     const catalog = {
       models: [
@@ -62,7 +62,7 @@ describe("overlayLmStudioReasoning", () => {
       ],
     };
 
-    const models = overlayLmStudioReasoning(
+    const models = overlayLmStudioCapabilities(
       [
         gatewayModel("nvidia/nemotron-3-nano-4b"),
         gatewayModel("nvidia/nemotron-3-nano-4b@q4_k_m"),
@@ -96,10 +96,32 @@ describe("overlayLmStudioReasoning", () => {
     ]);
   });
 
+  it("joins native vision onto OpenAI ids and variant ids, and leaves models it does not list unknown", () => {
+    const catalog = {
+      models: [
+        { type: "llm", key: "qwen3-vl", capabilities: { vision: true } },
+        { type: "llm", key: "llama-3.1", capabilities: { vision: false } },
+        { type: "llm", key: "older", capabilities: {} },
+      ],
+    };
+
+    const models = overlayLmStudioCapabilities(
+      ["qwen3-vl@q4_k_m", "llama-3.1", "older", "unlisted"].map((id) => gatewayModel(id)),
+      catalog,
+    );
+
+    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
+      ["qwen3-vl@q4_k_m", true],
+      ["llama-3.1", false],
+      ["older", undefined],
+      ["unlisted", undefined],
+    ]);
+  });
+
   it("leaves models unchanged when the native catalog is missing or malformed", () => {
     const models = [gatewayModel("local-model")];
-    expect(overlayLmStudioReasoning(models, null)).toEqual(models);
-    expect(overlayLmStudioReasoning(models, { data: [] })).toEqual(models);
+    expect(overlayLmStudioCapabilities(models, null)).toEqual(models);
+    expect(overlayLmStudioCapabilities(models, { data: [] })).toEqual(models);
   });
 });
 

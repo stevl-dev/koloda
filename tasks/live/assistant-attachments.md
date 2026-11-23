@@ -119,7 +119,7 @@ A refused part throws `UnsupportedFunctionalityError`, which has no message of i
 
 ## Plan
 
-- [ ] 1. Read each model's image input from its provider
+- [x] 1. Read each model's image input from its provider
   Goal: `AIModel` gains an optional image-input flag: `true`, `false`, or absent when unknown.
   Fill it per provider from the sources in §Where capabilities come from.
   OpenRouter, LM Studio, and Ollama read their own lists.
