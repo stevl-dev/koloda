@@ -1,7 +1,7 @@
 import { formatMention, parseMentionText } from "@koloda/ai";
 import type { Mention, MentionKind } from "@koloda/ai";
 import { useAppHotkey, useHotkeysSettings } from "@koloda/core-react";
-import { Popover, TokenField } from "@koloda/ui";
+import { Popover, TokenField, dispatchKey, matchesAnyHotkey } from "@koloda/ui";
 import type { MessageDescriptor } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -133,6 +133,22 @@ export function AIChatPromptInput({ value, onChange, onSubmit, mentions = [] }: 
       e.preventDefault();
       pickMention(matches[0]);
     }
+    // WHY: in a text field a hotkey acts only through a chord (HOTKEYS.md (§Key Bindings)), so a bound letter types.
+    if (!e.ctrlKey && !e.altKey && !e.metaKey) return;
+    const isClose = matchesAnyHotkey(e.nativeEvent, ui.close);
+    const navigationKey = matchesAnyHotkey(e.nativeEvent, ui.focusNext)
+      ? "ArrowDown"
+      : matchesAnyHotkey(e.nativeEvent, ui.focusPrev)
+        ? "ArrowUp"
+        : null;
+    if (!isClose && !navigationKey) return;
+    // WHY: the list takes these keys as arrows or Escape. Stopped here, Autocomplete does not also forward the chord
+    // itself to the list, and prevented, Option+J does not type a character on macOS.
+    // The app's own Focus forward and Close popover never see the key: Autocomplete stops every key it handles.
+    e.preventDefault();
+    e.stopPropagation();
+    if (isClose) setDismissedAnchorKey(mentionQuery.anchorKey);
+    else if (navigationKey) dispatchKey(inputRef, navigationKey);
   };
 
   useAppHotkey(ai.focusPrompt, () => inputRef.current?.focus(), "", { ignoreInputs: false });

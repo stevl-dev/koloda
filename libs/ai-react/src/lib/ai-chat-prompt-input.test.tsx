@@ -71,6 +71,29 @@ function renderWithHotkeys() {
   return { input, onSingleKey, onChord };
 }
 
+type ListHotkeyProbeProps = { onFocusNext: () => void; onClose: () => void };
+
+function ListHotkeyProbe({ onFocusNext, onClose }: ListHotkeyProbeProps) {
+  useAppHotkey(["Alt+J"], onFocusNext, "", { ignoreInputs: false });
+  useAppHotkey(["Alt+C"], onClose, "", { ignoreInputs: false });
+  return null;
+}
+
+function renderWithListHotkeys() {
+  const onChange = vi.fn();
+  const onFocusNext = vi.fn();
+  const onClose = vi.fn();
+  render(
+    <>
+      <ListHotkeyProbe onFocusNext={onFocusNext} onClose={onClose} />
+      <AIChatPromptInput value="" onChange={onChange} onSubmit={vi.fn()} mentions={mentions} />
+    </>,
+    { wrapper: createAppStoreWrapper() },
+  );
+  const input = screen.getByRole("textbox", { name: "ai.chat.input.label" });
+  return { input, onChange, onFocusNext, onClose };
+}
+
 describe("AIChatPromptInput", () => {
   it("submits on Enter without changing the text", () => {
     const { input, onChange, onSubmit } = renderInput("Make cards");
@@ -227,5 +250,43 @@ describe("AIChatPromptInput", () => {
     fireEvent.keyDown(input, { key: "d", code: "KeyD" });
 
     expect(onSingleKey).not.toHaveBeenCalled();
+  });
+
+  it("moves the highlight with Focus forward and backward, and keeps those keys from the app", () => {
+    const { input, onChange, onFocusNext } = renderWithListHotkeys();
+
+    fireInput(input, "insertText", "@");
+    const isKeyLeftToBrowser = fireEvent.keyDown(input, { key: "j", code: "KeyJ", altKey: true });
+    fireEvent.keyDown(input, { key: "j", code: "KeyJ", altKey: true });
+    fireEvent.keyDown(input, { key: "j", code: "KeyJ", altKey: true });
+    fireEvent.keyDown(input, { key: "k", code: "KeyK", altKey: true });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(isKeyLeftToBrowser).toBe(false);
+    expect(onChange).toHaveBeenLastCalledWith(`@[Spanish verbs](deck:${deckId}) `);
+    expect(onFocusNext).not.toHaveBeenCalled();
+  });
+
+  it("closes the list with Close popover and keeps the key from the app", () => {
+    const { input, onClose } = renderWithListHotkeys();
+
+    fireInput(input, "insertText", "@");
+    fireEvent.keyDown(input, { key: "c", code: "KeyC", altKey: true });
+
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("types a letter Focus forward is bound to instead of moving the highlight", () => {
+    render(<AIChatPromptInput value="" onChange={vi.fn()} onSubmit={vi.fn()} mentions={mentions} />, {
+      wrapper: createAppStoreWrapper({ hotkeys: { ui: { focusNext: ["J"] } } }),
+    });
+    const input = screen.getByRole("textbox", { name: "ai.chat.input.label" });
+
+    fireInput(input, "insertText", "@");
+    const isKeyLeftToBrowser = fireEvent.keyDown(input, { key: "j", code: "KeyJ" });
+
+    expect(isKeyLeftToBrowser).toBe(true);
+    expect(input.hasAttribute("aria-activedescendant")).toBe(false);
   });
 });

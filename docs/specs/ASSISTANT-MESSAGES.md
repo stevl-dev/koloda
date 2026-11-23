@@ -121,7 +121,8 @@ An `@` inside a word opens no list.
 - The list closes when nothing matches; the typed text stays as written.
 - Enter or a click picks an item.
   Enter picks the highlighted item, or the first one when none is highlighted, and does not send the prompt.
-- Escape closes the list; it opens again only for a new `@`.
+- The arrow keys, and the Focus forward and backward hotkeys, move the highlight; see HOTKEYS.md (§Interface).
+- Escape or the Close popover hotkey closes the list; it opens again only for a new `@`.
 
 Picking replaces the `@` and the filter text with a chip that shows the title.
 A sent message keeps its chips; see §Message Display.
