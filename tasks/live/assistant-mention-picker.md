@@ -1,6 +1,6 @@
 # Mention picker in the assistant composer
 
-Status: draft
+Status: ready
 Guides: agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-DATA-ACCESS.md, agents/DEPENDENCIES.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -117,18 +117,18 @@ The page states no limitations, and documents no key other than Enter.
 - [x] 3. What does the model receive? — the token text as written; the stored and sent text are the same.
 - [x] 4. Where is the model told what a mention means? — in the tool guidance (the tool descriptions),
   so a custom prompt template does not drop it.
-- [ ] 5. What does the conversation title show for a draft or first message that holds a mention? — open;
-  the plan assumes `@<title>`, never the token syntax.
-- [ ] 6. What does a chip show after its deck, template, or preset is renamed or deleted? — open;
-  the plan assumes the title written in the token, with no live lookup.
+- [x] 5. What does the conversation title show for a draft or first message that holds a mention? — `@<title>`,
+  never the token syntax; the human approved the plan that assumed it.
+- [x] 6. What does a chip show after its deck, template, or preset is renamed or deleted? — the title written
+  in the token, with no live lookup; the human approved the plan that assumed it.
   A stale id already fails the tool call visibly.
 - [x] 7. Is the list grouped by kind? — no: one flat list of all kinds, sorted by title, each row marked with its kind.
   Typing after `@` filters titles, case-insensitive, by contains (the filter part is the plan's assumption).
 - [ ] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — open;
   the plan assumes Shift+Enter inserts a newline and paste inserts plain text.
   Item 3 checks it hands-on in Electron's Chromium and the browser, and records the result here.
-- [ ] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — open;
-  the plan assumes the field grows from 1 to 6 rows, then scrolls.
+- [x] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — yes, as the human chose:
+  the field grows from 1 to 6 rows, then scrolls, as the `<textarea>` does today.
 
 ## Plan
 
@@ -165,7 +165,7 @@ The page states no limitations, and documents no key other than Enter.
   and the `ai.focusPrompt` and `ui.submit` hotkeys.
   Value in and out is plain text; this item adds no tokens.
   Check Shift+Enter, IME composition, paste, undo, and the 6-row cap hands-on in Electron and the browser,
-  and record the answers to open questions 8 and 9.
+  and record the answer to open question 8.
   Constraints: `libs/ai-react`, and `libs/ui` only for fixes the composer finds; no mentions yet.
   Done when: tests for submit on Enter and newline on Shift+Enter; `bun run check:push` green;
   a Manual verify block for typing, IME, paste, and the hotkeys on both hosts.
