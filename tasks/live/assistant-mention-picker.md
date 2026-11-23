@@ -66,27 +66,41 @@ Out:
 ### TokenField
 
 Documentation: <https://react-aria.adobe.com/TokenField>.
+It shipped as alpha in `react-aria-components` 1.20.0 (2026-07-31); 1.18.0 and 1.19.0 do not contain it.
 
-Read in the published packages when the brief was written:
+Read in the installed 1.22.1 types and source (`react-aria-components`, `react-aria/useTokenField`,
+`react-stately/useTokenFieldState`):
 
-- `TokenField`, `TokenInput`, `Token`, and `TokenFieldValue` are exported from `react-aria-components`,
-  with no `UNSTABLE_` prefix.
-- It first shipped in `react-aria-components` 1.20.0 (2026-07-31); 1.18.0 and 1.19.0 do not contain it.
-- The value is a `TokenFieldValue` object: a sequence of text segments and token segments.
-- A token segment has `text` and an optional `value`, so a chip can show a title and carry `{ kind, id }`.
-- `TokenFieldValue` has `findText`, `slice`, `replaceRangeWithSegments`, `undo`, and `redo`.
-- The elements are a `div` and `span`s, so the field is contenteditable, not a `<textarea>`.
+- `TokenField`, `TokenInput`, `Token`, `TokenFieldValue`, and `TokenFieldContext` are exported from
+  `react-aria-components`, with no `UNSTABLE_` prefix.
+  `tokenFieldPositionToDOMRange` and `setTokenFieldSelection` are exported from `react-aria/useTokenField`.
+- The value is a `TokenFieldValue` holding `segments`: text segments `{ type: "text", text }`
+  and token segments `{ type: "token", text, value? }`, so a chip can show a title and carry `{ kind, id }`.
+  `toString()` joins the segments' text.
+- The selection is `selectedRange` (anchor and current `Position`s of segment index and UTF-16 offset).
+  1.21 replaced the `caretPosition` property with it; `caretPosition` is now a read-only getter,
+  and `withSelectedRange` or `withCaretPosition` returns a value with a new selection.
+- `TokenFieldValue` has `findText(position, direction, string | RegExp)`, `slice`, `replaceRange`,
+  `replaceRangeWithSegments`, `undo`, and `redo`.
+- `TokenField` takes `value`, `defaultValue`, `onChange`, `allowsNewlines`, `onSubmit`, `onKeyDown`, `onPaste`,
+  `isDisabled`, `isReadOnly`, `role` (`textbox`, `searchbox`, or `combobox`), and the aria labeling props.
+  `TokenInput` is the editable `div`; its child is a function of a token segment that returns a `Token` (`span`).
+- Enter (`insertParagraph`) calls `onSubmit` when it is given; otherwise it is treated as a line break.
+  Shift+Enter (`insertLineBreak`) inserts `\n` only when `allowsNewlines` is set.
+- Paste inserts the clipboard's `text/plain` as text.
+  Copy and cut also write a custom clipboard type, so chips pasted between token fields stay chips.
+  Without `allowsNewlines`, pasted line breaks become spaces.
+- IME composition is handled inside the field: React re-renders are held off during composition, and `onChange`
+  still fires.
+  1.21 fixed composition in Firefox.
 
-Taken from the documentation page, not checked against the types:
+Taken from the documentation and release notes, not checked against the types:
 
-- Its stated uses include AI prompt fields and mention inputs.
-- `allowsNewlines` makes it multi-line, and `onSubmit` fires on Enter.
 - The mention pattern wraps the field and a `Popover` holding a `Menu` in `Autocomplete`.
   The trigger is found with `findText` backward from the caret, for a regex such as `@` after whitespace.
-  The popover is placed at the caret with `tokenFieldPositionToDOMRange` from `react-aria/useTokenField`.
+  The popover is placed at the caret with `tokenFieldPositionToDOMRange` passed to the `Popover`'s `getTargetRect`
+  (added in 1.19).
   Selecting an item calls `replaceRangeWithSegments` with a token segment.
-
-The page states no limitations, and documents no key other than Enter.
 
 ### Upgrade
 
@@ -96,6 +110,10 @@ The page states no limitations, and documents no key other than Enter.
   It depends on `react-aria` 3.53.1 and `react-stately` 3.51.0, so the three move together.
 - The range is five minor releases, and all of `libs/ui` is built on these packages.
 - `agents/DEPENDENCIES.md` (§Upgrading a Dependency) governs it: read every release's notes first.
+- `@react-aria/focus`, `@react-aria/i18n`, and `@react-aria/interactions` are wrappers around `react-aria`.
+  The installed ones pinned `react-aria` 3.48.0 exactly, so they move too, to versions that accept `^3.48.0`.
+  `@internationalized/date` and `@react-types/shared` move to the versions `react-aria` 3.53.1 needs,
+  so the lockfile holds one copy of each.
 
 ### Rejected in the brief
 
@@ -132,7 +150,7 @@ The page states no limitations, and documents no key other than Enter.
 
 ## Plan
 
-- [ ] 1. Upgrade react-aria-components to 1.22.1
+- [x] 1. Upgrade react-aria-components to 1.22.1
   Goal: move `react-aria-components` 1.17.0 → 1.22.1, `react-aria` 3.48.0 → 3.53.1,
   and `react-stately` 3.46.0 → 3.51.0 together, keeping the last two pinned exactly in `package.json`.
   Follow `agents/DEPENDENCIES.md` (§Upgrading a Dependency): fetch and read the notes of every release in the range,
