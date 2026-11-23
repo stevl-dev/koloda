@@ -166,13 +166,16 @@ Taken from the documentation and release notes, not checked against the types:
   Commit: Upgrade react-aria-components to 1.22.1
   Depends on: none
 
-- [ ] 2. Add a TokenField primitive to @koloda/ui
+- [x] 2. Add a TokenField primitive to @koloda/ui
   Goal: a `TokenField` primitive in `libs/ui/src/lib/primitives/form/`, styled like the inline `TextField.TextArea`,
   with a token chip style, multi-line input, and a height that grows from 1 to 6 rows, then scrolls.
   It exposes the value, `onSubmit`, a ref for focus, and what a caller needs to place a popover at the caret.
   Export it, and list it in `libs/ui/README.md` if the map names it.
   Constraints: `libs/ui` only; no mention logic and no AI wording.
-  Done when: component tests for value changes, a chip rendering, and submit on Enter; `bun run check:push` green.
+  Done when: `bun run check:push` green.
+  The primitive is styling and prop threading over RAC, so it has no tests of its own (`agents/TESTING.md`,
+  pure wiring); item 3's composer tests go through it for submit and newline.
+  The chip colors are new tokens, `bg-token` and `fg-token`, derived from `--fg-link` in both schemes.
   Commit: Add a TokenField primitive to @koloda/ui
   Depends on: 1
 

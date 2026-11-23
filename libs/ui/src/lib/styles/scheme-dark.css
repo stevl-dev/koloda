@@ -85,6 +85,9 @@
   --fg-nav-active: var(--fg-level-1);
   /* chat */
   --border-chat-message: color-mix(in oklab, var(--fg-level-1) 5%, var(--bg-level-2));
+  /* token field */
+  --bg-token: color-mix(in oklab, var(--fg-link) 20%, transparent);
+  --fg-token: var(--fg-link);
   /* logo and setup background */
   --logo-accent: var(--color-red);
   --pile-shadow: color-mix(in oklab, black 7%, transparent);

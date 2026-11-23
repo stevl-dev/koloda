@@ -74,6 +74,7 @@ export { Switch } from "./lib/primitives/form/switch";
 export { FormTextField, TextField } from "./lib/primitives/form/text-field";
 export type { TextFieldTextAreaProps } from "./lib/primitives/form/text-field";
 export { TimeField } from "./lib/primitives/form/time-field";
+export { TokenField, tokenFieldToken } from "./lib/primitives/form/token-field";
 export { ToggleGroup } from "./lib/primitives/form/toggle-group";
 export { useRefreshPristineFields } from "./lib/primitives/form/use-refresh-pristine-fields";
 export { Link, link } from "./lib/primitives/link";
