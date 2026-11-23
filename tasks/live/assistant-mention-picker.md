@@ -109,21 +109,105 @@ The page states no limitations, and documents no key other than Enter.
 
 ## Open questions
 
-- [ ] 1. Is `promptInput` kept a string, converted to and from `TokenFieldValue` at the composer boundary,
-  with a token written as text such as `@[Spanish verbs](deck:12)`? — open; the brief proposes it,
-  so persistence, revert, and history need no schema change.
-- [ ] 2. Does `@koloda/ai-react` stay generic, with the composer taking its mention sources as a prop,
-  and `@koloda/assistant-react` supplying decks, templates, and algorithms? — open; the brief proposes it.
-- [ ] 3. What does the model receive: the token text as written, or a rewritten form? — open
-- [ ] 4. Where is the model told what a mention token means: the tool guidance or the built-in prompt? — open
-- [ ] 5. What does the conversation title show for a draft that holds a token? — open
+- [x] 1. Is `promptInput` kept a string, converted to and from `TokenFieldValue` at the composer boundary? — yes.
+  A mention is written in the string as `@[<title>](<kind>:<id>)`, for example `@[Spanish verbs](deck:12)`.
+  Persistence, revert, and history need no schema change.
+- [x] 2. Does `@koloda/ai-react` stay generic, with the composer taking its mention sources as a prop? — yes, as the
+  brief proposed; `@koloda/assistant-react` supplies decks, templates, and algorithms.
+- [x] 3. What does the model receive? — the token text as written; the stored and sent text are the same.
+- [x] 4. Where is the model told what a mention means? — in the tool guidance (the tool descriptions),
+  so a custom prompt template does not drop it.
+- [ ] 5. What does the conversation title show for a draft or first message that holds a mention? — open;
+  the plan assumes `@<title>`, never the token syntax.
 - [ ] 6. What does a chip show after its deck, template, or preset is renamed or deleted? — open;
-  a stale id already fails the tool call visibly.
-- [ ] 7. Is the list grouped by kind, and how is it filtered and ordered? — open
+  the plan assumes the title written in the token, with no live lookup.
+  A stale id already fails the tool call visibly.
+- [x] 7. Is the list grouped by kind? — no: one flat list of all kinds, sorted by title, each row marked with its kind.
+  Typing after `@` filters titles, case-insensitive, by contains (the filter part is the plan's assumption).
 - [ ] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — open;
-  needs a hands-on check in Electron's Chromium as well as the browser.
-- [ ] 9. Do auto-resize and the 6-row cap carry over to a contenteditable field? — open
+  the plan assumes Shift+Enter inserts a newline and paste inserts plain text.
+  Item 3 checks it hands-on in Electron's Chromium and the browser, and records the result here.
+- [ ] 9. Do auto-resize and the 6-row cap carry over to the contenteditable field? — open;
+  the plan assumes the field grows from 1 to 6 rows, then scrolls.
 
 ## Plan
 
-Pending the open questions that change the split (1–4, 7).
+- [ ] 1. Upgrade react-aria-components to 1.22.1
+  Goal: move `react-aria-components` 1.17.0 → 1.22.1, `react-aria` 3.48.0 → 3.53.1,
+  and `react-stately` 3.46.0 → 3.51.0 together, keeping the last two pinned exactly in `package.json`.
+  Follow `agents/DEPENDENCIES.md` (§Upgrading a Dependency): fetch and read the notes of every release in the range,
+  list removed or renamed APIs, changed defaults, and changed behavior, and search the code, CSS
+  (including `data-*` selectors), and tests for each.
+  Re-check the `libs/ui` tooltip deferred entry: its layout effect relies on how React Aria moves the arrow.
+  Read the installed `TokenField` types and record in §TokenField what they confirm or contradict:
+  the exports, `allowsNewlines`, `onSubmit`, `findText`, `replaceRangeWithSegments`,
+  and `tokenFieldPositionToDOMRange` from `react-aria/useTokenField`.
+  Constraints: no feature code; touch `libs/ui` and `libs/srs-react` only where the range requires it.
+  Done when: `bun run check:push` is green; a Manual verify block covers dialogs, popovers, selects, menus,
+  tooltips, tables, drag and drop, and form fields on both hosts.
+  Commit: Upgrade react-aria-components to 1.22.1
+  Depends on: none
+
+- [ ] 2. Add a TokenField primitive to @koloda/ui
+  Goal: a `TokenField` primitive in `libs/ui/src/lib/primitives/form/`, styled like the inline `TextField.TextArea`,
+  with a token chip style, multi-line input, and a height that grows from 1 to 6 rows, then scrolls.
+  It exposes the value, `onSubmit`, a ref for focus, and what a caller needs to place a popover at the caret.
+  Export it, and list it in `libs/ui/README.md` if the map names it.
+  Constraints: `libs/ui` only; no mention logic and no AI wording.
+  Done when: component tests for value changes, a chip rendering, and submit on Enter; `bun run check:push` green.
+  Commit: Add a TokenField primitive to @koloda/ui
+  Depends on: 1
+
+- [ ] 3. Build the assistant composer on TokenField
+  Goal: `AIChatPromptInput` (`libs/ai-react/src/lib/ai-chat-prompt-input.tsx`) uses the item 2 primitive
+  in place of the `<textarea>`, with the same props and behavior: a string `value` and `onChange`,
+  Enter submits, Shift+Enter inserts a newline, autofocus, the placeholder and label,
+  and the `ai.focusPrompt` and `ui.submit` hotkeys.
+  Value in and out is plain text; this item adds no tokens.
+  Check Shift+Enter, IME composition, paste, undo, and the 6-row cap hands-on in Electron and the browser,
+  and record the answers to open questions 8 and 9.
+  Constraints: `libs/ai-react`, and `libs/ui` only for fixes the composer finds; no mentions yet.
+  Done when: tests for submit on Enter and newline on Shift+Enter; `bun run check:push` green;
+  a Manual verify block for typing, IME, paste, and the hotkeys on both hosts.
+  Commit: Build the assistant composer on TokenField
+  Depends on: 2
+
+- [ ] 4. Mention decks, templates, and algorithms in the assistant composer
+  Goal:
+  - `libs/ai`: a mention codec. Kinds are `deck`, `template`, and `algorithm`.
+    Formatting writes `@[<title>](<kind>:<id>)`, escaping `\` and `]` in the title.
+    Parsing splits a string into text and mention segments; text that does not match stays text.
+    `computeConversationTitle` shows a mention as `@<title>` (open question 5).
+  - Tool guidance: the descriptions of `get_deck`, `get_template`, `list_algorithms`, and `add_deck`
+    say a user message may hold `@[<title>](<kind>:<id>)`, that the id is the entity the user picked,
+    to use it without listing first, and that the title is the one at the time it was picked.
+  - `libs/ai-react`: the composer converts the string to and from `TokenFieldValue` with the codec,
+    and takes mention sources as a prop: items of `{ kind, id, title }` and a label per kind.
+    `@` at the start or after whitespace opens a `Popover` with a `Menu` in `Autocomplete`, placed at the caret.
+    The list is one flat list sorted by title, each row marked with its kind,
+    filtered by the text after `@`, case-insensitive, by contains.
+    Picking an item replaces `@<query>` with a token segment; Escape closes the list;
+    Enter picks while the list is open and submits otherwise.
+  - `libs/assistant-react`: `assistant-chat.tsx` supplies decks, templates, and algorithms
+    from `getDecksQuery`, `getTemplatesQuery`, and `getAlgorithmsQuery`.
+  - Specs: `docs/specs/ASSISTANT-DATA-ACCESS.md` (§What it is: a mention sends the id and title the user picked
+    at submit, a pointer and not a snapshot; §Tool Guidance), `docs/specs/ASSISTANT-MESSAGES.md`
+    (§Sending a Message), `docs/specs/HOTKEYS.md` if the open list changes a hotkey; then `bun run gen:help`.
+  - i18n for the kind labels and the empty list.
+  Constraints: no new tool, no schema change, no card mentions.
+  Done when: codec tests (round trip, escaping, malformed text), title tests, composer tests for opening,
+  filtering, and picking; `bun run check:push` green; a Manual verify block on both hosts,
+  including a model calling `get_deck` with a mentioned id without `list_decks`.
+  Commit: Mention decks, templates, and algorithms in the assistant composer
+  Depends on: 3
+
+- [ ] 5. Show mention chips in user messages
+  Goal: a user bubble (`libs/ai-react/src/lib/ai-chat-message.tsx`) renders mention tokens with the codec
+  as the same chip the composer shows, read-only, with the title written in the token (open question 6).
+  Revert puts the message back in the composer with its chips.
+  Update `docs/specs/ASSISTANT-MESSAGES.md` (§Message Display); then `bun run gen:help`.
+  Constraints: user messages only; assistant text rendering is unchanged.
+  Done when: tests for a bubble with text and mentions; `bun run check:push` green;
+  a Manual verify block for sending, reverting, and reopening a conversation with mentions.
+  Commit: Show mention chips in user messages
+  Depends on: 4
