@@ -1,26 +1,54 @@
 # Mention picker in the assistant composer
 
+Status: draft
+Guides: agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-DATA-ACCESS.md, agents/DEPENDENCIES.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/VERIFY.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
+Flow: local
+
+## Intent
+
 Typing `@` in the assistant composer opens a list of the user's decks, templates, and algorithms (presets).
 Picking one inserts it into the prompt as a chip, the way `@` picks a file in a coding assistant.
 The model then receives the entity's id and title with the message.
 
-## Decided
-
-- The composer is built on react-aria's `TokenField`, with chips inside the composer.
-- The react-aria upgrade that `TokenField` needs is part of this task, not a task before it.
-- Mentions cover decks, templates, and algorithms.
-  Cards are not mentioned: the assistant reads cards as part of their deck, never individually.
-
-## Why it is wanted
+Why it is wanted:
 
 - Precision: the model gets an id, so similar or duplicate titles do not need guessing.
 - One tool round-trip fewer: the model can call `get_deck` or `get_template` without `list_decks` first.
 - Discoverability: templates and presets are things users rarely name in a prompt.
 
-The gain is moderate.
-The model already resolves "my Spanish deck" through `list_decks`.
+The gain is moderate: the model already resolves "my Spanish deck" through `list_decks`.
 
-## What exists today
+Done when: on both hosts, `@` in the composer opens the list, picking an item shows a chip in the composer,
+the sent message shows the same chip in the user bubble, and the model can call `get_deck` or `get_template`
+with the mentioned id without listing first.
+
+Read from the brief `tasks/backlog/assistant-mention-picker.md` on `main` at `8d6376e7`.
+
+## Scope
+
+In:
+
+- The `react-aria-components` upgrade that `TokenField` needs, with `react-aria` and `react-stately`.
+- A composer built on react-aria's `TokenField`, with chips inside it, replacing the `<textarea>`.
+- Mentions of decks, templates, and algorithms.
+- The chip in the user bubble.
+- Telling the model what a mention means.
+- Spec updates: `docs/specs/ASSISTANT-DATA-ACCESS.md` (§What it is), `docs/specs/ASSISTANT-MESSAGES.md`
+  (§Message Display, §Sending a Message), `docs/specs/HOTKEYS.md` if a hotkey's behavior changes;
+  then `bun run gen:help`, since the help corpus is generated from the specs.
+
+Out:
+
+- Mentioning cards: the assistant reads cards as part of their deck, never individually.
+- New assistant tools: `get_deck` and `get_template` already take an id.
+
+### Decided in the brief
+
+- The composer is built on `TokenField`, with chips inside the composer.
+- The react-aria upgrade is part of this task, not a task before it.
+- Mentions cover decks, templates, and algorithms, not cards.
+
+### What exists today (at `8d6376e7`)
 
 - The composer is a plain `<textarea>`: `libs/ai-react/src/lib/ai-chat-prompt-input.tsx`.
   It auto-resizes from 1 to 6 rows.
@@ -34,13 +62,12 @@ The model already resolves "my Spanish deck" through `list_decks`.
   `libs/ai-react/src/lib/ai-chat-message.tsx`.
 - `getDecksQuery`, `getTemplatesQuery`, and `getAlgorithmsQuery` are in `@koloda/core-react`.
   Both `@koloda/ai-react` and `@koloda/assistant-react` already depend on it.
-- `get_deck` and `get_template` take an id, so a mention needs no new tool.
 
-## TokenField
+### TokenField
 
 Documentation: <https://react-aria.adobe.com/TokenField>.
 
-Read in the published packages:
+Read in the published packages when the brief was written:
 
 - `TokenField`, `TokenInput`, `Token`, and `TokenFieldValue` are exported from `react-aria-components`,
   with no `UNSTABLE_` prefix.
@@ -61,49 +88,16 @@ Taken from the documentation page, not checked against the types:
 
 The page states no limitations, and documents no key other than Enter.
 
-## Upgrade
+### Upgrade
 
 - Installed: `react-aria-components` 1.17.0, `react-aria` 3.48.0, `react-stately` 3.46.0.
   The last two are pinned exactly in `package.json`.
-- Latest when this was written: `react-aria-components` 1.22.1 (2026-10-09).
+- Target: `react-aria-components` 1.22.1 (2026-10-09), still the latest at `8d6376e7`.
   It depends on `react-aria` 3.53.1 and `react-stately` 3.51.0, so the three move together.
 - The range is five minor releases, and all of `libs/ui` is built on these packages.
 - `agents/DEPENDENCIES.md` (§Upgrading a Dependency) governs it: read every release's notes first.
 
-## Proposed, not yet decided
-
-- Keep `promptInput` a string.
-  Convert to and from `TokenFieldValue` at the composer boundary, with a token written as text,
-  for example `@[Spanish verbs](deck:12)`.
-  Persistence, revert, and history then need no schema change.
-- Render the same token as a chip in the user bubble.
-- `@koloda/ai-react` stays generic: the composer takes its mention sources as a prop.
-  `@koloda/assistant-react` supplies decks, templates, and algorithms.
-- Tell the model what a mention token means, in the tool guidance or the built-in prompt.
-
-## Open questions
-
-- What the model receives: the token text as written, or a rewritten form.
-- What the conversation title shows for a draft that holds a token.
-- What a chip shows after its deck, template, or preset is renamed or deleted.
-  A stale id already fails the tool call visibly.
-- Whether the list is grouped by kind, and how it is filtered and ordered.
-- Whether Shift+Enter inserts a newline, and how IME input and paste behave.
-  This needs a hands-on check, in Electron's Chromium as well as the browser.
-- Whether auto-resize and the 6-row cap carry over to a contenteditable field.
-
-## Specs to change
-
-- `docs/specs/ASSISTANT-DATA-ACCESS.md` (§What it is) says every run discovers data by tool calls,
-  and that nothing is fetched or sent at submit.
-  A mention sends an id and a title at submit.
-  It is a pointer the user chose, not a snapshot, but the spec has to say so.
-- `docs/specs/ASSISTANT-MESSAGES.md` (§Message Display, §Sending a Message): chips in the composer and the bubble.
-- `docs/specs/HOTKEYS.md`, if the open list changes what a hotkey does.
-
-The help corpus is generated from the specs, so `bun run gen:help` follows.
-
-## Rejected
+### Rejected in the brief
 
 - A plain-text token typed into the existing `<textarea>`, with a hand-rolled list.
   It works on the installed versions, but shows no chip while composing.
@@ -112,3 +106,24 @@ The help corpus is generated from the specs, so `bun run gen:help` follows.
   It filters on the whole input value, not on the text after a trigger character.
 - Another rich-text editor.
   It would be a new dependency, where `TokenField` comes from one already in use.
+
+## Open questions
+
+- [ ] 1. Is `promptInput` kept a string, converted to and from `TokenFieldValue` at the composer boundary,
+  with a token written as text such as `@[Spanish verbs](deck:12)`? — open; the brief proposes it,
+  so persistence, revert, and history need no schema change.
+- [ ] 2. Does `@koloda/ai-react` stay generic, with the composer taking its mention sources as a prop,
+  and `@koloda/assistant-react` supplying decks, templates, and algorithms? — open; the brief proposes it.
+- [ ] 3. What does the model receive: the token text as written, or a rewritten form? — open
+- [ ] 4. Where is the model told what a mention token means: the tool guidance or the built-in prompt? — open
+- [ ] 5. What does the conversation title show for a draft that holds a token? — open
+- [ ] 6. What does a chip show after its deck, template, or preset is renamed or deleted? — open;
+  a stale id already fails the tool call visibly.
+- [ ] 7. Is the list grouped by kind, and how is it filtered and ordered? — open
+- [ ] 8. Does Shift+Enter insert a newline, and how do IME input and paste behave? — open;
+  needs a hands-on check in Electron's Chromium as well as the browser.
+- [ ] 9. Do auto-resize and the 6-row cap carry over to a contenteditable field? — open
+
+## Plan
+
+Pending the open questions that change the split (1–4, 7).
