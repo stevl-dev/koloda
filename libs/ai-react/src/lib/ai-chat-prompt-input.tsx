@@ -9,7 +9,6 @@ import { useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Autocomplete, Menu, MenuItem, Text, TokenFieldValue } from "react-aria-components";
 import { tokenFieldPositionToDOMRange } from "react-aria/useTokenField";
-import { tv } from "tailwind-variants";
 
 export type AIChatPromptInputProps = {
   value: string;
@@ -32,13 +31,11 @@ const MENTION_KIND_LABELS: Record<MentionKind, MessageDescriptor> = {
 // `@` at the start of the text or after whitespace, so an email address does not open the list.
 const MENTION_TRIGGER = /(?<=^|\s)@/;
 
-const mentionMenuItem = tv({
-  base: [
-    "flex flex-row items-center justify-between gap-4 mx-1 py-2 px-2",
-    "outline-none rounded-lg cursor-default select-none",
-    "focus:bg-picker-item-hover",
-  ],
-});
+const mentionMenuItem = [
+  "flex flex-row items-center justify-between gap-4 mx-1 py-2 px-2",
+  "outline-none rounded-lg cursor-default select-none",
+  "focus:bg-picker-item-hover",
+].join(" ");
 
 function toFieldValue(text: string): MentionFieldValue {
   const segments: MentionFieldSegment[] = parseMentionText(text).map((part) =>
@@ -95,6 +92,8 @@ export function AIChatPromptInput({ value, onChange, onSubmit, mentions = [] }: 
   }, [mentions, i18n.locale]);
 
   const mentionQuery = findMentionQuery(field.fieldValue);
+  // WHY: a dismissal holds only while its `@` is the one being typed after; a new `@` at the same offset reopens.
+  if (dismissedAnchorKey !== null && mentionQuery?.anchorKey !== dismissedAnchorKey) setDismissedAnchorKey(null);
   const query = mentionQuery?.query.toLocaleLowerCase(i18n.locale);
   const matches = useMemo(
     () =>
@@ -185,7 +184,7 @@ export function AIChatPromptInput({ value, onChange, onSubmit, mentions = [] }: 
             <MenuItem
               id={`${mention.kind}:${mention.id}`}
               textValue={mention.title}
-              className={mentionMenuItem()}
+              className={mentionMenuItem}
               onAction={() => pickMention(mention)}
             >
               <Text slot="label" className="truncate fg-level-1">

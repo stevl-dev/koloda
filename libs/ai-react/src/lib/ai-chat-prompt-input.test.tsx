@@ -171,6 +171,17 @@ describe("AIChatPromptInput", () => {
     expect(screen.getByRole("menu")).toBeTruthy();
   });
 
+  it("opens the list for an @ typed again where a dismissed one was deleted", () => {
+    const { input } = renderInput("");
+
+    fireInput(input, "insertText", "@");
+    fireEvent.keyDown(input, { key: "Escape" });
+    fireInput(input, "deleteContentBackward");
+    fireInput(input, "insertText", "@");
+
+    expect(screen.getByRole("menu")).toBeTruthy();
+  });
+
   it("shows a stored mention as a chip with its title", () => {
     const { input } = renderInput(`Quiz me on @[Spanish verbs](deck:${deckId})`);
 
