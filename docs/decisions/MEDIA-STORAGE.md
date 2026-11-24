@@ -28,7 +28,7 @@
   `conversation_attachment_bytes`, with the same hash ids.
   It holds images, PDF files, and text files.
   An image passes the card validation; a PDF is known by its magic bytes and has a larger cap.
-  Text is any other UTF-8 without NUL bytes, under its own cap, stored as `text/plain`.
+  Text is any other non-empty UTF-8 without NUL bytes, under its own cap, stored as `text/plain`.
   Only an image has a width and height.
   It is device-local and never syncs (`docs/decisions/STORAGE-BUCKETS.md`).
   Conversation state refers to one as `conversation-attachment:<id>`, and only conversation state keeps it alive.

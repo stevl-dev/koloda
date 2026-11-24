@@ -74,6 +74,7 @@ export function useAssistantFileAttach({ inputs, onConversationIdChange }: UseAs
         }
         try {
           const stored = await mutateAsync(await readConversationFile(file, kind));
+          // WHY: an image shows as its thumbnail, and a pasted one has a made-up name, so only other files keep one.
           const attachment: PromptAttachment = {
             url: conversationAttachmentUrl(stored.id),
             mediaType: stored.mime,

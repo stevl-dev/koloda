@@ -40,7 +40,7 @@ export function getInputStates(
 const PDF_MIME = "application/pdf";
 const TEXT_EXTENSIONS = [".txt", ".md", ".markdown", ".csv"];
 
-/** What the file picker offers: every kind, so a refused one can say why instead of being hidden. */
+// WHY: the picker offers every kind, even one the model refuses, so the attach can say why instead of hiding it.
 export const ATTACHABLE_FILE_TYPES = [...ATTACHMENT_MIMES, PDF_MIME, "text/*", ...TEXT_EXTENSIONS];
 
 // WHY: browsers type a picked or dropped file by its name, so an image without an image extension arrives with an
@@ -55,15 +55,12 @@ function hasExtension(file: File, extensions: readonly string[]) {
   return extensions.some((extension) => name.endsWith(extension));
 }
 
-/**
- * The kind a file claims by its type or name; `null` for a file of no accepted kind.
- * An untyped file with no known extension is an image only if its first bytes say so.
- */
 export async function getConversationFileKind(file: File): Promise<ConversationFileKind | null> {
   if (file.type.startsWith("image/")) return "image";
   if (file.type === PDF_MIME || hasExtension(file, [".pdf"])) return "pdf";
   if (file.type.startsWith("text/") || hasExtension(file, TEXT_EXTENSIONS)) return "text";
   if (!UNTYPED_FILE_TYPES.includes(file.type)) return null;
+  // WHY: an untyped file with no known extension may still be an image (see `UNTYPED_FILE_TYPES`); nothing else is.
   return sniffImageMime(new Uint8Array(await file.slice(0, SNIFF_SLICE_BYTES).arrayBuffer())) ? "image" : null;
 }
 
@@ -100,10 +97,7 @@ export function getConversationFileKindOfMime(mediaType: string): ConversationFi
   return mediaType === PDF_MIME ? "pdf" : "text";
 }
 
-/**
- * The kinds among `mediaTypes` the selected model does not take; with no model selected, every image and PDF kind.
- * Text goes to every model, so it is never refused.
- */
+// INVARIANT: text goes to every model, so it is never refused; with no model selected, every image and PDF is.
 export function getRefusedKinds(mediaTypes: readonly string[], inputs: InputStates): Array<"image" | "pdf"> {
   const kinds = new Set(mediaTypes.map(getConversationFileKindOfMime));
   return (["image", "pdf"] as const).filter((kind) => kinds.has(kind) && inputs?.[kind] !== "enabled");
