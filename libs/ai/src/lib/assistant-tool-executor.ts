@@ -7,9 +7,9 @@ import {
   shapeGetDeckOutput,
   shapeGetSettingsOutput,
   shapeGetTemplateOutput,
+  shapeLessonsTodayOutput,
   shapeListAlgorithmsOutput,
   shapeListDecksOutput,
-  shapeLessonsTodayOutput,
   shapeListTemplatesOutput,
   shapeProposeCardsOutput,
 } from "./assistant-tools";
