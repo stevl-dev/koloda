@@ -15,10 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `assistant-lesson-statistics`: Let the assistant read lesson and progress statistics.
-  Area: `libs/ai`
-  Why: The assistant cannot explain lesson amounts, such as why only 10 new cards show today.
-
 - `assistant-deep-links`: Give assistant answers in-app deep links to the screen where a setting or feature lives.
   Area: `libs/ai`
   Why: Answers can only describe where a setting lives, not link to it.
