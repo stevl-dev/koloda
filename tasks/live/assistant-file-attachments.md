@@ -1,6 +1,6 @@
 # Text and PDF attachments in assistant messages
 
-Status: draft
+Status: ready
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/BACKWARDS-COMPATIBILITY.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
 Flow: local
 
@@ -113,11 +113,10 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
 - [x] What does a model with unknown PDF support offer? — A separate per-model "accepts PDF" switch,
   off by default, held like `imageInputModelIds`.
 - [x] Size limits? — PDF 20 MB, text 1 MB; images stay at 5 MB.
-- [ ] With a model that takes neither images nor PDF, is the attach button still enabled? — open.
-  Proposed: enabled, since text files go to every model.
+- [x] With a model that takes neither images nor PDF, is the attach button still enabled? — Yes,
+  since text files go to every model.
   Picking, pasting, or dropping an image or PDF the model refuses shows the reason and attaches nothing.
-- [ ] Which files count as text? — open.
-  Proposed: `.txt`, `.md`, `.markdown`, `.csv`, or any file typed `text/*`, whose bytes are UTF-8 without NUL bytes.
+- [x] Which files count as text? — `.txt`, `.md`, `.markdown`, `.csv`, or any file typed `text/*`, whose bytes are UTF-8 without NUL bytes.
   Text is stored as `text/plain`; the file name keeps the extension.
 
 ## Plan
