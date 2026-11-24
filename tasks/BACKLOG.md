@@ -23,13 +23,9 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
   Area: `libs/ai`
   Why: Answers can only describe where a setting lives, not link to it.
 
-- `assistant-propose-settings-change`: Add a `propose_settings_change` tool that proposes a change for the user to apply.
+- `assistant-change-settings`: Add one `change_settings` tool; a per-field table in code applies reversible changes with Undo and asks the user first for the rest.
   Area: `libs/ai`
-  Why: The settings tool only reads, so the user applies every suggested change by hand.
-
-- `assistant-write-settings`: Let the assistant write settings directly.
-  Area: `libs/ai`
-  Why: The settings tool only reads, so the assistant cannot act on a settings request.
+  Why: The settings tool only reads; one tool whose mode the host picks keeps model behavior the same across providers.
 
 - `shared-repository-cases`: Run repository behavior cases, written once as data, on both hosts' test suites.
   Area: `crates/koloda`, `libs/db-sqlite`
