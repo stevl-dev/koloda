@@ -15,6 +15,7 @@ import {
   shapeGetDeckCardsOutput,
   shapeGetDeckOutput,
   shapeGetTemplateOutput,
+  shapeLessonsTodayOutput,
   shapeListAlgorithmsOutput,
   shapeListDecksOutput,
   shapeListTemplatesOutput,
@@ -305,6 +306,109 @@ describe("propose_cards input schema", () => {
       deckId: "01900000-0000-7000-8000-000000000005",
       cards: [{ fields: {} }, { fields: {} }, { fields: {} }, { fields: {} }],
     });
+  });
+});
+
+describe("get_lessons_today", () => {
+  const { description, inputSchema } = ASSISTANT_TOOL_SPECS.get_lessons_today;
+  const deckId = "01900000-0000-7000-8000-000000000001";
+  const counted = (value: number | null) => ({ value, counts: true });
+
+  it("tells the model when to call it, that limits do not block studying, and what it does not read", () => {
+    expect(description).toMatch(/why a lesson offers the amounts it does/i);
+    expect(description).toMatch(/do not ask the user/i);
+    expect(description).toMatch(/limits and studied counts are for all decks, even for one deck/i);
+    expect(description).toMatch(/do not block studying/i);
+    expect(description).toMatch(/reads no past days and changes nothing/i);
+    expect(description).toContain("@[<title>](deck:<id>)");
+  });
+
+  it("accepts a deck id or none", () => {
+    expect(inputSchema.parse({})).toEqual({});
+    expect(inputSchema.parse({ deckId })).toEqual({ deckId });
+    expect(() => inputSchema.parse({ deckId: "Spanish" })).toThrow();
+  });
+
+  it("clamps each lesson default by Total's room only for the types that count toward Total", () => {
+    const output = shapeLessonsTodayOutput({
+      lessons: { total: { untouched: 15, learn: 4, review: 40, total: 59 }, decks: [] },
+      todaysReviewTotals: {
+        dailyLimits: { total: 30, untouched: counted(20), learn: { value: null, counts: false }, review: counted(50) },
+        reviewTotals: { untouched: 10, learn: 7, review: 15, total: 25 },
+      },
+      dayStartsAt: "04:00",
+    });
+
+    expect(output.types).toEqual({
+      new: {
+        available: 15,
+        studiedToday: 10,
+        dailyLimit: 20,
+        countsTowardTotal: true,
+        roomLeft: 10,
+        lessonDefault: 5,
+      },
+      learn: {
+        available: 4,
+        studiedToday: 7,
+        dailyLimit: "unlimited",
+        countsTowardTotal: false,
+        roomLeft: "unlimited",
+        lessonDefault: 4,
+      },
+      review: {
+        available: 40,
+        studiedToday: 15,
+        dailyLimit: 50,
+        countsTowardTotal: true,
+        roomLeft: 35,
+        lessonDefault: 5,
+      },
+      total: {
+        available: 59,
+        studiedToday: 25,
+        dailyLimit: 30,
+        roomLeft: 5,
+        lessonDefault: 9,
+        lessonDefaultByType: { new: 5, learn: 4, review: 0 },
+      },
+    });
+  });
+
+  it("reports no room left at a limit of zero or past a limit, and unlimited Total as unlimited", () => {
+    const output = shapeLessonsTodayOutput({
+      lessons: { total: { untouched: 6, learn: 2, review: 3, total: 11 }, decks: [] },
+      todaysReviewTotals: {
+        dailyLimits: { total: null, untouched: counted(5), learn: counted(0), review: counted(3) },
+        reviewTotals: { untouched: 8, learn: 0, review: 3, total: 11 },
+      },
+      dayStartsAt: "04:00",
+    });
+
+    expect(output.types.new).toMatchObject({ roomLeft: 0, lessonDefault: 0 });
+    expect(output.types.learn).toMatchObject({ dailyLimit: 0, roomLeft: 0, lessonDefault: 0 });
+    expect(output.types.review).toMatchObject({ roomLeft: 0, lessonDefault: 0 });
+    expect(output.types.total).toMatchObject({ dailyLimit: "unlimited", roomLeft: "unlimited", lessonDefault: 0 });
+  });
+
+  it("names one deck in place of the deck list when scoped to it", () => {
+    const counts = { untouched: 1, learn: 2, review: 3, total: 6 };
+    const deck = { id: deckId, title: "Spanish", ...counts };
+    const todaysReviewTotals = {
+      dailyLimits: { total: null, untouched: counted(null), learn: counted(null), review: counted(null) },
+      reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
+    };
+    const lessons = { total: counts, decks: [deck] };
+
+    const allDecks = shapeLessonsTodayOutput({ lessons, todaysReviewTotals, dayStartsAt: "04:00" });
+    const oneDeck = shapeLessonsTodayOutput({ lessons, todaysReviewTotals, dayStartsAt: "04:00", deck });
+
+    expect(allDecks.deck).toBeUndefined();
+    expect(allDecks.decks).toEqual([
+      { deckId, title: "Spanish", available: { new: 1, learn: 2, review: 3, total: 6 } },
+    ]);
+    expect(oneDeck.deck).toEqual({ deckId, title: "Spanish" });
+    expect(oneDeck.decks).toBeUndefined();
   });
 });
 

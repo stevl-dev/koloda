@@ -75,7 +75,7 @@ Out:
   Commit: Move the initial lesson amounts calculation to a macro-free @koloda/app module
   Depends on: none
 
-- [ ] 2. Add the `get_lessons_today` assistant tool
+- [x] 2. Add the `get_lessons_today` assistant tool
   Goal: Add a read tool that returns today's lesson figures.
   In `libs/ai/src/lib/assistant-tools.ts`: a `get_lessons_today` spec with optional `deckId` (uuid), and a pure
   `shapeLessonsTodayOutput`.
@@ -94,7 +94,8 @@ Out:
   and shapes.
   Bind both methods in `apps/web/src/app/ai-runtime.ts` (passing `new Date()`) and `apps/electron/src/ai-ipc.ts`
   (adding them to `AiIpcDb`, passing `Date.now()`).
-  Add a prompt line in `prompts.ts` beside the `get_settings` line.
+  Add a prompt line in `prompts.ts` beside the `get_settings` line,
+  and say so in `docs/specs/ASSISTANT-SETTINGS.md` (§How the Prompt Is Sent).
   Update `docs/specs/ASSISTANT-DATA-ACCESS.md` (§Resources: replace "Scheduling statistics and lesson history are
   not read" with what is read and that past days are not; §Tools; §Tool Guidance; Core model tool list),
   the tool list in `libs/ai/README.md`, and run `bun run gen:help`.

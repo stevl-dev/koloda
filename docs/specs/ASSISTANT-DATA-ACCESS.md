@@ -37,8 +37,8 @@ The model can inspect existing cards through a tool before it proposes new ones.
 - **Reach** — the app reads user data locally, when a tool runs
 - **Egress** — the tool result leaves the machine toward the provider, in the same run
 - **Tools** — `list_decks`, `list_templates`, `list_algorithms`, `get_deck`,
-  `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, `get_app_info`,
-  and `read_help_topic`
+  `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, `get_lessons_today`,
+  `get_app_info`, and `read_help_topic`
 - **Help topic** — one part of the app's own documentation; app documentation, not user data
 - **Tool activity** — the visible record of tool calls, kept on the run
   Reasoning rows share that list; see ASSISTANT-MESSAGES.md (§Message Content).
@@ -55,7 +55,8 @@ The model can inspect existing cards through a tool before it proposes new ones.
 
 ## Resources
 
-The assistant reads decks, templates, algorithms (presets), the user's settings, and the app's sync status.
+The assistant reads decks, templates, algorithms (presets), the user's settings, today's lesson figures,
+and the app's sync status.
 
 Templates are a first-class readable resource.
 The assistant may list templates and fetch one template by id.
@@ -85,13 +86,18 @@ that is not a substitute for full field metadata (types, required, field ids) wh
 - For AI settings, it reads each profile's title, provider, allowed models, and whether a key is stored.
   It also reads the assistant's temperature, and whether the prompt is the built-in or a custom one.
   It never reads a key, a provider's server address, or the text of a custom prompt.
+- It can read today's lesson figures for all decks or one deck: per type, the cards available now,
+  the cards studied today, the daily limit and the room left under it,
+  and the amount a lesson would pre-fill (LESSONS.md (§Default Amounts)).
+  Limits and studied counts cover all decks, even for one deck.
+  It also reads when the learning day starts and, without a deck, each deck's available counts.
 - It can read which app the user is in: the desktop app or the web demo.
   On the desktop it also reads the sync status that SYNC.md (§Status) shows the user:
   the state, when sync last succeeded, how many changes and images wait, and why sync stopped.
   It never reads the server's address, a space or device identifier, a token, or the text of a sync error.
   In the web demo it reads only that sync is not available there; see SYNC.md (§Platform Availability).
 
-Scheduling statistics and lesson history are not read.
+Past days' reviews, scheduling statistics, and cards coming due later are not read.
 
 The assistant also reads the app's help topics.
 They describe how each feature behaves, where each screen is, and what the scheduling terms mean.
@@ -111,7 +117,7 @@ Those still need a named product spec with undo and validation.
 
 ## Tools
 
-The model sees the conversation and eleven tools.
+The model sees the conversation and twelve tools.
 It may call them to read data, read the app's help, create an empty deck, or propose cards.
 
 - `list_decks` — every deck's id, name, card count, template title, and field titles,
@@ -143,6 +149,8 @@ It may call them to read data, read the app's help, create an empty deck, or pro
   See ASSISTANT-CARD-GENERATION.md (§How Cards Are Proposed).
 - `get_settings` — the user's current settings, all four parts or the one asked for, as §Resources lists them.
   It does not change settings.
+- `get_lessons_today` — today's lesson figures, as §Resources lists them.
+  It does not start a lesson or change a limit.
 - `get_app_info` — which app this is and, on the desktop, the sync status, as §Resources lists them.
   It does not start or change sync.
 - `read_help_topic` — one help topic, or one section of it with its subsections.
@@ -177,6 +185,8 @@ They tell the model:
 - to call `propose_cards` again when a proposal accepted 0 cards or dropped some
 - not to write cards as a markdown table
 - to read the user's settings before stating a value the user can change, and not to ask the user for them
+- to read today's lesson figures when the user asks about today's amounts, instead of guessing
+- that daily limits shape a lesson's amounts but do not block studying
 - to read which app this is and the sync status when the user asks about them, instead of guessing
 - to read a help topic before answering how the app behaves or where something is, instead of answering from memory
 - that help topics give behavior and first-setup defaults, not this installation's current values

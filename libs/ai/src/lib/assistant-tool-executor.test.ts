@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { createAssistantToolExecutor } from "./assistant-tool-executor";
-import type { AssistantToolAppInfo, AssistantToolSyncStatus } from "./assistant-tools";
+import type {
+  AssistantToolAppInfo,
+  AssistantToolLessons,
+  AssistantToolSyncStatus,
+  AssistantToolTodaysReviewTotals,
+} from "./assistant-tools";
 import type { AIProfile } from "./settings";
 
 const DECK_ID = "01900000-0000-7000-8000-000000000001";
@@ -41,6 +46,8 @@ const algorithm = {
   },
 };
 
+const DECK_LESSON_COUNTS = { untouched: 5, learn: 0, review: 2, total: 7 };
+
 const settingsRows = {
   learning: { defaults: { algorithm: ALGORITHM_ID }, dailyLimits: { new: 20 }, dayStartsAt: "04:00" },
   interface: { language: "ru", scheme: "dark" },
@@ -67,6 +74,21 @@ function makeDataSource(overrides: Partial<Parameters<typeof createAssistantTool
     },
     getSettings: async (name: "learning" | "interface" | "hotkeys" | "ai"): Promise<unknown> => settingsRows[name],
     getAIProfiles: async (): Promise<AIProfile[]> => [],
+    getLessons: async ({ deckIds }: { deckIds?: string[] }): Promise<AssistantToolLessons> => {
+      const decks = [{ id: DECK_ID, title: "Spanish", ...DECK_LESSON_COUNTS }].filter(
+        (deck) => deckIds === undefined || deckIds.includes(deck.id),
+      );
+      return { total: decks[0] ? DECK_LESSON_COUNTS : { untouched: 0, learn: 0, review: 0, total: 0 }, decks };
+    },
+    getTodaysReviewTotals: async (): Promise<AssistantToolTodaysReviewTotals> => ({
+      dailyLimits: {
+        total: 200,
+        untouched: { value: 20, counts: true },
+        learn: { value: null, counts: false },
+        review: { value: 200, counts: true },
+      },
+      reviewTotals: { untouched: 18, learn: 0, review: 0, total: 18 },
+    }),
     getAppInfo: async (): Promise<AssistantToolAppInfo> => ({ app: "web" }),
   };
   return { ...data, ...overrides };
@@ -327,6 +349,38 @@ describe("createAssistantToolExecutor", () => {
     expect(output.rejectedCount).toBe(2);
     expect(output.message).toMatch(/2 cards were not accepted/);
     expect(output.message).toContain("Required fields left empty: Back.");
+  });
+
+  it("get_lessons_today reads every deck and the learning day's start without a deck id", async () => {
+    const getLessons = vi.fn(makeDataSource().getLessons);
+    const executor = createAssistantToolExecutor(makeDataSource({ getLessons }));
+
+    const output = await executor("get_lessons_today", {});
+
+    expect(getLessons.mock.calls).toEqual([[{}]]);
+    expect(output).toMatchObject({
+      dayStartsAt: "04:00",
+      types: { new: { available: 5, studiedToday: 18, roomLeft: 2, lessonDefault: 2 } },
+      decks: [{ deckId: DECK_ID, title: "Spanish" }],
+    });
+  });
+
+  it("get_lessons_today filters to the asked deck", async () => {
+    const getLessons = vi.fn(makeDataSource().getLessons);
+    const executor = createAssistantToolExecutor(makeDataSource({ getLessons }));
+
+    const output = await executor("get_lessons_today", { deckId: DECK_ID });
+
+    expect(getLessons.mock.calls).toEqual([[{ deckIds: [DECK_ID] }]]);
+    expect(output).toMatchObject({ deck: { deckId: DECK_ID, title: "Spanish" } });
+  });
+
+  it("get_lessons_today throws for a missing deck", async () => {
+    const executor = createAssistantToolExecutor(makeDataSource());
+
+    await expect(executor("get_lessons_today", { deckId: MISSING_DECK_ID })).rejects.toThrow(
+      `Deck not found: ${MISSING_DECK_ID}`,
+    );
   });
 
   it("get_settings returns every section as the host read it when no section is asked for", async () => {

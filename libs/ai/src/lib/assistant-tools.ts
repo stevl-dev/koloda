@@ -1,3 +1,5 @@
+import { calculateInitialLessonAmounts, remainingDailyLimitRoom } from "@koloda/app/daily-limits";
+import type { CountedDailyLimits } from "@koloda/app/daily-limits";
 import { tool } from "ai";
 import type { ToolSet } from "ai";
 import { z } from "zod";
@@ -229,6 +231,46 @@ type AppInfoOutput =
     }
   | { app: "web demo"; sync: { state: "not available"; message: string } };
 
+/** Lesson counts subset — mirrors SRS `LessonAmounts` without importing `@koloda/srs`. */
+type AssistantToolLessonAmounts = Record<"untouched" | "learn" | "review" | "total", number>;
+
+type AssistantToolLessonDeck = AssistantToolLessonAmounts & { id: string; title: string };
+
+/** Mirrors SRS `LessonsResult`: the Dashboard's available counts. */
+export type AssistantToolLessons = { total: AssistantToolLessonAmounts; decks: AssistantToolLessonDeck[] };
+
+/** Mirrors the limits and totals of SRS `TodaysReviewTotals`; `reviewTotals.total` sums only the counted types. */
+export type AssistantToolTodaysReviewTotals = {
+  dailyLimits: CountedDailyLimits;
+  reviewTotals: AssistantToolLessonAmounts;
+};
+
+/** `new` is the type the code calls `untouched`; the model and the user see "New". */
+type LessonCountsOutput = { new: number; learn: number; review: number; total: number };
+
+type LessonTypeFiguresOutput = {
+  available: number;
+  studiedToday: number;
+  dailyLimit: number | "unlimited";
+  countsTowardTotal: boolean;
+  roomLeft: number | "unlimited";
+  lessonDefault: number;
+};
+
+type LessonsTodayOutput = {
+  dayStartsAt: string;
+  deck?: { deckId: string; title: string };
+  types: {
+    new: LessonTypeFiguresOutput;
+    learn: LessonTypeFiguresOutput;
+    review: LessonTypeFiguresOutput;
+    total: Omit<LessonTypeFiguresOutput, "countsTowardTotal"> & {
+      lessonDefaultByType: Omit<LessonCountsOutput, "total">;
+    };
+  };
+  decks?: Array<{ deckId: string; title: string; available: LessonCountsOutput }>;
+};
+
 type AssistantToolSpec = {
   name: string;
   description: string;
@@ -368,6 +410,20 @@ export const ASSISTANT_TOOL_SPECS = {
     ].join("\n"),
     inputSchema: z.object({
       section: z.enum(SETTINGS_SECTIONS).optional(),
+    }),
+  },
+  get_lessons_today: {
+    name: "get_lessons_today",
+    description: [
+      "Read today's lesson figures for the New, Learn, and Review card types and their Total: how many cards are available to study now, how many were studied in the current learning day, the daily limit, whether the type counts toward Total, the room left under the limit, and lessonDefault, the amount a lesson started from that type pre-fills. The Total entry's lessonDefaultByType splits its default by type.",
+      "Call this when the user asks how many cards are due, studied, or left today, or why a lesson offers the amounts it does; do not ask the user.",
+      "Pass deckId, from list_decks or a deck the user mentioned as @[<title>](deck:<id>), for one deck's figures; without it the figures cover all decks and list each deck's available counts.",
+      "Daily limits and studied counts are for all decks, even for one deck. lessonDefault is the smallest of what is available, the type's room left, and Total's room left when the type counts toward Total. Limits shape these defaults but do not block studying: the user can raise an amount up to what is available.",
+      "dayStartsAt is the local time the learning day starts; today's counts reset then. The learning-settings and lessons help topics explain the rules.",
+      "This tool reads no past days and changes nothing.",
+    ].join("\n"),
+    inputSchema: z.object({
+      deckId: z.uuid().optional(),
     }),
   },
   get_app_info: {
@@ -546,6 +602,75 @@ function syncStopReason(stop: { reason: string; code?: string; needed?: number; 
     return `${reason} (needs ${stop.needed} bytes, ${stop.free} free)`;
   }
   return reason;
+}
+
+function lessonCountsOutput(amounts: AssistantToolLessonAmounts): LessonCountsOutput {
+  return { new: amounts.untouched, learn: amounts.learn, review: amounts.review, total: amounts.total };
+}
+
+function roomLeftOutput(limit: number | null, used: number): number | "unlimited" {
+  return limit == null ? "unlimited" : remainingDailyLimitRoom(limit, used);
+}
+
+type ShapeLessonsTodayOutputOptions = {
+  /** Already filtered to `deck` when one is given. */
+  lessons: AssistantToolLessons;
+  todaysReviewTotals: AssistantToolTodaysReviewTotals;
+  dayStartsAt: string;
+  deck?: AssistantToolLessonDeck;
+};
+
+/**
+ * Shape `get_lessons_today` output. Limits and today's totals are always for all decks, even for one deck,
+ * as the lesson init uses them (LESSONS.md (§Default Amounts)).
+ */
+export function shapeLessonsTodayOutput({
+  lessons,
+  todaysReviewTotals,
+  dayStartsAt,
+  deck,
+}: ShapeLessonsTodayOutputOptions): LessonsTodayOutput {
+  const { dailyLimits, reviewTotals } = todaysReviewTotals;
+  const available = lessons.total;
+  const lessonDefault = (type: keyof AssistantToolLessonAmounts) =>
+    calculateInitialLessonAmounts({ type, available, dailyLimits, reviewTotals });
+  const typeFigures = (type: "untouched" | "learn" | "review"): LessonTypeFiguresOutput => ({
+    available: available[type],
+    studiedToday: reviewTotals[type],
+    dailyLimit: dailyLimits[type].value ?? "unlimited",
+    countsTowardTotal: dailyLimits[type].counts,
+    roomLeft: roomLeftOutput(dailyLimits[type].value, reviewTotals[type]),
+    lessonDefault: lessonDefault(type)[type],
+  });
+  const { total: totalDefault, ...totalDefaultByType } = lessonCountsOutput(lessonDefault("total"));
+
+  return {
+    dayStartsAt,
+    ...(deck ? { deck: { deckId: deck.id, title: deck.title } } : {}),
+    types: {
+      new: typeFigures("untouched"),
+      learn: typeFigures("learn"),
+      review: typeFigures("review"),
+      total: {
+        available: available.total,
+        // WHY: the counted sum — a type whose switch is off is studied but not added to Total (LEARNING-SETTINGS.md).
+        studiedToday: reviewTotals.total,
+        dailyLimit: dailyLimits.total ?? "unlimited",
+        roomLeft: roomLeftOutput(dailyLimits.total, reviewTotals.total),
+        lessonDefault: totalDefault,
+        lessonDefaultByType: totalDefaultByType,
+      },
+    },
+    ...(deck
+      ? {}
+      : {
+          decks: lessons.decks.map((row) => ({
+            deckId: row.id,
+            title: row.title,
+            available: lessonCountsOutput(row),
+          })),
+        }),
+  };
 }
 
 /**

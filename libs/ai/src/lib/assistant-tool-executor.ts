@@ -9,6 +9,7 @@ import {
   shapeGetTemplateOutput,
   shapeListAlgorithmsOutput,
   shapeListDecksOutput,
+  shapeLessonsTodayOutput,
   shapeListTemplatesOutput,
   shapeProposeCardsOutput,
 } from "./assistant-tools";
@@ -17,7 +18,9 @@ import type {
   AssistantToolAppInfo,
   AssistantToolCard,
   AssistantToolExecutor,
+  AssistantToolLessons,
   AssistantToolTemplate,
+  AssistantToolTodaysReviewTotals,
 } from "./assistant-tools";
 import { readHelpTopic } from "./help-corpus";
 import type { AIProfile } from "./settings";
@@ -39,6 +42,9 @@ type AssistantToolDataSource = {
   getSettings: (name: "learning" | "interface" | "hotkeys" | "ai") => Promise<unknown>;
   /** The public profile read: keys redacted, `hasSecrets` from key presence. */
   getAIProfiles: () => Promise<AIProfile[]>;
+  /** The Dashboard's available counts, due as of now, for the filtered decks. */
+  getLessons: (filters: { deckIds?: string[] }) => Promise<AssistantToolLessons>;
+  getTodaysReviewTotals: () => Promise<AssistantToolTodaysReviewTotals>;
   /** The host kind, and on the desktop the sync status; the web demo has no sync (`SYNC.md` (§Platform Availability)). */
   getAppInfo: () => Promise<AssistantToolAppInfo>;
   /**
@@ -182,6 +188,20 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
         ...(wants("hotkeys") ? { hotkeys } : {}),
         ...(ai ? { ai } : {}),
       });
+    }
+    if (name === "get_lessons_today") {
+      const { deckId } = ASSISTANT_TOOL_SPECS.get_lessons_today.inputSchema.parse(input);
+      const [lessons, todaysReviewTotals, learning] = await Promise.all([
+        data.getLessons(deckId === undefined ? {} : { deckIds: [deckId] }),
+        data.getTodaysReviewTotals(),
+        data.getSettings("learning") as Promise<ResolvedLearningSettings | null>,
+      ]);
+      if (learning == null) throw new Error("Learning settings not found");
+      const { dayStartsAt } = learning;
+      if (deckId === undefined) return shapeLessonsTodayOutput({ lessons, todaysReviewTotals, dayStartsAt });
+      const deck = lessons.decks.find((row) => row.id === deckId);
+      if (deck == null) throw new Error(`Deck not found: ${deckId}`);
+      return shapeLessonsTodayOutput({ lessons, todaysReviewTotals, dayStartsAt, deck });
     }
     if (name === "get_app_info") {
       return shapeAppInfoOutput(await data.getAppInfo());

@@ -73,6 +73,7 @@ When the user asks to create a deck and fill it, the prompt tells the model to c
 then `add_deck`, then `propose_cards` in the same turn, and to omit the algorithm id unless the user asked for one.
 It tells the model to read the app's help through `read_help_topic` before answering how the app works,
 to read the user's settings through `get_settings` before stating a value the user has set,
+to call `get_lessons_today` when the user asks about today's lesson amounts or why a lesson offers them,
 and to call `get_app_info` when the user asks which app they are in or whether sync works.
 
 Tool descriptions carry their own guidance with either prompt; see ASSISTANT-DATA-ACCESS.md (§Tool Guidance).

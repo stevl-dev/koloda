@@ -42,6 +42,10 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/which app they are in or whether sync works, call get_app_info/i);
   });
 
+  it("sends questions about today's lesson amounts to get_lessons_today", () => {
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/why a lesson offers the amounts it does, call get_lessons_today/i);
+  });
+
   it("sends questions about the user's own values to get_settings", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toContain("get_settings");
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/daily limit/i);

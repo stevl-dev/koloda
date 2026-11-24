@@ -187,3 +187,38 @@ describe("desktop assistant settings tool", () => {
     });
   });
 });
+
+describe("desktop assistant lessons tool", () => {
+  afterEach(() => {
+    electron.handlers.clear();
+    clientChat.mockReset();
+  });
+
+  it("reads one deck's counts due as of now", async () => {
+    const chats = pendingChats();
+    const deckId = "01900000-0000-7000-8000-000000000002";
+    const counts = { untouched: 3, learn: 0, review: 1, total: 4 };
+    const getLessons = vi.fn(async (_params: { dueAt: number }) => ({
+      total: counts,
+      decks: [{ id: deckId, title: "Spanish", ...counts }],
+    }));
+    const limit = { value: null, counts: true };
+    const { start } = registered({
+      getLessons,
+      getTodaysReviewTotals: async () => ({
+        dailyLimits: { total: null, untouched: limit, learn: limit, review: limit },
+        reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
+      }),
+      getSettings: async () => ({ content: { dayStartsAt: "04:00" } }),
+    });
+    await start("req-a", { ...REQUEST, tools: ["get_lessons_today"] });
+    const execute = chats[0]!.request.executeTool as ToolExecutor;
+    const before = Date.now();
+
+    const output = await execute("get_lessons_today", { deckId });
+
+    expect(getLessons).toHaveBeenCalledWith({ dueAt: expect.any(Number), filters: { deckIds: [deckId] } });
+    expect(getLessons.mock.calls[0]![0].dueAt).toBeGreaterThanOrEqual(before);
+    expect(output).toMatchObject({ deck: { deckId, title: "Spanish" }, types: { new: { available: 3 } } });
+  });
+});

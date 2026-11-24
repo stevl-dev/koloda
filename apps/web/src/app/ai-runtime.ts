@@ -10,8 +10,10 @@ import {
   getConversationAttachment,
   getConversationAttachmentBytes,
   getDecks,
+  getLessons,
   getSettings,
   getTemplates,
+  getTodaysReviewTotals,
 } from "@koloda/db-sqlite";
 import { getAIProfiles, loadAIProfileSecrets } from "./ai";
 
@@ -24,6 +26,8 @@ function createWebToolExecutor(db: DB) {
     getCardCounts: () => getCardCounts(db),
     getSettings: async (name) => (await getSettings(db, name))?.content ?? null,
     getAIProfiles: () => getAIProfiles(db),
+    getLessons: (filters) => getLessons(db, new Date(), filters),
+    getTodaysReviewTotals: () => getTodaysReviewTotals(db),
     getAppInfo: async () => ({ app: "web" }),
     createDeck: (input) => addDeck(db, input),
   });

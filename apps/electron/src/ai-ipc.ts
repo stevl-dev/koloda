@@ -30,6 +30,8 @@ type AiIpcDb = Pick<
   | "getCardCounts"
   | "getSettings"
   | "getAiProfiles"
+  | "getLessons"
+  | "getTodaysReviewTotals"
   | "syncStatus"
   | "addDeck"
   | "getConversationAttachment"
@@ -120,6 +122,8 @@ function createChatToolExecutor(db: AiIpcDb) {
     getCardCounts: async () => Object.fromEntries((await db.getCardCounts()).map((row) => [row.deckId, row.count])),
     getSettings: async (name) => (await db.getSettings({ name }))?.content ?? null,
     getAIProfiles: () => db.getAiProfiles(),
+    getLessons: (filters) => db.getLessons({ dueAt: Date.now(), filters }),
+    getTodaysReviewTotals: () => db.getTodaysReviewTotals(),
     getAppInfo: async () => ({ app: "desktop", syncStatus: await db.syncStatus() }),
     createDeck: (input) => db.addDeck(input),
   });
