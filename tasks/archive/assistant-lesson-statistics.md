@@ -1,6 +1,6 @@
 # Assistant reads today's lesson figures
 
-Status: ready
+Status: done
 Guides: agents/ADD-ASSISTANT-TOOL.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/LESSONS.md, docs/specs/LEARNING-SETTINGS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -121,8 +121,23 @@ Out:
 
 ## Outcome
 
-<what shipped>
+The assistant reads today's lesson figures and can explain why a lesson offers the amounts it does.
+Shipped on both hosts:
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
+- `get_lessons_today`: for New, Learn, Review, and Total, the cards available now, the cards studied today,
+  the daily limit, whether the type counts toward Total, the room left, and the amount a lesson would pre-fill.
+  It also gives the learning day's start, and each deck's available counts, or one deck's figures by `deckId`.
+  Limits and studied counts are always for all decks, as the lesson init uses them.
+- `calculateInitialLessonAmounts` and the daily-limit helpers live in `libs/app/src/lib/daily-limits.ts`,
+  exported as the macro-free subpath `@koloda/app/daily-limits`; the lesson init and the tool share it.
+- Both hosts bind their existing readers; no new SQL, Rust, or IPC channel.
+- The default prompt sends questions about today's amounts to the tool, and its activity row has a label,
+  an icon, and the deck title as summary.
+
+The plan changed in item 2: `libs/ai` runs in Electron main, which cannot load the Lingui macros of `@koloda/srs`
+or the `@koloda/app` root, so the calculation moved to the macro-free module instead of `libs/srs` (Open questions).
+The `docs/specs/ASSISTANT-DATA-ACCESS.md` help topic is now 16,179 bytes of its 16 KB cap.
+
+Spec: docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/ASSISTANT-SETTINGS.md
+Review: not run
 Change rounds: 0
