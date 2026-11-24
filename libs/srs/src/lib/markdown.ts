@@ -23,14 +23,26 @@ const cardMarkdown = new Marked({
       const alt = tokens ? this.parser.parseInline(tokens, this.parser.textRenderer) : text;
       return `<img data-attachment-id="${match[1]}" alt="${escapeAttribute(alt)}">`;
     },
+    // WHY: DOMPurify drops a `koloda:` href, so the target rides in a data attribute
+    // and markdownToHtml gives the link its href after sanitizing.
+    link({ href, tokens }) {
+      if (!href.startsWith(APP_LINK_PREFIX)) return false;
+      const target = href.slice(APP_LINK_PREFIX.length);
+      return `<a data-app-link="${escapeAttribute(target)}">${this.parser.parseInline(tokens)}</a>`;
+    },
   },
 });
 
-export type MarkdownToHtmlOptions = { shouldKeepAttachmentImages?: boolean };
+const APP_LINK_PREFIX = "koloda:";
+
+export type MarkdownToHtmlOptions = {
+  shouldKeepAttachmentImages?: boolean;
+  resolveAppLink?: (target: string) => string | null;
+};
 
 export function markdownToHtml(
   markdown: string,
-  { shouldKeepAttachmentImages = false }: MarkdownToHtmlOptions = {},
+  { shouldKeepAttachmentImages = false, resolveAppLink }: MarkdownToHtmlOptions = {},
 ): string {
   const html = cardMarkdown.parse(markdown, { async: false }) as string;
   // WHY: CSS can load a remote image via url(), from a <style> tag or a style attribute.
@@ -43,6 +55,12 @@ export function markdownToHtml(
   // takes its place. Attachment images stay only for a caller that resolves them.
   const sourceless = shouldKeepAttachmentImages ? "img:not([src]):not([data-attachment-id])" : "img:not([src])";
   for (const img of fragment.querySelectorAll<HTMLImageElement>(sourceless)) img.replaceWith(img.alt);
+  for (const link of fragment.querySelectorAll<HTMLAnchorElement>("a[data-app-link]")) {
+    const href = resolveAppLink?.(link.dataset.appLink ?? "") ?? null;
+    // WHY: the href is set after sanitizing, so it gets the same URI check DOMPurify gives every other href.
+    if (href !== null && DOMPurify.isValidAttribute("a", "href", href)) link.setAttribute("href", href);
+    else link.replaceWith(...link.childNodes);
+  }
   const container = document.createElement("div");
   container.append(fragment);
   return container.innerHTML;

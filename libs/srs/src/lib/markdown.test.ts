@@ -42,6 +42,34 @@ describe("markdownToHtml", () => {
   });
 });
 
+describe("markdownToHtml app links", () => {
+  const resolveAppLink = (target: string) => (target === "settings/learning" ? "#/settings/learning" : null);
+
+  it("gives a resolved app link its href and keeps its target and formatting", () => {
+    const html = markdownToHtml("[**Learning** settings](koloda:settings/learning)", { resolveAppLink });
+
+    expect(html).toBe(
+      '<p><a data-app-link="settings/learning" href="#/settings/learning"><strong>Learning</strong> settings</a></p>\n',
+    );
+  });
+
+  it.each([
+    ["the resolver returns null", { resolveAppLink: () => null }],
+    ["no resolver is given", {}],
+    ["the resolved href is a script", { resolveAppLink: () => "javascript:alert(1)" }],
+  ])("shows an app link as its text when %s", (_, options) => {
+    expect(markdownToHtml("[**Learning**](koloda:settings/learning)", options)).toBe(
+      "<p><strong>Learning</strong></p>\n",
+    );
+  });
+
+  it("leaves other links alone", () => {
+    const html = markdownToHtml("[docs](https://docs.example/guide)", { resolveAppLink });
+
+    expect(html).toBe('<p><a href="https://docs.example/guide">docs</a></p>\n');
+  });
+});
+
 describe("markdownToHtml attachment refs", () => {
   const id = "0123456789abcdef".repeat(4);
 

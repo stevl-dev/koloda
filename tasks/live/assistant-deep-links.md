@@ -85,7 +85,7 @@ Entities: `deck/<id>`, `template/<id>`, `algorithm/<id>`, the kinds `libs/ai/src
 Routes: `/dashboard`, `/decks`, `/algorithms`, `/templates`, `/ai`, `/settings/<page>`,
 `/decks/$deckId`, `/templates/$templateId`, `/algorithms/$algorithmId`.
 
-- [ ] 1. Let `markdownToHtml` render app links through a resolver
+- [x] 1. Let `markdownToHtml` render app links through a resolver
   Goal: `markdownToHtml` in `libs/srs/src/lib/markdown.ts` takes a new option, `resolveAppLink?: (target: string) => string | null`.
   A markdown link whose href starts with `koloda:` is an app link; its target is the rest of the href.
   With the option, an app link renders as `<a href="<resolved>" data-app-link="<target>">` around its text,
