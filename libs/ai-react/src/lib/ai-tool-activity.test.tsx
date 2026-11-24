@@ -190,6 +190,23 @@ describe("AIToolActivity", () => {
 
   it.each([
     {
+      input: { deckId: "01900000-0000-7000-8000-000000000001" },
+      output: { deck: { title: "Spanish" } },
+      summary: "Spanish",
+    },
+    { input: {}, output: { decks: [{ title: "Spanish" }] }, summary: null },
+  ])("renders a get_lessons_today success row naming the asked deck ($summary)", ({ input, output, summary }) => {
+    render(
+      <AIToolActivity calls={[call({ id: "c1", name: "get_lessons_today", status: "success", input, output })]} />,
+    );
+
+    const trigger = screen.getByRole("button", { name: /ai\.chat\.tool-activity\.get-lessons-today/ });
+    expect(activityDots(trigger)).toHaveLength(summary === null ? 0 : 1);
+    expect(screen.queryByText("Spanish")?.textContent ?? null).toBe(summary);
+  });
+
+  it.each([
+    {
       scenario: "full output",
       output: { totalCards: 40, cards: [{ fields: {} }, { fields: {} }], acceptedCount: 9 },
       count: 2,

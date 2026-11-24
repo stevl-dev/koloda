@@ -109,12 +109,12 @@ Out:
   Commit: Let the assistant read today's lesson figures
   Depends on: 1
 
-- [ ] 3. Label the `get_lessons_today` activity row
+- [x] 3. Label the `get_lessons_today` activity row
   Goal: In `libs/ai-react/src/lib/ai-tool-activity.tsx`, give the tool a translated label and an icon,
   and as a summary the deck title when the call was deck-scoped, nothing otherwise.
   Add the strings to the `libs/ai-react` catalogs per `agents/I18N.md`.
   Update `docs/specs/ASSISTANT-DATA-ACCESS.md` (§Visibility) and run `bun run gen:help`.
-  Constraints: `libs/ai-react` and the spec only.
+  Constraints: `libs/ai-react`, the spec, and the compiled app catalogs the i18n workflow regenerates.
   Done when: the `ai-tool-activity` tests cover the label and summary; `bun run check:push` passes.
   Commit: Label the lesson figures tool's activity row
   Depends on: 2

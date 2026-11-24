@@ -202,9 +202,8 @@ The app enforces only what each tool does with a call, as listed above.
 
 Tool traffic is visible in the chat feed as compact rows on that assistant message.
 
-- `list_decks`, `list_templates`, `list_algorithms`, `get_deck`, `get_template`,
-  `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, `get_app_info`, and `read_help_topic`
-  show a translated label.
+- `list_decks`, `list_templates`, `list_algorithms`, `get_deck`, `get_template`, `get_deck_cards`, `add_deck`,
+  `propose_cards`, `get_settings`, `get_lessons_today`, `get_app_info`, and `read_help_topic` show a translated label.
 - Any other tool shows the protocol id.
 - A running call is marked as running.
 - A failed call is marked failed.
@@ -222,6 +221,7 @@ A successful call also shows a short summary next to its label:
 - `get_deck`, `add_deck` — the deck title
 - `get_template` — the template title
 - `get_settings` — the part of the settings asked for, or nothing when all were read
+- `get_lessons_today` — the deck title when one deck was asked for, or nothing for all decks
 - `read_help_topic` — the topic title
 - `get_deck_cards` — how many cards came back
 - `propose_cards` — how many cards were accepted, and how many were skipped when any were dropped
