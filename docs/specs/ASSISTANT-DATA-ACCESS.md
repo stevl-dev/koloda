@@ -189,6 +189,7 @@ They tell the model:
 - that daily limits shape a lesson's amounts but do not block studying
 - to read which app this is and the sync status when the user asks about them, instead of guessing
 - to read a help topic before answering how the app behaves or where something is, instead of answering from memory
+- to link to the screen where something is, or to one deck, template, or preset, with the targets the app knows
 - that help topics give behavior and first-setup defaults, not this installation's current values
 - that labels quoted in help topics are the English ones and may read differently in the user's language
 

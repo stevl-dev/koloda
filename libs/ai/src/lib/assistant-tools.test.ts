@@ -134,6 +134,7 @@ describe("get_settings", () => {
     expect(description).toMatch(/do not ask the user for their settings/i);
     expect(description).toMatch(/keys, provider secrets and addresses, and the custom prompt text are never returned/i);
     expect(description).toMatch(/cannot change settings/i);
+    expect(description).toMatch(/link to that screen \(the app-map help topic\)/i);
   });
 
   it("accepts one of the four sections or none", () => {
@@ -158,6 +159,14 @@ describe("read_help_topic", () => {
     expect(description).toMatch(/first-setup defaults, not this installation's current values; get_settings/i);
     expect(description).toMatch(/labels .* are the English ones/i);
     expect(description).toMatch(/pass section/i);
+  });
+
+  it("tells the model how to write app links and where screen targets come from", () => {
+    expect(description).toContain("[<label>](koloda:<target>)");
+    expect(description).toMatch(/app-map topic gives each screen's target/i);
+    // WHY: the parser reads entity targets as `<kind>/<id>`; app-links.test.ts pins that shape.
+    for (const kind of ["deck", "template", "algorithm"]) expect(description).toContain(`koloda:${kind}/<id>`);
+    expect(description).toMatch(/never invent a target/i);
   });
 
   it("accepts a known topic with an optional section", () => {

@@ -406,7 +406,7 @@ export const ASSISTANT_TOOL_SPECS = {
       "Read this installation's current settings, the values the user has set: learning (default preset and template ids, daily limits, when the learning day starts, learn-ahead), interface (language, color scheme, themes, motion, date and time formats), hotkeys (the key bindings), and ai (each AI profile's title, provider, allowed models, and whether a key is stored; the assistant's temperature and whether its prompt is the built-in or a custom one).",
       "Call this before you state any value the user can change, such as a daily limit; help topics give only first-setup defaults. Do not ask the user for their settings.",
       "Pass section to read one part; without it, all four are returned. Learning defaults name a preset and a template by id; list_algorithms and list_templates give their titles.",
-      "Keys, provider secrets and addresses, and the custom prompt text are never returned. This tool cannot change settings; say where the user changes them (the app-map help topic).",
+      "Keys, provider secrets and addresses, and the custom prompt text are never returned. This tool cannot change settings; say where the user changes them and link to that screen (the app-map help topic).",
     ].join("\n"),
     inputSchema: z.object({
       section: z.enum(SETTINGS_SECTIONS).optional(),
@@ -439,6 +439,7 @@ export const ASSISTANT_TOOL_SPECS = {
     name: "read_help_topic",
     description: [
       "Read one topic of this app's own documentation: how a feature behaves, where a screen or setting is, and what the scheduling terms mean. Before you answer how the app works, where something is, or what an app term means, read the matching topic instead of answering from memory; app-map says where each screen is, concepts explains scheduling terms for a learner.",
+      "When you say where a screen or setting is, link to the screen as [<label>](koloda:<target>); a click opens it in the app. The app-map topic gives each screen's target. Link one deck, template, or preset as koloda:deck/<id>, koloda:template/<id>, or koloda:algorithm/<id>, with an id from a tool or a mention. Never invent a target: the app shows any other as plain text.",
       "Topics describe behavior and first-setup defaults, not this installation's current values; get_settings reads those.",
       'Quoted labels such as "Again" are the English ones; the user\'s interface may show them in another language.',
       "Pass section with a heading of the topic to read only that part once the index or a first read shows which part you need; a section includes its subsections. A topic's Scope names the sibling topic for what it leaves out.",

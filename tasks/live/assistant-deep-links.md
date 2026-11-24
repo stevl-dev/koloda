@@ -135,7 +135,7 @@ Routes: `/dashboard`, `/decks`, `/algorithms`, `/templates`, `/ai`, `/settings/<
   Commit: Open app screens from links in assistant replies
   Depends on: 1
 
-- [ ] 3. Teach the assistant to link to app screens
+- [x] 3. Teach the assistant to link to app screens
   Goal: the model writes app links when it says where something is.
   - `read_help_topic`'s description in `libs/ai/src/lib/assistant-tools.ts` gains the form:
     link to a screen as `[<label>](koloda:<target>)` with the target the app-map topic gives,

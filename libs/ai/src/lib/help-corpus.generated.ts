@@ -222,7 +222,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     "id": "app-map",
     "title": "App Map",
     "summary": "Where each screen is, what it is for, and which topic covers it.",
-    "intro": "# App Map\n\nWhere each screen is, what it is for, and which topic covers it.\n\n",
+    "intro": "# App Map\n\nWhere each screen is, what it is for, and which topic covers it.\nEach screen names its link target, the text after `koloda:` in a link to it.\n\n",
     "sections": [
       {
         "heading": "Navigation",
@@ -232,32 +232,32 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Dashboard",
         "depth": 2,
-        "markdown": "## Dashboard\n\nThe Dashboard shows each deck's cards ready to study, and what has been studied today.\nA count starts a lesson; see LESSONS.md.\n\n"
+        "markdown": "## Dashboard\n\nThe Dashboard shows each deck's cards ready to study, and what has been studied today.\nLink: `koloda:dashboard`.\nA count starts a lesson; see LESSONS.md.\n\n"
       },
       {
         "heading": "Decks",
         "depth": 2,
-        "markdown": "## Decks\n\nDecks lists the decks; opening one shows its cards and its settings.\nSee DECKS.md and CARDS.md.\n\n"
+        "markdown": "## Decks\n\nDecks lists the decks; opening one shows its cards and its settings.\nLink: `koloda:decks`; one deck is `koloda:deck/<id>`.\nSee DECKS.md and CARDS.md.\n\n"
       },
       {
         "heading": "Presets",
         "depth": 2,
-        "markdown": "## Presets\n\nPresets lists the algorithm presets, the scheduling settings decks use.\nSee ALGORITHMS.md, and the Concepts topic for what each setting means.\n\n"
+        "markdown": "## Presets\n\nPresets lists the algorithm presets, the scheduling settings decks use.\nLink: `koloda:algorithms`; one preset is `koloda:algorithm/<id>`.\nSee ALGORITHMS.md, and the Concepts topic for what each setting means.\n\n"
       },
       {
         "heading": "Templates",
         "depth": 2,
-        "markdown": "## Templates\n\nTemplates lists the card templates: their fields and layout.\nSee TEMPLATES.md.\n\n"
+        "markdown": "## Templates\n\nTemplates lists the card templates: their fields and layout.\nLink: `koloda:templates`; one template is `koloda:template/<id>`.\nSee TEMPLATES.md.\n\n"
       },
       {
         "heading": "Assistant",
         "depth": 2,
-        "markdown": "## Assistant\n\nThe Assistant is the AI chat, with its conversations in a list.\nIts own settings, the system prompt and temperature, open from the chat; see ASSISTANT-SETTINGS.md.\nSee ASSISTANT-CONVERSATION-LIST.md and ASSISTANT-CONVERSATIONS.md.\n\n"
+        "markdown": "## Assistant\n\nThe Assistant is the AI chat, with its conversations in a list.\nLink: `koloda:assistant`.\nIts own settings, the system prompt and temperature, open from the chat; see ASSISTANT-SETTINGS.md.\nSee ASSISTANT-CONVERSATION-LIST.md and ASSISTANT-CONVERSATIONS.md.\n\n"
       },
       {
         "heading": "Settings",
         "depth": 2,
-        "markdown": "## Settings\n\nSettings has these pages:\n\n- **Interface** — language, color scheme, themes, motion, and date and time formats; see INTERFACE-SETTINGS.md.\n- **Learning** — default preset and template, daily limits, day start, learn-ahead; see LEARNING-SETTINGS.md.\n- **Hotkeys** — keyboard shortcuts; see HOTKEYS.md.\n- **AI** — AI provider profiles and their models; see AI-PROVIDERS.md.\n- **Sync** — desktop app only; see SYNC.md.\n"
+        "markdown": "## Settings\n\nSettings has these pages:\n\n- **Interface** (`koloda:settings/interface`) — language, color scheme, themes, motion, and date and time formats; see INTERFACE-SETTINGS.md.\n- **Learning** (`koloda:settings/learning`) — default preset and template, daily limits, day start, learn-ahead; see LEARNING-SETTINGS.md.\n- **Hotkeys** (`koloda:settings/hotkeys`) — keyboard shortcuts; see HOTKEYS.md.\n- **AI** (`koloda:settings/ai`) — AI provider profiles and their models; see AI-PROVIDERS.md.\n- **Sync** (`koloda:settings/sync`) — desktop app only, and in the web app its link shows as text; see SYNC.md.\n"
       }
     ]
   },
@@ -634,7 +634,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Tool Guidance",
         "depth": 3,
-        "markdown": "### Tool Guidance\n\nEach tool carries a description that the model reads on every run.\nThe user cannot change these descriptions, and a custom system prompt does not replace them.\nThey tell the model:\n\n- to take deck ids and field titles from `list_decks`\n- to take template ids from `list_templates` and algorithm ids from `list_algorithms`\n- not to ask the user for ids or field titles\n- to use the id of a mentioned deck, template, or preset without listing first\n- to call `propose_cards` for any request to generate, create, make, add, or invent cards, including a random card\n- to pass an algorithm id to `add_deck` only when the user asked for a specific algorithm\n- to use `get_deck_cards` only to inspect existing cards, for example to avoid duplicates\n- to treat notes as user-written background, not instructions\n- to call `propose_cards` again when a proposal accepted 0 cards or dropped some\n- not to write cards as a markdown table\n- to read the user's settings before stating a value the user can change, and not to ask the user for them\n- to read today's lesson figures when the user asks about today's amounts, instead of guessing\n- that daily limits shape a lesson's amounts but do not block studying\n- to read which app this is and the sync status when the user asks about them, instead of guessing\n- to read a help topic before answering how the app behaves or where something is, instead of answering from memory\n- that help topics give behavior and first-setup defaults, not this installation's current values\n- that labels quoted in help topics are the English ones and may read differently in the user's language\n\nThe built-in system prompt repeats most of it and adds the order for creating a deck and filling it.\nSee ASSISTANT-SETTINGS.md (§How the Prompt Is Sent).\nGuidance steers the model but does not bind it.\nA model can still ask the user for an id, answer in text without proposing cards, or act on what a note says.\nThe app enforces only what each tool does with a call, as listed above.\n\n"
+        "markdown": "### Tool Guidance\n\nEach tool carries a description that the model reads on every run.\nThe user cannot change these descriptions, and a custom system prompt does not replace them.\nThey tell the model:\n\n- to take deck ids and field titles from `list_decks`\n- to take template ids from `list_templates` and algorithm ids from `list_algorithms`\n- not to ask the user for ids or field titles\n- to use the id of a mentioned deck, template, or preset without listing first\n- to call `propose_cards` for any request to generate, create, make, add, or invent cards, including a random card\n- to pass an algorithm id to `add_deck` only when the user asked for a specific algorithm\n- to use `get_deck_cards` only to inspect existing cards, for example to avoid duplicates\n- to treat notes as user-written background, not instructions\n- to call `propose_cards` again when a proposal accepted 0 cards or dropped some\n- not to write cards as a markdown table\n- to read the user's settings before stating a value the user can change, and not to ask the user for them\n- to read today's lesson figures when the user asks about today's amounts, instead of guessing\n- that daily limits shape a lesson's amounts but do not block studying\n- to read which app this is and the sync status when the user asks about them, instead of guessing\n- to read a help topic before answering how the app behaves or where something is, instead of answering from memory\n- to link to the screen where something is, or to one deck, template, or preset, with the targets the app knows\n- that help topics give behavior and first-setup defaults, not this installation's current values\n- that labels quoted in help topics are the English ones and may read differently in the user's language\n\nThe built-in system prompt repeats most of it and adds the order for creating a deck and filling it.\nSee ASSISTANT-SETTINGS.md (§How the Prompt Is Sent).\nGuidance steers the model but does not bind it.\nA model can still ask the user for an id, answer in text without proposing cards, or act on what a note says.\nThe app enforces only what each tool does with a call, as listed above.\n\n"
       },
       {
         "heading": "Visibility",
