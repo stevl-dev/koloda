@@ -1,6 +1,6 @@
 # Assistant reads today's lesson figures
 
-Status: draft
+Status: ready
 Guides: agents/ADD-ASSISTANT-TOOL.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/LESSONS.md, docs/specs/LEARNING-SETTINGS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/I18N.md, agents/FUNCTIONAL-SPECIFICATIONS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/MARKDOWN.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -48,7 +48,7 @@ Out:
 - [x] Range of the tool — today only; history is Out.
 - [x] Where the pre-filled amounts come from — move `calculateInitialLessonAmounts` to `libs/srs`; `libs/ai` calls it.
 - [x] Flow — `local`.
-- [ ] Tool name — `get_lessons_today` unless the human names another at plan approval.
+- [x] Tool name — `get_lessons_today`, approved with the plan.
 
 ## Plan
 
