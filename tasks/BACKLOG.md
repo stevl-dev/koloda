@@ -15,10 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `assistant-deep-links`: Give assistant answers in-app deep links to the screen where a setting or feature lives.
-  Area: `libs/ai`
-  Why: Answers can only describe where a setting lives, not link to it.
-
 - `assistant-change-settings`: Add one `change_settings` tool; a per-field table in code applies reversible changes with Undo and asks the user first for the rest.
   Area: `libs/ai`
   Why: The settings tool only reads; one tool whose mode the host picks keeps model behavior the same across providers.
