@@ -1,5 +1,6 @@
 use koloda::domain::attachments::{
-    sniff_image_mime, AddAttachmentData, ATTACHMENT_MAX_BYTES, MIME_AVIF, MIME_GIF, MIME_JPEG, MIME_PNG, MIME_WEBP,
+    sniff_conversation_attachment_mime, sniff_image_mime, AddAttachmentData, ATTACHMENT_MAX_BYTES, MIME_AVIF, MIME_GIF,
+    MIME_JPEG, MIME_PNG, MIME_WEBP,
 };
 use koloda_sync_proto::transport::{ATTACHMENT_MIMES, MAX_ATTACHMENT_BYTES};
 
@@ -95,4 +96,84 @@ fn test_add_attachment_unknown_format_fails_with_format_code() {
 fn test_sync_server_accepts_every_attachment_a_device_stores() {
     assert_eq!(MAX_ATTACHMENT_BYTES, ATTACHMENT_MAX_BYTES);
     assert_eq!(ATTACHMENT_MIMES, [MIME_PNG, MIME_JPEG, MIME_GIF, MIME_WEBP, MIME_AVIF]);
+}
+
+fn filled(prefix: &[u8], len: usize, fill: u8) -> Vec<u8> {
+    let mut bytes = prefix.to_vec();
+    bytes.resize(len, fill);
+    bytes
+}
+
+// Twin: "sniffConversationAttachmentMime" in `libs/srs/src/lib/attachments.test.ts`.
+#[test]
+fn test_sniff_conversation_attachment_mime() {
+    let cases: Vec<(&str, Vec<u8>, Option<&str>)> = vec![
+        ("png", png_of_len(10), Some("image/png")),
+        ("pdf", b"%PDF-1.7\n%\xe2".to_vec(), Some("application/pdf")),
+        (
+            "pdf with a NUL byte",
+            b"%PDF-1.4\n\x00".to_vec(),
+            Some("application/pdf"),
+        ),
+        ("ascii text", b"word,translation\n".to_vec(), Some("text/plain")),
+        (
+            "multibyte utf-8",
+            "Привет, мир\n".as_bytes().to_vec(),
+            Some("text/plain"),
+        ),
+        (
+            "utf-8 with a byte order mark",
+            b"\xef\xbb\xbfnotes".to_vec(),
+            Some("text/plain"),
+        ),
+        ("svg is text", b"<svg/>".to_vec(), Some("text/plain")),
+        ("text with a NUL byte", b"a\x00b".to_vec(), None),
+        ("invalid utf-8", vec![0x61, 0xc3, 0x28], None),
+        ("utf-8 cut mid-character", vec![0x61, 0xd0], None),
+        ("empty", Vec::new(), None),
+    ];
+
+    for (name, bytes, expected) in cases {
+        assert_eq!(sniff_conversation_attachment_mime(&bytes), expected, "{name}");
+    }
+}
+
+// WHY: literals, not the constants, so changing a cap on one host fails here instead of moving the boundary along.
+// Twin: "addConversationAttachmentSchema" in `libs/srs/src/lib/attachments.test.ts`.
+#[test]
+fn test_add_conversation_attachment_caps() {
+    let cases: Vec<(&str, Vec<u8>, Result<&str, &str>)> = vec![
+        (
+            "pdf at the cap",
+            filled(b"%PDF-", 20_971_520, b' '),
+            Ok("application/pdf"),
+        ),
+        (
+            "pdf past the cap",
+            filled(b"%PDF-", 20_971_521, b' '),
+            Err("validation.conversation-attachments.pdf-too-large"),
+        ),
+        ("text at the cap", filled(b"", 1_048_576, b'a'), Ok("text/plain")),
+        (
+            "text past the cap",
+            filled(b"", 1_048_577, b'a'),
+            Err("validation.conversation-attachments.text-too-large"),
+        ),
+        ("image at the card cap", png_of_len(5_242_880), Ok("image/png")),
+        (
+            "image past the card cap",
+            png_of_len(5_242_881),
+            Err("validation.attachments.too-large"),
+        ),
+        (
+            "binary bytes",
+            vec![0x61, 0, 0x62],
+            Err("validation.conversation-attachments.format"),
+        ),
+    ];
+
+    for (name, bytes, expected) in cases {
+        let result = add_data(bytes).validate_for_conversation().map_err(|error| error.code);
+        assert_eq!(result.as_ref().copied().map_err(String::as_str), expected, "{name}");
+    }
 }

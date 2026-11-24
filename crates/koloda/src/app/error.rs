@@ -88,6 +88,11 @@ pub mod error_codes {
 
     pub const VALIDATION_ATTACHMENTS_FORMAT: &str = "validation.attachments.format";
     pub const VALIDATION_ATTACHMENTS_TOO_LARGE: &str = "validation.attachments.too-large";
+    pub const VALIDATION_CONVERSATION_ATTACHMENTS_FORMAT: &str = "validation.conversation-attachments.format";
+    pub const VALIDATION_CONVERSATION_ATTACHMENTS_PDF_TOO_LARGE: &str =
+        "validation.conversation-attachments.pdf-too-large";
+    pub const VALIDATION_CONVERSATION_ATTACHMENTS_TEXT_TOO_LARGE: &str =
+        "validation.conversation-attachments.text-too-large";
 
     pub const VALIDATION_REVIEWS_RATING: &str = "validation.reviews.rating";
     pub const VALIDATION_REVIEWS_STATE: &str = "validation.reviews.state";

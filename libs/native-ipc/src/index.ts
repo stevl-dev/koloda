@@ -48,6 +48,7 @@ import type {
   Card,
   CloneAlgorithmData,
   CloneTemplateData,
+  ConversationAttachment,
   Deck,
   DeckWithOnlyTitle,
   DeleteAlgorithmData,
@@ -94,6 +95,9 @@ export type SeedDbData = {
 
 /** Attachment read by `cmd_get_attachment`, with its bytes base64-encoded for the NAPI wire. */
 export type AttachmentContentWire = Attachment & { bytes: string };
+
+/** Conversation file read by `cmd_get_conversation_attachment`, with its bytes base64-encoded for the NAPI wire. */
+export type ConversationAttachmentContentWire = ConversationAttachment & { bytes: string };
 
 /** Payload for `cmd_add_attachment`, with its bytes base64-encoded for the NAPI wire. */
 export type AddAttachmentWire = Omit<AddAttachmentData, "bytes"> & { bytes: string };
@@ -278,8 +282,8 @@ export interface DataIpc {
   cmd_add_attachment: { args: { data: AddAttachmentWire }; result: Attachment };
   cmd_sweep_attachments: { args: { data: SweepAttachmentsData }; result: void };
 
-  cmd_get_conversation_attachment: { args: { id: string }; result: AttachmentContentWire | null };
-  cmd_add_conversation_attachment: { args: { data: AddAttachmentWire }; result: Attachment };
+  cmd_get_conversation_attachment: { args: { id: string }; result: ConversationAttachmentContentWire | null };
+  cmd_add_conversation_attachment: { args: { data: AddAttachmentWire }; result: ConversationAttachment };
   cmd_sweep_conversation_attachments: { args: { data: SweepAttachmentsData }; result: void };
 
   // Media commands (`media-ipc.ts`): the fetch runs in main, which CORS does not apply to.

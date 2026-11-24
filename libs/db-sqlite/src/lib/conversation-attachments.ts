@@ -1,8 +1,17 @@
-// The device-local twin of `attachments.ts` for images attached in the assistant — mirrors Rust
+// The device-local twin of `attachments.ts` for files attached in the assistant — mirrors Rust
 // `repo::conversation_attachments`. Only conversation state keeps a row alive (docs/decisions/MEDIA-STORAGE.md).
 import { throwKnownError } from "@koloda/app";
-import { addAttachmentSchema, attachmentRowSchema, sniffImageMime } from "@koloda/srs";
-import type { AddAttachmentData, Attachment, AttachmentMime, SweepAttachmentsData } from "@koloda/srs";
+import {
+  addConversationAttachmentSchema,
+  conversationAttachmentRowSchema,
+  sniffConversationAttachmentMime,
+} from "@koloda/srs";
+import type {
+  AddAttachmentData,
+  ConversationAttachment,
+  ConversationAttachmentMime,
+  SweepAttachmentsData,
+} from "@koloda/srs";
 import { readConversationAttachmentBytes, writeConversationAttachmentBytes } from "./attachment-bytes";
 import { sha256Hex } from "./attachments";
 import { ATTACHMENT_SELECT } from "./columns";
@@ -16,11 +25,13 @@ async function selectConversationAttachment(db: DB, id: string) {
   return db.get(`SELECT ${ATTACHMENT_SELECT} FROM conversation_attachments WHERE id = ?`, [id]);
 }
 
-export async function addConversationAttachment(db: DB, data: AddAttachmentData): Promise<Attachment> {
+export async function addConversationAttachment(db: DB, data: AddAttachmentData): Promise<ConversationAttachment> {
   return throwKnownError("db.add", async () => {
-    const { bytes, width, height } = addAttachmentSchema.parse(data);
-    // INVARIANT: the schema already rejected bytes with no known format.
-    const mime = sniffImageMime(bytes) as AttachmentMime;
+    const { bytes, width, height } = addConversationAttachmentSchema.parse(data);
+    // INVARIANT: the schema already rejected bytes of no accepted kind.
+    const mime = sniffConversationAttachmentMime(bytes) as ConversationAttachmentMime;
+    // INVARIANT: only an image has a size in pixels. Twin: `add_conversation_attachment` in Rust.
+    const isImage = mime.startsWith("image/");
     // INVARIANT: the id is the lowercase hex SHA-256 of the bytes, so equal bytes share one row.
     const id = await sha256Hex(bytes);
 
@@ -30,27 +41,30 @@ export async function addConversationAttachment(db: DB, data: AddAttachmentData)
         `INSERT INTO conversation_attachments (id, mime, size, width, height, created_at)
          VALUES (?, ?, ?, ?, ?, ?)
          ON CONFLICT (id) DO NOTHING`,
-        [id, mime, bytes.byteLength, width ?? null, height ?? null, now],
+        [id, mime, bytes.byteLength, (isImage && width) || null, (isImage && height) || null, now],
       );
       // WHY: as for card images, a re-add keeps the first row and moves its storage time forward, so the
       // sweep's grace counts from the latest add. Twin: `add_conversation_attachment` in
       // `crates/koloda/src/repo/conversation_attachments.rs`.
       if (changes > 0) await writeConversationAttachmentBytes(tx, id, bytes);
       else await tx.run(`UPDATE conversation_attachments SET created_at = MAX(created_at, ?) WHERE id = ?`, [now, id]);
-      return parseRow(attachmentRowSchema, await selectConversationAttachment(tx, id));
+      return parseRow(conversationAttachmentRowSchema, await selectConversationAttachment(tx, id));
     });
   });
 }
 
-export async function getConversationAttachment(db: DB, id: Attachment["id"]): Promise<Attachment | null> {
+export async function getConversationAttachment(
+  db: DB,
+  id: ConversationAttachment["id"],
+): Promise<ConversationAttachment | null> {
   return throwKnownError("db.get", async () =>
-    parseRowOrNull(attachmentRowSchema, await selectConversationAttachment(db, id)),
+    parseRowOrNull(conversationAttachmentRowSchema, await selectConversationAttachment(db, id)),
   );
 }
 
 export async function getConversationAttachmentBytes(
   db: DB,
-  id: Attachment["id"],
+  id: ConversationAttachment["id"],
 ): Promise<Uint8Array<ArrayBuffer> | null> {
   return throwKnownError("db.get", async () => readConversationAttachmentBytes(db, id));
 }

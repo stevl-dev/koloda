@@ -24,19 +24,74 @@ export type AttachmentContent = Attachment & { bytes: Uint8Array<ArrayBuffer> };
 
 export type SweepAttachmentsData = { createdBefore: Date };
 
-export const addAttachmentSchema = z.object({
-  // WHY: Web Crypto and Blob take only ArrayBuffer-backed views, not shared memory.
-  bytes: z
-    .custom<Uint8Array<ArrayBuffer>>((value) => value instanceof Uint8Array && value.buffer instanceof ArrayBuffer)
-    .superRefine((bytes, ctx) => {
-      const code = getAttachmentBytesError(bytes);
-      if (code) ctx.addIssue({ code: "custom", message: code });
-    }),
-  width: z.int().positive().optional(),
-  height: z.int().positive().optional(),
-});
+function addSchemaChecking(getBytesError: (bytes: Uint8Array) => string | undefined) {
+  return z.object({
+    // WHY: Web Crypto and Blob take only ArrayBuffer-backed views, not shared memory.
+    bytes: z
+      .custom<Uint8Array<ArrayBuffer>>((value) => value instanceof Uint8Array && value.buffer instanceof ArrayBuffer)
+      .superRefine((bytes, ctx) => {
+        const code = getBytesError(bytes);
+        if (code) ctx.addIssue({ code: "custom", message: code });
+      }),
+    width: z.int().positive().optional(),
+    height: z.int().positive().optional(),
+  });
+}
+
+export const addAttachmentSchema = addSchemaChecking(getAttachmentBytesError);
 
 export type AddAttachmentData = z.infer<typeof addAttachmentSchema>;
+
+// INVARIANT: the conversation store takes images under the card rules, plus PDF and text files
+// (docs/decisions/MEDIA-STORAGE.md). Card attachments stay images only.
+export const CONVERSATION_PDF_MAX_BYTES = 20_971_520;
+export const CONVERSATION_TEXT_MAX_BYTES = 1_048_576;
+
+const CONVERSATION_ATTACHMENT_MIMES = [...ATTACHMENT_MIMES, "application/pdf", "text/plain"] as const;
+
+export type ConversationAttachmentMime = (typeof CONVERSATION_ATTACHMENT_MIMES)[number];
+
+export const conversationAttachmentRowSchema = attachmentRowSchema.extend({
+  mime: z.enum(CONVERSATION_ATTACHMENT_MIMES),
+});
+
+export type ConversationAttachment = z.infer<typeof conversationAttachmentRowSchema>;
+
+export type ConversationAttachmentContent = ConversationAttachment & { bytes: Uint8Array<ArrayBuffer> };
+
+export const addConversationAttachmentSchema = addSchemaChecking(getConversationAttachmentBytesError);
+
+export function getConversationAttachmentBytesError(bytes: Uint8Array) {
+  const mime = sniffConversationAttachmentMime(bytes);
+  if (!mime) return "validation.conversation-attachments.format";
+  if (mime === "application/pdf") {
+    return bytes.byteLength > CONVERSATION_PDF_MAX_BYTES
+      ? "validation.conversation-attachments.pdf-too-large"
+      : undefined;
+  }
+  if (mime === "text/plain") {
+    return bytes.byteLength > CONVERSATION_TEXT_MAX_BYTES
+      ? "validation.conversation-attachments.text-too-large"
+      : undefined;
+  }
+  return getAttachmentBytesError(bytes);
+}
+
+// WHY: text has no magic bytes. Any bytes that are not an image or a PDF count as text when they decode as UTF-8 and hold
+// no NUL byte, which no text file has and most binary files do. An empty file is no file of any kind.
+// Twin: `sniff_conversation_attachment_mime` in Rust.
+export function sniffConversationAttachmentMime(bytes: Uint8Array): ConversationAttachmentMime | undefined {
+  const imageMime = sniffImageMime(bytes);
+  if (imageMime) return imageMime;
+  if (isAscii(bytes, 0, "%PDF-")) return "application/pdf";
+  if (bytes.byteLength === 0 || bytes.includes(0)) return undefined;
+  try {
+    new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return undefined;
+  }
+  return "text/plain";
+}
 
 export function getAttachmentBytesError(bytes: Uint8Array) {
   if (bytes.byteLength > ATTACHMENT_MAX_BYTES) return "validation.attachments.too-large";

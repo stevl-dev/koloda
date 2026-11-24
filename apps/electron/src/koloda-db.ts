@@ -34,6 +34,7 @@ import type {
   Card,
   CloneAlgorithmData,
   CloneTemplateData,
+  ConversationAttachment,
   Deck,
   DeckWithOnlyTitle,
   DeleteAlgorithmData,
@@ -65,6 +66,7 @@ import type {
 import type {
   AddAttachmentWire,
   AttachmentContentWire,
+  ConversationAttachmentContentWire,
   DbStatus,
   GetLessonsParams,
   OptimizerProgressEvent,
@@ -145,8 +147,8 @@ export interface KolodaDb {
   sweepAttachments(data: SweepAttachmentsData): Promise<void>;
 
   // Conversation images: the device-local store, same wire shapes
-  getConversationAttachment(params: { id: string }): Promise<AttachmentContentWire | null>;
-  addConversationAttachment(data: AddAttachmentWire): Promise<Attachment>;
+  getConversationAttachment(params: { id: string }): Promise<ConversationAttachmentContentWire | null>;
+  addConversationAttachment(data: AddAttachmentWire): Promise<ConversationAttachment>;
   sweepConversationAttachments(data: SweepAttachmentsData): Promise<void>;
 
   // AI profiles (no secrets — see the INVARIANT above)

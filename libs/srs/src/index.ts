@@ -23,9 +23,15 @@ export {
   ATTACHMENT_MAX_BYTES,
   ATTACHMENT_REF_PATTERN,
   ATTACHMENT_MIMES,
+  CONVERSATION_PDF_MAX_BYTES,
+  CONVERSATION_TEXT_MAX_BYTES,
   addAttachmentSchema,
+  addConversationAttachmentSchema,
   attachmentRowSchema,
+  conversationAttachmentRowSchema,
   getAttachmentBytesError,
+  getConversationAttachmentBytesError,
+  sniffConversationAttachmentMime,
   sniffImageMime,
 } from "./lib/attachments";
 export type {
@@ -33,6 +39,9 @@ export type {
   Attachment,
   AttachmentContent,
   AttachmentMime,
+  ConversationAttachment,
+  ConversationAttachmentContent,
+  ConversationAttachmentMime,
   SweepAttachmentsData,
 } from "./lib/attachments";
 export {

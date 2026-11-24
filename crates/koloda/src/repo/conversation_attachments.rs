@@ -30,7 +30,9 @@ fn select_conversation_attachment(conn: &Connection, id: &str) -> Result<Option<
 
 pub fn add_conversation_attachment(db: &Database, data: AddAttachmentData) -> Result<Attachment, AppError> {
     throw_known_error(error_codes::DB_ADD, || {
-        let mime = data.validate()?;
+        let mime = data.validate_for_conversation()?;
+        // INVARIANT: only an image has a size in pixels. Twin: `addConversationAttachment` in `@koloda/db-sqlite`.
+        let is_image = mime.starts_with("image/");
         // INVARIANT: the id is the lowercase hex SHA-256 of the bytes, so equal bytes share one row.
         let id = format!("{:x}", Sha256::digest(&data.bytes));
 
@@ -46,8 +48,8 @@ pub fn add_conversation_attachment(db: &Database, data: AddAttachmentData) -> Re
                     id,
                     mime,
                     data.bytes.len() as i64,
-                    data.width.map(|width| width.get()),
-                    data.height.map(|height| height.get()),
+                    data.width.filter(|_| is_image).map(|width| width.get()),
+                    data.height.filter(|_| is_image).map(|height| height.get()),
                     now
                 ],
             )?;

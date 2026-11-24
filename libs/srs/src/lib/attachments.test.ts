@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { addAttachmentSchema, sniffImageMime } from "./attachments";
+import {
+  addAttachmentSchema,
+  addConversationAttachmentSchema,
+  sniffConversationAttachmentMime,
+  sniffImageMime,
+} from "./attachments";
 
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
@@ -53,5 +58,53 @@ describe("addAttachmentSchema", () => {
   it("rejects an unknown format with the format code", () => {
     const result = addAttachmentSchema.safeParse({ bytes: new Uint8Array(ascii("<svg/>")) });
     expect(result.error?.issues.map((issue) => issue.message)).toEqual(["validation.attachments.format"]);
+  });
+});
+
+function filled(prefix: number[], length: number, fill: number) {
+  const bytes = new Uint8Array(length).fill(fill);
+  bytes.set(prefix);
+  return bytes;
+}
+
+// Twin: `test_sniff_conversation_attachment_mime` in `crates/koloda/tests/domain/attachments_tests.rs`.
+describe("sniffConversationAttachmentMime", () => {
+  it.each([
+    ["png", [...PNG_SIGNATURE, 0, 0], "image/png"],
+    ["pdf", ascii("%PDF-1.7\n%\xe2"), "application/pdf"],
+    ["pdf with a NUL byte", [...ascii("%PDF-1.4\n"), 0], "application/pdf"],
+    ["ascii text", ascii("word,translation\n"), "text/plain"],
+    ["multibyte utf-8", [...new TextEncoder().encode("Привет, мир\n")], "text/plain"],
+    ["utf-8 with a byte order mark", [0xef, 0xbb, 0xbf, ...ascii("notes")], "text/plain"],
+    ["svg is text", ascii("<svg/>"), "text/plain"],
+    ["text with a NUL byte", ascii("a\0b"), undefined],
+    ["invalid utf-8", [0x61, 0xc3, 0x28], undefined],
+    ["utf-8 cut mid-character", [0x61, 0xd0], undefined],
+    ["empty", [], undefined],
+  ])("%s", (_, bytes, expected) => {
+    expect(sniffConversationAttachmentMime(new Uint8Array(bytes))).toBe(expected);
+  });
+});
+
+// WHY: literals, not the constants, so changing a cap on one host fails here instead of moving the boundary along.
+// Twin: `test_add_conversation_attachment_caps` in Rust.
+describe("addConversationAttachmentSchema", () => {
+  const messages = (bytes: Uint8Array<ArrayBuffer>) =>
+    addConversationAttachmentSchema.safeParse({ bytes }).error?.issues.map((issue) => issue.message) ?? [];
+
+  it.each([
+    ["pdf at the cap", filled(ascii("%PDF-"), 20_971_520, 0x20), []],
+    [
+      "pdf past the cap",
+      filled(ascii("%PDF-"), 20_971_521, 0x20),
+      ["validation.conversation-attachments.pdf-too-large"],
+    ],
+    ["text at the cap", filled([], 1_048_576, 0x61), []],
+    ["text past the cap", filled([], 1_048_577, 0x61), ["validation.conversation-attachments.text-too-large"]],
+    ["image at the card cap", pngOfLength(5_242_880), []],
+    ["image past the card cap", pngOfLength(5_242_881), ["validation.attachments.too-large"]],
+    ["binary bytes", new Uint8Array([0x61, 0, 0x62]), ["validation.conversation-attachments.format"]],
+  ])("%s", (_, bytes, expected) => {
+    expect(messages(bytes)).toEqual(expected);
   });
 });

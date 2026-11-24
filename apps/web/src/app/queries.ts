@@ -11,6 +11,7 @@ import type {
   Attachment,
   CloneAlgorithmData,
   CloneTemplateData,
+  ConversationAttachment,
   Deck,
   DeleteAlgorithmData,
   DeleteCardData,
@@ -202,7 +203,7 @@ export const queriesFn = (db: DB): Queries => ({
   }),
   addAttachmentMutation: () => ({ mutationFn: (data: AddAttachmentData) => addAttachment(db, data) }),
   sweepAttachmentsMutation: () => ({ mutationFn: (data: SweepAttachmentsData) => sweepAttachments(db, data) }),
-  getConversationAttachmentQuery: (id: Attachment["id"]) => ({
+  getConversationAttachmentQuery: (id: ConversationAttachment["id"]) => ({
     queryKey: queryKeys.conversationAttachments.detail(id),
     queryFn: async () => {
       const [attachment, bytes] = await Promise.all([

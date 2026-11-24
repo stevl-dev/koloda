@@ -15,6 +15,8 @@ import type {
   Card,
   CloneAlgorithmData,
   CloneTemplateData,
+  ConversationAttachment,
+  ConversationAttachmentContent,
   Deck,
   DeckWithOnlyTitle,
   DeleteAlgorithmData,
@@ -102,8 +104,15 @@ export type Queries = {
   getAttachmentQuery: (id: Attachment["id"]) => AppQueryOptions<AttachmentContent | null>;
   addAttachmentMutation: () => UseMutationOptions<Attachment, AppError, AddAttachmentData, unknown>;
   sweepAttachmentsMutation: () => UseMutationOptions<void, AppError, SweepAttachmentsData, unknown>;
-  getConversationAttachmentQuery: (id: Attachment["id"]) => AppQueryOptions<AttachmentContent | null>;
-  addConversationAttachmentMutation: () => UseMutationOptions<Attachment, AppError, AddAttachmentData, unknown>;
+  getConversationAttachmentQuery: (
+    id: ConversationAttachment["id"],
+  ) => AppQueryOptions<ConversationAttachmentContent | null>;
+  addConversationAttachmentMutation: () => UseMutationOptions<
+    ConversationAttachment,
+    AppError,
+    AddAttachmentData,
+    unknown
+  >;
   sweepConversationAttachmentsMutation: () => UseMutationOptions<void, AppError, SweepAttachmentsData, unknown>;
   addAIProfileMutation: () => UseMutationOptions<void, AppError, AddAIProfileData, unknown>;
   updateAIProfileMutation: () => UseMutationOptions<void, AppError, UpdateAIProfileData, unknown>;

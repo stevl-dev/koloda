@@ -106,14 +106,42 @@ fn re_adding_the_same_bytes_keeps_one_row_and_moves_its_storage_time_forward() {
     assert_eq!(count_rows(&db, "conversation_attachment_bytes"), 1);
 }
 
-// Twin: "rejects bytes with no image format and writes nothing" in the TS suite.
+// Twin: "stores a PDF and a text file with no pixel size" in the TS suite.
 #[test]
-fn add_conversation_attachment_rejects_bytes_with_no_image_format() {
+fn add_conversation_attachment_stores_pdf_and_text_with_no_pixel_size() {
     let db = test_db();
 
-    let err = repo::add_conversation_attachment(&db, add_data(b"plain text".to_vec())).expect_err("text is no image");
+    let pdf = repo::add_conversation_attachment(&db, add_data(b"%PDF-1.7\n".to_vec())).expect("a PDF should be added");
+    let text = repo::add_conversation_attachment(&db, add_data("слово,word\n".as_bytes().to_vec()))
+        .expect("a text file should be added");
 
-    assert_eq!(err.code, "validation.attachments.format");
+    for (added, mime, bytes) in [
+        (pdf, "application/pdf", b"%PDF-1.7\n".to_vec()),
+        (text, "text/plain", "слово,word\n".as_bytes().to_vec()),
+    ] {
+        let stored = repo::get_conversation_attachment(&db, &added.id)
+            .expect("query should succeed")
+            .expect("row should exist");
+        assert_eq!(
+            (stored.mime.as_str(), stored.size, stored.width, stored.height),
+            (mime, bytes.len() as i64, None, None),
+            "{mime}: the given pixel size is dropped"
+        );
+        assert_eq!(
+            repo::get_conversation_attachment_bytes(&db, &added.id).expect("query should succeed"),
+            Some(bytes)
+        );
+    }
+}
+
+// Twin: "rejects bytes of no accepted kind and writes nothing" in the TS suite.
+#[test]
+fn add_conversation_attachment_rejects_bytes_of_no_accepted_kind() {
+    let db = test_db();
+
+    let err = repo::add_conversation_attachment(&db, add_data(b"a\x00b".to_vec())).expect_err("binary is no file kind");
+
+    assert_eq!(err.code, "validation.conversation-attachments.format");
     assert_eq!(count_rows(&db, "conversation_attachments"), 0);
 }
 

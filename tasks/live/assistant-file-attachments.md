@@ -155,7 +155,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   Commit: Add a per-model PDF input switch for models with unknown capabilities
   Depends on: 1
 
-- [ ] 3. Store PDF and text files in the conversation store
+- [x] 3. Store PDF and text files in the conversation store
   Goal: the conversation store's add validates a conversation file, not a card image.
   An image passes the card image check and 5 MB cap; a PDF starts with `%PDF-` and is at most 20 MB;
   anything else is text if it is UTF-8 without NUL bytes and at most 1 MB, and is stored as `text/plain`.

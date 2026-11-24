@@ -75,13 +75,36 @@ describe("conversation attachments repository integration", () => {
     expect(await countRows(db, "conversation_attachment_bytes")).toBe(1);
   });
 
-  // Twin: `add_conversation_attachment_rejects_bytes_with_no_image_format` in Rust.
-  it("rejects bytes with no image format and writes nothing", async () => {
+  // Twin: `add_conversation_attachment_stores_pdf_and_text_with_no_pixel_size` in Rust.
+  it("stores a PDF and a text file with no pixel size", async () => {
+    const { db } = testDb;
+    const pdfBytes = new TextEncoder().encode("%PDF-1.7\n");
+    const textBytes = new TextEncoder().encode("слово,word\n");
+
+    const pdf = await addConversationAttachment(db, { bytes: pdfBytes, width: 640, height: 480 });
+    const text = await addConversationAttachment(db, { bytes: textBytes, width: 640, height: 480 });
+
+    for (const [added, mime, bytes] of [
+      [pdf, "application/pdf", pdfBytes],
+      [text, "text/plain", textBytes],
+    ] as const) {
+      expect(await getConversationAttachment(db, added.id)).toMatchObject({
+        mime,
+        size: bytes.byteLength,
+        width: null,
+        height: null,
+      });
+      expect(await getConversationAttachmentBytes(db, added.id)).toEqual(bytes);
+    }
+  });
+
+  // Twin: `add_conversation_attachment_rejects_bytes_of_no_accepted_kind` in Rust.
+  it("rejects bytes of no accepted kind and writes nothing", async () => {
     const { db } = testDb;
 
-    await expect(
-      addConversationAttachment(db, { bytes: new TextEncoder().encode("plain text") }),
-    ).rejects.toMatchObject({ issues: [expect.objectContaining({ message: "validation.attachments.format" })] });
+    await expect(addConversationAttachment(db, { bytes: new Uint8Array([0x61, 0, 0x62]) })).rejects.toMatchObject({
+      issues: [expect.objectContaining({ message: "validation.conversation-attachments.format" })],
+    });
     expect(await countRows(db, "conversation_attachments")).toBe(0);
   });
 
