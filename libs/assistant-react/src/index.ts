@@ -4,6 +4,7 @@ export { shutdownAssistantGracefully, useAssistantEngineHost } from "./lib/runs/
 export { startParamlessConversationAtom } from "./lib/state/conversation-actions";
 export { upsertConversationAtom } from "./lib/state/conversation-store";
 export { AssistantChat } from "./lib/ui/assistant-chat";
+export type { AssistantAppLinks } from "./lib/ui/assistant-markdown";
 export { AssistantConversationsList, CONVERSATION_TITLE_FALLBACK } from "./lib/ui/assistant-conversations-list";
 export { AssistantNewConversationButton } from "./lib/ui/assistant-new-conversation-button";
 export { ConversationHeaderMenu } from "./lib/ui/conversation-header-menu";

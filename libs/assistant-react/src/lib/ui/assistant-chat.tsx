@@ -28,7 +28,8 @@ import { AnimatePresence } from "motion/react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AssistantConversationRecovery } from "./assistant-conversation-recovery";
-import { renderAssistantMarkdown } from "./assistant-markdown";
+import { AssistantAppLinksContext, renderAssistantMarkdown } from "./assistant-markdown";
+import type { AssistantAppLinks } from "./assistant-markdown";
 import { AssistantNoProfiles } from "./assistant-no-profiles";
 import {
   AssistantAttachFiles,
@@ -70,11 +71,21 @@ export type AssistantChatProps = {
   onPrevConversation?: () => void;
   onNextConversation?: () => void;
   renderAddProfileDialog?: (props: RenderAddProfileDialogProps) => ReactNode;
+  /** Resolves and opens `koloda:` links in replies; without it they show as text. Keep its identity stable. */
+  appLinks?: AssistantAppLinks;
 };
 
 const BLOCKED_REASONS = { image: msg`ai.chat.images.blocked`, pdf: msg`ai.chat.pdf.blocked` };
 
-export function AssistantChat({
+export function AssistantChat({ appLinks, ...props }: AssistantChatProps) {
+  return (
+    <AssistantAppLinksContext.Provider value={appLinks ?? null}>
+      <AssistantChatContent {...props} />
+    </AssistantAppLinksContext.Provider>
+  );
+}
+
+function AssistantChatContent({
   conversationId,
   onConversationIdChange,
   onStartNewConversation,
@@ -82,7 +93,7 @@ export function AssistantChat({
   onPrevConversation,
   onNextConversation,
   renderAddProfileDialog,
-}: AssistantChatProps) {
+}: Omit<AssistantChatProps, "appLinks">) {
   const { _ } = useLingui();
   const messages = useAtomValue(assistantMessagesAtom);
   const promptInput = useAtomValue(assistantPromptInputAtom);

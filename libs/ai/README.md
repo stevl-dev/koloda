@@ -56,6 +56,9 @@ This README owns the package boundary.
 - Mentions (pure): `mentions.ts` — the `@[<title>](<kind>:<id>)` text a mentioned deck, template, or preset
   is written as in a prompt; `formatMention`, `parseMentionText`, and `replaceMentionsWithTitles` (`@<title>` text).
   Stored drafts and sent messages hold that text, and the tool descriptions tell the model how to read it.
+- App links (pure): `app-links.ts` — the closed set of `koloda:<target>` targets an assistant reply may link to,
+  and `parseAppLinkTarget`.
+  Mapping a target to a route belongs to `@koloda/app-react`.
 - Errors: `error.ts` — `AIError`, `throwForAIResponse` (HTTP → `AIError`), `wrapAIError`.
   `error-ai.ts` — the AIError→AppError bridge (`formatGenerateError`, `toAIAppError`),
   exported via the `./app-error` subpath (renderer-only: it pulls `@koloda/app`, whose error catalog

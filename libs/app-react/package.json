@@ -12,6 +12,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "@koloda/ai": "workspace:*",
     "@koloda/app": "workspace:*",
     "@koloda/assistant-react": "workspace:*",
     "@koloda/core-react": "workspace:*",

@@ -259,6 +259,14 @@ The conversation history sent to the AI is rebuilt from the now-shorter message 
 
 Assistant text is displayed as rendered markdown, including leftover text on a mixed turn.
 What rendered markdown may contain is in CARDS.md (§Rendered Markdown).
+
+Assistant text may link to a screen of the app, or to one deck, template, or preset.
+A click on such a link opens that screen in the same window, in place of the chat.
+A click with a modifier key does not open it in the app.
+In the web app the browser handles that click, for example by opening the screen in a new tab.
+A link to a screen this app does not have, such as Sync in the web app, shows as plain text.
+So does a link the app does not recognize.
+A link to a deck, template, or preset that was deleted still opens; that screen says it was not found.
 User messages are displayed as paragraphs.
 Reasoning is shown as an activity row on the same assistant message.
 It sits in the same activity list as tool calls, in the order they arrived.

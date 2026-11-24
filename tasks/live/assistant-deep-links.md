@@ -103,7 +103,7 @@ Routes: `/dashboard`, `/decks`, `/algorithms`, `/templates`, `/ai`, `/settings/<
   Commit: Let markdownToHtml render app links through a resolver
   Depends on: none
 
-- [ ] 2. Open app screens from links in assistant replies
+- [x] 2. Open app screens from links in assistant replies
   Goal: a click on an app link in assistant text or reasoning opens its screen in the same window, on both hosts.
   - `libs/ai/src/lib/app-links.ts` (exported from `@koloda/ai`) owns the closed target set above:
     `parseAppLinkTarget(target)` returns a typed target, a screen or an entity kind with its id, or null for anything else.

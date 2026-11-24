@@ -51,6 +51,9 @@
     },
     {
       "path": "../app/tsconfig.lib.json"
+    },
+    {
+      "path": "../ai/tsconfig.lib.json"
     }
   ]
 }

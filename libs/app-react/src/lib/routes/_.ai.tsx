@@ -16,6 +16,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
 import { SettingsAIAddProfile } from "@koloda/settings-react";
+import { useAssistantAppLinks } from "../hooks/use-assistant-app-links";
 import { tv } from "tailwind-variants";
 
 export const Route = createFileRoute("/_/ai")({
@@ -46,6 +47,7 @@ function AIRoute() {
   const ref = useRouteFocus();
   useLayoutHeaderScrollShadow(ref);
   const navigate = Route.useNavigate();
+  const appLinks = useAssistantAppLinks();
   const { conversationId } = Route.useSearch();
   const startParamlessConversation = useSetAtom(startParamlessConversationAtom);
   const { getConversationsQuery } = useAtomValue(queriesAtom);
@@ -130,6 +132,7 @@ function AIRoute() {
             onPrevConversation={handlePrevConversation}
             onNextConversation={handleNextConversation}
             renderAddProfileDialog={(props) => <SettingsAIAddProfile trigger="none" {...props} />}
+            appLinks={appLinks}
           />
         </Layout.Container>
       </Layout.Content>

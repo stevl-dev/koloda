@@ -181,6 +181,7 @@
       "name": "@koloda/app-react",
       "version": "0.0.1",
       "dependencies": {
+        "@koloda/ai": "workspace:*",
         "@koloda/app": "workspace:*",
         "@koloda/assistant-react": "workspace:*",
         "@koloda/core-react": "workspace:*",
