@@ -41,7 +41,7 @@ describe("conversationReducer → setRevertState", () => {
     };
     const next = conversationReducer(state, [
       "setRevertState",
-      { revertedToUserMessageId: "user-r2", preRevertInputText: "draft", preRevertImages: [] },
+      { revertedToUserMessageId: "user-r2", preRevertInputText: "draft", preRevertAttachments: [] },
     ]);
     // WHY: Visual revert only — data is untouched.
     expect(next.messages).toBe(state.messages);
@@ -50,7 +50,7 @@ describe("conversationReducer → setRevertState", () => {
     expect(next.revertState).toEqual({
       revertedToUserMessageId: "user-r2",
       preRevertInputText: "draft",
-      preRevertImages: [],
+      preRevertAttachments: [],
     });
   });
 
@@ -72,7 +72,7 @@ describe("conversationReducer → setRevertState", () => {
           elapsedSeconds: 1,
         },
       },
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertAttachments: [] },
     };
     const next = conversationReducer(state, ["setRevertState", null]);
     expect(next.revertState).toBeNull();
@@ -129,7 +129,7 @@ describe("conversationReducer → commitRevert", () => {
         r2: chatRun("r2"),
         r3: chatRun("r3"),
       },
-      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertAttachments: [] },
     };
 
     const next = conversationReducer(state, ["commitRevert"]);
@@ -152,7 +152,7 @@ describe("conversationReducer → commitRevert", () => {
         r2: chatRun("r2"),
       },
       lastReadRunId: "r2",
-      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertAttachments: [] },
     };
 
     const next = conversationReducer(state, ["commitRevert"]);
@@ -172,7 +172,7 @@ describe("conversationReducer → commitRevert", () => {
         r2: chatRun("r2"),
       },
       lastReadRunId: "r1",
-      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertAttachments: [] },
     };
 
     const next = conversationReducer(state, ["commitRevert"]);
@@ -189,7 +189,7 @@ describe("conversationReducer → commitRevert", () => {
       messages: messagePair("r1", "Hi", "Hello"),
       runs: { r1: chatRun("r1") },
       dismissedRunErrorId: "r1",
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "", preRevertAttachments: [] },
     };
 
     const next = conversationReducer(state, ["commitRevert"]);
@@ -211,7 +211,7 @@ describe("conversationReducer → commitRevert", () => {
         },
       ],
       runs: {},
-      revertState: { revertedToUserMessageId: "user-nonexistent", preRevertInputText: "", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-nonexistent", preRevertInputText: "", preRevertAttachments: [] },
     };
 
     const next = conversationReducer(state, ["commitRevert"]);

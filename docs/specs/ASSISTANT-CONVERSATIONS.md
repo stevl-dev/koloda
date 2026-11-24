@@ -28,7 +28,7 @@ The model may propose cards during that run.
 - **Run** — one AI request with a lifecycle: streaming, then success, failed, canceled, or interrupted
 - **AI profile state** — the profile, model, and model parameters; stored per conversation and once globally
 - **Write target** — the deck and template an accepted proposal targeted; kept per run
-- **Prompt input** — the unsent composer text and attached images for this conversation
+- **Prompt input** — the unsent composer text and attached files for this conversation
 - **Revert state** — hides messages from a past user message onward; see §Revert State
 
 ### Relationships
@@ -200,9 +200,9 @@ Everything is saved as-is, including failed runs, their error messages, and whet
 A conversation that has not yet been given an identity is not saved.
 Clearing the composer does not remove a conversation that already has an identity.
 Typing in the prompt schedules a save and does not bump the conversation timestamp.
-The current composer text and its attached images are stored with the conversation; during a revert, see §Revert State.
-An attached image is kept while a saved conversation uses it.
-Once per app session, the app removes images no saved conversation uses, if they were attached more than a day earlier.
+The current composer text and its attached files are stored with the conversation; during a revert, see §Revert State.
+An attached file is kept while a saved conversation uses it.
+Once per app session, the app removes files no saved conversation uses, if they were attached more than a day earlier.
 Which conversation reopens on reload is covered by ASSISTANT-CONVERSATION-LIST.md (§Conversation List).
 
 ## Restore

@@ -56,11 +56,11 @@ describe("conversationReducer", () => {
     it("moves the draft's images into the user message, with no text part for a message of images alone", () => {
       const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
       const state = reduce([
-        ["addPromptImage", image],
-        ["submitTurn", { runId: "r1", text: "", images: [image], kind: "chat-text", assistantText: "" }],
+        ["addPromptAttachment", image],
+        ["submitTurn", { runId: "r1", text: "", attachments: [image], kind: "chat-text", assistantText: "" }],
       ]);
       expect(state.messages[0]?.parts).toEqual([{ type: "file", ...image }]);
-      expect(state.promptImages).toEqual([]);
+      expect(state.promptAttachments).toEqual([]);
     });
   });
 
@@ -68,11 +68,11 @@ describe("conversationReducer", () => {
     it("restores the submitted images into an empty draft", () => {
       const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
       const state = reduce([
-        ["submitTurn", { runId: "r1", text: "Hi", images: [image], kind: "chat-text", assistantText: "" }],
-        ["rollbackSubmitTurn", { runId: "r1", text: "Hi", images: [image] }],
+        ["submitTurn", { runId: "r1", text: "Hi", attachments: [image], kind: "chat-text", assistantText: "" }],
+        ["rollbackSubmitTurn", { runId: "r1", text: "Hi", attachments: [image] }],
       ]);
       expect(state.messages).toHaveLength(0);
-      expect(state.promptImages).toEqual([image]);
+      expect(state.promptAttachments).toEqual([image]);
     });
 
     it("removes a still-streaming submit turn, clears activeRunId, and restores the prompt", () => {
@@ -347,7 +347,7 @@ describe("conversationReducer", () => {
       let state = reduce([
         ["submitTurn", { runId: "r1", text: "Hi", kind: "chat-text", assistantText: "" }],
         ["setPromptInput", "leftover draft"],
-        ["addPromptImage", { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" }],
+        ["addPromptAttachment", { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" }],
         ["setAIProfile", { profileId: "p1", modelId: "m1", modelParameters: { reasoning_effort: "high" } }],
         ["setAIModel", { modelId: "m2", modelParameters: { reasoning_effort: "low" } }],
         ["setAIModelParameter", { paramType: "reasoning_effort", value: "medium" }],
@@ -367,7 +367,7 @@ describe("conversationReducer", () => {
         modelParameters: {},
         lastReadRunId: null,
         promptInput: "",
-        promptImages: [],
+        promptAttachments: [],
         revertState: null,
       });
     });
@@ -379,12 +379,12 @@ describe("conversationReducer", () => {
 
     it("adds images in order, once each, and removes one by its url", () => {
       const state = reduce([
-        ["addPromptImage", imageA],
-        ["addPromptImage", imageB],
-        ["addPromptImage", imageA],
-        ["removePromptImage", imageA.url],
+        ["addPromptAttachment", imageA],
+        ["addPromptAttachment", imageB],
+        ["addPromptAttachment", imageA],
+        ["removePromptAttachment", imageA.url],
       ]);
-      expect(state.promptImages).toEqual([imageB]);
+      expect(state.promptAttachments).toEqual([imageB]);
     });
   });
 
@@ -537,7 +537,7 @@ describe("getVisibleMessages", () => {
         metadata: { kind: "chat-text", runId: "r2" },
       },
     ];
-    const revertState = { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertImages: [] };
+    const revertState = { revertedToUserMessageId: "user-r2", preRevertInputText: "", preRevertAttachments: [] };
     expect(getVisibleMessages(messages, revertState)).toEqual([messages[0], messages[1]]);
   });
 
@@ -550,7 +550,7 @@ describe("getVisibleMessages", () => {
         metadata: { createdAt: "2026-07-01T11:00:00.000Z", runId: "r1" },
       },
     ];
-    const revertState = { revertedToUserMessageId: "user-missing", preRevertInputText: "", preRevertImages: [] };
+    const revertState = { revertedToUserMessageId: "user-missing", preRevertInputText: "", preRevertAttachments: [] };
     expect(getVisibleMessages(messages, revertState)).toBe(messages);
   });
 });

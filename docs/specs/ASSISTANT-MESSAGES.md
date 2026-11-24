@@ -104,36 +104,47 @@ On a mixed turn, content includes the tool rows and the proposed cards as well a
 ### Sending a Message
 
 The user types a prompt and presses Enter or clicks Submit.
-A prompt can be text, attached images, or both; see §Attaching Images.
+A prompt can be text, attached images, or both; see §Attaching Files.
 This creates a user message and an assistant message placeholder.
 A run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§Starting a Run).
 If that run fails, the user message and the assistant message with any partial text remain,
 so the conversation is not empty.
 
-### Attaching Images
+### Attaching Files
 
-The user can attach images to a prompt in three ways:
+The user can attach files to a prompt in three ways:
 
 - the attach button beside the prompt
-- pasting an image
-- dropping image files on the composer
+- pasting files, such as a screenshot
+- dropping files on the composer
 
-The formats and the size limit are those of card images; see MEDIA.md (§Formats and Size).
-Each attached image shows as a preview above the prompt, with a button that removes it.
-A file that is too large or is not an image shows an error, and the other files still attach.
+These files are accepted:
 
-The attach button is disabled when the selected model does not accept images.
-Its tooltip says why: the model does not accept images,
+- Images, in the formats and up to the size of card images; see MEDIA.md (§Formats and Size).
+- PDF files, up to 20 MB.
+- Text files: `.txt`, `.md`, `.markdown`, and `.csv`, or any file the system marks as text, up to 1 MB.
+  The text must be UTF-8.
+
+A file must be what its name or type says: a PDF that is not a PDF, or a text file that is not text, is refused.
+Each attached image shows as a preview above the prompt.
+Each other file shows as a chip with its file name.
+Each has a button that removes it.
+A file that is too large or of no accepted kind shows an error, and the other files still attach.
+A dropped file with no type and no known extension is attached only if it is an image; otherwise it is skipped.
+
+Text files go to every model.
+An image or a PDF is attached only when the selected model accepts it; see AI-MODEL-INPUT.md.
+Otherwise a message says why, and that file is not attached:
+the model does not accept that kind of file,
 or whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Switches).
-Pasting or dropping an image then shows the same reason and attaches nothing.
-With no model selected, the button is hidden.
+With no model selected, the attach button is hidden.
 
 Submit is blocked while the prompt or the visible conversation holds images and the selected model does not accept them.
 A message above the prompt says why; nothing is sent without its images.
 
-Attaching an image to a new chat gives it an identity, as typing does.
-An image goes to the conversation it was attached in, even if the user switches conversations while it is stored.
-Attached images stay on this device and never sync.
+Attaching a file to a new chat gives it an identity, as typing does.
+A file goes to the conversation it was attached in, even if the user switches conversations while it is stored.
+Attached files stay on this device and never sync.
 
 ### Mentions
 
@@ -172,7 +183,7 @@ The text accumulated so far is kept.
 
 See ASSISTANT-CONVERSATIONS.md (§Retry) for when retry is available,
 which run it reuses, and which AI profile state it uses.
-Retry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Images.
+Retry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Files.
 
 ### Copying a Message
 

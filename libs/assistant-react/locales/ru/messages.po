@@ -13,32 +13,36 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.attach"
+msgstr "Прикрепить файлы"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.list"
+msgstr "Прикреплённые файлы"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.remove"
+msgstr "Убрать файл"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.unnamed"
+msgstr "Файл"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.alt"
 msgstr "Прикреплённое изображение"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.attach"
-msgstr "Прикрепить изображения"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
 msgid "ai.chat.images.blocked"
 msgstr "В разговоре есть изображения, а выбранная модель их не принимает. Выберите модель, которая принимает изображения."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.list"
-msgstr "Прикреплённые изображения"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.remove"
-msgstr "Убрать изображение"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.unknown"
 msgstr "Неизвестно, принимает ли эта модель изображения. Включите это в списке моделей в настройках ИИ."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.test.tsx
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.test.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.unsupported"
 msgstr "Эта модель не принимает изображения"
 
@@ -76,6 +80,15 @@ msgstr "У вас нет ни одного профиля ИИ"
 #: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx
 msgid "ai.chat.no-profiles.add"
 msgstr "Добавить профиль"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.test.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.pdf.unknown"
+msgstr "Неизвестно, принимает ли эта модель PDF. Включите это в списке моделей в настройках ИИ."
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.pdf.unsupported"
+msgstr "Эта модель не принимает PDF"
 
 #: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
 msgid "ai.chat.restoring"

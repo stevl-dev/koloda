@@ -31,12 +31,11 @@ import { AssistantConversationRecovery } from "./assistant-conversation-recovery
 import { renderAssistantMarkdown } from "./assistant-markdown";
 import { AssistantNoProfiles } from "./assistant-no-profiles";
 import {
-  AssistantAttachImage,
-  AssistantImageDropZone,
-  AssistantPromptImages,
-  getImageInputState,
-  useAssistantImageAttach,
-} from "./assistant-prompt-images";
+  AssistantAttachFiles,
+  AssistantFileDropZone,
+  AssistantPromptAttachments,
+  useAssistantFileAttach,
+} from "./assistant-prompt-attachments";
 import { AssistantSettings } from "./assistant-settings";
 import { setAssistantPromptInputAtom } from "../state/conversation-actions";
 import {
@@ -44,11 +43,12 @@ import {
   assistantErroredRunAtom,
   assistantIsProcessingAtom,
   assistantMessagesAtom,
-  assistantPromptImagesAtom,
+  assistantPromptAttachmentsAtom,
   assistantPromptInputAtom,
   assistantRevertStateAtom,
 } from "../state/conversation-selectors";
 import { saveStatusAtom } from "../state/conversation-store";
+import { getConversationFileKindOfMime, getInputStates } from "./conversation-files";
 import { RevertBanner } from "./revert-banner";
 import { useAssistantChatHotkeys } from "./use-assistant-chat-hotkeys";
 import { useAssistantMessageRenderer } from "./use-assistant-message-renderer";
@@ -84,7 +84,7 @@ export function AssistantChat({
   const { _ } = useLingui();
   const messages = useAtomValue(assistantMessagesAtom);
   const promptInput = useAtomValue(assistantPromptInputAtom);
-  const promptImages = useAtomValue(assistantPromptImagesAtom);
+  const promptAttachments = useAtomValue(assistantPromptAttachmentsAtom);
   const applyPromptInput = useSetAtom(setAssistantPromptInputAtom);
   const setPromptInput = useCallback(
     (text: string) => {
@@ -135,15 +135,19 @@ export function AssistantChat({
   const hasRequiredSecrets = missingSecretFieldLabels.length === 0;
   const selectedModel = models.find((m) => m.id === modelId);
   const contextLength = selectedModel?.context_length ?? 0;
-  const imageInput = getImageInputState(
+  const inputs = getInputStates(
     modelId,
     selectedModel,
     profiles.find((p) => p.id === profileId),
   );
-  const imageAttach = useAssistantImageAttach({ imageInput, onConversationIdChange });
+  const fileAttach = useAssistantFileAttach({ inputs, onConversationIdChange });
   // WHY: every turn resends the whole history, so an image in any visible message needs a model that takes images.
   const hasHistoryImages = useMemo(() => messages.some((m) => getMessageImageIds(m).length > 0), [messages]);
-  const areImagesBlocked = (promptImages.length > 0 || hasHistoryImages) && imageInput !== "enabled";
+  const hasDraftImages = promptAttachments.some(
+    ({ mediaType }) => getConversationFileKindOfMime(mediaType) === "image",
+  );
+  const areImagesBlocked = (hasDraftImages || hasHistoryImages) && inputs?.image !== "enabled";
+  const blockedReasons = areImagesBlocked ? [msg`ai.chat.images.blocked`] : [];
 
   const { isRestoring, isDeleted, loadError, handleDismissSave, retrySave, retryLoad, blockedRestore } =
     useConversationPersistence({ conversationId });
@@ -164,8 +168,8 @@ export function AssistantChat({
     profileId,
     modelId,
     prompt: promptInput.trim(),
-    hasImages: promptImages.length > 0,
-    areImagesBlocked,
+    hasAttachments: promptAttachments.length > 0,
+    areAttachmentsBlocked: areImagesBlocked,
     isLoading: isProcessing,
     hasRequiredSecrets,
     isModelsLoading,
@@ -265,24 +269,24 @@ export function AssistantChat({
             {generateErr && <AIChatError {...generateErr} onDismiss={controller.dismissGenerate} />}
             {saveErr && <AIChatError {...saveErr} onDismiss={handleDismissSave} onRetry={retrySave} />}
             {revertState && <RevertBanner onRestore={handleRestore} />}
-            <AssistantPromptImages feedback={imageAttach.feedback} areImagesBlocked={areImagesBlocked} />
-            <AssistantImageDropZone
-              onPaste={imageAttach.handlePaste}
-              onDragOver={imageAttach.handleDragOver}
-              onDrop={imageAttach.handleDrop}
+            <AssistantPromptAttachments feedback={fileAttach.feedback} blockedReasons={blockedReasons} />
+            <AssistantFileDropZone
+              onPaste={fileAttach.handlePaste}
+              onDragOver={fileAttach.handleDragOver}
+              onDrop={fileAttach.handleDrop}
             >
               <AIChatPromptPanel onSubmit={handleSubmit}>
-                <AssistantAttachImage
-                  imageInput={imageInput}
-                  isAttaching={imageAttach.isAttaching}
-                  onSelect={(files) => void imageAttach.attach(files)}
+                <AssistantAttachFiles
+                  inputs={inputs}
+                  isAttaching={fileAttach.isAttaching}
+                  onSelect={(files) => void fileAttach.attach(files)}
                 />
                 <AIChatPromptInput value={inputValue} onChange={setInputValue} onSubmit={submit} mentions={mentions} />
                 <div className="self-end p-1">
                   <AIChatSubmit canSubmit={canSubmit} canCancel={canCancel} onCancel={controller.cancel} />
                 </div>
               </AIChatPromptPanel>
-            </AssistantImageDropZone>
+            </AssistantFileDropZone>
           </Fade>
         )}
       </AnimatePresence>

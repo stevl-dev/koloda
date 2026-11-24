@@ -71,7 +71,7 @@ describe("toPersistedState / fromPersistedState", () => {
     const state: ConversationReducerState = {
       ...initialConversationState,
       id: "conv-1",
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertAttachments: [] },
     };
     const persisted = toPersistedState(state);
     expect("revertState" in persisted).toBe(false);
@@ -96,7 +96,7 @@ describe("toPersistedState / fromPersistedState", () => {
       ...initialConversationState,
       id: "conv-1",
       promptInput: "First",
-      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "my draft", preRevertImages: [] },
+      revertState: { revertedToUserMessageId: "user-r1", preRevertInputText: "my draft", preRevertAttachments: [] },
     };
     expect(fromPersistedState(toPersistedState(state)).promptInput).toBe("my draft");
   });
@@ -164,19 +164,35 @@ describe("toPersistedState / fromPersistedState", () => {
     expect(computeConversationTitle(restored)).toBe("live title");
   });
 
-  it("round-trips the draft's images, and restores a row saved before draft images with none", () => {
+  it("round-trips the draft's files with their names, and restores a row saved before draft files with none", () => {
     const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const pdf = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "application/pdf", filename: "a.pdf" };
     const state: ConversationReducerState = {
       ...initialConversationState,
       id: "draft-1",
       createdAt: new Date(1),
       updatedAt: new Date(1),
-      promptImages: [image],
+      promptAttachments: [image, pdf],
     };
-    const { promptImages: _promptImages, ...olderRow } = { ...storedRow, id: "draft-2", createdAt: new Date(1) };
+    const { promptAttachments: _promptAttachments, ...olderRow } = {
+      ...storedRow,
+      id: "draft-2",
+      createdAt: new Date(1),
+    };
 
-    expect(expectOk(JSON.parse(JSON.stringify(toPersistedState(state))) as unknown).promptImages).toEqual([image]);
-    expect(expectOk(JSON.parse(JSON.stringify(olderRow)) as unknown).promptImages).toEqual([]);
+    expect(expectOk(JSON.parse(JSON.stringify(toPersistedState(state))) as unknown).promptAttachments).toStrictEqual([
+      image,
+      pdf,
+    ]);
+    expect(expectOk(JSON.parse(JSON.stringify(olderRow)) as unknown).promptAttachments).toEqual([]);
+  });
+
+  it("restores the images of a draft saved under its former key", () => {
+    const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const { promptAttachments: _promptAttachments, ...rest } = { ...storedRow, id: "draft-3", createdAt: new Date(1) };
+    const savedWithImages = { ...rest, promptImages: [image] };
+
+    expect(expectOk(JSON.parse(JSON.stringify(savedWithImages)) as unknown).promptAttachments).toEqual([image]);
   });
 
   it("round-trips a wiped prompt as an empty composer with a null title", () => {
@@ -740,7 +756,7 @@ describe("coerceConversationState", () => {
         ...storedRow,
         id: "conv-1",
         createdAt: new Date(1),
-        revertState: { revertedToUserMessageId: "u-r1", preRevertInputText: "hi", preRevertImages: [] },
+        revertState: { revertedToUserMessageId: "u-r1", preRevertInputText: "hi", preRevertAttachments: [] },
       });
       expect(coerced.revertState).toBeNull();
     });

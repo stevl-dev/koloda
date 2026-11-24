@@ -13,32 +13,36 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.attach"
+msgstr "Attach files"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.list"
+msgstr "Attached files"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.remove"
+msgstr "Remove file"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.attachments.unnamed"
+msgstr "File"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.alt"
 msgstr "Attached image"
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.attach"
-msgstr "Attach images"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
 msgid "ai.chat.images.blocked"
 msgstr "This conversation has images, and the selected model does not accept them. Choose a model that accepts images."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.list"
-msgstr "Attached images"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
-msgid "ai.chat.images.remove"
-msgstr "Remove image"
-
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.unknown"
 msgstr "It is unknown whether this model accepts images. Turn it on in the model list in AI settings."
 
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.test.tsx
-#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-images.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.test.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.images.unsupported"
 msgstr "This model does not accept images"
 
@@ -76,6 +80,15 @@ msgstr "You don't have any AI profiles"
 #: ../../libs/assistant-react/src/lib/ui/assistant-no-profiles.tsx
 msgid "ai.chat.no-profiles.add"
 msgstr "Add profile"
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.test.tsx
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.pdf.unknown"
+msgstr "It is unknown whether this model accepts PDF files. Turn it on in the model list in AI settings."
+
+#: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
+msgid "ai.chat.pdf.unsupported"
+msgstr "This model does not accept PDF files"
 
 #: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
 msgid "ai.chat.restoring"

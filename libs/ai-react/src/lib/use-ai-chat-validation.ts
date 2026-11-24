@@ -2,10 +2,10 @@ export type UseAIChatValidationOptions = {
   profileId: string;
   modelId: string;
   prompt: string;
-  hasImages: boolean;
-  // WHY: the draft or the history holds images the selected model does not accept (ASSISTANT-MESSAGES.md
-  // §Attaching Images); submit stays blocked rather than dropping them.
-  areImagesBlocked: boolean;
+  hasAttachments: boolean;
+  // WHY: the draft or the history holds files the selected model does not accept (ASSISTANT-MESSAGES.md
+  // §Attaching Files); submit stays blocked rather than dropping them.
+  areAttachmentsBlocked: boolean;
   isLoading: boolean;
   hasRequiredSecrets: boolean;
   isModelsLoading: boolean;
@@ -22,8 +22,8 @@ export function useAIChatValidation({
   profileId,
   modelId,
   prompt,
-  hasImages,
-  areImagesBlocked,
+  hasAttachments,
+  areAttachmentsBlocked,
   isLoading,
   hasRequiredSecrets,
   isModelsLoading,
@@ -32,8 +32,8 @@ export function useAIChatValidation({
   const canSubmit = !!(
     profileId &&
     modelId &&
-    (!!prompt || hasImages) &&
-    !areImagesBlocked &&
+    (!!prompt || hasAttachments) &&
+    !areAttachmentsBlocked &&
     !isLoading &&
     hasRequiredSecrets &&
     !isModelsLoading &&

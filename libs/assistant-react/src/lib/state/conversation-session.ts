@@ -1,5 +1,5 @@
 import type { ModelParameter } from "@koloda/ai";
-import type { ConversationReducerState, PromptImage, RevertState, RunIdPayload } from "./conversation-types";
+import type { ConversationReducerState, PromptAttachment, RevertState, RunIdPayload } from "./conversation-types";
 import { getMessageRunId } from "./assistant-messages";
 
 type SetAIProfilePayload = {
@@ -85,21 +85,21 @@ export function newConversation(draft: ConversationReducerState, payload: NewCon
   draft.modelParameters = payload.modelParameters ?? {};
   draft.lastReadRunId = null;
   draft.promptInput = "";
-  draft.promptImages = [];
+  draft.promptAttachments = [];
   draft.revertState = null;
 }
 
-export function addPromptImage(draft: ConversationReducerState, payload: PromptImage) {
-  if (draft.promptImages.some((image) => image.url === payload.url)) return;
-  draft.promptImages.push(payload);
+export function addPromptAttachment(draft: ConversationReducerState, payload: PromptAttachment) {
+  if (draft.promptAttachments.some((attachment) => attachment.url === payload.url)) return;
+  draft.promptAttachments.push(payload);
 }
 
-export function setPromptImages(draft: ConversationReducerState, payload: PromptImage[]) {
-  draft.promptImages = payload;
+export function setPromptAttachments(draft: ConversationReducerState, payload: PromptAttachment[]) {
+  draft.promptAttachments = payload;
 }
 
-export function removePromptImage(draft: ConversationReducerState, payload: string) {
-  draft.promptImages = draft.promptImages.filter((image) => image.url !== payload);
+export function removePromptAttachment(draft: ConversationReducerState, payload: string) {
+  draft.promptAttachments = draft.promptAttachments.filter((attachment) => attachment.url !== payload);
 }
 
 export function setPromptInput(draft: ConversationReducerState, payload: string) {

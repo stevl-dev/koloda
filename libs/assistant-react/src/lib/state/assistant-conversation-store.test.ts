@@ -14,7 +14,7 @@ import {
   setAssistantAIProfileAtom,
   setAssistantCardStatusAtom,
   setAssistantPromptInputAtom,
-  addAssistantPromptImageAtom,
+  addAssistantPromptAttachmentAtom,
 } from "./conversation-actions";
 import { dispatchTo, makeConversation, makeRun } from "./assistant-conversation.fixtures";
 import type { ConversationReducerAction } from "./conversation-reducer";
@@ -421,7 +421,7 @@ describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
     store.set(setAssistantPromptInputAtom, "draft two");
     expect(pendingSave(store, "A")).toBe(2);
   });
-  describe("addAssistantPromptImageAtom", () => {
+  describe("addAssistantPromptAttachmentAtom", () => {
     const image = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
 
     it("adds to the conversation the attach started in, though the user switched meanwhile", () => {
@@ -430,10 +430,10 @@ describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
       store.set(upsertConversationAtom, makeConversation("B"));
       store.set(setCurrentConversationIdAtom, "B");
 
-      expect(store.set(addAssistantPromptImageAtom, { conversationId: "A", image })).toBeNull();
+      expect(store.set(addAssistantPromptAttachmentAtom, { conversationId: "A", attachment: image })).toBeNull();
 
-      expect(store.get(conversationsAtom)["A"]?.promptImages).toEqual([image]);
-      expect(store.get(conversationsAtom)["B"]?.promptImages).toEqual([]);
+      expect(store.get(conversationsAtom)["A"]?.promptAttachments).toEqual([image]);
+      expect(store.get(conversationsAtom)["B"]?.promptAttachments).toEqual([]);
       expect(pendingSave(store, "A")).toBe(1);
     });
 
@@ -441,11 +441,11 @@ describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
       const store = createStore();
       store.set(setAssistantPromptInputAtom, "  ");
 
-      const mintedId = store.set(addAssistantPromptImageAtom, { conversationId: null, image });
+      const mintedId = store.set(addAssistantPromptAttachmentAtom, { conversationId: null, attachment: image });
 
       expect(mintedId).not.toBeNull();
       const minted = store.get(conversationsAtom)[mintedId!];
-      expect(minted?.promptImages).toEqual([image]);
+      expect(minted?.promptAttachments).toEqual([image]);
       expect(minted?.promptInput).toBe("  ");
     });
 
@@ -454,8 +454,8 @@ describe("pendingSaveByConversationAtom (per-conversation counter)", () => {
       store.set(upsertConversationAtom, makeConversation("B"));
       store.set(setCurrentConversationIdAtom, "B");
 
-      expect(store.set(addAssistantPromptImageAtom, { conversationId: null, image })).toBeNull();
-      expect(store.get(conversationsAtom)["B"]?.promptImages).toEqual([]);
+      expect(store.set(addAssistantPromptAttachmentAtom, { conversationId: null, attachment: image })).toBeNull();
+      expect(store.get(conversationsAtom)["B"]?.promptAttachments).toEqual([]);
     });
   });
 });
@@ -568,7 +568,7 @@ describe("updatedAt stamping (only on run start)", () => {
       label: "setRevertState",
       action: [
         "setRevertState",
-        { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertImages: [] },
+        { revertedToUserMessageId: "user-r1", preRevertInputText: "draft", preRevertAttachments: [] },
       ],
     },
     {
@@ -594,7 +594,7 @@ describe("updatedAt stamping (only on run start)", () => {
       prefixDispatch: (store) =>
         dispatchTo(store, "A", [
           "setRevertState",
-          { revertedToUserMessageId: "user-r1", preRevertInputText: "", preRevertImages: [] },
+          { revertedToUserMessageId: "user-r1", preRevertInputText: "", preRevertAttachments: [] },
         ]),
     },
   ];

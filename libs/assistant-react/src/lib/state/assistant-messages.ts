@@ -2,7 +2,7 @@ import { getMessageFiles, getTextMessageContent, parseConversationAttachmentUrl 
 import type { GeneratedCard, Message } from "@koloda/ai";
 import type { TemplateFields } from "@koloda/srs";
 import type { FileUIPart, TextUIPart, UIMessage } from "ai";
-import type { PromptImage } from "./conversation-types";
+import type { PromptAttachment } from "./conversation-types";
 
 type AssistantMessageMetadata = { kind: "chat-text"; runId: string };
 
@@ -43,7 +43,7 @@ export function getMessageRunId(message: UIMessage): string | null {
   return null;
 }
 
-export function getMessagePromptImages(message: UIMessage): PromptImage[] {
+export function getMessagePromptAttachments(message: UIMessage): PromptAttachment[] {
   return message.parts.flatMap((part) =>
     part.type === "file" && parseConversationAttachmentUrl((part as FileUIPart).url)
       ? [{ url: (part as FileUIPart).url, mediaType: (part as FileUIPart).mediaType }]

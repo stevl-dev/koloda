@@ -79,7 +79,7 @@ export type AssistantRun = {
 export type RevertState = {
   revertedToUserMessageId: string;
   preRevertInputText: string;
-  preRevertImages: PromptImage[];
+  preRevertAttachments: PromptAttachment[];
 };
 
 export type ConversationReducerState = {
@@ -101,13 +101,13 @@ export type ConversationReducerState = {
   // Switching conversations must restore this text. Updating it must not
   // stamp `updatedAt` — it is not a turn.
   promptInput: string;
-  // WHY: images attached to the unsent draft, saved like `promptInput`. Each `url` is the conversation image ref the
-  // startup sweep looks for, so a saved draft keeps its images (docs/decisions/MEDIA-STORAGE.md).
-  promptImages: PromptImage[];
+  // WHY: files attached to the unsent draft, saved like `promptInput`. Each `url` is the conversation file ref the
+  // startup sweep looks for, so a saved draft keeps its files (docs/decisions/MEDIA-STORAGE.md).
+  promptAttachments: PromptAttachment[];
   revertState: RevertState | null;
 };
 
-export type PromptImage = { url: string; mediaType: string };
+export type PromptAttachment = { url: string; mediaType: string; filename?: string };
 
 export const initialConversationState: ConversationReducerState = {
   id: "",
@@ -122,7 +122,7 @@ export const initialConversationState: ConversationReducerState = {
   modelParameters: {},
   lastReadRunId: null,
   promptInput: "",
-  promptImages: [],
+  promptAttachments: [],
   revertState: null,
 };
 

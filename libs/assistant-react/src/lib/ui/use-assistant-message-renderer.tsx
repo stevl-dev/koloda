@@ -19,7 +19,7 @@ import {
 } from "../state/assistant-messages";
 import type { AssistantRun } from "../state/conversation-types";
 import { assistantActiveRunIdAtom, assistantMessagesAtom, assistantRunsAtom } from "../state/conversation-selectors";
-import { ConversationImage } from "./assistant-prompt-images";
+import { ConversationImage } from "./assistant-prompt-attachments";
 import { CopyMessageButton } from "./copy-message-button";
 import { MessageTimestamp } from "./message-timestamp";
 import { RevertMessageButton } from "./revert-message-button";

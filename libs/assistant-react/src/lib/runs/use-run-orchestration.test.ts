@@ -193,7 +193,7 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     seedConversation("conv-1");
     const imageId = "a".repeat(64);
     const image = { url: `conversation-attachment:${imageId}`, mediaType: "image/png" };
-    dispatch(["submitTurn", { runId: "run-1", text: "", images: [image], kind: "chat-text", assistantText: "" }]);
+    dispatch(["submitTurn", { runId: "run-1", text: "", attachments: [image], kind: "chat-text", assistantText: "" }]);
     dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
 
     const { result } = orchestrate(store, { dispatchCommand });
@@ -408,9 +408,9 @@ describe("useRunOrchestration — handleRevert", () => {
     store.set(currentConversationIdAtom, "conv-1");
     const sent = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
     const held = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "image/jpeg" };
-    dispatch(["submitTurn", { runId: "run-1", text: "", images: [sent], kind: "chat-text", assistantText: "" }]);
+    dispatch(["submitTurn", { runId: "run-1", text: "", attachments: [sent], kind: "chat-text", assistantText: "" }]);
     dispatch(["completeRun", { runId: "run-1" }]);
-    dispatch(["addPromptImage", held]);
+    dispatch(["addPromptAttachment", held]);
 
     const { result } = orchestrate(store, { dispatchLocal });
 
@@ -419,13 +419,13 @@ describe("useRunOrchestration — handleRevert", () => {
       prompt = result.current.handleRevert(userMessageId("run-1"), "");
     });
     expect(prompt).toBe("");
-    expect(readState().promptImages).toEqual([sent]);
-    expect(toPersistedState(readState()).promptImages).toEqual([held]);
+    expect(readState().promptAttachments).toEqual([sent]);
+    expect(toPersistedState(readState()).promptAttachments).toEqual([held]);
 
     act(() => {
       result.current.handleRestore();
     });
-    expect(readState().promptImages).toEqual([held]);
+    expect(readState().promptAttachments).toEqual([held]);
   });
 });
 
@@ -493,7 +493,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
       dispatch(["completeRun", { runId: "run-1" }]);
       dispatch([
         "setRevertState",
-        { revertedToUserMessageId: userMessageId("run-1"), preRevertInputText: "draft", preRevertImages: [] },
+        { revertedToUserMessageId: userMessageId("run-1"), preRevertInputText: "draft", preRevertAttachments: [] },
       ]);
 
       const dispatchCommand = vi.fn<DispatchCommand>(() => Promise.resolve());
@@ -549,7 +549,7 @@ describe("useRunOrchestration — submit in-flight guard", () => {
     act(() => {
       dispatch([
         "setRevertState",
-        { revertedToUserMessageId: revertTarget, preRevertInputText: "", preRevertImages: [] },
+        { revertedToUserMessageId: revertTarget, preRevertInputText: "", preRevertAttachments: [] },
       ]);
     });
     expect(readState().revertState).not.toBeNull();

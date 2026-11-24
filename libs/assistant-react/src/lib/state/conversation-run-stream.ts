@@ -1,5 +1,5 @@
 import type { TextUIPart } from "ai";
-import type { ConversationReducerState, PromptImage } from "./conversation-types";
+import type { ConversationReducerState, PromptAttachment } from "./conversation-types";
 import { isReasoningActivity } from "./conversation-types";
 import {
   activityTiming,
@@ -10,16 +10,16 @@ import {
 } from "./conversation-run-helpers";
 import { assistantMessageId, createTextMessage, userMessageId } from "./assistant-messages";
 
-type AddUserMessagePayload = { runId: string; text: string; images: PromptImage[] };
+type AddUserMessagePayload = { runId: string; text: string; attachments: PromptAttachment[] };
 
 function addUserMessage(draft: ConversationReducerState, payload: AddUserMessagePayload) {
   const message = createTextMessage(userMessageId(payload.runId), "user", payload.text, {
     createdAt: new Date().toISOString(),
     runId: payload.runId,
   });
-  // WHY: a message of images alone has no text part, so the bubble shows only the images.
+  // WHY: a message of files alone has no text part, so the bubble shows only the files.
   if (!payload.text) message.parts = [];
-  message.parts.push(...payload.images.map(({ url, mediaType }) => ({ type: "file" as const, url, mediaType })));
+  message.parts.push(...payload.attachments.map((attachment) => ({ type: "file" as const, ...attachment })));
   draft.messages.push(message);
 }
 
@@ -101,7 +101,7 @@ function startRun(draft: ConversationReducerState, payload: StartRunPayload) {
 type SubmitTurnPayload = {
   runId: string;
   text: string;
-  images?: PromptImage[];
+  attachments?: PromptAttachment[];
   kind: "chat-text";
   assistantText: string;
   modelName?: string;
@@ -111,7 +111,7 @@ type SubmitTurnPayload = {
 // subscribers never observe the intermediate "user message without a run"
 // or "run without an assistant slot" states of three separate actions.
 export function submitTurn(draft: ConversationReducerState, payload: SubmitTurnPayload) {
-  addUserMessage(draft, { runId: payload.runId, text: payload.text, images: payload.images ?? [] });
+  addUserMessage(draft, { runId: payload.runId, text: payload.text, attachments: payload.attachments ?? [] });
   startRun(draft, {
     runId: payload.runId,
     modelName: payload.modelName,
@@ -122,10 +122,10 @@ export function submitTurn(draft: ConversationReducerState, payload: SubmitTurnP
     text: payload.assistantText,
   });
   draft.promptInput = "";
-  draft.promptImages = [];
+  draft.promptAttachments = [];
 }
 
-type RollbackSubmitTurnPayload = { runId: string; text: string; images?: PromptImage[] };
+type RollbackSubmitTurnPayload = { runId: string; text: string; attachments?: PromptAttachment[] };
 
 // WHY: Safety net if the engine accepted then the returned promise rejects
 // while the turn is still streaming — a late rejection must not delete a
@@ -143,5 +143,5 @@ export function rollbackSubmitTurn(draft: ConversationReducerState, payload: Rol
   // would silently drop the prompt. Only restore into an empty composer so
   // text typed mid-stream is never clobbered.
   if (draft.promptInput === "") draft.promptInput = payload.text;
-  if (draft.promptImages.length === 0) draft.promptImages = payload.images ?? [];
+  if (draft.promptAttachments.length === 0) draft.promptAttachments = payload.attachments ?? [];
 }

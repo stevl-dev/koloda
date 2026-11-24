@@ -22,9 +22,9 @@ export const assistantPromptInputAtom = atom((get) => {
   if (!get(currentConversationIdAtom)) return get(unassignedPromptInputAtom);
   return get(assistantConversationStateAtom).promptInput;
 });
-export const assistantPromptImagesAtom = atom((get) => {
+export const assistantPromptAttachmentsAtom = atom((get) => {
   if (!get(currentConversationIdAtom)) return [];
-  return get(assistantConversationStateAtom).promptImages;
+  return get(assistantConversationStateAtom).promptAttachments;
 });
 export const assistantRunsAtom = atom((get) => get(assistantConversationStateAtom).runs);
 export const assistantActiveRunIdAtom = atom((get) => get(assistantConversationStateAtom).activeRunId);

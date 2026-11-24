@@ -68,7 +68,7 @@ describe("revert state in-memory lifecycle", () => {
 
     dispatchTo(store, "A", [
       "setRevertState",
-      { revertedToUserMessageId: "user-r2", preRevertInputText: "draft", preRevertImages: [] },
+      { revertedToUserMessageId: "user-r2", preRevertInputText: "draft", preRevertAttachments: [] },
     ]);
 
     expect(store.get(assistantMessagesAtom).map((m) => m.id)).toEqual(["user-r1", "assistant-r1"]);

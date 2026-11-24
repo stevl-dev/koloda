@@ -446,7 +446,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Core model",
         "depth": 2,
-        "markdown": "## Core model\n\n- **Conversation** — one thread with its messages, runs, AI profile state, and unsent prompt\n- **Message** — one half of an exchange; every user message is paired with an assistant message\n- **Run** — one AI request with a lifecycle: streaming, then success, failed, canceled, or interrupted\n- **AI profile state** — the profile, model, and model parameters; stored per conversation and once globally\n- **Write target** — the deck and template an accepted proposal targeted; kept per run\n- **Prompt input** — the unsent composer text and attached images for this conversation\n- **Revert state** — hides messages from a past user message onward; see §Revert State\n\n"
+        "markdown": "## Core model\n\n- **Conversation** — one thread with its messages, runs, AI profile state, and unsent prompt\n- **Message** — one half of an exchange; every user message is paired with an assistant message\n- **Run** — one AI request with a lifecycle: streaming, then success, failed, canceled, or interrupted\n- **AI profile state** — the profile, model, and model parameters; stored per conversation and once globally\n- **Write target** — the deck and template an accepted proposal targeted; kept per run\n- **Prompt input** — the unsent composer text and attached files for this conversation\n- **Revert state** — hides messages from a past user message onward; see §Revert State\n\n"
       },
       {
         "heading": "Relationships",
@@ -531,7 +531,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "What Doesn't Get Saved",
         "depth": 3,
-        "markdown": "### What Doesn't Get Saved\n\nA conversation that has not yet been given an identity is not saved.\nClearing the composer does not remove a conversation that already has an identity.\nTyping in the prompt schedules a save and does not bump the conversation timestamp.\nThe current composer text and its attached images are stored with the conversation; during a revert, see §Revert State.\nAn attached image is kept while a saved conversation uses it.\nOnce per app session, the app removes images no saved conversation uses, if they were attached more than a day earlier.\nWhich conversation reopens on reload is covered by ASSISTANT-CONVERSATION-LIST.md (§Conversation List).\n\n"
+        "markdown": "### What Doesn't Get Saved\n\nA conversation that has not yet been given an identity is not saved.\nClearing the composer does not remove a conversation that already has an identity.\nTyping in the prompt schedules a save and does not bump the conversation timestamp.\nThe current composer text and its attached files are stored with the conversation; during a revert, see §Revert State.\nAn attached file is kept while a saved conversation uses it.\nOnce per app session, the app removes files no saved conversation uses, if they were attached more than a day earlier.\nWhich conversation reopens on reload is covered by ASSISTANT-CONVERSATION-LIST.md (§Conversation List).\n\n"
       },
       {
         "heading": "Restore",
@@ -712,12 +712,12 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Sending a Message",
         "depth": 3,
-        "markdown": "### Sending a Message\n\nThe user types a prompt and presses Enter or clicks Submit.\nA prompt can be text, attached images, or both; see §Attaching Images.\nThis creates a user message and an assistant message placeholder.\nA run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§Starting a Run).\nIf that run fails, the user message and the assistant message with any partial text remain,\nso the conversation is not empty.\n\n"
+        "markdown": "### Sending a Message\n\nThe user types a prompt and presses Enter or clicks Submit.\nA prompt can be text, attached images, or both; see §Attaching Files.\nThis creates a user message and an assistant message placeholder.\nA run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§Starting a Run).\nIf that run fails, the user message and the assistant message with any partial text remain,\nso the conversation is not empty.\n\n"
       },
       {
-        "heading": "Attaching Images",
+        "heading": "Attaching Files",
         "depth": 3,
-        "markdown": "### Attaching Images\n\nThe user can attach images to a prompt in three ways:\n\n- the attach button beside the prompt\n- pasting an image\n- dropping image files on the composer\n\nThe formats and the size limit are those of card images; see MEDIA.md (§Formats and Size).\nEach attached image shows as a preview above the prompt, with a button that removes it.\nA file that is too large or is not an image shows an error, and the other files still attach.\n\nThe attach button is disabled when the selected model does not accept images.\nIts tooltip says why: the model does not accept images,\nor whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Switches).\nPasting or dropping an image then shows the same reason and attaches nothing.\nWith no model selected, the button is hidden.\n\nSubmit is blocked while the prompt or the visible conversation holds images and the selected model does not accept them.\nA message above the prompt says why; nothing is sent without its images.\n\nAttaching an image to a new chat gives it an identity, as typing does.\nAn image goes to the conversation it was attached in, even if the user switches conversations while it is stored.\nAttached images stay on this device and never sync.\n\n"
+        "markdown": "### Attaching Files\n\nThe user can attach files to a prompt in three ways:\n\n- the attach button beside the prompt\n- pasting files, such as a screenshot\n- dropping files on the composer\n\nThese files are accepted:\n\n- Images, in the formats and up to the size of card images; see MEDIA.md (§Formats and Size).\n- PDF files, up to 20 MB.\n- Text files: `.txt`, `.md`, `.markdown`, and `.csv`, or any file the system marks as text, up to 1 MB.\n  The text must be UTF-8.\n\nA file must be what its name or type says: a PDF that is not a PDF, or a text file that is not text, is refused.\nEach attached image shows as a preview above the prompt.\nEach other file shows as a chip with its file name.\nEach has a button that removes it.\nA file that is too large or of no accepted kind shows an error, and the other files still attach.\nA dropped file with no type and no known extension is attached only if it is an image; otherwise it is skipped.\n\nText files go to every model.\nAn image or a PDF is attached only when the selected model accepts it; see AI-MODEL-INPUT.md.\nOtherwise a message says why, and that file is not attached:\nthe model does not accept that kind of file,\nor whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Switches).\nWith no model selected, the attach button is hidden.\n\nSubmit is blocked while the prompt or the visible conversation holds images and the selected model does not accept them.\nA message above the prompt says why; nothing is sent without its images.\n\nAttaching a file to a new chat gives it an identity, as typing does.\nA file goes to the conversation it was attached in, even if the user switches conversations while it is stored.\nAttached files stay on this device and never sync.\n\n"
       },
       {
         "heading": "Mentions",
@@ -732,7 +732,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Retrying a Run",
         "depth": 3,
-        "markdown": "### Retrying a Run\n\nSee ASSISTANT-CONVERSATIONS.md (§Retry) for when retry is available,\nwhich run it reuses, and which AI profile state it uses.\nRetry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Images.\n\n"
+        "markdown": "### Retrying a Run\n\nSee ASSISTANT-CONVERSATIONS.md (§Retry) for when retry is available,\nwhich run it reuses, and which AI profile state it uses.\nRetry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Files.\n\n"
       },
       {
         "heading": "Copying a Message",
@@ -1414,7 +1414,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Cleanup",
         "depth": 2,
-        "markdown": "## Cleanup\n\nOnly card text keeps a stored image.\nOnce per app session, shortly after the app opens, the app removes stored images that no card references.\n\n- Only images inserted more than 24 hours earlier are removed; inserting a stored image again restarts its day.\n  An image inserted into a card not saved yet, in this window or another tab, is kept for at least a day.\n- Removing a reference, or deleting its card, does not remove the image right away.\n- Assistant conversations do not keep a card image.\n  Images attached in the assistant are stored apart; see ASSISTANT-CONVERSATIONS.md (§What Doesn't Get Saved).\n- A reference to a removed image shows its alt text.\n- Cleanup happens without any notice; if it fails, nothing is shown and it runs again next session.\n"
+        "markdown": "## Cleanup\n\nOnly card text keeps a stored image.\nOnce per app session, shortly after the app opens, the app removes stored images that no card references.\n\n- Only images inserted more than 24 hours earlier are removed; inserting a stored image again restarts its day.\n  An image inserted into a card not saved yet, in this window or another tab, is kept for at least a day.\n- Removing a reference, or deleting its card, does not remove the image right away.\n- Assistant conversations do not keep a card image.\n  Files attached in the assistant are stored apart; see ASSISTANT-CONVERSATIONS.md (§What Doesn't Get Saved).\n- A reference to a removed image shows its alt text.\n- Cleanup happens without any notice; if it fails, nothing is shown and it runs again next session.\n"
       }
     ]
   },

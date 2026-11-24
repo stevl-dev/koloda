@@ -207,42 +207,54 @@ const runSchema: z.ZodType<AssistantRun> = z
   });
 
 /** The stored conversation row schema. Shape is `PersistedConversation` (`revertState` absent). */
-const persistedConversationStateSchema: z.ZodType<PersistedConversation> = z
-  .object({
-    schemaVersion: z.literal(CONVERSATION_SCHEMA_VERSION),
-    id: z.string(),
-    createdAt: dateField,
-    updatedAt: nullableDateField,
-    messages: z.array(messageShape),
-    runs: z.record(z.string(), runSchema),
-    activeRunId: z.string().nullable(),
-    dismissedRunErrorId: z.string().nullable(),
-    profileId: z.string().nullable(),
-    modelId: z.string().nullable(),
-    modelParameters: z.record(z.string(), z.string()),
-    lastReadRunId: z.string().nullable(),
-    promptInput: z.string(),
-    // WHY: rows saved before draft images have none.
-    promptImages: z.array(z.object({ url: z.string(), mediaType: z.string() })).default([]),
-  })
-  .transform(
-    (state): PersistedConversation => ({
-      schemaVersion: state.schemaVersion,
-      id: state.id,
-      createdAt: state.createdAt,
-      updatedAt: state.updatedAt,
-      messages: state.messages as UIMessage[],
-      runs: state.runs,
-      activeRunId: state.activeRunId,
-      dismissedRunErrorId: state.dismissedRunErrorId,
-      profileId: state.profileId,
-      modelId: state.modelId,
-      modelParameters: state.modelParameters,
-      lastReadRunId: state.lastReadRunId,
-      promptInput: state.promptInput,
-      promptImages: state.promptImages,
-    }),
-  );
+// WHY: a row saved while the draft held only images keeps them under `promptImages`; read it as the attachments it is.
+function withLegacyPromptImages(row: unknown) {
+  if (typeof row !== "object" || row === null || "promptAttachments" in row || !("promptImages" in row)) return row;
+  const { promptImages, ...rest } = row;
+  return { ...rest, promptAttachments: promptImages };
+}
+
+const persistedConversationStateSchema: z.ZodType<PersistedConversation> = z.preprocess(
+  withLegacyPromptImages,
+  z
+    .object({
+      schemaVersion: z.literal(CONVERSATION_SCHEMA_VERSION),
+      id: z.string(),
+      createdAt: dateField,
+      updatedAt: nullableDateField,
+      messages: z.array(messageShape),
+      runs: z.record(z.string(), runSchema),
+      activeRunId: z.string().nullable(),
+      dismissedRunErrorId: z.string().nullable(),
+      profileId: z.string().nullable(),
+      modelId: z.string().nullable(),
+      modelParameters: z.record(z.string(), z.string()),
+      lastReadRunId: z.string().nullable(),
+      promptInput: z.string(),
+      // WHY: rows saved before draft attachments have none.
+      promptAttachments: z
+        .array(z.object({ url: z.string(), mediaType: z.string(), filename: z.string().optional() }))
+        .default([]),
+    })
+    .transform(
+      (state): PersistedConversation => ({
+        schemaVersion: state.schemaVersion,
+        id: state.id,
+        createdAt: state.createdAt,
+        updatedAt: state.updatedAt,
+        messages: state.messages as UIMessage[],
+        runs: state.runs,
+        activeRunId: state.activeRunId,
+        dismissedRunErrorId: state.dismissedRunErrorId,
+        profileId: state.profileId,
+        modelId: state.modelId,
+        modelParameters: state.modelParameters,
+        lastReadRunId: state.lastReadRunId,
+        promptInput: state.promptInput,
+        promptAttachments: state.promptAttachments,
+      }),
+    ),
+);
 
 /**
  * A single validation failure on a corrupt persisted row. Carries enough

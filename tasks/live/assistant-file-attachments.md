@@ -185,7 +185,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   Commit: Send a message's files to the model
   Depends on: 3
 
-- [ ] 5. Attach text files and PDFs to the assistant draft
+- [x] 5. Attach text files and PDFs to the assistant draft
   Goal: the attach button, paste, and drop take text files and PDFs beside images,
   store them through item 3, and show each as a removable chip with its name, with item 3's errors.
   The button and drop follow the answer to open question 1.
@@ -200,6 +200,10 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   `bunx nx test @koloda/core-react @koloda/ai-react @koloda/assistant-react` pass.
   Commit: Attach text files and PDFs to the assistant draft
   Depends on: 2, 3, 4
+  Note: the file kind and read checks live in `libs/assistant-react/src/lib/ui/conversation-files.ts`, not
+  `libs/core-react`, since the composer is their only caller; the card editor keeps the image ones.
+  The attach button has a paperclip icon and is never disabled; a refused image or PDF says why on attach.
+  Only draft images block submit in this item; item 6 adds PDF.
 
 - [ ] 6. Send text files and PDFs with an assistant message
   Goal: submit writes the draft's files into the user message as file parts with

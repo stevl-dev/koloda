@@ -5,7 +5,7 @@ import type { AssistantCommand } from "@koloda/assistant";
 import type { RefObject } from "react";
 import { useCallback, useRef } from "react";
 import type { AssistantConversationConfig } from "../state/assistant-conversation-config";
-import { assistantMessageId, getMessagePromptImages, userMessageId } from "../state/assistant-messages";
+import { assistantMessageId, getMessagePromptAttachments, userMessageId } from "../state/assistant-messages";
 import type { ConversationReducerAction } from "../state/conversation-reducer";
 import type { ConversationReducerState } from "../state/conversation-types";
 import { findLatestErroredRun, getVisibleMessages, hasRetryableTurn } from "../state/conversation-run-helpers";
@@ -121,12 +121,12 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
       if (isSubmitInFlightByConversationRef.current.has(activeConversationId)) return;
 
       const promptText = (value ?? "").trim();
-      const promptImages = currentState.promptImages;
+      const promptAttachments = currentState.promptAttachments;
       // INVARIANT: Every early return comes BEFORE commitRevert — a submit
       // in a reverted state that starts no run would otherwise permanently
       // delete the hidden messages. That covers an empty prompt and a
       // missing profile or model.
-      if (!promptText && promptImages.length === 0) return;
+      if (!promptText && promptAttachments.length === 0) return;
 
       // WHY: Submit is always chat+tools. Cards injection is not resolved
       // here — propose_cards runs against current data when the model calls it.
@@ -138,7 +138,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         getVisibleMessages(currentState.messages, currentState.revertState),
         currentState.runs,
         {
-          promptFiles: promptImages.flatMap(({ url }) => {
+          promptFiles: promptAttachments.flatMap(({ url }) => {
             const attachmentId = parseConversationAttachmentUrl(url);
             return attachmentId ? [{ attachmentId }] : [];
           }),
@@ -170,7 +170,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
           {
             runId,
             text: promptText,
-            images: promptImages,
+            attachments: promptAttachments,
             kind: "chat-text",
             assistantText: "",
             modelName: prepared.modelName,
@@ -181,7 +181,10 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         await pending;
       } catch (error) {
         if (submittedRunId && submittedText !== null)
-          dispatch(["rollbackSubmitTurn", { runId: submittedRunId, text: submittedText, images: promptImages }]);
+          dispatch([
+            "rollbackSubmitTurn",
+            { runId: submittedRunId, text: submittedText, attachments: promptAttachments },
+          ]);
         logUnexpectedDispatchError(error);
       } finally {
         isSubmitInFlightByConversationRef.current.delete(activeConversationId);
@@ -196,8 +199,8 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
       const userMessage = state.messages.find((m) => m.id === userMessageId);
       if (!userMessage) return null;
       const promptText = getTextMessageContent(userMessage);
-      const images = getMessagePromptImages(userMessage);
-      if (!promptText && images.length === 0) return null;
+      const attachments = getMessagePromptAttachments(userMessage);
+      if (!promptText && attachments.length === 0) return null;
 
       // WHY: Revert is visual; the actual deletion happens on the next
       // prompt submit. We just set the in-memory revert state. Any active
@@ -211,10 +214,10 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
           // WHY: on a second revert the composer holds the first revert's
           // pre-fill, not the user's draft. Keep the draft the first revert held.
           preRevertInputText: state.revertState?.preRevertInputText ?? currentInputText,
-          preRevertImages: state.revertState?.preRevertImages ?? state.promptImages,
+          preRevertAttachments: state.revertState?.preRevertAttachments ?? state.promptAttachments,
         },
       ]);
-      dispatchLocal(["setPromptImages", images]);
+      dispatchLocal(["setPromptAttachments", attachments]);
       return promptText;
     },
     [readState, cancelActiveRun, dispatchLocal],
@@ -223,9 +226,9 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
   const handleRestore = useCallback(() => {
     const state = readState();
     if (!state.revertState) return null;
-    const { preRevertInputText, preRevertImages } = state.revertState;
+    const { preRevertInputText, preRevertAttachments } = state.revertState;
     dispatchLocal(["setRevertState", null]);
-    dispatchLocal(["setPromptImages", preRevertImages]);
+    dispatchLocal(["setPromptAttachments", preRevertAttachments]);
     return preRevertInputText;
   }, [readState, dispatchLocal]);
 
