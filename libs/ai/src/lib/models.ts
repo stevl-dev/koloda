@@ -6,10 +6,12 @@ export type AIModel = {
   default_reasoning_level?: string;
   // WHY: absent means the provider's list did not say; it is not the same as `false`.
   has_image_input?: boolean;
+  // WHY: as for images, absent means unknown. A provider whose package cannot send an inline PDF reports `false`.
+  has_pdf_input?: boolean;
 };
 
 // INVARIANT: the provider's answer wins; the profile's list answers only for models it says nothing about
-// (AI-PROVIDERS.md §Image Input).
+// (AI-MODEL-INPUT.md §Image Input).
 export function modelAcceptsImages(model: AIModel, imageInputModelIds: readonly string[] | undefined): boolean {
   return model.has_image_input ?? imageInputModelIds?.includes(model.id) ?? false;
 }

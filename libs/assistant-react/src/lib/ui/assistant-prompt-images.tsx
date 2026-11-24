@@ -23,7 +23,7 @@ import { addAssistantPromptImageAtom, removeAssistantPromptImageAtom } from "../
 import { assistantPromptImagesAtom } from "../state/conversation-selectors";
 import { currentConversationIdAtom } from "../state/conversation-store";
 
-/** Whether the selected model takes images (AI-PROVIDERS.md §Image Input); `hidden` when no model is selected. */
+/** Whether the selected model takes images (AI-MODEL-INPUT.md §Image Input); `hidden` when no model is selected. */
 export type ImageInputState = "enabled" | "unsupported" | "unknown" | "hidden";
 
 export function getImageInputState(

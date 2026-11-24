@@ -78,6 +78,10 @@ This README owns the package boundary.
   models.dev `modalities.input` by exact id (xAI documents no list field for it).
   Formats the provider APIs refuse, though the packages send them: DeepSeek's package throws for AVIF;
   xAI documents JPEG and PNG only; Anthropic documents JPEG, PNG, GIF, and WebP.
+- PDF input (`AIModel.has_pdf_input`, absent when unknown): OpenRouter `architecture.input_modalities` including
+  `file`, Vercel `modalities.input` including `pdf`, Anthropic `capabilities.pdf_input.supported`;
+  OpenAI and OpenCode Zen/Go join models.dev `modalities.input` (`pdf`) by exact id.
+  DeepSeek, xAI, and Ollama/Cloud report `false`: their packages drop or refuse a PDF sent as inline bytes.
 - Reasoning extraction: `model-reasoning-extraction.ts` — `wrapModelWithReasoningExtraction`
   strips ` thinking`-tagged chain-of-thought from the text stream.
 - Host runtime contract: `runtime.ts` — `AIRuntime` (`listModels` / `chat` by `profileId`).

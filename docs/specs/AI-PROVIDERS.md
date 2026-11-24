@@ -6,6 +6,7 @@ Covers AI providers, profiles, secrets, and model listings.
 Does not cover the conversation list, run orchestration, message rendering, card generation UX, or the transport layer.
 The conversation list is covered by ASSISTANT-CONVERSATION-LIST.md.
 Runs are covered by ASSISTANT-CONVERSATIONS.md.
+Which models accept images and PDF files is covered by AI-MODEL-INPUT.md.
 
 ## What it is
 
@@ -307,23 +308,6 @@ A stored reasoning-effort value that does not apply to the newly selected model 
 
 If a stored model ID is no longer in the provider's list, the first model the allowlist allows is used instead.
 With an empty allowlist, no model is selected and sending is disabled.
-
-### Image Input
-
-Whether a model accepts images comes from a fixed source per provider:
-
-- OpenRouter and Vercel AI Gateway: the input types in their model lists.
-- Anthropic, LM Studio, Ollama, and Ollama Cloud: the model's capabilities.
-- OpenAI, DeepSeek, xAI, and the OpenCode providers: the models.dev catalog row with the exact model ID.
-
-When the source says nothing, the model is unknown.
-A model from an OpenAI-compatible profile is always unknown.
-The app does not guess.
-
-For an unknown model, the user decides with an "accepts images" switch beside it in the models dialog.
-It is off by default; until it is on, the model is treated as not accepting images.
-The dialog saves the switches with the allowlist, per profile.
-A model keeps its answer when the allowlist leaves it out, and a later answer from its source wins.
 
 ## Sending Requests
 

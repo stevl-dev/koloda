@@ -34,8 +34,8 @@ describe("fetchXaiModels", () => {
     );
 
     await expect(fetchXaiModels("xai-key")).resolves.toEqual([
-      { id: "grok-4.20-non-reasoning", name: "grok-4.20-non-reasoning", context_length: 0 },
-      { id: "grok-4.7", name: "grok-4.7", context_length: 500000 },
+      { id: "grok-4.20-non-reasoning", name: "grok-4.20-non-reasoning", context_length: 0, has_pdf_input: false },
+      { id: "grok-4.7", name: "grok-4.7", context_length: 500000, has_pdf_input: false },
     ]);
     const headers = { headers: { Authorization: "Bearer xai-key" } };
     expect(fetchMock).toHaveBeenCalledWith(XAI_LANGUAGE_MODELS_URL, headers);
@@ -49,7 +49,7 @@ describe("fetchXaiModels", () => {
       {
         xai: {
           models: {
-            "grok-4.7": { modalities: { input: ["text", "image"] } },
+            "grok-4.7": { modalities: { input: ["text", "image", "pdf"] } },
             "grok-text": { modalities: { input: ["text"] } },
           },
         },
@@ -63,6 +63,8 @@ describe("fetchXaiModels", () => {
       ["grok-new", undefined],
       ["grok-text", false],
     ]);
+    // WHY: the package cannot send an inline PDF, so a catalog row that lists `pdf` does not count.
+    expect(models.map((model) => model.has_pdf_input)).toStrictEqual([false, false, false]);
   });
 
   it("offers the reported effort levels in their order, with the reported default", async () => {
@@ -90,6 +92,7 @@ describe("fetchXaiModels", () => {
           { effort: "xhigh", description: "" },
         ],
         default_reasoning_level: "high",
+        has_pdf_input: false,
       },
     ]);
   });
@@ -118,7 +121,7 @@ describe("fetchXaiModels", () => {
     );
 
     await expect(fetchXaiModels("xai-key")).resolves.toEqual([
-      { id: "grok-4.20-reasoning", name: "grok-4.20-reasoning", context_length: 0 },
+      { id: "grok-4.20-reasoning", name: "grok-4.20-reasoning", context_length: 0, has_pdf_input: false },
     ]);
   });
 

@@ -25,7 +25,7 @@ describe("fetchOllamaCloudModels", () => {
 
     const models = await fetchOllamaCloudModels("secret-key");
 
-    expect(models).toEqual([{ id: "gpt-oss:120b", name: "gpt-oss:120b", context_length: 0 }]);
+    expect(models).toEqual([{ id: "gpt-oss:120b", name: "gpt-oss:120b", context_length: 0, has_pdf_input: false }]);
     expect(OllamaMock).toHaveBeenCalledTimes(1);
     expect(OllamaMock).toHaveBeenCalledWith({
       host: OLLAMA_CLOUD_BASE_URL,

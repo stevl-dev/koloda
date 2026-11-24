@@ -1,7 +1,7 @@
 # Text and PDF attachments in assistant messages
 
 Status: ready
-Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/BACKWARDS-COMPATIBILITY.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
+Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/BACKWARDS-COMPATIBILITY.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/AI-MODEL-INPUT.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
 Flow: local
 
 ## Intent
@@ -21,7 +21,7 @@ Done when:
 - Attached files stay on the device and never sync, as images do.
 
 Provenance: backlog brief `tasks/backlog/assistant-file-attachments.md`, read at `main` `ad1b7517`.
-It was the remainder of the `assistant-attachments` brief, after images shipped (`tasks/archive/assistant-attachments.md`).
+It was what the `assistant-attachments` brief left after images shipped (`tasks/archive/assistant-attachments.md`).
 
 ## Scope
 
@@ -116,12 +116,13 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
 - [x] With a model that takes neither images nor PDF, is the attach button still enabled? — Yes,
   since text files go to every model.
   Picking, pasting, or dropping an image or PDF the model refuses shows the reason and attaches nothing.
-- [x] Which files count as text? — `.txt`, `.md`, `.markdown`, `.csv`, or any file typed `text/*`, whose bytes are UTF-8 without NUL bytes.
+- [x] Which files count as text? — `.txt`, `.md`, `.markdown`, `.csv`, or any file typed `text/*`,
+  whose bytes are UTF-8 without NUL bytes.
   Text is stored as `text/plain`; the file name keeps the extension.
 
 ## Plan
 
-- [ ] 1. Read each model's PDF input from its provider
+- [x] 1. Read each model's PDF input from its provider
   Goal: `AIModel` gains `has_pdf_input`: `true`, `false`, or absent when unknown, beside `has_image_input`.
   Fill it from the sources in §Where PDF capability comes from.
   OpenRouter reads `file` in `architecture.input_modalities`.
@@ -130,6 +131,11 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   DeepSeek, Ollama, Ollama Cloud, and xAI set `false`, with a comment naming the package behavior.
   LM Studio and typed OpenAI-compatible model ids stay unknown.
   `docs/specs/AI-PROVIDERS.md` gains §PDF Input beside §Image Input; `libs/ai/README.md` lists the sources.
+  Note: that pushed `AI-PROVIDERS.md` past the 16 KB help-topic cap, so both sections moved to a new
+  `docs/specs/AI-MODEL-INPUT.md`, and its pointers moved with them.
+  Note: Vercel's live list (`ai-gateway.vercel.sh/v1/models`) has `pdf` in `modalities.input`; it never says `file`.
+  Anthropic's Models API page could not be fetched, so `capabilities.pdf_input.supported` is read as it is named
+  beside `image_input`, without a models.dev fallback; if the API omits it, Anthropic models stay unknown.
   Constraints: `libs/ai` only; no UI.
   Done when: provider tests cover true, false, and unknown for each source; `bunx nx test @koloda/ai` passes.
   Commit: Read each model's PDF input from its provider
@@ -142,7 +148,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   `modelAcceptsPdf` in `libs/ai/src/lib/models.ts` answers like `modelAcceptsImages`.
   The models dialog (`libs/settings-react/src/lib/settings-ai-profile-models.tsx`) shows an "accepts PDF" switch
   only for models whose PDF input is unknown.
-  `docs/specs/AI-PROVIDERS.md` (§PDF Input) describes the switch; run `bun run gen:help`.
+  `docs/specs/AI-MODEL-INPUT.md` (§PDF Input) describes the switch; run `bun run gen:help`.
   Constraints: no composer change yet.
   Done when: schema and repo tests on both hosts, a dialog test; `cargo test -p koloda`,
   `bunx nx test @koloda/ai @koloda/settings-react` pass.

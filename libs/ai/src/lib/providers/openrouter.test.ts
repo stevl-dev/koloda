@@ -31,7 +31,7 @@ describe("fetchOpenRouterModels", () => {
     });
   });
 
-  it("reads image input from the input modalities, and leaves it unknown when none are reported", async () => {
+  it("reads image and PDF input from the input modalities, and leaves them unknown when none are reported", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -47,10 +47,10 @@ describe("fetchOpenRouterModels", () => {
 
     const models = await fetchOpenRouterModels();
 
-    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
-      ["a/vision", true],
-      ["b/text", false],
-      ["c/unknown", undefined],
+    expect(models.map((model) => [model.id, model.has_image_input, model.has_pdf_input])).toStrictEqual([
+      ["a/vision", true, false],
+      ["b/text", false, true],
+      ["c/unknown", undefined, undefined],
     ]);
   });
 

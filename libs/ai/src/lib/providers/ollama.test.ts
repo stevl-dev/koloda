@@ -25,7 +25,7 @@ describe("fetchOllamaModels", () => {
 
     const models = await fetchOllamaModels("https://example.com", "secret-key");
 
-    expect(models).toEqual([{ id: "llama3.1", name: "Llama 3.1", context_length: 0 }]);
+    expect(models).toEqual([{ id: "llama3.1", name: "Llama 3.1", context_length: 0, has_pdf_input: false }]);
     expect(OllamaMock).toHaveBeenCalledTimes(1);
     expect(OllamaMock).toHaveBeenCalledWith({
       host: "https://example.com",
@@ -65,6 +65,7 @@ describe("fetchOllamaModels", () => {
         ],
         default_reasoning_level: "medium",
         has_image_input: false,
+        has_pdf_input: false,
       },
     ]);
   });
@@ -87,6 +88,7 @@ describe("fetchOllamaModels", () => {
         ],
         default_reasoning_level: "on",
         has_image_input: false,
+        has_pdf_input: false,
       },
     ]);
   });
@@ -102,8 +104,8 @@ describe("fetchOllamaModels", () => {
     const models = await fetchOllamaModels("http://localhost:11434");
 
     expect(models).toEqual([
-      { id: "llama3.1", name: "Llama 3.1", context_length: 0 },
-      { id: "qwen2.5", name: "qwen2.5", context_length: 0, has_image_input: false },
+      { id: "llama3.1", name: "Llama 3.1", context_length: 0, has_pdf_input: false },
+      { id: "qwen2.5", name: "qwen2.5", context_length: 0, has_image_input: false, has_pdf_input: false },
     ]);
   });
 
@@ -136,8 +138,8 @@ describe("fetchOllamaModels", () => {
     const models = await fetchOllamaModels("http://localhost:11434");
 
     expect(models).toEqual([
-      { id: "zulu", name: "Alpha", context_length: 0 },
-      { id: "alpha", name: "Zulu", context_length: 0 },
+      { id: "zulu", name: "Alpha", context_length: 0, has_pdf_input: false },
+      { id: "alpha", name: "Zulu", context_length: 0, has_pdf_input: false },
     ]);
   });
 
@@ -165,7 +167,7 @@ describe("ollamaProviderEntry", () => {
 
     const models = await ollamaProviderEntry.fetchModels(secrets);
 
-    expect(models).toEqual([{ id: "llama3.1", name: "Llama 3.1", context_length: 0 }]);
+    expect(models).toEqual([{ id: "llama3.1", name: "Llama 3.1", context_length: 0, has_pdf_input: false }]);
     expect(OllamaMock).toHaveBeenCalledTimes(1);
     expect(OllamaMock).toHaveBeenCalledWith({
       host: "https://example.com",

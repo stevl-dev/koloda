@@ -16,7 +16,7 @@ export const aiProfileValidation = z.object({
   // WHY: Unset = all models. A present array is the allowlist (`[]` means none).
   whitelistModelIds: z.array(z.string().min(1, "validation.settings-ai.profiles.whitelist-model-ids")).optional(),
   // WHY: the user's answer for models whose provider does not say whether they accept images
-  // (AI-PROVIDERS.md §Image Input). A provider's own answer wins over this list.
+  // (AI-MODEL-INPUT.md §Image Input). A provider's own answer wins over this list.
   imageInputModelIds: z.array(z.string().min(1, "validation.settings-ai.profiles.image-input-model-ids")).optional(),
   // WHY: Stored rows carry ISO strings, but the runtime value is a Date on both
   // hosts (desktop wire reviver; web getSettings re-parses through this schema).

@@ -23,7 +23,7 @@ pub struct AIProfile {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub whitelist_model_ids: Option<Vec<String>>,
     // WHY: the user's answer for models whose provider does not say whether they accept images
-    // (AI-PROVIDERS.md §Image Input). A provider's own answer wins over this list.
+    // (AI-MODEL-INPUT.md §Image Input). A provider's own answer wins over this list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub image_input_model_ids: Option<Vec<String>>,
     #[serde(serialize_with = "serialize_timestamp", deserialize_with = "deserialize_timestamp")]

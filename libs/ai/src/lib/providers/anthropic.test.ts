@@ -112,15 +112,15 @@ describe("fetchAnthropicModels", () => {
     ]);
   });
 
-  it("reads image input from the capabilities, and leaves it unknown when they are null", async () => {
+  it("reads image and PDF input from the capabilities, and leaves them unknown when not reported", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
         Promise.resolve(
           jsonResponse({
             data: [
-              { id: "claude-a", capabilities: { image_input: { supported: true } } },
-              { id: "claude-b", capabilities: { image_input: { supported: false } } },
+              { id: "claude-a", capabilities: { image_input: { supported: true }, pdf_input: { supported: false } } },
+              { id: "claude-b", capabilities: { image_input: { supported: false }, pdf_input: { supported: true } } },
               { id: "claude-c", capabilities: null },
             ],
             has_more: false,
@@ -132,10 +132,10 @@ describe("fetchAnthropicModels", () => {
 
     const models = await fetchAnthropicModels("sk-ant");
 
-    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
-      ["claude-a", true],
-      ["claude-b", false],
-      ["claude-c", undefined],
+    expect(models.map((model) => [model.id, model.has_image_input, model.has_pdf_input])).toStrictEqual([
+      ["claude-a", true, false],
+      ["claude-b", false, true],
+      ["claude-c", undefined, undefined],
     ]);
   });
 

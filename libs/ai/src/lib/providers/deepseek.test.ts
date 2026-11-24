@@ -59,6 +59,7 @@ describe("fetchDeepSeekModels", () => {
         context_length: 0,
         supported_reasoning_levels: undefined,
         default_reasoning_level: undefined,
+        has_pdf_input: false,
       },
       {
         id: "deepseek-v4-pro",
@@ -70,6 +71,7 @@ describe("fetchDeepSeekModels", () => {
           { effort: "max", description: "" },
         ],
         default_reasoning_level: "high",
+        has_pdf_input: false,
       },
     ]);
     expect(fetchMock).toHaveBeenCalledWith(DEEPSEEK_MODELS_URL, {

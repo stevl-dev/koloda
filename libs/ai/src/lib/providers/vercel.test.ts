@@ -32,22 +32,22 @@ describe("fetchVercelModels", () => {
     expect(fetchMock).toHaveBeenCalledWith(VERCEL_MODELS_URL, { headers: { Authorization: "Bearer vck-key" } });
   });
 
-  it("reads image input from the input modalities, and leaves it unknown when none are reported", async () => {
+  it("reads image and PDF input from the input modalities, and leaves them unknown when none are reported", async () => {
     stubModels({
       object: "list",
       data: [
         { id: "a/vision", type: "language", modalities: { input: ["text", "image"], output: ["text"] } },
-        { id: "b/text", type: "language", modalities: { input: ["text"], output: ["text"] } },
+        { id: "b/text", type: "language", modalities: { input: ["text", "pdf"], output: ["text"] } },
         { id: "c/unknown", type: "language" },
       ],
     });
 
     const models = await fetchVercelModels("vck-key");
 
-    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
-      ["a/vision", true],
-      ["b/text", false],
-      ["c/unknown", undefined],
+    expect(models.map((model) => [model.id, model.has_image_input, model.has_pdf_input])).toStrictEqual([
+      ["a/vision", true, false],
+      ["b/text", false, true],
+      ["c/unknown", undefined, undefined],
     ]);
   });
 

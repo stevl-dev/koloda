@@ -5,7 +5,7 @@ import { XAI_BASE_URL } from "../provider-catalog";
 import type { AIGenerationClient, AIProviderEntry } from "../provider-registry";
 import type { AISecrets } from "../provider-secrets";
 import { isPresentApiKey } from "../provider-secrets";
-import { imageInputFromModelsDev, loadModelsDevCatalog } from "./models-dev";
+import { inputFromModelsDev, loadModelsDevCatalog } from "./models-dev";
 
 export const XAI_LANGUAGE_MODELS_URL = `${XAI_BASE_URL}/language-models`;
 export const XAI_MODELS_URL = `${XAI_BASE_URL}/models`;
@@ -54,7 +54,7 @@ function toAIModel(model: XaiLanguageModel, contextLengths: Map<string, number>,
     (effort): effort is string => typeof effort === "string" && effort.length > 0,
   );
   const defaultEffort = model.capabilities?.default_reasoning_effort;
-  const hasImageInput = imageInputFromModelsDev(catalog, "xai", model.id);
+  const hasImageInput = inputFromModelsDev(catalog, "xai", model.id, "image");
   return {
     id: model.id,
     name: model.id,
@@ -64,6 +64,9 @@ function toAIModel(model: XaiLanguageModel, contextLengths: Map<string, number>,
       : {}),
     ...(defaultEffort && efforts.includes(defaultEffort) ? { default_reasoning_level: defaultEffort } : {}),
     ...(hasImageInput === undefined ? {} : { has_image_input: hasImageInput }),
+    // WHY: `@ai-sdk/xai` throws on a PDF sent as inline data; it takes only a URL or a Files API id,
+    // and the app sends bytes. The catalog may still say the model reads PDF.
+    has_pdf_input: false,
   };
 }
 

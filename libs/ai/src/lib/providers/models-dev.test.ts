@@ -217,7 +217,7 @@ describe("overlayFromModelsDev", () => {
     expect(noCatalog?.context_length).toBe(0);
   });
 
-  it("reads image input only from an exact catalog row", () => {
+  it("reads image and PDF input only from an exact catalog row", () => {
     const catalog = catalogFor("opencode", {
       "vision-model": { modalities: { input: ["text", "image"], output: ["text"] } },
       "text-model": { modalities: { input: ["text", "pdf"], output: ["text"] } },
@@ -231,25 +231,27 @@ describe("overlayFromModelsDev", () => {
     );
     const [noCatalog] = overlayFromModelsDev([gatewayModel("vision-model")], "opencode", null);
 
-    expect(models.map((model) => [model.id, model.has_image_input])).toStrictEqual([
-      ["vision-model", true],
-      ["text-model", false],
-      ["bare-model", undefined],
-      ["vision-model-2", undefined],
+    expect(models.map((model) => [model.id, model.has_image_input, model.has_pdf_input])).toStrictEqual([
+      ["vision-model", true, false],
+      ["text-model", false, true],
+      ["bare-model", undefined, undefined],
+      ["vision-model-2", undefined, undefined],
     ]);
     expect(noCatalog?.has_image_input).toBeUndefined();
+    expect(noCatalog?.has_pdf_input).toBeUndefined();
   });
 
-  it("keeps image input the provider already reported", () => {
-    const catalog = catalogFor("opencode", { "vision-model": { modalities: { input: ["text", "image"] } } });
+  it("keeps image and PDF input the provider already reported", () => {
+    const catalog = catalogFor("opencode", { "vision-model": { modalities: { input: ["text", "image", "pdf"] } } });
 
     const [model] = overlayFromModelsDev(
-      [gatewayModel("vision-model", { has_image_input: false })],
+      [gatewayModel("vision-model", { has_image_input: false, has_pdf_input: false })],
       "opencode",
       catalog,
     );
 
     expect(model?.has_image_input).toBe(false);
+    expect(model?.has_pdf_input).toBe(false);
   });
 });
 

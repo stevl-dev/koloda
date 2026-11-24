@@ -68,6 +68,9 @@ export async function fetchOllamaModels(baseUrl: string, apiKey?: string): Promi
       context_length: 0,
       ...ollamaThinkingReasoningLevels(model.model, ollamaListCapabilities(model)),
       ...ollamaImageInput(ollamaListCapabilities(model)),
+      // WHY: `ai-sdk-ollama` drops a file part that is not an image without any signal,
+      // so the model would answer as if no PDF was attached.
+      has_pdf_input: false,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

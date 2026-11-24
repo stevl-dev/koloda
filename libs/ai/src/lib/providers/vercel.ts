@@ -43,7 +43,9 @@ function toAIModel(model: VercelModel): AIModel {
     name: model.name ?? model.id,
     context_length: model.context_window ?? 0,
     ...(levels.length > 0 ? { supported_reasoning_levels: levels } : {}),
-    ...(Array.isArray(inputModalities) ? { has_image_input: inputModalities.includes("image") } : {}),
+    ...(Array.isArray(inputModalities)
+      ? { has_image_input: inputModalities.includes("image"), has_pdf_input: inputModalities.includes("pdf") }
+      : {}),
   };
 }
 

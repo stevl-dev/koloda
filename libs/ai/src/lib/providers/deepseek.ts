@@ -42,7 +42,9 @@ export async function fetchDeepSeekModels(apiKey: string): Promise<AIModel[]> {
   const models: DeepSeekModelsResponse["data"] = data.data;
   return overlayFromModelsDev(
     models
-      .map((model) => ({ id: model.id, name: model.id, context_length: 0 }))
+      // WHY: `@ai-sdk/deepseek` drops a file part that is not an image, with a warning the app never shows,
+      // so the model would answer as if no PDF was attached.
+      .map((model) => ({ id: model.id, name: model.id, context_length: 0, has_pdf_input: false }))
       .sort((a, b) => a.name.localeCompare(b.name)),
     "deepseek",
     catalog,

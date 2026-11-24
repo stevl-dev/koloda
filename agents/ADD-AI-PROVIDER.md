@@ -197,9 +197,11 @@ documented fallback for a missing catalog row.
 A hidden picker is correct only after both the provider list and any applicable capability catalog report no levels.
 Product behavior lives in `docs/specs/AI-PROVIDERS.md` (§Reasoning Effort).
 
-Set `has_image_input` the same way: from the provider list, or from the `models.dev` join by exact ID.
-Leave it unset when neither says; unset means unknown, not text-only.
-Product behavior lives in `docs/specs/AI-PROVIDERS.md` (§Image Input).
+Set `has_image_input` and `has_pdf_input` the same way:
+from the provider list, or from the `models.dev` join by exact ID.
+Leave them unset when neither says; unset means unknown, not text-only.
+Set `has_pdf_input` to `false` when the provider's package drops or refuses a PDF file part sent as bytes.
+Product behavior lives in `docs/specs/AI-MODEL-INPUT.md`.
 
 ### 5. Chat Streaming (`libs/ai/src/lib/chat-stream.ts`)
 
