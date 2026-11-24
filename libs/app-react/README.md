@@ -26,6 +26,7 @@ Each app must set `appEntryAtom` before routes render and inject its `Queries` i
 - Global hotkeys: `hooks/use-app-hotkeys.ts` — the navigation scope and the app-wide ui hotkeys;
   feature scopes live in feature components.
 - Page title: `hooks/use-title.ts` — joins the matched routes' loader titles; the root route calls it.
+- Assistant app links: `hooks/use-assistant-app-links.ts` — maps a `koloda:` link target to its route for the AI route.
 - Locales: `locales/` — Lingui `.po` catalogs for the shell.
 
 ### Does NOT own (prevent scope creep)

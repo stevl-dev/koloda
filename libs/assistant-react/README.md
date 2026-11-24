@@ -36,6 +36,7 @@ This README owns the package boundary.
 - Layout primitives — `@koloda/ui`
 - Importing `@koloda/app-react` or `@koloda/settings-react`.
   The add-profile dialog is injected from the app-react route.
+  So are the href and navigation for `koloda:` links in replies (`AssistantChat`'s `appLinks`).
 
 ## Dispatch
 
