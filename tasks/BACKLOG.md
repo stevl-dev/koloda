@@ -15,11 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `assistant-file-attachments`: Let the user attach text files and PDFs to an assistant message.
-  Area: `libs/ai`, `libs/ai-react`, `libs/assistant-react`, `libs/db-sqlite`, `crates/koloda`, `apps/electron`, `apps/web`
-  Why: Notes or a chapter as a PDF are often the source of the cards the user wants, and today they have to be retyped.
-  Brief: `tasks/backlog/assistant-file-attachments.md`
-
 - `assistant-lesson-statistics`: Let the assistant read lesson and progress statistics.
   Area: `libs/ai`
   Why: The assistant cannot explain lesson amounts, such as why only 10 new cards show today.
