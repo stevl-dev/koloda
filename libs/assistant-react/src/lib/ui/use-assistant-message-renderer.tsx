@@ -1,6 +1,6 @@
 import {
   conversationAttachmentUrl,
-  getMessageImageIds,
+  getMessageFiles,
   getTextMessageContent,
   replaceMentionsWithTitles,
 } from "@koloda/ai";
@@ -19,7 +19,8 @@ import {
 } from "../state/assistant-messages";
 import type { AssistantRun } from "../state/conversation-types";
 import { assistantActiveRunIdAtom, assistantMessagesAtom, assistantRunsAtom } from "../state/conversation-selectors";
-import { ConversationImage } from "./assistant-prompt-attachments";
+import { ConversationFileChip, ConversationImage } from "./assistant-prompt-attachments";
+import { getConversationFileKindOfMime } from "./conversation-files";
 import { CopyMessageButton } from "./copy-message-button";
 import { MessageTimestamp } from "./message-timestamp";
 import { RevertMessageButton } from "./revert-message-button";
@@ -74,6 +75,11 @@ export function useAssistantMessageRenderer({
   );
 }
 
+const messageFileChip = [
+  "flex flex-row items-center gap-2 h-12 max-w-60 px-3",
+  "rounded-xl border-2 border-chat-message fg-level-2",
+].join(" ");
+
 function renderUserMessage(
   message: UIMessage,
   content: ReactNode,
@@ -81,18 +87,22 @@ function renderUserMessage(
   timestamp: Date | null,
 ) {
   const text = getTextMessageContent(message);
-  const imageIds = getMessageImageIds(message);
+  const files = getMessageFiles(message);
   return (
     <div className="group self-end flex flex-col items-end gap-1 w-full not-first:mt-4">
-      {imageIds.length > 0 && (
+      {files.length > 0 && (
         <div className="flex flex-row flex-wrap justify-end gap-2 mx-2 max-w-5/6">
-          {imageIds.map((id) => (
-            <ConversationImage
-              key={id}
-              url={conversationAttachmentUrl(id)}
-              className="max-h-40 max-w-60 rounded-xl object-contain border-2 border-chat-message"
-            />
-          ))}
+          {files.map(({ attachmentId, mediaType, filename }) =>
+            getConversationFileKindOfMime(mediaType) === "image" ? (
+              <ConversationImage
+                key={attachmentId}
+                url={conversationAttachmentUrl(attachmentId)}
+                className="max-h-40 max-w-60 rounded-xl object-contain border-2 border-chat-message"
+              />
+            ) : (
+              <ConversationFileChip key={attachmentId} filename={filename} className={messageFileChip} />
+            ),
+          )}
         </div>
       )}
       {text && content}

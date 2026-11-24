@@ -205,7 +205,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   The attach button has a paperclip icon and is never disabled; a refused image or PDF says why on attach.
   Only draft images block submit in this item; item 6 adds PDF.
 
-- [ ] 6. Send text files and PDFs with an assistant message
+- [x] 6. Send text files and PDFs with an assistant message
   Goal: submit writes the draft's files into the user message as file parts with
   `conversation-attachment:<id>` urls and their names, and the run sends them through item 4.
   A message may be files alone; its conversation keeps the default new-conversation title.

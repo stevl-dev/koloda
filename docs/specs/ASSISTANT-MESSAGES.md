@@ -46,7 +46,9 @@ Its content fills in as the AI stream progresses.
 Messages are rendered differently based on their type.
 
 User messages render as text.
-A user message with attached images shows them as thumbnails above its text; a message of images alone has no text.
+A user message with attached files shows them above its text.
+Images show as thumbnails, and other files as chips with their names.
+A message of files alone has no text.
 A mention in a user message shows as a chip with its title, not as its token; see §Mentions.
 Each user message shows when it was sent.
 A message sent today shows "Today" and the time; an older one shows the date and the time.
@@ -104,7 +106,7 @@ On a mixed turn, content includes the tool rows and the proposed cards as well a
 ### Sending a Message
 
 The user types a prompt and presses Enter or clicks Submit.
-A prompt can be text, attached images, or both; see §Attaching Files.
+A prompt can be text, attached files, or both; see §Attaching Files.
 This creates a user message and an assistant message placeholder.
 A run starts immediately in streaming status; see ASSISTANT-CONVERSATIONS.md (§Starting a Run).
 If that run fails, the user message and the assistant message with any partial text remain,
@@ -139,8 +141,11 @@ the model does not accept that kind of file,
 or whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Switches).
 With no model selected, the attach button is hidden.
 
-Submit is blocked while the prompt or the visible conversation holds images and the selected model does not accept them.
-A message above the prompt says why; nothing is sent without its images.
+Submit is blocked while the prompt or the visible conversation holds images or PDF files
+and the selected model does not accept that kind.
+A message above the prompt says why; nothing is sent without its files.
+Text files never block submit.
+A model reads a text file as its text, preceded by the file name.
 
 Attaching a file to a new chat gives it an identity, as typing does.
 A file goes to the conversation it was attached in, even if the user switches conversations while it is stored.
@@ -183,12 +188,12 @@ The text accumulated so far is kept.
 
 See ASSISTANT-CONVERSATIONS.md (§Retry) for when retry is available,
 which run it reuses, and which AI profile state it uses.
-Retry is not offered while submit is blocked by images the selected model does not accept; see §Attaching Files.
+Retry is not offered while submit is blocked by files the selected model does not accept; see §Attaching Files.
 
 ### Copying a Message
 
-Each user message has a copy action that copies its text, never its images.
-A message of images alone has no copy action.
+Each user message has a copy action that copies its text, never its files.
+A message of files alone has no copy action.
 A mention is copied as `@` and its title, without its id, so pasting it back gives plain text, not a chip.
 
 An assistant turn has a copy action once its run has ended, whatever the outcome.
@@ -237,8 +242,9 @@ Restore does not delete anything.
 
 #### Re-trigger
 
-After revert, the prompt input is pre-filled with the text and the images of the reverted user message.
-Any text and images the user had in the input before the revert are held in the revert state and replaced by the pre-fill.
+After revert, the prompt input is pre-filled with the text and the files of the reverted user message.
+Any text and files the user had in the input before the revert are held in the revert state.
+The pre-fill replaces them.
 The next submit is a chat run.
 
 Sending the pre-filled prompt — edited or as-is — does two things in order:

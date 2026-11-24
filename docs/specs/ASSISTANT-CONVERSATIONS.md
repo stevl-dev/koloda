@@ -54,7 +54,7 @@ When sending a new message, the full conversation history is sent to the AI prov
 The history follows what the user sees in the conversation, with the exceptions below.
 This includes:
 
-- All user messages that have text or images; images are sent on every turn, not only the one that attached them
+- All user messages that have text or files; files are sent on every turn, not only the one that attached them
 - All assistant text (if they have text content), including partial text from failed, canceled, or interrupted runs
 - All successfully generated card outputs (serialized as markdown blocks), including cards from interrupted runs
 
@@ -257,7 +257,7 @@ Save errors are dismissed separately and are cleared by a successful save.
 
 The user can retry a failed, canceled, or interrupted run.
 Successful runs are not retryable.
-Retry re-executes the same prompt, with its images, as a chat request with tools.
+Retry re-executes the same prompt, with its files, as a chat request with tools.
 
 - The retry reuses the same run — the existing message pair is overwritten
 - Previous response text, cards, and tool rows are cleared and replaced with the new stream

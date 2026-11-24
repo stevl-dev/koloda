@@ -5,7 +5,6 @@ export {
   computeConversationTitle,
   conversationAttachmentUrl,
   getMessageFiles,
-  getMessageImageIds,
   getTextMessageContent,
   parseConversationAttachmentUrl,
 } from "./lib/conversations";

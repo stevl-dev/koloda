@@ -81,6 +81,10 @@ msgstr "You don't have any AI profiles"
 msgid "ai.chat.no-profiles.add"
 msgstr "Add profile"
 
+#: ../../libs/assistant-react/src/lib/ui/assistant-chat.tsx
+msgid "ai.chat.pdf.blocked"
+msgstr "This conversation has PDF files, and the selected model does not accept them. Choose a model that accepts PDF files."
+
 #: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.test.tsx
 #: ../../libs/assistant-react/src/lib/ui/assistant-prompt-attachments.tsx
 msgid "ai.chat.pdf.unknown"

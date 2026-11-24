@@ -189,11 +189,16 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     expect(command.input.request.messages).toEqual([{ role: "user", content: "hello" }]);
   });
 
-  it("a retry resends the retried message's images", async () => {
+  it("a retry resends the retried message's files with their names", async () => {
     seedConversation("conv-1");
     const imageId = "a".repeat(64);
+    const pdfId = "b".repeat(64);
     const image = { url: `conversation-attachment:${imageId}`, mediaType: "image/png" };
-    dispatch(["submitTurn", { runId: "run-1", text: "", attachments: [image], kind: "chat-text", assistantText: "" }]);
+    const pdf = { url: `conversation-attachment:${pdfId}`, mediaType: "application/pdf", filename: "chapter.pdf" };
+    dispatch([
+      "submitTurn",
+      { runId: "run-1", text: "", attachments: [image, pdf], kind: "chat-text", assistantText: "" },
+    ]);
     dispatch(["runFailed", { runId: "run-1", error: { message: "boom" } }]);
 
     const { result } = orchestrate(store, { dispatchCommand });
@@ -202,8 +207,14 @@ describe("useRunOrchestration — handleRetry ordering", () => {
     });
 
     const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "retry" }>;
-    expect(command.input.request.messages).toEqual([
-      { role: "user", content: [{ type: "file", attachmentId: imageId }] },
+    expect(command.input.request.messages).toStrictEqual([
+      {
+        role: "user",
+        content: [
+          { type: "file", attachmentId: imageId },
+          { type: "file", attachmentId: pdfId, filename: "chapter.pdf" },
+        ],
+      },
     ]);
   });
 });
@@ -230,6 +241,29 @@ describe("useRunOrchestration — atomic submitTurn", () => {
       callOrder.push("command");
       return Promise.resolve();
     });
+  });
+
+  it("submits the draft's files with their names into the user message and the request", async () => {
+    const pdf = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "application/pdf", filename: "a.pdf" };
+    store.set(upsertConversationAtom, {
+      ...initialConversationState,
+      id: "conv-1",
+      createdAt: new Date(1),
+      promptAttachments: [pdf],
+    });
+    store.set(currentConversationIdAtom, "conv-1");
+    const { result } = orchestrate(store, { dispatch, dispatchCommand });
+
+    await act(async () => {
+      await result.current.handleGenerate("");
+    });
+
+    const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "submit" }>;
+    expect(command.input.request.messages.at(-1)).toStrictEqual({
+      role: "user",
+      content: [{ type: "file", attachmentId: "b".repeat(64), filename: "a.pdf" }],
+    });
+    expect(readState().messages[0]?.parts).toStrictEqual([{ type: "file", ...pdf }]);
   });
 
   it("handleGenerate dispatches a single submitTurn (not three separate actions)", async () => {
@@ -403,10 +437,10 @@ describe("useRunOrchestration — handleRevert", () => {
     expect(readState().revertState).toBeNull();
   });
 
-  it("puts a reverted message's images in the composer and gives the held ones back on restore", () => {
+  it("puts a reverted message's files in the composer and gives the held ones back on restore", () => {
     store.set(upsertConversationAtom, { ...initialConversationState, id: "conv-1", createdAt: new Date(1) });
     store.set(currentConversationIdAtom, "conv-1");
-    const sent = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "image/png" };
+    const sent = { url: `conversation-attachment:${"a".repeat(64)}`, mediaType: "text/plain", filename: "words.csv" };
     const held = { url: `conversation-attachment:${"b".repeat(64)}`, mediaType: "image/jpeg" };
     dispatch(["submitTurn", { runId: "run-1", text: "", attachments: [sent], kind: "chat-text", assistantText: "" }]);
     dispatch(["completeRun", { runId: "run-1" }]);
@@ -419,7 +453,7 @@ describe("useRunOrchestration — handleRevert", () => {
       prompt = result.current.handleRevert(userMessageId("run-1"), "");
     });
     expect(prompt).toBe("");
-    expect(readState().promptAttachments).toEqual([sent]);
+    expect(readState().promptAttachments).toStrictEqual([sent]);
     expect(toPersistedState(readState()).promptAttachments).toEqual([held]);
 
     act(() => {

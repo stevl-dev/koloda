@@ -44,11 +44,12 @@ export function getMessageRunId(message: UIMessage): string | null {
 }
 
 export function getMessagePromptAttachments(message: UIMessage): PromptAttachment[] {
-  return message.parts.flatMap((part) =>
-    part.type === "file" && parseConversationAttachmentUrl((part as FileUIPart).url)
-      ? [{ url: (part as FileUIPart).url, mediaType: (part as FileUIPart).mediaType }]
-      : [],
-  );
+  return message.parts.flatMap((part) => {
+    if (part.type !== "file") return [];
+    const { url, mediaType, filename } = part as FileUIPart;
+    if (!parseConversationAttachmentUrl(url)) return [];
+    return [{ url, mediaType, ...(filename === undefined ? {} : { filename }) }];
+  });
 }
 
 export function userMessageId(runId: string) {

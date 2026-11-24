@@ -99,3 +99,12 @@ export function getConversationFileKindOfMime(mediaType: string): ConversationFi
   if (mediaType.startsWith("image/")) return "image";
   return mediaType === PDF_MIME ? "pdf" : "text";
 }
+
+/**
+ * The kinds among `mediaTypes` the selected model does not take; with no model selected, every image and PDF kind.
+ * Text goes to every model, so it is never refused.
+ */
+export function getRefusedKinds(mediaTypes: readonly string[], inputs: InputStates): Array<"image" | "pdf"> {
+  const kinds = new Set(mediaTypes.map(getConversationFileKindOfMime));
+  return (["image", "pdf"] as const).filter((kind) => kinds.has(kind) && inputs?.[kind] !== "enabled");
+}

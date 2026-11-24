@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
-import { computeConversationTitle, getMessageFiles, getMessageImageIds } from "./conversations";
+import { computeConversationTitle, getMessageFiles } from "./conversations";
 
 function userMessage(text: string): UIMessage {
   return {
@@ -79,9 +79,5 @@ describe("getMessageFiles", () => {
       { attachmentId: imageId, mediaType: "image/png" },
       { attachmentId: pdfId, mediaType: "application/pdf", filename: "chapter.pdf" },
     ]);
-  });
-
-  it("gives only the images as image ids", () => {
-    expect(getMessageImageIds(message)).toEqual([imageId]);
   });
 });

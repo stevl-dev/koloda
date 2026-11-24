@@ -14,7 +14,7 @@ import {
   useAIChatValidation,
   useAutoScroll,
 } from "@koloda/ai-react";
-import { getMessageImageIds } from "@koloda/ai";
+import { getMessageFiles } from "@koloda/ai";
 import type { Mention } from "@koloda/ai";
 import { formatGenerateError } from "@koloda/ai/app-error";
 import { ERROR_MESSAGES, formatAppError } from "@koloda/app";
@@ -48,7 +48,7 @@ import {
   assistantRevertStateAtom,
 } from "../state/conversation-selectors";
 import { saveStatusAtom } from "../state/conversation-store";
-import { getConversationFileKindOfMime, getInputStates } from "./conversation-files";
+import { getInputStates, getRefusedKinds } from "./conversation-files";
 import { RevertBanner } from "./revert-banner";
 import { useAssistantChatHotkeys } from "./use-assistant-chat-hotkeys";
 import { useAssistantMessageRenderer } from "./use-assistant-message-renderer";
@@ -71,6 +71,8 @@ export type AssistantChatProps = {
   onNextConversation?: () => void;
   renderAddProfileDialog?: (props: RenderAddProfileDialogProps) => ReactNode;
 };
+
+const BLOCKED_REASONS = { image: msg`ai.chat.images.blocked`, pdf: msg`ai.chat.pdf.blocked` };
 
 export function AssistantChat({
   conversationId,
@@ -141,13 +143,13 @@ export function AssistantChat({
     profiles.find((p) => p.id === profileId),
   );
   const fileAttach = useAssistantFileAttach({ inputs, onConversationIdChange });
-  // WHY: every turn resends the whole history, so an image in any visible message needs a model that takes images.
-  const hasHistoryImages = useMemo(() => messages.some((m) => getMessageImageIds(m).length > 0), [messages]);
-  const hasDraftImages = promptAttachments.some(
-    ({ mediaType }) => getConversationFileKindOfMime(mediaType) === "image",
+  // WHY: every turn resends the whole history, so a file in any visible message needs a model that takes its kind.
+  const sentMediaTypes = useMemo(
+    () => [...messages.flatMap(getMessageFiles), ...promptAttachments].map(({ mediaType }) => mediaType),
+    [messages, promptAttachments],
   );
-  const areImagesBlocked = (hasDraftImages || hasHistoryImages) && inputs?.image !== "enabled";
-  const blockedReasons = areImagesBlocked ? [msg`ai.chat.images.blocked`] : [];
+  const blockedReasons = getRefusedKinds(sentMediaTypes, inputs).map((kind) => BLOCKED_REASONS[kind]);
+  const areAttachmentsBlocked = blockedReasons.length > 0;
 
   const { isRestoring, isDeleted, loadError, handleDismissSave, retrySave, retryLoad, blockedRestore } =
     useConversationPersistence({ conversationId });
@@ -169,7 +171,7 @@ export function AssistantChat({
     modelId,
     prompt: promptInput.trim(),
     hasAttachments: promptAttachments.length > 0,
-    areAttachmentsBlocked: areImagesBlocked,
+    areAttachmentsBlocked,
     isLoading: isProcessing,
     hasRequiredSecrets,
     isModelsLoading,
@@ -209,7 +211,7 @@ export function AssistantChat({
   const renderMessage = useAssistantMessageRenderer({
     handleRetry: controller.retry,
     handleRevert,
-    isRetryBlocked: areImagesBlocked,
+    isRetryBlocked: areAttachmentsBlocked,
   });
 
   useAssistantChatHotkeys({

@@ -34,12 +34,6 @@ export function getMessageFiles(message: UIMessage): MessageFileRef[] {
   });
 }
 
-export function getMessageImageIds(message: UIMessage): string[] {
-  return getMessageFiles(message).flatMap(({ attachmentId, mediaType }) =>
-    mediaType.startsWith("image/") ? [attachmentId] : [],
-  );
-}
-
 const TITLE_MAX_LENGTH = 255;
 const COLLAPSE_WHITESPACE = /\s+/g;
 

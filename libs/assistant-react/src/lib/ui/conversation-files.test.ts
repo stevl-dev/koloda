@@ -1,6 +1,6 @@
 import type { AIModel } from "@koloda/ai";
 import { describe, expect, it } from "vitest";
-import { getConversationFileKind, getInputStates, readConversationFile } from "./conversation-files";
+import { getConversationFileKind, getInputStates, getRefusedKinds, readConversationFile } from "./conversation-files";
 
 function model(hasImageInput?: boolean, hasPdfInput?: boolean): AIModel {
   return {
@@ -92,5 +92,25 @@ describe("readConversationFile", () => {
     },
   ])("refuses $name", async ({ file, kind, code }) => {
     await expect(readConversationFile(file, kind)).rejects.toMatchObject({ code });
+  });
+});
+
+describe("getRefusedKinds", () => {
+  const sent = ["image/png", "application/pdf", "text/plain"];
+
+  it.each([
+    { name: "a model that takes both", inputs: { image: "enabled", pdf: "enabled" } as const, expected: [] },
+    {
+      name: "a model that takes neither",
+      inputs: { image: "unsupported", pdf: "unknown" } as const,
+      expected: ["image", "pdf"],
+    },
+    { name: "no model selected", inputs: null, expected: ["image", "pdf"] },
+  ])("refuses the sent kinds $name does not take, never text", ({ inputs, expected }) => {
+    expect(getRefusedKinds(sent, inputs)).toEqual(expected);
+  });
+
+  it("refuses nothing that was not sent", () => {
+    expect(getRefusedKinds(["text/plain"], { image: "unsupported", pdf: "unsupported" })).toEqual([]);
   });
 });

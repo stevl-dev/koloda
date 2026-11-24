@@ -83,7 +83,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         // already in visibleMessages and promptText is appended once more.
         const prepared = prepareRunRequest(cfg, promptText, visibleMessages, currentState.runs, {
           excludeRunId: runId,
-          promptFiles: getMessageFiles(userMessage).map(({ attachmentId, filename }) => ({ attachmentId, filename })),
+          promptFiles: getMessageFiles(userMessage).map(({ mediaType: _mediaType, ...file }) => file),
         });
         if (!prepared) return;
 
@@ -138,9 +138,9 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         getVisibleMessages(currentState.messages, currentState.revertState),
         currentState.runs,
         {
-          promptFiles: promptAttachments.flatMap(({ url }) => {
+          promptFiles: promptAttachments.flatMap(({ url, filename }) => {
             const attachmentId = parseConversationAttachmentUrl(url);
-            return attachmentId ? [{ attachmentId }] : [];
+            return attachmentId ? [{ attachmentId, ...(filename === undefined ? {} : { filename }) }] : [];
           }),
         },
       );
