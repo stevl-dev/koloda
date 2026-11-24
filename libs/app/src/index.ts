@@ -58,14 +58,13 @@ export {
   SEED_TEMPLATE_TYPE_FRONT_FIELD_ID,
   SEED_TEMPLATE_TYPE_ID,
 } from "./lib/seed-ids";
+export { LEARNING_DAILY_LIMIT_TYPES, calculateInitialLessonAmounts, remainingDailyLimitRoom } from "./lib/daily-limits";
 export {
   DEFAULT_LEARNING_SETTINGS,
-  LEARNING_DAILY_LIMIT_TYPES,
   isBucketOverDailyLimit,
   isFiniteDailyLimitOver,
   learningSettingsValidation,
   parseDayStartsAt,
-  remainingDailyLimitRoom,
   resolvedLearningSettingsValidation,
 } from "./lib/settings-learning";
 export type { LearningSettings, ResolvedLearningSettings } from "./lib/settings-learning";

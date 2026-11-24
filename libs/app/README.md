@@ -17,6 +17,8 @@ Desktop mirrors live in `crates/koloda/src/domain/` (settings, hotkeys, conversa
   The AIError→AppError bridge lives in `@koloda/ai`'s `./app-error` subpath.
 - Settings slices: `settings-interface.ts`, `settings-learning.ts`,
   `settings-hotkeys.ts` — defaults, labels, zod validation.
+- Daily limits: `daily-limits.ts` — the room left under a daily limit,
+  and the amounts a lesson pre-fills from the limits and today's totals.
 - Conversations: `conversations.ts` — `Conversation` / `ConversationListItem` types
   and active-conversation `localStorage` helpers.
 - Environment: `environment.ts` — `getAppPlatform()`.
@@ -31,7 +33,7 @@ Desktop mirrors live in `crates/koloda/src/domain/` (settings, hotkeys, conversa
   It is not the settings patch merge, which follows RFC 7386 to match desktop.
 - Sync: `sync.ts` — `SyncStatus` as the desktop sync engine reports it; only the desktop syncs.
 
-Subpath exports `@koloda/app/titles` and `@koloda/app/db` skip the root barrel.
+Subpath exports `@koloda/app/titles`, `@koloda/app/daily-limits`, and `@koloda/app/db` skip the root barrel.
 The barrel pulls in Lingui macros through `error.ts`, and Electron main loads modules without the macro transform.
 
 ### Does NOT own (prevent scope creep)

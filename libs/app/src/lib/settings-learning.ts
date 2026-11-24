@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { CountedDailyLimits } from "./daily-limits";
 import { AppError } from "./error";
 import { SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID } from "./seed-ids";
 
@@ -34,8 +35,6 @@ const dayStartsAtValidation = z.string().refine(
   { message: "validation.settings-learning.day-starts-at" },
 );
 
-export const LEARNING_DAILY_LIMIT_TYPES = ["untouched", "learn", "review"] as const;
-
 const dailyLimitCapValidation = z.int().min(0).nullable();
 
 const learningDailyLimitValidation = z.object({
@@ -54,18 +53,6 @@ function createLearningDailyLimitValidation(defaultValue: number | null, default
       counts: z.boolean().default(defaultCounts),
     }),
   );
-}
-
-type CountedDailyLimits = {
-  total: number | null;
-  untouched: { value: number | null; counts: boolean };
-  learn: { value: number | null; counts: boolean };
-  review: { value: number | null; counts: boolean };
-};
-
-export function remainingDailyLimitRoom(limit: number | null, used: number): number {
-  if (limit == null) return Number.POSITIVE_INFINITY;
-  return Math.max(limit - used, 0);
 }
 
 export function isFiniteDailyLimitOver(limit: number | null, used: number, mode: "own" | "total"): boolean {

@@ -32,8 +32,11 @@ In:
 - Both hosts reuse their existing readers: web `getLessons` and `getTodaysReviewTotals` in `libs/db-sqlite`,
   desktop `KolodaDb.getLessons` and `KolodaDb.getTodaysReviewTotals` over NAPI.
   No new SQL, Rust, or IPC channel.
-- `calculateInitialLessonAmounts` moves from `libs/srs-react` to `libs/srs`, so the lesson init and the tool share one
-  calculation; `@koloda/ai` gains a workspace dependency on `@koloda/srs` (domain imports domain).
+- `calculateInitialLessonAmounts` moves from `libs/srs-react` to a new macro-free `@koloda/app` module,
+  `libs/app/src/lib/daily-limits.ts`, exported as the subpath `@koloda/app/daily-limits`,
+  so the lesson init and the tool share one calculation.
+  `remainingDailyLimitRoom`, `LEARNING_DAILY_LIMIT_TYPES`, and the `CountedDailyLimits` type move there with it.
+  `@koloda/ai` imports only that subpath and gains no dependency.
 
 Out:
 
@@ -47,22 +50,29 @@ Out:
 
 - [x] Range of the tool — today only; history is Out.
 - [x] Where the pre-filled amounts come from — move `calculateInitialLessonAmounts` to `libs/srs`; `libs/ai` calls it.
+  Superseded during item 2: the `libs/ai` root barrel runs in Electron main, which loads modules without the Lingui
+  macro transform, so it cannot import `@koloda/srs` or the `@koloda/app` root (`libs/ai/README.md`, `libs/app/README.md`).
+  The desktop `ai-ipc` test failed with `msg is not a function`.
+  The human chose a macro-free `@koloda/app/daily-limits` module, and to redo the unpushed item 1 as that move.
 - [x] Flow — `local`.
 - [x] Tool name — `get_lessons_today`, approved with the plan.
 
 ## Plan
 
-- [ ] 1. Move the initial lesson amounts calculation to `@koloda/srs`
-  Goal: Move `calculateInitialLessonAmounts` and its options type from
-  `libs/srs-react/src/lib/lessons/lesson-reducer.ts` to `libs/srs/src/lib/lessons.ts`, export both from
-  `libs/srs/src/index.ts`, and import them in the reducer.
+- [x] 1. Move the initial lesson amounts calculation to a macro-free `@koloda/app` module
+  Goal: Add `libs/app/src/lib/daily-limits.ts`, which imports nothing, and export it as the subpath
+  `@koloda/app/daily-limits`, beside `./titles` and `./db`.
+  Move `LEARNING_DAILY_LIMIT_TYPES`, the `CountedDailyLimits` type, and `remainingDailyLimitRoom` there from
+  `settings-learning.ts`, and `calculateInitialLessonAmounts` there from
+  `libs/srs-react/src/lib/lessons/lesson-reducer.ts`, typed structurally instead of with `@koloda/srs` types.
+  The root barrel exports them from the new file; the reducer imports the function from `@koloda/app`.
   The function's behavior does not change.
   Move its `describe("calculateInitialLessonAmounts")` block from `lesson-reducer.test.ts` to
-  `libs/srs/src/lib/lessons.test.ts`, so the behavior keeps one test home.
-  Constraints: `libs/srs`, `libs/srs-react` only. `remainingDailyLimitRoom` and `LEARNING_DAILY_LIMIT_TYPES` stay in
-  `@koloda/app`.
+  `libs/app/src/lib/daily-limits.test.ts`, with literal fixtures, so the behavior keeps one test home.
+  Name the module and the subpath in `libs/app/README.md`.
+  Constraints: `libs/app`, `libs/srs-react` only.
   Done when: `bun run check:push` passes; no `calculateInitialLessonAmounts` definition is left in `libs/srs-react`.
-  Commit: Move the initial lesson amounts calculation to @koloda/srs
+  Commit: Move the initial lesson amounts calculation to a macro-free @koloda/app module
   Depends on: none
 
 - [ ] 2. Add the `get_lessons_today` assistant tool
@@ -72,6 +82,7 @@ Out:
   The output names the types `new`, `learn`, `review`, `total` (never `untouched`), and gives each one
   `available`, `studiedToday`, `dailyLimit` (a number or `"unlimited"`), `countsTowardTotal` (not on Total),
   `roomLeft` (a number, or `"unlimited"`), and `lessonDefault` from `calculateInitialLessonAmounts`
+  imported from `@koloda/app/daily-limits`
   (each type's own badge; Total's from the Total badge).
   It also gives `dayStartsAt`, the deck's title when `deckId` is set, and without `deckId` a `decks` list
   of each deck's id, title, and available counts.
@@ -83,14 +94,16 @@ Out:
   and shapes.
   Bind both methods in `apps/web/src/app/ai-runtime.ts` (passing `new Date()`) and `apps/electron/src/ai-ipc.ts`
   (adding them to `AiIpcDb`, passing `Date.now()`).
-  Add `@koloda/srs` to `libs/ai/package.json`.
   Add a prompt line in `prompts.ts` beside the `get_settings` line.
   Update `docs/specs/ASSISTANT-DATA-ACCESS.md` (§Resources: replace "Scheduling statistics and lesson history are
   not read" with what is read and that past days are not; §Tools; §Tool Guidance; Core model tool list),
   the tool list in `libs/ai/README.md`, and run `bun run gen:help`.
   Constraints: no I/O in `libs/ai`; both host binders change together; no new SQL, Rust, or IPC channel.
+  `libs/ai` does not import `@koloda/srs` or the `@koloda/app` root (Electron main); it mirrors the lesson types
+  structurally, as it already mirrors the template and algorithm types.
   Done when: `assistant-tools.test.ts` covers the shaping (unlimited limits, a type not counting toward Total,
   zero room, deck scope); `assistant-tool-executor.test.ts` covers the branch and an unknown deck;
+  the desktop `ai-ipc.test.ts` covers the binder's `dueAt` and filters;
   `bun run check:push` passes.
   Commit: Let the assistant read today's lesson figures
   Depends on: 1

@@ -16,6 +16,11 @@
       "import": "./src/lib/titles.ts",
       "default": "./src/lib/titles.ts"
     },
+    "./daily-limits": {
+      "types": "./src/lib/daily-limits.ts",
+      "import": "./src/lib/daily-limits.ts",
+      "default": "./src/lib/daily-limits.ts"
+    },
     "./db": {
       "types": "./src/lib/db.ts",
       "import": "./src/lib/db.ts",

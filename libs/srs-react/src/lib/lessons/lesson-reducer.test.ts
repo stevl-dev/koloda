@@ -17,12 +17,7 @@ import {
   createTodaysReviewTotals,
   testId,
 } from "../../test/test-helpers";
-import {
-  calculateInitialLessonAmounts,
-  createLessonCardForm,
-  lessonReducer,
-  lessonReducerDefault,
-} from "./lesson-reducer";
+import { createLessonCardForm, lessonReducer, lessonReducerDefault } from "./lesson-reducer";
 import type { LessonAtomValue, LessonReducerState } from "./lesson-reducer";
 
 type LessonAction = Parameters<typeof lessonReducer>[1];
@@ -73,13 +68,6 @@ const REVIEW_TODAY_REVIEW_TOTALS = createTodaysReviewTotals({
     review: 1,
   },
 });
-
-const REVIEW_EXPECTED_AMOUNTS = {
-  untouched: 0,
-  learn: 0,
-  review: 1,
-  total: 1,
-};
 
 function reduceLesson(actions: LessonAction[], initial: LessonReducerState = structuredClone(lessonReducerDefault)) {
   return actions.reduce((state, action) => lessonReducer(state, action), initial);
@@ -565,89 +553,5 @@ describe("createLessonCardForm", () => {
 
     expect(form.isSubmitted).toBe(true);
     expect(form.firstInputFieldId).toBeUndefined();
-  });
-});
-
-describe("calculateInitialLessonAmounts", () => {
-  it("calculates total lesson amounts from per-type and total limits", () => {
-    expect(
-      calculateInitialLessonAmounts({
-        type: "total",
-        available: TOTAL_LESSONS.total,
-        dailyLimits: TOTAL_TODAY_REVIEW_TOTALS.dailyLimits,
-        reviewTotals: TOTAL_TODAY_REVIEW_TOTALS.reviewTotals,
-      }),
-    ).toEqual(TOTAL_EXPECTED_AMOUNTS);
-  });
-
-  it("clamps a single lesson type by the remaining total allowance", () => {
-    expect(
-      calculateInitialLessonAmounts({
-        type: "review",
-        available: REVIEW_LESSONS.total,
-        dailyLimits: REVIEW_TODAY_REVIEW_TOTALS.dailyLimits,
-        reviewTotals: REVIEW_TODAY_REVIEW_TOTALS.reviewTotals,
-      }),
-    ).toEqual(REVIEW_EXPECTED_AMOUNTS);
-  });
-
-  it("treats a per-type limit of zero as no remaining room for defaults", () => {
-    expect(
-      calculateInitialLessonAmounts({
-        type: "total",
-        available: TOTAL_LESSONS.total,
-        dailyLimits: {
-          ...TOTAL_TODAY_REVIEW_TOTALS.dailyLimits,
-          untouched: { value: 0, counts: true },
-        },
-        reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
-      }),
-    ).toMatchObject({ untouched: 0 });
-
-    expect(
-      calculateInitialLessonAmounts({
-        type: "untouched",
-        available: TOTAL_LESSONS.total,
-        dailyLimits: {
-          total: 50,
-          untouched: { value: 0, counts: true },
-          learn: { value: 10, counts: true },
-          review: { value: 10, counts: true },
-        },
-        reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
-      }),
-    ).toEqual({ untouched: 0, learn: 0, review: 0, total: 0 });
-  });
-
-  it("treats a null per-type limit as uncapped for defaults", () => {
-    expect(
-      calculateInitialLessonAmounts({
-        type: "untouched",
-        available: TOTAL_LESSONS.total,
-        dailyLimits: {
-          total: null,
-          untouched: { value: null, counts: true },
-          learn: { value: 10, counts: true },
-          review: { value: 10, counts: true },
-        },
-        reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
-      }),
-    ).toEqual({ untouched: 5, learn: 0, review: 0, total: 5 });
-  });
-
-  it("treats a hard-zero total as no remaining counted room", () => {
-    expect(
-      calculateInitialLessonAmounts({
-        type: "total",
-        available: TOTAL_LESSONS.total,
-        dailyLimits: {
-          total: 0,
-          untouched: { value: 10, counts: true },
-          learn: { value: 10, counts: false },
-          review: { value: 10, counts: true },
-        },
-        reviewTotals: { untouched: 0, learn: 0, review: 0, total: 0 },
-      }),
-    ).toEqual({ untouched: 0, learn: 4, review: 0, total: 4 });
   });
 });

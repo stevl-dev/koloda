@@ -1,4 +1,4 @@
-import { LEARNING_DAILY_LIMIT_TYPES, remainingDailyLimitRoom } from "@koloda/app";
+import { calculateInitialLessonAmounts } from "@koloda/app";
 import type { LearningSettings } from "@koloda/app";
 import type { ReducerAction } from "@koloda/core-react";
 import { dispatchReducerAction } from "@koloda/core-react";
@@ -184,57 +184,6 @@ function initialize(draft: LessonReducerState, payload: InitializePayload) {
     learnAheadLimit: payload.learnAheadLimit,
   };
   draft.phase = "configuring";
-}
-
-export type CalculateInitialLessonAmountsOptions = {
-  type: LessonType;
-  available: LessonsResult["total"];
-  dailyLimits: TodaysReviewTotals["dailyLimits"];
-  reviewTotals: TodaysReviewTotals["reviewTotals"];
-};
-
-export function calculateInitialLessonAmounts({
-  type,
-  available,
-  dailyLimits,
-  reviewTotals,
-}: CalculateInitialLessonAmountsOptions): LessonAmounts {
-  const countedReviewTotal = LEARNING_DAILY_LIMIT_TYPES.reduce(
-    (total, limitType) => (dailyLimits[limitType].counts ? total + reviewTotals[limitType] : total),
-    0,
-  );
-  const diffs = {
-    untouched: remainingDailyLimitRoom(dailyLimits.untouched.value, reviewTotals.untouched),
-    learn: remainingDailyLimitRoom(dailyLimits.learn.value, reviewTotals.learn),
-    review: remainingDailyLimitRoom(dailyLimits.review.value, reviewTotals.review),
-    total: remainingDailyLimitRoom(dailyLimits.total, countedReviewTotal),
-  };
-
-  if (type === "total") {
-    let remainder = diffs.total;
-    const amounts: LessonAmounts = { untouched: 0, learn: 0, review: 0, total: 0 };
-    LEARNING_DAILY_LIMIT_TYPES.forEach((x) => {
-      const amount = getLessonCardsAmount(available[x], diffs[x], dailyLimits[x].counts ? remainder : Infinity);
-      amounts[x] = amount;
-      if (dailyLimits[x].counts) remainder = remainder - amount;
-    });
-    amounts.total = Number(amounts.untouched) + Number(amounts.learn) + Number(amounts.review);
-
-    return amounts;
-  }
-
-  const limitType = type;
-  const amount = getLessonCardsAmount(
-    available[limitType],
-    diffs[limitType],
-    dailyLimits[limitType].counts ? diffs.total : Infinity,
-  );
-
-  return { untouched: 0, learn: 0, review: 0, total: amount, [limitType]: amount };
-}
-
-function getLessonCardsAmount(available: number, diff: number, remainder: number) {
-  return available > Math.min(diff, remainder) ? Math.min(diff, remainder) : available;
 }
 
 type AmountUpdatedPayload = {
