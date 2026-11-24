@@ -139,26 +139,26 @@ function sendToolEvent(sender: WebContents, requestId: string, toolEvent: Assist
   });
 }
 
-async function loadChatImage(db: AiIpcDb, attachmentId: string) {
+async function loadChatFile(db: AiIpcDb, attachmentId: string) {
   const attachment = await db.getConversationAttachment({ id: attachmentId });
   return attachment && { bytes: Buffer.from(attachment.bytes, "base64"), mime: attachment.mime };
 }
 
 // WHY: functions do not cross IPC — the renderer strips them; main recreates the
-// executor and the image loader over KolodaDb and streams tool events back on the existing channel.
+// executor and the file loader over KolodaDb and streams tool events back on the existing channel.
 function bindChatTools(
   db: AiIpcDb,
   sender: WebContents,
   requestId: string,
   request: ChatStreamRequest,
 ): ChatStreamRequest {
-  const loadImage = (attachmentId: string) => loadChatImage(db, attachmentId);
-  if (request.tools == null || request.tools.length === 0) return { ...request, loadImage };
+  const loadFile = (attachmentId: string) => loadChatFile(db, attachmentId);
+  if (request.tools == null || request.tools.length === 0) return { ...request, loadFile };
   return {
     ...request,
     executeTool: createChatToolExecutor(db),
     onToolEvent: (toolEvent) => sendToolEvent(sender, requestId, toolEvent),
-    loadImage,
+    loadFile,
   };
 }
 

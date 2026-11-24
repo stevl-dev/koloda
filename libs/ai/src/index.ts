@@ -3,11 +3,13 @@ export { ASSISTANT_TOOL_SPECS, generatedCardsFromProposeOutput, isProposeCardsOu
 export type { AssistantToolEvent, AssistantToolName, OnToolEvent } from "./lib/assistant-tools";
 export {
   computeConversationTitle,
-  conversationImageUrl,
+  conversationAttachmentUrl,
+  getMessageFiles,
   getMessageImageIds,
   getTextMessageContent,
-  parseConversationImageUrl,
+  parseConversationAttachmentUrl,
 } from "./lib/conversations";
+export type { MessageFileRef } from "./lib/conversations";
 export { AIError, isAIError, toAIError, wrapAIError } from "./lib/error";
 export { formatMention, parseMentionText, replaceMentionsWithTitles } from "./lib/mentions";
 export type { Mention, MentionKind, MentionTextPart } from "./lib/mentions";
@@ -16,9 +18,10 @@ export type {
   ChatInput,
   ChatStreamChunk,
   ChatStreamRequest,
-  ConversationImage,
+  ConversationFile,
   GeneratedCard,
   Message,
+  MessageFile,
   MessagePart,
 } from "./lib/generation";
 export { modelAcceptsImages, modelAcceptsPdf } from "./lib/models";

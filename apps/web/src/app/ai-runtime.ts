@@ -29,7 +29,7 @@ function createWebToolExecutor(db: DB) {
   });
 }
 
-async function loadWebImage(db: DB, attachmentId: string) {
+async function loadWebFile(db: DB, attachmentId: string) {
   const [attachment, bytes] = await Promise.all([
     getConversationAttachment(db, attachmentId),
     getConversationAttachmentBytes(db, attachmentId),
@@ -80,8 +80,8 @@ export function createWebAIRuntime(db: DB): AIRuntime {
       // WHY: unlike desktop, web has no IPC hop, so the executor binds directly and onToolEvent passes through.
       const requestWithExecutor =
         request.tools != null && request.tools.length > 0 ? { ...request, executeTool: webToolExecutor } : request;
-      const loadImage = (attachmentId: string) => loadWebImage(db, attachmentId);
-      return client.chat({ ...requestWithExecutor, loadImage }, onChunk, abortSignal);
+      const loadFile = (attachmentId: string) => loadWebFile(db, attachmentId);
+      return client.chat({ ...requestWithExecutor, loadFile }, onChunk, abortSignal);
     },
   };
 }

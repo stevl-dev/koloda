@@ -30,6 +30,10 @@ msgid "ai.aborted"
 msgstr "The AI provider aborted the request"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "ai.attachment-missing"
+msgstr "An attached file is no longer stored on this device"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "ai.http {status}"
 msgstr "Request failed with status {status}"
 
@@ -84,10 +88,6 @@ msgstr "AI provider is temporarily unavailable"
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.http.504"
 msgstr "AI provider took too long to respond"
-
-#: ../../libs/app/src/lib/error.ts
-msgid "ai.image-missing"
-msgstr "An attached image is no longer stored on this device"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.invalid-response"

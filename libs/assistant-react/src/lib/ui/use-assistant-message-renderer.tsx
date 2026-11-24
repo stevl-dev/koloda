@@ -1,4 +1,9 @@
-import { conversationImageUrl, getMessageImageIds, getTextMessageContent, replaceMentionsWithTitles } from "@koloda/ai";
+import {
+  conversationAttachmentUrl,
+  getMessageImageIds,
+  getTextMessageContent,
+  replaceMentionsWithTitles,
+} from "@koloda/ai";
 import { AIChatMessage, AIChatMessageLayout, AIChatMessageStatus, AIToolActivity } from "@koloda/ai-react";
 import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
@@ -84,7 +89,7 @@ function renderUserMessage(
           {imageIds.map((id) => (
             <ConversationImage
               key={id}
-              url={conversationImageUrl(id)}
+              url={conversationAttachmentUrl(id)}
               className="max-h-40 max-w-60 rounded-xl object-contain border-2 border-chat-message"
             />
           ))}

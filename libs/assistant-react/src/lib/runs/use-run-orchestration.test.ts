@@ -203,7 +203,7 @@ describe("useRunOrchestration — handleRetry ordering", () => {
 
     const command = dispatchCommand.mock.calls[0]![0] as Extract<AssistantCommand, { type: "retry" }>;
     expect(command.input.request.messages).toEqual([
-      { role: "user", content: [{ type: "image", attachmentId: imageId }] },
+      { role: "user", content: [{ type: "file", attachmentId: imageId }] },
     ]);
   });
 });

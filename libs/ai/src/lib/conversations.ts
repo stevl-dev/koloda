@@ -1,4 +1,5 @@
 import type { FileUIPart, TextUIPart, UIMessage } from "ai";
+import type { MessageFile } from "./generation";
 import { replaceMentionsWithTitles } from "./mentions";
 
 export function getTextMessageContent(message: UIMessage): string {
@@ -9,23 +10,34 @@ export function getTextMessageContent(message: UIMessage): string {
     .join("\n\n");
 }
 
-// INVARIANT: the ref shape the conversation image sweep scans for, on both hosts
+// INVARIANT: the ref shape the conversation file sweep scans for, on both hosts
 // (`libs/db-sqlite/src/lib/conversation-attachments.ts`, `crates/koloda/src/repo/conversation_attachments.rs`).
-const CONVERSATION_IMAGE_URL = /^conversation-attachment:([0-9a-f]{64})$/;
+const CONVERSATION_ATTACHMENT_URL = /^conversation-attachment:([0-9a-f]{64})$/;
 
-export function conversationImageUrl(attachmentId: string): string {
+export function conversationAttachmentUrl(attachmentId: string): string {
   return `conversation-attachment:${attachmentId}`;
 }
 
-export function parseConversationImageUrl(url: string): string | null {
-  return CONVERSATION_IMAGE_URL.exec(url)?.[1] ?? null;
+export function parseConversationAttachmentUrl(url: string): string | null {
+  return CONVERSATION_ATTACHMENT_URL.exec(url)?.[1] ?? null;
+}
+
+export type MessageFileRef = MessageFile & { mediaType: string };
+
+export function getMessageFiles(message: UIMessage): MessageFileRef[] {
+  return message.parts.flatMap((part) => {
+    if (part.type !== "file") return [];
+    const { url, mediaType, filename } = part as FileUIPart;
+    const attachmentId = parseConversationAttachmentUrl(url);
+    if (!attachmentId) return [];
+    return [{ attachmentId, mediaType, ...(filename === undefined ? {} : { filename }) }];
+  });
 }
 
 export function getMessageImageIds(message: UIMessage): string[] {
-  return message.parts.flatMap((part) => {
-    if (part.type !== "file") return [];
-    return parseConversationImageUrl((part as FileUIPart).url) ?? [];
-  });
+  return getMessageFiles(message).flatMap(({ attachmentId, mediaType }) =>
+    mediaType.startsWith("image/") ? [attachmentId] : [],
+  );
 }
 
 const TITLE_MAX_LENGTH = 255;

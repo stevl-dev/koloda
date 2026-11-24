@@ -1,3 +1,4 @@
+import type { MessageFile } from "@koloda/ai";
 import type { AssistantCommand, AssistantExecutionIdentity } from "@koloda/assistant";
 import type { AssistantConversationConfig } from "../state/assistant-conversation-config";
 import {
@@ -38,10 +39,10 @@ export function prepareRunRequest(
   promptText: string,
   messages: ConversationReducerState["messages"],
   runs: Record<string, AssistantRun>,
-  options?: { excludeRunId?: string; promptImageIds?: string[] },
+  options?: { excludeRunId?: string; promptFiles?: MessageFile[] },
 ): PreparedRun | null {
-  const promptImageIds = options?.promptImageIds ?? [];
-  if ((!promptText && promptImageIds.length === 0) || !cfg.profileId || !cfg.modelId) return null;
+  const promptFiles = options?.promptFiles ?? [];
+  if ((!promptText && promptFiles.length === 0) || !cfg.profileId || !cfg.modelId) return null;
 
   // WHY: Retry reuses the visible tail pair as the new prompt. The pair is
   // already in `messages`, and buildStreamRequest appends `promptText` once
@@ -58,7 +59,7 @@ export function prepareRunRequest(
       )
     : messages;
   const conversationMessages = buildConversationMessages(historyMessages, runs);
-  const result = buildStreamRequest(cfg, promptText, conversationMessages, promptImageIds);
+  const result = buildStreamRequest(cfg, promptText, conversationMessages, promptFiles);
   return {
     ...result,
     modelName: cfg.modelName,

@@ -31,24 +31,33 @@ function resolveGenerationTemperature(value?: number) {
 // and for a help answer that reads the settings and two or three help topics first.
 const CHAT_TOOL_STEP_BUDGET = 12;
 
-async function toModelMessages(
-  messages: Message[],
-  loadImage: ChatStreamRequest["loadImage"],
-): Promise<ModelMessage[]> {
+const TEXT_FILE_MIME = "text/plain";
+
+// WHY: a text file goes as text the app builds, never as a file part: OpenAI and xAI throw on a `text/plain` part, and
+// DeepSeek and Ollama drop it. The fence outgrows every backtick run in the file, so the file cannot close it early.
+function textFilePart(bytes: Uint8Array, filename: string | undefined) {
+  const text = new TextDecoder().decode(bytes);
+  const longestRun = Array.from(text.matchAll(/`+/g)).reduce((longest, [run]) => Math.max(longest, run.length), 2);
+  const fence = "`".repeat(longestRun + 1);
+  return { type: "text" as const, text: `${filename ? `File: ${filename}` : "File"}\n${fence}\n${text}\n${fence}` };
+}
+
+async function toModelMessages(messages: Message[], loadFile: ChatStreamRequest["loadFile"]): Promise<ModelMessage[]> {
   return Promise.all(
     messages.map(async ({ role, content }): Promise<ModelMessage> => {
       if (typeof content === "string") return { role: role as "user" | "assistant", content };
       const parts = await Promise.all(
         content.map(async (part) => {
           if (part.type === "text") return part;
-          // WHY: images without a loader mean a mis-wired host; fail before the provider is called.
-          if (!loadImage) throw new AIError("unknown", "Chat request has images without an image loader");
-          const image = await loadImage(part.attachmentId);
-          if (!image) throw new AIError("ai.image-missing", part.attachmentId);
-          return { type: "file" as const, data: image.bytes, mediaType: image.mime };
+          // WHY: files without a loader mean a mis-wired host; fail before the provider is called.
+          if (!loadFile) throw new AIError("unknown", "Chat request has files without a file loader");
+          const file = await loadFile(part.attachmentId);
+          if (!file) throw new AIError("ai.attachment-missing", part.attachmentId);
+          if (file.mime === TEXT_FILE_MIME) return textFilePart(file.bytes, part.filename);
+          return { type: "file" as const, data: file.bytes, mediaType: file.mime, filename: part.filename };
         }),
       );
-      // INVARIANT: only user messages carry images (ASSISTANT-MESSAGES.md).
+      // INVARIANT: only user messages carry files (ASSISTANT-MESSAGES.md).
       return { role: "user", content: parts };
     }),
   );
@@ -75,7 +84,7 @@ async function runChatStream(
     executeTool != null && toolNames.length > 0
       ? bindAssistantTools({ names: toolNames, execute: executeTool })
       : undefined;
-  const messages = await toModelMessages(request.messages, request.loadImage);
+  const messages = await toModelMessages(request.messages, request.loadFile);
   const result = streamText({
     model: wrapModelWithReasoningExtraction(modelFactory(request.input.modelId)),
 

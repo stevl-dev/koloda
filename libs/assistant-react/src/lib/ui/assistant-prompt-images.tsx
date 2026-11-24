@@ -1,4 +1,4 @@
-import { conversationImageUrl, modelAcceptsImages, parseConversationImageUrl } from "@koloda/ai";
+import { conversationAttachmentUrl, modelAcceptsImages, parseConversationAttachmentUrl } from "@koloda/ai";
 import type { AIModel, AIProfile } from "@koloda/ai";
 import { toFormErrors } from "@koloda/app";
 import type { FormError } from "@koloda/app";
@@ -82,7 +82,7 @@ export function useAssistantImageAttach({ imageInput, onConversationIdChange }: 
       for (const file of files) {
         try {
           const attachment = await mutateAsync(await readImageFile(file));
-          const image = { url: conversationImageUrl(attachment.id), mediaType: attachment.mime };
+          const image = { url: conversationAttachmentUrl(attachment.id), mediaType: attachment.mime };
           // WHY: the first image may mint the conversation; the rest join that one.
           mintedId = addImage({ conversationId: conversationId ?? mintedId, image }) ?? mintedId;
         } catch (error) {
@@ -208,7 +208,7 @@ export function ConversationImage({ url, className }: ConversationImageProps) {
 }
 
 function useConversationImageSrc(url: string) {
-  const id = parseConversationImageUrl(url) ?? "";
+  const id = parseConversationAttachmentUrl(url) ?? "";
   const { getConversationAttachmentQuery } = useAtomValue(queriesAtom);
   const { data } = useQuery({ ...getConversationAttachmentQuery(id), enabled: id !== "" });
   const [src, setSrc] = useState<string | null>(null);

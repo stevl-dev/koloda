@@ -80,7 +80,7 @@ The three commands and the `AiStreamEvent` union are part of the `DataIpc` contr
 
 Functions do not cross IPC: the renderer strips them, and main recreates the assistant tool executor
 over `KolodaDb`, streaming tool events back on the same channel.
-A request names its images by conversation image id; main recreates the image loader over `KolodaDb`
+A request names its files by conversation file id and name; main recreates the file loader over `KolodaDb`
 and reads the bytes only when it calls the provider.
 
 ## Media (`src/media-ipc.ts`)

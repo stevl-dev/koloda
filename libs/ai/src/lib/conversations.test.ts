@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
-import { computeConversationTitle } from "./conversations";
+import { computeConversationTitle, getMessageFiles, getMessageImageIds } from "./conversations";
 
 function userMessage(text: string): UIMessage {
   return {
@@ -57,5 +57,31 @@ describe("computeConversationTitle", () => {
         promptInput: "a later draft",
       }),
     ).toBe("first turn");
+  });
+});
+
+describe("getMessageFiles", () => {
+  const imageId = "a".repeat(64);
+  const pdfId = "b".repeat(64);
+  const message: UIMessage = {
+    id: "user-1",
+    role: "user",
+    parts: [
+      { type: "text", text: "Read these" },
+      { type: "file", mediaType: "image/png", url: `conversation-attachment:${imageId}` },
+      { type: "file", mediaType: "application/pdf", filename: "chapter.pdf", url: `conversation-attachment:${pdfId}` },
+      { type: "file", mediaType: "image/png", url: "https://example.com/cat.png" },
+    ],
+  };
+
+  it("reads each conversation file with its type and name, and skips other file parts", () => {
+    expect(getMessageFiles(message)).toStrictEqual([
+      { attachmentId: imageId, mediaType: "image/png" },
+      { attachmentId: pdfId, mediaType: "application/pdf", filename: "chapter.pdf" },
+    ]);
+  });
+
+  it("gives only the images as image ids", () => {
+    expect(getMessageImageIds(message)).toEqual([imageId]);
   });
 });

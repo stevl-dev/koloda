@@ -1,4 +1,4 @@
-import { getMessageImageIds, getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
+import { getMessageFiles, getTextMessageContent, parseConversationAttachmentUrl } from "@koloda/ai";
 import { generateUUID } from "@koloda/app";
 import { AssistantDuplicateRunError, AssistantEngineClosedError } from "@koloda/assistant";
 import type { AssistantCommand } from "@koloda/assistant";
@@ -83,7 +83,7 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         // already in visibleMessages and promptText is appended once more.
         const prepared = prepareRunRequest(cfg, promptText, visibleMessages, currentState.runs, {
           excludeRunId: runId,
-          promptImageIds: getMessageImageIds(userMessage),
+          promptFiles: getMessageFiles(userMessage).map(({ attachmentId, filename }) => ({ attachmentId, filename })),
         });
         if (!prepared) return;
 
@@ -137,7 +137,12 @@ export function useRunOrchestration(options: UseRunOrchestrationOptions): UseRun
         promptText,
         getVisibleMessages(currentState.messages, currentState.revertState),
         currentState.runs,
-        { promptImageIds: promptImages.flatMap(({ url }) => parseConversationImageUrl(url) ?? []) },
+        {
+          promptFiles: promptImages.flatMap(({ url }) => {
+            const attachmentId = parseConversationAttachmentUrl(url);
+            return attachmentId ? [{ attachmentId }] : [];
+          }),
+        },
       );
       if (!prepared) return;
 

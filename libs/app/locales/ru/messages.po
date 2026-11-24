@@ -30,6 +30,10 @@ msgid "ai.aborted"
 msgstr "Провайдер прервал запрос"
 
 #: ../../libs/app/src/lib/error.ts
+msgid "ai.attachment-missing"
+msgstr "Прикреплённый файл больше не хранится на этом устройстве"
+
+#: ../../libs/app/src/lib/error.ts
 msgid "ai.http {status}"
 msgstr "Запрос завершился с ошибкой {status}"
 
@@ -84,10 +88,6 @@ msgstr "Сервис временно недоступен"
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.http.504"
 msgstr "Провайдер слишком долго отвечает"
-
-#: ../../libs/app/src/lib/error.ts
-msgid "ai.image-missing"
-msgstr "Прикреплённое изображение больше не хранится на этом устройстве"
 
 #: ../../libs/app/src/lib/error.ts
 msgid "ai.invalid-response"

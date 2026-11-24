@@ -32,21 +32,29 @@ describe("prepareRunRequest", () => {
     expect(prepareRunRequest(makeConfig(), "", [], {})).toBeNull();
   });
 
-  it("sends the prompt's images before its text, and accepts a prompt of images alone", () => {
+  it("sends the prompt's files before its text, and accepts a prompt of files alone", () => {
     const imageId = "a".repeat(64);
-    const withText = prepareRunRequest(makeConfig(), "What is this?", [], {}, { promptImageIds: [imageId] });
-    const imagesOnly = prepareRunRequest(makeConfig(), "", [], {}, { promptImageIds: [imageId] });
+    const pdf = { attachmentId: "b".repeat(64), filename: "chapter.pdf" };
+    const withText = prepareRunRequest(
+      makeConfig(),
+      "What is this?",
+      [],
+      {},
+      { promptFiles: [{ attachmentId: imageId }, pdf] },
+    );
+    const filesOnly = prepareRunRequest(makeConfig(), "", [], {}, { promptFiles: [pdf] });
 
     expect(withText?.request.messages.at(-1)).toEqual({
       role: "user",
       content: [
-        { type: "image", attachmentId: imageId },
+        { type: "file", attachmentId: imageId },
+        { type: "file", ...pdf },
         { type: "text", text: "What is this?" },
       ],
     });
-    expect(imagesOnly?.request.messages.at(-1)).toEqual({
+    expect(filesOnly?.request.messages.at(-1)).toEqual({
       role: "user",
-      content: [{ type: "image", attachmentId: imageId }],
+      content: [{ type: "file", ...pdf }],
     });
   });
 

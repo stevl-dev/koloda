@@ -348,59 +348,75 @@ describe("streamChatWithVercel", () => {
   });
 });
 
-describe("chat image parts", () => {
+describe("chat file parts", () => {
   beforeEach(() => {
     fakeModelSlot.model = null;
   });
 
-  function imageRequest(loadImage: ChatStreamRequest["loadImage"]) {
+  function fileRequest(loadFile: ChatStreamRequest["loadFile"], filename?: string) {
     return createChatRequest({
       messages: [
         {
           role: "user",
           content: [
-            { type: "image", attachmentId: "img-1" },
+            { type: "file", attachmentId: "file-1", ...(filename ? { filename } : {}) },
             { type: "text", text: "What is this?" },
           ],
         },
         { role: "assistant", content: "A cat." },
         { role: "user", content: "And its color?" },
       ],
-      loadImage,
+      loadFile,
     });
   }
 
-  it("sends each image part as a file part with the bytes and type the host loaded", async () => {
+  async function sentUserContents(request: ChatStreamRequest) {
     const model = new MockLanguageModelV3({ doStream: async () => textOnlyChunks() });
     fakeModelSlot.model = model;
-    const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
-    const loadImage = vi.fn(async (_attachmentId: string) => ({ bytes, mime: "image/png" }));
+    await streamChatWithOllama(request, vi.fn(), new AbortController().signal, OLLAMA_OPTIONS);
+    return (model.doStreamCalls[0]?.prompt ?? []).filter((message) => message.role === "user").map((m) => m.content);
+  }
 
-    await streamChatWithOllama(imageRequest(loadImage), vi.fn(), new AbortController().signal, OLLAMA_OPTIONS);
+  it("sends an image or a PDF as a file part with the bytes and type the host loaded, and its name", async () => {
+    const bytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+    const loadFile = vi.fn(async (_attachmentId: string) => ({ bytes, mime: "application/pdf" }));
 
-    expect(loadImage.mock.calls).toEqual([["img-1"]]);
-    const userMessages = (model.doStreamCalls[0]?.prompt ?? []).filter((message) => message.role === "user");
-    expect(userMessages.map((message) => message.content)).toEqual([
+    const contents = await sentUserContents(fileRequest(loadFile, "chapter.pdf"));
+
+    expect(loadFile.mock.calls).toEqual([["file-1"]]);
+    expect(contents).toEqual([
       [
-        expect.objectContaining({ type: "file", mediaType: "image/png" }),
+        expect.objectContaining({ type: "file", mediaType: "application/pdf", filename: "chapter.pdf" }),
         expect.objectContaining({ type: "text", text: "What is this?" }),
       ],
       [expect.objectContaining({ type: "text", text: "And its color?" })],
     ]);
   });
 
-  it("fails with ai.image-missing before calling the model when the host has no such image", async () => {
+  it("sends a text file as text that names the file, fenced past any backtick run in it", async () => {
+    const text = "Use ```code``` and ````more````.";
+    const loadFile = async () => ({ bytes: new TextEncoder().encode(text), mime: "text/plain" });
+
+    const [first] = await sentUserContents(fileRequest(loadFile, "notes.md"));
+
+    expect(first).toEqual([
+      expect.objectContaining({ type: "text", text: `File: notes.md\n\`\`\`\`\`\n${text}\n\`\`\`\`\`` }),
+      expect.objectContaining({ type: "text", text: "What is this?" }),
+    ]);
+  });
+
+  it("fails with ai.attachment-missing before calling the model when the host has no such file", async () => {
     const model = new MockLanguageModelV3({ doStream: async () => textOnlyChunks() });
     fakeModelSlot.model = model;
 
     await expect(
       streamChatWithOllama(
-        imageRequest(async () => null),
+        fileRequest(async () => null),
         vi.fn(),
         new AbortController().signal,
         OLLAMA_OPTIONS,
       ),
-    ).rejects.toMatchObject({ code: "ai.image-missing" });
+    ).rejects.toMatchObject({ code: "ai.attachment-missing" });
     expect(model.doStreamCalls).toHaveLength(0);
   });
 });

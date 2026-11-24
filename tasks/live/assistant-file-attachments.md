@@ -171,7 +171,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   Commit: Store PDF and text files in the conversation store
   Depends on: none
 
-- [ ] 4. Send a message's files to the model
+- [x] 4. Send a message's files to the model
   Goal: the image `MessagePart` becomes a file part that carries its attachment id and file name;
   `loadImage` becomes a loader of any conversation file, on both hosts.
   `toModelMessages` sends an image or PDF as an AI SDK file part with its bytes, mime, and file name,

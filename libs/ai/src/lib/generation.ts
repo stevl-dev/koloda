@@ -12,13 +12,15 @@ export type ChatInput = z.input<typeof chatInputSchema>;
 
 export type GeneratedCard = { content: Record<string, { text: string }> };
 
-// INVARIANT: an image part carries a conversation image id, never bytes, so a request stays small across IPC.
-// Each host reads the bytes through `loadImage` when it calls the provider.
-export type MessagePart = { type: "text"; text: string } | { type: "image"; attachmentId: string };
+// INVARIANT: a file part carries a conversation file id and its name, never bytes, so a request stays small across
+// IPC. Each host reads the bytes through `loadFile` when it calls the provider.
+export type MessageFile = { attachmentId: string; filename?: string };
+
+export type MessagePart = { type: "text"; text: string } | ({ type: "file" } & MessageFile);
 
 export type Message = { role: "user" | "assistant" | "system"; content: string | MessagePart[] };
 
-export type ConversationImage = { bytes: Uint8Array; mime: string };
+export type ConversationFile = { bytes: Uint8Array; mime: string };
 
 export type ChatStreamRequest = {
   messages: Message[];
@@ -30,8 +32,8 @@ export type ChatStreamRequest = {
   executeTool?: AssistantToolExecutor;
   /** Streams tool activity back to the caller; stripped and recreated at the IPC boundary like `executeTool`. */
   onToolEvent?: OnToolEvent;
-  /** Host-supplied reader for image parts; stripped and recreated at the IPC boundary like `executeTool`. */
-  loadImage?: (attachmentId: string) => Promise<ConversationImage | null>;
+  /** Host-supplied reader for file parts; stripped and recreated at the IPC boundary like `executeTool`. */
+  loadFile?: (attachmentId: string) => Promise<ConversationFile | null>;
 };
 
 /**

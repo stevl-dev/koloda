@@ -114,9 +114,9 @@ describe("buildConversationMessages", () => {
     expect(buildConversationMessages([message], {})).toEqual(expected);
   });
 
-  it("sends a user message's images before its text, and a message of images alone", () => {
+  it("sends a user message's files with their names before its text, and a message of files alone", () => {
     const imageA = "a".repeat(64);
-    const imageB = "b".repeat(64);
+    const pdfB = "b".repeat(64);
     const withText: UIMessage = {
       id: "u1",
       role: "user",
@@ -125,25 +125,27 @@ describe("buildConversationMessages", () => {
         { type: "file", mediaType: "image/png", url: `conversation-attachment:${imageA}` },
       ],
     };
-    const imagesOnly: UIMessage = {
+    const filesOnly: UIMessage = {
       id: "u2",
       role: "user",
-      parts: [{ type: "file", mediaType: "image/jpeg", url: `conversation-attachment:${imageB}` }],
+      parts: [
+        { type: "file", mediaType: "application/pdf", filename: "chapter.pdf", url: `conversation-attachment:${pdfB}` },
+      ],
     };
 
-    expect(buildConversationMessages([withText, imagesOnly], {})).toEqual([
+    expect(buildConversationMessages([withText, filesOnly], {})).toStrictEqual([
       {
         role: "user",
         content: [
-          { type: "image", attachmentId: imageA },
+          { type: "file", attachmentId: imageA },
           { type: "text", text: "What is this?" },
         ],
       },
-      { role: "user", content: [{ type: "image", attachmentId: imageB }] },
+      { role: "user", content: [{ type: "file", attachmentId: pdfB, filename: "chapter.pdf" }] },
     ]);
   });
 
-  it("ignores a file part that is not a conversation image", () => {
+  it("ignores a file part that is not a conversation file", () => {
     const message: UIMessage = {
       id: "u1",
       role: "user",

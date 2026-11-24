@@ -1,4 +1,4 @@
-import { getMessageImageIds, getTextMessageContent, parseConversationImageUrl } from "@koloda/ai";
+import { getMessageFiles, getTextMessageContent, parseConversationAttachmentUrl } from "@koloda/ai";
 import type { GeneratedCard, Message } from "@koloda/ai";
 import type { TemplateFields } from "@koloda/srs";
 import type { FileUIPart, TextUIPart, UIMessage } from "ai";
@@ -45,7 +45,7 @@ export function getMessageRunId(message: UIMessage): string | null {
 
 export function getMessagePromptImages(message: UIMessage): PromptImage[] {
   return message.parts.flatMap((part) =>
-    part.type === "file" && parseConversationImageUrl((part as FileUIPart).url)
+    part.type === "file" && parseConversationAttachmentUrl((part as FileUIPart).url)
       ? [{ url: (part as FileUIPart).url, mediaType: (part as FileUIPart).mediaType }]
       : [],
   );
@@ -92,12 +92,16 @@ export function buildConversationMessages(
   for (const message of messages) {
     if (message.role === "user") {
       const content = getTextMessageContent(message);
-      const imageIds = getMessageImageIds(message);
-      if (imageIds.length > 0) {
+      const files = getMessageFiles(message);
+      if (files.length > 0) {
         conversation.push({
           role: "user",
           content: [
-            ...imageIds.map((attachmentId) => ({ type: "image" as const, attachmentId })),
+            ...files.map(({ attachmentId, filename }) => ({
+              type: "file" as const,
+              attachmentId,
+              ...(filename === undefined ? {} : { filename }),
+            })),
             ...(content ? [{ type: "text" as const, text: content }] : []),
           ],
         });

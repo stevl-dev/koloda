@@ -1,4 +1,4 @@
-import type { AssistantToolName, ChatInput, ChatStreamRequest, Message } from "@koloda/ai";
+import type { AssistantToolName, ChatInput, ChatStreamRequest, Message, MessageFile } from "@koloda/ai";
 import { ASSISTANT_TOOL_SPECS, chatInputSchema } from "@koloda/ai";
 import type { AssistantConversationConfig } from "../state/assistant-conversation-config";
 
@@ -11,13 +11,13 @@ export type StreamRequestResult = {
 // chat always sends the full set — AIModel has no tools capability field.
 const CHAT_ASSISTANT_TOOL_NAMES: AssistantToolName[] = Object.keys(ASSISTANT_TOOL_SPECS) as AssistantToolName[];
 
-// INVARIANT: the same shape `buildConversationMessages` gives a stored user message with images.
-function toPromptMessage(promptText: string, promptImageIds: string[]): Message {
-  if (promptImageIds.length === 0) return { role: "user", content: promptText };
+// INVARIANT: the same shape `buildConversationMessages` gives a stored user message with files.
+function toPromptMessage(promptText: string, promptFiles: MessageFile[]): Message {
+  if (promptFiles.length === 0) return { role: "user", content: promptText };
   return {
     role: "user",
     content: [
-      ...promptImageIds.map((attachmentId) => ({ type: "image" as const, attachmentId })),
+      ...promptFiles.map((file) => ({ type: "file" as const, ...file })),
       ...(promptText ? [{ type: "text" as const, text: promptText }] : []),
     ],
   };
@@ -28,7 +28,7 @@ export function buildStreamRequest(
   cfg: AssistantConversationConfig,
   promptText: string,
   conversationMessages: Message[],
-  promptImageIds: string[] = [],
+  promptFiles: MessageFile[] = [],
 ): StreamRequestResult {
   const input: ChatInput = chatInputSchema.parse({
     modelId: cfg.modelId,
@@ -40,7 +40,7 @@ export function buildStreamRequest(
     kind: "chat",
     request: {
       input,
-      messages: [...conversationMessages, toPromptMessage(promptText, promptImageIds)],
+      messages: [...conversationMessages, toPromptMessage(promptText, promptFiles)],
       systemPromptTemplate: cfg.chatPromptTemplate ?? undefined,
       tools: CHAT_ASSISTANT_TOOL_NAMES,
     },
