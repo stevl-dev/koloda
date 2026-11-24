@@ -1,6 +1,6 @@
 # Text and PDF attachments in assistant messages
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, agents/ASSISTANT-MAP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/CSS.md, agents/I18N.md, agents/VERIFY.md, agents/RUST.md, agents/BACKWARDS-COMPATIBILITY.md, agents/DECISIONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, docs/specs/AI-PROVIDERS.md, docs/specs/AI-MODEL-INPUT.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/decisions/MEDIA-STORAGE.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, apps/electron/IPC.md, apps/electron/README.md, libs/native-ipc/README.md
 Flow: local
 
@@ -221,8 +221,23 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
 
 ## Outcome
 
-<what shipped>
+The user attaches text files and PDFs to an assistant message, beside images, and the model receives them.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
+- Text files (`.txt`, `.md`, `.markdown`, `.csv`, or typed `text/*`; UTF-8, up to 1 MB) go to every model,
+  sent as fenced text under the file name, never as a file part.
+- PDFs (up to 20 MB) go only to a model that accepts PDF.
+  `AIModel.has_pdf_input` comes from OpenRouter (`file`), Vercel (`pdf`), Anthropic (`capabilities.pdf_input`),
+  and models.dev (`pdf`) for OpenAI and OpenCode; DeepSeek, xAI, Ollama, and Ollama Cloud report `false`.
+  An unknown model gets a per-profile "Accepts PDF" switch (`pdfInputModelIds`), off by default.
+- The device-local conversation store holds images, PDF, and text, validated on both hosts; no migration.
+- The composer has a paperclip button that is never disabled; a refused image or PDF says why on attach.
+  Files show as chips with their names, in the draft and in the user bubble.
+  Submit and retry are blocked while the draft or history holds a kind the model does not take.
+- Retry resends files with their names, revert puts them back, and copy copies text only.
+- Draft state is `promptAttachments`; a draft saved under `promptImages` still restores.
+- Model input moved out of `AI-PROVIDERS.md` into `docs/specs/AI-MODEL-INPUT.md`, to keep the help topic under 16 KB.
+- Left for later: confirm that Anthropic's Models API sends `capabilities.pdf_input` (`tasks/DEFERRED.md`).
+
+Spec: docs/specs/AI-MODEL-INPUT.md, docs/specs/AI-PROVIDERS.md, docs/specs/ASSISTANT-CONVERSATION-LIST.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/MEDIA.md
+Review: blocking 3 (CODE-DOCUMENTATION §Strict Commenting Rules: JSDoc narration in `conversation-files.ts`, an untagged image file-name branch; DECISIONS §Living document: MEDIA-STORAGE omitted that empty files are refused)
 Change rounds: 0
