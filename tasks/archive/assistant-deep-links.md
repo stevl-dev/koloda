@@ -1,6 +1,6 @@
 # Assistant answers link to app screens
 
-Status: ready
+Status: done
 Guides: agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-MESSAGES.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/CARDS.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -165,8 +165,18 @@ Routes: `/dashboard`, `/decks`, `/algorithms`, `/templates`, `/ai`, `/settings/<
 
 ## Outcome
 
-<what shipped>
+Assistant replies can link to app screens.
+The model writes `[<label>](koloda:<target>)` for a screen, a settings page, or one deck, template, or preset by id.
+A plain click opens the screen in the same window; a modified click is left to the browser.
+A target outside the closed set, and Sync on the web app, show as plain text, and so does any app link outside replies.
+`read_help_topic` and `get_settings` tell the model the form, and `docs/help/APP-MAP.md` gives each screen's target;
+a test checks that every app-map target parses and that every screen has one.
+Copying a turn turns each app link into its text.
 
-Spec: <comma-separated paths under docs/specs/, or none — reason>
-Review: <findings by tier with the rule each cites, none, or not run>
-Change rounds: <N>
+Entity ids in a target use the mention id characters, a stricter rule than item 2's "no `/`".
+The route mapping in `libs/app-react/src/lib/hooks/use-assistant-app-links.ts` has no unit test;
+the plan's manual checks cover it.
+
+Spec: docs/specs/ASSISTANT-MESSAGES.md, docs/specs/CARDS.md, docs/specs/ASSISTANT-DATA-ACCESS.md
+Review: nit 1 (CODE-DOCUMENTATION §Module / Type Orientation: package READMEs did not name the new seam; fixed)
+Change rounds: 0
