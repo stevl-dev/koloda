@@ -31,3 +31,10 @@ export function parseAppLinkTarget(target: string): AppLinkTarget | null {
   if (!match) return null;
   return { kind: match[1] as MentionKind, id: match[2] };
 }
+
+// `[`, link text where `\` escapes the next character, `](koloda:`, a target, `)`; an image's `![` is left alone.
+const APP_LINK_PATTERN = /(?<!!)\[((?:\\[^\n]|[^\\\]\n])*)\]\(koloda:[^)\s]*\)/g;
+
+export function replaceAppLinksWithText(markdown: string): string {
+  return markdown.replace(APP_LINK_PATTERN, "$1");
+}

@@ -469,6 +469,11 @@ describe("useAssistantMessageRenderer", () => {
     expect(screen.getByTestId("copy-button").getAttribute("data-text")).toBe("Hello");
   });
 
+  it("copies app links in the text as their text", () => {
+    mountRenderer({ r1: makeRun("r1", "success") }, { assistantText: "Open [Learning](koloda:settings/learning)." });
+    expect(screen.getByTestId("copy-button").getAttribute("data-text")).toBe("Open Learning.");
+  });
+
   it("copies only text when the template fields are unavailable", () => {
     const run = { ...makeRun("r1", "success"), cards: [sampleCard], templateFields: null };
     mountRenderer({ r1: run });

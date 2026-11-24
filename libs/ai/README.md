@@ -57,7 +57,7 @@ This README owns the package boundary.
   is written as in a prompt; `formatMention`, `parseMentionText`, and `replaceMentionsWithTitles` (`@<title>` text).
   Stored drafts and sent messages hold that text, and the tool descriptions tell the model how to read it.
 - App links (pure): `app-links.ts` — the closed set of `koloda:<target>` targets an assistant reply may link to,
-  and `parseAppLinkTarget`.
+  `parseAppLinkTarget`, and `replaceAppLinksWithText` (for copying a reply).
   Mapping a target to a route belongs to `@koloda/app-react`.
 - Errors: `error.ts` — `AIError`, `throwForAIResponse` (HTTP → `AIError`), `wrapAIError`.
   `error-ai.ts` — the AIError→AppError bridge (`formatGenerateError`, `toAIAppError`),

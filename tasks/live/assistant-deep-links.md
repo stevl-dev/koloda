@@ -152,7 +152,7 @@ Routes: `/dashboard`, `/decks`, `/algorithms`, `/templates`, `/ai`, `/settings/<
   Commit: Teach the assistant to link to app screens
   Depends on: 2
 
-- [ ] 4. Copy app links in assistant turns as their text
+- [x] 4. Copy app links in assistant turns as their text
   Goal: an assistant turn's copy action turns each `[text](koloda:<target>)` into `text`; other links stay as written.
   Add `replaceAppLinksWithText` to `libs/ai/src/lib/app-links.ts` and apply it to the turn's text where
   `libs/assistant-react/src/lib/ui/use-assistant-message-renderer.tsx` builds `copyText`.

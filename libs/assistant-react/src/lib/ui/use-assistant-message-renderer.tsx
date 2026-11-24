@@ -2,6 +2,7 @@ import {
   conversationAttachmentUrl,
   getMessageFiles,
   getTextMessageContent,
+  replaceAppLinksWithText,
   replaceMentionsWithTitles,
 } from "@koloda/ai";
 import { AIChatMessage, AIChatMessageLayout, AIChatMessageStatus, AIToolActivity } from "@koloda/ai-react";
@@ -255,7 +256,7 @@ const AssistantTurn = memo(function AssistantTurn({
   // reusing the history serialization so multi-line card markdown survives.
   const cardsCopy =
     run.cards.length > 0 && run.templateFields ? serializeGeneratedCards(run.cards, run.templateFields) : null;
-  const copyText = [cardsCopy, text].filter(Boolean).join("\n\n");
+  const copyText = [cardsCopy, replaceAppLinksWithText(text)].filter(Boolean).join("\n\n");
   const copyAction = copyText ? <CopyMessageButton text={copyText} /> : null;
   // WHY: tool + thinking traffic lives on the run, not message parts — the
   // widget must read `run.toolCalls` so arrival order is preserved.

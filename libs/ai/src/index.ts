@@ -9,7 +9,7 @@ export {
   parseConversationAttachmentUrl,
 } from "./lib/conversations";
 export type { MessageFileRef } from "./lib/conversations";
-export { parseAppLinkTarget } from "./lib/app-links";
+export { parseAppLinkTarget, replaceAppLinksWithText } from "./lib/app-links";
 export type { AppLinkScreen, AppLinkTarget } from "./lib/app-links";
 export { AIError, isAIError, toAIError, wrapAIError } from "./lib/error";
 export { formatMention, parseMentionText, replaceMentionsWithTitles } from "./lib/mentions";

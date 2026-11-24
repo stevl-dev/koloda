@@ -198,6 +198,7 @@ A mention is copied as `@` and its title, without its id, so pasting it back giv
 
 An assistant turn has a copy action once its run has ended, whatever the outcome.
 It copies the turn's text.
+A link to an app screen is copied as its text, since it opens nothing outside the app; see §Message Content.
 What a turn with cards copies is in ASSISTANT-CARD-GENERATION.md (§Card Display).
 The action shows only when the turn has something to copy.
 While the run is streaming, the turn has no copy action.
