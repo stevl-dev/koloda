@@ -16,8 +16,10 @@ export const aiProfileValidation = z.object({
   // WHY: Unset = all models. A present array is the allowlist (`[]` means none).
   whitelistModelIds: z.array(z.string().min(1, "validation.settings-ai.profiles.whitelist-model-ids")).optional(),
   // WHY: the user's answer for models whose provider does not say whether they accept images
-  // (AI-MODEL-INPUT.md §Image Input). A provider's own answer wins over this list.
+  // (AI-MODEL-INPUT.md §Switches). A provider's own answer wins over this list.
   imageInputModelIds: z.array(z.string().min(1, "validation.settings-ai.profiles.image-input-model-ids")).optional(),
+  // WHY: the same, for PDF files.
+  pdfInputModelIds: z.array(z.string().min(1, "validation.settings-ai.profiles.pdf-input-model-ids")).optional(),
   // WHY: Stored rows carry ISO strings, but the runtime value is a Date on both
   // hosts (desktop wire reviver; web getSettings re-parses through this schema).
   // Accept both inputs so the double parse in libs/db-sqlite settings.ts keeps
@@ -104,4 +106,5 @@ export type UpdateAIProfileData = {
   whitelistModelIds?: string[] | null;
   // WHY: `undefined` leaves the stored list unchanged; an array replaces it.
   imageInputModelIds?: string[];
+  pdfInputModelIds?: string[];
 };

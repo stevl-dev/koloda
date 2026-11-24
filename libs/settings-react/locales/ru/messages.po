@@ -148,6 +148,14 @@ msgid "settings.ai.models.mode.selected"
 msgstr "Выбранные"
 
 #: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+msgid "settings.ai.models.pdf-input"
+msgstr "Принимает PDF"
+
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
+msgid "settings.ai.models.pdf-input.label {name}"
+msgstr "{name} принимает PDF"
+
+#: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 #: ../../libs/settings-react/src/lib/settings-ai-profile-models.tsx
 msgid "settings.ai.models.retry"
 msgstr "Обновить"

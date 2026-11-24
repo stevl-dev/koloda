@@ -13,6 +13,7 @@ fn test_redacted_profile_keeps_empty_allowlist_and_null_key() {
         has_secrets: false,
         whitelist_model_ids: Some(vec![]),
         image_input_model_ids: None,
+        pdf_input_model_ids: None,
         created_at: 1_699_999_000_000,
     };
 

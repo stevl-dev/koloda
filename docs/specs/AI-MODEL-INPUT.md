@@ -38,11 +38,6 @@ When the source says nothing, the model is unknown.
 A model from an OpenAI-compatible profile is always unknown.
 The app does not guess.
 
-For an unknown model, the user decides with an "accepts images" switch beside it in the models dialog.
-It is off by default; until it is on, the model is treated as not accepting images.
-The dialog saves the switches with the allowlist, per profile.
-A model keeps its answer when the allowlist leaves it out, and a later answer from its source wins.
-
 ## PDF Input
 
 Whether a model accepts PDF files comes from a fixed source per provider:
@@ -57,3 +52,15 @@ Their connections cannot send a PDF the way the app attaches it, even when the m
 When the source says nothing, the model is unknown.
 LM Studio models and models from an OpenAI-compatible profile are always unknown.
 The app does not guess.
+
+## Switches
+
+For a model whose answer is unknown, the user decides with a switch beside it in the models dialog:
+
+- "Accepts images", when its image input is unknown.
+- "Accepts PDF", when its PDF input is unknown.
+
+Each switch is off by default; until it is on, the model is treated as not accepting that input kind.
+A switch is shown only while the answer is unknown, and the two switches are independent.
+The dialog saves the switches with the allowlist, per profile.
+A model keeps its answers when the allowlist leaves it out, and a later answer from its source wins.

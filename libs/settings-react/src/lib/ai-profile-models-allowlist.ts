@@ -11,6 +11,7 @@ type SettingsModelRow = {
   id: string;
   name: string;
   hasUnknownImageInput: boolean;
+  hasUnknownPdfInput: boolean;
 };
 
 export function createAllowlistDraft(whitelistModelIds?: string[]): AllowlistDraft {
@@ -42,7 +43,7 @@ export function toWhitelistModelIdsUpdate(draft: AllowlistDraft): string[] | nul
   return draft.mode === "all" ? null : draft.selectedIds;
 }
 
-export function setImageInputModel(ids: string[], modelId: string, isSelected: boolean): string[] {
+export function setInputModel(ids: string[], modelId: string, isSelected: boolean): string[] {
   if (isSelected === ids.includes(modelId)) return ids;
   return isSelected ? [...ids, modelId] : ids.filter((id) => id !== modelId);
 }
@@ -60,14 +61,19 @@ export function buildSettingsModelRows(models: AIModel[], draft: AllowlistDraft,
 
   for (const model of models) {
     if (!modelMatchesQuery(model.name, model.id, query)) continue;
-    rows.push({ id: model.id, name: model.name, hasUnknownImageInput: model.has_image_input === undefined });
+    rows.push({
+      id: model.id,
+      name: model.name,
+      hasUnknownImageInput: model.has_image_input === undefined,
+      hasUnknownPdfInput: model.has_pdf_input === undefined,
+    });
   }
 
   if (draft.mode === "selected") {
     for (const id of draft.selectedIds) {
       if (catalogIds.has(id)) continue;
       if (!modelMatchesQuery(id, id, query)) continue;
-      rows.push({ id, name: id, hasUnknownImageInput: false });
+      rows.push({ id, name: id, hasUnknownImageInput: false, hasUnknownPdfInput: false });
     }
   }
 

@@ -414,6 +414,7 @@ fn openai_compatible_edit_keeps_removes_and_sets_headers() {
         )),
         None,
         None,
+        None,
     )
     .expect("profile should be updated");
 
@@ -452,6 +453,7 @@ fn openai_compatible_kept_header_without_stored_value_is_rejected_and_changes_no
         &added.id,
         None,
         Some(openai_compatible_secrets(None, &[("X-Missing", None)])),
+        None,
         None,
         None,
     )
@@ -516,6 +518,7 @@ fn update_ai_profile_rejects_a_provider_change() {
         }),
         None,
         None,
+        None,
     )
     .expect_err("a provider change must be rejected");
     assert_eq!(err.code, error_codes::VALIDATION_AI_PROVIDERS_PROVIDER_CHANGED);
@@ -559,6 +562,7 @@ fn update_ai_profile_keeps_keyring_when_same_provider_omits_api_key() {
             base_url: "http://127.0.0.1:11434".to_string(),
             api_key: None,
         }),
+        None,
         None,
         None,
     )
@@ -655,6 +659,7 @@ fn update_ai_profile_rolls_back_settings_when_keyring_set_fails() {
         }),
         None,
         None,
+        None,
     )
     .expect_err("update must fail when keyring set fails");
     assert_eq!(err.code, error_codes::KEYRING);
@@ -700,16 +705,18 @@ fn update_ai_profile_sets_clears_and_preserves_whitelist_model_ids() {
         None,
         Some(Some(vec!["openai/gpt-4".to_string()])),
         None,
+        None,
     )
     .expect("whitelist should be set");
     assert_eq!(set.whitelist_model_ids, Some(vec!["openai/gpt-4".to_string()]));
 
-    let preserved = ai::update_ai_profile(&db, &added.id, Some("Renamed".to_string()), None, None, None)
+    let preserved = ai::update_ai_profile(&db, &added.id, Some("Renamed".to_string()), None, None, None, None)
         .expect("title-only update should preserve whitelist");
     assert_eq!(preserved.title, Some("Renamed".to_string()));
     assert_eq!(preserved.whitelist_model_ids, Some(vec!["openai/gpt-4".to_string()]));
 
-    let cleared = ai::update_ai_profile(&db, &added.id, None, None, Some(None), None).expect("whitelist should clear");
+    let cleared =
+        ai::update_ai_profile(&db, &added.id, None, None, Some(None), None, None).expect("whitelist should clear");
     assert_eq!(cleared.whitelist_model_ids, None);
 
     let all = ai::get_ai_profiles(&db).expect("should get profiles");
@@ -720,7 +727,7 @@ fn update_ai_profile_sets_clears_and_preserves_whitelist_model_ids() {
 }
 
 #[test]
-fn update_ai_profile_sets_preserves_and_replaces_image_input_model_ids() {
+fn update_ai_profile_sets_preserves_and_replaces_input_model_ids() {
     let _guard = test_store::setup();
     let db = test_db();
 
@@ -733,19 +740,52 @@ fn update_ai_profile_sets_preserves_and_replaces_image_input_model_ids() {
     )
     .expect("profile should be added");
     assert_eq!(added.image_input_model_ids, None);
+    assert_eq!(added.pdf_input_model_ids, None);
 
-    let set = ai::update_ai_profile(&db, &added.id, None, None, None, Some(vec!["local/vision".to_string()]))
-        .expect("image input list should be set");
+    let set = ai::update_ai_profile(
+        &db,
+        &added.id,
+        None,
+        None,
+        None,
+        Some(vec!["local/vision".to_string()]),
+        None,
+    )
+    .expect("image input list should be set");
     assert_eq!(set.image_input_model_ids, Some(vec!["local/vision".to_string()]));
+    assert_eq!(
+        set.pdf_input_model_ids, None,
+        "the image list alone leaves the PDF list unset"
+    );
 
-    let preserved = ai::update_ai_profile(&db, &added.id, None, None, Some(Some(vec![])), None)
-        .expect("allowlist-only update should preserve the image input list");
+    let set = ai::update_ai_profile(
+        &db,
+        &added.id,
+        None,
+        None,
+        None,
+        None,
+        Some(vec!["local/reader".to_string()]),
+    )
+    .expect("PDF input list should be set");
+    assert_eq!(set.pdf_input_model_ids, Some(vec!["local/reader".to_string()]));
+    assert_eq!(
+        set.image_input_model_ids,
+        Some(vec!["local/vision".to_string()]),
+        "the PDF list keeps the image list"
+    );
+
+    let preserved = ai::update_ai_profile(&db, &added.id, None, None, Some(Some(vec![])), None, None)
+        .expect("allowlist-only update should preserve both input lists");
     assert_eq!(preserved.image_input_model_ids, Some(vec!["local/vision".to_string()]));
+    assert_eq!(preserved.pdf_input_model_ids, Some(vec!["local/reader".to_string()]));
 
-    ai::update_ai_profile(&db, &added.id, None, None, None, Some(vec![])).expect("image input list should be replaced");
+    ai::update_ai_profile(&db, &added.id, None, None, None, Some(vec![]), Some(vec![]))
+        .expect("input lists should be replaced");
     let all = ai::get_ai_profiles(&db).expect("should get profiles");
     let retrieved = all.iter().find(|p| p.id == added.id).expect("profile should exist");
     assert_eq!(retrieved.image_input_model_ids, Some(vec![]));
+    assert_eq!(retrieved.pdf_input_model_ids, Some(vec![]));
 
     test_store::teardown(_guard);
 }
@@ -764,7 +804,7 @@ fn update_ai_profile_rejects_empty_whitelist_model_id() {
     )
     .expect("profile should be added");
 
-    let err = ai::update_ai_profile(&db, &added.id, None, None, Some(Some(vec!["".to_string()])), None)
+    let err = ai::update_ai_profile(&db, &added.id, None, None, Some(Some(vec!["".to_string()])), None, None)
         .expect_err("empty model id must fail");
     assert_eq!(err.code, "validation.settings-ai.profiles.whitelist-model-ids");
 
@@ -815,7 +855,7 @@ fn update_ai_profile_removes_title_sent_empty() {
     )
     .expect("profile should be added");
 
-    let updated = ai::update_ai_profile(&db, &added.id, Some(String::new()), None, None, None)
+    let updated = ai::update_ai_profile(&db, &added.id, Some(String::new()), None, None, None, None)
         .expect("profile should be updated");
     assert_eq!(updated.title, None, "an empty title is stored as absent");
 
@@ -841,7 +881,7 @@ fn update_ai_profile_rejects_title_over_max_length() {
 
     // WHY: 129 Cyrillic chars are 258 UTF-8 bytes but 129 UTF-16 units — byte counting
     // would reject a title the TS zod mirror (UTF-16 units) accepts.
-    let err = ai::update_ai_profile(&db, &added.id, Some("ф".repeat(129)), None, None, None)
+    let err = ai::update_ai_profile(&db, &added.id, Some("ф".repeat(129)), None, None, None, None)
         .expect_err("title over 128 UTF-16 units must fail");
     assert_eq!(err.code, "validation.common.title.too-long");
 
@@ -907,6 +947,7 @@ fn update_ai_profile_not_found() {
         None,
         None,
         None,
+        None,
     )
     .expect_err("update without an ai settings row should fail");
     assert_eq!(err.code, error_codes::NOT_FOUND_AI_PROFILE);
@@ -924,6 +965,7 @@ fn update_ai_profile_not_found() {
         &db,
         "01900000-0000-7000-8000-000000000009",
         Some("Renamed".to_string()),
+        None,
         None,
         None,
         None,
@@ -977,7 +1019,7 @@ fn profile_writes_keep_the_assistant_settings() {
     .expect("profile should be added");
     assert_eq!(read_assistant(), assistant, "add keeps the assistant settings");
 
-    ai::update_ai_profile(&db, &added.id, Some("Renamed".to_string()), None, None, None)
+    ai::update_ai_profile(&db, &added.id, Some("Renamed".to_string()), None, None, None, None)
         .expect("profile should be updated");
     assert_eq!(read_assistant(), assistant, "update keeps the assistant settings");
 

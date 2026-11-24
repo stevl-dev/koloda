@@ -750,6 +750,7 @@ impl KolodaDb {
                 data.secrets,
                 data.whitelist_model_ids,
                 data.image_input_model_ids,
+                data.pdf_input_model_ids,
             )
             .map_err(to_napi_error)?;
             to_value(&profile)

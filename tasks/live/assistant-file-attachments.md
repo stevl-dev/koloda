@@ -141,7 +141,7 @@ The xAI throw is `UnsupportedFunctionalityError` at `node_modules/@ai-sdk/xai/di
   Commit: Read each model's PDF input from its provider
   Depends on: none
 
-- [ ] 2. Add a per-model PDF input switch for models with unknown capabilities
+- [x] 2. Add a per-model PDF input switch for models with unknown capabilities
   Goal: an AI profile gains `pdfInputModelIds`, held and updated exactly as `imageInputModelIds` is:
   TS schema in `libs/ai/src/lib/settings.ts`, Rust `pdf_input_model_ids` in `crates/koloda/src/domain/ai.rs`
   and `crates/koloda/src/repo/ai.rs`, `apps/web/src/app/ai.ts`, and the addon.

@@ -11,9 +11,14 @@ export type AIModel = {
 };
 
 // INVARIANT: the provider's answer wins; the profile's list answers only for models it says nothing about
-// (AI-MODEL-INPUT.md §Image Input).
+// (AI-MODEL-INPUT.md §Switches).
 export function modelAcceptsImages(model: AIModel, imageInputModelIds: readonly string[] | undefined): boolean {
   return model.has_image_input ?? imageInputModelIds?.includes(model.id) ?? false;
+}
+
+// INVARIANT: as `modelAcceptsImages`, for PDF files.
+export function modelAcceptsPdf(model: AIModel, pdfInputModelIds: readonly string[] | undefined): boolean {
+  return model.has_pdf_input ?? pdfInputModelIds?.includes(model.id) ?? false;
 }
 
 export type ModelParameter = {

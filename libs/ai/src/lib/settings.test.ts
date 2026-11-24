@@ -76,7 +76,7 @@ describe("aiProfileValidation whitelistModelIds", () => {
   });
 });
 
-describe("aiProfileValidation imageInputModelIds", () => {
+describe("aiProfileValidation input model ids", () => {
   const base = {
     id: "01900000-0000-7000-8000-000000000001",
     secrets,
@@ -84,10 +84,11 @@ describe("aiProfileValidation imageInputModelIds", () => {
     createdAt: "2026-01-01T00:00:00.000Z",
   };
 
-  it("rejects empty model ids", () => {
-    const result = aiProfileValidation.safeParse({ ...base, imageInputModelIds: [""] });
+  it("rejects empty model ids, each list with its own code", () => {
+    const result = aiProfileValidation.safeParse({ ...base, imageInputModelIds: [""], pdfInputModelIds: ["m", ""] });
     expect(result.error?.issues.map(({ path, message }) => ({ path, message }))).toEqual([
       { path: ["imageInputModelIds", 0], message: "validation.settings-ai.profiles.image-input-model-ids" },
+      { path: ["pdfInputModelIds", 1], message: "validation.settings-ai.profiles.pdf-input-model-ids" },
     ]);
   });
 });

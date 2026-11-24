@@ -23,9 +23,12 @@ pub struct AIProfile {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub whitelist_model_ids: Option<Vec<String>>,
     // WHY: the user's answer for models whose provider does not say whether they accept images
-    // (AI-MODEL-INPUT.md §Image Input). A provider's own answer wins over this list.
+    // (AI-MODEL-INPUT.md §Switches). A provider's own answer wins over this list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub image_input_model_ids: Option<Vec<String>>,
+    // WHY: the same, for PDF files.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pdf_input_model_ids: Option<Vec<String>>,
     #[serde(serialize_with = "serialize_timestamp", deserialize_with = "deserialize_timestamp")]
     pub created_at: i64,
 }
@@ -149,6 +152,9 @@ pub struct UpdateProfileData {
     // WHY: `undefined` leaves the stored list unchanged; an array replaces it.
     #[serde(default)]
     pub image_input_model_ids: Option<Vec<String>>,
+    // WHY: as `image_input_model_ids`.
+    #[serde(default)]
+    pub pdf_input_model_ids: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -374,6 +380,10 @@ impl AIProfile {
         Self::validate_model_id_list(
             self.image_input_model_ids.as_deref(),
             error_codes::VALIDATION_SETTINGS_AI_PROFILES_IMAGE_INPUT_MODEL_IDS,
+        )?;
+        Self::validate_model_id_list(
+            self.pdf_input_model_ids.as_deref(),
+            error_codes::VALIDATION_SETTINGS_AI_PROFILES_PDF_INPUT_MODEL_IDS,
         )?;
 
         Ok(())

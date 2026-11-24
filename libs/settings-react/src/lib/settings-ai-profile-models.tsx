@@ -25,7 +25,7 @@ import {
   isSettingsModelRowSelected,
   setAllowlistMode,
   setAllowlistModelSelected,
-  setImageInputModel,
+  setInputModel,
   toWhitelistModelIdsUpdate,
 } from "./ai-profile-models-allowlist";
 
@@ -40,6 +40,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState<AllowlistDraft>(() => createAllowlistDraft(profile.whitelistModelIds));
   const [imageInputIds, setImageInputIds] = useState(() => profile.imageInputModelIds ?? []);
+  const [pdfInputIds, setPdfInputIds] = useState(() => profile.pdfInputModelIds ?? []);
   const { byProfileId } = useAIProfilesModels(isOpen ? [profile.id] : []);
   const modelsState = byProfileId[profile.id];
   const isLoading = modelsState?.isLoading ?? false;
@@ -51,6 +52,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
     if (next) {
       setDraft(createAllowlistDraft(profile.whitelistModelIds));
       setImageInputIds(profile.imageInputModelIds ?? []);
+      setPdfInputIds(profile.pdfInputModelIds ?? []);
       setSearch("");
       // WHY: the dialog fetches on every open (AI-PROVIDERS.md §Allowlist). Model
       // queries do not refetch on mount, so drop the cached list first.
@@ -62,7 +64,12 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
 
   const handleSave = () => {
     mutate(
-      { id: profile.id, whitelistModelIds: toWhitelistModelIdsUpdate(draft), imageInputModelIds: imageInputIds },
+      {
+        id: profile.id,
+        whitelistModelIds: toWhitelistModelIdsUpdate(draft),
+        imageInputModelIds: imageInputIds,
+        pdfInputModelIds: pdfInputIds,
+      },
       {
         onSuccess: () => {
           setIsOpen(false);
@@ -135,7 +142,7 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
                     {_(msg`settings.ai.models.empty`)}
                   </p>
                 ) : (
-                  rows.map(({ id, name, hasUnknownImageInput }) => (
+                  rows.map(({ id, name, hasUnknownImageInput, hasUnknownPdfInput }) => (
                     <div className="flex items-center gap-3" key={id}>
                       <Checkbox
                         variants={{ class: "grow min-w-0" }}
@@ -155,11 +162,21 @@ export function SettingsAIProfileModels({ profile }: SettingsAIProfileModelsProp
                           aria-label={_(msg`settings.ai.models.image-input.label ${name}`)}
                           isSelected={imageInputIds.includes(id)}
                           onChange={(isSelected) =>
-                            setImageInputIds((current) => setImageInputModel(current, id, isSelected))
+                            setImageInputIds((current) => setInputModel(current, id, isSelected))
                           }
                         >
                           <Switch.Indicator />
                           <Switch.Label>{_(msg`settings.ai.models.image-input`)}</Switch.Label>
+                        </Switch>
+                      )}
+                      {hasUnknownPdfInput && (
+                        <Switch
+                          aria-label={_(msg`settings.ai.models.pdf-input.label ${name}`)}
+                          isSelected={pdfInputIds.includes(id)}
+                          onChange={(isSelected) => setPdfInputIds((current) => setInputModel(current, id, isSelected))}
+                        >
+                          <Switch.Indicator />
+                          <Switch.Label>{_(msg`settings.ai.models.pdf-input`)}</Switch.Label>
                         </Switch>
                       )}
                     </div>

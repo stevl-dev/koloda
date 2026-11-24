@@ -116,6 +116,8 @@ pub mod error_codes {
         "validation.settings-ai.profiles.whitelist-model-ids";
     pub const VALIDATION_SETTINGS_AI_PROFILES_IMAGE_INPUT_MODEL_IDS: &str =
         "validation.settings-ai.profiles.image-input-model-ids";
+    pub const VALIDATION_SETTINGS_AI_PROFILES_PDF_INPUT_MODEL_IDS: &str =
+        "validation.settings-ai.profiles.pdf-input-model-ids";
     pub const VALIDATION_AI_PROVIDERS_PROFILE_ID_DUPLICATE: &str = "validation.ai-providers.profile-id.duplicate";
     pub const VALIDATION_AI_PROVIDERS_PROVIDER_CHANGED: &str = "validation.ai-providers.provider.changed";
     pub const VALIDATION_ASSISTANT_SETTINGS_TEMPERATURE_RANGE: &str = "validation.assistant-settings.temperature-range";

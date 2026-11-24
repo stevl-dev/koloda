@@ -12,6 +12,7 @@ import type { AIModel } from "@koloda/ai";
 const gpt: AIModel = { id: "openai/gpt-4", name: "GPT-4", context_length: 128000 };
 const claude: AIModel = { id: "anthropic/claude", name: "Claude", context_length: 200000 };
 const vision: AIModel = { id: "openai/gpt-5", name: "GPT-5", context_length: 400000, has_image_input: true };
+const reader: AIModel = { id: "local/reader", name: "Reader", context_length: 0, has_pdf_input: false };
 const catalog = [gpt, claude];
 
 describe("createAllowlistDraft", () => {
@@ -70,9 +71,9 @@ describe("buildSettingsModelRows", () => {
   it("lists catalog models and keeps stale allowlist ids checked", () => {
     const draft = createAllowlistDraft(["openai/gpt-4", "gone/model"]);
     expect(buildSettingsModelRows(catalog, draft, "")).toEqual([
-      { id: "openai/gpt-4", name: "GPT-4", hasUnknownImageInput: true },
-      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true },
-      { id: "gone/model", name: "gone/model", hasUnknownImageInput: false },
+      { id: "openai/gpt-4", name: "GPT-4", hasUnknownImageInput: true, hasUnknownPdfInput: true },
+      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true, hasUnknownPdfInput: true },
+      { id: "gone/model", name: "gone/model", hasUnknownImageInput: false, hasUnknownPdfInput: false },
     ]);
     expect(isSettingsModelRowSelected(draft, "openai/gpt-4")).toBe(true);
     expect(isSettingsModelRowSelected(draft, "gone/model")).toBe(true);
@@ -82,28 +83,30 @@ describe("buildSettingsModelRows", () => {
   it("does not list stale ids while All is selected", () => {
     const draft = setAllowlistMode(createAllowlistDraft(["gone/model"]), "all");
     expect(buildSettingsModelRows(catalog, draft, "")).toEqual([
-      { id: "openai/gpt-4", name: "GPT-4", hasUnknownImageInput: true },
-      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true },
+      { id: "openai/gpt-4", name: "GPT-4", hasUnknownImageInput: true, hasUnknownPdfInput: true },
+      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true, hasUnknownPdfInput: true },
     ]);
     expect(isSettingsModelRowSelected(draft, "openai/gpt-4")).toBe(true);
   });
 
-  it("marks only catalog models with unknown image input", () => {
+  it("marks only catalog models with unknown image or PDF input", () => {
     const draft = createAllowlistDraft(["gone/model"]);
-    expect(buildSettingsModelRows([gpt, vision], draft, "").map((row) => [row.id, row.hasUnknownImageInput])).toEqual([
-      ["openai/gpt-4", true],
-      ["openai/gpt-5", false],
-      ["gone/model", false],
+    const rows = buildSettingsModelRows([gpt, vision, reader], draft, "");
+    expect(rows.map((row) => [row.id, row.hasUnknownImageInput, row.hasUnknownPdfInput])).toEqual([
+      ["openai/gpt-4", true, true],
+      ["openai/gpt-5", false, true],
+      ["local/reader", true, false],
+      ["gone/model", false, false],
     ]);
   });
 
   it("filters catalog and stale rows by name or id", () => {
     const draft = createAllowlistDraft(["gone/model"]);
     expect(buildSettingsModelRows(catalog, draft, "claude")).toEqual([
-      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true },
+      { id: "anthropic/claude", name: "Claude", hasUnknownImageInput: true, hasUnknownPdfInput: true },
     ]);
     expect(buildSettingsModelRows(catalog, draft, "gone")).toEqual([
-      { id: "gone/model", name: "gone/model", hasUnknownImageInput: false },
+      { id: "gone/model", name: "gone/model", hasUnknownImageInput: false, hasUnknownPdfInput: false },
     ]);
   });
 });

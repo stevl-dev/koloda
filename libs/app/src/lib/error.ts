@@ -95,6 +95,7 @@ export const ERROR_MESSAGES = {
   "validation.settings-ai.providers.id": msg`validation.settings-ai.providers.id`,
   "validation.settings-ai.profiles.whitelist-model-ids": msg`validation.settings-ai.profiles.whitelist-model-ids`,
   "validation.settings-ai.profiles.image-input-model-ids": msg`validation.settings-ai.profiles.image-input-model-ids`,
+  "validation.settings-ai.profiles.pdf-input-model-ids": msg`validation.settings-ai.profiles.pdf-input-model-ids`,
   "validation.ai-providers.profile-id.duplicate": msg`validation.ai-providers.profile-id.duplicate`,
   "validation.ai-providers.provider.changed": msg`validation.ai-providers.provider.changed`,
   "validation.assistant-settings.temperature-range": msg`validation.assistant-settings.temperature-range`,

@@ -249,6 +249,7 @@ pub fn add_ai_profile(db: &Database, title: Option<String>, secrets: AISecrets) 
             has_secrets: secrets.api_key().is_some(),
             whitelist_model_ids: None,
             image_input_model_ids: None,
+            pdf_input_model_ids: None,
             created_at: now,
         };
 
@@ -288,6 +289,7 @@ pub fn update_ai_profile(
     secrets: Option<AISecrets>,
     whitelist_model_ids: Option<Option<Vec<String>>>,
     image_input_model_ids: Option<Vec<String>>,
+    pdf_input_model_ids: Option<Vec<String>>,
 ) -> Result<AIProfile, AppError> {
     throw_known_error(error_codes::DB_UPDATE, || {
         let mut settings = get_ai_settings_or_default(db)?;
@@ -332,6 +334,10 @@ pub fn update_ai_profile(
 
         if image_input_model_ids.is_some() {
             existing_profile.image_input_model_ids = image_input_model_ids;
+        }
+
+        if pdf_input_model_ids.is_some() {
+            existing_profile.pdf_input_model_ids = pdf_input_model_ids;
         }
 
         let updated_profile = existing_profile.clone();

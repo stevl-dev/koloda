@@ -21,7 +21,7 @@ export type {
   Message,
   MessagePart,
 } from "./lib/generation";
-export { modelAcceptsImages } from "./lib/models";
+export { modelAcceptsImages, modelAcceptsPdf } from "./lib/models";
 export type { AIModel, ModelParameter, StreamUsage } from "./lib/models";
 export { DEFAULT_CHAT_PROMPT_TEMPLATE, GENERATION_TEMPERATURE } from "./lib/prompts";
 export { AI_PROVIDERS, AI_PROVIDER_LABELS } from "./lib/provider-catalog";

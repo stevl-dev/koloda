@@ -124,7 +124,7 @@ A file that is too large or is not an image shows an error, and the other files 
 
 The attach button is disabled when the selected model does not accept images.
 Its tooltip says why: the model does not accept images,
-or whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Image Input).
+or whether it does is unknown and can be turned on in AI settings; see AI-MODEL-INPUT.md (§Switches).
 Pasting or dropping an image then shows the same reason and attaches nothing.
 With no model selected, the button is hidden.
 
