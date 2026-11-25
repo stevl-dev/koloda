@@ -1,6 +1,6 @@
 # Shared repository cases
 
-Status: ready
+Status: done
 Guides: agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/DECISIONS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md
 Flow: local
 
@@ -200,3 +200,23 @@ A fresh database holds no product rows: the migrations seed none.
   Depends on: 1
 
 ## Outcome
+
+Repository reads that both hosts implement now have shared cases in `crates/koloda/tests/repo-cases/`.
+`cargo test` runs them over `koloda` and Vitest over `@koloda/db-sqlite`.
+40 cases cover the template, deck, algorithm, lesson, and conversation reads (10 operations).
+An operation without an adapter on either host fails that host's run.
+
+- A case seeds rows through each host's add calls, runs one operation, and checks the listed fields or the error code.
+  Ids appear as `"@name"`, timestamps as epoch ms.
+- Each seeded row gets a fixed `created_at`, so lists that order by creation time cannot tie.
+- Item 3 took a `stored` map on an add step instead of a separate raw-row kind:
+  the row is added, then the listed columns are written over it.
+  Six split cases pin the accepted divergence on stored entity rows (HD2).
+- The hand-written twins the cases replace are gone: 9 Rust and 9 web tests.
+- The twin rule in `agents/TESTING.md` and §Rule cases of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`
+  point repository cases at the new directory.
+- `getLessonData`, write round-trips, and behavior that depends on the clock, transactions, or sync stay hand-written.
+
+Spec: none — test infrastructure only; no user-visible behavior changed
+Review: blocking 1 (CODE-DOCUMENTATION §Strict Commenting Rules)
+Change rounds: 0
