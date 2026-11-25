@@ -50,7 +50,7 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(
       /asks you to change a learning or interface setting.*call change_settings/i,
     );
-    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/so do not ask first/i);
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/the user can undo it, so do not ask first/i);
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/only asks what a value would do, answer without changing it/i);
   });
 

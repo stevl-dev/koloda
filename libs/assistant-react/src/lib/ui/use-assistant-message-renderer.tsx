@@ -1,4 +1,5 @@
 import {
+  ASSISTANT_TOOL_SPECS,
   conversationAttachmentUrl,
   getMessageFiles,
   getTextMessageContent,
@@ -6,6 +7,7 @@ import {
   replaceMentionsWithTitles,
 } from "@koloda/ai";
 import { AIChatMessage, AIChatMessageLayout, AIChatMessageStatus, AIToolActivity } from "@koloda/ai-react";
+import type { AIToolCallRecord } from "@koloda/ai-react";
 import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
 import type { ReactNode } from "react";
@@ -18,13 +20,15 @@ import {
   getUserMessageCreatedAt,
   serializeGeneratedCards,
 } from "../state/assistant-messages";
-import type { AssistantRun } from "../state/conversation-types";
+import type { AssistantRun, RunToolCall } from "../state/conversation-types";
+import { isReasoningActivity } from "../state/conversation-types";
 import { assistantActiveRunIdAtom, assistantMessagesAtom, assistantRunsAtom } from "../state/conversation-selectors";
 import { ConversationFileChip, ConversationImage } from "./assistant-prompt-attachments";
 import { getConversationFileKindOfMime } from "./conversation-files";
 import { CopyMessageButton } from "./copy-message-button";
 import { MessageTimestamp } from "./message-timestamp";
 import { RevertMessageButton } from "./revert-message-button";
+import { SettingsChangeUndo } from "./settings-change-undo";
 
 export type UseAssistantMessageRendererProps = {
   handleRetry: (runId: string) => Promise<void>;
@@ -261,9 +265,20 @@ const AssistantTurn = memo(function AssistantTurn({
   // WHY: tool + thinking traffic lives on the run, not message parts — the
   // widget must read `run.toolCalls` so arrival order is preserved.
   // Markdown is injected here so `@koloda/ai-react` stays free of `@koloda/srs`.
+  const renderCallAction = (call: AIToolCallRecord) => {
+    if (call.name !== ASSISTANT_TOOL_SPECS.change_settings.name) return null;
+    const runCall = run.toolCalls.find(
+      (entry): entry is RunToolCall => !isReasoningActivity(entry) && entry.id === call.id,
+    );
+    return runCall ? <SettingsChangeUndo runId={runId} call={runCall} /> : null;
+  };
   const toolActivity =
     run.toolCalls.length > 0 ? (
-      <AIToolActivity calls={run.toolCalls} renderText={renderAssistantReasoningMarkdown} />
+      <AIToolActivity
+        calls={run.toolCalls}
+        renderText={renderAssistantReasoningMarkdown}
+        renderCallAction={renderCallAction}
+      />
     ) : null;
   const cardsBlock = run.cards.length > 0 ? renderCardsMessage({ run, runId, isCurrentRun }) : null;
 

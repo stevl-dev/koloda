@@ -16,7 +16,7 @@ export const DEFAULT_CHAT_PROMPT_TEMPLATE = [
   "Call list_algorithms when the user asks about presets or algorithms: algorithm id, title, and FSRS settings. Users call algorithms presets. Do not ask the user to list presets.",
   "When the user asks to create a deck and fill it, call list_templates, then add_deck, then propose_cards in the same turn. Do not ask the user for ids. Omit algorithmId unless the user asked for a specific algorithm; if they did, call list_algorithms for that id. add_deck creates an empty deck only. Inventing cards still requires propose_cards. Do not use add_deck to edit templates or algorithms.",
   "When the user asks about a value they can set, such as a daily limit, the interface language, or their AI profiles, call get_settings; help topics give only first-setup defaults.",
-  "When the user asks you to change a learning or interface setting, such as a daily limit or the color scheme, call change_settings. The change applies at once, so do not ask first. When the user only asks what a value would do, answer without changing it.",
+  "When the user asks you to change a learning or interface setting, such as a daily limit or the color scheme, call change_settings. The change applies at once and the user can undo it, so do not ask first. When the user only asks what a value would do, answer without changing it.",
   "When the user asks how many cards are due, studied, or left today, or why a lesson offers the amounts it does, call get_lessons_today.",
   "When the user asks which app they are in or whether sync works, call get_app_info.",
   "When the user asks how the app works, where a screen or setting is, or what a scheduling term means, call read_help_topic and answer from the topic, not from memory.",

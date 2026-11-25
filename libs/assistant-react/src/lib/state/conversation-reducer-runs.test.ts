@@ -271,6 +271,35 @@ describe("conversationReducer", () => {
       expect(JSON.stringify(stored).length).toBeLessThan(JSON.stringify(output).length);
     });
 
+    it("keeps a change_settings output whole past the persist cap, since Undo reads every old value from it", () => {
+      let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
+      state = conversationReducer(state, [
+        "addToolCall",
+        { runId: "r1", call: { id: "call-1", name: "change_settings", input: {} } },
+      ]);
+      const output = {
+        changes: [{ field: "interface.dateFormat", from: "dd.MM.yyyy", to: "x".repeat(2000) }],
+      };
+
+      state = conversationReducer(state, ["setToolCallResult", { runId: "r1", callId: "call-1", output }]);
+
+      expect(firstToolCall(state).output).toEqual(output);
+    });
+
+    it("marks only the undone tool call", () => {
+      let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
+      for (const id of ["call-1", "call-2"]) {
+        state = conversationReducer(state, [
+          "addToolCall",
+          { runId: "r1", call: { id, name: "change_settings", input: {} } },
+        ]);
+      }
+
+      state = conversationReducer(state, ["markToolCallUndone", { runId: "r1", callId: "call-2" }]);
+
+      expect(state.runs["r1"]?.toolCalls.map((call) => "undone" in call && call.undone)).toEqual([false, true]);
+    });
+
     it("keeps the title of a get_deck output it bounds", () => {
       let state = reduce([["submitTurn", { runId: "r1", text: "hello", kind: "chat-text", assistantText: "" }]]);
       state = conversationReducer(state, [

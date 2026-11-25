@@ -154,7 +154,7 @@ describe("change_settings", () => {
   it("tells the model to change a setting only on a request, without asking first", () => {
     expect(description).toMatch(/only when the user asks you to change a setting/i);
     expect(description).toMatch(/what would happen if they changed it, answer without calling it/i);
-    expect(description).toMatch(/applies at once; do not ask the user to confirm first/i);
+    expect(description).toMatch(/user can undo it from the chat, so do not ask the user to confirm first/i);
     expect(description).toMatch(/hotkeys and AI settings cannot be changed here/i);
     expect(description).not.toMatch(/hotkeys\./);
   });

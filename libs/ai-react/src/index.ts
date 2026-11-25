@@ -12,6 +12,7 @@ export { AIChatSubmit } from "./lib/ai-chat-submit";
 export { AIModelParameters } from "./lib/ai-model-parameters";
 export { AIModelProfilePicker } from "./lib/ai-model-profile-picker";
 export { AIToolActivity } from "./lib/ai-tool-activity";
+export type { AIToolCallRecord } from "./lib/ai-tool-activity";
 export { useAIChatInput } from "./lib/use-ai-chat-input";
 export { useAIChatValidation } from "./lib/use-ai-chat-validation";
 export { SECRETS_LABELS, useAIProfiles } from "./lib/use-ai-profiles";

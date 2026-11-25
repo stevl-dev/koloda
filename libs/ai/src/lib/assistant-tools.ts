@@ -427,7 +427,7 @@ export const ASSISTANT_TOOL_SPECS = {
     name: "change_settings",
     description: [
       "Change the user's learning and interface settings. Call this only when the user asks you to change a setting; when they ask what a value would do or what would happen if they changed it, answer without calling it. Read the current values with get_settings first.",
-      "The change applies at once; do not ask the user to confirm first.",
+      "The change applies at once, and the user can undo it from the chat, so do not ask the user to confirm first.",
       "Pass changes, a list of { field, value }; one call may change several fields, in learning and interface together. Fields:",
       "- learning.dailyLimits.total: the daily Total limit, a whole number 0 or more, or null for no limit.",
       "- learning.dailyLimits.untouched.value, learning.dailyLimits.learn.value, learning.dailyLimits.review.value: the daily limit for the New (untouched), Learn, and Review types, a whole number 0 or more, or null for no limit.",

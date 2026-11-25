@@ -213,6 +213,24 @@ describe("toPersistedState / fromPersistedState", () => {
 });
 
 describe("coerceConversationState", () => {
+  it("restores an undone settings change as undone, so its row offers no Undo after a reload", () => {
+    const call = {
+      id: "call-1",
+      name: "change_settings",
+      input: {},
+      status: "success",
+      output: { changes: [{ field: "interface.scheme", from: "light", to: "dark" }] },
+      startedAt: new Date(1),
+      elapsedSeconds: 1,
+    };
+
+    const undone = expectOk(makeStateWithRun(baseRun({ toolCalls: [{ ...call, undone: true }] })));
+    const kept = expectOk(makeStateWithRun(baseRun({ toolCalls: [call] })));
+
+    expect(undone.runs["r1"]?.toolCalls[0]).toMatchObject({ undone: true });
+    expect(kept.runs["r1"]?.toolCalls[0]).not.toHaveProperty("undone");
+  });
+
   it("rejects a message with null parts as corrupt instead of reaching the renderer", () => {
     const row = {
       ...storedRow,

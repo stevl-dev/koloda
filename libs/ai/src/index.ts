@@ -28,8 +28,19 @@ export type {
 export { modelAcceptsImages, modelAcceptsPdf } from "./lib/models";
 export type { AIModel, ModelParameter, StreamUsage } from "./lib/models";
 export { DEFAULT_CHAT_PROMPT_TEMPLATE, GENERATION_TEMPERATURE } from "./lib/prompts";
-export { SETTINGS_CHANGE_ROWS, splitSettingsChangeField } from "./lib/settings-changes";
-export type { SettingsChangeField, SettingsChangeRow } from "./lib/settings-changes";
+export {
+  applySettingsValues,
+  parseSettingsChanges,
+  saveSettingsRows,
+  SETTINGS_CHANGE_ROWS,
+  splitSettingsChangeField,
+} from "./lib/settings-changes";
+export type {
+  SettingsChange,
+  SettingsChangeField,
+  SettingsChangeRow,
+  SettingsRowContents,
+} from "./lib/settings-changes";
 export { AI_PROVIDERS, AI_PROVIDER_LABELS } from "./lib/provider-catalog";
 export type { AiProvider } from "./lib/provider-catalog";
 export {

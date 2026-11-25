@@ -1,4 +1,4 @@
-import { generatedCardsFromProposeOutput, isProposeCardsOutput } from "@koloda/ai";
+import { ASSISTANT_TOOL_SPECS, generatedCardsFromProposeOutput, isProposeCardsOutput } from "@koloda/ai";
 import type { GeneratedCard } from "@koloda/ai";
 import type { CardStatus, ConversationReducerState, RunToolCall } from "./conversation-types";
 import { isReasoningActivity } from "./conversation-types";
@@ -61,7 +61,19 @@ export function setToolCallResult(draft: ConversationReducerState, payload: SetT
   // WHY: card extraction parses the FULL output before the run record's copy
   // is bounded — truncation must never starve propose_cards.
   applyProposeCardsToRun(draft, payload.runId, call, payload.output);
-  call.output = boundToolOutput(payload.output);
+  // INVARIANT: Undo reads every old value back from the recorded output, so a settings change is kept whole.
+  // Its size is bounded by the fields the tool can change.
+  call.output =
+    call.name === ASSISTANT_TOOL_SPECS.change_settings.name ? payload.output : boundToolOutput(payload.output);
+}
+
+type MarkToolCallUndonePayload = { runId: string; callId: string };
+
+export function markToolCallUndone(draft: ConversationReducerState, payload: MarkToolCallUndonePayload) {
+  const call = draft.runs[payload.runId]?.toolCalls.find(
+    (entry): entry is RunToolCall => !isReasoningActivity(entry) && entry.id === payload.callId,
+  );
+  if (call) call.undone = true;
 }
 
 // WHY: tool inputs and outputs ride the conversation document, rewritten in

@@ -180,6 +180,17 @@ export const setAssistantCardStatusAtom = atom(
   },
 );
 
+export const markSettingsChangeUndoneAtom = atom(
+  null,
+  (get, set, payload: { conversationId: string; runId: string; callId: string }) => {
+    const { conversationId, runId, callId } = payload;
+    // INVARIANT: Undo can finish after the user switched conversations; it marks the originating one.
+    if (!(conversationId in get(conversationsAtom))) return;
+    dispatchToConversation(conversationId, ["markToolCallUndone", { runId, callId }])(get, set);
+    set(touchConversationAtom, conversationId);
+  },
+);
+
 type CloneConversationPayload = {
   sourceId: string;
 };

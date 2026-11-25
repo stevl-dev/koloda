@@ -1,4 +1,4 @@
-import { ASSISTANT_TOOL_SPECS } from "@koloda/ai";
+import { ASSISTANT_TOOL_SPECS, parseSettingsChanges } from "@koloda/ai";
 import type { SettingsChangeField } from "@koloda/ai";
 import type { AssistantEvent } from "@koloda/assistant";
 import { conversationsAtom } from "../state/conversation-store";
@@ -24,7 +24,7 @@ export function resetSettingsChangeHandlerForTests(): void {
   showSavedSettings = null;
 }
 
-function notifySavedSettings(values: SavedSettingsValues): void {
+export function notifySavedSettings(values: SavedSettingsValues): void {
   showSavedSettings?.(values);
 }
 
@@ -39,9 +39,9 @@ export function notifySettingsChanged(store: AssistantJotaiStore, event: Assista
     (entry): entry is RunToolCall => !isReasoningActivity(entry) && entry.id === chunk.callId,
   );
   if (call?.name !== ASSISTANT_TOOL_SPECS.change_settings.name || call.status !== "success") return;
-  const { changes } = call.output as { changes: Array<{ field: SettingsChangeField; to: unknown }> };
-  if (changes.length === 0) return;
-  notifySavedSettings(changes.map(({ field, to }) => ({ field, value: to })));
+  const changes = parseSettingsChanges(call.output);
+  if (changes?.length === 0) return;
+  notifySavedSettings(changes?.map(({ field, to }) => ({ field, value: to })) ?? null);
 }
 
 // WHY: a run can end while change_settings is still saving, and the result is then dropped (as for add_deck in

@@ -98,9 +98,11 @@ function isReasoningRecord(entry: AIActivityRecord): entry is AIReasoningRecord 
 export type AIToolActivityProps = {
   calls: readonly AIActivityRecord[];
   renderText?: (text: string) => ReactNode;
+  /** A control the caller shows beside a tool call's row, such as Undo; null for none. */
+  renderCallAction?: (call: AIToolCallRecord) => ReactNode;
 };
 
-export function AIToolActivity({ calls, renderText }: AIToolActivityProps) {
+export function AIToolActivity({ calls, renderText, renderCallAction }: AIToolActivityProps) {
   const { _ } = useLingui();
   if (calls.length === 0) return null;
 
@@ -110,7 +112,7 @@ export function AIToolActivity({ calls, renderText }: AIToolActivityProps) {
         isReasoningRecord(call) ? (
           <ReasoningActivityRow key={call.id} item={call} renderText={renderText} />
         ) : (
-          <ToolActivityRow key={call.id} call={call} />
+          <ToolActivityRow key={call.id} call={call} action={renderCallAction?.(call)} />
         ),
       )}
     </ul>
@@ -178,9 +180,9 @@ function ReasoningActivityRow({ item, renderText }: ReasoningActivityRowProps) {
   );
 }
 
-type ToolActivityRowProps = { call: AIToolCallRecord };
+type ToolActivityRowProps = { call: AIToolCallRecord; action?: ReactNode };
 
-function ToolActivityRow({ call }: ToolActivityRowProps) {
+function ToolActivityRow({ call, action }: ToolActivityRowProps) {
   const { _ } = useLingui();
   // WHY: tool payloads stay collapsed until the user opens them, including
   // while the call is running.
@@ -220,6 +222,7 @@ function ToolActivityRow({ call }: ToolActivityRowProps) {
           <FoldChevron />
         </span>
       </Button>
+      {action}
       {isOpen ? (
         <div className={toolActivityPayloadClass}>
           <div className="flex flex-col gap-2">

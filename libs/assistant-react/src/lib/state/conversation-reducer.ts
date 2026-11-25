@@ -17,7 +17,7 @@ import {
   submitTurn,
   updateAssistantText,
 } from "./conversation-run-stream";
-import { addToolCall, setCardStatus, setToolCallResult } from "./conversation-run-tools";
+import { addToolCall, markToolCallUndone, setCardStatus, setToolCallResult } from "./conversation-run-tools";
 import {
   commitRevert,
   dismissRunError,
@@ -41,6 +41,7 @@ const actions = {
   setCardStatus,
   addToolCall,
   setToolCallResult,
+  markToolCallUndone,
   completeRun,
   runFailed,
   cancelRun,

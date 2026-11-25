@@ -98,6 +98,14 @@ msgstr "Эта модель не принимает PDF"
 msgid "ai.chat.restoring"
 msgstr "Загрузка"
 
+#: ../../libs/assistant-react/src/lib/ui/settings-change-undo.tsx
+msgid "ai.chat.settings-change.undo"
+msgstr "Отменить"
+
+#: ../../libs/assistant-react/src/lib/ui/settings-change-undo.tsx
+msgid "ai.chat.settings-change.undone"
+msgstr "Отменено"
+
 #: ../../libs/assistant-react/src/lib/ui/clone-conversation-button.tsx
 msgid "ai.conversation.clone.action"
 msgstr "Клонировать"

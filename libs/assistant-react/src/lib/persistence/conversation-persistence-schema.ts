@@ -105,6 +105,7 @@ const toolCallField = z.object({
   error: z.string().optional(),
   startedAt: dateField,
   elapsedSeconds: z.number().nullable(),
+  undone: z.literal(true).optional(),
 });
 
 const reasoningActivityField = z.object({

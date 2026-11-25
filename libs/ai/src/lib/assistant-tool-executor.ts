@@ -28,6 +28,7 @@ import type { AIProfile } from "./settings";
 import {
   applySettingsValues,
   readSettingsValue,
+  saveSettingsRows,
   SETTINGS_CHANGE_FIELDS,
   SETTINGS_CHANGE_ROWS,
   splitSettingsChangeField,
@@ -236,20 +237,7 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
       );
       // WHY: as in add_deck, never start a write for a run the user canceled during the reads.
       abortSignal?.throwIfAborted();
-      const written: SettingsChangeRow[] = [];
-      for (const row of SETTINGS_CHANGE_ROWS) {
-        const content = next[row];
-        if (content === undefined) continue;
-        try {
-          await data.setSettings(row, content);
-        } catch (error) {
-          // INVARIANT: a call changes every row it names or none. Each row is its own write on both hosts,
-          // so a failed later row puts the earlier ones back as they were read.
-          for (const done of written) await data.setSettings(done, rows[done]!);
-          throw error;
-        }
-        written.push(row);
-      }
+      await saveSettingsRows(rows, next, data.setSettings);
       return shapeChangeSettingsOutput(applied);
     }
     if (name === "get_lessons_today") {

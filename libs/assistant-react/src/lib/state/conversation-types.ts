@@ -29,6 +29,8 @@ export type RunToolCall = {
   error?: string;
   startedAt: Date;
   elapsedSeconds: number | null;
+  /** Set once the user undid this settings change from its row; the row then offers no Undo. */
+  undone?: true;
 };
 
 /**

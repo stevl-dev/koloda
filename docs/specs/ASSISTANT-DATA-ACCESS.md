@@ -221,7 +221,7 @@ A successful call also shows a short summary next to its label:
 - `get_deck`, `add_deck` — the deck title
 - `get_template` — the template title
 - `get_settings` — the part of the settings asked for, or nothing when all were read
-- `change_settings` — how many settings changed
+- `change_settings` — how many settings changed; the row also offers Undo (ASSISTANT-SETTINGS-CHANGES.md (§Undo))
 - `get_lessons_today` — the deck title when one deck was asked for, or nothing for all decks
 - `read_help_topic` — the topic title
 - `get_deck_cards` — how many cards came back

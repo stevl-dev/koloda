@@ -85,3 +85,34 @@ export function applySettingsValues(
   }
   return next;
 }
+
+export async function saveSettingsRows(
+  rows: SettingsRowContents,
+  next: SettingsRowContents,
+  save: (row: SettingsChangeRow, content: Record<string, unknown>) => Promise<unknown>,
+): Promise<void> {
+  const saved: SettingsChangeRow[] = [];
+  for (const row of SETTINGS_CHANGE_ROWS) {
+    const content = next[row];
+    if (content === undefined) continue;
+    try {
+      await save(row, content);
+    } catch (error) {
+      // INVARIANT: a change saves every row it names or none. Each row is its own save on both hosts,
+      // so a failed later row puts the earlier ones back as they were read.
+      for (const done of saved) await save(done, rows[done]!);
+      throw error;
+    }
+    saved.push(row);
+  }
+}
+
+const settingsChangesOutputSchema = z.object({
+  changes: z.array(z.object({ field: z.enum(SETTINGS_CHANGE_FIELD_NAMES), from: z.unknown(), to: z.unknown() })),
+});
+
+/** The changes a recorded `change_settings` output lists, or null for any other shape. */
+export function parseSettingsChanges(output: unknown): SettingsChange[] | null {
+  const parsed = settingsChangesOutputSchema.safeParse(output);
+  return parsed.success ? (parsed.data.changes as SettingsChange[]) : null;
+}

@@ -185,7 +185,7 @@ Facts the items rely on, read at `de00614e`:
   Commit: Apply assistant settings changes in the open app
   Depends on: 1
 
-- [ ] 3. Undo an assistant settings change from its tool row
+- [x] 3. Undo an assistant settings change from its tool row
   Goal: Every successful `change_settings` row offers Undo, which writes back each changed field's old value.
   - `RunToolCall` gains an optional `undone: true`; `toolCallField` reads it.
     The schema version stays 1: an older build strips the key and loads the row.
