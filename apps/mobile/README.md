@@ -17,6 +17,8 @@ Card images load from cache files `koloda-mobile` writes from the attachment byt
 `koloda-mobile` also hosts the `koloda-sync` engine; `src/host/start-sync.ts` starts it once the database is seeded.
 The engine reads secrets from a vault the host registers first: `modules/koloda-secrets`, a local Expo module in
 Kotlin over the Android Keystore, which calls Rust through the Kotlin bindings, so secrets never reach JS.
+The vault is a UniFFI component of its own, `src-rust/vault` (crate `koloda-mobile-vault`), linked into the same
+library; the JS bindings leave it out, and `src-rust/vault/src/lib.rs` says why.
 JS takes the engine's events by calling `syncEvents` again and again, not through a callback;
 `src-rust/src/sync.rs` (`EventQueue`) says why.
 It targets Android only for now; iOS comes in a follow-up.
@@ -65,6 +67,8 @@ The Expo prebuild writes the Gradle project into `android/`, which is generated 
   (`nx run @koloda/mobile-native:build-android`).
 - `nx run @koloda/mobile-native:bindings` — regenerates the TS bindings from a desktop build of `koloda-mobile`;
   run it and commit `native/src` after changing the façade's API.
+  It generates them for `koloda_mobile` alone and deletes the vault's, so JS never loads the vault component.
+  `build-android` runs it first instead of `ubrn`'s `--and-generate`, which would load every component.
 - `nx run @koloda/mobile:test-rust` — the façade's Rust tests; `bun run check:push` runs them.
 - `nx run @koloda/mobile:prebuild` — regenerates `android/` from the app config.
 - `nx run @koloda/mobile:test` — Jest unit tests; `bun run test:app-unit` runs them.
@@ -199,8 +203,13 @@ What building and running the spike showed:
   A deck pushed while the app was open showed within seconds.
   After joining, the library showed without a relaunch.
 - 2026-11-25, Android emulator (debug build): after a JS reload from the dev menu, sync stopped with an error.
-  Changes stopped arriving. Not confirmed; the likely cause is the same clash on the vault.
-  A reload runs the TS bindings' setup again, which puts their `SecretVault` vtable over Kotlin's.
-  The Kotlin bindings register theirs only once per process.
+  Changes stopped arriving. The cause is the same clash, on the vault.
+  The TS bindings register their `SecretVault` vtable on every JS start (`uniffiEnsureInitialized`).
+  The Kotlin bindings register theirs once per process, and Rust keeps the first vault, which holds a Kotlin handle.
+  After a reload its calls reach JS, which cannot find the handle. A force-quit recovers.
+  The vault is now a component JS never loads.
+  Since then, five dev-menu reloads in a row each kept sync idle, and every deck pushed after them showed.
 - 2026-11-25: a device on the current engine joined the 2026-11-15 spike space and held at hot seq 14 with
-  `CorruptEnvelope` on its first pull. Not diagnosed.
+  `CorruptEnvelope` on its first pull.
+  The space predates the V1 baseline reset in `b3a1c98e`, which made `scheduled_days` a float at schema 1.
+  Its card payloads hold an integer there, so they do not decode; spaces from before the reset are to be wiped.

@@ -1676,6 +1676,7 @@ name = "koloda-mobile"
 version = "0.0.1"
 dependencies = [
  "koloda",
+ "koloda-mobile-vault",
  "koloda-sync",
  "koloda-sync-proto",
  "serde",
@@ -1684,6 +1685,14 @@ dependencies = [
  "tokio",
  "uniffi",
  "uuid",
+]
+
+[[package]]
+name = "koloda-mobile-vault"
+version = "0.0.1"
+dependencies = [
+ "koloda",
+ "uniffi",
 ]
 
 [[package]]

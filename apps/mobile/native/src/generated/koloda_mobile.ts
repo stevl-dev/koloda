@@ -8,7 +8,6 @@ import {
   type UniffiRustFutureContinuationCallback,
   type UniffiForeignFutureDroppedCallback,
   type UniffiForeignFutureDroppedCallbackStruct,
-  type UniffiVTableCallbackInterfaceKolodaMobileSecretVault,
 } from "./koloda_mobile-ffi";
 import {
   type FfiConverter,
@@ -16,14 +15,11 @@ import {
   type UniffiGcObject,
   type UniffiHandle,
   type UniffiObjectFactory,
-  type UniffiReferenceHolder,
-  type UniffiRustCallStatus,
   AbstractFfiConverterByteArray,
   Cursor,
   FfiConverterArray,
   FfiConverterArrayBuffer,
   FfiConverterBool,
-  FfiConverterCallback,
   FfiConverterObject,
   FfiConverterOptional,
   FfiConverterUInt32,
@@ -32,13 +28,11 @@ import {
   UniffiAbstractObject,
   UniffiError,
   UniffiInternalError,
-  UniffiResult,
   UniffiRustCaller,
   destructorGuardSymbol,
   pointerLiteralSymbol,
   uniffiCreateFfiConverterString,
   uniffiRustCallAsync,
-  uniffiTraitInterfaceCallWithError,
   uniffiTypeNameSymbol,
   variantOrdinalSymbol,
 } from "@ubjs/core";
@@ -52,24 +46,6 @@ const uniffiIsDebug =
   false;
 
 // Public interface members begin here.
-
-export function registerSecretVault(vault: SecretVault): void /*throws*/ {
-  uniffiCaller.rustCallWithError(
-    /*liftError:*/ FfiConverterTypeMobileError.lift.bind(
-      FfiConverterTypeMobileError,
-    ),
-    /*caller:*/ (callStatus) => {
-      nativeModule().ubrn_uniffi_koloda_mobile_fn_func_register_secret_vault(
-        FfiConverterTypeSecretVault.lower(
-          vault,
-          nativeModule().rustbuffer_alloc,
-        ),
-        callStatus,
-      );
-    },
-    /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
-  );
-}
 
 // Hermes (React Native ≥ 0.74) ships TextEncoder and encodeInto, but not
 // TextDecoder. For single-string decode (bytesToString), we polyfill via the
@@ -1273,122 +1249,6 @@ const FfiConverterTypeKolodaMobile = new FfiConverterObject(
   uniffiTypeKolodaMobileObjectFactory,
 );
 
-/**
- * The host's secret store, which Kotlin (Android) or Swift (iOS) implements over the platform vault.
- * INVARIANT: only native code implements it, through the native bindings; secrets never reach JS.
- */
-export interface SecretVault {
-  get(key: string) /*throws*/ : string | undefined;
-  set(key: string, value: string) /*throws*/ : void;
-  remove(key: string) /*throws*/ : void;
-}
-
-// Put the implementation in a struct so we don't pollute the top-level namespace
-const uniffiCallbackInterfaceSecretVault: {
-  vtable: any;
-  register: () => void;
-} = {
-  // Create the VTable using a series of closures.
-  // ts automatically converts these into C callback functions.
-  vtable: {
-    get: (uniffiHandle: bigint, key: Uint8Array) => {
-      const uniffiMakeCall = (): string | undefined => {
-        const jsCallback = FfiConverterTypeSecretVault.lift(uniffiHandle);
-        return jsCallback.get(FfiConverterString.lift(key));
-      };
-      const uniffiResult = UniffiResult.ready<Uint8Array>();
-      const uniffiHandleSuccess = (obj: any) => {
-        UniffiResult.writeSuccess(
-          uniffiResult,
-          FfiConverterOptionalString.lower(
-            obj,
-            nativeModule().rustbuffer_alloc,
-          ),
-        );
-      };
-      const uniffiHandleError = (code: number, errBuf: UniffiByteArray) => {
-        UniffiResult.writeError(uniffiResult, code, errBuf);
-      };
-      uniffiTraitInterfaceCallWithError(
-        /*makeCall:*/ uniffiMakeCall,
-        /*handleSuccess:*/ uniffiHandleSuccess,
-        /*handleError:*/ uniffiHandleError,
-        /*isErrorType:*/ MobileError.instanceOf,
-        /*lowerError:*/ FfiConverterTypeMobileError.lower.bind(
-          FfiConverterTypeMobileError,
-        ),
-        /*lowerString:*/ FfiConverterString.lower.bind(FfiConverterString),
-        /*alloc:*/ nativeModule().rustbuffer_alloc,
-      );
-      return uniffiResult;
-    },
-    set: (uniffiHandle: bigint, key: Uint8Array, value: Uint8Array) => {
-      const uniffiMakeCall = (): void => {
-        const jsCallback = FfiConverterTypeSecretVault.lift(uniffiHandle);
-        return jsCallback.set(
-          FfiConverterString.lift(key),
-          FfiConverterString.lift(value),
-        );
-      };
-      const uniffiResult = UniffiResult.ready<void>();
-      const uniffiHandleSuccess = (obj: any) => {};
-      const uniffiHandleError = (code: number, errBuf: UniffiByteArray) => {
-        UniffiResult.writeError(uniffiResult, code, errBuf);
-      };
-      uniffiTraitInterfaceCallWithError(
-        /*makeCall:*/ uniffiMakeCall,
-        /*handleSuccess:*/ uniffiHandleSuccess,
-        /*handleError:*/ uniffiHandleError,
-        /*isErrorType:*/ MobileError.instanceOf,
-        /*lowerError:*/ FfiConverterTypeMobileError.lower.bind(
-          FfiConverterTypeMobileError,
-        ),
-        /*lowerString:*/ FfiConverterString.lower.bind(FfiConverterString),
-        /*alloc:*/ nativeModule().rustbuffer_alloc,
-      );
-      return uniffiResult;
-    },
-    remove: (uniffiHandle: bigint, key: Uint8Array) => {
-      const uniffiMakeCall = (): void => {
-        const jsCallback = FfiConverterTypeSecretVault.lift(uniffiHandle);
-        return jsCallback.remove(FfiConverterString.lift(key));
-      };
-      const uniffiResult = UniffiResult.ready<void>();
-      const uniffiHandleSuccess = (obj: any) => {};
-      const uniffiHandleError = (code: number, errBuf: UniffiByteArray) => {
-        UniffiResult.writeError(uniffiResult, code, errBuf);
-      };
-      uniffiTraitInterfaceCallWithError(
-        /*makeCall:*/ uniffiMakeCall,
-        /*handleSuccess:*/ uniffiHandleSuccess,
-        /*handleError:*/ uniffiHandleError,
-        /*isErrorType:*/ MobileError.instanceOf,
-        /*lowerError:*/ FfiConverterTypeMobileError.lower.bind(
-          FfiConverterTypeMobileError,
-        ),
-        /*lowerString:*/ FfiConverterString.lower.bind(FfiConverterString),
-        /*alloc:*/ nativeModule().rustbuffer_alloc,
-      );
-      return uniffiResult;
-    },
-    uniffi_free: (uniffiHandle: UniffiHandle): void => {
-      // this will throw a stale handle error if the handle isn't found.
-      FfiConverterTypeSecretVault.drop(uniffiHandle);
-    },
-    uniffi_clone: (uniffiHandle: UniffiHandle): UniffiHandle => {
-      return FfiConverterTypeSecretVault.clone(uniffiHandle);
-    },
-  },
-  register: () => {
-    nativeModule().ubrn_uniffi_koloda_mobile_fn_init_callback_vtable_secretvault(
-      uniffiCallbackInterfaceSecretVault.vtable,
-    );
-  },
-};
-
-// FfiConverter protocol for callback interfaces
-const FfiConverterTypeSecretVault = new FfiConverterCallback<SecretVault>();
-
 // FfiConverter for string | undefined
 const FfiConverterOptionalString = new FfiConverterOptional(FfiConverterString);
 
@@ -1418,14 +1278,6 @@ function uniffiEnsureInitialized() {
     throw new UniffiInternalError.ContractVersionMismatch(
       scaffoldingContractVersion,
       bindingsContractVersion,
-    );
-  }
-  if (
-    nativeModule().ubrn_uniffi_koloda_mobile_checksum_func_register_secret_vault() !==
-    47226
-  ) {
-    throw new UniffiInternalError.ApiChecksumMismatch(
-      "uniffi_koloda_mobile_checksum_func_register_secret_vault",
     );
   }
   if (
@@ -1588,8 +1440,6 @@ function uniffiEnsureInitialized() {
       "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_status",
     );
   }
-
-  uniffiCallbackInterfaceSecretVault.register();
 }
 
 export default Object.freeze({

@@ -3,21 +3,22 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use koloda_mobile::{register_secret_vault, KolodaMobile, MobileError, SecretVault};
+use koloda_mobile::KolodaMobile;
+use koloda_mobile_vault::{register_secret_vault, SecretVault, VaultError};
 use serde_json::{json, Value};
 
 #[derive(Default)]
 struct MemoryVault(Mutex<HashMap<String, String>>);
 
 impl SecretVault for MemoryVault {
-    fn get(&self, key: String) -> Result<Option<String>, MobileError> {
+    fn get(&self, key: String) -> Result<Option<String>, VaultError> {
         Ok(self.0.lock().unwrap_or_else(|e| e.into_inner()).get(&key).cloned())
     }
-    fn set(&self, key: String, value: String) -> Result<(), MobileError> {
+    fn set(&self, key: String, value: String) -> Result<(), VaultError> {
         self.0.lock().unwrap_or_else(|e| e.into_inner()).insert(key, value);
         Ok(())
     }
-    fn remove(&self, key: String) -> Result<(), MobileError> {
+    fn remove(&self, key: String) -> Result<(), VaultError> {
         self.0.lock().unwrap_or_else(|e| e.into_inner()).remove(&key);
         Ok(())
     }

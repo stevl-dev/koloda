@@ -1,0 +1,3 @@
+# WHY: this crate links into `koloda-mobile`'s library; it builds none of its own.
+[bindings.kotlin]
+cdylib_name = "koloda_mobile"

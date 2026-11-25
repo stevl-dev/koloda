@@ -1,0 +1,15 @@
+[package]
+name = "koloda-mobile-vault"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+name = "koloda_mobile_vault"
+
+[lints]
+workspace = true
+
+[dependencies]
+koloda = { path = "../../../../crates/koloda" }
+# WHY: uniffi-bindgen-react-native 0.31 generates bindings for this exact UniFFI version.
+uniffi = "=0.31"

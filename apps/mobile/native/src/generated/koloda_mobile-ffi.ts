@@ -172,13 +172,6 @@ interface NativeModuleInterface {
     ptr: bigint,
     uniffi_out_err: UniffiRustCallStatus,
   ): void;
-  ubrn_uniffi_koloda_mobile_fn_init_callback_vtable_secretvault(
-    vtable: UniffiVTableCallbackInterfaceKolodaMobileSecretVault,
-  ): void;
-  ubrn_uniffi_koloda_mobile_fn_func_register_secret_vault(
-    vault: bigint,
-    uniffi_out_err: UniffiRustCallStatus,
-  ): void;
   ubrn_uniffi_koloda_mobile_fn_constructor_kolodamobile_new(
     dbPath: Uint8Array,
     uniffi_out_err: UniffiRustCallStatus,
@@ -257,7 +250,6 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
   ): bigint;
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
-  ubrn_uniffi_koloda_mobile_checksum_func_register_secret_vault(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_attachment(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards(): number;
@@ -303,32 +295,6 @@ export type UniffiForeignFutureDroppedCallback = (handle: bigint) => void;
 export type UniffiForeignFutureDroppedCallbackStruct = {
   handle: bigint;
   free: UniffiForeignFutureDroppedCallback;
-};
-type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod0 = (
-  uniffiHandle: bigint,
-  key: Uint8Array,
-) => Uint8Array;
-type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod1 = (
-  uniffiHandle: bigint,
-  key: Uint8Array,
-  value: Uint8Array,
-) => UniffiResult<void>;
-type UniffiCallbackInterfaceKolodaMobileSecretVaultMethod2 = (
-  uniffiHandle: bigint,
-  key: Uint8Array,
-) => UniffiResult<void>;
-type UniffiCallbackInterfaceCloneKolodaMobileSecretVault = (
-  handle: bigint,
-) => UniffiResult<void>;
-type UniffiCallbackInterfaceFreeKolodaMobileSecretVault = (
-  handle: bigint,
-) => void;
-export type UniffiVTableCallbackInterfaceKolodaMobileSecretVault = {
-  uniffi_free: UniffiCallbackInterfaceFreeKolodaMobileSecretVault;
-  uniffi_clone: UniffiCallbackInterfaceCloneKolodaMobileSecretVault;
-  get: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod0;
-  set: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod1;
-  remove: UniffiCallbackInterfaceKolodaMobileSecretVaultMethod2;
 };
 
 // UniffiRustFutureContinuationCallback is generated as part of the component interface's

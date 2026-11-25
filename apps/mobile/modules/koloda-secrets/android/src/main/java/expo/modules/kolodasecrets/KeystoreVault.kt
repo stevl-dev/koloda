@@ -9,8 +9,8 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import uniffi.koloda_mobile.MobileException
-import uniffi.koloda_mobile.SecretVault
+import uniffi.koloda_mobile_vault.VaultException
+import uniffi.koloda_mobile_vault.SecretVault
 
 private const val KEYSTORE = "AndroidKeyStore"
 private const val KEY_ALIAS = "koloda-secrets"
@@ -57,13 +57,13 @@ class KeystoreVault(context: Context) : SecretVault {
     return generator.generateKey()
   }
 
-  // WHY: Rust expects failures as the `MobileError` it declared; any other exception would abort the call.
+  // WHY: Rust expects failures as the `VaultError` it declared; any other exception would abort the call.
   private fun <T> guard(block: () -> T): T =
     try {
       block()
-    } catch (error: MobileException) {
+    } catch (error: VaultException) {
       throw error
     } catch (error: Exception) {
-      throw MobileException.App("secret-store", error.message ?: error.toString())
+      throw VaultException.App("secret-store", error.message ?: error.toString())
     }
 }

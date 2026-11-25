@@ -6,7 +6,7 @@
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
-use koloda::app::secrets::{register_host_secret_store, SecretStore};
+use koloda::app::secrets::SecretStore;
 use koloda::domain::attachments::AddAttachmentData;
 use koloda::domain::cards::InsertCardData;
 use koloda::domain::decks::InsertDeckData;
@@ -145,49 +145,8 @@ where
         .map_err(|_closed| unknown(format!("{worker} worker dropped the call")))?
 }
 
-/// The host's secret store, which Kotlin (Android) or Swift (iOS) implements over the platform vault.
-/// INVARIANT: only native code implements it, through the native bindings; secrets never reach JS.
-#[uniffi::export(callback_interface)]
-pub trait SecretVault: Send + Sync {
-    fn get(&self, key: String) -> Result<Option<String>, MobileError>;
-    fn set(&self, key: String, value: String) -> Result<(), MobileError>;
-    fn remove(&self, key: String) -> Result<(), MobileError>;
-}
-
-struct VaultStore(Box<dyn SecretVault>);
-
-fn vault_error(err: MobileError) -> AppError {
-    let MobileError::App { code, details } = err;
-    AppError::new(&code, details)
-}
-
-impl SecretStore for VaultStore {
-    fn get(&self, key: &str) -> Result<Option<String>, AppError> {
-        self.0.get(key.to_string()).map_err(vault_error)
-    }
-    fn set(&self, key: &str, value: &str) -> Result<(), AppError> {
-        self.0.set(key.to_string(), value.to_string()).map_err(vault_error)
-    }
-    fn remove(&self, key: &str) -> Result<(), AppError> {
-        self.0.remove(key.to_string()).map_err(vault_error)
-    }
-}
-
-static VAULT: OnceLock<Arc<dyn SecretStore>> = OnceLock::new();
-
-// INVARIANT: the host's native code calls this at startup, before JS starts sync.
-#[uniffi::export]
-pub fn register_secret_vault(vault: Box<dyn SecretVault>) -> Result<(), MobileError> {
-    let store: Arc<dyn SecretStore> = Arc::new(VaultStore(vault));
-    // WHY: a JS reload re-runs registration in the same process; the first vault stays.
-    if VAULT.set(Arc::clone(&store)).is_ok() {
-        register_host_secret_store(store)?;
-    }
-    Ok(())
-}
-
 fn registered_vault() -> Result<Arc<dyn SecretStore>, MobileError> {
-    VAULT.get().map(Arc::clone).ok_or_else(|| {
+    koloda_mobile_vault::registered_vault().ok_or_else(|| {
         AppError::new(
             error_codes::SECRET_STORE,
             Some("Register the secret vault before starting sync".to_string()),
