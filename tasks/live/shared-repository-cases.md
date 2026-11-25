@@ -1,6 +1,6 @@
 # Shared repository cases
 
-Status: draft
+Status: ready
 Guides: agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/DECISIONS.md, agents/TESTING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/MARKDOWN.md
 Flow: local
 
@@ -92,14 +92,110 @@ Out:
 
 ## Open questions
 
-- [ ] 1. Seed format: named fixtures, raw rows, or calls through the repos themselves? — open
-- [ ] 2. How `expect` compares rows: exactly, or only the listed fields? — open
-- [ ] 3. Where the case files live: beside the rule cases in `crates/koloda/tests/cases/`,
-  or in a directory of their own? — open
-- [ ] 4. Which operations the first batch covers. — open
+- [x] 1. Seed format: named fixtures, raw rows, or calls through the repos themselves? —
+  Calls through each host's own repos, under symbolic names.
+  A raw-row seed is allowed only for read-validity cases (HD2), where the stored row is one the repos refuse to write.
+- [x] 2. How `expect` compares rows: exactly, or only the listed fields? —
+  Only the listed fields, rows in order.
+  Ids are written as the seed's symbolic names, so generated ids and timestamps never appear in a case.
+- [x] 3. Where the case files live: beside the rule cases in `crates/koloda/tests/cases/`,
+  or in a directory of their own? — A directory of its own, `crates/koloda/tests/repo-cases/`, with its own README.
+  The rule-case readers stay unchanged.
+- [x] 4. Which operations the first batch covers. —
+  Template reads, deck and algorithm reads, the conversation list, and lesson reads.
 
 ## Plan
 
-Written once the open questions are answered.
+Shared shape for every item.
+A case file is `crates/koloda/tests/repo-cases/<area>.json`, a list of operation tables.
+A table is `{ "operation": "<name>", "cases": [...] }`, the same as rule cases.
+A case is `{ "name", "seed", "input", "expect" }`:
+
+- `seed` is an ordered list of repository calls, each naming the entity it adds (`"as": "basic"`).
+  A reference to another seeded entity is its name.
+- `input` holds the operation's arguments, with entity names in place of ids.
+- `expect` is `{ "rows": [...] }`, `{ "row": ... }` (or `null`), or `{ "code": "<error code>" }`.
+  A row lists only the fields to check, with `id` and `*Id` fields written as names.
+- A case the hosts answer differently on purpose has `"expect": { "ts": ..., "rust": ... }`, and
+  a `"divergence"` string naming the entry in Accepted divergences of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`.
+
+Item 1 writes down the exact field names in the README; later items extend it only as their operations need.
+A fresh database holds no product rows: the migrations seed none.
+
+- [ ] 1. Run shared template-read cases on both hosts
+  Goal: Add the repository case format and run it over template reads on both hosts.
+  - Add `crates/koloda/tests/repo-cases/README.md` with the shape above, the readers, and the runners.
+  - Rust: a reader in `crates/koloda/tests/common/` beside `cases.rs`, and a runner module in
+    `crates/koloda/tests/integration/` (registered in `main.rs`).
+    The runner opens a fresh `test_db()`, seeds through `crates/koloda` repo calls, maps names to ids,
+    calls the operation through an adapter, serializes the result to JSON, and compares the listed fields.
+    The seed adds algorithms, templates, decks, and cards; the adapters cover `get_templates` and `get_template`.
+  - TS: a reader and a runner in `libs/db-sqlite/src/test/`, and one `*.integration.test.ts` that runs every table.
+    It seeds through the `libs/db-sqlite` repo calls, on `createTestDb()`.
+    Add the case directory to the `test` inputs in `libs/db-sqlite/project.json`.
+  - An unknown operation, seed kind, or name fails the run on both sides, and so does a split answer
+    with no `divergence`.
+  - Cases in `templates.json`: an empty list; the lock in the list for a template with and without cards (T5);
+    a single read, locked and not; a missing id.
+  - Delete the hand-written twins those cases replace:
+    `get_templates_reports_each_templates_own_lock` and its web twin "lists each template with its own lock",
+    and the web "marks a template as locked after cards exist for it" with its Rust counterpart, if one exists.
+  - Update §Rule cases of `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` and
+    `agents/TESTING.md` (§The TS ↔ Rust twin rule): a repository behavior both hosts implement has its cases in
+    `repo-cases/` once its operation has an adapter; until then it keeps a hand-written twin.
+  Constraints: Do not change `cases.rs`, `rule-cases.ts`, or the rule case files.
+  Cases that need time, transactions, interleaving, or sync stay hand-written.
+  Done when: `cargo test -p koloda --test integration` and `bunx nx test @koloda/db-sqlite` pass;
+  breaking the lock in either host's `getTemplates` fails that host's run; `bun run check:docs` passes.
+  Commit: Run shared template-read cases on both hosts
+  Depends on: none
+
+- [ ] 2. Run shared deck and algorithm read cases on both hosts
+  Goal: Add adapters for `getDecks`, `getDeck`, `getAlgorithms`, and `getAlgorithm` on both hosts,
+  with cases in `decks.json` and `algorithms.json`.
+  Cover list order, the fields each row maps (title, notes, `algorithmId`, `templateId`, content), and a missing id.
+  Move any hand-written read twins these cases cover into them, and delete the originals.
+  Constraints: Update round-trips and the keep-update-time tests are writes or depend on time; they stay as they are.
+  Done when: both suites pass, as in item 1.
+  Commit: Run shared deck and algorithm read cases on both hosts
+  Depends on: 1
+
+- [ ] 3. Seed stored rows the repos refuse, and pin how each host reads them
+  Goal: Add a raw-row seed kind, `{ "row": "<table>", "as": "<name>", "values": { ... } }`, for read-validity cases.
+  Add cases for a stored algorithm, template, and deck outside today's rules, read through the list and single reads.
+  They are split answers: desktop lists the row, web fails with the operation's code.
+  Each names the Accepted divergences entry on stored entity rows (HD2).
+  Move the web "fails a list read with db.get when a stored algorithm is outside today's rules" into a case,
+  and delete it.
+  Document the seed kind in the README.
+  Constraints: Raw rows are for read-validity cases only; the README says so.
+  Done when: both suites pass, as in item 1.
+  Commit: Seed refused rows in shared repository cases
+  Depends on: 2
+
+- [ ] 4. Run shared lesson-read cases on both hosts
+  Goal: Add adapters for `getLessons` and `getLessonCards`, with cases in `lessons.json`.
+  The case passes `dueAt` in `input`, and seeds card state and due time through the card add call,
+  so no case reads the clock.
+  Cover the counts by due status and deck filter, the draw order and limits, state 3 drawn as learn,
+  the cutoff (a card due exactly at `dueAt` is not drawn), no matching cards, and negative amounts.
+  Move the twins `get_lesson_cards_applies_limits_due_at_and_deck_filters` and
+  `get_lesson_cards_treats_state_three_as_learn` with their web twins, and the other read tests these cases cover.
+  Constraints: Submitting lesson results is a transaction; those tests stay hand-written.
+  Done when: both suites pass, as in item 1.
+  Commit: Run shared lesson-read cases on both hosts
+  Depends on: 1
+
+- [ ] 5. Run shared conversation-list cases on both hosts
+  Goal: Add a conversation save seed with explicit `createdAt` and `updatedAt`,
+  and adapters for `getConversations` and `getConversation`, with cases in `conversations.json`.
+  Cover the list order (updated time, then created time), the stored title and timestamps, and a missing id.
+  Constraints: Desktop returns full conversations and the renderer maps them with `toConversationListItem`
+  (`libs/app`); web maps them in the repo with the same function.
+  Compare only the fields both hosts return.
+  The mapping is one shared function with its own unit tests, so `hasTurns` and `isUnread` stay out of the cases.
+  Done when: both suites pass, as in item 1.
+  Commit: Run shared conversation-list cases on both hosts
+  Depends on: 1
 
 ## Outcome
