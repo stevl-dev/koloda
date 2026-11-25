@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addCard, getCards } from "./cards";
 import { updateDeck } from "./decks";
-import { getLessonCards, getLessons, getLessonData, submitLessonResult } from "./lessons";
+import { getLessonData, submitLessonResult } from "./lessons";
 import { getReviews } from "./reviews";
 import type { TestDb } from "../test/test-helpers";
-import { createCardContent, createTestDb, seedDeck, seedDeckContext, seedTemplate } from "../test/test-helpers";
+import { createCardContent, createTestDb, seedDeckContext, seedTemplate } from "../test/test-helpers";
 
 describe("lessons repository integration", () => {
   let testDb: TestDb;
@@ -16,200 +16,6 @@ describe("lessons repository integration", () => {
   afterEach(async () => {
     vi.useRealTimers();
     await testDb.close();
-  });
-
-  it("aggregates lesson counts by due status and deck filters", async () => {
-    const { db } = testDb;
-    const deckContextA = await seedDeckContext(db, { deck: { title: "Deck A" } });
-    const deckContextB = await seedDeckContext(db, { deck: { title: "Deck B" } });
-    const dueAt = new Date("2026-01-10T12:00:00.000Z");
-
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 0,
-    });
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 1,
-      dueAt: new Date("2026-01-10T11:00:00.000Z"),
-    });
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 1,
-      dueAt: new Date("2026-01-10T13:00:00.000Z"),
-    });
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 2,
-      dueAt: new Date("2026-01-10T10:00:00.000Z"),
-    });
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 2,
-      dueAt: new Date("2026-01-10T14:00:00.000Z"),
-    });
-    await addCard(db, {
-      deckId: deckContextB.deck.id,
-      templateId: deckContextB.template.id,
-      content: createCardContent(deckContextB.template),
-      state: 2,
-      dueAt: new Date("2026-01-10T09:00:00.000Z"),
-    });
-    // Relearning counts as learn.
-    await addCard(db, {
-      deckId: deckContextA.deck.id,
-      templateId: deckContextA.template.id,
-      content: createCardContent(deckContextA.template),
-      state: 3,
-      dueAt: new Date("2026-01-10T11:30:00.000Z"),
-    });
-    // Due exactly at the cutoff: not due yet, so neither is counted.
-    for (const state of [1, 2]) {
-      await addCard(db, {
-        deckId: deckContextA.deck.id,
-        templateId: deckContextA.template.id,
-        content: createCardContent(deckContextA.template),
-        state,
-        dueAt,
-      });
-    }
-
-    const lessons = await getLessons(db, dueAt);
-    const filteredLessons = await getLessons(db, dueAt, { deckIds: [deckContextA.deck.id] });
-
-    expect(lessons.total).toMatchObject({
-      untouched: 1,
-      learn: 2,
-      review: 2,
-      total: 5,
-    });
-    expect(lessons.decks.find((lesson) => lesson.id === deckContextA.deck.id)).toMatchObject({
-      title: "Deck A",
-      untouched: 1,
-      learn: 2,
-      review: 1,
-      total: 4,
-    });
-    expect(lessons.decks.find((lesson) => lesson.id === deckContextB.deck.id)).toMatchObject({
-      title: "Deck B",
-      untouched: 0,
-      learn: 0,
-      review: 1,
-      total: 1,
-    });
-    expect(filteredLessons.total).toMatchObject({
-      untouched: 1,
-      learn: 2,
-      review: 1,
-      total: 4,
-    });
-  });
-
-  // Twin of Rust `get_lesson_cards_applies_limits_due_at_and_deck_filters`.
-  it("draws new cards oldest first, then the soonest due learn and review cards, within the deck filter", async () => {
-    const { db } = testDb;
-    const { deck, template, algorithm } = await seedDeckContext(db);
-    const otherDeck = await seedDeck(db, { algorithmId: algorithm.id, templateId: template.id });
-    vi.useFakeTimers({ toFake: ["Date"] });
-
-    async function addCardAt(createdAt: number, deckId: string, state: number, dueAt?: number) {
-      vi.setSystemTime(createdAt);
-      const card = await addCard(db, {
-        deckId,
-        templateId: template.id,
-        content: createCardContent(template),
-        state,
-        dueAt: dueAt === undefined ? undefined : new Date(dueAt),
-      });
-      return card.id;
-    }
-
-    const untouchedFirst = await addCardAt(10, deck.id, 0);
-    await addCardAt(20, deck.id, 0);
-    const learnEarliestDue = await addCardAt(30, deck.id, 1, 800);
-    await addCardAt(40, deck.id, 1, 900);
-    await addCardAt(50, deck.id, 1, 1_100);
-    const reviewEarliestDue = await addCardAt(60, deck.id, 2, 700);
-    await addCardAt(70, deck.id, 2, 1_200);
-    await addCardAt(80, otherDeck.id, 0);
-    await addCardAt(90, otherDeck.id, 1, 600);
-    await addCardAt(100, otherDeck.id, 2, 500);
-
-    const cards = await getLessonCards(
-      db,
-      new Date(1_000),
-      { deckIds: [deck.id] },
-      { untouched: 1, learn: 1, review: 1, total: 3 },
-    );
-
-    expect(cards.map(({ id }) => id)).toEqual([untouchedFirst, learnEarliestDue, reviewEarliestDue]);
-    expect(cards.every(({ deckId }) => deckId === deck.id)).toBe(true);
-  });
-
-  // Twin of Rust `get_lesson_cards_treats_state_three_as_learn`.
-  it("draws due relearning cards as learn", async () => {
-    const { db } = testDb;
-    const { deck, template } = await seedDeckContext(db);
-    const relearningDue = await addCard(db, {
-      deckId: deck.id,
-      templateId: template.id,
-      content: createCardContent(template),
-      state: 3,
-      dueAt: new Date(900),
-    });
-    await addCard(db, {
-      deckId: deck.id,
-      templateId: template.id,
-      content: createCardContent(template),
-      state: 3,
-      dueAt: new Date(1_100),
-    });
-
-    const cards = await getLessonCards(
-      db,
-      new Date(1_000),
-      { deckIds: [deck.id] },
-      { untouched: 0, learn: 1, review: 0, total: 1 },
-    );
-
-    expect(cards.map(({ id, state }) => ({ id, state }))).toEqual([{ id: relearningDue.id, state: 3 }]);
-  });
-
-  it("does not draw learn or review cards due exactly at the cutoff", async () => {
-    const { db } = testDb;
-    const { deck, template } = await seedDeckContext(db);
-    const addDue = async (state: number, dueAt: number) =>
-      (
-        await addCard(db, {
-          deckId: deck.id,
-          templateId: template.id,
-          content: createCardContent(template),
-          state,
-          dueAt: new Date(dueAt),
-        })
-      ).id;
-    const learnDue = await addDue(1, 999);
-    const reviewDue = await addDue(2, 999);
-    for (const state of [1, 2, 3]) await addDue(state, 1_000);
-
-    const cards = await getLessonCards(
-      db,
-      new Date(1_000),
-      { deckIds: [deck.id] },
-      { untouched: 0, learn: 10, review: 10, total: 20 },
-    );
-
-    expect(cards.map(({ id }) => id)).toEqual([learnDue, reviewDue]);
   });
 
   it("assembles lesson cards, decks, templates, and algorithms together", async () => {
@@ -313,26 +119,6 @@ describe("lessons repository integration", () => {
     );
 
     expect(lessonData).toBeNull();
-  });
-
-  it("rejects negative lesson amounts", async () => {
-    const { db } = testDb;
-    const { deck, template } = await seedDeckContext(db);
-    await addCard(db, {
-      deckId: deck.id,
-      templateId: template.id,
-      content: createCardContent(template),
-      state: 0,
-    });
-
-    await expect(
-      getLessonCards(
-        db,
-        new Date("2026-01-10T12:00:00.000Z"),
-        { deckIds: [deck.id] },
-        { untouched: -1, learn: 0, review: 0, total: 0 },
-      ),
-    ).rejects.toMatchObject({ code: "validation.lessons.amounts.negative" });
   });
 
   it("stores the updated card and review when a lesson result is submitted", async () => {

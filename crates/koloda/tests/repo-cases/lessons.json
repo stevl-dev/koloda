@@ -1,0 +1,196 @@
+[
+  {
+    "operation": "getLessons",
+    "cases": [
+      {
+        "name": "counts untouched, due learn, and due review cards per deck and in total",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "a", "title": "Deck A", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "b", "title": "Deck B", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 0 },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 1, "dueAt": 900 },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 1, "dueAt": 1100 },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 2, "dueAt": 800 },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 2, "dueAt": 1200 },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 3, "dueAt": 700 },
+          { "add": "card", "deckId": "@b", "templateId": "@basic", "state": 0 },
+          { "add": "card", "deckId": "@b", "templateId": "@basic", "state": 2, "dueAt": 500 }
+        ],
+        "input": { "dueAt": 1000 },
+        "expect": {
+          "returns": {
+            "total": { "untouched": 2, "learn": 2, "review": 2, "total": 6 },
+            "decks": [
+              { "id": "@a", "title": "Deck A", "untouched": 1, "learn": 2, "review": 1, "total": 4 },
+              { "id": "@b", "title": "Deck B", "untouched": 1, "learn": 0, "review": 1, "total": 2 }
+            ]
+          }
+        }
+      },
+      {
+        "name": "a card due exactly at the cutoff is not counted",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 1000 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 2, "dueAt": 1000 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 3, "dueAt": 1000 }
+        ],
+        "input": { "dueAt": 1000 },
+        "expect": {
+          "returns": {
+            "total": { "untouched": 0, "learn": 0, "review": 0, "total": 0 },
+            "decks": [{ "id": "@deck", "untouched": 0, "learn": 0, "review": 0, "total": 0 }]
+          }
+        }
+      },
+      {
+        "name": "a deck filter counts only the listed decks",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "a", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "b", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 0 },
+          { "add": "card", "deckId": "@b", "templateId": "@basic", "state": 2, "dueAt": 500 }
+        ],
+        "input": { "dueAt": 1000, "filters": { "deckIds": ["@a"] } },
+        "expect": {
+          "returns": {
+            "total": { "untouched": 1, "learn": 0, "review": 0, "total": 1 },
+            "decks": [{ "id": "@a", "total": 1 }]
+          }
+        }
+      },
+      {
+        "name": "an empty deck filter counts every deck",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "a", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "b", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@a", "templateId": "@basic", "state": 0 },
+          { "add": "card", "deckId": "@b", "templateId": "@basic", "state": 2, "dueAt": 500 }
+        ],
+        "input": { "dueAt": 1000, "filters": { "deckIds": [] } },
+        "expect": {
+          "returns": {
+            "total": { "untouched": 1, "learn": 0, "review": 1, "total": 2 },
+            "decks": [{ "id": "@a", "total": 1 }, { "id": "@b", "total": 1 }]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "operation": "getLessonCards",
+    "cases": [
+      {
+        "name": "draws the oldest untouched card, then the soonest due learn and review cards, within the deck filter",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "other", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 0, "createdAt": 20 },
+          {
+            "add": "card",
+            "as": "untouchedOldest",
+            "deckId": "@deck",
+            "templateId": "@basic",
+            "state": 0,
+            "createdAt": 10
+          },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 900 },
+          { "add": "card", "as": "learnSoonest", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 800 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 1100 },
+          { "add": "card", "as": "reviewSoonest", "deckId": "@deck", "templateId": "@basic", "state": 2, "dueAt": 700 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 2, "dueAt": 1200 },
+          { "add": "card", "deckId": "@other", "templateId": "@basic", "state": 0, "createdAt": 1 },
+          { "add": "card", "deckId": "@other", "templateId": "@basic", "state": 1, "dueAt": 600 },
+          { "add": "card", "deckId": "@other", "templateId": "@basic", "state": 2, "dueAt": 500 }
+        ],
+        "input": {
+          "dueAt": 1000,
+          "filters": { "deckIds": ["@deck"] },
+          "amounts": { "untouched": 1, "learn": 1, "review": 1, "total": 3 }
+        },
+        "expect": {
+          "returns": [
+            { "id": "@untouchedOldest", "deckId": "@deck", "state": 0 },
+            { "id": "@learnSoonest", "deckId": "@deck", "state": 1, "dueAt": 800 },
+            { "id": "@reviewSoonest", "deckId": "@deck", "state": 2, "dueAt": 700 }
+          ]
+        }
+      },
+      {
+        "name": "draws due relearning cards as learn",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "as": "due", "deckId": "@deck", "templateId": "@basic", "state": 3, "dueAt": 900 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 3, "dueAt": 1100 }
+        ],
+        "input": {
+          "dueAt": 1000,
+          "filters": { "deckIds": ["@deck"] },
+          "amounts": { "untouched": 0, "learn": 1, "review": 0, "total": 1 }
+        },
+        "expect": { "returns": [{ "id": "@due", "state": 3 }] }
+      },
+      {
+        "name": "does not draw learn or review cards due exactly at the cutoff",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "as": "learnDue", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 999 },
+          { "add": "card", "as": "reviewDue", "deckId": "@deck", "templateId": "@basic", "state": 2, "dueAt": 999 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 1, "dueAt": 1000 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 2, "dueAt": 1000 },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 3, "dueAt": 1000 }
+        ],
+        "input": {
+          "dueAt": 1000,
+          "filters": { "deckIds": ["@deck"] },
+          "amounts": { "untouched": 0, "learn": 10, "review": 10, "total": 20 }
+        },
+        "expect": { "returns": [{ "id": "@learnDue" }, { "id": "@reviewDue" }] }
+      },
+      {
+        "name": "zero amounts draw no cards",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 0 }
+        ],
+        "input": {
+          "dueAt": 1000,
+          "filters": { "deckIds": ["@deck"] },
+          "amounts": { "untouched": 0, "learn": 0, "review": 0, "total": 0 }
+        },
+        "expect": { "returns": [] }
+      },
+      {
+        "name": "a negative amount is rejected rather than read as no limit",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic", "state": 0 }
+        ],
+        "input": {
+          "dueAt": 1000,
+          "filters": { "deckIds": ["@deck"] },
+          "amounts": { "untouched": -1, "learn": 0, "review": 0, "total": 0 }
+        },
+        "expect": { "code": "validation.lessons.amounts.negative" }
+      }
+    ]
+  }
+]

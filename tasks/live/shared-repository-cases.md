@@ -174,7 +174,7 @@ A fresh database holds no product rows: the migrations seed none.
   Commit: Seed refused rows in shared repository cases
   Depends on: 2
 
-- [ ] 4. Run shared lesson-read cases on both hosts
+- [x] 4. Run shared lesson-read cases on both hosts
   Goal: Add adapters for `getLessons` and `getLessonCards`, with cases in `lessons.json`.
   The case passes `dueAt` in `input`, and seeds card state and due time through the card add call,
   so no case reads the clock.

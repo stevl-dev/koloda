@@ -43,6 +43,8 @@ A step is `{ "add": "<kind>", "as": "<name>", ... }`.
 - `"@<name>"` anywhere in a seed step or in `input` stands for that row's id.
   A name no step gave fails the run.
 - In the result, every id a step generated reads as `"@<name>"`.
+- Ids grow in seed order on both hosts (UUIDv7, monotonic within a process),
+  so a list that orders by id lists rows in the order the steps added them.
 - A field whose key ends in `At` holds a timestamp as epoch ms, in seeds, in `input`, and in `returns`.
 - An object in `returns` lists only the fields the case checks; the others are ignored.
   An array matches item by item, in order, and must have the same length.

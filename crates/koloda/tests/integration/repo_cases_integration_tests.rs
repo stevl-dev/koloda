@@ -3,7 +3,7 @@
 
 use koloda::app::db::Database;
 use koloda::app::error::AppError;
-use koloda::repo::{algorithms, cards, decks, templates};
+use koloda::repo::{algorithms, cards, decks, lessons, templates};
 use rusqlite::types::Value as SqlValue;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -65,6 +65,14 @@ fn call(db: &Database, operation: &str, input: &Value) -> Option<Result<Value, A
             None => decks::get_decks(db),
         })),
         "getDeck" => Some(json(decks::get_deck(db, str_field(input, "id")))),
+        "getLessons" => Some(json(lessons::get_lessons(
+            db,
+            require_ok(parse(input.clone()), "input"),
+        ))),
+        "getLessonCards" => Some(json(lessons::get_lesson_cards(
+            db,
+            &require_ok(parse(input.clone()), "input"),
+        ))),
         "getTemplates" => Some(json(templates::get_templates(db))),
         "getTemplate" => Some(json(templates::get_template(db, str_field(input, "id")))),
         _ => None,
