@@ -111,7 +111,7 @@ export function timestampsAsDates(value: unknown): unknown {
   );
 }
 
-export function timestampsAsMs(value: unknown): unknown {
+function timestampsAsMs(value: unknown): unknown {
   if (value instanceof Date) return value.getTime();
   if (Array.isArray(value)) return value.map(timestampsAsMs);
   if (value === null || typeof value !== "object") return value;
@@ -169,7 +169,7 @@ export async function observe(names: Names, call: () => Promise<unknown>): Promi
 }
 
 /** Whether `actual` holds what `expected` states: an object only the fields it lists, an array every item in order. */
-export function matches(expected: unknown, actual: unknown): boolean {
+function matches(expected: unknown, actual: unknown): boolean {
   if (Array.isArray(expected)) {
     return (
       Array.isArray(actual) &&
