@@ -25,7 +25,8 @@ A case is `{ "name", "seed", "input", "expect" }`, and runs on a fresh, migrated
 
 A step is `{ "add": "<kind>", "as": "<name>", ... }`.
 
-- The kinds are `algorithm`, `template`, `deck`, and `card`.
+- The kinds are `algorithm`, `template`, `deck`, `card`, and `conversation`.
+  A conversation step gives its own `id`, as the save call does; the others' ids are generated.
 - The step's other fields are merged over the kind's payload in `defaults.json`, and the result is the add call's data.
   So a step lists only what the case is about.
 - `as` names the row, so the case can refer to it.

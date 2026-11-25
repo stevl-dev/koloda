@@ -15,12 +15,6 @@ describe("conversations repository integration", () => {
     await testDb.close();
   });
 
-  it("returns null for a missing conversation", async () => {
-    const { db } = testDb;
-    const result = await getConversation(db, "nonexistent-id");
-    expect(result).toBeNull();
-  });
-
   it("round-trips a conversation's state and title through save, get, and list", async () => {
     const { db } = testDb;
     const createdAt = new Date(1700000000000);
@@ -114,34 +108,6 @@ describe("conversations repository integration", () => {
     const saved = await setConversation(db, { id, state });
 
     expect(saved.updatedAt).toEqual(new Date(1_750_000_000_000));
-  });
-
-  it("lists conversations by updated time, then by created time", async () => {
-    const { db } = testDb;
-    const state = {
-      id: "",
-      createdAt: new Date(1700000000000),
-      messages: [],
-      runs: {},
-      activeRunId: null,
-      deckId: null,
-    };
-    const save = async (id: string, createdAtMs: number, updatedAtMs: number) => {
-      vi.setSystemTime(createdAtMs);
-      await setConversation(db, { id, state: { ...state, id }, updatedAt: new Date(updatedAtMs) });
-    };
-    vi.useFakeTimers({ toFake: ["Date"] });
-
-    await save("conv-a", 1_000, 1_000);
-    await save("conv-b", 2_000, 4_000);
-    // A later save moves conv-a ahead of conv-b.
-    await save("conv-a", 3_000, 5_000);
-    // conv-c and conv-d tie on updated_at; conv-d was created later.
-    await save("conv-c", 4_000, 3_000);
-    await save("conv-d", 5_000, 3_000);
-
-    const list = await getConversations(db);
-    expect(list.map((item) => item.id)).toEqual(["conv-a", "conv-b", "conv-d", "conv-c"]);
   });
 
   it("keeps the first save's createdAt when a later save conflicts", async () => {

@@ -227,47 +227,6 @@ fn set_conversation_accepts_null_state_payload() {
 }
 
 #[test]
-fn get_conversation_returns_none_for_missing_id() {
-    let db = test_db();
-    let result = repo::get_conversation(&db, "does-not-exist").expect("query should succeed");
-
-    assert!(result.is_none());
-}
-
-#[test]
-fn get_conversations_orders_by_updated_at_desc_then_created_at_desc() {
-    let db = test_db();
-    insert_row(&db, "oldest-touched-last", 1_000, Some(9_000));
-    insert_row(&db, "tied-older", 2_000, Some(5_000));
-    insert_row(&db, "tied-newer", 3_000, Some(5_000));
-
-    let result = repo::get_conversations(&db).expect("query should succeed");
-    let ids: Vec<&str> = result.iter().map(|c| c.id.as_str()).collect();
-
-    assert_eq!(
-        ids,
-        vec!["oldest-touched-last", "tied-newer", "tied-older"],
-        "updated_at DESC first, then created_at DESC breaks the tie"
-    );
-}
-
-#[test]
-fn get_conversations_groups_rows_with_null_updated_at_after_touched_rows() {
-    let db = test_db();
-
-    // WHY: set_conversation always stamps updated_at, so only a legacy row holds NULL.
-    // It is created later than the touched row, so created_at alone would put it first.
-    insert_row(&db, "untouched", 9_000, None);
-    insert_row(&db, "touched", 1_000, Some(2_000));
-
-    let result = repo::get_conversations(&db).expect("query should succeed");
-    assert_eq!(result.len(), 2);
-    assert_eq!(result[0].id, "touched");
-    assert_eq!(result[1].id, "untouched");
-    assert!(result[1].updated_at.is_none());
-}
-
-#[test]
 fn set_conversation_persists_explicit_title() {
     let db = test_db();
     let stored = repo::set_conversation(
@@ -360,33 +319,6 @@ fn set_conversation_upsert_can_clear_title_with_null() {
 }
 
 #[test]
-fn get_conversations_returns_title_on_each_row() {
-    let db = test_db();
-
-    repo::set_conversation(
-        &db,
-        SetConversationInput {
-            id: "with-title".to_string(),
-            state: json!({}),
-            title: Some("Titled".to_string()),
-            updated_at: None,
-        },
-    )
-    .expect("set should succeed");
-
-    set(&db, "without-title", json!({})).expect("set should succeed");
-
-    let list = repo::get_conversations(&db).expect("query should succeed");
-    assert_eq!(list.len(), 2);
-
-    let titled = list.iter().find(|c| c.id == "with-title").expect("row should exist");
-    let untitled = list.iter().find(|c| c.id == "without-title").expect("row should exist");
-
-    assert_eq!(titled.title.as_deref(), Some("Titled"));
-    assert!(untitled.title.is_none());
-}
-
-#[test]
 fn delete_conversation_removes_row() {
     let db = test_db();
     let id = add_conversation(&db, "conv-del", json!({"x": 1}));
@@ -471,27 +403,5 @@ fn unconditional_upsert_recreates_row_after_delete() {
     assert!(
         repo::get_conversation(&db, id).expect("query should succeed").is_some(),
         "unconditional upsert recreates the row"
-    );
-}
-
-#[test]
-fn get_conversation_row_failure_on_invalid_state_json() {
-    // `get_conversation` should surface an error (not silently swallow) when
-    // the `state` column contains something that is not valid JSON.
-    let db = test_db();
-
-    db.with_conn(|conn| {
-        conn.execute(
-            "INSERT INTO conversations (id, state, created_at, updated_at) VALUES (?1, ?2, ?3, NULL)",
-            rusqlite::params!["broken", "not-valid-json{", 1_700_000_000_000_i64],
-        )?;
-        Ok(())
-    })
-    .expect("row should insert with raw text in state column");
-
-    let result = repo::get_conversation(&db, "broken");
-    assert!(
-        result.is_err(),
-        "malformed state JSON should produce an error, not a silent success"
     );
 }

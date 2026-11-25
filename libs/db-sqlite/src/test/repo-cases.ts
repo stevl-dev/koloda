@@ -2,9 +2,11 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isAppError } from "@koloda/app";
+import type { SetConversationData } from "@koloda/app";
 import type { InsertAlgorithmData, InsertCardData, InsertDeckData, InsertTemplateData } from "@koloda/srs";
 import { addAlgorithm } from "../lib/algorithms";
 import { addCard } from "../lib/cards";
+import { setConversation } from "../lib/conversations";
 import type { DB } from "../lib/db";
 import { addDeck } from "../lib/decks";
 import { addTemplate } from "../lib/templates";
@@ -127,6 +129,7 @@ const SEEDERS: Record<string, { table: string; add: (db: DB, data: never) => Pro
   template: { table: "templates", add: (db, data: InsertTemplateData) => addTemplate(db, data) },
   deck: { table: "decks", add: (db, data: InsertDeckData) => addDeck(db, data) },
   card: { table: "cards", add: (db, data: InsertCardData) => addCard(db, data) },
+  conversation: { table: "conversations", add: (db, data: SetConversationData) => setConversation(db, data) },
 };
 
 export async function seed(db: DB, repoCase: RepoCase): Promise<Names> {

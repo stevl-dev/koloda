@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getAlgorithm, getAlgorithms } from "./algorithms";
+import { getConversation, getConversations } from "./conversations";
 import type { DB } from "./db";
 import { getDeck, getDecks } from "./decks";
 import { getLessonCards, getLessons } from "./lessons";
@@ -14,6 +15,8 @@ const OPERATIONS: Record<string, (db: DB, input: Record<string, never>) => Promi
   getAlgorithm: (db, input) => getAlgorithm(db, input.id),
   getDecks: (db, input) => getDecks(db, input.ids),
   getDeck: (db, input) => getDeck(db, input.id),
+  getConversations: (db) => getConversations(db),
+  getConversation: (db, input) => getConversation(db, input.id),
   getLessons: (db, input) => getLessons(db, input.dueAt, input.filters),
   getLessonCards: (db, input) => getLessonCards(db, input.dueAt, input.filters, input.amounts),
   getTemplates: (db) => getTemplates(db),

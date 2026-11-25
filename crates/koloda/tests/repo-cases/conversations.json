@@ -1,0 +1,67 @@
+[
+  {
+    "operation": "getConversations",
+    "cases": [
+      {
+        "name": "an empty database lists no conversations",
+        "expect": { "returns": [] }
+      },
+      {
+        "name": "lists conversations by updated time, newest first, then by created time",
+        "seed": [
+          { "add": "conversation", "id": "touched-last", "createdAt": 1000, "updatedAt": 9000 },
+          { "add": "conversation", "id": "tied-older", "createdAt": 2000, "updatedAt": 5000 },
+          { "add": "conversation", "id": "tied-newer", "createdAt": 3000, "updatedAt": 5000 }
+        ],
+        "expect": {
+          "returns": [
+            { "id": "touched-last", "createdAt": 1000, "updatedAt": 9000 },
+            { "id": "tied-newer", "createdAt": 3000, "updatedAt": 5000 },
+            { "id": "tied-older", "createdAt": 2000, "updatedAt": 5000 }
+          ]
+        }
+      },
+      {
+        "name": "lists a stored row without an update time after the touched rows",
+        "seed": [
+          { "add": "conversation", "id": "untouched", "createdAt": 9000, "stored": { "updated_at": null } },
+          { "add": "conversation", "id": "touched", "createdAt": 1000, "updatedAt": 2000 }
+        ],
+        "expect": { "returns": [{ "id": "touched" }, { "id": "untouched", "updatedAt": null }] }
+      },
+      {
+        "name": "lists each conversation's title, and null for none",
+        "seed": [
+          { "add": "conversation", "id": "with-title", "title": "Titled", "updatedAt": 2000 },
+          { "add": "conversation", "id": "without-title", "updatedAt": 1000 }
+        ],
+        "expect": { "returns": [{ "id": "with-title", "title": "Titled" }, { "id": "without-title", "title": null }] }
+      }
+    ]
+  },
+  {
+    "operation": "getConversation",
+    "cases": [
+      {
+        "name": "reads a conversation's title and times by id",
+        "seed": [
+          { "add": "conversation", "id": "conv", "title": "Titled", "createdAt": 1000, "updatedAt": 2000 },
+          { "add": "conversation", "id": "other" }
+        ],
+        "input": { "id": "conv" },
+        "expect": { "returns": { "id": "conv", "title": "Titled", "createdAt": 1000, "updatedAt": 2000 } }
+      },
+      {
+        "name": "a missing id reads as null",
+        "input": { "id": "does-not-exist" },
+        "expect": { "returns": null }
+      },
+      {
+        "name": "a stored state that is not JSON fails the read",
+        "seed": [{ "add": "conversation", "id": "broken", "stored": { "state": "not-valid-json{" } }],
+        "input": { "id": "broken" },
+        "expect": { "code": "db.get" }
+      }
+    ]
+  }
+]

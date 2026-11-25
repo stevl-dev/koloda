@@ -187,7 +187,7 @@ A fresh database holds no product rows: the migrations seed none.
   Commit: Run shared lesson-read cases on both hosts
   Depends on: 1
 
-- [ ] 5. Run shared conversation-list cases on both hosts
+- [x] 5. Run shared conversation-list cases on both hosts
   Goal: Add a conversation save seed with explicit `createdAt` and `updatedAt`,
   and adapters for `getConversations` and `getConversation`, with cases in `conversations.json`.
   Cover the list order (updated time, then created time), the stored title and timestamps, and a missing id.
