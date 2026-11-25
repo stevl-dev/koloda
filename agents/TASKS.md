@@ -49,7 +49,7 @@ The human picks the flow when the task is scheduled.
 To switch, the human asks; update the line in the same commit.
 Switching to `remote` pushes the branch at the next commit.
 
-### Schedule (create)
+### Draft (create)
 
 1. Sync, then branch from `origin/main`.
    - Run `git fetch origin`.
@@ -60,7 +60,8 @@ Switching to `remote` pushes the branch at the next commit.
 2. Add `tasks/live/<slug>.md` with `Status: draft`, its `Guides:` line, and its `Flow:` line (default `local`).
    - Route the work in `agents/INDEX.md` and list the guides it needs on that line.
    - Include the guides the Plan will need, not only the first change's.
-3. Push the branch only if `Flow` is `remote`.
+3. Commit it with the subject `Draft <slug>` and the `Task: <slug>` line.
+4. Push the branch only if `Flow` is `remote`.
 
 When the work is a backlog item (§Backlog):
 
@@ -82,6 +83,12 @@ Approval is not an instruction to implement.
 Wait for the human to explicitly ask to implement.
 Do not change status for that ask.
 `ready` stays `ready` until `done`.
+
+Before approval the branch holds only the Draft commit.
+Answers, Scope edits, and the Plan stay in the working tree; do not commit them on their own.
+The approval commit carries them with the status flip, with the subject `Approve <slug>`.
+If `Flow` is `remote` and the draft must reach another machine before approval,
+amend the Draft commit and force-push with lease.
 
 If the task depends on another open task, say so in Plan `Depends on:`.
 Then either stack or wait.
@@ -139,7 +146,7 @@ A passing self-review is not that ask.
 Gate: the branch lands only if all of these hold.
 
 - The human asked to land.
-- The oldest commit on `origin/main..HEAD` is the Add commit.
+- The oldest commit on `origin/main..HEAD` is the Draft commit.
   It adds `tasks/live/<slug>.md`.
 - The newest commit on `origin/main..HEAD` is the Archive commit.
   It moves the file to `tasks/archive/<slug>.md`, with `Status: done` and Outcome filled,
@@ -158,7 +165,8 @@ On the task branch, once self-review has passed and the tip is green:
 1. Fill Outcome.
 2. Flip Status to `done`.
 3. Add an entry to `tasks/DEFERRED.md` for each item the task leaves undone (§Deferred work).
-4. Move `tasks/live/<slug>.md` to `tasks/archive/<slug>.md` and commit it with the entries as Archive.
+4. Move `tasks/live/<slug>.md` to `tasks/archive/<slug>.md` and commit it with the entries,
+   with the subject `Archive <slug>`.
 5. Run `bun run land`.
    - It rebases onto `origin/main`, pushes the branch, and waits for `checks` on that exact tip.
    - For `local`, this is the branch's first push.
@@ -265,7 +273,7 @@ After approval, flip Status to `ready`.
 
 A task that triages an audit report keeps the report's findings in its task file.
 `tmp/audits/<slug>.md` is gitignored, so the task file is the report's only durable form.
-The same holds for a report kept as a backlog brief: scheduling its task deletes the brief (§Schedule).
+The same holds for a report kept as a backlog brief: scheduling its task deletes the brief (§Draft).
 Do not commit the report on the task branch.
 It would add a second file under `live/` that the Archive gate does not move.
 
@@ -288,7 +296,7 @@ It would add a second file under `live/` that the Archive gate does not move.
 Its header points here and does not restate these rules.
 
 Work does not have to pass through the backlog.
-Work that starts now is scheduled directly (§Schedule), or done as a small fix with no task file.
+Work that starts now is scheduled directly (§Draft), or done as a small fix with no task file.
 An item goes on the backlog only when it has to wait.
 
 ### Index
@@ -353,7 +361,7 @@ The entries for a target are those whose `Area:` names a path inside the target,
 
 ### How an entry leaves
 
-- Scheduling an item removes its entry and deletes its brief, in the commit that adds the task file (§Schedule).
+- Scheduling an item removes its entry and deletes its brief, in the commit that adds the task file (§Draft).
   Both leave `main` when the task lands, and both stay if the branch is abandoned.
 - A task that takes only part of an item trims the entry and the brief to what remains.
 - The human drops an entry; the commit body gives the reason.
@@ -465,6 +473,7 @@ The next audit of the area reports that entry as resolved.
 2. Record open questions as they appear.
    - Do not guess answers.
 3. Before ending a session, update Open questions and Plan on the task branch.
+   - Before approval, these edits stay uncommitted (§Ready).
    - The next session starts from the file.
 4. After self-review passes on a green tip, report to the human and wait (§Self-review).
 5. When the human asks to land, follow §Done.

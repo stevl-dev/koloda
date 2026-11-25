@@ -36,10 +36,10 @@ function commit(overrides: Partial<TaskCommit>): TaskCommit {
   return { trailers: [slug], changes: ["M src/app.ts"], ...overrides };
 }
 
-const addCommit = commit({ changes: [`A ${live}`] });
+const draftCommit = commit({ changes: [`A ${live}`] });
 const workCommit = commit({});
 const archiveCommit = commit({ changes: [`A ${archived}`, `D ${live}`] });
-const train = [addCommit, workCommit, archiveCommit];
+const train = [draftCommit, workCommit, archiveCommit];
 
 describe("landingBranch", () => {
   it("keeps a task branch", () => {
@@ -73,25 +73,25 @@ describe("taskGateProblems", () => {
   });
 
   it("rejects a commit without this task's trailer", () => {
-    const problems = taskGateProblems(slug, [addCommit, commit({ trailers: [] }), archiveCommit], archiveDone);
+    const problems = taskGateProblems(slug, [draftCommit, commit({ trailers: [] }), archiveCommit], archiveDone);
     expect(problems).toEqual([expect.stringContaining("commit 2 must carry exactly one")]);
   });
 
   it("rejects a commit that names another task", () => {
-    const problems = taskGateProblems(slug, [addCommit, commit({ trailers: ["other"] }), archiveCommit], archiveDone);
+    const problems = taskGateProblems(slug, [draftCommit, commit({ trailers: ["other"] }), archiveCommit], archiveDone);
     expect(problems).toEqual([expect.stringContaining("commit 2 must carry exactly one")]);
   });
 
-  it("requires the Add commit to be the oldest", () => {
-    const problems = taskGateProblems(slug, [workCommit, addCommit, archiveCommit], archiveDone);
-    expect(problems).toEqual([expect.stringContaining("the oldest commit must be the Add commit")]);
+  it("requires the Draft commit to be the oldest", () => {
+    const problems = taskGateProblems(slug, [workCommit, draftCommit, archiveCommit], archiveDone);
+    expect(problems).toEqual([expect.stringContaining("the oldest commit must be the Draft commit")]);
   });
 
   it("requires the Archive commit to be the newest and to move the live file", () => {
-    const problems = taskGateProblems(slug, [addCommit, archiveCommit, workCommit], archiveDone);
+    const problems = taskGateProblems(slug, [draftCommit, archiveCommit, workCommit], archiveDone);
     expect(problems).toEqual([expect.stringContaining("the newest commit must be the Archive commit")]);
     const noMove = commit({ changes: [`A ${archived}`] });
-    expect(taskGateProblems(slug, [addCommit, noMove], archiveDone)).toEqual([
+    expect(taskGateProblems(slug, [draftCommit, noMove], archiveDone)).toEqual([
       expect.stringContaining("the newest commit must be the Archive commit"),
     ]);
   });
@@ -141,13 +141,13 @@ describe("taskGateProblems", () => {
   describe("Spec line", () => {
     const spec = "docs/specs/NOTES.md";
     const specCommit = commit({ changes: [`M ${spec}`, "M src/app.ts"] });
-    const specTrain = [addCommit, specCommit, archiveCommit];
+    const specTrain = [draftCommit, specCommit, archiveCommit];
     const withSpec = (value: string) =>
       archiveDone.replace("Spec: none — notes have no user-visible behavior yet", `Spec: ${value}`);
 
     it("passes the specs the task changed", () => {
       const other = "docs/specs/DECKS.md";
-      const twoSpecs = [addCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
+      const twoSpecs = [draftCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
       expect(taskGateProblems(slug, twoSpecs, withSpec(`${spec}, ${other}`))).toEqual([]);
     });
 
@@ -178,7 +178,7 @@ describe("taskGateProblems", () => {
 
     it("rejects a changed spec that the line leaves out", () => {
       const other = "docs/specs/DECKS.md";
-      const twoSpecs = [addCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
+      const twoSpecs = [draftCommit, specCommit, commit({ changes: [`M ${other}`] }), archiveCommit];
       expect(taskGateProblems(slug, twoSpecs, withSpec(spec))).toEqual([
         `${archived} leaves ${other} out of \`Spec:\`, but the task changes it`,
       ]);

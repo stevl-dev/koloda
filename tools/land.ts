@@ -108,7 +108,7 @@ export function taskGateProblems(slug: string, commits: readonly TaskCommit[], a
   const live = `tasks/live/${slug}.md`;
   const archived = `tasks/archive/${slug}.md`;
   if (!commits.at(0)?.changes.includes(`A ${live}`)) {
-    problems.push(`the oldest commit must be the Add commit and add ${live}`);
+    problems.push(`the oldest commit must be the Draft commit and add ${live}`);
   }
   const newest = commits.at(-1);
   if (!(newest?.changes.includes(`A ${archived}`) && newest.changes.includes(`D ${live}`))) {
