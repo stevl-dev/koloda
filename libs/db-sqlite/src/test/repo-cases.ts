@@ -133,7 +133,7 @@ export async function seed(db: DB, repoCase: RepoCase): Promise<Names> {
   const defaults = readJson<Record<string, JsonObject>>(DEFAULTS_FILE);
   const names = new Names();
   for (const [index, step] of repoCase.seed.entries()) {
-    const { add: kind, as: name, createdAt = SEED_TIME + 1000 * index, ...fields } = step;
+    const { add: kind, as: name, createdAt = SEED_TIME + 1000 * index, stored = {}, ...fields } = step;
     const seeder = typeof kind === "string" ? SEEDERS[kind] : undefined;
     const base = typeof kind === "string" ? defaults[kind] : undefined;
     if (!seeder || !base) throw new Error(`${repoCase.name}: no seed kind \`${String(kind)}\``);
@@ -141,10 +141,19 @@ export async function seed(db: DB, repoCase: RepoCase): Promise<Names> {
     const data = timestampsAsDates({ ...structuredClone(base), ...(names.resolve(fields) as JsonObject) }) as never;
     const { id } = await seeder.add(db, data);
     // WHY: rows added in the same millisecond would tie on `created_at`, and lists order by it.
-    await db.run(`UPDATE ${seeder.table} SET created_at = ? WHERE id = ?`, [createdAt as number, id]);
+    // `stored` holds what the repos refuse to write, for cases about reading such a row.
+    const columns = { created_at: createdAt, ...(names.resolve(stored) as JsonObject) };
+    for (const [column, value] of Object.entries(columns)) {
+      await db.run(`UPDATE ${seeder.table} SET ${column} = ? WHERE id = ?`, [sqlValue(value), id]);
+    }
     if (typeof name === "string") names.add(name, id);
   }
   return names;
+}
+
+function sqlValue(value: unknown) {
+  if (typeof value === "boolean") return value ? 1 : 0;
+  return value !== null && typeof value === "object" ? JSON.stringify(value) : value;
 }
 
 /** The outcome an operation produced, in the shape of a case's `expect`. */

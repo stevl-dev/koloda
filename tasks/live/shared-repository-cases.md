@@ -160,8 +160,9 @@ A fresh database holds no product rows: the migrations seed none.
   Commit: Run shared deck and algorithm read cases on both hosts
   Depends on: 1
 
-- [ ] 3. Seed stored rows the repos refuse, and pin how each host reads them
-  Goal: Add a raw-row seed kind, `{ "row": "<table>", "as": "<name>", "values": { ... } }`, for read-validity cases.
+- [x] 3. Seed stored rows the repos refuse, and pin how each host reads them
+  Goal: Add a raw-row seed for read-validity cases: a `stored` map on an add step,
+  whose columns are written over the added row with plain SQL.
   Add cases for a stored algorithm, template, and deck outside today's rules, read through the list and single reads.
   They are split answers: desktop lists the row, web fails with the operation's code.
   Each names the Accepted divergences entry on stored entity rows (HD2).

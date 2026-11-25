@@ -2,10 +2,7 @@
   {
     "operation": "getAlgorithms",
     "cases": [
-      {
-        "name": "an empty database lists no algorithms",
-        "expect": { "returns": [] }
-      },
+      { "name": "an empty database lists no algorithms", "expect": { "returns": [] } },
       {
         "name": "lists algorithms oldest first, with their content",
         "seed": [
@@ -45,6 +42,32 @@
             { "id": "@newer", "title": "Newer", "content": { "retention": 90 } }
           ]
         }
+      },
+      {
+        "name": "a stored algorithm outside today's rules lists on desktop and fails the read on web",
+        "seed": [
+          { "add": "algorithm", "as": "valid" },
+          {
+            "add": "algorithm",
+            "as": "stored",
+            "stored": {
+              "content": {
+                "type": "fsrs",
+                "retention": 50,
+                "weights": "0.2,2.3,4,12,6.2,0.65,3.7,2,0.01,1.4,0.7,0.6,0.8,0.64,1,1.32,0.67,3.87,0.44,0.09,1.86,0.62,1.09,0.16,0.08,0.24,0.95,0.14,0.71,0.01,0.57,0.37,0.53,0.3",
+                "isFuzzEnabled": true,
+                "learningSteps": [[10, "m"], [1, "d"]],
+                "relearningSteps": [[10, "m"]],
+                "maximumInterval": 36500
+              }
+            }
+          }
+        ],
+        "expect": {
+          "ts": { "code": "db.get" },
+          "rust": { "returns": [{ "id": "@valid" }, { "id": "@stored", "content": { "retention": 50 } }] }
+        },
+        "divergence": "Web repos parse every stored entity row with the write-time Zod schema; desktop repos deserialize it without `validate()`"
       }
     ]
   },
@@ -64,6 +87,32 @@
         "name": "a missing id reads as null",
         "input": { "id": "01900000-0000-7000-8000-0000000f423f" },
         "expect": { "returns": null }
+      },
+      {
+        "name": "a stored algorithm outside today's rules reads on desktop and fails the read on web",
+        "seed": [
+          {
+            "add": "algorithm",
+            "as": "stored",
+            "stored": {
+              "content": {
+                "type": "fsrs",
+                "retention": 50,
+                "weights": "0.2,2.3,4,12,6.2,0.65,3.7,2,0.01,1.4,0.7,0.6,0.8,0.64,1,1.32,0.67,3.87,0.44,0.09,1.86,0.62,1.09,0.16,0.08,0.24,0.95,0.14,0.71,0.01,0.57,0.37,0.53,0.3",
+                "isFuzzEnabled": true,
+                "learningSteps": [[10, "m"], [1, "d"]],
+                "relearningSteps": [[10, "m"]],
+                "maximumInterval": 36500
+              }
+            }
+          }
+        ],
+        "input": { "id": "@stored" },
+        "expect": {
+          "ts": { "code": "db.get" },
+          "rust": { "returns": { "id": "@stored", "content": { "retention": 50 } } }
+        },
+        "divergence": "Web repos parse every stored entity row with the write-time Zod schema; desktop repos deserialize it without `validate()`"
       }
     ]
   }

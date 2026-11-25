@@ -2,10 +2,7 @@
   {
     "operation": "getTemplates",
     "cases": [
-      {
-        "name": "an empty database lists no templates",
-        "expect": { "returns": [] }
-      },
+      { "name": "an empty database lists no templates", "expect": { "returns": [] } },
       {
         "name": "lists templates oldest first, each with its own lock",
         "seed": [
@@ -49,7 +46,12 @@
                     "type": "text",
                     "isRequired": true
                   },
-                  { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "text", "isRequired": false }
+                  {
+                    "id": "01900000-0000-7000-8000-000000000002",
+                    "title": "Back",
+                    "type": "text",
+                    "isRequired": false
+                  }
                 ],
                 "layout": [
                   { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
@@ -59,6 +61,18 @@
             }
           ]
         }
+      },
+      {
+        "name": "a stored template outside today's rules lists on desktop and fails the read on web",
+        "seed": [
+          { "add": "template", "as": "valid" },
+          { "add": "template", "as": "stored", "stored": { "title": "" } }
+        ],
+        "expect": {
+          "ts": { "code": "db.get" },
+          "rust": { "returns": [{ "id": "@valid" }, { "id": "@stored", "title": "" }] }
+        },
+        "divergence": "Web repos parse every stored entity row with the write-time Zod schema; desktop repos deserialize it without `validate()`"
       }
     ]
   },
@@ -99,6 +113,13 @@
         "seed": [{ "add": "template" }],
         "input": { "id": "01900000-0000-7000-8000-0000000f423f" },
         "expect": { "returns": null }
+      },
+      {
+        "name": "a stored template outside today's rules reads on desktop and fails the read on web",
+        "seed": [{ "add": "template", "as": "stored", "stored": { "title": "" } }],
+        "input": { "id": "@stored" },
+        "expect": { "ts": { "code": "db.get" }, "rust": { "returns": { "id": "@stored", "title": "" } } },
+        "divergence": "Web repos parse every stored entity row with the write-time Zod schema; desktop repos deserialize it without `validate()`"
       }
     ]
   }

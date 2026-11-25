@@ -34,6 +34,9 @@ A step is `{ "add": "<kind>", "as": "<name>", ... }`.
 - `createdAt` sets the row's `created_at`, in epoch ms.
   Without it, the first step's row is stamped at 1700000000000 and each later step's a second later,
   so lists that order by creation time have a fixed order.
+- `stored` maps column names to values written over the added row with plain SQL, past the repos.
+  An object or array value is written as JSON text.
+  It is only for cases about reading a stored row the repos refuse to write, such as one outside today's rules.
 
 ### Names, timestamps, and matching
 

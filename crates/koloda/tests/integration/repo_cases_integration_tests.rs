@@ -4,6 +4,7 @@
 use koloda::app::db::Database;
 use koloda::app::error::AppError;
 use koloda::repo::{algorithms, cards, decks, templates};
+use rusqlite::types::Value as SqlValue;
 use serde::Serialize;
 use serde_json::{Map, Value};
 
@@ -96,6 +97,14 @@ fn seed(db: &Database, case: &RepoCase, defaults: &Map<String, Value>) -> Names 
             .map_or(SEED_TIME + 1000 * index as i64, |at| {
                 at.as_i64().expect("`createdAt` should be epoch ms")
             });
+        let stored = match fields.remove("stored") {
+            Some(stored) => names
+                .resolve(stored)
+                .as_object()
+                .expect("`stored` should be an object")
+                .clone(),
+            None => Map::new(),
+        };
 
         let base = defaults.get(kind).and_then(Value::as_object);
         let mut data = require(base, || format!("{}: no seed kind `{kind}`", case.name)).clone();
@@ -111,7 +120,7 @@ fn seed(db: &Database, case: &RepoCase, defaults: &Map<String, Value>) -> Names 
             format!("{}: no seed kind `{kind}`", case.name)
         });
         let id = require_ok(added, &format!("{}: seed step `{kind}`", case.name));
-        stamp_created_at(db, table, &id, created_at);
+        store_columns(db, table, &id, created_at, &stored);
         if let Some(name) = name {
             names.insert(&name, id);
         }
@@ -148,13 +157,31 @@ fn parse<T: serde::de::DeserializeOwned>(data: Value) -> Result<T, String> {
 }
 
 // WHY: rows added in the same millisecond would tie on `created_at`, and lists order by it.
-fn stamp_created_at(db: &Database, table: &str, id: &str, created_at: i64) {
+// `stored` holds what the repos refuse to write, for cases about reading such a row.
+fn store_columns(db: &Database, table: &str, id: &str, created_at: i64, stored: &Map<String, Value>) {
+    let columns = std::iter::once(("created_at", SqlValue::Integer(created_at)))
+        .chain(stored.iter().map(|(column, value)| (column.as_str(), sql_value(value))));
     db.with_conn(|conn| {
-        conn.execute(
-            &format!("UPDATE {table} SET created_at = ?1 WHERE id = ?2"),
-            rusqlite::params![created_at, id],
-        )?;
+        for (column, value) in columns {
+            conn.execute(
+                &format!("UPDATE {table} SET {column} = ?1 WHERE id = ?2"),
+                rusqlite::params![value, id],
+            )?;
+        }
         Ok(())
     })
-    .expect("seeded row should take its created_at");
+    .expect("seeded row should take its stored columns");
+}
+
+fn sql_value(value: &Value) -> SqlValue {
+    match value {
+        Value::Null => SqlValue::Null,
+        Value::Bool(flag) => SqlValue::Integer(i64::from(*flag)),
+        Value::Number(number) => number.as_i64().map_or_else(
+            || SqlValue::Real(number.as_f64().expect("a JSON number")),
+            SqlValue::Integer,
+        ),
+        Value::String(text) => SqlValue::Text(text.clone()),
+        Value::Array(_) | Value::Object(_) => SqlValue::Text(value.to_string()),
+    }
 }
