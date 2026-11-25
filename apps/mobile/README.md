@@ -17,6 +17,8 @@ Card images load from cache files `koloda-mobile` writes from the attachment byt
 `koloda-mobile` also hosts the `koloda-sync` engine; `src/host/start-sync.ts` starts it once the database is seeded.
 The engine reads secrets from a vault the host registers first: `modules/koloda-secrets`, a local Expo module in
 Kotlin over the Android Keystore, which calls Rust through the Kotlin bindings, so secrets never reach JS.
+JS takes the engine's events by calling `syncEvents` again and again, not through a callback;
+`src-rust/src/sync.rs` (`EventQueue`) says why.
 It targets Android only for now; iOS comes in a follow-up.
 
 ## Platform setup
@@ -186,3 +188,19 @@ What building and running the spike showed:
 - 2026-11-15, Android emulator: device check 11 passes. The Good interval on a new card matches desktop.
 - Device checks 13 and 14 (release-build cold start and frame rate on a phone) are deferred. The handoff in
   `tasks/DEFERRED.md` covers them.
+- 2026-11-25, Android emulator (debug build): the two sync findings of 2026-11-15 marked "Not diagnosed" had one cause.
+  UniFFI keeps one process-wide vtable per callback interface.
+  The TS and the Kotlin bindings each register one for every callback interface in the crate.
+  The Kotlin bindings load with the vault, after JS, so every sync event went to Kotlin.
+  Kotlin dropped each one: logcat showed `UniffiHandleMap.get: Invalid handle`.
+  The sync listener callback is gone; JS now asks for events.
+- 2026-11-25, Android emulator (debug build): device check 18 passes against a second device on a fresh server.
+  A deck pushed while the app was in the background showed when it returned to the foreground, with no relaunch.
+  A deck pushed while the app was open showed within seconds.
+  After joining, the library showed without a relaunch.
+- 2026-11-25, Android emulator (debug build): after a JS reload from the dev menu, sync stopped with an error.
+  Changes stopped arriving. Not confirmed; the likely cause is the same clash on the vault.
+  A reload runs the TS bindings' setup again, which puts their `SecretVault` vtable over Kotlin's.
+  The Kotlin bindings register theirs only once per process.
+- 2026-11-25: a device on the current engine joined the 2026-11-15 spike space and held at hot seq 14 with
+  `CorruptEnvelope` on its first pull. Not diagnosed.

@@ -14,10 +14,14 @@ export const SYNC_START_KEY = ["mobile-sync-start"] as const;
 // WHY: only Android has a vault yet; on iOS the start fails with the missing-store error until its follow-up.
 export async function startSync(facade: KolodaFacade, queryClient: QueryClient, t: I18nContext["_"]) {
   if (Platform.OS === "android") registerSecretVault();
-  const json = await call(() =>
-    facade.syncStart(wireArgs(starterContent(t)), {
-      onEvent: (event: string) => applySyncEvent(queryClient, JSON.parse(event) as SyncEvent),
-    }),
-  );
+  const json = await call(() => facade.syncStart(wireArgs(starterContent(t))));
+  void applySyncEvents(facade, queryClient);
   return JSON.parse(json) as SyncStatus;
+}
+
+// WHY: JS asks for the engine's events instead of passing a listener; `src-rust/src/sync.rs` (`EventQueue`) says why.
+async function applySyncEvents(facade: KolodaFacade, queryClient: QueryClient) {
+  for (;;) {
+    for (const event of await facade.syncEvents()) applySyncEvent(queryClient, JSON.parse(event) as SyncEvent);
+  }
 }

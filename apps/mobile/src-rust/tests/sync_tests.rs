@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use koloda_mobile::{register_secret_vault, KolodaMobile, MobileError, SecretVault, SyncListener};
+use koloda_mobile::{register_secret_vault, KolodaMobile, MobileError, SecretVault};
 use serde_json::{json, Value};
 
 #[derive(Default)]
@@ -21,12 +21,6 @@ impl SecretVault for MemoryVault {
         self.0.lock().unwrap_or_else(|e| e.into_inner()).remove(&key);
         Ok(())
     }
-}
-
-struct Ignore;
-
-impl SyncListener for Ignore {
-    fn on_event(&self, _event: String) {}
 }
 
 fn starter() -> String {
@@ -60,13 +54,11 @@ async fn sync_starts_once_the_host_registered_its_vault_and_reports_a_file_in_no
     let dir = tempfile::tempdir().expect("temp dir");
     let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
 
-    let started: Value =
-        serde_json::from_str(&mobile.sync_start(starter(), Box::new(Ignore)).await.expect("start")).expect("json");
+    let started: Value = serde_json::from_str(&mobile.sync_start(starter()).await.expect("start")).expect("json");
     assert_eq!(started["state"], json!({ "type": "notEnrolled" }));
 
     // A second start, as after a JS reload, reuses the engine.
-    let again: Value =
-        serde_json::from_str(&mobile.sync_start(starter(), Box::new(Ignore)).await.expect("restart")).expect("json");
+    let again: Value = serde_json::from_str(&mobile.sync_start(starter()).await.expect("restart")).expect("json");
     assert_eq!(again["state"], json!({ "type": "notEnrolled" }));
     let status: Value = serde_json::from_str(&mobile.sync_status().await.expect("status")).expect("json");
     assert_eq!(status["state"], json!({ "type": "notEnrolled" }));

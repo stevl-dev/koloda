@@ -14,7 +14,6 @@ use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResul
 use koloda::domain::settings::SettingsName;
 use koloda::repo;
 use koloda_sync::error::SyncError;
-use koloda_sync::runner::{Event, EventSink};
 use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::panic::{self, AssertUnwindSafe};
@@ -197,22 +196,6 @@ fn registered_vault() -> Result<Arc<dyn SecretStore>, MobileError> {
     })
 }
 
-/// Receives sync engine events as JSON, in the desktop's event shapes.
-#[uniffi::export(callback_interface)]
-pub trait SyncListener: Send + Sync {
-    fn on_event(&self, event: String);
-}
-
-struct ListenerSink(Box<dyn SyncListener>);
-
-impl EventSink for ListenerSink {
-    fn send(&self, event: Event) {
-        if let Some(json) = sync::event_json(event) {
-            self.0.on_event(json);
-        }
-    }
-}
-
 fn sync_error(err: SyncError) -> MobileError {
     sync::to_app_error(err).into()
 }
@@ -288,16 +271,19 @@ impl KolodaMobile {
         Ok(mobile)
     }
 
-    pub async fn sync_start(&self, starter: String, listener: Box<dyn SyncListener>) -> Result<String, MobileError> {
+    pub async fn sync_start(&self, starter: String) -> Result<String, MobileError> {
         let secrets = registered_vault()?;
         self.run_sync(move |sync| {
             let starter: sync::StarterWire = from_wire(&starter)?;
-            let status = sync
-                .start(starter, Arc::new(ListenerSink(listener)), secrets)
-                .map_err(sync_error)?;
+            let status = sync.start(starter, secrets).map_err(sync_error)?;
             to_wire(&sync::StatusWire::from(status))
         })
         .await
+    }
+
+    // INVARIANT: not queued on a worker, since it waits for the engine; every call queued behind it would wait too.
+    pub async fn sync_events(&self) -> Vec<String> {
+        self.sync.events().await
     }
 
     pub async fn sync_status(&self) -> Result<String, MobileError> {
@@ -431,33 +417,5 @@ impl KolodaMobile {
             Ok(repo::lessons::submit_lesson_result(db, data)?)
         })
         .await
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::sync::Mutex;
-
-    #[derive(Default)]
-    struct Recorder(Arc<Mutex<Vec<String>>>);
-
-    impl SyncListener for Recorder {
-        fn on_event(&self, event: String) {
-            self.0.lock().unwrap_or_else(|e| e.into_inner()).push(event);
-        }
-    }
-
-    #[test]
-    fn an_engine_event_reaches_the_listener_as_json() {
-        let events = Arc::new(Mutex::new(Vec::new()));
-        let sink = ListenerSink(Box::new(Recorder(Arc::clone(&events))));
-
-        sink.send(Event::AttachmentsFetched {
-            ids: vec!["ab".to_string()],
-        });
-
-        let events = events.lock().unwrap_or_else(|e| e.into_inner());
-        assert_eq!(events.as_slice(), [r#"{"type":"attachmentsFetched","ids":["ab"]}"#]);
     }
 }

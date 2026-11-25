@@ -105,16 +105,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: found in the device checks after the task was archived; the human judged it outside the spike, which
   tests the stack, not the app's gesture design.
 
-- Handoff: show a change synced from another device when the app returns to the foreground, without a force-quit.
-  Evidence: at `0c7f9de5`, a card created on desktop reached the phone (server `cards` 2, the phone's hot cursor 17),
-  but the Lessons list did not show it after the app was foregrounded; it showed after a force-quit and relaunch.
-  `refreshKinds` (`libs/core-react/src/lib/cache-refresh.ts:47`) maps `cards` to the lessons queries that
-  `apps/mobile/src/components/lessons-list.tsx` reads, so the cause is not in that mapping; it is not found.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`
-  Deferred because: found in the device checks after the task was archived; the human deferred the cause to a later
-  session. Until it is fixed, "a review on either device shows on the other" is not met.
-
 ## crates/koloda-server
 
 - Handoff: ending a lease scans `versions` once per lease.

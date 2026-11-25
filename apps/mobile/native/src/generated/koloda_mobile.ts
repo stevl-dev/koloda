@@ -9,7 +9,6 @@ import {
   type UniffiForeignFutureDroppedCallback,
   type UniffiForeignFutureDroppedCallbackStruct,
   type UniffiVTableCallbackInterfaceKolodaMobileSecretVault,
-  type UniffiVTableCallbackInterfaceKolodaMobileSyncListener,
 } from "./koloda_mobile-ffi";
 import {
   type FfiConverter,
@@ -21,6 +20,7 @@ import {
   type UniffiRustCallStatus,
   AbstractFfiConverterByteArray,
   Cursor,
+  FfiConverterArray,
   FfiConverterArrayBuffer,
   FfiConverterBool,
   FfiConverterCallback,
@@ -38,7 +38,6 @@ import {
   pointerLiteralSymbol,
   uniffiCreateFfiConverterString,
   uniffiRustCallAsync,
-  uniffiTraitInterfaceCall,
   uniffiTraitInterfaceCallWithError,
   uniffiTypeNameSymbol,
   variantOrdinalSymbol,
@@ -235,58 +234,6 @@ const FfiConverterTypeMobileError = (() => {
   return new FFIConverter();
 })();
 
-/**
- * Receives sync engine events as JSON, in the desktop's event shapes.
- */
-export interface SyncListener {
-  onEvent(event: string): void;
-}
-
-// Put the implementation in a struct so we don't pollute the top-level namespace
-const uniffiCallbackInterfaceSyncListener: {
-  vtable: any;
-  register: () => void;
-} = {
-  // Create the VTable using a series of closures.
-  // ts automatically converts these into C callback functions.
-  vtable: {
-    on_event: (uniffiHandle: bigint, event: Uint8Array) => {
-      const uniffiMakeCall = (): void => {
-        const jsCallback = FfiConverterTypeSyncListener.lift(uniffiHandle);
-        return jsCallback.onEvent(FfiConverterString.lift(event));
-      };
-      const uniffiResult = UniffiResult.ready<void>();
-      const uniffiHandleSuccess = (obj: any) => {};
-      const uniffiHandleError = (code: number, errBuf: UniffiByteArray) => {
-        UniffiResult.writeError(uniffiResult, code, errBuf);
-      };
-      uniffiTraitInterfaceCall(
-        /*makeCall:*/ uniffiMakeCall,
-        /*handleSuccess:*/ uniffiHandleSuccess,
-        /*handleError:*/ uniffiHandleError,
-        /*lowerString:*/ FfiConverterString.lower.bind(FfiConverterString),
-        /*alloc:*/ nativeModule().rustbuffer_alloc,
-      );
-      return uniffiResult;
-    },
-    uniffi_free: (uniffiHandle: UniffiHandle): void => {
-      // this will throw a stale handle error if the handle isn't found.
-      FfiConverterTypeSyncListener.drop(uniffiHandle);
-    },
-    uniffi_clone: (uniffiHandle: UniffiHandle): UniffiHandle => {
-      return FfiConverterTypeSyncListener.clone(uniffiHandle);
-    },
-  },
-  register: () => {
-    nativeModule().ubrn_uniffi_koloda_mobile_fn_init_callback_vtable_synclistener(
-      uniffiCallbackInterfaceSyncListener.vtable,
-    );
-  },
-};
-
-// FfiConverter protocol for callback interfaces
-const FfiConverterTypeSyncListener = new FfiConverterCallback<SyncListener>();
-
 export interface KolodaMobileLike {
   addAttachment(
     bytes: ArrayBuffer,
@@ -337,6 +284,7 @@ export interface KolodaMobileLike {
   syncCanJoin(asyncOpts_?: {
     signal: AbortSignal;
   }) /*throws*/ : Promise<boolean>;
+  syncEvents(asyncOpts_?: { signal: AbortSignal }): Promise<Array<string>>;
   syncJoin(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -348,7 +296,6 @@ export interface KolodaMobileLike {
   ) /*throws*/ : Promise<string>;
   syncStart(
     starter: string,
-    listener: SyncListener,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
   syncStatus(asyncOpts_?: { signal: AbortSignal }) /*throws*/ : Promise<string>;
@@ -993,6 +940,50 @@ export class KolodaMobile
     }
   }
 
+  async syncEvents(asyncOpts_?: {
+    signal: AbortSignal;
+  }): Promise<Array<string>> {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_events(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+          );
+        },
+        /*pollFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
+        /*freeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
+        // Async returns always go through the JS-side converter: the
+        // completed future's value is deserialized here by the
+        // per-callable return-type converter.
+        // Borrowed view over foreign memory: the call site owns the free,
+        // as on the sync paths. Unconditional — a no-op where buffers are
+        // already JS-owned.
+        /*liftFunc:*/ (__rb) => {
+          try {
+            return FfiConverterSequenceString.lift(__rb);
+          } finally {
+            nativeModule().rustbuffer_free(__rb);
+          }
+        },
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
   async syncJoin(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -1105,7 +1096,6 @@ export class KolodaMobile
 
   async syncStart(
     starter: string,
-    listener: SyncListener,
     asyncOpts_?: { signal: AbortSignal },
   ): Promise<string> /*throws*/ {
     const __stack = uniffiIsDebug ? new Error().stack : undefined;
@@ -1116,10 +1106,6 @@ export class KolodaMobile
           return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_start(
             uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
             FfiConverterString.lower(starter, nativeModule().rustbuffer_alloc),
-            FfiConverterTypeSyncListener.lower(
-              listener,
-              nativeModule().rustbuffer_alloc,
-            ),
           );
         },
         /*pollFunc:*/ nativeModule()
@@ -1409,6 +1395,9 @@ const FfiConverterOptionalString = new FfiConverterOptional(FfiConverterString);
 // FfiConverter for number | undefined
 const FfiConverterOptionalUInt32 = new FfiConverterOptional(FfiConverterUInt32);
 
+// FfiConverter for Array<string>
+const FfiConverterSequenceString = new FfiConverterArray(FfiConverterString);
+
 /**
  * This should be called before anything else.
  *
@@ -1552,6 +1541,14 @@ function uniffiEnsureInitialized() {
     );
   }
   if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_events() !==
+    44201
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_events",
+    );
+  }
+  if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_join() !==
     3343
   ) {
@@ -1577,7 +1574,7 @@ function uniffiEnsureInitialized() {
   }
   if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_start() !==
-    17224
+    25436
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_sync_start",
@@ -1592,7 +1589,6 @@ function uniffiEnsureInitialized() {
     );
   }
 
-  uniffiCallbackInterfaceSyncListener.register();
   uniffiCallbackInterfaceSecretVault.register();
 }
 

@@ -8,8 +8,9 @@
 //! (`KolodaMobile` in `lib.rs`).
 
 use std::collections::BTreeMap;
+use std::pin::pin;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, OnceLock, RwLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
@@ -28,6 +29,7 @@ use koloda_sync::status::{State, Status, Stop};
 use koloda_sync::transport::HttpTransport;
 use koloda_sync_proto::transport::{ErrorCode, Platform};
 use serde::{Deserialize, Serialize};
+use tokio::sync::Notify;
 use uuid::Uuid;
 
 /// Codes a host call fails with; `libs/app` `ERROR_MESSAGES` has a message for each (`error-parity.test.ts`).
@@ -89,22 +91,39 @@ pub struct JoinedWire {
     status: StatusWire,
 }
 
-// WHY: the runner keeps the sink it started with, but a JS reload leaves that listener in a runtime that is gone.
-// The runner gets this one, and each start points it at the listener of the runtime that is alive.
+// WHY: events wait here until JS takes them (`KolodaMobile::sync_events`); they do not cross as a callback JS
+// implements. UniFFI keeps one process-wide vtable per callback interface, and the Kotlin bindings the vault needs
+// register theirs for every interface in this crate when they load, so such a callback would reach Kotlin instead.
 #[derive(Default)]
-struct CurrentSink(RwLock<Option<Arc<dyn EventSink>>>);
+struct EventQueue {
+    events: Mutex<Vec<String>>,
+    arrived: Notify,
+}
 
-impl CurrentSink {
-    fn set(&self, sink: Arc<dyn EventSink>) {
-        *self.0.write().unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(sink);
+impl EventQueue {
+    async fn take(&self) -> Vec<String> {
+        loop {
+            let mut arrived = pin!(self.arrived.notified());
+            arrived.as_mut().enable();
+            let events = std::mem::take(&mut *self.events.lock().unwrap_or_else(|poisoned| poisoned.into_inner()));
+            if !events.is_empty() {
+                return events;
+            }
+            arrived.await;
+        }
     }
 }
 
-impl EventSink for CurrentSink {
+impl EventSink for EventQueue {
     fn send(&self, event: Event) {
-        let sink = self.0.read().unwrap_or_else(|poisoned| poisoned.into_inner()).clone();
-        if let Some(sink) = sink {
-            sink.send(event);
+        if let Some(json) = event_json(event) {
+            self.events
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner())
+                .push(json);
+            // WHY: wakes every waiter, not one. A JS reload leaves the old runtime's take pending, never polled again;
+            // woken alone, it would keep the live runtime's take asleep.
+            self.arrived.notify_waiters();
         }
     }
 }
@@ -112,7 +131,7 @@ impl EventSink for CurrentSink {
 pub struct SyncHost {
     db: Database,
     engine: OnceLock<Engine>,
-    sink: Arc<CurrentSink>,
+    events: Arc<EventQueue>,
     is_running: AtomicBool,
 }
 
@@ -121,19 +140,14 @@ impl SyncHost {
         SyncHost {
             db,
             engine: OnceLock::new(),
-            sink: Arc::new(CurrentSink::default()),
+            events: Arc::new(EventQueue::default()),
             is_running: AtomicBool::new(false),
         }
     }
 
     // WHY: a JS reload starts sync again; it must not start a second engine or runner.
     // `KolodaMobile::new` hands the reloaded JS the host it already built for the file, so this guard holds.
-    pub fn start(
-        &self,
-        starter: StarterWire,
-        sink: Arc<dyn EventSink>,
-        secrets: Arc<dyn SecretStore>,
-    ) -> Result<Status, SyncError> {
+    pub fn start(&self, starter: StarterWire, secrets: Arc<dyn SecretStore>) -> Result<Status, SyncError> {
         let engine = match self.engine.get() {
             Some(engine) => engine,
             None => {
@@ -151,7 +165,6 @@ impl SyncHost {
                 self.engine.get_or_init(|| engine)
             }
         };
-        self.sink.set(sink);
         let status = engine.status()?;
         if is_in_space(&status) {
             self.start_runner()?;
@@ -208,6 +221,10 @@ impl SyncHost {
         }
     }
 
+    pub async fn events(&self) -> Vec<String> {
+        self.events.take().await
+    }
+
     pub fn nudge(&self) {
         if let Some(engine) = self.engine.get() {
             engine.nudge();
@@ -227,7 +244,7 @@ impl SyncHost {
             return Ok(());
         };
         if !self.is_running.swap(true, Ordering::SeqCst) {
-            engine.start_runner(Arc::clone(&self.sink) as Arc<dyn EventSink>, Arc::new(TokioTimer))?;
+            engine.start_runner(Arc::clone(&self.events) as Arc<dyn EventSink>, Arc::new(TokioTimer))?;
         }
         Ok(())
     }
@@ -451,5 +468,44 @@ impl From<Event> for EventWire {
             Event::Error(message) => EventWire::Error { message },
             Event::AttachmentsFetched { ids } => EventWire::AttachmentsFetched { ids },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::future::Future;
+    use std::task::{Context, Poll, Waker};
+
+    fn poll_once<F: Future>(future: std::pin::Pin<&mut F>) -> Poll<F::Output> {
+        future.poll(&mut Context::from_waker(Waker::noop()))
+    }
+
+    #[tokio::test]
+    async fn an_engine_event_waits_as_json_until_it_is_taken() {
+        let queue = EventQueue::default();
+
+        queue.send(Event::AttachmentsFetched {
+            ids: vec!["ab".to_string()],
+        });
+
+        assert_eq!(queue.take().await, [r#"{"type":"attachmentsFetched","ids":["ab"]}"#]);
+    }
+
+    #[test]
+    fn a_take_left_by_a_reloaded_runtime_does_not_keep_events_from_the_live_one() {
+        let queue = EventQueue::default();
+        // The old runtime's take waits and is never polled again; the live one waits after it.
+        let mut gone = pin!(queue.take());
+        let mut live = pin!(queue.take());
+        assert!(poll_once(gone.as_mut()).is_pending());
+        assert!(poll_once(live.as_mut()).is_pending());
+
+        queue.send(Event::Error("offline".to_string()));
+
+        assert_eq!(
+            poll_once(live.as_mut()),
+            Poll::Ready(vec![r#"{"type":"error","message":"offline"}"#.to_string()])
+        );
     }
 }
