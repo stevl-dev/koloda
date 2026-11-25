@@ -8,6 +8,15 @@ import { HELP_TOPIC_INDEX } from "./help-corpus";
 import { HELP_TOPIC_IDS } from "./help-corpus.generated";
 import { aiSettingsValidation, assistantSettingsValidation, resolveChatPromptMode } from "./settings";
 import type { AIProfile } from "./settings";
+import {
+  INTERFACE_DARK_THEMES,
+  INTERFACE_LANGUAGES,
+  INTERFACE_LIGHT_THEMES,
+  INTERFACE_MOTION,
+  INTERFACE_SCHEMES,
+  SETTINGS_CHANGE_FIELD_NAMES,
+} from "./settings-changes";
+import type { SettingsChange } from "./settings-changes";
 
 /**
  * Assistant chat tool registry — specs, binder, and pure output shaping, no I/O.
@@ -187,6 +196,8 @@ type AISettingsOutput = {
 };
 
 type UnsavedSettingsOutput = { isSaved: false; message: string };
+
+type ChangeSettingsOutput = { changes: SettingsChange[]; message?: string };
 
 type GetSettingsOutput = {
   learning?: unknown;
@@ -406,10 +417,39 @@ export const ASSISTANT_TOOL_SPECS = {
       "Read this installation's current settings, the values the user has set: learning (default preset and template ids, daily limits, when the learning day starts, learn-ahead), interface (language, color scheme, themes, motion, date and time formats), hotkeys (the key bindings), and ai (each AI profile's title, provider, allowed models, and whether a key is stored; the assistant's temperature and whether its prompt is the built-in or a custom one).",
       "Call this before you state any value the user can change, such as a daily limit; help topics give only first-setup defaults. Do not ask the user for their settings.",
       "Pass section to read one part; without it, all four are returned. Learning defaults name a preset and a template by id; list_algorithms and list_templates give their titles.",
-      "Keys, provider secrets and addresses, and the custom prompt text are never returned. This tool cannot change settings; say where the user changes them and link to that screen (the app-map help topic).",
+      "Keys, provider secrets and addresses, and the custom prompt text are never returned. This tool does not change settings; change_settings changes learning and interface settings. For hotkeys and AI settings, say where the user changes them and link to that screen (the app-map help topic).",
     ].join("\n"),
     inputSchema: z.object({
       section: z.enum(SETTINGS_SECTIONS).optional(),
+    }),
+  },
+  change_settings: {
+    name: "change_settings",
+    description: [
+      "Change the user's learning and interface settings. Call this only when the user asks you to change a setting; when they ask what a value would do or what would happen if they changed it, answer without calling it. Read the current values with get_settings first.",
+      "The change applies at once; do not ask the user to confirm first.",
+      "Pass changes, a list of { field, value }; one call may change several fields, in learning and interface together. Fields:",
+      "- learning.dailyLimits.total: the daily Total limit, a whole number 0 or more, or null for no limit.",
+      "- learning.dailyLimits.untouched.value, learning.dailyLimits.learn.value, learning.dailyLimits.review.value: the daily limit for the New (untouched), Learn, and Review types, a whole number 0 or more, or null for no limit.",
+      "- learning.dailyLimits.untouched.counts, learning.dailyLimits.learn.counts, learning.dailyLimits.review.counts: whether that type counts toward Total, true or false.",
+      '- learning.dayStartsAt: when the learning day starts, local time as "hh:mm".',
+      "- learning.learnAheadLimit: how far ahead a card may come back in the same lesson, [hours 0-48, minutes 0-59].",
+      "- learning.defaults.algorithm, learning.defaults.template: the preset and template a new deck starts with, ids from list_algorithms and list_templates, or from a mention.",
+      `- interface.language: ${INTERFACE_LANGUAGES.join(", ")}.`,
+      `- interface.scheme: ${INTERFACE_SCHEMES.join(", ")}.`,
+      `- interface.lightTheme: ${INTERFACE_LIGHT_THEMES.join(", ")}. interface.darkTheme: ${INTERFACE_DARK_THEMES.join(", ")}.`,
+      `- interface.motion: ${INTERFACE_MOTION.join(", ")}.`,
+      "- interface.dateFormat, interface.timeFormat: date-fns format patterns, such as dd.MM.yyyy or HH:mm.",
+      "Values are checked as the settings screens check them; for example a counted type's limit cannot exceed Total. A call with any value that fails changes nothing, and the error says why.",
+      "Hotkeys and AI settings cannot be changed here; say where the user changes them and link to that screen (the app-map help topic).",
+    ].join("\n"),
+    inputSchema: z.object({
+      changes: z
+        .array(z.object({ field: z.enum(SETTINGS_CHANGE_FIELD_NAMES), value: z.unknown() }))
+        .min(1)
+        .refine((changes) => new Set(changes.map(({ field }) => field)).size === changes.length, {
+          message: "Each field may appear once",
+        }),
     }),
   },
   get_lessons_today: {
@@ -545,6 +585,12 @@ function shapeAISettingsOutput(content: unknown, profiles: AIProfile[]): AISetti
       prompt: resolveChatPromptMode(settings) === "custom" ? "custom" : "built-in",
     },
   };
+}
+
+/** Shape `change_settings` output: each field the call changed, with its old and new value. */
+export function shapeChangeSettingsOutput(changes: SettingsChange[]): ChangeSettingsOutput {
+  if (changes.length > 0) return { changes };
+  return { changes, message: "Every value already matched; nothing was changed." };
 }
 
 const SYNC_STOP_REASONS: Record<string, string> = {

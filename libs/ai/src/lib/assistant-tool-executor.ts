@@ -3,6 +3,7 @@ import {
   ASSISTANT_TOOL_SPECS,
   shapeAddDeckOutput,
   shapeAppInfoOutput,
+  shapeChangeSettingsOutput,
   shapeGetDeckCardsOutput,
   shapeGetDeckOutput,
   shapeGetSettingsOutput,
@@ -24,6 +25,14 @@ import type {
 } from "./assistant-tools";
 import { readHelpTopic } from "./help-corpus";
 import type { AIProfile } from "./settings";
+import {
+  applySettingsValues,
+  readSettingsValue,
+  SETTINGS_CHANGE_FIELDS,
+  SETTINGS_CHANGE_ROWS,
+  settingsChangeRow,
+} from "./settings-changes";
+import type { SettingsChange, SettingsChangeRow, SettingsRowContents } from "./settings-changes";
 
 /**
  * Data access the assistant tools need. Injected by the host so this module
@@ -57,6 +66,11 @@ type AssistantToolDataSource = {
     templateId: string;
     algorithmId: string;
   }) => Promise<{ id: string; title: string; templateId: string; algorithmId: string }>;
+  /**
+   * Save one settings row whole, through the same validation as the settings screen's save.
+   * Rejects, writing nothing, when the content fails it.
+   */
+  setSettings: (name: SettingsChangeRow, content: Record<string, unknown>) => Promise<unknown>;
 };
 
 /**
@@ -188,6 +202,55 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
         ...(wants("hotkeys") ? { hotkeys } : {}),
         ...(ai ? { ai } : {}),
       });
+    }
+    if (name === "change_settings") {
+      const { changes } = ASSISTANT_TOOL_SPECS.change_settings.inputSchema.parse(input);
+      for (const { field, value } of changes) {
+        const parsed = SETTINGS_CHANGE_FIELDS[field].safeParse(value);
+        if (!parsed.success) throw new Error(`Invalid value for ${field}: ${parsed.error.issues[0]?.message}`);
+      }
+      const rowNames = SETTINGS_CHANGE_ROWS.filter((row) =>
+        changes.some(({ field }) => settingsChangeRow(field) === row),
+      );
+      const rows: SettingsRowContents = {};
+      for (const row of rowNames) {
+        const content = (await data.getSettings(row)) as Record<string, unknown> | null;
+        if (content == null) throw new Error(`No ${row} settings are saved`);
+        rows[row] = content;
+      }
+      const applied: SettingsChange[] = changes
+        .map(({ field, value }) => ({ field, from: readSettingsValue(rows, field), to: value }))
+        .filter(({ from, to }) => JSON.stringify(from) !== JSON.stringify(to));
+      if (applied.length === 0) return shapeChangeSettingsOutput([]);
+      const algorithmId = applied.find(({ field }) => field === "learning.defaults.algorithm")?.to;
+      if (algorithmId !== undefined && !(await data.getAlgorithms()).some((row) => row.id === algorithmId)) {
+        throw new Error(`Algorithm not found: ${algorithmId}`);
+      }
+      const templateId = applied.find(({ field }) => field === "learning.defaults.template")?.to;
+      if (templateId !== undefined && !(await data.getTemplates()).some((row) => row.id === templateId)) {
+        throw new Error(`Template not found: ${templateId}`);
+      }
+      const next = applySettingsValues(
+        rows,
+        applied.map(({ field, to }) => ({ field, value: to })),
+      );
+      // WHY: as in add_deck, never start a write for a run the user canceled during the reads.
+      abortSignal?.throwIfAborted();
+      const written: SettingsChangeRow[] = [];
+      for (const row of SETTINGS_CHANGE_ROWS) {
+        const content = next[row];
+        if (content === undefined) continue;
+        try {
+          await data.setSettings(row, content);
+        } catch (error) {
+          // INVARIANT: a call changes every row it names or none. Each row is its own write on both hosts,
+          // so a failed later row puts the earlier ones back as they were read.
+          for (const done of written) await data.setSettings(done, rows[done]!);
+          throw error;
+        }
+        written.push(row);
+      }
+      return shapeChangeSettingsOutput(applied);
     }
     if (name === "get_lessons_today") {
       const { deckId } = ASSISTANT_TOOL_SPECS.get_lessons_today.inputSchema.parse(input);

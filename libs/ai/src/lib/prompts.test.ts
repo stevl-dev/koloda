@@ -46,6 +46,14 @@ describe("DEFAULT_CHAT_PROMPT_TEMPLATE", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/why a lesson offers the amounts it does, call get_lessons_today/i);
   });
 
+  it("sends a request to change a setting to change_settings, and a what-if question to no tool", () => {
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(
+      /asks you to change a learning or interface setting.*call change_settings/i,
+    );
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/so do not ask first/i);
+    expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/only asks what a value would do, answer without changing it/i);
+  });
+
   it("sends questions about the user's own values to get_settings", () => {
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toContain("get_settings");
     expect(DEFAULT_CHAT_PROMPT_TEMPLATE).toMatch(/daily limit/i);

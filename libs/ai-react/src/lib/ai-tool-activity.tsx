@@ -321,7 +321,7 @@ function toolCallIcon(name: string): IconComponent {
     return LookupIcon;
   }
   if (name === "add_deck") return DecksIcon;
-  if (name === "get_settings") return SettingsIcon;
+  if (name === "get_settings" || name === "change_settings") return SettingsIcon;
   if (name === "get_lessons_today") return HomeIcon;
   if (name === "get_deck_cards" || name === "propose_cards") return CardsIcon;
   // WHY: unknown protocol ids still render; they keep the generic tool glyph.
@@ -355,6 +355,7 @@ function toolCallLabel(name: string, translate: I18n["_"]): string {
   if (name === "propose_cards") return translate(msg`ai.chat.tool-activity.propose-cards`);
   if (name === "read_help_topic") return translate(msg`ai.chat.tool-activity.read-help-topic`);
   if (name === "get_settings") return translate(msg`ai.chat.tool-activity.get-settings`);
+  if (name === "change_settings") return translate(msg`ai.chat.tool-activity.change-settings`);
   if (name === "get_lessons_today") return translate(msg`ai.chat.tool-activity.get-lessons-today`);
   if (name === "get_app_info") return translate(msg`ai.chat.tool-activity.get-app-info`);
   return name;
@@ -399,6 +400,12 @@ function toolCallSummaries(call: AIToolCallRecord, translate: I18n["_"]): string
   if (call.name === "get_settings") {
     const section = settingsSectionLabel(namedString(call.input, "section"), translate);
     return section === null ? [] : [section];
+  }
+  if (call.name === "change_settings") {
+    const settingCount = namedArrayLength(call.output, "changes");
+    if (settingCount !== null) {
+      return [translate(msg`${plural(settingCount, { other: "ai.chat.tool-activity.settings" })}`)];
+    }
   }
   if (call.name === "get_lessons_today") {
     const deck = (call.output as { deck?: unknown } | null | undefined)?.deck;

@@ -72,6 +72,9 @@ function makeDataSource(overrides: Partial<Parameters<typeof createAssistantTool
     createDeck: async () => {
       throw new Error("createDeck should not be called");
     },
+    setSettings: async (): Promise<unknown> => {
+      throw new Error("setSettings should not be called");
+    },
     getSettings: async (name: "learning" | "interface" | "hotkeys" | "ai"): Promise<unknown> => settingsRows[name],
     getAIProfiles: async (): Promise<AIProfile[]> => [],
     getLessons: async ({ deckIds }: { deckIds?: string[] }): Promise<AssistantToolLessons> => {
@@ -586,6 +589,170 @@ describe("createAssistantToolExecutor", () => {
     await expect(executor("read_help_topic", { topic: "learning-settings", section: "Billing" })).rejects.toThrow(
       /no section "Billing"/,
     );
+  });
+
+  describe("change_settings", () => {
+    const learningRow = {
+      defaults: { algorithm: ALGORITHM_ID, template: TEMPLATE_ID },
+      dailyLimits: {
+        total: 200,
+        untouched: { value: 20, counts: true },
+        learn: { value: null, counts: false },
+        review: { value: 200, counts: true },
+      },
+      dayStartsAt: "05:00",
+      learnAheadLimit: [0, 30],
+    };
+    const interfaceRow = { language: "en", scheme: "system", dateFormat: "dd.MM.yyyy" };
+
+    function changeSource(overrides: Partial<Parameters<typeof createAssistantToolExecutor>[0]> = {}) {
+      const setSettings = vi.fn(async (_name: string, content: unknown) => content);
+      const data = makeDataSource({
+        getSettings: async (name) => (name === "learning" ? learningRow : name === "interface" ? interfaceRow : null),
+        setSettings,
+        ...overrides,
+      });
+      return { executor: createAssistantToolExecutor(data), setSettings };
+    }
+
+    it("saves each touched row whole, learning first, and returns each field's old and new value", async () => {
+      const { executor, setSettings } = changeSource();
+
+      const output = await executor("change_settings", {
+        changes: [
+          { field: "interface.scheme", value: "dark" },
+          { field: "learning.dailyLimits.untouched.value", value: 30 },
+          { field: "learning.dailyLimits.total", value: null },
+        ],
+      });
+
+      expect(setSettings.mock.calls).toEqual([
+        [
+          "learning",
+          {
+            ...learningRow,
+            dailyLimits: { ...learningRow.dailyLimits, total: null, untouched: { value: 30, counts: true } },
+          },
+        ],
+        ["interface", { ...interfaceRow, scheme: "dark" }],
+      ]);
+      expect(output).toEqual({
+        changes: [
+          { field: "interface.scheme", from: "system", to: "dark" },
+          { field: "learning.dailyLimits.untouched.value", from: 20, to: 30 },
+          { field: "learning.dailyLimits.total", from: 200, to: null },
+        ],
+      });
+    });
+
+    it("writes only the row a call touches and drops a value that already matches", async () => {
+      const { executor, setSettings } = changeSource();
+
+      const output = await executor("change_settings", {
+        changes: [
+          { field: "learning.learnAheadLimit", value: [0, 30] },
+          { field: "learning.dayStartsAt", value: "04:00" },
+        ],
+      });
+
+      expect(setSettings.mock.calls).toEqual([["learning", { ...learningRow, dayStartsAt: "04:00" }]]);
+      expect(output).toEqual({ changes: [{ field: "learning.dayStartsAt", from: "05:00", to: "04:00" }] });
+    });
+
+    it("writes nothing and says so when every value already matches", async () => {
+      const { executor, setSettings } = changeSource();
+
+      const output = await executor("change_settings", { changes: [{ field: "interface.language", value: "en" }] });
+
+      expect(setSettings).not.toHaveBeenCalled();
+      expect(output).toEqual({ changes: [], message: expect.stringMatching(/nothing was changed/) });
+    });
+
+    it.each([
+      [
+        "a value of the wrong shape",
+        [{ field: "learning.dailyLimits.total", value: -1 }],
+        /learning\.dailyLimits\.total/,
+      ],
+      ["an unknown theme", [{ field: "interface.darkTheme", value: "solarized" }], /interface\.darkTheme/],
+      [
+        "a default preset that does not exist",
+        [{ field: "learning.defaults.algorithm", value: DECK_ID }],
+        /Algorithm not found/,
+      ],
+      [
+        "a default template that does not exist",
+        [{ field: "learning.defaults.template", value: MISSING_TEMPLATE_ID }],
+        /Template not found/,
+      ],
+    ])("fails and writes nothing for %s", async (_case, changes, error) => {
+      const { executor, setSettings } = changeSource();
+
+      await expect(executor("change_settings", { changes })).rejects.toThrow(error);
+      expect(setSettings).not.toHaveBeenCalled();
+    });
+
+    it("fails and writes nothing when the row it changes is not saved", async () => {
+      const { executor, setSettings } = changeSource({ getSettings: async () => null });
+
+      await expect(
+        executor("change_settings", { changes: [{ field: "interface.scheme", value: "dark" }] }),
+      ).rejects.toThrow("No interface settings are saved");
+      expect(setSettings).not.toHaveBeenCalled();
+    });
+
+    it("puts the learning row back when the interface save fails", async () => {
+      const rejection = new Error("validation.settings-interface.date-format");
+      const setSettings = vi.fn(async (name: string, content: unknown) => {
+        if (name === "interface") throw rejection;
+        return content;
+      });
+      const { executor } = changeSource({ setSettings });
+
+      await expect(
+        executor("change_settings", {
+          changes: [
+            { field: "learning.dayStartsAt", value: "04:00" },
+            { field: "interface.dateFormat", value: "nonsense" },
+          ],
+        }),
+      ).rejects.toBe(rejection);
+      expect(setSettings.mock.calls).toEqual([
+        ["learning", { ...learningRow, dayStartsAt: "04:00" }],
+        ["interface", { ...interfaceRow, dateFormat: "nonsense" }],
+        ["learning", learningRow],
+      ]);
+    });
+
+    it("does not write when the run is canceled during its reads", async () => {
+      const controller = new AbortController();
+      let markReading!: () => void;
+      const isReading = new Promise<void>((resolve) => {
+        markReading = resolve;
+      });
+      let releaseRead!: () => void;
+      const getSettings = vi.fn(
+        () =>
+          new Promise<unknown>((resolve) => {
+            releaseRead = () => resolve(interfaceRow);
+            markReading();
+          }),
+      );
+      const { executor, setSettings } = changeSource({ getSettings });
+
+      const changing = executor(
+        "change_settings",
+        { changes: [{ field: "interface.scheme", value: "dark" }] },
+        controller.signal,
+      );
+      await isReading;
+      // The user cancels while the row read is still in flight.
+      controller.abort();
+      releaseRead();
+
+      await expect(changing).rejects.toMatchObject({ name: "AbortError" });
+      expect(setSettings).not.toHaveBeenCalled();
+    });
   });
 
   it("rejects unknown tool names", async () => {

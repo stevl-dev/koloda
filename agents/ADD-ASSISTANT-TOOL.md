@@ -27,7 +27,7 @@ Pick one before editing code.
    - Needs everything an ordinary tool needs, plus run-state mapping and card UI wiring.
    - First successful write target wins for the run.
 
-3. **Direct write** (like `add_deck`):
+3. **Direct write** (like `add_deck` and `change_settings`):
    - Named host mutation (`createDeck`, which returns the stored row; the executor shapes the output).
    - Writes immediately after title, template, and algorithm validate. A failed validation leaves no row.
    - Does not invent cards and does not set a propose write target.

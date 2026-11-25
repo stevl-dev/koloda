@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type * as KolodaAi from "@koloda/ai";
 import type { ChatStreamRequest } from "@koloda/ai";
-import { applyPendingMigrations, openDb, setSettings } from "@koloda/db-sqlite";
+import { applyPendingMigrations, getSettings, openDb, setSettings } from "@koloda/db-sqlite";
 import type { DB } from "@koloda/db-sqlite";
-import { AppError } from "@koloda/app";
+import { AppError, DEFAULT_LEARNING_SETTINGS } from "@koloda/app";
 import { addAIProfile } from "./ai";
 import type * as WebAi from "./ai";
 import { createWebAIRuntime } from "./ai-runtime";
@@ -101,6 +101,46 @@ describe("web assistant settings tool", () => {
       ai: { profiles: [{ title: "OR", provider: "openrouter", allowedModels: "all", hasKey: true }] },
     });
     expect(JSON.stringify(output)).not.toContain("sk-or-web-secret");
+    await db.close();
+  });
+});
+
+describe("web assistant change_settings tool", () => {
+  async function openLearningDb(): Promise<DB> {
+    const db = await openDb({ idbName: `koloda-web-ai-runtime-${crypto.randomUUID()}` });
+    await applyPendingMigrations(db);
+    await setSettings(db, { name: "learning", content: DEFAULT_LEARNING_SETTINGS });
+    return db;
+  }
+
+  async function toolExecutor(db: DB): Promise<ToolExecutor> {
+    clientChat.mockClear();
+    const request = { messages: [], input: { prompt: "" }, tools: ["change_settings"] };
+    await createWebAIRuntime(db).chat("profile-1", request as never, () => {}, new AbortController().signal);
+    return clientChat.mock.calls[0]![0].executeTool as ToolExecutor;
+  }
+
+  it("saves a null daily limit as no limit, not as the default", async () => {
+    const db = await openLearningDb();
+    const execute = await toolExecutor(db);
+
+    await execute("change_settings", { changes: [{ field: "learning.dailyLimits.review.value", value: null }] });
+
+    const saved = await getSettings(db, "learning");
+    expect(saved?.content.dailyLimits.review).toEqual({ value: null, counts: true });
+    await db.close();
+  });
+
+  it("rejects a counted limit above Total as the learning screen does, and keeps the row", async () => {
+    const db = await openLearningDb();
+    const execute = await toolExecutor(db);
+
+    await expect(
+      execute("change_settings", { changes: [{ field: "learning.dailyLimits.untouched.value", value: 500 }] }),
+    ).rejects.toThrow();
+
+    const saved = await getSettings(db, "learning");
+    expect(saved?.content.dailyLimits).toMatchObject({ untouched: DEFAULT_LEARNING_SETTINGS.dailyLimits.untouched });
     await db.close();
   });
 });

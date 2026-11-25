@@ -34,6 +34,7 @@ type AiIpcDb = Pick<
   | "getTodaysReviewTotals"
   | "syncStatus"
   | "addDeck"
+  | "setSettings"
   | "getConversationAttachment"
 > &
   AiProfileSecretsSource;
@@ -126,6 +127,7 @@ function createChatToolExecutor(db: AiIpcDb) {
     getTodaysReviewTotals: () => db.getTodaysReviewTotals(),
     getAppInfo: async () => ({ app: "desktop", syncStatus: await db.syncStatus() }),
     createDeck: (input) => db.addDeck(input),
+    setSettings: (name, content) => db.setSettings({ name, content }),
   });
 }
 

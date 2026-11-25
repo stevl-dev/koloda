@@ -8,6 +8,7 @@ Does not cover the run lifecycle, retry availability, or revert.
 Those are covered by ASSISTANT-CONVERSATIONS.md.
 Clone is covered by ASSISTANT-CONVERSATION-LIST.md (§Clone).
 Card proposal display, selection, and add are covered by ASSISTANT-CARD-GENERATION.md.
+Changing settings is covered by ASSISTANT-SETTINGS-CHANGES.md.
 Prompt template editing is covered by ASSISTANT-SETTINGS.md.
 
 ## What it is
@@ -36,9 +37,7 @@ The model can inspect existing cards through a tool before it proposes new ones.
 
 - **Reach** — the app reads user data locally, when a tool runs
 - **Egress** — the tool result leaves the machine toward the provider, in the same run
-- **Tools** — `list_decks`, `list_templates`, `list_algorithms`, `get_deck`,
-  `get_template`, `get_deck_cards`, `add_deck`, `propose_cards`, `get_settings`, `get_lessons_today`,
-  `get_app_info`, and `read_help_topic`
+- **Tools** — the calls the model can make during a run; §Tools lists them
 - **Help topic** — one part of the app's own documentation; app documentation, not user data
 - **Tool activity** — the visible record of tool calls, kept on the run
   Reasoning rows share that list; see ASSISTANT-MESSAGES.md (§Message Content).
@@ -111,14 +110,15 @@ Card content never persists without review.
 It creates an empty deck shell directly after the title, template, and algorithm validate.
 The user can delete that deck the same way as a deck they created by hand.
 It does not create cards and does not set a propose write target.
+`change_settings` is the other allowed mutation; see ASSISTANT-SETTINGS-CHANGES.md.
 `propose_cards` remains the only path that stages card content for review.
 This does not extend to template field edits, algorithm parameter edits, or deletes.
 Those still need a named product spec with undo and validation.
 
 ## Tools
 
-The model sees the conversation and twelve tools.
-It may call them to read data, read the app's help, create an empty deck, or propose cards.
+The model sees the conversation and thirteen tools.
+It may call them to read data, read the app's help, create an empty deck, change settings, or propose cards.
 
 - `list_decks` — every deck's id, name, card count, template title, and field titles,
   plus a preview of each deck's notes.
@@ -148,7 +148,7 @@ It may call them to read data, read the app's help, create an empty deck, or pro
   Cards whose fields cannot be matched to the deck's field titles are dropped.
   See ASSISTANT-CARD-GENERATION.md (§How Cards Are Proposed).
 - `get_settings` — the user's current settings, all four parts or the one asked for, as §Resources lists them.
-  It does not change settings.
+- `change_settings` — saves new learning and interface settings; see ASSISTANT-SETTINGS-CHANGES.md.
 - `get_lessons_today` — today's lesson figures, as §Resources lists them.
   It does not start a lesson or change a limit.
 - `get_app_info` — which app this is and, on the desktop, the sync status, as §Resources lists them.
@@ -203,8 +203,7 @@ The app enforces only what each tool does with a call, as listed above.
 
 Tool traffic is visible in the chat feed as compact rows on that assistant message.
 
-- `list_decks`, `list_templates`, `list_algorithms`, `get_deck`, `get_template`, `get_deck_cards`, `add_deck`,
-  `propose_cards`, `get_settings`, `get_lessons_today`, `get_app_info`, and `read_help_topic` show a translated label.
+- Each tool in §Tools shows a translated label.
 - Any other tool shows the protocol id.
 - A running call is marked as running.
 - A failed call is marked failed.
@@ -222,6 +221,7 @@ A successful call also shows a short summary next to its label:
 - `get_deck`, `add_deck` — the deck title
 - `get_template` — the template title
 - `get_settings` — the part of the settings asked for, or nothing when all were read
+- `change_settings` — how many settings changed
 - `get_lessons_today` — the deck title when one deck was asked for, or nothing for all decks
 - `read_help_topic` — the topic title
 - `get_deck_cards` — how many cards came back

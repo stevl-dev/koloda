@@ -6,6 +6,7 @@ import {
   bindAssistantTools,
 } from "./assistant-tools";
 import { HELP_TOPIC_IDS } from "./help-corpus.generated";
+import { SETTINGS_CHANGE_FIELD_NAMES } from "./settings-changes";
 import type { AssistantToolCard, AssistantToolTemplate, ProposeCardsOutput } from "./assistant-tools";
 import {
   generatedCardsFromProposeOutput,
@@ -133,7 +134,8 @@ describe("get_settings", () => {
     expect(description).toMatch(/help topics give only first-setup defaults/i);
     expect(description).toMatch(/do not ask the user for their settings/i);
     expect(description).toMatch(/keys, provider secrets and addresses, and the custom prompt text are never returned/i);
-    expect(description).toMatch(/cannot change settings/i);
+    expect(description).toMatch(/does not change settings; change_settings changes learning and interface settings/i);
+    expect(description).toMatch(/hotkeys and AI settings, say where the user changes them/i);
     expect(description).toMatch(/link to that screen \(the app-map help topic\)/i);
   });
 
@@ -143,6 +145,31 @@ describe("get_settings", () => {
       expect(inputSchema.parse({ section })).toEqual({ section });
     }
     expect(() => inputSchema.parse({ section: "sync" })).toThrow();
+  });
+});
+
+describe("change_settings", () => {
+  const { description, inputSchema } = ASSISTANT_TOOL_SPECS.change_settings;
+
+  it("tells the model to change a setting only on a request, without asking first", () => {
+    expect(description).toMatch(/only when the user asks you to change a setting/i);
+    expect(description).toMatch(/what would happen if they changed it, answer without calling it/i);
+    expect(description).toMatch(/applies at once; do not ask the user to confirm first/i);
+    expect(description).toMatch(/hotkeys and AI settings cannot be changed here/i);
+    expect(description).not.toMatch(/hotkeys\./);
+  });
+
+  it("names every field it accepts", () => {
+    const missing = SETTINGS_CHANGE_FIELD_NAMES.filter((field) => !description.includes(field));
+    expect(missing).toEqual([]);
+  });
+
+  it("accepts a list of known fields, each once", () => {
+    const scheme = { field: "interface.scheme", value: "dark" };
+    expect(inputSchema.parse({ changes: [scheme] })).toEqual({ changes: [scheme] });
+    expect(() => inputSchema.parse({ changes: [] })).toThrow();
+    expect(() => inputSchema.parse({ changes: [scheme, scheme] })).toThrow();
+    expect(() => inputSchema.parse({ changes: [{ field: "ai.assistant.temperature", value: 1 }] })).toThrow();
   });
 });
 

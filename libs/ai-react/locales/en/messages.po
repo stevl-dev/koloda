@@ -31,6 +31,10 @@ msgid "{rejectedCount, plural, other {ai.chat.tool-activity.skipped}}"
 msgstr "{rejectedCount, plural, one {# skipped} other {# skipped}}"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "{settingCount, plural, other {ai.chat.tool-activity.settings}}"
+msgstr "{settingCount, plural, one {# setting} other {# settings}}"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{templateCount, plural, other {ai.chat.tool-activity.templates}}"
 msgstr "{templateCount, plural, one {# template} other {# templates}}"
 
@@ -154,6 +158,10 @@ msgstr "Create deck"
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.canceled"
 msgstr "Canceled"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.change-settings"
+msgstr "Change settings"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx

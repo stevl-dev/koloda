@@ -120,7 +120,7 @@ Facts the items rely on, read at `de00614e`:
 - The persisted tool call (`toolCallField` in `conversation-persistence-schema.ts`) is a plain `z.object`.
   An older build strips a key it does not know and still loads the row.
 
-- [ ] 1. Add the `change_settings` tool
+- [x] 1. Add the `change_settings` tool
   Goal: The assistant can change learning and interface settings with one call.
   - In `libs/ai`, add a field table: each entry a path that starts with its row, and the schema for its value.
     Learning: `learning.dailyLimits.total`; `learning.dailyLimits.<untouched|learn|review>.value` and `.counts`;

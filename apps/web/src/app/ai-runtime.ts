@@ -13,6 +13,7 @@ import {
   getLessons,
   getSettings,
   getTemplates,
+  setSettings,
   getTodaysReviewTotals,
 } from "@koloda/db-sqlite";
 import { getAIProfiles, loadAIProfileSecrets } from "./ai";
@@ -30,6 +31,7 @@ function createWebToolExecutor(db: DB) {
     getTodaysReviewTotals: () => getTodaysReviewTotals(db),
     getAppInfo: async () => ({ app: "web" }),
     createDeck: (input) => addDeck(db, input),
+    setSettings: (name, content) => setSettings(db, { name, content }),
   });
 }
 

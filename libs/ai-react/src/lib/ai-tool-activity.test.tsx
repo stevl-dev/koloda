@@ -73,6 +73,18 @@ describe("AIToolActivity", () => {
       countLabel: "ai.chat.tool-activity.algorithms",
       count: 6,
     },
+    {
+      name: "change_settings",
+      label: "ai.chat.tool-activity.change-settings",
+      output: {
+        changes: [
+          { field: "interface.scheme", from: "system", to: "dark" },
+          { field: "learning.dayStartsAt", from: "05:00", to: "04:00" },
+        ],
+      },
+      countLabel: "ai.chat.tool-activity.settings",
+      count: 2,
+    },
   ])(
     "renders a $name success row from the list length (count $count)",
     ({ name, label, output, countLabel, count }) => {

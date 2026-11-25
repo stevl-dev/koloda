@@ -31,6 +31,10 @@ msgid "{rejectedCount, plural, other {ai.chat.tool-activity.skipped}}"
 msgstr "{rejectedCount, plural, one {# пропущена} few {# пропущены} many {# пропущено} other {# пропущены}}"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "{settingCount, plural, other {ai.chat.tool-activity.settings}}"
+msgstr "{settingCount, plural, one {# настройка} few {# настройки} many {# настроек} other {# настройки}}"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "{templateCount, plural, other {ai.chat.tool-activity.templates}}"
 msgstr "{templateCount, plural, one {# шаблон} few {# шаблона} many {# шаблонов} other {# шаблона}}"
 
@@ -154,6 +158,10 @@ msgstr "Создать колоду"
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 msgid "ai.chat.tool-activity.canceled"
 msgstr "Отменено"
+
+#: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
+msgid "ai.chat.tool-activity.change-settings"
+msgstr "Изменить настройки"
 
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
 #: ../../libs/ai-react/src/lib/ai-tool-activity.tsx
