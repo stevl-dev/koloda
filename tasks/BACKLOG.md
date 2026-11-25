@@ -15,10 +15,6 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 
 ## Items
 
-- `assistant-change-settings`: Add one `change_settings` tool; a per-field table in code applies reversible changes with Undo and asks the user first for the rest.
-  Area: `libs/ai`
-  Why: The settings tool only reads; one tool whose mode the host picks keeps model behavior the same across providers.
-
 - `shared-repository-cases`: Run repository behavior cases, written once as data, on both hosts' test suites.
   Area: `crates/koloda`, `libs/db-sqlite`
   Why: Repository twins stay equal only by a written rule, and audits keep finding host-only defects.
