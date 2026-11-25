@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getAlgorithm, getAlgorithms } from "./algorithms";
 import type { DB } from "./db";
+import { getDeck, getDecks } from "./decks";
 import { getTemplate, getTemplates } from "./templates";
 import { holds, observe, readRepoTables, seed, timestampsAsDates } from "../test/repo-cases";
 import type { TestDb } from "../test/test-helpers";
@@ -7,6 +9,10 @@ import { createTestDb } from "../test/test-helpers";
 
 // The shared repository cases (`crates/koloda/tests/repo-cases/`); `cargo test` runs the same files over `koloda`.
 const OPERATIONS: Record<string, (db: DB, input: Record<string, never>) => Promise<unknown>> = {
+  getAlgorithms: (db) => getAlgorithms(db),
+  getAlgorithm: (db, input) => getAlgorithm(db, input.id),
+  getDecks: (db, input) => getDecks(db, input.ids),
+  getDeck: (db, input) => getDeck(db, input.id),
   getTemplates: (db) => getTemplates(db),
   getTemplate: (db, input) => getTemplate(db, input.id),
 };

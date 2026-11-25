@@ -1,0 +1,70 @@
+[
+  {
+    "operation": "getAlgorithms",
+    "cases": [
+      {
+        "name": "an empty database lists no algorithms",
+        "expect": { "returns": [] }
+      },
+      {
+        "name": "lists algorithms oldest first, with their content",
+        "seed": [
+          { "add": "algorithm", "as": "newer", "title": "Newer", "createdAt": 1700000009000 },
+          {
+            "add": "algorithm",
+            "as": "older",
+            "title": "Older",
+            "createdAt": 1700000008000,
+            "content": {
+              "type": "fsrs",
+              "retention": 85,
+              "weights": "0.2,2.3,4,12,6.2,0.65,3.7,2,0.01,1.4,0.7,0.6,0.8,0.64,1,1.32,0.67,3.87,0.44,0.09,1.86,0.62,1.09,0.16,0.08,0.24,0.95,0.14,0.71,0.01,0.57,0.37,0.53,0.3",
+              "isFuzzEnabled": false,
+              "learningSteps": [[1, "m"]],
+              "relearningSteps": [],
+              "maximumInterval": 365
+            }
+          }
+        ],
+        "expect": {
+          "returns": [
+            {
+              "id": "@older",
+              "title": "Older",
+              "notes": null,
+              "createdAt": 1700000008000,
+              "content": {
+                "type": "fsrs",
+                "retention": 85,
+                "isFuzzEnabled": false,
+                "learningSteps": [[1, "m"]],
+                "relearningSteps": [],
+                "maximumInterval": 365
+              }
+            },
+            { "id": "@newer", "title": "Newer", "content": { "retention": 90 } }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "operation": "getAlgorithm",
+    "cases": [
+      {
+        "name": "reads an algorithm by id",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs", "title": "FSRS" },
+          { "add": "algorithm", "as": "other", "title": "Other" }
+        ],
+        "input": { "id": "@fsrs" },
+        "expect": { "returns": { "id": "@fsrs", "title": "FSRS", "notes": null, "content": { "type": "fsrs" } } }
+      },
+      {
+        "name": "a missing id reads as null",
+        "input": { "id": "01900000-0000-7000-8000-0000000f423f" },
+        "expect": { "returns": null }
+      }
+    ]
+  }
+]

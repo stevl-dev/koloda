@@ -1,0 +1,100 @@
+[
+  {
+    "operation": "getDecks",
+    "cases": [
+      {
+        "name": "an empty database lists no decks",
+        "expect": { "returns": [] }
+      },
+      {
+        "name": "lists decks oldest first, with their algorithm and template",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "algorithm", "as": "other" },
+          { "add": "template", "as": "basic" },
+          {
+            "add": "deck",
+            "as": "newer",
+            "title": "Newer",
+            "algorithmId": "@other",
+            "templateId": "@basic",
+            "createdAt": 1700000009000
+          },
+          {
+            "add": "deck",
+            "as": "older",
+            "title": "Older",
+            "algorithmId": "@fsrs",
+            "templateId": "@basic",
+            "createdAt": 1700000008000
+          }
+        ],
+        "expect": {
+          "returns": [
+            {
+              "id": "@older",
+              "title": "Older",
+              "algorithmId": "@fsrs",
+              "templateId": "@basic",
+              "notes": null,
+              "createdAt": 1700000008000
+            },
+            {
+              "id": "@newer",
+              "title": "Newer",
+              "algorithmId": "@other",
+              "templateId": "@basic",
+              "notes": null,
+              "createdAt": 1700000009000
+            }
+          ]
+        }
+      },
+      {
+        "name": "lists only the requested ids, oldest first",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "first", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "second", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "third", "algorithmId": "@fsrs", "templateId": "@basic" }
+        ],
+        "input": { "ids": ["@third", "@first"] },
+        "expect": { "returns": [{ "id": "@first" }, { "id": "@third" }] }
+      },
+      {
+        "name": "an empty id list lists no decks",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "algorithmId": "@fsrs", "templateId": "@basic" }
+        ],
+        "input": { "ids": [] },
+        "expect": { "returns": [] }
+      }
+    ]
+  },
+  {
+    "operation": "getDeck",
+    "cases": [
+      {
+        "name": "reads a deck by id",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "title": "Deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "deck", "as": "other", "title": "Other", "algorithmId": "@fsrs", "templateId": "@basic" }
+        ],
+        "input": { "id": "@deck" },
+        "expect": {
+          "returns": { "id": "@deck", "title": "Deck", "algorithmId": "@fsrs", "templateId": "@basic", "notes": null }
+        }
+      },
+      {
+        "name": "a missing id reads as null",
+        "input": { "id": "01900000-0000-7000-8000-0000000f423f" },
+        "expect": { "returns": null }
+      }
+    ]
+  }
+]

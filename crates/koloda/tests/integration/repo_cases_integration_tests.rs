@@ -53,6 +53,17 @@ fn run_case(operation: &str, case: &RepoCase, defaults: &Map<String, Value>) -> 
 /// The operation's result as JSON, or `None` when no adapter maps the operation.
 fn call(db: &Database, operation: &str, input: &Value) -> Option<Result<Value, AppError>> {
     match operation {
+        "getAlgorithms" => Some(json(algorithms::get_algorithms(db))),
+        "getAlgorithm" => Some(json(algorithms::get_algorithm(db, str_field(input, "id")))),
+        // WHY: web `getDecks` takes an optional id filter; desktop splits it into two calls.
+        "getDecks" => Some(json(match input.get("ids") {
+            Some(ids) => decks::get_decks_by_ids(
+                db,
+                &require_ok(serde_json::from_value::<Vec<String>>(ids.clone()), "input `ids`"),
+            ),
+            None => decks::get_decks(db),
+        })),
+        "getDeck" => Some(json(decks::get_deck(db, str_field(input, "id")))),
         "getTemplates" => Some(json(templates::get_templates(db))),
         "getTemplate" => Some(json(templates::get_template(db, str_field(input, "id")))),
         _ => None,

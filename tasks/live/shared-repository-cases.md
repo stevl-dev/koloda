@@ -150,7 +150,7 @@ A fresh database holds no product rows: the migrations seed none.
   Commit: Run shared template-read cases on both hosts
   Depends on: none
 
-- [ ] 2. Run shared deck and algorithm read cases on both hosts
+- [x] 2. Run shared deck and algorithm read cases on both hosts
   Goal: Add adapters for `getDecks`, `getDeck`, `getAlgorithms`, and `getAlgorithm` on both hosts,
   with cases in `decks.json` and `algorithms.json`.
   Cover list order, the fields each row maps (title, notes, `algorithmId`, `templateId`, content), and a missing id.
