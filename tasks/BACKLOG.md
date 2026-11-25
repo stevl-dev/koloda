@@ -14,8 +14,3 @@ An entry leaves when a task is scheduled from it, or when the human drops it.
 `agents/TASKS.md` (§Backlog) holds the rules for the entry shape, briefs, and for adding, reading, and removing entries.
 
 ## Items
-
-- `shared-repository-cases`: Run repository behavior cases, written once as data, on both hosts' test suites.
-  Area: `crates/koloda`, `libs/db-sqlite`
-  Why: Repository twins stay equal only by a written rule, and audits keep finding host-only defects.
-  Brief: `tasks/backlog/shared-repository-cases.md`
