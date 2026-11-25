@@ -63,10 +63,23 @@ Out:
   One call takes a patch of fields across learning and interface, and one Undo reverts that call.
 - [x] 4. How does ask-first wait for the user? — it does not; nothing asks first (question 2).
   The tool is a direct write, as `add_deck` is, so the run never pauses for the user.
-- [ ] 5. Where does Undo live, and how long does it stay valid? — in the tool call row; lifetime open.
-  Cases: the conversation is reloaded, or the value changed since, by the user or by sync on another device.
-  Leaning: Undo restores only the fields that call changed.
-  It leaves a field that changed since alone, and says so.
+- [x] 5. Where does Undo live, and how long does it stay valid? — in the tool call row, for as long as the row exists.
+  - Every successful `change_settings` row offers Undo, not only the latest.
+    Undo restores only the fields that call changed.
+  - Undo survives a reload.
+    The tool output records each field's old and new value, and is saved with the conversation.
+    The row's undone state is saved too.
+  - A field that changed since the call, by the user or by sync from another device, is restored anyway.
+    The human chose this over skipping such a field or refusing the Undo.
+    The newer value is lost.
+  - Undo saves through the same validation as the settings screen.
+    When the restored values fail it, for example a counted limit above a Total changed since, nothing is written,
+    and the row shows the error.
+  - After Undo the row shows "Undone" and the button goes away.
+    There is no Redo; the user asks again.
+    The model does not see the Undo, since tool traffic stays off follow-up history; `get_settings` reads the truth.
+  - Revert and retry do not undo a change.
+    Retry clears the run's tool rows, so the Undo goes with them and the change stays.
 - [x] 6. Does the mode or the copy differ for a change that reaches the user's other devices? — no.
   Learning settings are global and sync; interface settings are device-local (`docs/decisions/STORAGE-BUCKETS.md`).
   Every change applies with Undo, and an undo syncs like any other save.
