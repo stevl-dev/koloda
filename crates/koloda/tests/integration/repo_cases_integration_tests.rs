@@ -51,7 +51,6 @@ fn run_case(operation: &str, case: &RepoCase, defaults: &Map<String, Value>) -> 
     }
 }
 
-/// The operation's result as JSON, or `None` when no adapter maps the operation.
 fn call(db: &Database, operation: &str, input: &Value) -> Option<Result<Value, AppError>> {
     match operation {
         "getAlgorithms" => Some(json(algorithms::get_algorithms(db))),
@@ -138,7 +137,6 @@ fn seed(db: &Database, case: &RepoCase, defaults: &Map<String, Value>) -> Names 
     names
 }
 
-/// The row's table and the add call's id, or `None` for an unknown kind.
 fn add(db: &Database, kind: &str, data: Value) -> Option<(&'static str, Result<String, String>)> {
     let code = |error: AppError| error.code;
     match kind {

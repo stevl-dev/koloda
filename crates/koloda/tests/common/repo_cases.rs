@@ -75,21 +75,18 @@ fn read_json<T: serde::de::DeserializeOwned>(file: &str) -> T {
     require_ok(serde_json::from_str(&text), file)
 }
 
-/// `value`, failing the run with `message` when it is absent.
 // WHY: clippy's `panic` lint allows panics only in a `#[test]` body, and an assert carries the case's name.
 pub fn require<T>(value: Option<T>, message: impl FnOnce() -> String) -> T {
     assert!(value.is_some(), "{}", message());
     value.expect("checked above")
 }
 
-/// The `Ok` value, failing the run with `context` and the error otherwise.
 pub fn require_ok<T, E: std::fmt::Display>(result: Result<T, E>, context: &str) -> T {
     let error = result.as_ref().err().map(ToString::to_string);
     assert!(error.is_none(), "{context}: {}", error.unwrap_or_default());
     result.ok().expect("checked above")
 }
 
-/// The insert payload each seed kind starts from, keyed by kind.
 pub fn seed_defaults() -> Map<String, Value> {
     read_json(DEFAULTS_FILE)
 }
@@ -202,7 +199,6 @@ fn map_strings(value: Value, map: &dyn Fn(&str) -> Value) -> Value {
     }
 }
 
-/// `value` with each `*At` timestamp as epoch ms, the form cases state it in.
 pub fn timestamps_as_ms(value: Value) -> Value {
     match value {
         Value::Array(items) => Value::Array(items.into_iter().map(timestamps_as_ms).collect()),

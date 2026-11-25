@@ -100,7 +100,6 @@ function mapStrings(value: unknown, map: (text: string) => string): unknown {
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, mapStrings(item, map)]));
 }
 
-/** `value` with each `*At` epoch-ms number as the `Date` the repos take. */
 export function timestampsAsDates(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(timestampsAsDates);
   if (value === null || typeof value !== "object") return value;
@@ -112,7 +111,6 @@ export function timestampsAsDates(value: unknown): unknown {
   );
 }
 
-/** `value` as plain JSON, with each `Date` as epoch ms, the form cases state it in. */
 export function timestampsAsMs(value: unknown): unknown {
   if (value instanceof Date) return value.getTime();
   if (Array.isArray(value)) return value.map(timestampsAsMs);
@@ -159,7 +157,6 @@ function sqlValue(value: unknown) {
   return value !== null && typeof value === "object" ? JSON.stringify(value) : value;
 }
 
-/** The outcome an operation produced, in the shape of a case's `expect`. */
 export async function observe(names: Names, call: () => Promise<unknown>): Promise<RepoOutcome> {
   try {
     return { returns: names.rename(timestampsAsMs(await call())) };
