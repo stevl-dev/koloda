@@ -73,8 +73,12 @@ If the second save fails, the first is put back, and the call fails.
 A setting whose new value equals its current value is not saved again.
 When every value already matches, nothing is saved, and the result says so.
 
+A saved change shows at once in the open app, as the same change made on a settings screen does.
+It shows whether or not the chat is open.
+
 If the user cancels the run before the save starts, nothing is saved.
-A save already under way finishes.
+A save already under way finishes, and the open app refreshes the settings from what was saved.
+A language saved that way is not applied to the open app.
 
 A changed learning setting reaches the user's other devices through sync like any other learning change.
 Interface settings stay on this device.

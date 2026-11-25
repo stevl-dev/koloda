@@ -30,7 +30,7 @@ import {
   readSettingsValue,
   SETTINGS_CHANGE_FIELDS,
   SETTINGS_CHANGE_ROWS,
-  settingsChangeRow,
+  splitSettingsChangeField,
 } from "./settings-changes";
 import type { SettingsChange, SettingsChangeRow, SettingsRowContents } from "./settings-changes";
 
@@ -210,7 +210,7 @@ export function createAssistantToolExecutor(data: AssistantToolDataSource): Assi
         if (!parsed.success) throw new Error(`Invalid value for ${field}: ${parsed.error.issues[0]?.message}`);
       }
       const rowNames = SETTINGS_CHANGE_ROWS.filter((row) =>
-        changes.some(({ field }) => settingsChangeRow(field) === row),
+        changes.some(({ field }) => splitSettingsChangeField(field).row === row),
       );
       const rows: SettingsRowContents = {};
       for (const row of rowNames) {

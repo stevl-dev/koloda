@@ -1,5 +1,7 @@
 export { coerceConversationState } from "./lib/persistence/conversation-persistence-schema";
 export { useConversationSaveHost } from "./lib/persistence/use-conversation-save-host";
+export { registerSettingsChangeHandler } from "./lib/runs/settings-change-notification";
+export type { SavedSettingsValues } from "./lib/runs/settings-change-notification";
 export { shutdownAssistantGracefully, useAssistantEngineHost } from "./lib/runs/use-assistant-engine-host";
 export { startParamlessConversationAtom } from "./lib/state/conversation-actions";
 export { upsertConversationAtom } from "./lib/state/conversation-store";

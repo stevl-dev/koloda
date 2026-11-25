@@ -55,17 +55,13 @@ export type SettingsChange = { field: SettingsChangeField; from: unknown; to: un
 
 export type SettingsRowContents = Partial<Record<SettingsChangeRow, Record<string, unknown>>>;
 
-function splitField(field: SettingsChangeField): { row: SettingsChangeRow; path: string[] } {
+export function splitSettingsChangeField(field: SettingsChangeField): { row: SettingsChangeRow; path: string[] } {
   const [row, ...path] = field.split(".");
   return { row: row as SettingsChangeRow, path };
 }
 
-export function settingsChangeRow(field: SettingsChangeField): SettingsChangeRow {
-  return splitField(field).row;
-}
-
 export function readSettingsValue(rows: SettingsRowContents, field: SettingsChangeField): unknown {
-  const { row, path } = splitField(field);
+  const { row, path } = splitSettingsChangeField(field);
   let value: unknown = rows[row];
   for (const key of path) value = (value as Record<string, unknown> | undefined)?.[key];
   return value;
@@ -79,7 +75,7 @@ export function applySettingsValues(
 ): SettingsRowContents {
   const next: SettingsRowContents = {};
   for (const { field, value } of values) {
-    const { row, path } = splitField(field);
+    const { row, path } = splitSettingsChangeField(field);
     const content = (next[row] ??= structuredClone(rows[row] ?? {}));
     let parent = content;
     for (const key of path.slice(0, -1)) {

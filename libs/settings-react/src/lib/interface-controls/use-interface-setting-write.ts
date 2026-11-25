@@ -1,32 +1,12 @@
-import type { AppError, InterfaceSettings } from "@koloda/app";
-import {
-  darkThemeAtom,
-  dateFormatAtom,
-  langAtom,
-  lightThemeAtom,
-  queriesAtom,
-  queryKeys,
-  schemeAtom,
-  timeFormatAtom,
-} from "@koloda/core-react";
+import type { AppError } from "@koloda/app";
+import { queriesAtom, queryKeys } from "@koloda/core-react";
 import type { AllowedSettings, PatchSettingsData } from "@koloda/settings";
-import { motionSettingAtom } from "@koloda/ui";
 import { useMutation, useMutationState, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue, useStore } from "jotai";
 import type { PrimitiveAtom } from "jotai";
 import { useCallback } from "react";
-
-type InterfaceField = keyof InterfaceSettings;
-
-const FIELD_ATOMS: Record<InterfaceField, PrimitiveAtom<string>> = {
-  language: langAtom,
-  scheme: schemeAtom,
-  lightTheme: lightThemeAtom,
-  darkTheme: darkThemeAtom,
-  motion: motionSettingAtom,
-  dateFormat: dateFormatAtom,
-  timeFormat: timeFormatAtom,
-};
+import { INTERFACE_SETTING_ATOMS } from "./interface-setting-atoms";
+import type { InterfaceField } from "./interface-setting-atoms";
 
 const INTERFACE_WRITE_KEY = ["settings", "interface", "write"];
 
@@ -54,7 +34,7 @@ export function useInterfaceSettingWrite() {
     mutationKey: INTERFACE_WRITE_KEY,
     onMutate: ({ content }): InterfaceWriteContext => {
       const [field, value] = Object.entries(content)[0] as [InterfaceField, string];
-      const atom = FIELD_ATOMS[field];
+      const atom = INTERFACE_SETTING_ATOMS[field];
       const previous = store.get(atom);
       store.set(atom, value);
       return { atom, previous, value };

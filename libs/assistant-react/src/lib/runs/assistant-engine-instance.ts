@@ -8,6 +8,7 @@ import {
   touchConversationOnStore,
 } from "../state/conversation-store";
 import { notifyAddDeckStillRunning, notifyAddDeckWritten } from "./add-deck-query-invalidation";
+import { notifySettingsChanged, notifySettingsChangeStillRunning } from "./settings-change-notification";
 import { createAssistantExecutionPort } from "./assistant-execution-port";
 import { assistantEventToReducerAction } from "./assistant-event-to-action";
 
@@ -26,6 +27,7 @@ function createEngineFromStore(store: AssistantJotaiStore): AssistantEngine {
     // and owns when a run's event saves its conversation or marks it read.
     emit: (event) => {
       notifyAddDeckStillRunning(store, event);
+      notifySettingsChangeStillRunning(store, event);
       const before = store.get(conversationsAtom)[event.conversationId];
       dispatchToConversationOnStore(store, event.conversationId, assistantEventToReducerAction(event));
       // WHY: An interrupted run was stopped by the app; the user did not see it finish.
@@ -40,6 +42,7 @@ function createEngineFromStore(store: AssistantJotaiStore): AssistantEngine {
         touchConversationOnStore(store, event.conversationId);
       }
       notifyAddDeckWritten(store, event);
+      notifySettingsChanged(store, event);
     },
     isRunStreaming: (conversationId, runId) =>
       store.get(conversationsAtom)[conversationId]?.runs[runId]?.status === "streaming",

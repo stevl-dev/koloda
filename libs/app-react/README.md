@@ -27,6 +27,8 @@ Each app must set `appEntryAtom` before routes render and inject its `Queries` i
   feature scopes live in feature components.
 - Page title: `hooks/use-title.ts` — joins the matched routes' loader titles; the root route calls it.
 - Assistant app links: `hooks/use-assistant-app-links.ts` — maps a `koloda:` link target to its route for the AI route.
+- Assistant settings changes: `hooks/use-assistant-settings-changes.ts` — registers how the open app shows a setting
+  the assistant saved: learning caches refresh, and only the interface fields the change saved reach their atoms.
 - Locales: `locales/` — Lingui `.po` catalogs for the shell.
 
 ### Does NOT own (prevent scope creep)

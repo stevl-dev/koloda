@@ -165,7 +165,7 @@ Facts the items rely on, read at `de00614e`:
   Commit: Let the assistant change learning and interface settings
   Depends on: none
 
-- [ ] 2. Show an assistant settings change in the open app
+- [x] 2. Show an assistant settings change in the open app
   Goal: A change the assistant makes shows at once, as the same change on the settings screen does.
   - Move the interface field-to-atom table out of `useInterfaceSettingWrite` into an exported
     `@koloda/settings-react` helper that sets the atoms for a set of interface values; the hook uses it.

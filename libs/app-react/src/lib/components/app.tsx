@@ -4,6 +4,7 @@ import { AiIcon, AlgorithmsIcon, DecksIcon, HomeIcon, Layout, SettingsIcon, Temp
 import { msg } from "@lingui/core/macro";
 import type { PropsWithChildren } from "react";
 import { useAppHotkeys } from "../hooks/use-app-hotkeys";
+import { useAssistantSettingsChanges } from "../hooks/use-assistant-settings-changes";
 import { useAttachmentSweep } from "../hooks/use-attachment-sweep";
 import { useGlobalSync } from "../hooks/use-global-sync";
 
@@ -27,6 +28,7 @@ export function App({ children }: PropsWithChildren) {
   // closing the app from another route still records `app_shutdown` / flush.
   useConversationSaveHost();
   useAssistantEngineHost();
+  useAssistantSettingsChanges();
   useHotkeyScope("navigation", "enable", true);
 
   return (

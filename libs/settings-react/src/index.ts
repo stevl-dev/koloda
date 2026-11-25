@@ -10,4 +10,5 @@ export { SyncIndicator } from "./lib/sync/sync-indicator";
 export { COLOR_SCHEME_PICKER_LABEL, ColorSchemePicker } from "./lib/interface-controls/color-scheme-picker";
 export { LanguagePicker } from "./lib/interface-controls/language-picker";
 export { useInterfaceSettingWrite } from "./lib/interface-controls/use-interface-setting-write";
+export { setInterfaceSettingAtoms } from "./lib/interface-controls/interface-setting-atoms";
 export { wireUiPreferences } from "./lib/wire-ui-preferences";
