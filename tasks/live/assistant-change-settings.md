@@ -1,6 +1,6 @@
 # Assistant changes settings
 
-Status: draft
+Status: ready
 Guides: agents/ADD-ASSISTANT-TOOL.md, agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/specs/LEARNING-SETTINGS.md, docs/specs/INTERFACE-SETTINGS.md, docs/decisions/CACHE-REFRESH.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
