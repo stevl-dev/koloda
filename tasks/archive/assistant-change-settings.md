@@ -1,6 +1,6 @@
 # Assistant changes settings
 
-Status: ready
+Status: done
 Guides: agents/ADD-ASSISTANT-TOOL.md, agents/ASSISTANT-MAP.md, docs/specs/ASSISTANT-DATA-ACCESS.md, docs/specs/ASSISTANT-CONVERSATIONS.md, docs/specs/LEARNING-SETTINGS.md, docs/specs/INTERFACE-SETTINGS.md, docs/decisions/CACHE-REFRESH.md, docs/decisions/SPECS-AS-ASSISTANT-HELP.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/I18N.md, agents/TESTING.md, agents/VERIFY.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md
 Flow: local
 
@@ -211,3 +211,20 @@ Facts the items rely on, read at `de00614e`:
   Depends on: 1, 2
 
 ## Outcome
+
+The assistant changes learning and interface settings with `change_settings`, one call across both rows,
+all or nothing, through each host's own settings save.
+The change shows at once in the open app, and its tool row offers Undo, which survives a reload.
+Hotkeys and AI settings stay out.
+
+- The tool checks each value's shape only; the full rules run in the hosts' saves, since the Electron main process
+  cannot load `@koloda/app`. A test pins the copied interface option ids to `@koloda/app`.
+- The shell applies only the interface fields a change saved, so the device language rule in `useGlobalSync` holds.
+- A `change_settings` output is stored whole, unlike other tool outputs, because Undo reads every old value from it.
+- `docs/specs/ASSISTANT-DATA-ACCESS.md` passed the 16 KB help topic cap; two repeated tool-name lists became
+  pointers to §Tools.
+- Left for later: a language saved while its run was canceled is not applied to the open app (`tasks/DEFERRED.md`).
+
+Spec: docs/specs/ASSISTANT-SETTINGS-CHANGES.md, docs/specs/ASSISTANT-DATA-ACCESS.md
+Review: not run
+Change rounds: 0
