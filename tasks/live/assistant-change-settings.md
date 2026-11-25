@@ -59,10 +59,11 @@ Out:
     Temperature and the prompt choice would let the assistant change its own behavior mid-conversation.
 - [x] 2. Which mode does each listed field take: apply with Undo, or ask first? — apply with Undo, for every field.
   Every listed field can be restored to its old value, so asking first adds a step and no safety.
-- [ ] 3. Input shape: one field per call, or a patch of several fields under one Undo or one ask? — open
+- [x] 3. Input shape: one field per call, or a patch of several fields under one Undo? — several fields.
+  One call takes a patch of fields across learning and interface, and one Undo reverts that call.
 - [x] 4. How does ask-first wait for the user? — it does not; nothing asks first (question 2).
   The tool is a direct write, as `add_deck` is, so the run never pauses for the user.
-- [ ] 5. Where does Undo live, and how long does it stay valid? — open
+- [ ] 5. Where does Undo live, and how long does it stay valid? — in the tool call row; lifetime open.
   Cases: the conversation is reloaded, or the value changed since, by the user or by sync on another device.
   Leaning: Undo restores only the fields that call changed.
   It leaves a field that changed since alone, and says so.
