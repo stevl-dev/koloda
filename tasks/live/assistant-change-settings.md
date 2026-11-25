@@ -89,9 +89,10 @@ Out:
   `docs/specs/ASSISTANT-DATA-ACCESS.md` keeps one `change_settings` line in §Tools that points to it,
   as `propose_cards` points to `ASSISTANT-CARD-GENERATION.md`.
   The name keeps clear of `ASSISTANT-SETTINGS.md`, which covers the assistant's own prompt and temperature.
-- [ ] 8. One call changes fields of one section, learning or interface, not both. — proposed in the Plan, confirm
-  One section is one settings row, so a call is one write and one Undo restores one row.
-  A request that spans both sections takes two calls, and two Undo buttons.
+- [x] 8. May one call change fields in both sections, learning and interface? — yes.
+  One call may write both rows, and one Undo restores both.
+  Each row is its own write on each host, so a call that fails on its second row writes the first back
+  and fails whole (item 1); Undo does the same (item 3).
 
 ## Plan
 
@@ -121,29 +122,34 @@ Facts the items rely on, read at `de00614e`:
 
 - [ ] 1. Add the `change_settings` tool
   Goal: The assistant can change learning and interface settings with one call.
-  - In `libs/ai`, add a field table: each entry a dotted path into one settings row and the schema for its value.
-    Learning: `dailyLimits.total`; `dailyLimits.<untouched|learn|review>.value` and `.counts`; `dayStartsAt`;
-    `learnAheadLimit`; `defaults.algorithm`; `defaults.template`.
-    Interface: `language`, `scheme`, `lightTheme`, `darkTheme`, `motion`, `dateFormat`, `timeFormat`.
+  - In `libs/ai`, add a field table: each entry a path that starts with its row, and the schema for its value.
+    Learning: `learning.dailyLimits.total`; `learning.dailyLimits.<untouched|learn|review>.value` and `.counts`;
+    `learning.dayStartsAt`; `learning.learnAheadLimit`; `learning.defaults.algorithm`; `learning.defaults.template`.
+    Interface: `interface.<language|scheme|lightTheme|darkTheme|motion|dateFormat|timeFormat>`.
     Hotkeys and AI settings are not in it.
-  - Add a pure function that applies a list of `{ field, value }` to a row's content and returns the new content.
+  - Add a pure function that applies a list of `{ field, value }` to the rows' content and returns the new content
+    of each row it touched.
     Undo (item 3) applies the same list with the old values.
   - Add `change_settings` to `ASSISTANT_TOOL_SPECS`.
-    Input: `section` (`learning` or `interface`) and `changes`, a non-empty list of `{ field, value }`,
-    with `field` an enum of that section's paths.
-    The executor reads the row, checks each value against its field's schema, applies the list,
-    and validates the whole row with the settings schema, as the settings screen's save does.
+    Input: `changes`, a non-empty list of `{ field, value }`, with `field` an enum of the table's paths.
+    One call may change fields of both rows.
+    The executor reads each touched row, checks each value against its field's schema, applies the list,
+    and validates each row with its settings schema, as the settings screen's save does.
     A new default preset or template must exist (`getAlgorithms`, `getTemplates`), as `add_deck` checks.
-    Any failure fails the call and writes nothing.
+    Any failure before a write fails the call and writes nothing.
     A change whose value equals the current one is dropped; a call left with none writes nothing and says so.
-    It saves the row whole through a new `setSettings(name, content)` on `AssistantToolDataSource`.
-    Output: `section` and `changes`, each `{ field, from, to }`.
+    It saves each row whole through a new `setSettings(name, content)` on `AssistantToolDataSource`,
+    learning first, then interface.
+    Each row is its own write on both hosts, so when the second write fails, the executor writes the first row's
+    old content back and fails the call.
+    Output: `changes`, each `{ field, from, to }`.
   - Bind `setSettings` on both hosts; add it to `AiIpcDb`.
   - Tool description and `prompts.ts`: change a setting only when the user asks for a change, never for a
     "what if"; read with `get_settings` first; say which fields it cannot change and link to that screen.
     Drop "cannot change settings" from `get_settings`.
   - Activity label, icon, and a success summary in `libs/ai-react/src/lib/ai-tool-activity.tsx`, both catalogs.
-  - Spec: add `docs/specs/ASSISTANT-SETTINGS-CHANGES.md` with the fields, validation, and what the model is told.
+  - Spec: add `docs/specs/ASSISTANT-SETTINGS-CHANGES.md` with the fields, validation, what the model is told,
+    and that one call may change both rows, all or nothing.
     In `docs/specs/ASSISTANT-DATA-ACCESS.md`: one `change_settings` line in §Tools pointing to it,
     the tool count, §Tool Guidance, `get_settings` no longer "does not change settings",
     and §Resources' paragraph on writes.
@@ -153,6 +159,7 @@ Facts the items rely on, read at `de00614e`:
   The open UI refreshing after the write is item 2.
   Done when: unit tests cover the field table, the apply function, each failure (unknown field, bad value,
   a row that fails the settings schema such as a counted limit above Total, a missing default preset or template),
+  a call that changes both rows, a failed second write that leaves the first row as it was,
   a no-op call, and a `null` daily limit saved as no limit; the host binder tests cover `setSettings`;
   `bun run check:push` passes.
   Commit: Let the assistant change learning and interface settings
@@ -166,8 +173,9 @@ Facts the items rely on, read at `de00614e`:
     once the reducer records a `change_settings` success, call the registered handler with the call's output.
     A run that ends while the write is still running follows `notifyAddDeckStillRunning`.
   - The shell (`@koloda/app-react`) registers the handler.
-    For learning it calls `refreshKinds(queryClient, ["settings.learning"])`.
-    For interface it sets the atoms with the helper, including `langAtom`, and refreshes the interface query.
+    For learning changes it calls `refreshKinds(queryClient, ["settings.learning"])`.
+    For interface changes it sets the atoms with the helper, including `langAtom`, and refreshes the interface query.
+    A call that changed both rows does both.
   - Spec: `docs/specs/ASSISTANT-SETTINGS-CHANGES.md` says a change shows at once; run `bun run gen:help`.
   Constraints: No `QueryClient` in `libs/ai` or the host binders.
   Do not add `settings-react` to `assistant-react`'s dependencies.
@@ -184,20 +192,20 @@ Facts the items rely on, read at `de00614e`:
   - A reducer action marks a call undone, which saves the conversation.
   - `AIToolActivity` gains a slot for a per-call action; `assistant-react` fills it with Undo
     for a successful `change_settings` call that is not undone.
-  - Undo reads the row through `queriesAtom`, applies each change's `from` with item 1's function,
-    and saves the row whole with `setSettingsMutation`.
+  - Undo reads each row the call changed through `queriesAtom`, applies each change's `from` with item 1's function,
+    and saves each row whole with `setSettingsMutation`, learning first, then interface.
     A field changed since the call is restored anyway.
     It then calls item 2's handler with the restored values and marks the call undone.
-    If the save fails, for example a counted limit above a Total changed since, or a default preset since deleted,
-    nothing is written, the row shows the error, and Undo stays.
+    If a save fails, for example a counted limit above a Total changed since, or a default preset since deleted,
+    Undo writes back any row it already restored, so nothing changes; the row shows the error, and Undo stays.
   - An undone row shows "Undone" and no button; there is no Redo.
   - Copy in both `ai-react` catalogs.
   - Spec: §Undo in `docs/specs/ASSISTANT-SETTINGS-CHANGES.md` with all of the above,
     and that revert does not undo a change and retry clears the row with its Undo while the change stays.
     Run `bun run gen:help`.
   Constraints: Undo writes through the renderer's queries, not a new IPC channel.
-  Done when: tests cover Undo restoring the old values, a field changed since overwritten,
-  a failed save leaving the row and the value, the undone flag surviving save and restore,
+  Done when: tests cover Undo restoring the old values in one row and in both, a field changed since overwritten,
+  a failed save leaving the row and every value as they were, the undone flag surviving save and restore,
   and an undone row showing no button; `bun run check:push` passes.
   Commit: Undo assistant settings changes from the tool row
   Depends on: 1, 2
