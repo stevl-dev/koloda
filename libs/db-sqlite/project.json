@@ -23,7 +23,8 @@
       },
       "inputs": [
         "default",
-        "^default"
+        "^default",
+        "{workspaceRoot}/crates/koloda/tests/repo-cases/*.json"
       ],
       "cache": true
     }

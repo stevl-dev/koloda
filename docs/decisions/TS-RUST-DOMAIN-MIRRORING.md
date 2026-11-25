@@ -46,6 +46,11 @@ Fitting FSRS weights is that decision: `docs/decisions/FSRS-OPTIMIZER.md`.
 - Vitest and `cargo test` both read the file.
   Neither side keeps its own copy of a shared row.
 - A case the sides answer differently on purpose carries both answers and names the accepted divergence.
+- Repository behavior both hosts implement has its cases in `crates/koloda/tests/repo-cases/`, once its operation
+  has an adapter on both hosts.
+  A case seeds rows through each host's repos, runs one operation, and states what it returns or the error code.
+  The shape is in `crates/koloda/tests/repo-cases/README.md`.
+  `cargo test` runs them over `koloda`, and Vitest over `@koloda/db-sqlite`.
 - A test that only one side needs stays in that side's test file.
 
 ### Accepted divergences

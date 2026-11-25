@@ -5,6 +5,7 @@ use serde_json::json;
 
 pub mod cases;
 pub mod fixtures;
+pub mod repo_cases;
 pub mod sync;
 
 pub fn test_db() -> Database {

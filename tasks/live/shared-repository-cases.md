@@ -122,7 +122,7 @@ A case is `{ "name", "seed", "input", "expect" }`:
 Item 1 writes down the exact field names in the README; later items extend it only as their operations need.
 A fresh database holds no product rows: the migrations seed none.
 
-- [ ] 1. Run shared template-read cases on both hosts
+- [x] 1. Run shared template-read cases on both hosts
   Goal: Add the repository case format and run it over template reads on both hosts.
   - Add `crates/koloda/tests/repo-cases/README.md` with the shape above, the readers, and the runners.
   - Rust: a reader in `crates/koloda/tests/common/` beside `cases.rs`, and a runner module in

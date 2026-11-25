@@ -1,0 +1,105 @@
+[
+  {
+    "operation": "getTemplates",
+    "cases": [
+      {
+        "name": "an empty database lists no templates",
+        "expect": { "returns": [] }
+      },
+      {
+        "name": "lists templates oldest first, each with its own lock",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "used", "title": "Used" },
+          { "add": "template", "as": "unused", "title": "Unused" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@used" },
+          { "add": "card", "deckId": "@deck", "templateId": "@used" }
+        ],
+        "expect": {
+          "returns": [
+            { "id": "@used", "title": "Used", "isLocked": true },
+            { "id": "@unused", "title": "Unused", "isLocked": false }
+          ]
+        }
+      },
+      {
+        "name": "a deck without cards does not lock its template",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "algorithmId": "@fsrs", "templateId": "@basic" }
+        ],
+        "expect": { "returns": [{ "id": "@basic", "isLocked": false }] }
+      },
+      {
+        "name": "lists the stored content and notes",
+        "seed": [{ "add": "template", "as": "basic", "title": "Basic", "createdAt": 1700000000000 }],
+        "expect": {
+          "returns": [
+            {
+              "id": "@basic",
+              "title": "Basic",
+              "notes": null,
+              "createdAt": 1700000000000,
+              "content": {
+                "fields": [
+                  {
+                    "id": "01900000-0000-7000-8000-000000000001",
+                    "title": "Front",
+                    "type": "text",
+                    "isRequired": true
+                  },
+                  { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "text", "isRequired": false }
+                ],
+                "layout": [
+                  { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+                  { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "operation": "getTemplate",
+    "cases": [
+      {
+        "name": "a template without cards is unlocked",
+        "seed": [{ "add": "template", "as": "basic", "title": "Basic" }],
+        "input": { "id": "@basic" },
+        "expect": { "returns": { "id": "@basic", "title": "Basic", "isLocked": false } }
+      },
+      {
+        "name": "a template with a card is locked",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "basic" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@basic" },
+          { "add": "card", "deckId": "@deck", "templateId": "@basic" }
+        ],
+        "input": { "id": "@basic" },
+        "expect": { "returns": { "id": "@basic", "isLocked": true } }
+      },
+      {
+        "name": "a card of another template does not lock this one",
+        "seed": [
+          { "add": "algorithm", "as": "fsrs" },
+          { "add": "template", "as": "used" },
+          { "add": "template", "as": "unused" },
+          { "add": "deck", "as": "deck", "algorithmId": "@fsrs", "templateId": "@used" },
+          { "add": "card", "deckId": "@deck", "templateId": "@used" }
+        ],
+        "input": { "id": "@unused" },
+        "expect": { "returns": { "id": "@unused", "isLocked": false } }
+      },
+      {
+        "name": "a missing id reads as null",
+        "seed": [{ "add": "template" }],
+        "input": { "id": "01900000-0000-7000-8000-0000000f423f" },
+        "expect": { "returns": null }
+      }
+    ]
+  }
+]

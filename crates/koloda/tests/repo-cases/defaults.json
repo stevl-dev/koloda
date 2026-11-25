@@ -1,0 +1,36 @@
+{
+  "algorithm": {
+    "title": "Algorithm",
+    "content": {
+      "type": "fsrs",
+      "retention": 90,
+      "weights": "0.2,2.3,4,12,6.2,0.65,3.7,2,0.01,1.4,0.7,0.6,0.8,0.64,1,1.32,0.67,3.87,0.44,0.09,1.86,0.62,1.09,0.16,0.08,0.24,0.95,0.14,0.71,0.01,0.57,0.37,0.53,0.3",
+      "isFuzzEnabled": true,
+      "learningSteps": [[10, "m"], [1, "d"]],
+      "relearningSteps": [[10, "m"]],
+      "maximumInterval": 36500
+    }
+  },
+  "template": {
+    "title": "Template",
+    "content": {
+      "fields": [
+        { "id": "01900000-0000-7000-8000-000000000001", "title": "Front", "type": "text", "isRequired": true },
+        { "id": "01900000-0000-7000-8000-000000000002", "title": "Back", "type": "text", "isRequired": false }
+      ],
+      "layout": [
+        { "field": "01900000-0000-7000-8000-000000000001", "operation": "display" },
+        { "field": "01900000-0000-7000-8000-000000000002", "operation": "reveal" }
+      ]
+    }
+  },
+  "deck": {
+    "title": "Deck"
+  },
+  "card": {
+    "content": {
+      "01900000-0000-7000-8000-000000000001": { "text": "question" },
+      "01900000-0000-7000-8000-000000000002": { "text": "answer" }
+    }
+  }
+}
