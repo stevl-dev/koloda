@@ -1,6 +1,6 @@
 # Editor sync group cases
 
-Status: draft
+Status: ready
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/DECISIONS.md, agents/MARKDOWN.md
 Flow: local
 
@@ -63,20 +63,18 @@ Out:
 
 ## Open questions
 
-- [ ] 1. Where does the mapping file live, given `crates/koloda/tests/cases/README.md` says a file there is a list of
-  rule tables? — open.
-  Recommended: `crates/koloda/tests/cases/editor-sync-groups.json`, with its own shape documented as a second section
-  of that README. Both hosts' tests already read that directory, and nothing iterates every file in it
+- [x] 1. Where does the mapping file live, given `crates/koloda/tests/cases/README.md` says a file there is a list of
+  rule tables? — `crates/koloda/tests/cases/editor-sync-groups.json`, with its own shape documented as a second
+  section of that README. Both hosts' tests already read that directory, and nothing iterates every file in it
   (`crates/koloda/tests/common/repo_cases.rs:96` lists `repo-cases/`, not `cases/`).
-  The other choice is a new directory beside it, with its own README.
-- [ ] 2. Should the Rust test also check that each editor path names a key in the kind's serialized read? — open.
-  Recommended: no. TS already rejects a path its form type lacks, since `useRefreshPristineFields` takes
+  The other choice was a new directory beside it, with its own README.
+- [x] 2. Should the Rust test also check that each editor path names a key in the kind's serialized read? — No. TS already rejects a path its form type lacks, since `useRefreshPristineFields` takes
   `DeepKeys<TFormData>[]`, and the serde shapes mirror the TS types under the mirroring decision.
 
 ## Plan
 
 - [ ] 1. Add the editor sync group cases and check them against the registry
-  Goal: Add `crates/koloda/tests/cases/editor-sync-groups.json` (or the place question 1 settles).
+  Goal: Add `crates/koloda/tests/cases/editor-sync-groups.json`.
   It lists one entry per edited kind: `cards`, `decks`, `templates`, `algorithms`, `settingsLearning`, by their wire
   names (`Kind::as_wire`).
   Each entry maps every registry group of the kind, by its wire name (`Group::as_wire`), either to the editor's form
