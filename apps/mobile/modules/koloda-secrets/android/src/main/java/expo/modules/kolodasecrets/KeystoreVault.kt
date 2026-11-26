@@ -18,6 +18,9 @@ private const val PREFERENCES = "koloda-secrets"
 private const val TRANSFORMATION = "AES/GCM/NoPadding"
 private const val TAG_BITS = 128
 
+// WHY: file-level, not per instance — JS registers a new vault on every start, and the Keystore key is process-wide.
+private val keyLock = Any()
+
 // The app's secrets, each encrypted under an AES key that never leaves the Android Keystore.
 // Stored as "<iv>:<ciphertext>", both Base64, in private shared preferences.
 class KeystoreVault(context: Context) : SecretVault {
@@ -44,7 +47,9 @@ class KeystoreVault(context: Context) : SecretVault {
     if (!preferences.edit().remove(key).commit()) throw IllegalStateException("could not remove $key")
   }
 
-  private fun key(): SecretKey {
+  // INVARIANT: the read and the generation run under one lock; two first calls racing would each generate a key,
+  // and the second would replace the first, losing whatever the first encrypted.
+  private fun key(): SecretKey = synchronized(keyLock) {
     val keyStore = KeyStore.getInstance(KEYSTORE).apply { load(null) }
     (keyStore.getKey(KEY_ALIAS, null) as SecretKey?)?.let { return it }
     val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE)
@@ -54,7 +59,7 @@ class KeystoreVault(context: Context) : SecretVault {
         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
         .build()
     )
-    return generator.generateKey()
+    generator.generateKey()
   }
 
   // WHY: Rust expects failures as the `VaultError` it declared; any other exception would abort the call.

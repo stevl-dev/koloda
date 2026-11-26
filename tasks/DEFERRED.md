@@ -81,14 +81,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`
   Deferred because: found in a review after the task was archived; the spike ships nowhere.
 
-- Handoff: `KeystoreVault.key()` can generate the Keystore key twice when two first calls race.
-  Evidence: at `43710036`,
-  `apps/mobile/modules/koloda-secrets/android/src/main/java/expo/modules/kolodasecrets/KeystoreVault.kt:47` reads and
-  then generates the key with no lock; the second key replaces the first, and what the first encrypted is lost.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`
-  Deferred because: found in a review after the task was archived; it cannot be checked without the Android build.
-
 - Handoff: make the mobile card readable in dark mode, and decide how far the app follows the dark scheme.
   Evidence: at `0c7f9de5`, `apps/mobile/src/cards/markdown-colors.ts:19` sets light text for dark mode, while the debug
   screen and its header stay light (`apps/mobile/src/app/debug.tsx`); device check 8 fails on the emulator in dark mode.
