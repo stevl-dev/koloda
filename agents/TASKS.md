@@ -17,10 +17,10 @@ Create one when any of these hold.
 
 - The work spans more than one session.
 - The work needs a multi-commit plan.
-- The work crosses layers or packages.
 - The work carries an open question that needs a durable home.
 
-A small fix, a typo-level doc edit, or a mechanical rename does not need a task file.
+A change that fits in one commit with nothing left to decide does not need a task file, even when it crosses packages.
+A small fix, a typo-level doc edit, or a mechanical rename is such a change.
 Git history is enough.
 It still reaches `main` only through `bun run land`, run from any branch or from `main`.
 
