@@ -38,6 +38,28 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`, question 10
   Deferred because: no Mac with Xcode was available.
 
+- Handoff: build the mobile app at the tip of `mobile-app` and run the device checks it changed on the emulator.
+  Evidence: at `f49ddbd3`, `nx run @koloda/mobile:build-android` last ran on `8ebd910b` (item 5), before items 6 to 10.
+  Checks 8 (dark mode) and 10 (swipe hints), the long-card scroll check, and the Sync tab's join and status in
+  `apps/mobile/README.md` (§Device checks) have not run.
+  Kind: handoff
+  Source: `tasks/archive/mobile-app.md`
+  Deferred because: the build ran out of memory, and the human asked to land and check later.
+
+- Handoff: share the Rust host code the mobile façade copied from the desktop addon.
+  Evidence: at `f49ddbd3`, `apps/mobile/README.md` (§Copies) lists the database worker and payload helpers in
+  `apps/mobile/src-rust/src/lib.rs` and the sync host in `apps/mobile/src-rust/src/sync.rs`.
+  Kind: handoff
+  Source: `tasks/archive/mobile-app.md`, question 5
+  Deferred because: it is the same question as the Repository needs-decision entry on the desktop command path.
+
+- Handoff: an Android build job in CI.
+  Evidence: at `f49ddbd3`, `bun run check:push` and the CI job `checks` run the mobile Jest tests, typecheck, and
+  `koloda-mobile`'s Rust tests on the desktop target, but nothing cross-builds for Android or runs Gradle.
+  Kind: handoff
+  Source: `tasks/archive/mobile-app.md`, question 6
+  Deferred because: the job needs the Android SDK, NDK, and a JDK on the runner, and is a CI task of its own.
+
 - Handoff: background sync on mobile through the engine's `tick` (WorkManager, BGTaskScheduler).
   Evidence: at `abb4c255`, the app syncs only in the foreground; Android freezes the runner in the background.
   Kind: handoff
@@ -108,9 +130,11 @@ Entries are grouped under one heading per package directory.
 - Handoff: a per-device download policy for images (always, on unmetered networks, on demand).
   Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:1757-1758`: "Until device policy exists, every queued
   fetch runs."
+  The mobile app downloads every image too (`docs/specs/SYNC.md` §Platform Availability); the policy is to become a
+  setting.
   Kind: handoff
   Source: `tasks/archive/media-audit.md`
-  Deferred because: left for the mobile phase (`sync-transport` Out).
+  Deferred because: left for the mobile phase (`sync-transport` Out); `mobile-app` kept images always downloading.
 
 ## libs/assistant-react
 

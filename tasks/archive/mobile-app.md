@@ -1,6 +1,6 @@
 # Mobile app
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/decisions/APP-ROLES.md, docs/decisions/STORAGE-BUCKETS.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, docs/specs/LESSONS.md, docs/specs/CARDS.md, docs/specs/SYNC.md, docs/specs/INTERFACE-SETTINGS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/DECISIONS.md, agents/MARKDOWN.md, agents/DEPENDENCIES.md, libs/srs-react/README.md, libs/native-ipc/README.md
 Flow: local
 
@@ -240,3 +240,30 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Depends on: 5, 6, 7, 8
 
 ## Outcome
+
+The mobile app is an Android product app, on the stack `docs/decisions/MOBILE-HOST.md` rules.
+
+What shipped:
+
+- The lesson session runs on one shared hook, `useLessonSessionCore` in `@koloda/srs-react/lesson-state`;
+  desktop wraps it with hotkeys and close, and mobile with its own queries and the default amounts.
+  Mobile picked up `c9b53508`'s prepare-wait fix and the wait for a stale refetch.
+- `@koloda/native-host` holds what both native hosts' JS sends to Rust: the JSON wire codec, the starter content and
+  seed settings, and the sync event types.
+- The debug screen, the sample deck, and the façade's `add_deck`, `add_cards`, and `add_attachment` are gone.
+- The app follows the system's light or dark scheme on every screen, from one palette (`apps/mobile/src/colors.ts`).
+- The Lessons tab is the home screen: labeled due counts, "Nothing due" for an idle deck, pull to refresh, and an
+  empty state that points at the Sync tab.
+- Grade buttons show their swipe arrow, and a drag shows the grade it would give; a scroll inside a long card never
+  grades it (`apps/mobile/src/lesson/swipe-grades.ts`).
+- The Sync tab joins a space and shows the status in desktop's wording, through `@koloda/settings-react/sync-status`.
+- Android backup is off.
+- `docs/decisions/APP-ROLES.md` lists the app as Product, and the specs name what mobile does and leaves out.
+
+Not verified: `build-android` last ran on item 5, and no device check of items 4 to 8 ran on the emulator;
+`tasks/DEFERRED.md` holds the handoff.
+The plan's mobile refetch test (item 1) was not written, as its note says.
+
+Spec: docs/specs/CARDS.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/LESSONS.md, docs/specs/SYNC.md
+Review: not run
+Change rounds: 0
