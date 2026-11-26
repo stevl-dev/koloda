@@ -1,6 +1,6 @@
 # Editor sync group cases
 
-Status: ready
+Status: done
 Guides: agents/TASKS.md, agents/IMPLEMENTATION-PLAN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/RUST.md, docs/decisions/TS-RUST-DOMAIN-MIRRORING.md, agents/DECISIONS.md, agents/MARKDOWN.md
 Flow: local
 
@@ -110,7 +110,18 @@ Out:
 
 ## Outcome
 
-<what shipped>
+`crates/koloda/tests/cases/editor-sync-groups.json` maps every field group of the five edited kinds to its editor's
+form path, or to `null` for a group no editor shows.
+`cargo test -p koloda --test domain` checks each kind's groups in it against the registry
+(`crates/koloda/tests/domain/editor_sync_groups_tests.rs`).
+Vitest checks the four entity editors' lists (`libs/srs-react/src/lib/components/editor-sync-groups.test.ts`)
+and `LEARNING_SYNC_GROUPS` (`libs/settings-react/src/lib/settings-learning.test.tsx`) against the file.
+Both packages list the case files in their `test` Nx inputs.
+Each side's test was seen to fail on drift: a group added to templates in the registry, a path dropped from the deck
+list, and a misspelled learning path.
+The cases README documents the file's shape, and the mirroring decision (§Rule cases) names the tie.
+The `tasks/DEFERRED.md` entry for the lists is removed.
+The template editor's comment on `content` standing for the structure group went, since the file records it.
 
 Spec: none — no user-visible behavior changes
 Review: not run
