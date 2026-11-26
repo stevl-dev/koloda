@@ -63,6 +63,8 @@ Rendering keeps the formatting and drops anything that could run code or reach t
   In the desktop app, a web link opens in the system browser and the app window stays on the app.
   Other kinds of links do nothing in the desktop app.
   In the web app, a link follows normal browser behavior and leaves the app in the current tab.
+  In the mobile app, a web link opens in the system browser, and other kinds of links do nothing.
+- In the mobile app, raw HTML in card text loses its tags, and their text shows as plain text.
 - Links to app screens show only in assistant replies; see ASSISTANT-MESSAGES.md (§Message Content).
   Elsewhere such a link shows as its text.
 

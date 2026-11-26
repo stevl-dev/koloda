@@ -881,7 +881,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Rendered Markdown",
         "depth": 2,
-        "markdown": "## Rendered Markdown\n\nMarkdown is rendered in card preview, in lessons, and in assistant messages, including reasoning.\nRendering keeps the formatting and drops anything that could run code or reach the network on its own.\n\n- Scripts and other active content are removed.\n- Styles written into the content are removed; rendered markdown uses the app's own styles.\n- Images show only when they are card images or come from the app itself.\n  Where card images show is in MEDIA.md (§Where Images Show).\n  Images from other sites or embedded in the text are not shown; their alt text shows instead.\n  Showing a card or a reply never contacts another site.\n- Links stay clickable.\n  In the desktop app, a web link opens in the system browser and the app window stays on the app.\n  Other kinds of links do nothing in the desktop app.\n  In the web app, a link follows normal browser behavior and leaves the app in the current tab.\n- Links to app screens show only in assistant replies; see ASSISTANT-MESSAGES.md (§Message Content).\n  Elsewhere such a link shows as its text.\n\n"
+        "markdown": "## Rendered Markdown\n\nMarkdown is rendered in card preview, in lessons, and in assistant messages, including reasoning.\nRendering keeps the formatting and drops anything that could run code or reach the network on its own.\n\n- Scripts and other active content are removed.\n- Styles written into the content are removed; rendered markdown uses the app's own styles.\n- Images show only when they are card images or come from the app itself.\n  Where card images show is in MEDIA.md (§Where Images Show).\n  Images from other sites or embedded in the text are not shown; their alt text shows instead.\n  Showing a card or a reply never contacts another site.\n- Links stay clickable.\n  In the desktop app, a web link opens in the system browser and the app window stays on the app.\n  Other kinds of links do nothing in the desktop app.\n  In the web app, a link follows normal browser behavior and leaves the app in the current tab.\n  In the mobile app, a web link opens in the system browser, and other kinds of links do nothing.\n- In the mobile app, raw HTML in card text loses its tags, and their text shows as plain text.\n- Links to app screens show only in assistant replies; see ASSISTANT-MESSAGES.md (§Message Content).\n  Elsewhere such a link shows as its text.\n\n"
       },
       {
         "heading": "Card State",
@@ -1203,7 +1203,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Color Scheme",
         "depth": 2,
-        "markdown": "## Color Scheme\n\nThe scheme is one of:\n\n- Light\n- Dark\n- System — follows the device's color scheme preference\n\nThe default is System.\nLight and Dark apply as chosen, regardless of the device.\nWhile set to System, the app switches live when the device switches.\n\n"
+        "markdown": "## Color Scheme\n\nThe scheme is one of:\n\n- Light\n- Dark\n- System — follows the device's color scheme preference\n\nThe default is System.\nLight and Dark apply as chosen, regardless of the device.\nWhile set to System, the app switches live when the device switches.\n\nThe mobile app has no interface settings yet.\nIt always follows the device's color scheme, as System does, and it shows English.\n\n"
       },
       {
         "heading": "Color Themes",
@@ -1409,7 +1409,12 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Early Termination",
         "depth": 2,
-        "markdown": "## Early Termination\n\nClosing while cards are loading or being studied asks for confirmation; see §Phases.\n\nThe confirmation offers \"Continue studying\" or \"Close\".\n\"Continue studying\" dismisses the confirmation and leaves the current card as it was.\n\"Close\" ends the lesson immediately.\n\nEnding a lesson mid-study does not undo grades that were already saved.\nWhat happens to results not yet saved is in §Persisting Results.\n"
+        "markdown": "## Early Termination\n\nClosing while cards are loading or being studied asks for confirmation; see §Phases.\n\nThe confirmation offers \"Continue studying\" or \"Close\".\n\"Continue studying\" dismisses the confirmation and leaves the current card as it was.\n\"Close\" ends the lesson immediately.\n\nEnding a lesson mid-study does not undo grades that were already saved.\nWhat happens to results not yet saved is in §Persisting Results.\n\n"
+      },
+      {
+        "heading": "Mobile App",
+        "depth": 2,
+        "markdown": "## Mobile App\n\nThe mobile app runs lessons with fewer choices than the desktop and web apps.\n\n- Its Lessons tab lists every deck with its \"New\", \"Learn\", and \"Review\" counts, with no aggregate row.\n  A deck with nothing due says so and does not start a lesson.\n  Pulling the list down refreshes the counts.\n- It does not show today's progress (§Today's Progress).\n- Tapping a deck starts a lesson of that deck's \"Total\", with no init screen.\n  The lesson studies the default amounts (§Default Amounts).\n- A field the template asks the user to type into is revealed instead, as a reveal field is.\n- There are no lesson hotkeys.\n- Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).\n\nA revealed card is graded with the buttons or with a swipe:\n\n- left is \"Again\"\n- down is \"Hard\"\n- right is \"Good\"\n- up is \"Easy\"\n\nEach grade button shows its swipe direction, and while the user drags the card it shows the grade the swipe would\ngive.\nA swipe shorter than the app's distance springs back and grades nothing.\nA card too long for the screen scrolls instead: a vertical drag scrolls it while it can still scroll that way, and\nswipes only at its top or bottom edge.\n"
       }
     ]
   },
@@ -1469,18 +1474,18 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     "id": "sync",
     "title": "Sync",
-    "summary": "Covers keeping one person's data the same on their desktop devices through a sync server they run.",
+    "summary": "Covers keeping one person's data the same on their desktop and mobile devices through a sync server they run.",
     "intro": "# Sync\n\n",
     "sections": [
       {
         "heading": "Scope",
         "depth": 2,
-        "markdown": "## Scope\n\nCovers keeping one person's data the same on their desktop devices through a sync server they run.\nThat is spaces, devices, creating, joining, and leaving a space, joining on first run, inviting and managing devices,\nsync status, and what happens when sync stops.\nFirst setup without sync is in INTERFACE-SETTINGS.md (§First Setup).\nHow each kind of data behaves on its own is in its spec: CARDS.md, DECKS.md, TEMPLATES.md, ALGORITHMS.md,\nLEARNING-SETTINGS.md, and MEDIA.md.\nHow two devices' edits to the same thing merge is the sync protocol's rule, not this spec's.\n\n"
+        "markdown": "## Scope\n\nCovers keeping one person's data the same on their desktop and mobile devices through a sync server they run.\nThat is spaces, devices, creating, joining, and leaving a space, joining on first run, inviting and managing devices,\nsync status, and what happens when sync stops.\nFirst setup without sync is in INTERFACE-SETTINGS.md (§First Setup).\nHow each kind of data behaves on its own is in its spec: CARDS.md, DECKS.md, TEMPLATES.md, ALGORITHMS.md,\nLEARNING-SETTINGS.md, and MEDIA.md.\nHow two devices' edits to the same thing merge is the sync protocol's rule, not this spec's.\n\n"
       },
       {
         "heading": "What it is",
         "depth": 2,
-        "markdown": "## What it is\n\nSync keeps decks, cards, study progress, templates, algorithms, learning settings, and images the same on every\ndesktop device of one person.\nThe devices exchange changes through a sync server the person runs themselves.\nThere are no accounts.\n\nThe app works the same without a network.\nChanges made offline sync once the device can reach the server again.\n\n"
+        "markdown": "## What it is\n\nSync keeps decks, cards, study progress, templates, algorithms, learning settings, and images the same on every\ndesktop and mobile device of one person.\nThe devices exchange changes through a sync server the person runs themselves.\nThere are no accounts.\n\nThe app works the same without a network.\nChanges made offline sync once the device can reach the server again.\n\n"
       },
       {
         "heading": "Core model",
@@ -1495,7 +1500,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Platform Availability",
         "depth": 2,
-        "markdown": "## Platform Availability\n\nSync is in the desktop app only.\nThe web demo has no Sync settings and never syncs.\n\n"
+        "markdown": "## Platform Availability\n\nSync is in the desktop and mobile apps.\nThe web demo has no Sync settings and never syncs.\n\nThe mobile app joins a space and shows its status, and nothing more.\nIts Sync tab takes the place of Settings → Sync.\n\n- Joining works as §Joining a Space says, except that a phone with data of its own cannot join.\n  A phone adds no data itself, so this happens only after it left a space, which it cannot do yet.\n- The status shows the state, why sync stopped, the last sync, and what waits to upload or download, as §Status says.\n  It does not show held changes, a full space, or changes waiting for the server's clock.\n- It cannot create a space, invite a device, list or remove devices, leave a space, or choose Add or Replace.\n  A stop that needs the user to leave the space, or to continue after a restore, cannot be resolved on the phone.\n- It has no \"Sync now\" and no sync indicator.\n- It syncs while the app is open and when it returns to the foreground, not in the background.\n- Images always download when their cards arrive; the phone has no download setting.\n\n"
       },
       {
         "heading": "Servers",

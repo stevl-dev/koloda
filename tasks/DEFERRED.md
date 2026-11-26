@@ -38,12 +38,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`, question 10
   Deferred because: no Mac with Xcode was available.
 
-- Handoff: write the mobile app's raw-HTML rule into `docs/specs/CARDS.md` (§Rendered Markdown).
-  Evidence: at `abb4c255`, `apps/mobile/src/cards/card-markdown.tsx` drops tags and shows their text, a spike rule.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`, question 3
-  Deferred because: the lasting rule belongs to the follow-up that builds the real app.
-
 - Handoff: background sync on mobile through the engine's `tick` (WorkManager, BGTaskScheduler).
   Evidence: at `abb4c255`, the app syncs only in the foreground; Android freezes the runner in the background.
   Kind: handoff

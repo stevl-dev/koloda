@@ -2,7 +2,7 @@
 
 ## Scope
 
-Covers keeping one person's data the same on their desktop devices through a sync server they run.
+Covers keeping one person's data the same on their desktop and mobile devices through a sync server they run.
 That is spaces, devices, creating, joining, and leaving a space, joining on first run, inviting and managing devices,
 sync status, and what happens when sync stops.
 First setup without sync is in INTERFACE-SETTINGS.md (§First Setup).
@@ -13,7 +13,7 @@ How two devices' edits to the same thing merge is the sync protocol's rule, not 
 ## What it is
 
 Sync keeps decks, cards, study progress, templates, algorithms, learning settings, and images the same on every
-desktop device of one person.
+desktop and mobile device of one person.
 The devices exchange changes through a sync server the person runs themselves.
 There are no accounts.
 
@@ -39,8 +39,21 @@ Changes made offline sync once the device can reach the server again.
 
 ## Platform Availability
 
-Sync is in the desktop app only.
+Sync is in the desktop and mobile apps.
 The web demo has no Sync settings and never syncs.
+
+The mobile app joins a space and shows its status, and nothing more.
+Its Sync tab takes the place of Settings → Sync.
+
+- Joining works as §Joining a Space says, except that a phone with data of its own cannot join.
+  A phone adds no data itself, so this happens only after it left a space, which it cannot do yet.
+- The status shows the state, why sync stopped, the last sync, and what waits to upload or download, as §Status says.
+  It does not show held changes, a full space, or changes waiting for the server's clock.
+- It cannot create a space, invite a device, list or remove devices, leave a space, or choose Add or Replace.
+  A stop that needs the user to leave the space, or to continue after a restore, cannot be resolved on the phone.
+- It has no "Sync now" and no sync indicator.
+- It syncs while the app is open and when it returns to the foreground, not in the background.
+- Images always download when their cards arrive; the phone has no download setting.
 
 ## Servers
 

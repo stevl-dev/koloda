@@ -224,7 +224,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Commit: Turn off Android backup for the mobile app
   Depends on: none
 
-- [ ] 10. Make the mobile app a product app
+- [x] 10. Make the mobile app a product app
   Goal: The mobile app is a product, as the docs say.
   Its row in `docs/decisions/APP-ROLES.md` becomes Product, and `apps/mobile/README.md` says so;
   its §Spike code section goes, and its intro stops calling the app a spike.

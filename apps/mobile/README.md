@@ -1,8 +1,9 @@
 # @koloda/mobile
 
-Mobile app spike: React Native on Expo, with the UI drawn by native views.
-It answers whether this stack is the right mobile host before a real app is built on it.
-Role: dev tool (see `docs/decisions/APP-ROLES.md`).
+The mobile app: React Native on Expo, with the UI drawn by native views, on the stack
+`docs/decisions/MOBILE-HOST.md` rules.
+It studies decks and joins a sync space; the specs name what it leaves out.
+Role: product (see `docs/decisions/APP-ROLES.md`).
 
 ## Where it sits
 
@@ -87,7 +88,7 @@ A library moves to a new phone by joining its sync space.
 
 ## Device checks
 
-Run on each platform before the spike's verdict.
+Run on each platform after a change to the app.
 
 - [ ] The app boots to the Lessons tab.
 - [ ] The Lessons and Sync tabs both open.
@@ -119,14 +120,6 @@ Run on each platform before the spike's verdict.
 - [ ] Force-quit and reopen the phone app; it is still in the space, and the status is in sync.
 - [ ] Enter a wrong code; the screen says the code is wrong.
 
-## Spike code
-
-Code that exists only to answer a question, replaced by the follow-up:
-
-- `src/app/(tabs)/index.tsx` and `src/components/lessons-list.tsx`: the deck list on the Lessons tab.
-- `src/app/(tabs)/sync.tsx`, `src/components/sync-panel.tsx`, and `src/components/join-space.tsx`: the Sync tab.
-- `src/lesson` and `src/app/lesson/[deckId].tsx`: the lesson screen, on the shared lesson reducer.
-
 ## Copies
 
 Code copied from another app instead of shared:
@@ -137,7 +130,7 @@ Code copied from another app instead of shared:
 
 ## Findings
 
-What building and running the spike showed:
+What building and running the app showed:
 
 - 2026-11-13, Android emulator (API 36, x86_64, debug build): the first six device checks pass, from booting to the
   sample deck surviving a relaunch.

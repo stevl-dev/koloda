@@ -299,3 +299,30 @@ The confirmation offers "Continue studying" or "Close".
 
 Ending a lesson mid-study does not undo grades that were already saved.
 What happens to results not yet saved is in §Persisting Results.
+
+## Mobile App
+
+The mobile app runs lessons with fewer choices than the desktop and web apps.
+
+- Its Lessons tab lists every deck with its "New", "Learn", and "Review" counts, with no aggregate row.
+  A deck with nothing due says so and does not start a lesson.
+  Pulling the list down refreshes the counts.
+- It does not show today's progress (§Today's Progress).
+- Tapping a deck starts a lesson of that deck's "Total", with no init screen.
+  The lesson studies the default amounts (§Default Amounts).
+- A field the template asks the user to type into is revealed instead, as a reveal field is.
+- There are no lesson hotkeys.
+- Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).
+
+A revealed card is graded with the buttons or with a swipe:
+
+- left is "Again"
+- down is "Hard"
+- right is "Good"
+- up is "Easy"
+
+Each grade button shows its swipe direction, and while the user drags the card it shows the grade the swipe would
+give.
+A swipe shorter than the app's distance springs back and grades nothing.
+A card too long for the screen scrolls instead: a vertical drag scrolls it while it can still scroll that way, and
+swipes only at its top or bottom edge.

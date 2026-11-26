@@ -64,6 +64,9 @@ The default is System.
 Light and Dark apply as chosen, regardless of the device.
 While set to System, the app switches live when the device switches.
 
+The mobile app has no interface settings yet.
+It always follows the device's color scheme, as System does, and it shows English.
+
 ## Color Themes
 
 The light and dark themes are chosen independently.
