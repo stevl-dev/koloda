@@ -91,15 +91,6 @@ Entries are grouped under one heading per package directory.
 
 ## crates/koloda-server
 
-- Risk, Later: the fork fallback's success arm is untested.
-  Evidence: at `851b81c0`, `crates/koloda-server/src/devices.rs:152-154`: a fork that lost the unique index returns
-  the winner's device. It runs only when two forks with one nonce and token interleave between `same_fork` and
-  `insert_fork`, and no test forces that.
-  The refusal arm (another token for the nonce) runs in the fork retry test in `tests/server/devices_tests.rs`.
-  Kind: skipped
-  Source: `tasks/archive/sync-proto-server-tests-audit.md`, finding 4
-  Deferred because: forcing the race needs a seam in `fork_device`, which integration tests reach only by a feature.
-
 - Product decision, Later: 100 wrong pairing codes a minute, server-wide, lock pairing for every space.
   Evidence: at `3e7db94e`, `crates/koloda-server/src/pairing.rs:29-31` and `:256-272`: ten addresses at two wrong
   codes a second keep previews and claims refused for all spaces, with no token.

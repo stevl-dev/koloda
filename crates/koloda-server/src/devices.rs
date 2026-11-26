@@ -147,14 +147,12 @@ fn fork_device(server: &Server, caller: &DeviceAuth, request: ForkDevice) -> Res
     let now = server.now_ms();
     let device = {
         let mut conn = server.server_db()?;
-        match same_fork(&conn, caller.id, &request.nonce, &hash)? {
+        // WHY: the insert goes first, and a refused one reads the fork its nonce recorded. A retry and a request that
+        // lost a race to the same nonce then take one path, so the retry test covers the race too.
+        match insert_fork(&mut conn, caller, &request.nonce, &hash, now)? {
             Some(device) => device,
-            None => match insert_fork(&mut conn, caller, &request.nonce, &hash, now)? {
-                Some(device) => device,
-                // The unique index lost to a request that committed first.
-                None => same_fork(&conn, caller.id, &request.nonce, &hash)?
-                    .ok_or_else(|| ApiError::bad_request("the token is already enrolled"))?,
-            },
+            None => same_fork(&conn, caller.id, &request.nonce, &hash)?
+                .ok_or_else(|| ApiError::bad_request("the token is already enrolled"))?,
         }
     };
     Ok(Enrollment {
