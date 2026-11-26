@@ -5,8 +5,8 @@ import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { CardImage } from "./card-image";
-import type { MarkdownColors } from "./markdown-colors";
-import { useMarkdownColors } from "./markdown-colors";
+import type { AppColors } from "../colors";
+import { useAppColors } from "../colors";
 
 // INVARIANT: default options, as `libs/srs` parses card markdown, so the phone reads the same tokens as desktop.
 const cardMarkdown = new Marked();
@@ -40,7 +40,7 @@ function attachmentId(token: Token): string | null {
   return ATTACHMENT_REF_PATTERN.exec((token as Tokens.Image).href)?.[1] ?? null;
 }
 
-type Context = { colors: MarkdownColors };
+type Context = { colors: AppColors };
 
 function renderInline(tokens: Token[], context: Context): ReactNode[] {
   const { colors } = context;
@@ -248,7 +248,7 @@ export type CardMarkdownProps = {
 };
 
 export function CardMarkdown({ text }: CardMarkdownProps) {
-  const colors = useMarkdownColors();
+  const colors = useAppColors();
   const tokens = useMemo(() => cardMarkdown.lexer(text), [text]);
   return <View style={styles.root}>{renderBlocks(tokens, { colors })}</View>;
 }

@@ -2,11 +2,12 @@ import { msg } from "@lingui/core/macro";
 import { i18n } from "@lingui/core";
 import { I18nProvider, useLingui } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, ThemeProvider } from "expo-router";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Boot } from "../components/boot";
+import { useNavigationTheme } from "../colors";
 import { activateEnglish } from "../i18n";
 import { imageCacheDir, openFacade } from "../host/open-facade";
 import { createMobileQueries } from "../host/queries";
@@ -26,6 +27,7 @@ function RootStack() {
 }
 
 export default function RootLayout() {
+  const theme = useNavigationTheme();
   const [queryClient] = useState(() => new QueryClient());
   const [facade] = useState(openFacade);
   const [queries] = useState(() => createMobileQueries(facade, imageCacheDir()));
@@ -35,9 +37,11 @@ export default function RootLayout() {
       <I18nProvider i18n={i18n}>
         <QueryClientProvider client={queryClient}>
           <MobileQueriesContext.Provider value={queries}>
-            <Boot facade={facade}>
-              <RootStack />
-            </Boot>
+            <ThemeProvider value={theme}>
+              <Boot facade={facade}>
+                <RootStack />
+              </Boot>
+            </ThemeProvider>
           </MobileQueriesContext.Provider>
         </QueryClientProvider>
       </I18nProvider>

@@ -10,7 +10,7 @@ import { useSetAtom } from "jotai";
 import { useCallback } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
-import { useMarkdownColors } from "../cards/markdown-colors";
+import { useAppColors } from "../colors";
 import { SwipeableCard } from "./swipeable-card";
 
 // INVARIANT: in `FSRS_GRADES` order: Again, Hard, Good, Easy.
@@ -27,7 +27,7 @@ export type LessonCardProps = {
 
 export function LessonCard({ content }: LessonCardProps) {
   const { _ } = useLingui();
-  const colors = useMarkdownColors();
+  const colors = useAppColors();
   const submit = useSetAtom(submitLessonCardAtom);
   const selectGrade = useSetAtom(selectLessonGradeAtom);
   const { card, template, form, grades } = content;
@@ -46,7 +46,7 @@ export function LessonCard({ content }: LessonCardProps) {
         cardKey={content.index}
         isEnabled={isRevealed}
         onSwipe={grade}
-        style={[styles.card, { borderColor: colors.border }]}
+        style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface }]}
       >
         <Pressable style={styles.cardBody} onPress={() => submit()} accessibilityLabel={_(msg`mobile.lesson.card`)}>
           <ScrollView contentContainerStyle={styles.fields}>
@@ -60,7 +60,11 @@ export function LessonCard({ content }: LessonCardProps) {
       {isRevealed ? (
         <View style={styles.grades}>
           {grades.map(({ card: next, revlog }, i) => (
-            <Pressable key={i} style={[styles.grade, { borderColor: colors.border }]} onPress={() => grade(i)}>
+            <Pressable
+              key={i}
+              style={[styles.grade, { borderColor: colors.border, backgroundColor: colors.surface }]}
+              onPress={() => grade(i)}
+            >
               <Text style={[styles.interval, { color: colors.muted }]}>
                 {formatDistanceStrict(next.dueAt, revlog.reviewTime, { locale: dateFnsLocale("en") })}
               </Text>
@@ -69,7 +73,10 @@ export function LessonCard({ content }: LessonCardProps) {
           ))}
         </View>
       ) : (
-        <Pressable style={[styles.continue, { borderColor: colors.border }]} onPress={() => submit()}>
+        <Pressable
+          style={[styles.continue, { borderColor: colors.border, backgroundColor: colors.surface }]}
+          onPress={() => submit()}
+        >
           <Text style={[styles.gradeLabel, { color: colors.text }]}>{_(msg`mobile.lesson.continue`)}</Text>
         </Pressable>
       )}

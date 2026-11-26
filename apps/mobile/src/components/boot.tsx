@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { ActivityIndicator, AppState, Text } from "react-native";
+import { useAppColors } from "../colors";
 import type { KolodaFacade } from "../host/facade";
 import { seedDB } from "../host/setup";
 import { startSync, SYNC_START_KEY } from "../host/start-sync";
@@ -15,6 +16,7 @@ export type BootProps = {
 
 export function Boot({ facade, children }: BootProps) {
   const { _ } = useLingui();
+  const colors = useAppColors();
   const queryClient = useQueryClient();
   const { isSuccess, error } = useQuery({
     queryKey: ["mobile-boot"],
@@ -41,7 +43,7 @@ export function Boot({ facade, children }: BootProps) {
     return () => subscription.remove();
   }, [facade]);
 
-  if (error) return <Text>{_(msg`mobile.boot.error`)}</Text>;
-  if (!isSuccess) return <ActivityIndicator />;
+  if (error) return <Text style={{ color: colors.text }}>{_(msg`mobile.boot.error`)}</Text>;
+  if (!isSuccess) return <ActivityIndicator color={colors.muted} />;
   return children;
 }

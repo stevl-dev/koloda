@@ -149,7 +149,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Note: `add_attachment` went too, since only the sample card used it.
   The façade's Rust tests now write their data through `koloda` on a second connection to the file.
 
-- [ ] 4. Follow the system's dark scheme across the mobile app
+- [x] 4. Follow the system's dark scheme across the mobile app
   Goal: Every screen, the tab bar, the headers, and the card read well in light and dark mode.
   Grow `src/cards/markdown-colors.ts` into the app's palette for both schemes, with a screen background and a card
   surface, and give the navigation stack and tabs the matching theme.
@@ -160,6 +160,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: device check 8 passes on the emulator in both schemes, plus the shared checks above.
   Commit: Follow the system's dark scheme across the mobile app
   Depends on: 3
+  Note: device check 8 waits for the human's emulator run; the agent does not start the emulator.
 
 - [ ] 5. Make the Lessons tab the mobile home screen
   Goal: The Lessons tab is a product deck list.

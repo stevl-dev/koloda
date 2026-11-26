@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
+import { useAppColors } from "../colors";
 import { LessonCard } from "./lesson-card";
 import { useMobileLessonSession } from "./use-mobile-lesson-session";
 
@@ -23,6 +24,7 @@ export type LessonScreenProps = {
 
 export function LessonScreen({ deckId, onDone }: LessonScreenProps) {
   const { _ } = useLingui();
+  const colors = useAppColors();
   const queryClient = useQueryClient();
   const open = useSetAtom(openLessonAtom);
   const close = useSetAtom(closeLessonStateAtom);
@@ -46,13 +48,15 @@ export function LessonScreen({ deckId, onDone }: LessonScreenProps) {
     const failed = Object.values(uploadLog).filter((status) => status === "error").length;
     return (
       <View style={styles.done}>
-        <Text style={styles.title}>{loadError ? _(msg`mobile.lesson.load-failed`) : _(msg`mobile.lesson.done`)}</Text>
-        {failed > 0 && <Text>{_(msg`mobile.lesson.save-failed ${failed}`)}</Text>}
+        <Text style={[styles.title, { color: colors.text }]}>
+          {loadError ? _(msg`mobile.lesson.load-failed`) : _(msg`mobile.lesson.done`)}
+        </Text>
+        {failed > 0 && <Text style={{ color: colors.danger }}>{_(msg`mobile.lesson.save-failed ${failed}`)}</Text>}
         <Button title={_(msg`mobile.lesson.back`)} onPress={onDone} />
       </View>
     );
   }
-  if (phase !== "studying" || !content) return <ActivityIndicator style={styles.done} />;
+  if (phase !== "studying" || !content) return <ActivityIndicator style={styles.done} color={colors.muted} />;
   return <LessonCard content={content} />;
 }
 
