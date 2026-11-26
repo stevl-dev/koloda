@@ -10,7 +10,7 @@ use std::time::Duration;
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::domain::optimizer::{
-    new_progress, optimize, progress_counts, request_abort, OptimizationOutcome, OptimizationProgress,
+    is_aborted, new_progress, optimize, progress_counts, request_abort, OptimizationOutcome, OptimizationProgress,
 };
 use koloda::repo;
 use napi::threadsafe_function::{ErrorStrategy, ThreadsafeFunction};
@@ -58,6 +58,12 @@ impl OptimizerHost {
         progress: &OptimizationProgress,
         on_progress: impl Fn(usize, usize),
     ) -> Result<OptimizationOutcome, AppError> {
+        // INVARIANT: a run cancelled while queued resolves `Cancelled` without reading its reviews, so even a run
+        // whose algorithm is gone by then resolves as cancelled (apps/electron/IPC.md).
+        if is_aborted(progress) {
+            self.lock_runs().remove(request_id);
+            return Ok(OptimizationOutcome::Cancelled);
+        }
         let outcome = repo::optimizer::get_optimization_input(&self.db, algorithm_id).and_then(|input| {
             thread::scope(|scope| {
                 let training = scope.spawn(|| optimize(&input, progress));
@@ -135,6 +141,20 @@ mod tests {
             matches!(first_outcome, OptimizationOutcome::NotEnoughData { .. }),
             "the other run is not cancelled: {first_outcome:?}"
         );
+    }
+
+    #[test]
+    fn a_run_cancelled_while_queued_resolves_cancelled_even_when_its_algorithm_is_gone() {
+        let (host, _) = host_with_algorithm();
+        let progress = host.register("queued");
+
+        host.cancel("queued");
+        let outcome = host
+            .run("queued", "deleted-algorithm", &progress, |_, _| {})
+            .expect("a cancelled run is not an error");
+
+        assert_eq!(outcome, OptimizationOutcome::Cancelled);
+        assert!(host.lock_runs().is_empty(), "the cancelled run leaves no entry");
     }
 
     #[test]

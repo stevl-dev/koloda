@@ -330,7 +330,7 @@ fn score(weights: &[f32], set: &TrainingSet, progress: &OptimizationProgress) ->
 }
 
 // WHY: a poisoned lock means a panic mid-run; stopping is the only safe reading.
-fn is_aborted(progress: &OptimizationProgress) -> bool {
+pub fn is_aborted(progress: &OptimizationProgress) -> bool {
     progress.lock().map_or(true, |state| state.want_abort)
 }
 

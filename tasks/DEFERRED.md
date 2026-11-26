@@ -14,14 +14,6 @@ Entries are grouped under one heading per package directory.
 
 ## apps/electron
 
-- Handoff: the optimizer host reads the algorithm's whole review history before `optimize` checks the abort flag.
-  Evidence: at `1c0661bb`, `apps/electron/src-rust/src/optimizer.rs:61` calls `get_optimization_input` first;
-  the abort check is inside `optimize` (`crates/koloda/src/domain/optimizer.rs:196`).
-  The outcome is right; only the read is wasted.
-  Kind: handoff
-  Source: `tasks/archive/algorithms-audit.md`
-  Deferred because: seen in passing and not planned; no user sees it.
-
 - Improvement, Later: no test runs the optimizer host's progress reporting, which reports only when progress moved.
   Evidence: at `b23dc2b7`, `apps/electron/src-rust/src/optimizer.rs:68` skips a report when `current` is unchanged;
   both host tests pass `|_, _| {}` on a history too small to train.
