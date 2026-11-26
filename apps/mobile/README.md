@@ -58,6 +58,11 @@ so set `ANDROID_AVD_HOME=$HOME/.config/.android/avd` before starting it with `em
 
 The Expo prebuild writes the Gradle project into `android/`, which is generated and not committed.
 
+Android backup is off (`android.allowBackup` in `app.json`).
+A restore onto another phone would bring back `koloda.db` with the old phone's device identity, so two phones would sync
+as one device, and the vault's encrypted preferences without the Keystore key that decrypts them.
+A library moves to a new phone by joining its sync space.
+
 ## Running
 
 - `nx run @koloda/mobile:start` — the Metro dev server.

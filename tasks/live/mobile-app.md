@@ -214,9 +214,11 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   the status lines moved from `settings-sync-status.tsx` into `sync-messages.ts` so both apps read them.
   Mobile leaves out "Sync now", holds, the full-space and clock-ahead notes, and continuing after a restore.
 
-- [ ] 9. Turn off Android backup for the mobile app
+- [x] 9. Turn off Android backup for the mobile app
   Goal: Android backup restores nothing of the app, as open question 7 settles.
   Set `android.allowBackup` to false in `apps/mobile/app.json`, and say why where it is set.
+  Note: JSON holds no comment, so the why is in `apps/mobile/README.md` (§Platform setup), beside the prebuild.
+  The prebuilt manifest is checked in the final `build-android` run.
   Remove the backup handoff from `tasks/DEFERRED.md`.
   Done when: the prebuilt manifest has `android:allowBackup="false"`, plus the shared checks above.
   Commit: Turn off Android backup for the mobile app

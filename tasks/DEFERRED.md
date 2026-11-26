@@ -50,15 +50,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`, question 4
   Deferred because: it does not gate the verdict and is the same code under any host.
 
-- Handoff: decide what Android backup restores for the mobile app.
-  Evidence: at `43710036`, the prebuilt manifest sets `android:allowBackup="true"` and `apps/mobile/app.json` does not
-  turn it off.
-  A restore onto another phone would bring back `koloda.db` with its device identity, and the encrypted preferences
-  of `apps/mobile/modules/koloda-secrets` without the Keystore key that decrypts them.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`
-  Deferred because: found in a review after the task was archived; the spike ships nowhere.
-
 ## crates/koloda-server
 
 - Product decision, Later: 100 wrong pairing codes a minute, server-wide, lock pairing for every space.

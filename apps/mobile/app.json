@@ -9,7 +9,8 @@
     ],
     "userInterfaceStyle": "automatic",
     "android": {
-      "package": "com.koloda.app"
+      "package": "com.koloda.app",
+      "allowBackup": false
     },
     "plugins": [
       "expo-router"
