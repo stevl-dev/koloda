@@ -35,8 +35,8 @@ import { DeleteCard } from "./delete-card";
 
 type CardDetailsProps = { card: Card };
 
-// INVARIANT: one path per card sync group (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
-const CARD_SYNC_GROUPS = ["content"] as const;
+// INVARIANT: one path per edited card sync group (crates/koloda/tests/cases/editor-sync-groups.json).
+export const CARD_SYNC_GROUPS = ["content"] as const;
 
 export function CardDetails({ card }: CardDetailsProps) {
   const queryClient = useQueryClient();

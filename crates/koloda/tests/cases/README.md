@@ -47,3 +47,7 @@ An open editor refreshes the fields its list names when a sync changes them.
 Readers:
 
 - Rust: `crates/koloda/tests/domain/editor_sync_groups_tests.rs` checks that each kind's groups are the registry's.
+- TS: `libs/srs-react/src/lib/components/editor-sync-groups.test.ts` and
+  `libs/settings-react/src/lib/settings-learning.test.tsx` check that each editor's list holds the kind's paths.
+
+`libs/srs-react` and `libs/settings-react` list this directory in their `test` Nx inputs too.

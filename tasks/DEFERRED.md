@@ -288,13 +288,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/srs-react-settings-react-tests-audit.md`, finding 9
   Deferred because: no reachable state was found in which the check decides anything; it may be dead.
 
-- Handoff: the four editors' `*_SYNC_GROUPS` lists mirror the Rust field-group registry with nothing that ties them.
-  Evidence: at `1c0661bb`, `libs/srs-react/src/lib/cards/card-details.tsx:39`, `algorithms/algorithm.tsx:29`,
-  `decks/deck-details.tsx:17`, and `templates/template.tsx:29`; no test reads them.
-  Kind: handoff
-  Source: `tasks/archive/entity-forms-architecture.md`, finding F5
-  Deferred because: the review proposed nothing here; the host-persistence review's shared case tables are the place.
-
 ## libs/ui
 
 - Improvement, Later: the tooltip surface measures itself after every render.

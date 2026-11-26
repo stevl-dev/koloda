@@ -21,8 +21,8 @@ export type SettingsLearningProps = { data: ResolvedLearningSettings };
 // and, since Learn does not count toward Total on first setup, does not block a save.
 const UNLIMITED_OFF_VALUES = { total: 200, untouched: 50, learn: 200, review: 200 } as const;
 
-// INVARIANT: one path per learning sync key (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
-const LEARNING_SYNC_GROUPS = [
+// INVARIANT: one path per edited learning sync group (crates/koloda/tests/cases/editor-sync-groups.json).
+export const LEARNING_SYNC_GROUPS = [
   "defaults.algorithm",
   "defaults.template",
   "dailyLimits",

@@ -26,8 +26,8 @@ import { OptimizeAlgorithm } from "./optimize-algorithm";
 
 type AlgorithmProps = { id: AlgorithmType["id"] };
 
-// INVARIANT: one path per algorithm sync group (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
-const ALGORITHM_SYNC_GROUPS = ["title", "notes", "content"] as const;
+// INVARIANT: one path per edited algorithm sync group (crates/koloda/tests/cases/editor-sync-groups.json).
+export const ALGORITHM_SYNC_GROUPS = ["title", "notes", "content"] as const;
 
 export function Algorithm({ id }: AlgorithmProps) {
   const queryClient = useQueryClient();

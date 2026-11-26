@@ -24,9 +24,8 @@ import { TemplateLayout } from "./template-layout";
 
 type TemplateProps = { id: TemplateType["id"] };
 
-// INVARIANT: one path per template sync group (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
-// `content` is the structure group: fields and layout move together.
-const TEMPLATE_SYNC_GROUPS = ["title", "notes", "content"] as const;
+// INVARIANT: one path per edited template sync group (crates/koloda/tests/cases/editor-sync-groups.json).
+export const TEMPLATE_SYNC_GROUPS = ["title", "notes", "content"] as const;
 
 export function Template({ id }: TemplateProps) {
   const queryClient = useQueryClient();

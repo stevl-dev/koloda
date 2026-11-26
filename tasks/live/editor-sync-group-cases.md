@@ -91,7 +91,7 @@ Out:
   Commit: Check the editor sync group cases against the registry
   Depends on: none
 
-- [ ] 2. Tie the editors' sync group lists to the shared cases
+- [x] 2. Tie the editors' sync group lists to the shared cases
   Goal: Export the five `*_SYNC_GROUPS` constants from their modules (not from the package index).
   Add a Vitest test in `libs/srs-react` for cards, decks, templates, and algorithms, and one in `libs/settings-react`
   for learning settings.

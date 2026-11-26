@@ -5,9 +5,12 @@ import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { DailyLimitCapField, SettingsLearning } from "./settings-learning";
+import { DailyLimitCapField, LEARNING_SYNC_GROUPS, SettingsLearning } from "./settings-learning";
 
 function renderSettingsLearning(data: ResolvedLearningSettings) {
   const setSettings = vi.fn(async ({ content }: { content: ResolvedLearningSettings }) => ({
@@ -155,5 +158,24 @@ describe("DailyLimitCapField", () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(input.value).toBe("8");
+  });
+});
+
+// WHY: `cargo test` checks the same file against the sync field-group registry, so a list that matches it refreshes
+// every group a sync can change. File shape: `crates/koloda/tests/cases/README.md` (§Editor sync groups).
+const EDITOR_SYNC_GROUPS_FILE = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../../crates/koloda/tests/cases/editor-sync-groups.json",
+);
+
+describe("LEARNING_SYNC_GROUPS", () => {
+  it("refreshes the path of every edited learning field group", () => {
+    const entries = JSON.parse(readFileSync(EDITOR_SYNC_GROUPS_FILE, "utf8")) as Array<{
+      kind: string;
+      groups: Record<string, string | null>;
+    }>;
+    const entry = entries.find((candidate) => candidate.kind === "settings.learning");
+    const paths = Object.values(entry?.groups ?? {}).filter((path) => path !== null);
+    expect([...LEARNING_SYNC_GROUPS].sort()).toEqual(paths.sort());
   });
 });

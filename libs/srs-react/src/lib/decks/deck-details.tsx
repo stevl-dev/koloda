@@ -13,8 +13,8 @@ import { DeleteDeck } from "./delete-deck";
 
 type DeckDetailsProps = { id: Deck["id"] };
 
-// INVARIANT: one path per deck sync group (crates/koloda-sync-proto/PROTOCOL.md, Field groups and merge).
-const DECK_SYNC_GROUPS = ["title", "notes", "algorithmId", "templateId"] as const;
+// INVARIANT: one path per edited deck sync group (crates/koloda/tests/cases/editor-sync-groups.json).
+export const DECK_SYNC_GROUPS = ["title", "notes", "algorithmId", "templateId"] as const;
 
 export function DeckDetails({ id }: DeckDetailsProps) {
   const queryClient = useQueryClient();
