@@ -301,6 +301,57 @@ describe("useLessonSession", () => {
     expect(store.get(lessonSetupAtom)?.available).toEqual(updatedLessons.total);
   });
 
+  it("waits out a refetch of counts whose last fetch failed instead of finishing on that old error", async () => {
+    const refetchError = new AppError("db.get", "lessons unavailable");
+    let calls = 0;
+    let resolveRefetch!: (value: typeof TOTAL_LESSONS) => void;
+    const { store, queryClient, Wrapper } = createWrapper({
+      queries: buildQueries({
+        getLessonsQuery: (filters) => ({
+          queryKey: queryKeys.lessons.all(filters),
+          queryFn: () => {
+            calls += 1;
+            if (calls === 1) return Promise.resolve(TOTAL_LESSONS);
+            if (calls === 2) return Promise.reject(refetchError);
+            return new Promise((resolve) => {
+              resolveRefetch = resolve;
+            });
+          },
+        }),
+      }),
+    });
+    const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
+
+    act(() => {
+      store.set(openLessonAtom, REQUEST);
+    });
+    await waitFor(() => {
+      expect(store.get(lessonPhaseAtom)).toBe("configuring");
+    });
+    // WHY: a query that failed after a success keeps its data and its error, and keeps reporting that error while
+    // the next fetch runs; one with no data goes back to pending instead.
+    await act(() => queryClient.refetchQueries({ queryKey: queryKeys.lessons.all() }));
+    act(() => {
+      result.current.closeLesson();
+    });
+
+    act(() => {
+      store.set(openLessonAtom, REQUEST);
+    });
+    await waitFor(() => {
+      expect(calls).toBe(3);
+    });
+    expect(store.get(lessonPhaseAtom)).toBe("preparing");
+    act(() => {
+      resolveRefetch(TOTAL_LESSONS);
+    });
+
+    await waitFor(() => {
+      expect(store.get(lessonPhaseAtom)).toBe("configuring");
+    });
+    expect(store.get(lessonLoadErrorAtom)).toBeNull();
+  });
+
   it("loads card data once after setup is submitted", async () => {
     const getLessonData = vi.fn().mockResolvedValue(createLessonData());
     const { store, Wrapper } = createWrapper({

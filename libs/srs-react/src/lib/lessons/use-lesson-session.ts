@@ -81,8 +81,8 @@ export function useLessonSession(): UseLessonSessionResult {
   useEffect(() => {
     if (phase !== "preparing") return;
     // WHY: a rejected prepare query never produces data, so initialize waits
-    // forever and the dialog stays blank. Wait out retries (isFetching), then
-    // terminalize the same way a failed card load does.
+    // forever and the dialog stays blank; terminalize the same way a failed card load does.
+    // A query that failed after a success keeps its error while it fetches again, so skip it until that fetch ends.
     const prepareError = firstSettledQueryError([
       { isFetching: isFetchingLearningSettings, isError: hasLearningSettingsError, error: learningSettingsError },
       { isFetching: isFetchingLessons, isError: hasLessonsError, error: lessonsError },
