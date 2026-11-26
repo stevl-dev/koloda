@@ -24,19 +24,12 @@ Entries are grouped under one heading per package directory.
 
 ## apps/mobile
 
-- Handoff: run the Android device checks and record the mobile host verdict, with its measurements.
-  Evidence: at `abb4c255`, `apps/mobile/README.md` (§Device checks) lists them; only item 5's checks have run,
-  on the emulator.
-  The verdict needs the hands-on checks on a phone: feel, swipe frame rate, and cold start in a release build.
+- Handoff: run the hands-on device checks on an Android phone: feel, swipe frame rate, and release-build cold start.
+  Evidence: at `118e4465`, device checks 13 and 14 in `apps/mobile/README.md` (§Device checks) are untested;
+  the go verdict in `docs/decisions/MOBILE-HOST.md` rests on the emulator and is reopened if they fail.
   Kind: handoff
   Source: `tasks/archive/mobile-spike.md`, question 18
-  Deferred because: the human deferred the checks to finish the spike's code (open question 18).
-
-- Handoff: record the mobile host ruling in `docs/decisions/MOBILE-HOST.md` once the verdict is in.
-  Evidence: at `abb4c255`, no such file exists; `tasks/archive/mobile-spike.md` item 11 says what it holds.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`, question 18
-  Deferred because: a ruling needs the go verdict the deferred checks give.
+  Deferred because: no Android phone is available.
 
 - Handoff: port the mobile app to iOS: the Swift Keychain vault, the iOS builds, and the device checks on an iPhone.
   Evidence: at `abb4c255`, `apps/mobile/app.json` lists Android only, and no Swift vault registers on iOS.
@@ -250,9 +243,8 @@ Entries are grouped under one heading per package directory.
   (about 10 commits, a new dependency, reverses `ipc-typed-contract`).
   Kind: needs-decision
   Source: `tasks/archive/host-persistence-architecture.md`, finding F4
-  Deferred because: wait for the mobile host verdict, still pending after `mobile-spike`; a go keeps a second Rust
-  façade over the command list,
-  which is evidence for C that B would have to be redone against.
+  Deferred because: it waited for the mobile host verdict, now a go (`docs/decisions/MOBILE-HOST.md`); the go keeps
+  a second Rust façade over the command list, which is evidence for C that B would have to be redone against.
 
 - Risk, Later: the conversation list query loads every conversation's full state on both hosts.
   Evidence: at `1c0661bb`, web selects and parses `state` per row (`libs/db-sqlite/src/lib/conversations.ts:20-28`), and

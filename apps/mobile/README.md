@@ -195,8 +195,10 @@ What building and running the spike showed:
 - 2026-11-15, Android emulator: device check 19 passes. After a force-quit and relaunch, the phone is still in the space
   and in sync.
 - 2026-11-15, Android emulator: device check 11 passes. The Good interval on a new card matches desktop.
-- Device checks 13 and 14 (release-build cold start and frame rate on a phone) are deferred. The handoff in
-  `tasks/DEFERRED.md` covers them.
+- Device checks 13 and 14 (release-build cold start and frame rate on a phone) are untested: no Android phone was
+  available. The handoff in `tasks/DEFERRED.md` covers them.
+- 2026-11-26: the human gave a go verdict on the emulator results, with the phone's feel, frame rate, and cold start
+  untested. `docs/decisions/MOBILE-HOST.md` records the ruling.
 - 2026-11-25, Android emulator (debug build): the two sync findings of 2026-11-15 marked "Not diagnosed" had one cause.
   UniFFI keeps one process-wide vtable per callback interface.
   The TS and the Kotlin bindings each register one for every callback interface in the crate.

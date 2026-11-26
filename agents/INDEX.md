@@ -67,6 +67,7 @@ read those, and stay out of the rest.
 | Change inside `crates/koloda` (Rust domain, repos, settings slices, FSRS, reviews) | `agents/RUST.md`, `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md` |
 | Sync wire protocol (envelope, field-group registry, clock, codecs; `crates/koloda-sync-proto`) | `crates/koloda-sync-proto/PROTOCOL.md`, `crates/koloda-sync-proto/README.md` |
 | Sync engine on native devices (`crates/koloda-sync`: cycle, runner, pairing, fork, restore, attachments) | `crates/koloda-sync/README.md`, `crates/koloda-sync-proto/PROTOCOL.md` |
+| Mobile app (`apps/mobile`, its façade crate `apps/mobile/src-rust`, `@koloda/mobile-native`) | `apps/mobile/README.md`, `docs/decisions/MOBILE-HOST.md` |
 | Desktop Rust addon (`apps/electron/src-rust`, hosts the sync engine) | `apps/electron/README.md`; add `apps/electron/IPC.md` when a channel changes |
 | Sync server (`crates/koloda-server`: routes, envelope log, pairing, quotas, backup, restore, CLI) | `crates/koloda-server/README.md`, `crates/koloda-sync-proto/PROTOCOL.md` |
 | Sync server database (`crates/koloda-server/src/migrations/server/`, `space/`; not the desktop series, so not `DB.md`) | `crates/koloda-server/README.md` (§Data directory); add `crates/koloda-sync-proto/PROTOCOL.md` when devices see the change |
