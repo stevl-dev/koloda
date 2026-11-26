@@ -5,7 +5,7 @@ export const SWIPE_DISTANCE = 96;
 export const SWIPE_ARROWS = ["←", "↓", "→", "↑"] as const;
 
 // The grade a drag points at, whatever its length.
-export function swipeDirection(x: number, y: number): number {
+function swipeDirection(x: number, y: number): number {
   "worklet";
   if (Math.abs(x) >= Math.abs(y)) return x < 0 ? 0 : 2;
   return y > 0 ? 1 : 3;
