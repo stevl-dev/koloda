@@ -1,5 +1,5 @@
-//! Every join of `versions` to `heads`, every read of one lane's heads, and the missing-ids page search an index of a
-//! migrated space.
+//! Every join of `versions` to `heads`, every read of one lane's heads, the missing-ids page, and a lease end's read
+//! of `versions` search an index of a migrated space.
 //!
 //! WHY: these run on every pull page or under the space writer lock, where a scan of `heads` costs seconds on a large
 //! space and no test of a few hundred rows notices. The server never runs `ANALYZE`, so the plan does not depend on
@@ -71,4 +71,25 @@ fn the_missing_list_searches_from_its_last_id() {
         steps.contains(&"SEARCH r USING COVERING INDEX attachment_refs_attachment (attachment>?)".to_string()),
         "{steps:?}"
     );
+}
+
+// WHY: a lease ends under the writer lock after every bootstrap; reading `versions` from the lease's own items keeps
+// that cost to the lease's size, where a scan grows with the whole log.
+#[test]
+fn a_lease_end_reads_versions_from_the_lease_items() {
+    let dir = tempfile::tempdir().unwrap();
+    let conn = db::open_space(&dir.path().join("space.db")).unwrap();
+    let mut plan = conn
+        .prepare(&format!("EXPLAIN QUERY PLAN {}", log::LEASE_ONLY_VERSIONS))
+        .unwrap();
+    let mut rows = plan.raw_query();
+    let mut steps = Vec::new();
+    while let Some(row) = rows.next().unwrap() {
+        steps.push(row.get::<_, String>(3).unwrap());
+    }
+    assert!(
+        steps.iter().any(|step| step.starts_with("SEARCH versions ")),
+        "{steps:?}"
+    );
+    assert!(!steps.iter().any(|step| step.starts_with("SCAN ")), "{steps:?}");
 }

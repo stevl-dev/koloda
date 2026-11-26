@@ -42,9 +42,7 @@ pub(crate) const COLLECTED: &str = "SELECT seq FROM heads WHERE lane = 'hot' AND
 pub(crate) const COLLECT_HEADS: &str = "DELETE FROM heads WHERE lane = 'hot' AND grp = ?1 AND seq <= ?2";
 
 pub(crate) const LEASE_ONLY_VERSIONS: &str = "DELETE FROM versions
-     WHERE EXISTS (
-         SELECT 1 FROM lease_items i WHERE i.lease = ?1 AND i.lane = versions.lane AND i.seq = versions.seq
-     )
+     WHERE (lane, seq) IN (SELECT i.lane, i.seq FROM lease_items i WHERE i.lease = ?1)
      AND NOT EXISTS (SELECT 1 FROM heads h WHERE h.lane = versions.lane AND h.seq = versions.seq)
      AND NOT EXISTS (
          SELECT 1 FROM lease_items o WHERE o.lease <> ?1 AND o.lane = versions.lane AND o.seq = versions.seq

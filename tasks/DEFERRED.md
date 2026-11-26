@@ -91,14 +91,6 @@ Entries are grouped under one heading per package directory.
 
 ## crates/koloda-server
 
-- Handoff: ending a lease scans `versions` once per lease.
-  Evidence: at `1c0661bb`, `end_lease` (`crates/koloda-server/src/log.rs:565-570`) runs `LEASE_ONLY_VERSIONS`
-  (`:44-51`), a `DELETE FROM versions WHERE EXISTS (…)` over the whole table.
-  It is linear since `sync-audit-fixes` R1, no longer quadratic.
-  Kind: handoff
-  Source: `tasks/archive/sync-audit-fixes.md`
-  Deferred because: noticed as a follow-up; `sync-desktop-ui` left it out of scope.
-
 - Risk, Later: the fork fallback's success arm is untested.
   Evidence: at `851b81c0`, `crates/koloda-server/src/devices.rs:152-154`: a fork that lost the unique index returns
   the winner's device. It runs only when two forks with one nonce and token interleave between `same_fork` and
