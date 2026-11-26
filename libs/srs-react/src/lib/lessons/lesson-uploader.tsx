@@ -1,15 +1,14 @@
-import { queriesAtom } from "@koloda/core-react";
+import type { Queries } from "@koloda/core-react";
 import { useMutation } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useEffectEvent } from "react";
 import { settleLessonUploadAtom } from "./lesson-actions";
 import { lessonUploadHeadAtom } from "./lesson-selectors";
 
-export function useLessonUploader() {
+export function useLessonUploader({ submitLessonResultMutation }: Pick<Queries, "submitLessonResultMutation">) {
   const result = useAtomValue(lessonUploadHeadAtom);
   const settle = useSetAtom(settleLessonUploadAtom);
   const { index, card, review } = result || {};
-  const { submitLessonResultMutation } = useAtomValue(queriesAtom);
   const { mutate } = useMutation(submitLessonResultMutation());
 
   const upload = useEffectEvent((index: number | undefined) => {

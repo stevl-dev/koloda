@@ -92,7 +92,7 @@ Every item's Done when also includes: `bun run typecheck`, `nx run @koloda/mobil
 and `nx run @koloda/mobile:build-android` pass, and `bun run check:push` is green.
 An item that changes user-visible mobile behavior updates `apps/mobile/README.md` (§Device checks) to match.
 
-- [ ] 1. Share the lesson session between desktop and mobile
+- [x] 1. Share the lesson session between desktop and mobile
   Goal: One hook runs a lesson's queries, initialize, card load, failures, and result uploads on every host.
   Move the query-driven core of `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and `lesson-uploader.tsx`
   into a hook exported from `@koloda/srs-react/lesson-state`, which stays DOM-free.
@@ -110,6 +110,9 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: `nx run @koloda/srs-react:test` passes, plus the shared checks above.
   Commit: Share the lesson session between desktop and mobile
   Depends on: none
+  Note: the mobile refetch test was not added.
+  It would re-test the core's settled-error rule through a higher door (`agents/TESTING.md` §One home per behavior);
+  `use-lesson-session-core.test.tsx` holds that case, and the mobile lesson screen test runs the core end to end.
 
 - [ ] 2. Share the native hosts' JSON wire and starter seed
   Goal: Desktop's renderer and mobile import one copy of the JSON wire, the starter seed, and the sync event types.

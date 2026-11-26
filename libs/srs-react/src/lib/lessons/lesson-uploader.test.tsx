@@ -1,4 +1,3 @@
-import { queriesAtom } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type { LessonResultData } from "@koloda/srs";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -78,7 +77,7 @@ describe("useLessonUploader", () => {
     const pending: Array<{ resolve: () => void }> = [];
     const store = createStore();
     const queryClient = createQueryClient();
-    store.set(queriesAtom, {
+    const queries = {
       submitLessonResultMutation: () => ({
         mutationFn: (data: LessonResultData) => {
           submitted.push(data);
@@ -87,7 +86,7 @@ describe("useLessonUploader", () => {
           });
         },
       }),
-    } as unknown as Queries);
+    } as unknown as Queries;
 
     enqueueTwoUploads(store);
     expect(store.get(lessonStateAtom).upload.queue).toHaveLength(2);
@@ -104,7 +103,7 @@ describe("useLessonUploader", () => {
       );
     }
 
-    renderHook(() => useLessonUploader(), { wrapper: Wrapper });
+    renderHook(() => useLessonUploader(queries), { wrapper: Wrapper });
 
     await waitFor(() => {
       expect(submitted).toHaveLength(1);
@@ -138,7 +137,7 @@ describe("useLessonUploader", () => {
     const pending: Array<{ resolve: () => void; reject: () => void }> = [];
     const store = createStore();
     const queryClient = createQueryClient();
-    store.set(queriesAtom, {
+    const queries = {
       submitLessonResultMutation: () => ({
         mutationFn: (data: LessonResultData) => {
           submitted.push(data);
@@ -147,7 +146,7 @@ describe("useLessonUploader", () => {
           });
         },
       }),
-    } as unknown as Queries);
+    } as unknown as Queries;
     enqueueTwoUploads(store);
 
     function Wrapper({ children }: PropsWithChildren) {
@@ -158,7 +157,7 @@ describe("useLessonUploader", () => {
       );
     }
 
-    renderHook(() => useLessonUploader(), { wrapper: Wrapper });
+    renderHook(() => useLessonUploader(queries), { wrapper: Wrapper });
     await waitFor(() => {
       expect(submitted).toHaveLength(1);
     });

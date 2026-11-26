@@ -1,21 +1,19 @@
-import { AppError } from "@koloda/app";
 import { hotkeysScopesAtom, queriesAtom, queryKeys, useHotkeyScope } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createCard,
   createLessonData,
   createLessonsResult,
   createQueryClient,
   createTodaysReviewTotals,
   testId,
 } from "../../test/test-helpers";
-import { openLessonAtom, submitLessonSetupAtom } from "./lesson-actions";
-import { lessonContentAtom, lessonLoadErrorAtom, lessonPhaseAtom, lessonSetupAtom } from "./lesson-selectors";
+import { openLessonAtom } from "./lesson-actions";
+import { lessonPhaseAtom } from "./lesson-selectors";
 import { lessonStateAtom } from "./lesson-store";
 import { useLessonSession } from "./use-lesson-session";
 
@@ -44,7 +42,7 @@ const TOTAL_TODAY_REVIEW_TOTALS = createTodaysReviewTotals({
 
 const REQUEST = { type: "total" as const, deckId: testId(7) };
 
-function buildQueries(overrides: Partial<Queries> = {}): Queries {
+function buildQueries(): Queries {
   const queries: Partial<Queries> = {
     getSettingsQuery: (name) => ({
       queryKey: queryKeys.settings.detail(name),
@@ -65,15 +63,14 @@ function buildQueries(overrides: Partial<Queries> = {}): Queries {
     submitLessonResultMutation: () => ({
       mutationFn: async () => undefined,
     }),
-    ...overrides,
   };
   return queries as Queries;
 }
 
-function createWrapper(options?: { queries?: Queries }) {
+function createWrapper() {
   const store = createStore();
   const queryClient = createQueryClient();
-  const queries = options?.queries ?? buildQueries();
+  const queries = buildQueries();
   store.set(queriesAtom, queries);
 
   return {
@@ -99,331 +96,6 @@ function NavigationOwner() {
 }
 
 describe("useLessonSession", () => {
-  it("initializes once when settings, totals, and lessons are ready", async () => {
-    const { store, Wrapper } = createWrapper();
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-
-    expect(store.get(lessonSetupAtom)?.filters).toEqual({ deckIds: [testId(7)] });
-    expect(store.get(lessonSetupAtom)?.learnAheadLimit).toBeUndefined();
-    expect(store.get(lessonSetupAtom)?.available).toEqual(TOTAL_LESSONS.total);
-  });
-
-  it("does not initialize until the lessons query resolves", async () => {
-    let resolveLessons!: (value: typeof TOTAL_LESSONS) => void;
-    const { store, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonsQuery: (filters) => ({
-          queryKey: queryKeys.lessons.all(filters),
-          queryFn: () =>
-            new Promise((resolve) => {
-              resolveLessons = resolve;
-            }),
-        }),
-      }),
-    });
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("preparing");
-    });
-    expect(store.get(lessonSetupAtom)).toBeNull();
-
-    await act(async () => {
-      resolveLessons(TOTAL_LESSONS);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-  });
-
-  it.each([
-    {
-      query: "lessons",
-      overrides: (queryFn: () => Promise<never>): Partial<Queries> => ({
-        getLessonsQuery: (filters) => ({ queryKey: queryKeys.lessons.all(filters), queryFn }),
-      }),
-    },
-    {
-      query: "learning settings",
-      overrides: (queryFn: () => Promise<never>): Partial<Queries> => ({
-        getSettingsQuery: (name) => ({ queryKey: queryKeys.settings.detail(name), queryFn }),
-      }),
-    },
-    {
-      query: "today review totals",
-      overrides: (queryFn: () => Promise<never>): Partial<Queries> => ({
-        getTodayReviewTotalsQuery: () => ({ queryKey: queryKeys.lessons.todayReviewTotals(), queryFn }),
-      }),
-    },
-  ])("finishes with a stored error when the $query prepare query rejects", async ({ query, overrides }) => {
-    const prepareError = new AppError("db.get", `${query} unavailable`);
-    const { store, Wrapper } = createWrapper({
-      queries: buildQueries(
-        overrides(async () => {
-          throw prepareError;
-        }),
-      ),
-    });
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("finished");
-    });
-    expect(store.get(lessonLoadErrorAtom)).toBe(prepareError);
-    expect(store.get(lessonSetupAtom)).toBeNull();
-  });
-
-  it("finishes when card data loads as null", async () => {
-    const { store, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonDataQuery: (params) => ({
-          queryKey: queryKeys.lessons.data(params),
-          queryFn: async () => null,
-        }),
-      }),
-    });
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-
-    act(() => {
-      store.set(submitLessonSetupAtom);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("finished");
-    });
-  });
-
-  it("finishes with a stored error when getLessonData rejects", async () => {
-    const loadError = new AppError("db.get", "lesson cards unavailable");
-    const { store, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonDataQuery: (params) => ({
-          queryKey: queryKeys.lessons.data(params),
-          queryFn: async () => {
-            throw loadError;
-          },
-        }),
-      }),
-    });
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-
-    act(() => {
-      store.set(submitLessonSetupAtom);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("finished");
-    });
-    expect(store.get(lessonLoadErrorAtom)).toBe(loadError);
-    expect(store.get(lessonContentAtom)).toBeUndefined();
-  });
-
-  it("initializes a reopened lesson from refetched counts, not stale cached ones", async () => {
-    const updatedLessons = createLessonsResult({ total: { untouched: 9, total: 9 } });
-    let lessons = TOTAL_LESSONS;
-    const pendingRefetches: Array<() => void> = [];
-    const { store, queryClient, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonsQuery: (filters) => ({
-          queryKey: queryKeys.lessons.all(filters),
-          queryFn: () => {
-            const result = lessons;
-            if (result === TOTAL_LESSONS) return Promise.resolve(result);
-            return new Promise((resolve) => {
-              pendingRefetches.push(() => resolve(result));
-            });
-          },
-        }),
-      }),
-    });
-    const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-    act(() => {
-      result.current.closeLesson();
-    });
-    await waitFor(() => {
-      expect(queryClient.isFetching()).toBe(0);
-    });
-
-    // A card change while the dialog is closed marks every lesson count stale.
-    lessons = updatedLessons;
-    await act(() => queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() }));
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(pendingRefetches).toHaveLength(1);
-    });
-    act(() => {
-      pendingRefetches[0]?.();
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-    expect(store.get(lessonSetupAtom)?.available).toEqual(updatedLessons.total);
-  });
-
-  it("waits out a refetch of counts whose last fetch failed instead of finishing on that old error", async () => {
-    const refetchError = new AppError("db.get", "lessons unavailable");
-    let calls = 0;
-    let resolveRefetch!: (value: typeof TOTAL_LESSONS) => void;
-    const { store, queryClient, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonsQuery: (filters) => ({
-          queryKey: queryKeys.lessons.all(filters),
-          queryFn: () => {
-            calls += 1;
-            if (calls === 1) return Promise.resolve(TOTAL_LESSONS);
-            if (calls === 2) return Promise.reject(refetchError);
-            return new Promise((resolve) => {
-              resolveRefetch = resolve;
-            });
-          },
-        }),
-      }),
-    });
-    const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-    // WHY: a query that failed after a success keeps its data and its error, and keeps reporting that error while
-    // the next fetch runs; one with no data goes back to pending instead.
-    await act(() => queryClient.refetchQueries({ queryKey: queryKeys.lessons.all() }));
-    act(() => {
-      result.current.closeLesson();
-    });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(calls).toBe(3);
-    });
-    expect(store.get(lessonPhaseAtom)).toBe("preparing");
-    act(() => {
-      resolveRefetch(TOTAL_LESSONS);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-    expect(store.get(lessonLoadErrorAtom)).toBeNull();
-  });
-
-  it("loads card data once after setup is submitted", async () => {
-    const getLessonData = vi.fn().mockResolvedValue(createLessonData());
-    const { store, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonDataQuery: (params) => ({ queryKey: queryKeys.lessons.data(params), queryFn: getLessonData }),
-      }),
-    });
-    renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    act(() => {
-      store.set(openLessonAtom, REQUEST);
-    });
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("configuring");
-    });
-
-    act(() => {
-      store.set(submitLessonSetupAtom);
-    });
-
-    await waitFor(() => {
-      expect(store.get(lessonPhaseAtom)).toBe("studying");
-    });
-    expect(store.get(lessonContentAtom)?.index).toBe(0);
-    expect(getLessonData).toHaveBeenCalledOnce();
-  });
-
-  it("loads fresh card data when a lesson reopens with the same amounts", async () => {
-    const getLessonData = vi
-      .fn()
-      .mockResolvedValueOnce(createLessonData({ cards: [createCard({ id: testId(1) })] }))
-      .mockResolvedValueOnce(createLessonData({ cards: [createCard({ id: testId(2) })] }));
-    const { store, queryClient, Wrapper } = createWrapper({
-      queries: buildQueries({
-        getLessonDataQuery: (params) => ({ queryKey: queryKeys.lessons.data(params), queryFn: getLessonData }),
-      }),
-    });
-    const { result } = renderHook(() => useLessonSession(), { wrapper: Wrapper });
-
-    async function startStudying() {
-      act(() => {
-        store.set(openLessonAtom, REQUEST);
-      });
-      await waitFor(() => {
-        expect(store.get(lessonPhaseAtom)).toBe("configuring");
-      });
-      act(() => {
-        store.set(submitLessonSetupAtom);
-      });
-      await waitFor(() => {
-        expect(store.get(lessonPhaseAtom)).toBe("studying");
-      });
-    }
-
-    await startStudying();
-    expect(store.get(lessonContentAtom)?.card.id).toBe(testId(1));
-
-    act(() => {
-      result.current.closeLesson();
-    });
-    // WHY: a user cannot reopen in the same task as the close. Let the closed session's entry go first,
-    // as it does in the app between the two clicks.
-    await waitFor(() => {
-      const entries = queryClient.getQueryCache().findAll({ queryKey: queryKeys.lessons.dataAll() });
-      expect(entries.some(({ state }) => state.data !== undefined)).toBe(false);
-    });
-    await startStudying();
-
-    expect(store.get(lessonContentAtom)?.card.id).toBe(testId(2));
-    expect(getLessonData).toHaveBeenCalledTimes(2);
-  });
-
   it("marks what a lesson's grades changed stale on close", async () => {
     const { store, queryClient, Wrapper } = createWrapper();
     // Screens under the lesson dialog: a deck's cards, one card's reviews, and a list no grade touches.

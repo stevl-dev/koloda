@@ -127,8 +127,6 @@ Code copied from another app instead of shared:
 
 - `src/host/wire.ts` and its test, from `apps/electron-react/src/app/ipc.ts`: the JSON wire shapes.
 - `src/host/setup.ts`, from `apps/electron-react/src/app/setup.ts`: the starter content and settings.
-- `src/lesson/use-mobile-lesson-session.ts`, from `libs/srs-react/src/lib/lessons/use-lesson-session.ts` and
-  `lesson-uploader.tsx`: the session's queries and result uploads, without hotkeys or a setup screen.
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its
   error codes.
