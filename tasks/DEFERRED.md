@@ -157,15 +157,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/media-audit.md`
   Deferred because: left for the mobile phase (`sync-transport` Out).
 
-## libs/ai
-
-- Handoff: confirm that Anthropic's Models API sends `capabilities.pdf_input`; without it, Claude models are unknown for PDF.
-  Evidence: at `04e88bb5`, `libs/ai/src/lib/providers/anthropic.ts` reads `capabilities.pdf_input.supported`,
-  named after `image_input`; the Models API page could not be fetched to confirm the field.
-  Kind: handoff
-  Source: `tasks/archive/assistant-file-attachments.md`
-  Deferred because: the docs page was unreachable; a live list response settles it, and the "Accepts PDF" switch covers it.
-
 ## libs/app-react
 
 - Risk, Later: the boot language is activated twice, once by each host store and once by `AppProviders`.
