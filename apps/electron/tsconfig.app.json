@@ -50,6 +50,9 @@
       "path": "../../libs/native-ipc/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/native-host/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/ai/tsconfig.lib.json"
     }
   ]

@@ -18,8 +18,8 @@ surfacing as "no handler" at runtime. The human-readable surface it enforces is
   `IpcResult` helpers, and the per-module channel unions (`AiChannel`, `MediaChannel`, `SyncChannel`,
   `OptimizerChannel`) that main's handler tables cover.
   It also holds `WindowIpc` with `WindowChannel`, `TitlebarOverlayOptions`, and `WindowButtonPositionOptions`.
-  It holds `PushIpc` with `PushChannel`, the channel constants, `AiStreamEvent`, the sync wire types `SyncEvent`, `SyncKind`,
-  and `SyncStarter`, and `OptimizerProgressEvent`.
+  It holds `PushIpc` with `PushChannel`, the channel constants, `AiStreamEvent`, and `OptimizerProgressEvent`.
+  The sync wire types `SyncEvent` and `SyncStarter` come from `@koloda/native-host`, which mobile shares.
   `ElectronBridge` is the type of the preload's `window.electronAPI`, shared by the preload and the renderer.
 
 ### Does NOT own (prevent scope creep)

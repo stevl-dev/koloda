@@ -1,7 +1,7 @@
 import { AppError } from "@koloda/app";
 import type { ErrorCode } from "@koloda/app";
 import type { KolodaMobileLike } from "@koloda/mobile-native";
-import { fromWire, toWire } from "./wire";
+import { fromWire, toWire } from "@koloda/native-host";
 
 // WHY: type-only, so the screens and their Jest tests never load the native module; `open-facade.ts` does.
 export type KolodaFacade = KolodaMobileLike;

@@ -1,4 +1,5 @@
-import type { SyncChannel, SyncEvent } from "@koloda/native-ipc";
+import type { SyncEvent } from "@koloda/native-host";
+import type { SyncChannel } from "@koloda/native-ipc";
 import { SYNC_EVENT_CHANNEL } from "@koloda/native-ipc";
 import { BrowserWindow, powerMonitor } from "electron";
 import { hostname } from "node:os";

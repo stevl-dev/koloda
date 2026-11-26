@@ -39,6 +39,10 @@ const config: LinguiConfig = {
       path: "../../libs/ai-react/locales/{locale}/messages",
       include: ["../../libs/ai-react/src"],
     },
+    {
+      path: "../../libs/native-host/locales/{locale}/messages",
+      include: ["../../libs/native-host/src"],
+    },
   ],
   compileNamespace: "ts",
   // WHY: line numbers churn every catalog whenever source lines move, which hides real changes from `check:i18n`.

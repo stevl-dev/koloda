@@ -37,6 +37,9 @@
       "path": "../../libs/settings/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/native-host/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/core-react/tsconfig.lib.json"
     },
     {

@@ -1,5 +1,5 @@
 import { fetchedAttachmentsAtom, queryKeys, refreshKinds } from "@koloda/core-react";
-import type { SyncEvent } from "@koloda/native-ipc";
+import type { SyncEvent } from "@koloda/native-host";
 import type { QueryClient } from "@tanstack/react-query";
 import type { createStore } from "jotai";
 

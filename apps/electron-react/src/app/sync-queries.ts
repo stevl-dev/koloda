@@ -1,9 +1,9 @@
 import type { CreateSpaceData, ImportMode, InterfaceSettings, JoinData, PreviewRequest, SyncStatus } from "@koloda/app";
 import { queryKeys } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
-import type { SyncStarter } from "@koloda/native-ipc";
+import type { SyncStarter } from "@koloda/native-host";
 import { invoke } from "./electron";
-import { seedSettings } from "./setup";
+import { seedSettings } from "@koloda/native-host";
 
 type SyncStart = {
   provide: (starter: SyncStarter) => void;

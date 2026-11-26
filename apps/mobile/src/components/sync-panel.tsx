@@ -22,7 +22,7 @@ export function SyncPanel() {
   if (state.type === "notEnrolled") return <JoinSpace />;
 
   const stateType = state.type;
-  const reason = state.stop?.reason;
+  const reason = state.type === "stopped" ? state.stop.reason : undefined;
   const hot = lagHot ?? "-";
   const cold = lagCold ?? "-";
   return (

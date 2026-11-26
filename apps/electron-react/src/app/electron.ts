@@ -1,7 +1,7 @@
 import { AppError } from "@koloda/app";
 import type { ErrorCode } from "@koloda/app";
 import type { DataChannel, ElectronBridge, IpcArgs, IpcResult, PushChannel, PushIpc } from "@koloda/native-ipc";
-import { fromWire, toWire } from "./ipc";
+import { fromWire, toWire } from "@koloda/native-host";
 
 declare global {
   interface Window {

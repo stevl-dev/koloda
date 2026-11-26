@@ -5,7 +5,7 @@ import { queryKeys } from "./query-keys";
 /**
  * A kind of stored row that a local write or a sync changes.
  *
- * The strings are the sync wire names (`SyncKind` in `@koloda/native-ipc`, which this package must not import),
+ * The strings are the sync wire names (`SyncKind` in `@koloda/native-host`, which this package does not import),
  * so the desktop app passes a sync event's kinds straight to `refreshKinds`.
  * Ruling: `docs/decisions/CACHE-REFRESH.md`.
  */

@@ -8,6 +8,8 @@ import { messages as appReactEn } from "../../../../libs/app-react/locales/en/me
 import { messages as appReactRu } from "../../../../libs/app-react/locales/ru/messages.po";
 import { messages as appEn } from "../../../../libs/app/locales/en/messages.po";
 import { messages as appRu } from "../../../../libs/app/locales/ru/messages.po";
+import { messages as nativeHostEn } from "../../../../libs/native-host/locales/en/messages.po";
+import { messages as nativeHostRu } from "../../../../libs/native-host/locales/ru/messages.po";
 import { messages as assistantReactEn } from "../../../../libs/assistant-react/locales/en/messages.po";
 import { messages as assistantReactRu } from "../../../../libs/assistant-react/locales/ru/messages.po";
 import { messages as settingsReactEn } from "../../../../libs/settings-react/locales/en/messages.po";
@@ -33,6 +35,7 @@ const catalogs: Record<string, Messages> = {
     ...settingsReactEn,
     ...uiEn,
     ...aiReactEn,
+    ...nativeHostEn,
   },
   ru: {
     ...appRu,
@@ -43,6 +46,7 @@ const catalogs: Record<string, Messages> = {
     ...settingsReactRu,
     ...uiRu,
     ...aiReactRu,
+    ...nativeHostRu,
   },
 };
 

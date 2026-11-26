@@ -1,9 +1,8 @@
 /**
- * Electron NAPI wire format.
+ * JSON wire format between a native host's JS and its Rust: the desktop addon over NAPI, `koloda-mobile` over UniFFI.
  *
- * NAPI value marshalling doesn't align naturally with serde — JS `Date` is
- * an object, not a number. Use {@link toWire} to coerce domain values into
- * a JSON-safe shape before crossing the boundary, and {@link fromWire} to
+ * The Rust side speaks serde JSON, where a JS `Date` is an object, not a number. Use {@link toWire} to coerce
+ * domain values into a JSON-safe shape before crossing the boundary, and {@link fromWire} to
  * rehydrate timestamps from the Rust side.
  */
 

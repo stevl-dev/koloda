@@ -125,12 +125,9 @@ Code that exists only to answer a question, replaced by the follow-up:
 
 Code copied from another app instead of shared:
 
-- `src/host/wire.ts` and its test, from `apps/electron-react/src/app/ipc.ts`: the JSON wire shapes.
-- `src/host/setup.ts`, from `apps/electron-react/src/app/setup.ts`: the starter content and settings.
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its
   error codes.
-- `src/host/sync-events.ts`, from `apps/electron-react/src/app/sync-events.ts`: the queries each sync event refreshes.
 
 ## Findings
 

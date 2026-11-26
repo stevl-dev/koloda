@@ -24,9 +24,6 @@ import type {
 import type {
   Conversation,
   DeleteConversationData,
-  HotkeysSettings,
-  InterfaceSettings,
-  LearningSettings,
   CreateSpaceData,
   ImportMode,
   IssuedPairing,
@@ -38,6 +35,7 @@ import type {
   SyncDevice,
   SyncStatus,
 } from "@koloda/app";
+import type { SeedSettings, SyncEvent, SyncStarter } from "@koloda/native-host";
 import type { AllowedSettings, PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import type {
   AddAttachmentData,
@@ -86,11 +84,7 @@ export type DbStatus = "blank" | "ok";
 export type SeedDbData = {
   algorithm: InsertAlgorithmData;
   template: InsertTemplateData;
-  settings: {
-    interface: InterfaceSettings;
-    learning: LearningSettings;
-    hotkeys: HotkeysSettings;
-  };
+  settings: SeedSettings;
 };
 
 /** Attachment read by `cmd_get_attachment`, with its bytes base64-encoded for the NAPI wire. */
@@ -101,22 +95,6 @@ export type ConversationAttachmentContentWire = ConversationAttachment & { bytes
 
 /** Payload for `cmd_add_attachment`, with its bytes base64-encoded for the NAPI wire. */
 export type AddAttachmentWire = Omit<AddAttachmentData, "bytes"> & { bytes: string };
-
-/** Starter content the sync engine creates when no algorithm or template is left (mirrors Rust `StarterWire`). */
-export type SyncStarter = {
-  algorithm: InsertAlgorithmData;
-  template: InsertTemplateData;
-};
-
-/** Wire name of a synced kind (mirrors `Kind::as_wire` in `koloda-sync-proto`). */
-export type SyncKind =
-  | "cards"
-  | "reviews"
-  | "decks"
-  | "templates"
-  | "algorithms"
-  | "algorithm_revisions"
-  | "settings.learning";
 
 /** Lesson queue query for `cmd_get_lessons` (mirrors Rust `GetLessonsParams`). */
 export type GetLessonsParams = {
@@ -199,15 +177,6 @@ export type AiStreamEvent =
   | { requestId: string; type: "toolResult"; callId: string; output?: unknown; error?: string }
   | { requestId: string; type: "done"; usage?: StreamUsage }
   | { requestId: string; type: "error"; code: string; message: string };
-
-/**
- * Events the sync engine sends on `SYNC_EVENT_CHANNEL` (mirrors Rust `EventWire`).
- * Main logs `error` events and forwards the rest to every window.
- */
-export type SyncEvent =
-  | { type: "changed"; kinds: SyncKind[] }
-  | { type: "status"; status: SyncStatus }
-  | { type: "attachmentsFetched"; ids: string[] };
 
 /**
  * Training progress of one `cmd_optimize_algorithm` run, sent on `OPTIMIZER_PROGRESS_CHANNEL`
@@ -312,7 +281,7 @@ export interface DataIpc {
   cmd_sync_detach: { args: undefined; result: SyncStatus };
   cmd_sync_preview: { args: { data: PreviewRequest }; result: SpacePreview };
   // `settings` seed a blank database only; a used one keeps its own.
-  cmd_sync_join: { args: { data: JoinData & { settings: SeedDbData["settings"] } }; result: JoinedSpace };
+  cmd_sync_join: { args: { data: JoinData & { settings: SeedSettings } }; result: JoinedSpace };
   cmd_sync_import: { args: { mode: ImportMode }; result: SyncStatus };
   cmd_sync_accept_restore: { args: undefined; result: SyncStatus };
   // The OS host name, which main reads; the default name of this device in a space.

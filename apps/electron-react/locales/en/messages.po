@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/app/setup.ts
-msgid "app.setup.default-title"
-msgstr "Default"
-
 #: src/components/setup.tsx
 msgid "app.setup.fresh-message"
 msgstr "A new database on this device"

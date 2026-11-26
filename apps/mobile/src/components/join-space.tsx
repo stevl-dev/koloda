@@ -1,4 +1,5 @@
 import { formatAppError } from "@koloda/app";
+import { seedSettings } from "@koloda/native-host";
 import { queryKeys } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -6,7 +7,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { useMobileQueries } from "../host/queries-context";
-import { seedSettings } from "../host/setup";
 
 // WHY: the device's model is the closest React Native gets to its name without another package.
 function defaultDeviceName(): string {
@@ -58,7 +58,7 @@ export function JoinSpace() {
         <Button
           title={_(msg`mobile.sync.join`)}
           disabled={join.isPending}
-          onPress={() => join.mutate({ serverUrl, code, deviceName, settings: seedSettings() })}
+          onPress={() => join.mutate({ serverUrl, code, deviceName, settings: seedSettings({}) })}
         />
       </View>
     );

@@ -114,7 +114,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   It would re-test the core's settled-error rule through a higher door (`agents/TESTING.md` §One home per behavior);
   `use-lesson-session-core.test.tsx` holds that case, and the mobile lesson screen test runs the core end to end.
 
-- [ ] 2. Share the native hosts' JSON wire and starter seed
+- [x] 2. Share the native hosts' JSON wire and starter seed
   Goal: Desktop's renderer and mobile import one copy of the JSON wire, the starter seed, and the sync event types.
   Add `libs/native-host` (`@koloda/native-host`), a domain-layer lib for what both native hosts' JS sides send
   to Rust: `toWire` and `fromWire` (now `apps/electron-react/src/app/ipc.ts` and `apps/mobile/src/host/wire.ts`),
@@ -131,6 +131,8 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   plus the shared checks above.
   Commit: Share the native hosts' JSON wire and starter seed
   Depends on: none
+  Note: `SyncStatus` was already in `@koloda/app`; mobile now uses that type instead of its narrow copy.
+  The starter title's message moved to the lib's own catalog, with its Russian translation.
 
 - [ ] 3. Remove the mobile debug screen and sample deck
   Goal: The app has no debug route, as open question 4 settles.

@@ -1,5 +1,5 @@
 import { SYNC_EVENT_CHANNEL } from "@koloda/native-ipc";
-import type { SyncStarter } from "@koloda/native-ipc";
+import type { SyncStarter } from "@koloda/native-host";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SyncEngineEvent } from "./koloda-db";
 import { registerSyncIpc } from "./sync-ipc";

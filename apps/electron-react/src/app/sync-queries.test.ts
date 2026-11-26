@@ -1,5 +1,5 @@
 import type { SyncStatus } from "@koloda/app";
-import type { SyncStarter } from "@koloda/native-ipc";
+import type { SyncStarter } from "@koloda/native-host";
 import { QueryClient } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createSyncStart } from "./sync-queries";

@@ -25,7 +25,7 @@ Normally booted by `nx run @koloda/electron:serve`.
 - Entry: `src/main.tsx` — hash history under `file://`, close coordination.
 - Zoom: `src/app/use-electron-zoom.ts` — ctrl/⌘ ±/0 and ctrl+wheel, level persisted across restarts.
 - IPC bridge: `src/app/electron.ts` — typed `window.electronAPI` wrapper; IPC error payloads become `AppError`.
-- Wire format: `src/app/ipc.ts` — `toWire`/`fromWire` (Date to epoch ms, BigInt checks) for NAPI-safe payloads.
+- Wire format: `toWire`/`fromWire` from `@koloda/native-host` (Date to epoch ms, BigInt checks) for NAPI-safe payloads.
 - AI runtime: `src/app/ai-runtime.ts` — streaming chat over the `ai:stream` channel; errors map to `AIError`.
 - Sync: `src/app/sync-queries.ts` — the sync queries; the status query starts the engine (`createSyncStart`).
   `src/app/use-sync-engine.ts` provides the starter once the database status is known, prefetches the status, and
@@ -35,7 +35,7 @@ Normally booted by `nx run @koloda/electron:serve`.
 - Attachment bytes: `src/app/base64.ts` — base64 encoding for attachment bytes over IPC, in bounded chunks.
 - Optimizer: `src/app/optimizer-queries.ts` — FSRS optimization runs with progress and cancel, set as
   `optimizerQueriesAtom`, which only the desktop provides.
-- Setup: `src/app/setup.ts` — database status, seeding via IPC, and the starter content sync repair shares.
+- Setup: `src/app/setup.ts` — database status and seeding via IPC, with the starter content from `@koloda/native-host`.
 - Close coordination: `src/app/electron-close-coordination.ts` — durable interrupt and flush before window destroy.
 - Store wiring: `src/app/store.ts` — jotai store, UI preferences, and the host adapters set as atoms.
 - Language: `src/app/i18n.ts` — language from storage or the navigator, and catalog activation.

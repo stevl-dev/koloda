@@ -1,24 +1,13 @@
 import { queryKeys, refreshKinds } from "@koloda/core-react";
-import type { DataKind } from "@koloda/core-react";
+import type { SyncEvent } from "@koloda/native-host";
 import type { QueryClient } from "@tanstack/react-query";
 
-// The `koloda-mobile` event wire (`src-rust/src/sync.rs` `EventWire`), as the desktop's `SyncEvent`.
-export type SyncEvent =
-  | { type: "changed"; kinds: DataKind[] }
-  | { type: "status"; status: SyncStatus }
-  | { type: "error"; message: string }
-  | { type: "attachmentsFetched"; ids: string[] };
+// The `koloda-mobile` event wire (`src-rust/src/sync.rs` `EventWire`), which hands JS the engine's errors too.
+export type MobileSyncEvent = SyncEvent | { type: "error"; message: string };
 
-export type SyncStatus = {
-  state: { type: string; stop?: { reason: string } };
-  lagHot: number | null;
-  lagCold: number | null;
-  pending: number;
-};
-
-// WHY: copied from `apps/electron-react/src/app/sync-events.ts`, not shared. A fetched image refreshes its cache-file query,
+// WHY: not shared with desktop's `applySyncEvent`: a fetched image refreshes its cache-file query here,
 // since the phone shows card images from files.
-export function applySyncEvent(queryClient: QueryClient, event: SyncEvent) {
+export function applySyncEvent(queryClient: QueryClient, event: MobileSyncEvent) {
   switch (event.type) {
     case "changed":
       refreshKinds(queryClient, event.kinds);

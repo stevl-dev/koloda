@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "jotai";
 import { useEffect } from "react";
 import { invoke, subscribe } from "./electron";
-import { starterContent } from "./setup";
+import { starterContent } from "@koloda/native-host";
 import { applySyncEvent } from "./sync-events";
 import { getSyncStatusQuery, syncStart } from "./sync-queries";
 

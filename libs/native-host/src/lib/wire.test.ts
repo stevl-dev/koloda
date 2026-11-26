@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { fromWire, toWire, WireError } from "./ipc";
+import { fromWire, toWire, WireError } from "./wire";
 
-describe("ipc wire", () => {
+describe("native host wire", () => {
   it("serializes dates to epoch ms for IPC", () => {
     const ms = 1_700_000_001_000;
     expect(toWire({ updatedAt: new Date(ms) })).toEqual({ updatedAt: ms });

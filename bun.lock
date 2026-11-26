@@ -234,12 +234,21 @@
       "name": "@koloda/e2e",
       "version": "0.0.1",
     },
+    "libs/native-host": {
+      "name": "@koloda/native-host",
+      "version": "0.0.1",
+      "dependencies": {
+        "@koloda/app": "workspace:*",
+        "@koloda/srs": "workspace:*",
+      },
+    },
     "libs/native-ipc": {
       "name": "@koloda/native-ipc",
       "version": "0.0.1",
       "dependencies": {
         "@koloda/ai": "workspace:*",
         "@koloda/app": "workspace:*",
+        "@koloda/native-host": "workspace:*",
         "@koloda/settings": "workspace:*",
         "@koloda/srs": "workspace:*",
       },
@@ -926,6 +935,8 @@
     "@koloda/mobile": ["@koloda/mobile@workspace:apps/mobile"],
 
     "@koloda/mobile-native": ["@koloda/mobile-native@workspace:apps/mobile/native"],
+
+    "@koloda/native-host": ["@koloda/native-host@workspace:libs/native-host"],
 
     "@koloda/native-ipc": ["@koloda/native-ipc@workspace:libs/native-ipc"],
 

@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/host/setup.ts
-msgid "app.setup.default-title"
-msgstr "Default"
-
 #: src/components/boot.tsx
 msgid "mobile.boot.error"
 msgstr "The app could not open its database."

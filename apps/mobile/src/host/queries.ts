@@ -15,11 +15,10 @@ import type {
   LessonsResult,
   TodaysReviewTotals,
 } from "@koloda/srs";
-import type { AppError } from "@koloda/app";
+import type { AppError, SyncStatus } from "@koloda/app";
 import type { QueryKey, QueryOptions, UseMutationOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
 import { call, read, wireArgs } from "./facade";
-import type { SyncStatus } from "./sync-events";
 
 // INVARIANT: the same keys as the other hosts' queries, so cache refreshes after a sync reach these queries too.
 export type MobileQueries = Pick<

@@ -1,11 +1,12 @@
+import type { SyncStatus } from "@koloda/app";
+import { starterContent } from "@koloda/native-host";
 import type { I18nContext } from "@lingui/react";
 import type { QueryClient } from "@tanstack/react-query";
 import { Platform } from "react-native";
 import { registerSecretVault } from "../../modules/koloda-secrets";
 import type { KolodaFacade } from "./facade";
 import { call, wireArgs } from "./facade";
-import { starterContent } from "./setup";
-import type { SyncEvent, SyncStatus } from "./sync-events";
+import type { MobileSyncEvent } from "./sync-events";
 import { applySyncEvent } from "./sync-events";
 
 export const SYNC_START_KEY = ["mobile-sync-start"] as const;
@@ -22,6 +23,6 @@ export async function startSync(facade: KolodaFacade, queryClient: QueryClient, 
 // WHY: JS asks for the engine's events instead of passing a listener; `src-rust/src/sync.rs` (`EventQueue`) says why.
 async function applySyncEvents(facade: KolodaFacade, queryClient: QueryClient) {
   for (;;) {
-    for (const event of await facade.syncEvents()) applySyncEvent(queryClient, JSON.parse(event) as SyncEvent);
+    for (const event of await facade.syncEvents()) applySyncEvent(queryClient, JSON.parse(event) as MobileSyncEvent);
   }
 }

@@ -71,9 +71,8 @@ import type {
   GetLessonsParams,
   OptimizerProgressEvent,
   SeedDbData,
-  SyncEvent,
-  SyncStarter,
 } from "@koloda/native-ipc";
+import type { SyncEvent, SyncStarter } from "@koloda/native-host";
 
 /** What the engine sends the `syncStart` callback: main logs `error` and forwards the rest as a `SyncEvent`. */
 export type SyncEngineEvent = SyncEvent | { type: "error"; message: string };
