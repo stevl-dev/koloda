@@ -22,6 +22,7 @@ use crate::client::{local_error, OK};
 use crate::engine::{merge, Session, Shared};
 use crate::error::SyncError;
 use crate::fork::receipt_ranges;
+use crate::pairing::ProbeCaller;
 use crate::transport::Method;
 
 // WHY: one call does bounded work; whatever is left goes out with the next trigger.
@@ -45,7 +46,7 @@ impl Shared {
             if !state.is_seed_import {
                 return Ok(true);
             }
-            let known = self.probe(session).await?;
+            let known = self.probe(session, ProbeCaller::Cycle).await?;
             self.blocking(move |shared| add_to_space(&shared.db, &known)).await?;
             state = self
                 .blocking(|shared| koloda::repo::sync::sync_state(&shared.db))

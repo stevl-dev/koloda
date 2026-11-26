@@ -26,6 +26,16 @@ use crate::fork::ReceiptPages;
 use crate::restore::OnHold;
 use crate::transport::Method;
 
+/// Who answers a server restore that a probe meets (`PROTOCOL.md` §Server restore).
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ProbeCaller {
+    /// The probe fails with `Restored`; the cycle applies the restore and starts again, since its calls never repeat
+    /// in place.
+    Cycle,
+    /// A join or an Add applies the restore and repeats the probe on the new epoch.
+    Host,
+}
+
 /// A code another device claims to join this file's space; the host shows it with the server URL and space id.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct IssuedPairing {
@@ -306,7 +316,7 @@ impl Shared {
         // finishes on the same device once the clock is back (PROTOCOL.md, Skew guards).
         self.check_skew()?;
         let enrollment = claim.enrollment;
-        let session = Session {
+        let mut session = Session {
             base: target.base,
             space: Uuid::from_bytes(enrollment.space_id),
             device: Uuid::from_bytes(enrollment.device_id),
@@ -336,7 +346,7 @@ impl Shared {
         self.blocking(move |shared| begin_import(&shared.db, device, space, epoch, &base))
             .await?;
         self.finish_enrolling(credentials.nonce).await;
-        let known = self.probe(&session).await?;
+        let known = self.probe(&mut session, ProbeCaller::Host).await?;
         let known_ids = known.len();
         // WHY: only the untouched seed joins without asking; Add's seed rules are the only change it needs.
         if mode == JoinMode::UntouchedSeed {
@@ -354,21 +364,16 @@ impl Shared {
         match mode {
             ImportMode::Add => {
                 // INVARIANT: no probe answer is stored; Add asks the space again, since it may have changed.
-                let session = self.session().await?;
-                let known = self.probe(&session).await?;
+                let mut session = self.session().await?;
+                let known = self.probe(&mut session, ProbeCaller::Host).await?;
                 self.blocking(move |shared| add_to_space(&shared.db, &known)).await
             }
             ImportMode::Replace => {
                 // INVARIANT: a file waiting for the choice calls the server for nothing else, so Replace asks it
                 // first whether this device is still in the space; a removed one detaches with its rows kept.
-                let session = self.session().await?;
-                self.device_client(&session)
-                    .call::<(), DeviceInfo>(
-                        Method::Get,
-                        &format!("/v1/spaces/{}/devices/{}", session.space, session.device),
-                        Some(&session.token),
-                        None,
-                    )
+                let mut session = self.session().await?;
+                let path = format!("/v1/spaces/{}/devices/{}", session.space, session.device);
+                self.call_across_restore::<(), DeviceInfo>(&mut session, Method::Get, &path, None, OnHold::Fail)
                     .await?;
                 self.blocking(|shared| replace_with_space(&shared.db)).await
             }
@@ -376,7 +381,11 @@ impl Shared {
     }
 
     /// Asks the space which of the file's ids it holds, a chunk at a time (`PROTOCOL.md` §Joining).
-    pub(crate) async fn probe(self: &Arc<Self>, session: &Session) -> Result<HashMap<String, Known>, SyncError> {
+    pub(crate) async fn probe(
+        self: &Arc<Self>,
+        session: &mut Session,
+        caller: ProbeCaller,
+    ) -> Result<HashMap<String, Known>, SyncError> {
         let mut known = HashMap::new();
         let mut after: Option<(Kind, String)> = None;
         loop {
@@ -396,16 +405,27 @@ impl Shared {
                     })
                     .collect(),
             };
-            let answer: koloda_sync_proto::transport::Known = self
-                .device_client(session)
-                .call(
-                    Method::Post,
-                    &format!("/v1/spaces/{}/ids/known", session.space),
-                    Some(&session.token),
-                    Some(&request),
-                )
-                .await?
-                .ok;
+            let path = format!("/v1/spaces/{}/ids/known", session.space);
+            let epoch = session.epoch;
+            let answer: koloda_sync_proto::transport::Known = match caller {
+                ProbeCaller::Cycle => {
+                    self.device_client(session)
+                        .call(Method::Post, &path, Some(&session.token), Some(&request))
+                        .await?
+                        .ok
+                }
+                ProbeCaller::Host => {
+                    self.call_across_restore(session, Method::Post, &path, Some(&request), OnHold::Fail)
+                        .await?
+                }
+            };
+            // WHY: the chunks answered before a restore describe the space as it was; an id the restored space holds
+            // but the old one did not would go unreminted and collide, so the probe starts over on the new epoch.
+            if session.epoch != epoch {
+                known.clear();
+                after = None;
+                continue;
+            }
             known.extend(answer.ids.into_iter().map(|held| {
                 let state = match held.state {
                     KnownState::Live => Known::Live,

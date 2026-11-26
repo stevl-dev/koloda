@@ -140,14 +140,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/sync-late-images.md`
   Deferred because: listed under Not checked; the harness lacks the seam.
 
-- Handoff: `import` and a join's first probe still fail once with `Restored` after a server restore.
-  Evidence: at `162eced7`, `crates/koloda-sync/src/pairing.rs:339` and `:358` call `probe` with no repeat, and
-  Replace calls the device route directly (`pairing.rs:365`).
-  Routing `probe` through `call_across_restore` needs a fetch mode, since the cycle calls it too (`cycle.rs:48`).
-  Kind: handoff
-  Source: `tasks/archive/sync-engine-architecture.md`
-  Deferred because: found in review of item 4, outside the three host calls the task carried across a restore.
-
 - Improvement, Later: a pending credential is stored two ways.
   Evidence: at `162eced7`, a claim or a creation keeps its nonce in `sync_enrolling`
   (`crates/koloda/src/repo/sync/mod.rs:131-229`); a fork keeps it in `sync_state.fork_nonce`

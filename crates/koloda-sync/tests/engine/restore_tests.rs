@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+use koloda::app::init::seed_db;
 use koloda::domain::attachments::AddAttachmentData;
 use koloda::domain::cards::{CardContentField, DeleteCardData, UpdateCardData, UpdateCardValues};
 use koloda::domain::decks::DeleteDeckData;
@@ -13,6 +14,7 @@ use koloda::repo::sync::join::JoinMode;
 use koloda::repo::{cards, decks};
 use koloda_server::restore::RestoreOptions;
 use koloda_sync::error::SyncError;
+use koloda_sync::pairing::ImportMode;
 use koloda_sync::status::{State, Stop};
 use koloda_sync::transport::Method;
 use koloda_sync_proto::envelope::Envelope;
@@ -23,9 +25,10 @@ use koloda_sync_proto::transport::{ErrorCode, IssuePairing, Outcome, Pairing, Re
 use uuid::Uuid;
 
 use crate::common::{error_reply, system_ms, Device, Fault, Space, TestServer, SERVER_URL};
-use crate::fixtures::{seed_settings, Library, BACK, FRONT};
+use crate::fixtures::{seed_data, seed_settings, Library, BACK, FRONT};
 
 const MINUTE_MS: i64 = 60 * 1000;
+const IMPORT_PENDING: &str = "SELECT COUNT(*) FROM sync_state WHERE join_phase = 'import_pending'";
 
 impl Device {
     fn sync(&self) {
@@ -604,6 +607,74 @@ fn a_detach_repeats_across_three_restores_and_stops_at_a_fourth() {
             assert!(matches!(result, Err(SyncError::Restored { .. })), "{result:?}");
         }
     }
+}
+
+/// A file of its own rows that joined A's space and waits for Add or Replace.
+fn waiting_joiner(space: &Space) -> Device {
+    let b = space.server.device();
+    seed_db(&b.db, seed_data(100)).expect("B starts fresh");
+    b.library();
+    let code = space.device.engine.issue_pairing(None).expect("a code is issued").code;
+    let joined = b
+        .engine
+        .join(SERVER_URL, &code, "Phone", seed_settings())
+        .expect("B claims the code");
+    assert_eq!(joined.mode, JoinMode::Used, "B waits for its choice");
+    b
+}
+
+#[test]
+fn an_add_or_a_replace_after_a_heal_restore_applies_it_and_finishes() {
+    for mode in [ImportMode::Add, ImportMode::Replace] {
+        let space = Space::new();
+        space.device.library();
+        space.device.sync();
+        let b = waiting_joiner(&space);
+        let backup = space.server.backup();
+        space.server.restore(&backup, RestoreMode::Heal);
+
+        let result = b.engine.import(mode);
+
+        assert!(result.is_ok(), "{mode:?}: {result:?}");
+        assert_eq!(b.count(IMPORT_PENDING), 0, "{mode:?}: B made its choice");
+        let current = space.server.current_epoch(&format!("/v1/spaces/{}/", space.space_id()));
+        assert_eq!(Some(b.epoch()), current, "{mode:?}: B moved to the restored epoch");
+    }
+}
+
+#[test]
+fn a_join_whose_probe_meets_a_heal_restore_repeats_the_probe_and_joins() {
+    let space = Space::with(|device| seed_db(&device.db, seed_data(77)).expect("A starts fresh"));
+    space.device.sync();
+    let code = space.device.engine.issue_pairing(None).expect("a code is issued").code;
+    let b = space.server.device();
+    seed_db(&b.db, seed_data(100)).expect("B starts fresh");
+    let (reached, on_reached) = std::sync::mpsc::channel();
+    let (resume, on_resume) = std::sync::mpsc::channel::<()>();
+    let mut is_first = true;
+    b.transport.observe(move |request| {
+        if is_first && request.url.contains("/ids/known") {
+            is_first = false;
+            reached.send(()).expect("the test listens");
+            on_resume.recv().expect("the test resumes the probe");
+        }
+    });
+
+    // WHY: the backup is taken after the claim, so the restored space still knows B's device.
+    let joined = std::thread::scope(|scope| {
+        let joining = scope.spawn(|| b.engine.join(SERVER_URL, &code, "Phone", seed_settings()));
+        on_reached.recv().expect("B probes the space");
+        let backup = space.server.backup();
+        space.server.restore(&backup, RestoreMode::Heal);
+        resume.send(()).expect("the probe goes on");
+        joining.join().expect("the join returns")
+    });
+
+    let joined = joined.expect("B joins");
+    assert_eq!(joined.mode, JoinMode::UntouchedSeed);
+    assert_eq!(b.count(IMPORT_PENDING), 0, "B's seed joined without asking");
+    let current = space.server.current_epoch(&format!("/v1/spaces/{}/", space.space_id()));
+    assert_eq!(Some(b.epoch()), current, "B moved to the restored epoch");
 }
 
 #[test]

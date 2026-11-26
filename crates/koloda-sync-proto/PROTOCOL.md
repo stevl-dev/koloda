@@ -1269,9 +1269,10 @@ The device then applies the restore (§Server restore) and starts the cycle agai
 A host call that comes back `epoch_changed` applies it the same way.
 The device list, a revoke, a new pairing code, a detach, and a re-attach then repeat on the new epoch, at most three
 times.
-An authoritative restore is held, and only a detach and a re-attach repeat across it; the other three fail.
+So do a join's or an Add's probe, which then starts over from its first chunk, and a Replace's device check.
+An authoritative restore is held, and only a detach and a re-attach repeat across it; the others fail.
 Any other host call fails once, and the host may retry.
-A cycle's calls never repeat in place.
+A cycle's calls never repeat in place, its probe included.
 A file waiting for Add or Replace only takes the new epoch: the claim cleared its sync tables, and Add backfills from
 the rows.
 
