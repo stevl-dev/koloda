@@ -28,6 +28,16 @@
         "command": "bunx ubrn build android --native-bindings --config ubrn.config.yaml",
         "cwd": "apps/mobile/native"
       }
+    },
+    "build-android-release": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "bindings"
+      ],
+      "options": {
+        "command": "bunx ubrn build android --native-bindings --release --config ubrn.config.yaml",
+        "cwd": "apps/mobile/native"
+      }
     }
   }
 }

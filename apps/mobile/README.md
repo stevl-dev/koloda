@@ -65,6 +65,11 @@ The Expo prebuild writes the Gradle project into `android/`, which is generated 
 - `nx run @koloda/mobile:build-android` — compiles the debug app only; it starts no device or emulator.
   Both first build `koloda-mobile` for each Android target and regenerate its module
   (`nx run @koloda/mobile-native:build-android`).
+- `nx run @koloda/mobile:build-android-release` — compiles the release app, with `koloda-mobile` built in Cargo's
+  release profile and the JS bundled into the APK, for the cold-start and frame-rate checks.
+  It builds only the ABIs `ubrn.config.yaml` lists; the app could not load `koloda-mobile` on any other.
+  Gradle signs it with the debug key, so it installs over a debug build and keeps the app's data:
+  `adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk`.
 - `nx run @koloda/mobile-native:bindings` — regenerates the TS bindings from a desktop build of `koloda-mobile`;
   run it and commit `native/src` after changing the façade's API.
   It generates them for `koloda_mobile` alone and deletes the vault's, so JS never loads the vault component.

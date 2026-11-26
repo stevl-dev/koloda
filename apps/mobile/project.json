@@ -53,6 +53,22 @@
         "cwd": "apps/mobile/android"
       }
     },
+    "build-android-release": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "prebuild",
+        {
+          "projects": [
+            "@koloda/mobile-native"
+          ],
+          "target": "build-android-release"
+        }
+      ],
+      "options": {
+        "command": "./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,x86_64",
+        "cwd": "apps/mobile/android"
+      }
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
