@@ -51,6 +51,9 @@ Fitting FSRS weights is that decision: `docs/decisions/FSRS-OPTIMIZER.md`.
   A case seeds rows through each host's repos, runs one operation, and states what it returns or the error code.
   The shape is in `crates/koloda/tests/repo-cases/README.md`.
   `cargo test` runs them over `koloda`, and Vitest over `@koloda/db-sqlite`.
+- An editor's list of fields to refresh after a sync is tied to the Rust field-group registry
+  through `crates/koloda/tests/cases/editor-sync-groups.json`.
+  `cargo test` checks the file against the registry, and Vitest checks each editor's list against the file.
 - A test that only one side needs stays in that side's test file.
 
 ### Accepted divergences

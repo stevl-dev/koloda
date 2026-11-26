@@ -73,7 +73,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Add the editor sync group cases and check them against the registry
+- [x] 1. Add the editor sync group cases and check them against the registry
   Goal: Add `crates/koloda/tests/cases/editor-sync-groups.json`.
   It lists one entry per edited kind: `cards`, `decks`, `templates`, `algorithms`, `settingsLearning`, by their wire
   names (`Kind::as_wire`).

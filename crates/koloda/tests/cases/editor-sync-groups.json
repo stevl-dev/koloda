@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "cards",
+    "groups": { "create": null, "content": "content", "scheduling": null, "reset": null }
+  },
+  {
+    "kind": "decks",
+    "groups": {
+      "create": null,
+      "title": "title",
+      "notes": "notes",
+      "algorithm": "algorithmId",
+      "template": "templateId"
+    }
+  },
+  {
+    "kind": "templates",
+    "groups": { "create": null, "title": "title", "notes": "notes", "structure": "content" }
+  },
+  {
+    "kind": "algorithms",
+    "groups": { "create": null, "title": "title", "notes": "notes", "content": "content" }
+  },
+  {
+    "kind": "settings.learning",
+    "groups": {
+      "defaults.algorithm": "defaults.algorithm",
+      "defaults.template": "defaults.template",
+      "dailyLimits": "dailyLimits",
+      "dayStartsAt": "dayStartsAt",
+      "learnAheadLimit": "learnAheadLimit"
+    }
+  }
+]
