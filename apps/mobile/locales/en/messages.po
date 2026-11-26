@@ -85,14 +85,6 @@ msgstr "Join"
 msgid "mobile.sync.join-refused"
 msgstr "This phone already has data of its own, so it can't join a space in this test build. Reinstall the app to join."
 
-#: src/components/sync-panel.tsx
-msgid "mobile.sync.lag {hot} {cold}"
-msgstr "Behind — hot lane: {hot}, cold lane: {cold}"
-
-#: src/components/sync-panel.tsx
-msgid "mobile.sync.pending {pending}"
-msgstr "Changes waiting to sync: {pending}"
-
 #: src/components/join-space.tsx
 msgid "mobile.sync.preview"
 msgstr "Show the space"
@@ -112,14 +104,6 @@ msgstr "Server address"
 #: src/components/sync-panel.tsx
 msgid "mobile.sync.start-failed {message}"
 msgstr "Sync could not start: {message}"
-
-#: src/components/sync-panel.tsx
-msgid "mobile.sync.state {stateType}"
-msgstr "Sync state: {stateType}"
-
-#: src/components/sync-panel.tsx
-msgid "mobile.sync.stop {reason}"
-msgstr "Stopped because: {reason}"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"

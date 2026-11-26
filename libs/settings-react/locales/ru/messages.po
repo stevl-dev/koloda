@@ -21,12 +21,12 @@ msgstr "{cards, plural, one {# карточка} few {# карточки} many {
 msgid "{decks, plural, other {settings.sync.join.preview.decks}}"
 msgstr "{decks, plural, one {# колода} few {# колоды} many {# колод} other {# колоды}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{fetches, plural, other {settings.sync.fetches}}"
 msgstr "{fetches, plural, one {# изображение ждёт загрузки} few {# изображения ждут загрузки} many {# изображений ждут загрузки} other {# изображения ждут загрузки}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{left, plural, other {settings.sync.download-left}}"
 msgstr "{left, plural, one {Осталось загрузить # изменение} few {Осталось загрузить # изменения} many {Осталось загрузить # изменений} other {Осталось загрузить # изменения}}"
 
@@ -34,7 +34,7 @@ msgstr "{left, plural, one {Осталось загрузить # изменен
 msgid "{minutes, plural, other {settings.sync.stop.clock-skew}}"
 msgstr "Часы этого устройства расходятся с часами сервера синхронизации на {minutes, plural, one {# минуту} few {# минуты} many {# минут} other {# минуты}}. Исправьте время, и синхронизация продолжится сама."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{pending, plural, other {settings.sync.pending}}"
 msgstr "{pending, plural, one {# изменение ждёт отправки} few {# изменения ждут отправки} many {# изменений ждут отправки} other {# изменения ждут отправки}}"
 
@@ -42,7 +42,7 @@ msgstr "{pending, plural, one {# изменение ждёт отправки} f
 msgid "{reviews, plural, other {settings.sync.join.preview.reviews}}"
 msgstr "{reviews, plural, one {# повторение} few {# повторения} many {# повторений} other {# повторения}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{uploads, plural, other {settings.sync.uploads}}"
 msgstr "{uploads, plural, one {# изображение ждёт отправки} few {# изображения ждут отправки} many {# изображений ждут отправки} other {# изображения ждут отправки}}"
 
@@ -568,12 +568,12 @@ msgstr "Подключиться"
 msgid "settings.sync.join.title"
 msgstr "Подключиться к пространству"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.last-sync {lastSync}"
 msgstr "Последняя синхронизация: {lastSync}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.last-sync.none"
 msgstr "Синхронизации ещё не было с запуска приложения"
 
@@ -632,30 +632,30 @@ msgstr "Токен настройки"
 msgid "settings.sync.space-name.label"
 msgstr "Название пространства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.bootstrapping"
 msgstr "Загрузка пространства"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.idle"
 msgstr "Всё синхронизировано"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.import-pending"
 msgstr "Ждёт вашего выбора"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.not-enrolled"
 msgstr "Синхронизация выключена"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.stopped"
 msgstr "Синхронизация остановлена"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.syncing"
 msgstr "Синхронизация"
 

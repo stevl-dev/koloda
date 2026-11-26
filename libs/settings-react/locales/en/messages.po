@@ -21,12 +21,12 @@ msgstr "{cards, plural, one {# card} other {# cards}}"
 msgid "{decks, plural, other {settings.sync.join.preview.decks}}"
 msgstr "{decks, plural, one {# deck} other {# decks}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{fetches, plural, other {settings.sync.fetches}}"
 msgstr "{fetches, plural, one {# image waits to download} other {# images wait to download}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-first-run-join.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{left, plural, other {settings.sync.download-left}}"
 msgstr "{left, plural, one {# change left to download} other {# changes left to download}}"
 
@@ -34,7 +34,7 @@ msgstr "{left, plural, one {# change left to download} other {# changes left to 
 msgid "{minutes, plural, other {settings.sync.stop.clock-skew}}"
 msgstr "This device's clock is {minutes, plural, one {# minute} other {# minutes}} off the sync server's. Correct the clock, and sync resumes on its own."
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{pending, plural, other {settings.sync.pending}}"
 msgstr "{pending, plural, one {# change waits to upload} other {# changes wait to upload}}"
 
@@ -42,7 +42,7 @@ msgstr "{pending, plural, one {# change waits to upload} other {# changes wait t
 msgid "{reviews, plural, other {settings.sync.join.preview.reviews}}"
 msgstr "{reviews, plural, one {# review} other {# reviews}}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "{uploads, plural, other {settings.sync.uploads}}"
 msgstr "{uploads, plural, one {# image waits to upload} other {# images wait to upload}}"
 
@@ -568,12 +568,12 @@ msgstr "Join"
 msgid "settings.sync.join.title"
 msgstr "Join a space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.last-sync {lastSync}"
 msgstr "Last synced {lastSync}"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.last-sync.none"
 msgstr "Not synced since the app started"
 
@@ -632,30 +632,30 @@ msgstr "Setup token"
 msgid "settings.sync.space-name.label"
 msgstr "Space name"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.bootstrapping"
 msgstr "Downloading the space"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.idle"
 msgstr "Up to date"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.import-pending"
 msgstr "Waiting for your choice"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.not-enrolled"
 msgstr "Not syncing"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.stopped"
 msgstr "Sync stopped"
 
-#: ../../libs/settings-react/src/lib/sync/settings-sync-status.tsx
 #: ../../libs/settings-react/src/lib/sync/sync-indicator.tsx
+#: ../../libs/settings-react/src/lib/sync/sync-messages.ts
 msgid "settings.sync.state.syncing"
 msgstr "Syncing"
 

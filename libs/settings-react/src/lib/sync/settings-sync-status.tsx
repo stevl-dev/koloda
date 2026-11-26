@@ -1,52 +1,33 @@
-import type { SyncState, SyncStatus } from "@koloda/app";
-import { useTimestampFormatter } from "@koloda/core-react";
+import type { SyncStatus } from "@koloda/app";
 import type { SyncQueries } from "@koloda/core-react";
 import { Button } from "@koloda/ui";
-import { msg, plural } from "@lingui/core/macro";
+import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { SettingsSyncInvite } from "./settings-sync-invite";
 import { SettingsSyncProblems } from "./settings-sync-problems";
-
-const STATE_LABELS = {
-  notEnrolled: msg`settings.sync.state.not-enrolled`,
-  importPending: msg`settings.sync.state.import-pending`,
-  bootstrapping: msg`settings.sync.state.bootstrapping`,
-  idle: msg`settings.sync.state.idle`,
-  syncing: msg`settings.sync.state.syncing`,
-  stopped: msg`settings.sync.state.stopped`,
-} satisfies Record<SyncState["type"], unknown>;
+import { SYNC_STATE_LABELS, useSyncStatusLines } from "./sync-messages";
 
 export type SettingsSyncStatusProps = { status: SyncStatus; sync: SyncQueries };
 
 export function SettingsSyncStatus({ status, sync }: SettingsSyncStatusProps) {
   const { _ } = useLingui();
-  const formatTimestamp = useTimestampFormatter();
-  const { state, lastSuccessAt, uploads, fetches } = status;
-  // WHY: changes the full space refused wait in a hold of their own; to the user they wait to upload all the same.
-  const pending = status.pending + status.held;
-  // WHY: the two lanes are an engine detail; the user sees one download.
-  const left = (status.lagHot ?? 0) + (status.lagCold ?? 0);
-  const lastSync = lastSuccessAt === null ? null : formatTimestamp(new Date(lastSuccessAt), "datetime");
+  const { downloadLeft, lastSync, pending, uploads, fetches } = useSyncStatusLines()(status);
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-4">
-        <h2 className="text-lg font-semibold">{_(STATE_LABELS[state.type])}</h2>
+        <h2 className="text-lg font-semibold">{_(SYNC_STATE_LABELS[status.state.type])}</h2>
         <Button variants={{ style: "bordered" }} onPress={() => void sync.nudge()}>
           {_(msg`settings.sync.sync-now`)}
         </Button>
         <SettingsSyncInvite sync={sync} />
       </div>
       <SettingsSyncProblems status={status} sync={sync} />
-      {state.type === "bootstrapping" && left > 0 && (
-        <p>{_(msg`${plural(left, { other: "settings.sync.download-left" })}`)}</p>
-      )}
-      <p className="fg-level-2">
-        {lastSync === null ? _(msg`settings.sync.last-sync.none`) : _(msg`settings.sync.last-sync ${lastSync}`)}
-      </p>
-      {pending > 0 && <p className="fg-level-2">{_(msg`${plural(pending, { other: "settings.sync.pending" })}`)}</p>}
-      {uploads > 0 && <p className="fg-level-2">{_(msg`${plural(uploads, { other: "settings.sync.uploads" })}`)}</p>}
-      {fetches > 0 && <p className="fg-level-2">{_(msg`${plural(fetches, { other: "settings.sync.fetches" })}`)}</p>}
+      {downloadLeft && <p>{downloadLeft}</p>}
+      <p className="fg-level-2">{lastSync}</p>
+      {pending && <p className="fg-level-2">{pending}</p>}
+      {uploads && <p className="fg-level-2">{uploads}</p>}
+      {fetches && <p className="fg-level-2">{fetches}</p>}
     </div>
   );
 }

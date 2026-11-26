@@ -1,5 +1,6 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
+import { SYNC_STATE_LABELS, useSyncStatusLines, useSyncStopMessage } from "@koloda/settings-react/sync-status";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
@@ -10,34 +11,41 @@ import { JoinSpace } from "./join-space";
 export function SyncPanel() {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const text = { color: colors.text };
   const { getSyncStatusQuery } = useMobileQueries();
   // WHY: observes the start `Boot` runs; it never fetches here.
   const start = useQuery({ queryKey: SYNC_START_KEY, queryFn: skipToken });
   const status = useQuery({ ...getSyncStatusQuery(), enabled: start.isSuccess });
+  const statusLines = useSyncStatusLines();
+  const stopMessage = useSyncStopMessage();
 
   if (start.error) {
     const { message } = start.error;
     return <Text style={{ color: colors.danger }}>{_(msg`mobile.sync.start-failed ${message}`)}</Text>;
   }
   if (!status.data) return null;
-  const { state, pending, lagHot, lagCold } = status.data;
+  const { state } = status.data;
   if (state.type === "notEnrolled") return <JoinSpace />;
 
-  const stateType = state.type;
-  const reason = state.type === "stopped" ? state.stop.reason : undefined;
-  const hot = lagHot ?? "-";
-  const cold = lagCold ?? "-";
+  const stop = stopMessage(status.data);
+  // WHY: the engine's text is a developer's English diagnostic, shown under the message as details, as on desktop.
+  const stopDetails = state.type === "stopped" && state.stop.reason === "error" ? state.stop.message : null;
+  const { downloadLeft, lastSync, pending, uploads, fetches } = statusLines(status.data);
+  const muted = { color: colors.muted };
   return (
     <View style={styles.status}>
-      <Text style={text}>{_(msg`mobile.sync.state ${stateType}`)}</Text>
-      {reason && <Text style={text}>{_(msg`mobile.sync.stop ${reason}`)}</Text>}
-      <Text style={text}>{_(msg`mobile.sync.pending ${pending}`)}</Text>
-      <Text style={text}>{_(msg`mobile.sync.lag ${hot} ${cold}`)}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{_(SYNC_STATE_LABELS[state.type])}</Text>
+      {stop && <Text style={{ color: colors.danger }}>{stop}</Text>}
+      {stopDetails && <Text style={muted}>{stopDetails}</Text>}
+      {downloadLeft && <Text style={{ color: colors.text }}>{downloadLeft}</Text>}
+      <Text style={muted}>{lastSync}</Text>
+      {pending && <Text style={muted}>{pending}</Text>}
+      {uploads && <Text style={muted}>{uploads}</Text>}
+      {fetches && <Text style={muted}>{fetches}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  status: { gap: 4 },
+  status: { gap: 8 },
+  title: { fontSize: 20, fontWeight: "600" },
 });

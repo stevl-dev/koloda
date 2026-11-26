@@ -1,5 +1,5 @@
 // INVARIANT: mirrors the desktop addon's sync wire shapes (`apps/electron/src-rust/src/sync.rs`, `StatusWire`).
-// Only the desktop syncs; the web demo never sees these.
+// Only the desktop and mobile apps sync; the web demo never sees these.
 
 export type SyncStop =
   | { reason: "clockSkew" }

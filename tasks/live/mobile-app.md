@@ -200,7 +200,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Note: the card's scroll view moved into `SwipeableCard`, which tracks its scroll for `dragOwner` on the UI thread.
   The new device check waits for the human's emulator run.
 
-- [ ] 8. Replace the mobile Sync tab with joining and status
+- [x] 8. Replace the mobile Sync tab with joining and status
   Goal: The Sync tab joins a space and then shows the status in words, as `docs/specs/SYNC.md` describes for desktop.
   Not in a space, it offers joining: the server address, the pairing code, the preview, and the join,
   as §Joining a Space describes.
@@ -210,6 +210,9 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: component tests cover each status the tab shows, plus the shared checks above.
   Commit: Replace the mobile Sync tab with joining and status
   Depends on: 4
+  Note: desktop's wording comes through a new DOM-free entry, `@koloda/settings-react/sync-status`;
+  the status lines moved from `settings-sync-status.tsx` into `sync-messages.ts` so both apps read them.
+  Mobile leaves out "Sync now", holds, the full-space and clock-ahead notes, and continuing after a restore.
 
 - [ ] 9. Turn off Android backup for the mobile app
   Goal: Android backup restores nothing of the app, as open question 7 settles.
