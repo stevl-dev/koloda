@@ -113,7 +113,8 @@ Entries are grouped under one heading per package directory.
   (`crates/koloda-sync/src/attachments.rs:136`); the harness has no hook between the `404` and the deferral.
   Kind: handoff
   Source: `tasks/archive/sync-late-images.md`
-  Deferred because: listed under Not checked; the harness lacks the seam.
+  Deferred because: forcing the order needs an engine hook after `note_upload` (`crates/koloda-sync/src/engine.rs`);
+  the harness's `Fault::After` and request observer cannot, since socket messages are handled on their own task.
 
 - Improvement, Later: a pending credential is stored two ways.
   Evidence: at `162eced7`, a claim or a creation keeps its nonce in `sync_enrolling`
