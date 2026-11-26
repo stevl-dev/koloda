@@ -165,7 +165,8 @@ Entries are grouped under one heading per package directory.
   never feeds (`libs/app-react/src/lib/hooks/use-global-sync.ts`).
   Kind: handoff
   Source: `tasks/archive/assistant-change-settings.md`
-  Deferred because: a cancel landing during the save is rare; the call's input is unchecked, so it cannot be applied.
+  Deferred because: a fix needs the binder to report a save that lands after its run ended; the shell's refresh on
+  cancel can run before the save, and only an unchecked call input says whether the language changed.
 
 - Improvement, Later: a run's terminal status enters the store from the UI or the shell, then again from the engine.
   Evidence: at `467d8b36`, user cancel writes `cancelRun` and `markRead` itself
