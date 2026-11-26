@@ -162,7 +162,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Depends on: 3
   Note: device check 8 waits for the human's emulator run; the agent does not start the emulator.
 
-- [ ] 5. Make the Lessons tab the mobile home screen
+- [x] 5. Make the Lessons tab the mobile home screen
   Goal: The Lessons tab is a product deck list.
   Each deck shows its title and its new, learning, and review counts, labeled; a deck with nothing due says so.
   A fresh install, which has no decks, says the library comes from desktop and links to the Sync tab.

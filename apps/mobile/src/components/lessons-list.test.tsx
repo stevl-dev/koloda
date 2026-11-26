@@ -13,31 +13,52 @@ const lessons = {
   decks: [
     { id: "01900000-0000-7000-8000-000000000101", title: "Spanish", untouched: 3, learn: 1, review: 7, total: 11 },
     { id: "01900000-0000-7000-8000-000000000102", title: "Chemistry", untouched: 2, learn: 0, review: 0, total: 2 },
+    { id: "01900000-0000-7000-8000-000000000103", title: "History", untouched: 0, learn: 0, review: 0, total: 0 },
   ],
 };
 
+async function renderList(result: unknown) {
+  activateEnglish();
+  const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(result)));
+  const queries = createMobileQueries(fakeFacade({ getLessons }), "/cache");
+
+  await render(
+    <I18nProvider i18n={i18n}>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}
+      >
+        <MobileQueriesContext.Provider value={queries}>
+          <LessonsList />
+        </MobileQueriesContext.Provider>
+      </QueryClientProvider>
+    </I18nProvider>,
+  );
+  return getLessons;
+}
+
 describe("LessonsList", () => {
   it("shows each deck with its due counts from the façade", async () => {
-    activateEnglish();
-    const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(lessons)));
-    const queries = createMobileQueries(fakeFacade({ getLessons }), "/cache");
-
-    await render(
-      <I18nProvider i18n={i18n}>
-        <QueryClientProvider
-          client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}
-        >
-          <MobileQueriesContext.Provider value={queries}>
-            <LessonsList />
-          </MobileQueriesContext.Provider>
-        </QueryClientProvider>
-      </I18nProvider>,
-    );
+    const getLessons = await renderList(lessons);
 
     expect(await screen.findByText("Spanish")).toBeTruthy();
     expect(screen.getByText("New 3 · Learning 1 · Review 7")).toBeTruthy();
     expect(screen.getByText("Chemistry")).toBeTruthy();
     expect(screen.getByText("New 2 · Learning 0 · Review 0")).toBeTruthy();
     expect(typeof JSON.parse(getLessons.mock.calls[0][0]).dueAt).toBe("number");
+  });
+
+  it("says a deck with no due cards has nothing due, instead of zero counts", async () => {
+    await renderList(lessons);
+
+    expect(await screen.findByText("History")).toBeTruthy();
+    expect(screen.getByText("Nothing due")).toBeTruthy();
+    expect(screen.queryByText("New 0 · Learning 0 · Review 0")).toBeNull();
+  });
+
+  it("points a library with no decks at the Sync tab", async () => {
+    await renderList({ total: { untouched: 0, learn: 0, review: 0, total: 0 }, decks: [] });
+
+    expect(await screen.findByText(/^No decks yet\./)).toBeTruthy();
+    expect(screen.getByText("Open the Sync tab")).toBeTruthy();
   });
 });

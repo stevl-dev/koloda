@@ -51,11 +51,19 @@ msgstr "New {untouched} · Learning {learn} · Review {review}"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.empty"
-msgstr "No decks yet."
+msgstr "No decks yet. Your library comes from the desktop app: join its sync space to bring it here."
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.error"
 msgstr "Lessons could not load."
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.nothing-due"
+msgstr "Nothing due"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.open-sync"
+msgstr "Open the Sync tab"
 
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
