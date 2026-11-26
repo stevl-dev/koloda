@@ -1,6 +1,6 @@
 /**
  * Transport-independent half of the OpenAI-compatible AI mock: the option and
- * handle contracts plus the SSE/JSON wire builders. Each e2e suite supplies its
+ * handle contracts, the choice of response, and the SSE/JSON wire builders. Each e2e suite supplies its
  * own transport around these (see the suites' `mock-openai-compatible.ts`):
  * web intercepts with Playwright `page.route`, Electron runs a real Node HTTP
  * server because main-process AI fetch is invisible to route interception.
@@ -65,6 +65,60 @@ export function pickNextCompletion(
   return queue.shift() ?? completionFromBody?.(requestBody) ?? { ...defaultCompletion };
 }
 
+const DEFAULT_REPLY = "Hello from the mock assistant.";
+
+/** A default completion with the reply text and word chunks filled in where `options` leaves them out. */
+export function withCompletionDefaults(options?: MockChatCompletionOptions): MockChatCompletionOptions {
+  return { text: DEFAULT_REPLY, chunkBy: "word", ...options };
+}
+
+/** What a completions request is answered with; the suite's transport only delivers it. */
+export type MockCompletionResponse =
+  | { kind: "error"; status: number; body: string }
+  | { kind: "json"; body: string }
+  | { kind: "sse"; body: string; chunkDelayMs?: number };
+
+/** The models list both transports serve at `/v1/models`. */
+export function buildModelsJSON(modelId: string): string {
+  return JSON.stringify({ data: [{ id: modelId, object: "model" }] });
+}
+
+/**
+ * The response to a completions request, shared by both suites' mock transports so the two cannot answer the same
+ * scripted step differently.
+ */
+export function buildCompletionResponse(
+  next: MockChatCompletionOptions,
+  requestBody: string,
+  modelId: string,
+): MockCompletionResponse {
+  const status = next.status ?? 200;
+  if (status >= 400) {
+    return { kind: "error", status, body: JSON.stringify({ error: { message: "Mock provider error" } }) };
+  }
+  // WHY: doGenerate omits `stream`; only doStream sets `stream: true`. Defaulting to SSE when the field is absent
+  // would break non-stream JSON completions.
+  let stream = false;
+  try {
+    stream = requestBody !== "" && (JSON.parse(requestBody) as { stream?: boolean }).stream === true;
+  } catch {
+    // A body that does not parse keeps the non-stream default.
+  }
+  if (next.toolCall) {
+    return stream
+      ? { kind: "sse", body: buildOpenAIToolCallSSE(modelId, next.toolCall) }
+      : { kind: "json", body: JSON.stringify(buildOpenAIToolCallJSON(modelId, next.toolCall)) };
+  }
+  const text = next.text ?? DEFAULT_REPLY;
+  if (!stream) return { kind: "json", body: JSON.stringify(buildOpenAIChatCompletionJSON(modelId, text, next.usage)) };
+  const chunks =
+    next.chunks ?? (next.chunkBy === "all" ? [text] : text.split(/(\s+)/).filter((part) => part.length > 0));
+  const body = buildOpenAIChatCompletionSSE(modelId, chunks, next.usage);
+  return next.chunkDelayMs != null && next.chunkDelayMs > 0
+    ? { kind: "sse", body, chunkDelayMs: next.chunkDelayMs }
+    : { kind: "sse", body };
+}
+
 export type MockOpenAICompatibleHandle = {
   /** LM Studio-style base URL including `/v1` (pass to `addLmStudioProfile`). */
   baseUrl: string;
@@ -75,6 +129,9 @@ export type MockOpenAICompatibleHandle = {
    * Release is a no-op while this is false, so tests that release a response
    * held right after sending a message must wait for this first — the request
    * only reaches the mock asynchronously (Electron main-process fetch).
+   *
+   * WHY: after the client cancels a held request, the desktop mock ends the hold and this turns false; the web mock,
+   * which `page.route` gives no abort signal, holds until `release()` or `dispose()`.
    */
   isHolding: () => boolean;
   /** Resolve a held completions response (no-op if not holding). */
@@ -105,7 +162,7 @@ function buildOpenAIUsage(usage: { promptTokens: number; completionTokens: numbe
   };
 }
 
-export function buildOpenAIChatCompletionSSE(
+function buildOpenAIChatCompletionSSE(
   modelId: string,
   contentChunks: string[],
   usage?: { promptTokens: number; completionTokens: number },
@@ -144,7 +201,7 @@ export function buildOpenAIChatCompletionSSE(
   return lines.join("\n\n");
 }
 
-export function buildOpenAIToolCallSSE(
+function buildOpenAIToolCallSSE(
   modelId: string,
   toolCall: { name: string; arguments: Record<string, unknown> },
 ): string {
@@ -205,10 +262,7 @@ export function buildOpenAIToolCallSSE(
   return [...chunks.map((chunk) => `data: ${JSON.stringify(chunk)}`), "data: [DONE]", ""].join("\n\n");
 }
 
-export function buildOpenAIToolCallJSON(
-  modelId: string,
-  toolCall: { name: string; arguments: Record<string, unknown> },
-) {
+function buildOpenAIToolCallJSON(modelId: string, toolCall: { name: string; arguments: Record<string, unknown> }) {
   return {
     id: "chatcmpl-e2e",
     object: "chat.completion",
@@ -243,7 +297,7 @@ function nextToolCallId(): string {
   return `call_e2e_tool_${++toolCallIdCounter}`;
 }
 
-export function buildOpenAIChatCompletionJSON(
+function buildOpenAIChatCompletionJSON(
   modelId: string,
   content: string,
   usage?: { promptTokens: number; completionTokens: number },

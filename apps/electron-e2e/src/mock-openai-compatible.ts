@@ -1,12 +1,11 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import {
-  buildOpenAIChatCompletionJSON,
-  buildOpenAIChatCompletionSSE,
-  buildOpenAIToolCallJSON,
-  buildOpenAIToolCallSSE,
+  buildCompletionResponse,
+  buildModelsJSON,
   E2E_LM_STUDIO_MODEL_ID,
   pickNextCompletion,
+  withCompletionDefaults,
 } from "@koloda/e2e";
 import type { MockChatCompletionOptions, MockOpenAICompatibleHandle, MockOpenAICompatibleOptions } from "@koloda/e2e";
 
@@ -19,11 +18,7 @@ export async function mockOpenAICompatibleProvider(
 ): Promise<MockOpenAICompatibleHandle> {
   const modelId = E2E_LM_STUDIO_MODEL_ID;
   const queue: MockChatCompletionOptions[] = [];
-  let defaultCompletion: MockChatCompletionOptions = {
-    text: "Hello from the mock assistant.",
-    chunkBy: "word",
-    ...options.defaultCompletion,
-  };
+  let defaultCompletion = withCompletionDefaults(options.defaultCompletion);
   let completionRequests = 0;
   let releaseHold: (() => void) | null = null;
 
@@ -36,7 +31,7 @@ export async function mockOpenAICompatibleProvider(
 
     if (req.method === "GET" && url.pathname === "/v1/models") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ data: [{ id: modelId, object: "model" }] }));
+      res.end(buildModelsJSON(modelId));
       return;
     }
 
@@ -51,60 +46,22 @@ export async function mockOpenAICompatibleProvider(
         if (aborted || res.writableEnded) return;
       }
 
-      const status = next.status ?? 200;
-      if (status >= 400) {
-        if (res.writableEnded) return;
-        res.writeHead(status, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: { message: "Mock provider error" } }));
-        return;
-      }
-
-      const text = next.text ?? "Hello from the mock assistant.";
-      // WHY: doGenerate omits `stream`; only doStream sets `stream: true`. Defaulting to
-      // SSE when the field is absent would break non-stream JSON completions.
-      let stream = false;
-      try {
-        if (bodyText) {
-          const body = JSON.parse(bodyText) as { stream?: boolean };
-          stream = body.stream === true;
-        }
-      } catch {}
-
       if (res.writableEnded) return;
-
-      if (next.toolCall) {
-        if (!stream) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(buildOpenAIToolCallJSON(modelId, next.toolCall)));
-          return;
-        }
-        res.writeHead(200, {
-          "Content-Type": "text/event-stream; charset=utf-8",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        });
-        res.end(buildOpenAIToolCallSSE(modelId, next.toolCall));
+      const response = buildCompletionResponse(next, bodyText, modelId);
+      if (response.kind !== "sse") {
+        res.writeHead(response.kind === "error" ? response.status : 200, { "Content-Type": "application/json" });
+        res.end(response.body);
         return;
       }
-
-      if (!stream) {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(buildOpenAIChatCompletionJSON(modelId, text, next.usage)));
-        return;
-      }
-
-      const chunks =
-        next.chunks ?? (next.chunkBy === "all" ? [text] : text.split(/(\s+)/).filter((part) => part.length > 0));
       res.writeHead(200, {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
       });
-      const body = buildOpenAIChatCompletionSSE(modelId, chunks, next.usage);
-      if (next.chunkDelayMs != null && next.chunkDelayMs > 0) {
-        await writeSseWithDelays(res, body, next.chunkDelayMs);
+      if (response.chunkDelayMs) {
+        await writeSseWithDelays(res, response.body, response.chunkDelayMs);
       } else {
-        res.end(body);
+        res.end(response.body);
       }
       return;
     }
@@ -151,7 +108,7 @@ export async function mockOpenAICompatibleProvider(
       queue.push({ ...opts });
     },
     setDefaultCompletion: (opts) => {
-      defaultCompletion = { text: "Hello from the mock assistant.", chunkBy: "word", ...opts };
+      defaultCompletion = withCompletionDefaults(opts);
     },
     dispose: async () => {
       releaseHold?.();

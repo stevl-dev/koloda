@@ -1,11 +1,10 @@
 import type { Page, Route } from "@playwright/test";
 import {
-  buildOpenAIChatCompletionJSON,
-  buildOpenAIChatCompletionSSE,
-  buildOpenAIToolCallJSON,
-  buildOpenAIToolCallSSE,
+  buildCompletionResponse,
+  buildModelsJSON,
   E2E_LM_STUDIO_MODEL_ID,
   pickNextCompletion,
+  withCompletionDefaults,
 } from "@koloda/e2e";
 import type { MockChatCompletionOptions, MockOpenAICompatibleHandle, MockOpenAICompatibleOptions } from "@koloda/e2e";
 
@@ -22,20 +21,14 @@ export async function mockOpenAICompatibleProvider(
 ): Promise<MockOpenAICompatibleHandle> {
   const modelId = E2E_LM_STUDIO_MODEL_ID;
   const queue: MockChatCompletionOptions[] = [];
-  let defaultCompletion: MockChatCompletionOptions = {
-    text: "Hello from the mock assistant.",
-    chunkBy: "word",
-    ...options.defaultCompletion,
-  };
+  let defaultCompletion = withCompletionDefaults(options.defaultCompletion);
   let completionRequests = 0;
 
   const modelsHandler = async (route: Route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({
-        data: [{ id: modelId, object: "model" }],
-      }),
+      body: buildModelsJSON(modelId),
     });
   };
 
@@ -82,82 +75,23 @@ export async function mockOpenAICompatibleProvider(
       releaseHold = null;
     }
 
-    const status = next.status ?? 200;
-    if (status >= 400) {
-      try {
-        await route.fulfill({
-          status,
-          contentType: "application/json",
-          body: JSON.stringify({ error: { message: "Mock provider error" } }),
-        });
-      } catch {
-        // Request may have been aborted (cancel).
-      }
-      return;
-    }
-
-    const text = next.text ?? "Hello from the mock assistant.";
-    // doGenerate omits `stream`; only doStream sets `stream: true`. Defaulting to
-    // SSE when the field is absent would break non-stream JSON completions.
-    let stream = false;
+    const response = buildCompletionResponse(next, requestBody, modelId);
     try {
-      const raw = route.request().postData();
-      if (raw) {
-        const body = JSON.parse(raw) as { stream?: boolean };
-        stream = body.stream === true;
+      if (response.kind === "error") {
+        await route.fulfill({ status: response.status, contentType: "application/json", body: response.body });
+      } else if (response.kind === "json") {
+        await route.fulfill({ status: 200, contentType: "application/json", body: response.body });
+      } else {
+        const headers: Record<string, string> = {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        };
+        if (response.chunkDelayMs) headers["x-e2e-sse-chunk-delay"] = String(response.chunkDelayMs);
+        await route.fulfill({ status: 200, headers, body: response.body });
       }
     } catch {
-      // Keep non-stream default when body is missing/unparseable.
-    }
-
-    try {
-      if (next.toolCall) {
-        if (!stream) {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(buildOpenAIToolCallJSON(modelId, next.toolCall)),
-          });
-          return;
-        }
-        await route.fulfill({
-          status: 200,
-          headers: {
-            "Content-Type": "text/event-stream; charset=utf-8",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-          },
-          body: buildOpenAIToolCallSSE(modelId, next.toolCall),
-        });
-        return;
-      }
-
-      if (!stream) {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify(buildOpenAIChatCompletionJSON(modelId, text, next.usage)),
-        });
-        return;
-      }
-
-      const chunks =
-        next.chunks ?? (next.chunkBy === "all" ? [text] : text.split(/(\s+)/).filter((part) => part.length > 0));
-      const headers: Record<string, string> = {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      };
-      if (next.chunkDelayMs != null && next.chunkDelayMs > 0) {
-        headers["x-e2e-sse-chunk-delay"] = String(next.chunkDelayMs);
-      }
-      await route.fulfill({
-        status: 200,
-        headers,
-        body: buildOpenAIChatCompletionSSE(modelId, chunks, next.usage),
-      });
-    } catch {
-      // Aborted while fulfilling.
+      // The request was aborted (a cancel) before or while it was fulfilled.
     }
   };
 
@@ -175,7 +109,7 @@ export async function mockOpenAICompatibleProvider(
       queue.push({ ...opts });
     },
     setDefaultCompletion: (opts) => {
-      defaultCompletion = { text: "Hello from the mock assistant.", chunkBy: "word", ...opts };
+      defaultCompletion = withCompletionDefaults(opts);
     },
     dispose: async () => {
       releaseHold?.();

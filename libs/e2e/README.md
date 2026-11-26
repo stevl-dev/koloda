@@ -17,14 +17,15 @@ and it must never gain runtime dependencies.
   `applyPageDefaults(page, when)` (`before-load` init script vs `after-load`
   evaluate + reload). First setup differs per host, so each suite's `helpers.ts`
   owns its own flow.
-- AI mock protocol: `src/ai-mock.ts` — the `Mock*Options`/`Handle` contracts and
-  the OpenAI-compatible SSE/JSON builders, transport-independent.
+- AI mock protocol: `src/ai-mock.ts` — the `Mock*Options`/`Handle` contracts,
+  the choice of response for each completions request (`buildCompletionResponse`),
+  and the OpenAI-compatible SSE/JSON builders, transport-independent.
 - Barrel: `src/index.ts` — the only public door.
 
 ### Does NOT own (prevent scope creep)
 
 - Suite launch (`playwright.config.ts`, web server, Electron shell) — each suite
-- The AI-mock transport — each suite; only the wire format lives here
+- The AI-mock transport — each suite; only the response and its wire format live here
 - First setup — each suite's `helpers.ts`
 
 The reasons are under (§What stays per-suite).
@@ -37,6 +38,8 @@ The reasons are under (§What stays per-suite).
 - The AI-mock transport around `src/ai-mock.ts`: web uses `page.route` plus a
   page-side SSE re-streamer; Electron uses a real Node HTTP server because
   main-process AI fetch is invisible to route interception.
+  Each delivers the response `buildCompletionResponse` chose, and holds a response its own way
+  (the `isHolding` doc says how they differ after a cancel).
 - The suites' `helpers.ts` facades re-export the shared flows and wrap the
   parameter points, so spec files import platform-local names.
 

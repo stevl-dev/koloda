@@ -53,11 +53,15 @@ export {
   waitForConversationIdFromUrl,
 } from "./ui-flows";
 export {
-  buildOpenAIChatCompletionJSON,
-  buildOpenAIChatCompletionSSE,
-  buildOpenAIToolCallJSON,
-  buildOpenAIToolCallSSE,
+  buildCompletionResponse,
+  buildModelsJSON,
   E2E_LM_STUDIO_MODEL_ID,
   pickNextCompletion,
+  withCompletionDefaults,
 } from "./ai-mock";
-export type { MockChatCompletionOptions, MockOpenAICompatibleHandle, MockOpenAICompatibleOptions } from "./ai-mock";
+export type {
+  MockChatCompletionOptions,
+  MockCompletionResponse,
+  MockOpenAICompatibleHandle,
+  MockOpenAICompatibleOptions,
+} from "./ai-mock";

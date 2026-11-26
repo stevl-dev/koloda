@@ -218,17 +218,6 @@ Entries are grouped under one heading per package directory.
   `docs/decisions/TS-RUST-DOMAIN-MIRRORING.md`), and a WASM `koloda` for web needs a new decision.
   Rule disagreements are covered by the shared rule cases.
 
-## libs/e2e
-
-- Improvement, Later: the two AI-mock transports repeat the response decision, and hold differently after a cancel.
-  Evidence: at `1c0661bb`, `apps/web-e2e/src/mock-openai-compatible.ts` and
-  `apps/electron-e2e/src/mock-openai-compatible.ts` each decide the response.
-  Only the desktop hold ends on a client abort (`waitForHoldOrAbort`, `:116`), so `isHolding()` differs after a cancel
-  (web `:172`, desktop `:148`).
-  Kind: skipped
-  Source: `tasks/archive/e2e-suites-audit.md`, finding 17
-  Deferred because: no test reads `isHolding()` after a cancel; then move the decision into `libs/e2e`.
-
 ## libs/ui
 
 - Improvement, Later: the tooltip surface measures itself after every render.
