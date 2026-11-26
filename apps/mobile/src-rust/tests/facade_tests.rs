@@ -1,8 +1,13 @@
 //! The façade over a real database file, as the app opens it at startup.
 
+use koloda::app::db::Database;
+use koloda::domain::attachments::AddAttachmentData;
 use koloda::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
+use koloda::repo;
 use koloda_mobile::{KolodaMobile, MobileError};
 use serde_json::{json, Value};
+use std::num::NonZeroU32;
+use std::path::Path;
 
 const FRONT: &str = "01900000-0000-7000-8000-000000000001";
 const BACK: &str = "01900000-0000-7000-8000-000000000002";
@@ -53,10 +58,17 @@ fn starter_seed() -> String {
     .to_string()
 }
 
+// WHY: the app adds no data of its own, so a test writes it through `koloda` on a second connection to the file,
+// as a sync would.
+fn other_connection(path: &Path) -> Database {
+    Database::init(path).expect("second connection")
+}
+
 #[tokio::test]
-async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
+async fn a_new_database_seeds_and_lists_a_deck_with_its_due_cards() {
     let dir = tempfile::tempdir().expect("temp dir");
-    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
 
     assert_eq!(mobile.get_db_status().await.expect("status"), "blank");
     mobile.seed_db(starter_seed()).await.expect("seed");
@@ -66,36 +78,32 @@ async fn a_new_database_seeds_and_lists_an_added_deck_with_its_due_cards() {
         "only the starter content joins"
     );
 
-    let deck: Value = serde_json::from_str(
-        &mobile
-            .add_deck(
-                json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID })
-                    .to_string(),
-            )
-            .await
-            .expect("add deck"),
+    let db = other_connection(&path);
+    let deck = repo::decks::add_deck(
+        &db,
+        serde_json::from_value(
+            json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID }),
+        )
+        .expect("deck data"),
     )
-    .expect("deck json");
+    .expect("add deck");
     let cards: Vec<Value> = ["uno", "dos", "tres"]
         .iter()
         .map(|word| {
             json!({
-                "deckId": deck["id"],
+                "deckId": deck.id,
                 "templateId": SEED_TEMPLATE_TYPE_ID,
                 "content": { FRONT: { "text": word }, BACK: { "text": "" } },
             })
         })
         .collect();
-    mobile
-        .add_cards(Value::from(cards).to_string())
-        .await
-        .expect("add cards");
+    repo::cards::add_cards(&db, serde_json::from_value(Value::from(cards)).expect("card data")).expect("add cards");
 
     let lessons: Value =
         serde_json::from_str(&mobile.get_lessons(json!({}).to_string()).await.expect("lessons")).expect("lessons json");
     let decks = lessons["decks"].as_array().expect("decks array");
     assert_eq!(decks.len(), 1);
-    assert_eq!(decks[0]["id"], deck["id"]);
+    assert_eq!(decks[0]["id"], json!(deck.id));
     assert_eq!(decks[0]["untouched"], 3, "three new cards are due");
     assert!(
         !mobile.sync_can_join().await.expect("can join"),
@@ -161,16 +169,20 @@ const SAMPLE_PNG: [u8; 136] = [
 #[tokio::test]
 async fn a_card_image_is_written_to_the_cache_once_and_keeps_its_path() {
     let dir = tempfile::tempdir().expect("temp dir");
-    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
     let bytes = SAMPLE_PNG.to_vec();
-    let attachment: Value = serde_json::from_str(
-        &mobile
-            .add_attachment(bytes.clone(), Some(48), Some(48))
-            .await
-            .expect("add"),
+    let side = NonZeroU32::new(48);
+    let attachment = repo::attachments::add_attachment(
+        &other_connection(&path),
+        AddAttachmentData {
+            bytes: bytes.clone(),
+            width: side,
+            height: side,
+        },
     )
-    .expect("json");
-    let id = attachment["id"].as_str().expect("id").to_string();
+    .expect("add");
+    let id = attachment.id.to_string();
     let cache = dir.path().join("cache").to_string_lossy().into_owned();
 
     let first = mobile

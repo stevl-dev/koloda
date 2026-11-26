@@ -2,13 +2,9 @@ import { queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type { AllowedSettings, SettingsName } from "@koloda/settings";
 import type {
-  AddAttachmentData,
   Attachment,
   Deck,
   GetLessonDataParams,
-  InsertCardData,
-  InsertCardsResponse,
-  InsertDeckData,
   LessonData,
   LessonFilters,
   LessonResultData,
@@ -24,12 +20,9 @@ import { call, read, wireArgs } from "./facade";
 export type MobileQueries = Pick<
   Queries,
   | "getDecksQuery"
-  | "addDeckMutation"
-  | "addCardsMutation"
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
-  | "addAttachmentMutation"
   | "getSettingsQuery"
   | "getTodayReviewTotalsQuery"
 > & {
@@ -41,7 +34,7 @@ export type MobileQueries = Pick<
   joinSpaceMutation: () => UseMutationOptions<unknown, AppError, JoinSpaceData>;
 };
 
-export const CAN_JOIN_KEY = ["mobile-sync-can-join"] as const;
+const CAN_JOIN_KEY = ["mobile-sync-can-join"] as const;
 
 type SpacePreview = { spaceName: string; counts: Record<string, number>; bytes: number };
 type PreviewSpaceData = { serverUrl: string; code: string };
@@ -52,12 +45,6 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getDecksQuery: () => ({
       queryKey: queryKeys.decks.all(),
       queryFn: () => read<Deck[]>(() => facade.getDecks()),
-    }),
-    addDeckMutation: () => ({
-      mutationFn: (data: InsertDeckData) => read<Deck>(() => facade.addDeck(wireArgs(data))),
-    }),
-    addCardsMutation: () => ({
-      mutationFn: (data: InsertCardData[]) => read<InsertCardsResponse>(() => facade.addCards(wireArgs(data))),
     }),
     getSettingsQuery: <T extends SettingsName>(name: T) => ({
       queryKey: queryKeys.settings.detail(name),
@@ -76,10 +63,6 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getLessonDataQuery: (params: GetLessonDataParams) => ({
       queryKey: queryKeys.lessons.data(params),
       queryFn: () => read<LessonData | null>(() => facade.getLessonData(wireArgs(params))),
-    }),
-    addAttachmentMutation: () => ({
-      mutationFn: ({ bytes, width, height }: AddAttachmentData) =>
-        read<Attachment>(() => facade.addAttachment(bytes.slice().buffer, width, height)),
     }),
     canJoinQuery: () => ({
       queryKey: CAN_JOIN_KEY,

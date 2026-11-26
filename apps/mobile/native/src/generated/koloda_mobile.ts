@@ -18,11 +18,9 @@ import {
   AbstractFfiConverterByteArray,
   Cursor,
   FfiConverterArray,
-  FfiConverterArrayBuffer,
   FfiConverterBool,
   FfiConverterObject,
   FfiConverterOptional,
-  FfiConverterUInt32,
   FfiConverterUInt8,
   RustBuffer,
   UniffiAbstractObject,
@@ -211,20 +209,6 @@ const FfiConverterTypeMobileError = (() => {
 })();
 
 export interface KolodaMobileLike {
-  addAttachment(
-    bytes: ArrayBuffer,
-    width: number | undefined,
-    height: number | undefined,
-    asyncOpts_?: { signal: AbortSignal },
-  ) /*throws*/ : Promise<string>;
-  addCards(
-    data: string,
-    asyncOpts_?: { signal: AbortSignal },
-  ) /*throws*/ : Promise<string>;
-  addDeck(
-    data: string,
-    asyncOpts_?: { signal: AbortSignal },
-  ) /*throws*/ : Promise<string>;
   attachmentFile(
     id: string,
     cacheDir: string,
@@ -305,166 +289,6 @@ export class KolodaMobile
     this[pointerLiteralSymbol] = pointer;
     this[destructorGuardSymbol] =
       uniffiTypeKolodaMobileObjectFactory.bless(pointer);
-  }
-
-  async addAttachment(
-    bytes: ArrayBuffer,
-    width: number | undefined,
-    height: number | undefined,
-    asyncOpts_?: { signal: AbortSignal },
-  ): Promise<string> /*throws*/ {
-    const __stack = uniffiIsDebug ? new Error().stack : undefined;
-    try {
-      return await uniffiRustCallAsync(
-        /*rustCaller:*/ uniffiCaller,
-        /*rustFutureFunc:*/ () => {
-          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_attachment(
-            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
-            FfiConverterArrayBuffer.lower(
-              bytes,
-              nativeModule().rustbuffer_alloc,
-            ),
-            FfiConverterOptionalUInt32.lower(
-              width,
-              nativeModule().rustbuffer_alloc,
-            ),
-            FfiConverterOptionalUInt32.lower(
-              height,
-              nativeModule().rustbuffer_alloc,
-            ),
-          );
-        },
-        /*pollFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
-        /*cancelFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
-        /*completeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
-        /*freeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
-        // Async returns always go through the JS-side converter: the
-        // completed future's value is deserialized here by the
-        // per-callable return-type converter.
-        // Borrowed view over foreign memory: the call site owns the free,
-        // as on the sync paths. Unconditional — a no-op where buffers are
-        // already JS-owned.
-        /*liftFunc:*/ (__rb) => {
-          try {
-            return FfiConverterString.lift(__rb);
-          } finally {
-            nativeModule().rustbuffer_free(__rb);
-          }
-        },
-        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
-        /*asyncOpts:*/ asyncOpts_,
-        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
-          FfiConverterTypeMobileError,
-        ),
-      );
-    } catch (__error: any) {
-      if (uniffiIsDebug && __error instanceof Error) {
-        __error.stack = __stack;
-      }
-      throw __error;
-    }
-  }
-
-  async addCards(
-    data: string,
-    asyncOpts_?: { signal: AbortSignal },
-  ): Promise<string> /*throws*/ {
-    const __stack = uniffiIsDebug ? new Error().stack : undefined;
-    try {
-      return await uniffiRustCallAsync(
-        /*rustCaller:*/ uniffiCaller,
-        /*rustFutureFunc:*/ () => {
-          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_cards(
-            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
-            FfiConverterString.lower(data, nativeModule().rustbuffer_alloc),
-          );
-        },
-        /*pollFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
-        /*cancelFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
-        /*completeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
-        /*freeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
-        // Async returns always go through the JS-side converter: the
-        // completed future's value is deserialized here by the
-        // per-callable return-type converter.
-        // Borrowed view over foreign memory: the call site owns the free,
-        // as on the sync paths. Unconditional — a no-op where buffers are
-        // already JS-owned.
-        /*liftFunc:*/ (__rb) => {
-          try {
-            return FfiConverterString.lift(__rb);
-          } finally {
-            nativeModule().rustbuffer_free(__rb);
-          }
-        },
-        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
-        /*asyncOpts:*/ asyncOpts_,
-        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
-          FfiConverterTypeMobileError,
-        ),
-      );
-    } catch (__error: any) {
-      if (uniffiIsDebug && __error instanceof Error) {
-        __error.stack = __stack;
-      }
-      throw __error;
-    }
-  }
-
-  async addDeck(
-    data: string,
-    asyncOpts_?: { signal: AbortSignal },
-  ): Promise<string> /*throws*/ {
-    const __stack = uniffiIsDebug ? new Error().stack : undefined;
-    try {
-      return await uniffiRustCallAsync(
-        /*rustCaller:*/ uniffiCaller,
-        /*rustFutureFunc:*/ () => {
-          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_deck(
-            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
-            FfiConverterString.lower(data, nativeModule().rustbuffer_alloc),
-          );
-        },
-        /*pollFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
-        /*cancelFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
-        /*completeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
-        /*freeFunc:*/ nativeModule()
-          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
-        // Async returns always go through the JS-side converter: the
-        // completed future's value is deserialized here by the
-        // per-callable return-type converter.
-        // Borrowed view over foreign memory: the call site owns the free,
-        // as on the sync paths. Unconditional — a no-op where buffers are
-        // already JS-owned.
-        /*liftFunc:*/ (__rb) => {
-          try {
-            return FfiConverterString.lift(__rb);
-          } finally {
-            nativeModule().rustbuffer_free(__rb);
-          }
-        },
-        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
-        /*asyncOpts:*/ asyncOpts_,
-        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
-          FfiConverterTypeMobileError,
-        ),
-      );
-    } catch (__error: any) {
-      if (uniffiIsDebug && __error instanceof Error) {
-        __error.stack = __stack;
-      }
-      throw __error;
-    }
   }
 
   async attachmentFile(
@@ -1252,9 +1076,6 @@ const FfiConverterTypeKolodaMobile = new FfiConverterObject(
 // FfiConverter for string | undefined
 const FfiConverterOptionalString = new FfiConverterOptional(FfiConverterString);
 
-// FfiConverter for number | undefined
-const FfiConverterOptionalUInt32 = new FfiConverterOptional(FfiConverterUInt32);
-
 // FfiConverter for Array<string>
 const FfiConverterSequenceString = new FfiConverterArray(FfiConverterString);
 
@@ -1286,30 +1107,6 @@ function uniffiEnsureInitialized() {
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_constructor_kolodamobile_new",
-    );
-  }
-  if (
-    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_attachment() !==
-    41022
-  ) {
-    throw new UniffiInternalError.ApiChecksumMismatch(
-      "uniffi_koloda_mobile_checksum_method_kolodamobile_add_attachment",
-    );
-  }
-  if (
-    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards() !==
-    46370
-  ) {
-    throw new UniffiInternalError.ApiChecksumMismatch(
-      "uniffi_koloda_mobile_checksum_method_kolodamobile_add_cards",
-    );
-  }
-  if (
-    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck() !==
-    14360
-  ) {
-    throw new UniffiInternalError.ApiChecksumMismatch(
-      "uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck",
     );
   }
   if (

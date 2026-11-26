@@ -7,15 +7,11 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
-use koloda::domain::attachments::AddAttachmentData;
-use koloda::domain::cards::InsertCardData;
-use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::settings::SettingsName;
 use koloda::repo;
 use koloda_sync::error::SyncError;
 use std::collections::HashMap;
-use std::num::NonZeroU32;
 use std::panic::{self, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::sync::mpsc::{self, Sender};
@@ -67,12 +63,6 @@ fn from_wire<T: serde::de::DeserializeOwned>(json: &str) -> Result<T, MobileErro
 
 fn to_wire<T: serde::Serialize>(value: &T) -> Result<String, MobileError> {
     serde_json::to_string(value).map_err(|e| unknown(e.to_string()))
-}
-
-fn dimension(value: Option<u32>) -> Result<Option<NonZeroU32>, MobileError> {
-    value
-        .map(|v| NonZeroU32::new(v).ok_or_else(|| unknown("An image dimension must be positive".to_string())))
-        .transpose()
 }
 
 fn image_extension(mime: &str) -> &'static str {
@@ -302,39 +292,6 @@ impl KolodaMobile {
 
     pub async fn get_decks(&self) -> Result<String, MobileError> {
         self.run(|db| to_wire(&repo::decks::get_decks(db)?)).await
-    }
-
-    pub async fn add_deck(&self, data: String) -> Result<String, MobileError> {
-        self.run_write(move |db| {
-            let data: InsertDeckData = from_wire(&data)?;
-            to_wire(&repo::decks::add_deck(db, data)?)
-        })
-        .await
-    }
-
-    pub async fn add_cards(&self, data: String) -> Result<String, MobileError> {
-        self.run_write(move |db| {
-            let data: Vec<InsertCardData> = from_wire(&data)?;
-            to_wire(&repo::cards::add_cards(db, data)?)
-        })
-        .await
-    }
-
-    pub async fn add_attachment(
-        &self,
-        bytes: Vec<u8>,
-        width: Option<u32>,
-        height: Option<u32>,
-    ) -> Result<String, MobileError> {
-        self.run_write(move |db| {
-            let data = AddAttachmentData {
-                bytes,
-                width: dimension(width)?,
-                height: dimension(height)?,
-            };
-            to_wire(&repo::attachments::add_attachment(db, data)?)
-        })
-        .await
     }
 
     pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {

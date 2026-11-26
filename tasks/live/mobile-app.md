@@ -134,7 +134,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Note: `SyncStatus` was already in `@koloda/app`; mobile now uses that type instead of its narrow copy.
   The starter title's message moved to the lib's own catalog, with its Russian translation.
 
-- [ ] 3. Remove the mobile debug screen and sample deck
+- [x] 3. Remove the mobile debug screen and sample deck
   Goal: The app has no debug route, as open question 4 settles.
   Delete `src/app/debug.tsx`, `src/components/debug-intervals.tsx` and its test, `sample-deck.tsx`,
   and `sample-card.tsx`, the debug link on the Lessons tab, and the debug strings in `src/locales/en.ts`.
@@ -146,6 +146,8 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: `nx run @koloda/mobile:test-rust` and `bun run check:dead-code` pass, plus the shared checks above.
   Commit: Remove the mobile debug screen and sample deck
   Depends on: none
+  Note: `add_attachment` went too, since only the sample card used it.
+  The façade's Rust tests now write their data through `koloda` on a second connection to the file.
 
 - [ ] 4. Follow the system's dark scheme across the mobile app
   Goal: Every screen, the tab bar, the headers, and the card read well in light and dark mode.
