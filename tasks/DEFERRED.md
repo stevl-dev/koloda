@@ -157,16 +157,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/media-audit.md`
   Deferred because: left for the mobile phase (`sync-transport` Out).
 
-## libs/app-react
-
-- Risk, Later: the boot language is activated twice, once by each host store and once by `AppProviders`.
-  Evidence: at `1c0661bb`, `apps/web/src/app/store.ts:18-23` and `apps/electron-react/src/app/store.ts:32-35`
-  activate at module load; `libs/app-react/src/lib/app-providers.tsx:96` activates again to learn when it is ready.
-  Kind: skipped
-  Source: `tasks/archive/app-audit.md`, finding 2
-  Deferred because: the second call only re-runs `i18n.load` and `activate` on cached messages, and removing it needs a
-  new `AppProviders` API or a reorder in both host stores.
-
 ## libs/assistant-react
 
 - Handoff: apply a language that `change_settings` saved while its run was canceled to the open app.

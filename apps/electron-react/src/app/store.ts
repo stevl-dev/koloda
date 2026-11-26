@@ -26,13 +26,15 @@ const queries = queriesFn();
 
 wireUiPreferences(store);
 
+// WHY: `AppProviders` activates the boot language and waits for it, so the subscription starts after the boot value and
+// follows only later changes; subscribing first would activate the boot language twice.
+store.set(langAtom, getLanguage());
+localStorage.setItem("lang", store.get(langAtom));
 store.sub(langAtom, () => {
   const lang = store.get(langAtom);
   localStorage.setItem("lang", lang);
   activateLanguage(lang);
 });
-
-store.set(langAtom, getLanguage());
 
 store.set(queriesAtom, queries);
 
