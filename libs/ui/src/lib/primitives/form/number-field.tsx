@@ -13,6 +13,10 @@ import type { TextFieldInputProps } from "./text-field";
 
 const numberField = tv({ extend: textField });
 
+// WHY: with no fraction digits React Aria rejects a typed decimal separator, so a typed 1.5 never reaches a save.
+// Options passed to `NumberField` replace its own, so `useGrouping: false` is repeated.
+export const WHOLE_NUMBER_FORMAT: Intl.NumberFormatOptions = { useGrouping: false, maximumFractionDigits: 0 };
+
 export type NumberFieldProps = ReactAriaNumberFieldProps & TWVProps<typeof numberField>;
 
 export function NumberField({ variants, ...props }: NumberFieldProps) {

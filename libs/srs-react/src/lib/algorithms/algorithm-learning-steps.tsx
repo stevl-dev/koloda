@@ -1,14 +1,19 @@
 import { DEFAULT_FSRS_ALGORITHM, LEARNING_STEPS_UNITS } from "@koloda/srs";
 import type { UpdateAlgorithmValues } from "@koloda/srs";
-import { AddIcon, Button, DeleteIcon, FieldGroup, NumberField, Select, withForm } from "@koloda/ui";
+import {
+  AddIcon,
+  Button,
+  DeleteIcon,
+  FieldGroup,
+  NumberField,
+  Select,
+  WHOLE_NUMBER_FORMAT,
+  withForm,
+} from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 
 const defaultValues = { title: "", content: DEFAULT_FSRS_ALGORITHM } as UpdateAlgorithmValues;
-
-// WHY: with no fraction digits React Aria rejects a typed decimal separator, so step amounts and the maximum interval
-// stay whole (ALGORITHMS.md, Parameters). These options replace `NumberField`'s own, so `useGrouping` is repeated.
-export const WHOLE_NUMBER_FORMAT: Intl.NumberFormatOptions = { useGrouping: false, maximumFractionDigits: 0 };
 
 export const AlgorithmLearningSteps = withForm({
   defaultValues,

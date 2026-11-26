@@ -295,13 +295,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/entity-forms-architecture.md`, finding F5
   Deferred because: the review proposed nothing here; the host-persistence review's shared case tables are the place.
 
-- Handoff: the whole-number format is one value written in two packages.
-  Evidence: at `1c0661bb`, `WHOLE_NUMBER_FORMAT` (`libs/srs-react/src/lib/algorithms/algorithm-learning-steps.tsx:11`)
-  and `wholeNumberFormatOptions` (`libs/settings-react/src/lib/settings-learning.tsx:18`).
-  Kind: handoff
-  Source: `tasks/archive/entity-forms-architecture.md`, finding F5
-  Deferred because: audit-sized; left for the next audit of either package.
-
 ## libs/ui
 
 - Improvement, Later: the tooltip surface measures itself after every render.

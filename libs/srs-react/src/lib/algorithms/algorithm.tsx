@@ -13,12 +13,13 @@ import {
   TextField,
   useAppForm,
   useRefreshPristineFields,
+  WHOLE_NUMBER_FORMAT,
 } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { AlgorithmLearningSteps, WHOLE_NUMBER_FORMAT } from "./algorithm-learning-steps";
+import { AlgorithmLearningSteps } from "./algorithm-learning-steps";
 import { CloneAlgorithm } from "./clone-algorithm";
 import { DeleteAlgorithm } from "./delete-algorithm";
 import { OptimizeAlgorithm } from "./optimize-algorithm";

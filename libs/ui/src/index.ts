@@ -70,7 +70,7 @@ export { useAppForm, withForm } from "./lib/primitives/form/form";
 export { useFieldContext } from "./lib/primitives/form/form-context";
 export { FormLayout, formLayout } from "./lib/primitives/form/form-layout";
 export { Label } from "./lib/primitives/form/label";
-export { NumberField } from "./lib/primitives/form/number-field";
+export { NumberField, WHOLE_NUMBER_FORMAT } from "./lib/primitives/form/number-field";
 export { Slider } from "./lib/primitives/form/slider";
 export { Switch } from "./lib/primitives/form/switch";
 // WHY: TS2883: referenced by srs-react's public component types, must stay nameable via the barrel.
