@@ -97,6 +97,7 @@ Run on each platform before the spike's verdict.
 - [ ] Tapping the card's web link opens the system browser.
 - [ ] Tap a deck to start a lesson; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
+  Each grade button shows its arrow, and a drag shows the grade it would give on the card.
   Swipes, card transitions, and haptics feel native.
 - [ ] On a new card, "Good" shows the same interval as on desktop.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.

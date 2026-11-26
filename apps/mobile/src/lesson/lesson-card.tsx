@@ -11,6 +11,7 @@ import { useCallback } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
 import { useAppColors } from "../colors";
+import { SWIPE_ARROWS } from "./swipe-grades";
 import { SwipeableCard } from "./swipeable-card";
 
 // INVARIANT: in `FSRS_GRADES` order: Again, Hard, Good, Easy.
@@ -46,6 +47,8 @@ export function LessonCard({ content }: LessonCardProps) {
         cardKey={content.index}
         isEnabled={isRevealed}
         onSwipe={grade}
+        gradeLabels={FSRS_GRADES.map((label) => _(label))}
+        hintStyle={{ color: colors.text, backgroundColor: colors.background }}
         style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface }]}
       >
         <Pressable style={styles.cardBody} onPress={() => submit()} accessibilityLabel={_(msg`mobile.lesson.card`)}>
@@ -69,6 +72,9 @@ export function LessonCard({ content }: LessonCardProps) {
                 {formatDistanceStrict(next.dueAt, revlog.reviewTime, { locale: dateFnsLocale("en") })}
               </Text>
               <Text style={[styles.gradeLabel, { color: colors.text }]}>{_(FSRS_GRADES[i])}</Text>
+              <Text style={[styles.arrow, { color: colors.muted }]} importantForAccessibility="no">
+                {SWIPE_ARROWS[i]}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -92,6 +98,7 @@ const styles = StyleSheet.create({
   grades: { flexDirection: "row", gap: 8 },
   grade: { flex: 1, alignItems: "center", paddingVertical: 10, borderWidth: 1, borderRadius: 10, gap: 2 },
   interval: { fontSize: 12 },
+  arrow: { fontSize: 14 },
   gradeLabel: { fontSize: 16, fontWeight: "600" },
   continue: { alignItems: "center", paddingVertical: 14, borderWidth: 1, borderRadius: 10 },
 });

@@ -173,7 +173,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Commit: Make the Lessons tab the mobile home screen
   Depends on: 3, 4
 
-- [ ] 6. Show which grade each swipe gives
+- [x] 6. Show which grade each swipe gives
   Goal: The user sees the swipe mapping before and during a swipe.
   After the reveal, each grade button shows the direction that gives it (left Again, down Hard, right Good, up Easy).
   During a drag, the grade the swipe would give shows on the card, and grows clearer as the swipe nears its distance.
@@ -183,6 +183,8 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: device check 10 passes on the emulator, plus the shared checks above.
   Commit: Show which grade each swipe gives
   Depends on: 4
+  Note: the mapping moved to `src/lesson/swipe-grades.ts`, beside `swipeGrade`, so Jest can test it without Reanimated.
+  From this item on, `build-android` and `check:push` run once at the end, at the human's request (memory was short).
 
 - [ ] 7. Keep scrolling a long card from grading it
   Goal: A vertical scroll inside a revealed card that overflows the screen never grades it.

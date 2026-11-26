@@ -66,14 +66,6 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`
   Deferred because: found in a review after the task was archived; the spike ships nowhere.
 
-- Handoff: show which grade each swipe direction gives, during the drag and after the reveal.
-  Evidence: at `0c7f9de5`, `apps/mobile/src/lesson/swipeable-card.tsx:11–16` maps left to Again, down to Hard, right to
-  Good, and up to Easy; nothing on screen shows the mapping, so device check 10 fails on the emulator for this.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`
-  Deferred because: found in the device checks after the task was archived; the human judged it outside the spike, which
-  tests the stack, not the app's gesture design.
-
 ## crates/koloda-server
 
 - Product decision, Later: 100 wrong pairing codes a minute, server-wide, lock pairing for every space.
