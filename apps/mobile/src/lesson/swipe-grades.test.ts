@@ -1,4 +1,4 @@
-import { SWIPE_DISTANCE, swipeGrade, swipeProgress } from "./swipe-grades";
+import { DRAG_SLOP, dragOwner, SWIPE_DISTANCE, swipeGrade, swipeProgress } from "./swipe-grades";
 
 describe("swipeGrade", () => {
   it.each([
@@ -29,5 +29,33 @@ describe("swipeProgress", () => {
   it("shows no other grade, and none before the drag moves", () => {
     expect(swipeProgress(SWIPE_DISTANCE, 0, 0)).toBe(0);
     expect(swipeProgress(0, 0, 3)).toBe(0);
+  });
+});
+
+describe("dragOwner", () => {
+  const fits = { offset: 0, content: 300, viewport: 400 };
+  const middle = { offset: 200, content: 1000, viewport: 400 };
+  const top = { offset: 0, content: 1000, viewport: 400 };
+  const bottom = { offset: 600, content: 1000, viewport: 400 };
+
+  it("waits until the drag passes the slop", () => {
+    expect(dragOwner(DRAG_SLOP - 1, 0, middle)).toBe("wait");
+    expect(dragOwner(0, DRAG_SLOP, fits)).toBe("swipe");
+  });
+
+  it("lets a long card's content scroll both ways from its middle", () => {
+    expect(dragOwner(0, DRAG_SLOP, middle)).toBe("scroll");
+    expect(dragOwner(0, -DRAG_SLOP, middle)).toBe("scroll");
+  });
+
+  it("swipes at the content's edge in the direction it cannot scroll", () => {
+    expect(dragOwner(0, DRAG_SLOP, top)).toBe("swipe");
+    expect(dragOwner(0, -DRAG_SLOP, top)).toBe("scroll");
+    expect(dragOwner(0, -DRAG_SLOP, bottom)).toBe("swipe");
+    expect(dragOwner(0, DRAG_SLOP, bottom)).toBe("scroll");
+  });
+
+  it("swipes a horizontal drag even while the content can scroll", () => {
+    expect(dragOwner(-DRAG_SLOP, DRAG_SLOP - 1, middle)).toBe("swipe");
   });
 });

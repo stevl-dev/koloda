@@ -8,7 +8,7 @@ import { formatDistanceStrict } from "date-fns";
 import * as Haptics from "expo-haptics";
 import { useSetAtom } from "jotai";
 import { useCallback } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
 import { useAppColors } from "../colors";
 import { SWIPE_ARROWS } from "./swipe-grades";
@@ -50,14 +50,13 @@ export function LessonCard({ content }: LessonCardProps) {
         gradeLabels={FSRS_GRADES.map((label) => _(label))}
         hintStyle={{ color: colors.text, backgroundColor: colors.background }}
         style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface }]}
+        contentContainerStyle={styles.content}
       >
-        <Pressable style={styles.cardBody} onPress={() => submit()} accessibilityLabel={_(msg`mobile.lesson.card`)}>
-          <ScrollView contentContainerStyle={styles.fields}>
-            {template.layout.map(({ field, operation }) => {
-              if (!field || (operation !== "display" && !isRevealed)) return null;
-              return <CardMarkdown key={field.id} text={card.content[field.id]?.text ?? ""} />;
-            })}
-          </ScrollView>
+        <Pressable style={styles.fields} onPress={() => submit()} accessibilityLabel={_(msg`mobile.lesson.card`)}>
+          {template.layout.map(({ field, operation }) => {
+            if (!field || (operation !== "display" && !isRevealed)) return null;
+            return <CardMarkdown key={field.id} text={card.content[field.id]?.text ?? ""} />;
+          })}
         </Pressable>
       </SwipeableCard>
       {isRevealed ? (
@@ -93,8 +92,9 @@ export function LessonCard({ content }: LessonCardProps) {
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 16, gap: 16 },
   card: { flex: 1, borderWidth: 1, borderRadius: 16 },
-  cardBody: { flex: 1 },
-  fields: { padding: 20, gap: 16 },
+  // WHY: the content fills a short card, so a tap anywhere on it reveals.
+  content: { flexGrow: 1 },
+  fields: { flexGrow: 1, padding: 20, gap: 16 },
   grades: { flexDirection: "row", gap: 8 },
   grade: { flex: 1, alignItems: "center", paddingVertical: 10, borderWidth: 1, borderRadius: 10, gap: 2 },
   interval: { fontSize: 12 },

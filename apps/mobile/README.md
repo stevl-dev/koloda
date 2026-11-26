@@ -98,6 +98,8 @@ Run on each platform before the spike's verdict.
 - [ ] Tap a deck to start a lesson; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
   Each grade button shows its arrow, and a drag shows the grade it would give on the card.
+- [ ] Reveal a card too long for the screen; scrolling it up and down grades nothing.
+  At its top a swipe down grades Hard, and at its bottom a swipe up grades Easy.
   Swipes, card transitions, and haptics feel native.
 - [ ] On a new card, "Good" shows the same interval as on desktop.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.

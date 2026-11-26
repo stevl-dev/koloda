@@ -186,7 +186,7 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Note: the mapping moved to `src/lesson/swipe-grades.ts`, beside `swipeGrade`, so Jest can test it without Reanimated.
   From this item on, `build-android` and `check:push` run once at the end, at the human's request (memory was short).
 
-- [ ] 7. Keep scrolling a long card from grading it
+- [x] 7. Keep scrolling a long card from grading it
   Goal: A vertical scroll inside a revealed card that overflows the screen never grades it.
   `src/lesson/lesson-card.tsx` nests a vertical `ScrollView` inside the pan of `swipeable-card.tsx`,
   where down is Hard and up is Easy.
@@ -197,6 +197,8 @@ An item that changes user-visible mobile behavior updates `apps/mobile/README.md
   Done when: the new device check passes on the emulator, plus the shared checks above.
   Commit: Keep scrolling a long card from grading it
   Depends on: 6
+  Note: the card's scroll view moved into `SwipeableCard`, which tracks its scroll for `dragOwner` on the UI thread.
+  The new device check waits for the human's emulator run.
 
 - [ ] 8. Replace the mobile Sync tab with joining and status
   Goal: The Sync tab joins a space and then shows the status in words, as `docs/specs/SYNC.md` describes for desktop.
