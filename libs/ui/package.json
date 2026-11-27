@@ -9,6 +9,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./form-state": {
+      "types": "./src/form-state.ts",
+      "import": "./src/form-state.ts",
+      "default": "./src/form-state.ts"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

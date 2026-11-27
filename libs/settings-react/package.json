@@ -21,6 +21,11 @@
       "import": "./src/interface-settings.ts",
       "default": "./src/interface-settings.ts"
     },
+    "./learning-settings": {
+      "types": "./src/learning-settings.ts",
+      "import": "./src/learning-settings.ts",
+      "default": "./src/learning-settings.ts"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

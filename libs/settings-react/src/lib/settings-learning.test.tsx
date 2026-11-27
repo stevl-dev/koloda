@@ -10,7 +10,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { DailyLimitCapField, LEARNING_SYNC_GROUPS, SettingsLearning } from "./settings-learning";
+import { LEARNING_SYNC_GROUPS } from "./learning-form";
+import { DailyLimitCapField, SettingsLearning } from "./settings-learning";
 
 function renderSettingsLearning(data: ResolvedLearningSettings) {
   const setSettings = vi.fn(async ({ content }: { content: ResolvedLearningSettings }) => ({

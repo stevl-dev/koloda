@@ -77,7 +77,7 @@ Out:
 - [x] 1. Move the Sync tab under a Settings tab
   Goal: the tabs are Lessons and Settings.
   The Settings tab is a stack: its first screen lists Sync, which opens its own screen.
-  Items 3 and 8 add the Interface and Learning rows with their screens, so no row opens an empty screen.
+  Items 3 and 9 add the Interface and Learning rows with their screens, so no row opens an empty screen.
   The Sync screen shows `SyncPanel` as the Sync tab does now, with the same keyboard handling.
   Read the installed Expo Router for how a stack nests inside a native tab before relying on it;
   the header's back control returns to the list.
@@ -194,7 +194,18 @@ Out:
   Commit: Choose motion and timestamp formats on mobile
   Depends on: 3, 6
 
-- [ ] 8. Edit learning settings on mobile
+- [x] 8. Share the learning form's rules with mobile
+  Goal: the mobile learning form can follow synced data and fill in the Unlimited-off numbers as the desktop form does,
+  without copying the code.
+  Export `useRefreshPristineFields` through a DOM-free entry, `@koloda/ui/form-state`.
+  Move `LEARNING_SYNC_GROUPS` and `UNLIMITED_OFF_VALUES` out of `settings-learning.tsx` into a DOM-free module,
+  exported through `@koloda/settings-react/learning-settings`.
+  Constraints: `libs/ui`, `libs/settings-react`; no behavior change.
+  Done when: the existing learning settings and pristine-field tests pass; `bun run check:push`.
+  Commit: Share the learning form's rules with mobile
+  Depends on: none
+
+- [ ] 9. Edit learning settings on mobile
   Goal: the Learning screen edits the daily limits, Day starts at, and the learn-ahead limit,
   by `docs/specs/LEARNING-SETTINGS.md`.
   Total, New, Learn, and Review each take a number or Unlimited; turning Unlimited off fills in the first-setup
@@ -215,6 +226,6 @@ Out:
   see a counted limit above Total rejected with the previous settings kept, turn Unlimited off and see the
   first-setup number, and discard; `bun run check:push`.
   Commit: Edit learning settings on mobile
-  Depends on: 3
+  Depends on: 3, 8
 
 ## Outcome
