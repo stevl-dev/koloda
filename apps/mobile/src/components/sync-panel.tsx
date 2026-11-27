@@ -8,6 +8,7 @@ import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
 import { InviteDevice } from "./invite-device";
 import { JoinSpace } from "./join-space";
+import { SyncDevices } from "./sync-devices";
 
 export function SyncPanel() {
   const { _ } = useLingui();
@@ -44,6 +45,7 @@ export function SyncPanel() {
       {pending && <Text style={muted}>{pending}</Text>}
       {uploads && <Text style={muted}>{uploads}</Text>}
       {fetches && <Text style={muted}>{fetches}</Text>}
+      <SyncDevices />
     </View>
   );
 }

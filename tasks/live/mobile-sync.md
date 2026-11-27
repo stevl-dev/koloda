@@ -169,7 +169,7 @@ Out:
   Commit: Invite a device from mobile
   Depends on: 2
 
-- [ ] 7. List and remove devices on mobile
+- [x] 7. List and remove devices on mobile
   Goal: Settings → Sync lists the space's devices, each with its name, system, and when the server last heard from it,
   marks this phone, and removes another device after a confirmation that offers the devices that came from it,
   unchecked, by `docs/specs/SYNC.md` (§Devices) and item 1's rule.

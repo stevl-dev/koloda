@@ -296,6 +296,16 @@ impl KolodaMobile {
             .await
     }
 
+    pub async fn sync_devices(&self) -> Result<String, MobileError> {
+        self.run_sync(|sync| to_wire(&sync.devices().map_err(sync_error)?))
+            .await
+    }
+
+    pub async fn sync_revoke_device(&self, id: String) -> Result<(), MobileError> {
+        self.run_sync(move |sync| sync.revoke_device(&id).map_err(sync_error))
+            .await
+    }
+
     pub fn sync_nudge(&self) {
         self.sync.nudge();
     }

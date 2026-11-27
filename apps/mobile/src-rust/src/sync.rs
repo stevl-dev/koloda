@@ -2,7 +2,7 @@
 //! `sync.*` error codes the app reads.
 //!
 //! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the phone does not offer
-//! (creating a space, devices, detach, import, restore).
+//! (creating a space, detach, import, restore).
 //!
 //! INVARIANT: host calls that wait on the network run on the sync worker, never on the database worker
 //! (`KolodaMobile` in `lib.rs`).
@@ -22,6 +22,7 @@ use koloda::domain::templates::InsertTemplateData;
 use koloda::repo::sync::apply::{Hold, HoldReason};
 use koloda::repo::sync::join::{join_mode, JoinMode};
 use koloda::repo::sync::repair::Starter;
+use koloda_sync::devices::DeviceSummary;
 use koloda_sync::disk::SystemDisk;
 use koloda_sync::engine::Engine;
 use koloda_sync::error::SyncError;
@@ -90,6 +91,34 @@ pub struct PairingWire {
     code: String,
     expires_at: i64,
     server_url: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeviceWire {
+    id: String,
+    name: String,
+    platform: &'static str,
+    last_seen_at: i64,
+    is_revoked: bool,
+    forked_from_id: Option<String>,
+    paired_by_id: Option<String>,
+    is_self: bool,
+}
+
+impl From<DeviceSummary> for DeviceWire {
+    fn from(device: DeviceSummary) -> DeviceWire {
+        DeviceWire {
+            id: device.id.to_string(),
+            name: device.name,
+            platform: device.platform.as_wire(),
+            last_seen_at: i64::try_from(device.last_seen).unwrap_or(i64::MAX),
+            is_revoked: device.revoked_at.is_some(),
+            forked_from_id: device.forked_from.map(|id| id.to_string()),
+            paired_by_id: device.paired_by.map(|id| id.to_string()),
+            is_self: device.is_self,
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -258,6 +287,17 @@ impl SyncHost {
             expires_at: i64::try_from(issued.expires_at).unwrap_or(i64::MAX) - engine.skew_ms(),
             server_url: issued.server_url,
         })
+    }
+
+    pub fn devices(&self) -> Result<Vec<DeviceWire>, SyncError> {
+        let devices = self.engine()?.devices()?;
+        Ok(devices.into_iter().map(DeviceWire::from).collect())
+    }
+
+    pub fn revoke_device(&self, id: &str) -> Result<(), SyncError> {
+        let id = Uuid::parse_str(id)
+            .map_err(|error| SyncError::Local(AppError::new(error_codes::UNKNOWN, Some(error.to_string()))))?;
+        self.engine()?.revoke_device(id)
     }
 
     pub fn engine(&self) -> Result<&Engine, SyncError> {

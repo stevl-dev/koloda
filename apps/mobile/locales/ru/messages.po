@@ -254,6 +254,10 @@ msgstr "Настройки"
 msgid "mobile.sync.back"
 msgstr "Назад"
 
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.cancel"
+msgstr "Отмена"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.code"
 msgstr "Код подключения"
@@ -261,6 +265,46 @@ msgstr "Код подключения"
 #: src/components/join-space.tsx
 msgid "mobile.sync.device-name"
 msgstr "Имя устройства"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices"
+msgstr "Устройства"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.last-seen {lastSeen}"
+msgstr "Был в сети {lastSeen}"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove"
+msgstr "Удалить"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.confirm"
+msgstr "Удалить из пространства"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.copy {relatedName}"
+msgstr "{relatedName} — его копия"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.invited {relatedName}"
+msgstr "{relatedName} — приглашено им"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.message {name}"
+msgstr "Удалить {name} из пространства? Устройство перестанет синхронизироваться, его данные останутся на нём."
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.related"
+msgstr "Также удалить устройства, появившиеся через него:"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.retry"
+msgstr "Повторить"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.this-device"
+msgstr "Это устройство"
 
 #: src/components/settings-list.tsx
 msgid "mobile.sync.indicator.attention"

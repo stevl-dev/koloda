@@ -5,18 +5,25 @@ import type {
   JoinedSpace,
   PreviewRequest,
   SpacePreview,
+  SyncDevice,
   SyncStatus,
 } from "@koloda/app";
 import { queryKeys } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import { seedSettings } from "@koloda/native-host";
 import type { KolodaFacade } from "./facade";
-import { read, wireArgs } from "./facade";
+import { call, read, wireArgs } from "./facade";
 
 // INVARIANT: the same keys as the desktop's sync queries, so the shared sync screens' cache writes reach these.
 export type MobileSyncQueries = Pick<
   SyncQueries,
-  "getStatusQuery" | "previewMutation" | "joinMutation" | "issuePairingMutation" | "nudge"
+  | "getStatusQuery"
+  | "previewMutation"
+  | "joinMutation"
+  | "issuePairingMutation"
+  | "getDevicesQuery"
+  | "revokeDeviceMutation"
+  | "nudge"
 >;
 
 export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries {
@@ -40,6 +47,13 @@ export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries
     }),
     issuePairingMutation: () => ({
       mutationFn: () => read<IssuedPairing>(() => facade.syncIssuePairing()),
+    }),
+    getDevicesQuery: () => ({
+      queryKey: queryKeys.sync.devices(),
+      queryFn: () => read<SyncDevice[]>(() => facade.syncDevices()),
+    }),
+    revokeDeviceMutation: () => ({
+      mutationFn: ({ id }: { id: string }) => call(() => facade.syncRevokeDevice(id)),
     }),
     nudge: async () => facade.syncNudge(),
   };

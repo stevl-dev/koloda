@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 
 const CODE_GROUP = /(.{5})(?=.)/g;
 
+export const SYNC_PLATFORM_LABELS: Record<SyncDevice["platform"], string> = {
+  "desktop-win": "Windows",
+  "desktop-mac": "macOS",
+  "desktop-linux": "Linux",
+  ios: "iOS",
+  android: "Android",
+};
+
 // WHY: the join's probe count reaches the choice through here: the join dialog closes once the status says the choice
 // waits. It exists only in the session that joined; a choice shown after a restart has none.
 export const syncKnownIdsAtom = atom<number | null>(null);

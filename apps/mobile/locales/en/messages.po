@@ -254,6 +254,10 @@ msgstr "Settings"
 msgid "mobile.sync.back"
 msgstr "Back"
 
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.cancel"
+msgstr "Cancel"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.code"
 msgstr "Pairing code"
@@ -261,6 +265,46 @@ msgstr "Pairing code"
 #: src/components/join-space.tsx
 msgid "mobile.sync.device-name"
 msgstr "Device name"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices"
+msgstr "Devices"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.last-seen {lastSeen}"
+msgstr "Last seen {lastSeen}"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove"
+msgstr "Remove"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.confirm"
+msgstr "Remove from the space"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.copy {relatedName}"
+msgstr "{relatedName}, a copy of it"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.invited {relatedName}"
+msgstr "{relatedName}, which it invited"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.message {name}"
+msgstr "Remove {name} from the space? It stops syncing and keeps its data."
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.remove.related"
+msgstr "Also remove the devices that came from it:"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.retry"
+msgstr "Try again"
+
+#: src/components/sync-devices.tsx
+msgid "mobile.sync.devices.this-device"
+msgstr "This device"
 
 #: src/components/settings-list.tsx
 msgid "mobile.sync.indicator.attention"

@@ -8,15 +8,7 @@ import { useLingui } from "@lingui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SyncLeaveSpace } from "./sync-leave-space";
-import { relatedDevices } from "./sync-rules";
-
-const PLATFORM_LABELS: Record<SyncDevice["platform"], string> = {
-  "desktop-win": "Windows",
-  "desktop-mac": "macOS",
-  "desktop-linux": "Linux",
-  ios: "iOS",
-  android: "Android",
-};
+import { relatedDevices, SYNC_PLATFORM_LABELS } from "./sync-rules";
 
 export type SettingsSyncDevicesProps = { sync: SyncQueries };
 
@@ -38,7 +30,7 @@ export function SettingsSyncDevices({ sync }: SettingsSyncDevicesProps) {
                 return (
                   <div className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1" key={device.id}>
                     <div>{device.name}</div>
-                    <div className="fg-level-2">{PLATFORM_LABELS[device.platform]}</div>
+                    <div className="fg-level-2">{SYNC_PLATFORM_LABELS[device.platform]}</div>
                     {device.isSelf ? (
                       <div className="fg-level-3">{_(msg`settings.sync.devices.this-device`)}</div>
                     ) : (
