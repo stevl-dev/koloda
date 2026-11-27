@@ -113,7 +113,7 @@ Out:
   Commit: Move mobile sync onto the shared sync queries
   Depends on: none
 
-- [ ] 3. Sync in the background on mobile
+- [x] 3. Sync in the background on mobile
   Goal: while the app is closed or in the background, Android runs a bounded sync tick about every 15 minutes, the
   shortest WorkManager allows, when the phone is in a space and online.
   Add a Background Task dependency by `agents/DEPENDENCIES.md`; read its installed version for how it registers a task,

@@ -52,7 +52,11 @@ It sits under Settings → Sync, as on desktop.
 - It cannot create a space, invite a device, list or remove devices, leave a space, or choose Add or Replace.
   A stop that needs the user to leave the space, or to continue after a restore, cannot be resolved on the phone.
 - It has no "Sync now" and no sync indicator.
-- It syncs while the app is open and when it returns to the foreground, not in the background.
+- It syncs while the app is open and when it returns to the foreground.
+- In the background, it syncs in short runs about every 15 minutes while the phone is online; the system may run
+  them later.
+  A run syncs nothing while the space downloads or the device waits for a choice; the download goes on once the app
+  opens.
 - Images always download when their cards arrive; the phone has no download setting.
 
 ## Servers

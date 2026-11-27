@@ -22,6 +22,8 @@ The vault is a UniFFI component of its own, `src-rust/vault` (crate `koloda-mobi
 library; the JS bindings leave it out, and `src-rust/vault/src/lib.rs` says why.
 JS takes the engine's events by calling `syncEvents` again and again, not through a callback;
 `src-rust/src/sync.rs` (`EventQueue`) says why.
+Background sync is a WorkManager task (`src/host/background-sync.ts`) that runs a bounded `syncTick`.
+The bundle's entry, `index.ts`, defines it before the router loads, since a background run mounts no screen.
 It targets Android only for now; iOS comes in a follow-up.
 
 ## Platform setup
@@ -154,6 +156,12 @@ Run on each platform after a change to the app.
 - [ ] Grade a card on desktop; after the phone returns to the foreground, it shows the change.
 - [ ] Force-quit and reopen the phone app; it is still in the space, and the status is in sync.
 - [ ] Enter a wrong code; the screen says the code is wrong.
+- [ ] Change a card on desktop, then send the phone app to the background and force a background run
+  (`adb shell cmd jobscheduler run -f com.koloda.app <job id>`, the id from `adb shell dumpsys jobscheduler`).
+  Desktop's change is on the phone when the app opens, before any foreground sync; it also arrives after a
+  force-quit.
+- [ ] Join a space and send the app to the background while the space downloads; a forced background run downloads
+  nothing, and the download goes on once the app opens.
 
 ## Copies
 

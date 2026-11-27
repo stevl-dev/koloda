@@ -12,6 +12,7 @@ import type { KolodaFacade } from "../host/facade";
 import { useMobileQueries } from "../host/queries-context";
 import { activateLanguage } from "../i18n";
 import { seedDB } from "../host/setup";
+import { registerBackgroundSync } from "../host/background-sync";
 import { startSync, SYNC_START_KEY } from "../host/start-sync";
 
 export type BootProps = {
@@ -47,6 +48,11 @@ export function Boot({ facade, children }: BootProps) {
     staleTime: Infinity,
     retry: false,
   });
+
+  // WHY: a phone that refuses background work still syncs while the app is open.
+  useEffect(() => {
+    registerBackgroundSync().catch(() => {});
+  }, []);
 
   // WHY: in the background the OS freezes the runner; returning to the app syncs now.
   useEffect(() => {

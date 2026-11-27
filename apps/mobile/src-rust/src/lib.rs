@@ -245,6 +245,17 @@ impl KolodaMobile {
     }
 
     // INVARIANT: not queued on a worker, since it waits for the engine; every call queued behind it would wait too.
+    // WHY: the background task calls this in a process the system may have started for it, so it starts the engine
+    // itself; the app may never have opened in that process.
+    pub async fn sync_tick(&self, starter: String) -> Result<String, MobileError> {
+        let secrets = registered_vault()?;
+        self.run_sync(move |sync| {
+            let starter: sync::StarterWire = from_wire(&starter)?;
+            to_wire(&sync.tick(starter, secrets).map_err(sync_error)?)
+        })
+        .await
+    }
+
     pub async fn sync_events(&self) -> Vec<String> {
         self.sync.events().await
     }

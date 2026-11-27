@@ -11,6 +11,7 @@ use std::collections::BTreeMap;
 use std::pin::pin;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
+use std::time::Duration;
 
 use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
@@ -24,7 +25,7 @@ use koloda::repo::sync::repair::Starter;
 use koloda_sync::disk::SystemDisk;
 use koloda_sync::engine::Engine;
 use koloda_sync::error::SyncError;
-use koloda_sync::runner::{Event, EventSink, TokioTimer};
+use koloda_sync::runner::{Budget, Event, EventSink, TokioTimer};
 use koloda_sync::status::{State, Status, Stop};
 use koloda_sync::transport::HttpTransport;
 use koloda_sync_proto::transport::{ErrorCode, Platform};
@@ -82,6 +83,20 @@ pub struct JoinWire {
     device_name: String,
     settings: SeedSettings,
 }
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TickedWire {
+    has_run: bool,
+    is_done: bool,
+}
+
+// WHY: well inside the ten minutes Android gives a background worker, and small enough that a run on mobile data
+// stays cheap; what is left waits for the next run or for the app.
+const BACKGROUND_BUDGET: Budget = Budget {
+    wall: Duration::from_secs(60),
+    body_bytes: 16 * 1024 * 1024,
+};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -148,7 +163,33 @@ impl SyncHost {
     // WHY: a JS reload starts sync again; it must not start a second engine or runner.
     // `KolodaMobile::new` hands the reloaded JS the host it already built for the file, so this guard holds.
     pub fn start(&self, starter: StarterWire, secrets: Arc<dyn SecretStore>) -> Result<Status, SyncError> {
-        let engine = match self.engine.get() {
+        let engine = self.start_engine(starter, secrets)?;
+        let status = engine.status()?;
+        if is_in_space(&status) {
+            self.start_runner()?;
+        }
+        Ok(status)
+    }
+
+    // INVARIANT: starts no runner. A background run wakes a process the system may have just started for it, and a
+    // runner there would keep syncing until the system kills the process; the app starts one when it opens.
+    pub fn tick(&self, starter: StarterWire, secrets: Arc<dyn SecretStore>) -> Result<TickedWire, SyncError> {
+        let engine = self.start_engine(starter, secrets)?;
+        if !is_tick_due(&engine.status()?) {
+            return Ok(TickedWire {
+                has_run: false,
+                is_done: true,
+            });
+        }
+        let ticked = engine.tick(BACKGROUND_BUDGET)?;
+        Ok(TickedWire {
+            has_run: true,
+            is_done: ticked.is_done,
+        })
+    }
+
+    fn start_engine(&self, starter: StarterWire, secrets: Arc<dyn SecretStore>) -> Result<&Engine, SyncError> {
+        Ok(match self.engine.get() {
             Some(engine) => engine,
             None => {
                 let engine = Engine::start(
@@ -164,12 +205,7 @@ impl SyncHost {
                 )?;
                 self.engine.get_or_init(|| engine)
             }
-        };
-        let status = engine.status()?;
-        if is_in_space(&status) {
-            self.start_runner()?;
-        }
-        Ok(status)
+        })
     }
 
     pub fn preview(&self, data: PreviewRequestWire) -> Result<PreviewWire, SyncError> {
@@ -270,6 +306,13 @@ fn platform() -> Platform {
     } else {
         Platform::Android
     }
+}
+
+// INVARIANT: no tick while the space downloads. A bounded tick that spends its budget mid-snapshot starts the
+// snapshot over on its next lease (PROTOCOL.md §Bootstrap), so ticking through a large one never ends; the download
+// runs while the app is open. A file waiting for the Add or Replace choice syncs nothing either.
+fn is_tick_due(status: &Status) -> bool {
+    is_in_space(status) && !matches!(status.state, State::Bootstrapping | State::ImportPending)
 }
 
 fn is_in_space(status: &Status) -> bool {
@@ -479,6 +522,42 @@ mod tests {
 
     fn poll_once<F: Future>(future: std::pin::Pin<&mut F>) -> Poll<F::Output> {
         future.poll(&mut Context::from_waker(Waker::noop()))
+    }
+
+    fn status(state: State) -> Status {
+        Status {
+            state,
+            last_success_ms: None,
+            pending: 0,
+            held: 0,
+            uploads: 0,
+            fetches: 0,
+            lag_hot: None,
+            lag_cold: None,
+            skew_ms: 0,
+            hold: None,
+            is_over_quota: false,
+            metered: None,
+            push_resumes_at_ms: None,
+        }
+    }
+
+    #[test]
+    fn a_background_tick_runs_only_in_a_space_whose_download_and_choice_are_behind_it() {
+        let cases = [
+            (State::NotEnrolled, false),
+            (State::ImportPending, false),
+            (State::Bootstrapping, false),
+            (State::Stopped(Stop::Revoked), false),
+            (State::Stopped(Stop::Restored), false),
+            (State::Idle, true),
+            (State::Syncing, true),
+            (State::Stopped(Stop::Unreachable), true),
+        ];
+        for (state, is_due) in cases {
+            let label = format!("{state:?}");
+            assert_eq!(is_tick_due(&status(state)), is_due, "{label}");
+        }
     }
 
     #[tokio::test]

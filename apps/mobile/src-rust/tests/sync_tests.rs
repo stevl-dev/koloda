@@ -64,3 +64,16 @@ async fn sync_starts_once_the_host_registered_its_vault_and_reports_a_file_in_no
     let status: Value = serde_json::from_str(&mobile.sync_status().await.expect("status")).expect("json");
     assert_eq!(status["state"], json!({ "type": "notEnrolled" }));
 }
+
+#[tokio::test]
+async fn a_background_tick_in_no_space_starts_the_engine_and_syncs_nothing() {
+    register_secret_vault(Box::new(MemoryVault::default())).expect("register");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+
+    let ticked: Value = serde_json::from_str(&mobile.sync_tick(starter()).await.expect("tick")).expect("json");
+
+    assert_eq!(ticked, json!({ "hasRun": false, "isDone": true }));
+    let status: Value = serde_json::from_str(&mobile.sync_status().await.expect("status")).expect("json");
+    assert_eq!(status["state"], json!({ "type": "notEnrolled" }));
+}
