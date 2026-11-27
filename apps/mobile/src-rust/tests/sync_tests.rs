@@ -3,6 +3,9 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use koloda::app::db::Database;
+use koloda::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
+use koloda::repo;
 use koloda_mobile::{KolodaMobile, MobileError};
 use koloda_mobile_vault::{register_secret_vault, SecretVault, VaultError};
 use serde_json::{json, Value};
@@ -119,6 +122,65 @@ async fn a_file_in_no_space_has_no_space_to_leave() {
     mobile.sync_start(starter()).await.expect("start");
 
     let error = mobile.sync_detach().await.expect_err("no space");
+
+    let MobileError::App { code, .. } = error;
+    assert_eq!(code, "sync.not-enrolled");
+}
+
+#[tokio::test]
+async fn a_file_with_data_of_its_own_goes_on_to_the_server_to_join() {
+    register_secret_vault(Box::new(MemoryVault::default())).expect("register");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    let settings = json!({
+        "interface": {},
+        "learning": {
+            "defaults": { "algorithm": SEED_ALGORITHM_SIMPLE_ID, "template": SEED_TEMPLATE_TYPE_ID },
+            "dailyLimits": {
+                "total": 100,
+                "untouched": { "value": 20, "counts": true },
+                "learn": { "value": 30, "counts": true },
+                "review": { "value": 50, "counts": true },
+            },
+            "dayStartsAt": "04:00",
+            "learnAheadLimit": [4, 0],
+        },
+        "hotkeys": {},
+    });
+    let mut seed: Value = serde_json::from_str(&starter()).expect("starter json");
+    seed["settings"] = settings.clone();
+    mobile.seed_db(seed.to_string()).await.expect("seed");
+    repo::decks::add_deck(
+        &Database::init(&path).expect("second connection"),
+        serde_json::from_value(
+            json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID }),
+        )
+        .expect("deck data"),
+    )
+    .expect("add deck");
+    mobile.sync_start(starter()).await.expect("start");
+
+    let join =
+        json!({ "serverUrl": "http://sync.example", "code": "ABCD-EFGH", "deviceName": "Phone", "settings": settings });
+    let error = mobile.sync_join(join.to_string()).await.expect_err("insecure server");
+
+    // The engine reached the server address, so the phone no longer refuses a used file before Add or Replace.
+    let MobileError::App { code, .. } = error;
+    assert_eq!(code, "sync.insecure-server-url");
+}
+
+#[tokio::test]
+async fn a_file_in_no_space_has_no_add_or_replace_to_choose() {
+    register_secret_vault(Box::new(MemoryVault::default())).expect("register");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    mobile.sync_start(starter()).await.expect("start");
+
+    let error = mobile
+        .sync_import(json!("add").to_string())
+        .await
+        .expect_err("no space");
 
     let MobileError::App { code, .. } = error;
     assert_eq!(code, "sync.not-enrolled");

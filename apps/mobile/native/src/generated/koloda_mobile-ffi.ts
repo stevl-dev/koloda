@@ -218,9 +218,6 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
-  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_can_join(
-    uniffiSelf: bigint,
-  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_detach(
     uniffiSelf: bigint,
   ): bigint;
@@ -229,6 +226,10 @@ interface NativeModuleInterface {
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_events(
     uniffiSelf: bigint,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_import(
+    uniffiSelf: bigint,
+    mode: Uint8Array,
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_sync_issue_pairing(
     uniffiSelf: bigint,
@@ -273,10 +274,10 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_seed_db(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_set_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_submit_lesson_result(): number;
-  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_detach(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_devices(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_events(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_import(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_issue_pairing(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_join(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_nudge(): number;

@@ -250,6 +250,7 @@ msgstr "Sync"
 msgid "mobile.settings.title"
 msgstr "Settings"
 
+#: src/components/import-choice.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
 msgstr "Back"
@@ -307,6 +308,34 @@ msgstr "Try again"
 msgid "mobile.sync.devices.this-device"
 msgstr "This device"
 
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.add"
+msgstr "Add"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.copy"
+msgstr "This phone's data looks like a copy of data already in the space. Replace it with the space's data. Add keeps both, so the copied decks show twice."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.message"
+msgstr "This phone already has data. Add it to the space, or replace it with the space's data."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace"
+msgstr "Replace"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.confirm"
+msgstr "Delete and replace"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.message"
+msgstr "This phone's decks, cards, progress, templates, and algorithms will be deleted and replaced with the space's."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.recommended"
+msgstr "Replace (recommended)"
+
 #: src/components/settings-list.tsx
 msgid "mobile.sync.indicator.attention"
 msgstr "Needs attention"
@@ -363,10 +392,6 @@ msgstr "New code"
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Join"
-
-#: src/components/join-space.tsx
-msgid "mobile.sync.join-refused"
-msgstr "This phone already has data of its own, so it can't join a space in this test build. Reinstall the app to join."
 
 #: src/components/leave-space.tsx
 msgid "mobile.sync.leave"

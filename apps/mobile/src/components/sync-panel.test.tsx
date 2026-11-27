@@ -4,6 +4,7 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { createStore, Provider as JotaiProvider } from "jotai";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
@@ -36,16 +37,18 @@ async function renderPanel(status: SyncStatus, overrides: Partial<KolodaFacade> 
   client.setQueryData(queryKeys.sync.status(), status);
   client.setQueryData(SYNC_START_KEY, status);
   const syncStatus = () => Promise.resolve(JSON.stringify(status));
-  const syncCanJoin = () => Promise.resolve(true);
-  const queries = createMobileQueries(fakeFacade({ syncStatus, syncCanJoin, ...overrides }), "/cache");
+  const queries = createMobileQueries(fakeFacade({ syncStatus, ...overrides }), "/cache");
 
+  // WHY: a store per test, so the count a join leaves for the choice does not reach the next test.
   return render(
     <I18nProvider i18n={i18n}>
-      <QueryClientProvider client={client}>
-        <MobileQueriesContext.Provider value={queries}>
-          <SyncPanel />
-        </MobileQueriesContext.Provider>
-      </QueryClientProvider>
+      <JotaiProvider store={createStore()}>
+        <QueryClientProvider client={client}>
+          <MobileQueriesContext.Provider value={queries}>
+            <SyncPanel />
+          </MobileQueriesContext.Provider>
+        </QueryClientProvider>
+      </JotaiProvider>
     </I18nProvider>,
   );
 }
@@ -142,5 +145,65 @@ describe("SyncPanel", () => {
 
     expect(await screen.findByPlaceholderText("Pairing code")).toBeTruthy();
     expect(screen.queryByText("Sync now")).toBeNull();
+  });
+
+  it("asks a phone that joined with data of its own to add or replace it, recommending Replace for a likely copy", async () => {
+    const joined = { mode: "used", knownIds: 3, status: statusWith({ type: "importPending" }) };
+    await renderPanel(statusWith({ type: "notEnrolled" }), {
+      getSettings: () => Promise.resolve("null"),
+      syncPreview: () => Promise.resolve(JSON.stringify({ spaceName: "Home", counts: {}, bytes: 0 })),
+      syncJoin: () => Promise.resolve(JSON.stringify(joined)),
+    });
+
+    await fireEvent.changeText(await screen.findByPlaceholderText("Server address"), "https://sync.example");
+    await fireEvent.changeText(screen.getByPlaceholderText("Pairing code"), "ABCD-1234");
+    await fireEvent.press(screen.getByText("Show the space"));
+    await fireEvent.press(await screen.findByText("Join"));
+
+    expect(await screen.findByText(/looks like a copy/)).toBeTruthy();
+    expect(screen.getByText("Replace (recommended)")).toBeTruthy();
+    expect(screen.getByText("Add")).toBeTruthy();
+  });
+
+  it("asks again after a restart, without the copy warning, and lets the phone leave instead", async () => {
+    await renderPanel(statusWith({ type: "importPending" }));
+
+    expect(await screen.findByText(/already has data/)).toBeTruthy();
+    expect(screen.getByText("Replace")).toBeTruthy();
+    expect(screen.getByText("Leave the space")).toBeTruthy();
+    expect(screen.queryByText("Sync now")).toBeNull();
+  });
+
+  it("replaces this phone's data only once confirmed, then shows the space's status", async () => {
+    let current = statusWith({ type: "importPending" });
+    const syncImport = jest.fn((_mode: string) => {
+      current = statusWith({ type: "bootstrapping" });
+      return Promise.resolve(JSON.stringify(current));
+    });
+    await renderPanel(current, {
+      syncImport,
+      syncStatus: () => Promise.resolve(JSON.stringify(current)),
+      syncDevices: () => Promise.resolve("[]"),
+    });
+
+    await fireEvent.press(await screen.findByText("Replace"));
+    expect(screen.getByText(/will be deleted/)).toBeTruthy();
+    expect(syncImport).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText("Delete and replace"));
+
+    expect(await screen.findByText("Downloading the space")).toBeTruthy();
+    expect(syncImport.mock.calls.map(([mode]) => JSON.parse(mode))).toEqual(["replace"]);
+  });
+
+  it("shows why a choice failed and keeps asking", async () => {
+    await renderPanel(statusWith({ type: "importPending" }), {
+      syncImport: () => Promise.reject({ tag: "App", inner: { code: "sync.unreachable" } }),
+    });
+
+    await fireEvent.press(await screen.findByText("Add"));
+
+    expect(await screen.findByText("Couldn't reach the sync server")).toBeTruthy();
+    expect(screen.getByText("Add")).toBeTruthy();
   });
 });

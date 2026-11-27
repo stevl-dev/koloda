@@ -12,6 +12,7 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
+import { ImportChoice } from "./import-choice";
 import { InviteDevice } from "./invite-device";
 import { JoinSpace } from "./join-space";
 import { LeaveSpace } from "./leave-space";
@@ -34,6 +35,7 @@ export function SyncPanel() {
   if (!status.data) return null;
   const { state } = status.data;
   if (state.type === "notEnrolled") return <JoinSpace />;
+  if (state.type === "importPending") return <ImportChoice />;
 
   const stop = stopMessage(status.data);
   if (hasLeftSpace(status.data)) {

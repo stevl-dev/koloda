@@ -2,7 +2,9 @@ import { formatAppError } from "@koloda/app";
 import { queryKeys } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { syncKnownIdsAtom } from "@koloda/settings-react/sync-status";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
 import { useState } from "react";
 import { Button, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAppColors } from "../colors";
@@ -20,20 +22,22 @@ export function JoinSpace() {
   const text = { color: colors.text };
   const input = [styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }];
   const queryClient = useQueryClient();
-  const { canJoinQuery, sync } = useMobileQueries();
-  const canJoin = useQuery(canJoinQuery());
+  const { sync } = useMobileQueries();
+  const setKnownIds = useSetAtom(syncKnownIdsAtom);
   const [serverUrl, setServerUrl] = useState("");
   const [code, setCode] = useState("");
   const [deviceName, setDeviceName] = useState(defaultDeviceName);
   const preview = useMutation(sync.previewMutation());
   const join = useMutation({
     ...sync.joinMutation(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sync.status() }),
+    onSuccess: (result) => {
+      // INVARIANT: a used database's status waits for Add or Replace; the Sync screen asks, with this count.
+      setKnownIds(result.mode === "used" ? result.knownIds : null);
+      // WHY: a list cached before a leave still marks the old device as this one.
+      queryClient.removeQueries({ queryKey: queryKeys.sync.devices() });
+      queryClient.setQueryData(queryKeys.sync.status(), result.status);
+    },
   });
-
-  // INVARIANT: refused before the code is used; a database with data of its own needs Add or Replace.
-  if (canJoin.data === false) return <Text style={text}>{_(msg`mobile.sync.join-refused`)}</Text>;
-  if (canJoin.data !== true) return null;
 
   const failure = preview.error ?? join.error;
   const error = failure ? <Text style={{ color: colors.danger }}>{formatAppError(failure, _).message}</Text> : null;

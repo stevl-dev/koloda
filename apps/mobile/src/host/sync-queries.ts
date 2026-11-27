@@ -1,4 +1,5 @@
 import type {
+  ImportMode,
   InterfaceSettings,
   IssuedPairing,
   JoinData,
@@ -24,6 +25,7 @@ export type MobileSyncQueries = Pick<
   | "getDevicesQuery"
   | "revokeDeviceMutation"
   | "detachMutation"
+  | "importMutation"
   | "nudge"
 >;
 
@@ -58,6 +60,9 @@ export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries
     }),
     detachMutation: () => ({
       mutationFn: () => read<SyncStatus>(() => facade.syncDetach()),
+    }),
+    importMutation: () => ({
+      mutationFn: (mode: ImportMode) => read<SyncStatus>(() => facade.syncImport(wireArgs(mode))),
     }),
     nudge: async () => facade.syncNudge(),
   };

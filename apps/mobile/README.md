@@ -171,6 +171,11 @@ Run on each platform after a change to the app.
 - [ ] "Leave the space" asks first; once left, the phone shows the join form, and desktop no longer lists it.
   With the server stopped, leaving says why and the phone stays in the space.
 - [ ] Remove the phone from desktop; on its next sync, the phone says it was removed and shows the join form.
+- [ ] Leave the space, then join it again with a new code: the phone re-attaches with its data and no choice.
+- [ ] Leave the space, join another one: the phone asks to add or replace its data, and leaving is offered too.
+  A force-quit before choosing asks again on reopen.
+  Replace asks once more, then the phone shows only the new space's decks; Add keeps both libraries on every device.
+  With the server stopped, a choice says why and deletes nothing.
 - [ ] Change a card on desktop, then send the phone app to the background and force a background run
   (`adb shell cmd jobscheduler run -f com.koloda.app <job id>`, the id from `adb shell dumpsys jobscheduler`).
   Desktop's change is on the phone when the app opens, before any foreground sync; it also arrives after a
@@ -184,7 +189,7 @@ Code copied from another app instead of shared:
 
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
-  error codes, issuing a pairing code, the device list and removal, and leaving.
+  error codes, issuing a pairing code, the device list and removal, leaving, and Add or Replace.
 
 ## Findings
 

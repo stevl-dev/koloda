@@ -46,7 +46,6 @@ async function renderSettings(status: SyncStatus) {
   const queries = createMobileQueries(
     fakeFacade({
       syncStatus: () => Promise.resolve(JSON.stringify(status)),
-      syncCanJoin: () => Promise.resolve(true),
     }),
     "/cache",
   );

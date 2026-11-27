@@ -39,7 +39,6 @@ describe("JoinSpace", () => {
     const syncPreview = jest.fn((_data: string) => Promise.resolve(JSON.stringify(SPACE)));
     const syncJoin = jest.fn((_data: string) => Promise.resolve(JSON.stringify({ mode: "untouchedSeed" })));
     await renderJoin({
-      syncCanJoin: () => Promise.resolve(true),
       getSettings: () => Promise.resolve(JSON.stringify({ content: { language: "ru" } })),
       syncPreview,
       syncJoin,
@@ -62,17 +61,10 @@ describe("JoinSpace", () => {
 
   it("says the code is wrong when the server refuses it", async () => {
     const rejection = { tag: "App", inner: { code: "sync.pairing-failed" } };
-    await renderJoin({ syncCanJoin: () => Promise.resolve(true), syncPreview: () => Promise.reject(rejection) });
+    await renderJoin({ syncPreview: () => Promise.reject(rejection) });
 
     await fillAndPreview();
 
     expect(await screen.findByText("The pairing code is wrong, expired, or already used")).toBeTruthy();
-  });
-
-  it("refuses a database with data of its own before any code is entered", async () => {
-    await renderJoin({ syncCanJoin: () => Promise.resolve(false) });
-
-    expect(await screen.findByText(/already has data of its own/)).toBeTruthy();
-    expect(screen.queryByPlaceholderText("Pairing code")).toBeNull();
   });
 });

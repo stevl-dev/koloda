@@ -270,11 +270,6 @@ impl KolodaMobile {
         .await
     }
 
-    pub async fn sync_can_join(&self) -> Result<bool, MobileError> {
-        let sync = Arc::clone(&self.sync);
-        self.run(move |_db| Ok(sync::can_join(sync.join_mode()?))).await
-    }
-
     pub async fn sync_preview(&self, data: String) -> Result<String, MobileError> {
         self.run_sync(move |sync| {
             let data: sync::PreviewRequestWire = from_wire(&data)?;
@@ -287,6 +282,14 @@ impl KolodaMobile {
         self.run_sync(move |sync| {
             let data: sync::JoinWire = from_wire(&data)?;
             to_wire(&sync.join(data).map_err(sync_error)?)
+        })
+        .await
+    }
+
+    pub async fn sync_import(&self, mode: String) -> Result<String, MobileError> {
+        self.run_sync(move |sync| {
+            let mode: sync::ImportModeWire = from_wire(&mode)?;
+            to_wire(&sync::StatusWire::from(sync.import(mode).map_err(sync_error)?))
         })
         .await
     }

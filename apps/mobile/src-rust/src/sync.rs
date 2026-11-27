@@ -2,7 +2,7 @@
 //! `sync.*` error codes the app reads.
 //!
 //! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the phone does not offer
-//! (creating a space, import, restore).
+//! (creating a space, restore).
 //!
 //! INVARIANT: host calls that wait on the network run on the sync worker, never on the database worker
 //! (`KolodaMobile` in `lib.rs`).
@@ -20,12 +20,13 @@ use koloda::app::secrets::SecretStore;
 use koloda::domain::algorithms::InsertAlgorithmData;
 use koloda::domain::templates::InsertTemplateData;
 use koloda::repo::sync::apply::{Hold, HoldReason};
-use koloda::repo::sync::join::{join_mode, JoinMode};
+use koloda::repo::sync::join::JoinMode;
 use koloda::repo::sync::repair::Starter;
 use koloda_sync::devices::DeviceSummary;
 use koloda_sync::disk::SystemDisk;
 use koloda_sync::engine::Engine;
 use koloda_sync::error::SyncError;
+use koloda_sync::pairing::ImportMode;
 use koloda_sync::runner::{Budget, Event, EventSink, TokioTimer};
 use koloda_sync::status::{State, Status, Stop};
 use koloda_sync::transport::HttpTransport;
@@ -134,6 +135,13 @@ const BACKGROUND_BUDGET: Budget = Budget {
     wall: Duration::from_secs(60),
     body_bytes: 16 * 1024 * 1024,
 };
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum ImportModeWire {
+    Add,
+    Replace,
+}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -254,20 +262,7 @@ impl SyncHost {
         })
     }
 
-    // INVARIANT: only a database that holds just its starter content may join in the spike.
-    // WHY: a database with data of its own needs the Add or Replace choice, which the spike does not offer.
-    pub fn join_mode(&self) -> Result<JoinMode, AppError> {
-        // WHY: the nil id matches no space, so a file in a space reads as attached elsewhere and is refused too.
-        join_mode(&self.db, Uuid::nil())
-    }
-
     pub fn join(&self, data: JoinWire) -> Result<JoinedWire, SyncError> {
-        // INVARIANT: refused here, before the code is claimed; the engine would enroll a used file and wait for an
-        // import the spike cannot give.
-        let mode = self.join_mode()?;
-        if !can_join(mode) {
-            return Err(SyncError::CannotJoin(mode));
-        }
         let engine = self.engine()?;
         let joined = engine.join(&data.server_url, &data.code, &data.device_name, data.settings)?;
         self.sync_soon()?;
@@ -276,6 +271,16 @@ impl SyncHost {
             known_ids: joined.known_ids,
             status: engine.status()?.into(),
         })
+    }
+
+    pub fn import(&self, mode: ImportModeWire) -> Result<Status, SyncError> {
+        let engine = self.engine()?;
+        engine.import(match mode {
+            ImportModeWire::Add => ImportMode::Add,
+            ImportModeWire::Replace => ImportMode::Replace,
+        })?;
+        self.sync_soon()?;
+        engine.status()
     }
 
     pub fn issue_pairing(&self) -> Result<PairingWire, SyncError> {
@@ -332,7 +337,7 @@ impl SyncHost {
         }
     }
 
-    // WHY: joining starts no cycle; a runner that already ran would wait for its next poll.
+    // WHY: joining and importing start no cycle; a runner that already ran would wait for its next poll.
     fn sync_soon(&self) -> Result<(), SyncError> {
         self.start_runner()?;
         self.nudge();
@@ -349,10 +354,6 @@ impl SyncHost {
         }
         Ok(())
     }
-}
-
-pub fn can_join(mode: JoinMode) -> bool {
-    matches!(mode, JoinMode::Blank | JoinMode::UntouchedSeed)
 }
 
 fn join_mode_wire(mode: JoinMode) -> &'static str {

@@ -197,7 +197,7 @@ Out:
   Commit: Leave the space on mobile
   Depends on: 1, 2
 
-- [ ] 9. Choose Add or Replace when joining on mobile
+- [x] 9. Choose Add or Replace when joining on mobile
   Goal: a phone with data of its own joins a space, then asks whether to add its data or replace it, by
   `docs/specs/SYNC.md` (§Add or Replace): the copy warning that recommends Replace, the second confirmation before
   Replace, a failed choice that deletes nothing, the choice shown again after a restart, and leaving instead.

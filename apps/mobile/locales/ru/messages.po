@@ -250,6 +250,7 @@ msgstr "Синхронизация"
 msgid "mobile.settings.title"
 msgstr "Настройки"
 
+#: src/components/import-choice.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
 msgstr "Назад"
@@ -307,6 +308,34 @@ msgstr "Повторить"
 msgid "mobile.sync.devices.this-device"
 msgstr "Это устройство"
 
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.add"
+msgstr "Добавить"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.copy"
+msgstr "Данные этого телефона похожи на копию данных, которые уже есть в пространстве. Замените их данными пространства. При добавлении останутся обе копии, и скопированные колоды появятся дважды."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.message"
+msgstr "На этом телефоне уже есть данные. Добавьте их в пространство или замените данными пространства."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace"
+msgstr "Заменить"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.confirm"
+msgstr "Удалить и заменить"
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.message"
+msgstr "Колоды, карточки, прогресс, шаблоны и алгоритмы этого телефона будут удалены и заменены данными пространства."
+
+#: src/components/import-choice.tsx
+msgid "mobile.sync.import.replace.recommended"
+msgstr "Заменить (рекомендуется)"
+
 #: src/components/settings-list.tsx
 msgid "mobile.sync.indicator.attention"
 msgstr "Требует внимания"
@@ -363,10 +392,6 @@ msgstr "Новый код"
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Присоединиться"
-
-#: src/components/join-space.tsx
-msgid "mobile.sync.join-refused"
-msgstr "На этом телефоне уже есть собственные данные, поэтому в этой тестовой сборке он не может присоединиться к пространству. Переустановите приложение, чтобы присоединиться."
 
 #: src/components/leave-space.tsx
 msgid "mobile.sync.leave"

@@ -31,11 +31,8 @@ export type MobileQueries = Pick<
 > & {
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
   getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
-  canJoinQuery: () => QueryOptions<boolean> & { queryKey: QueryKey };
   sync: MobileSyncQueries;
 };
-
-const CAN_JOIN_KEY = ["mobile-sync-can-join"] as const;
 
 export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
   return {
@@ -66,10 +63,6 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getLessonDataQuery: (params: GetLessonDataParams) => ({
       queryKey: queryKeys.lessons.data(params),
       queryFn: () => read<LessonData | null>(() => facade.getLessonData(wireArgs(params))),
-    }),
-    canJoinQuery: () => ({
-      queryKey: CAN_JOIN_KEY,
-      queryFn: () => call(() => facade.syncCanJoin()),
     }),
     sync: createMobileSyncQueries(facade),
     getAttachmentFileQuery: (id: Attachment["id"]) => ({
