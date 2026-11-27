@@ -255,6 +255,7 @@ msgstr "Настройки"
 msgid "mobile.sync.back"
 msgstr "Назад"
 
+#: src/components/accept-restore.tsx
 #: src/components/leave-space.tsx
 #: src/components/sync-devices.tsx
 msgid "mobile.sync.cancel"
@@ -416,6 +417,18 @@ msgstr "Колоды {decks} · Карточки {cards} · Повторения
 #: src/components/join-space.tsx
 msgid "mobile.sync.preview-size {megabytes}"
 msgstr "Размер: {megabytes} МБ"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.confirm"
+msgstr "Заменить"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.continue"
+msgstr "Продолжить"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.message"
+msgstr "Заменить данные этого телефона данными из резервной копии? Изменения, сделанные здесь после копии, будут потеряны."
 
 #: src/components/invite-device.tsx
 #: src/components/join-space.tsx

@@ -26,6 +26,7 @@ export type MobileSyncQueries = Pick<
   | "revokeDeviceMutation"
   | "detachMutation"
   | "importMutation"
+  | "acceptRestoreMutation"
   | "nudge"
 >;
 
@@ -63,6 +64,9 @@ export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries
     }),
     importMutation: () => ({
       mutationFn: (mode: ImportMode) => read<SyncStatus>(() => facade.syncImport(wireArgs(mode))),
+    }),
+    acceptRestoreMutation: () => ({
+      mutationFn: () => read<SyncStatus>(() => facade.syncAcceptRestore()),
     }),
     nudge: async () => facade.syncNudge(),
   };

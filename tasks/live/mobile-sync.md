@@ -213,7 +213,7 @@ Out:
   Commit: Choose Add or Replace when joining on mobile
   Depends on: 1, 2, 8
 
-- [ ] 10. Continue after a server restore on mobile
+- [x] 10. Continue after a server restore on mobile
   Goal: a phone held by an authoritative restore shows the stop message with "Continue", which asks once more, then
   deletes the phone's synced data and downloads the backup's, by `docs/specs/SYNC.md` (§When Sync Stops).
   Add `accept_restore` to `koloda-mobile`; a Rust test; regenerate the bindings; add `acceptRestoreMutation` to the

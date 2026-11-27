@@ -12,6 +12,7 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
+import { AcceptRestore } from "./accept-restore";
 import { ImportChoice } from "./import-choice";
 import { InviteDevice } from "./invite-device";
 import { JoinSpace } from "./join-space";
@@ -66,6 +67,7 @@ export function SyncPanel() {
       <InviteDevice />
       {stop && <Text style={{ color: colors.danger }}>{stop}</Text>}
       {stopDetails && <Text style={muted}>{stopDetails}</Text>}
+      {state.type === "stopped" && state.stop.reason === "authoritativeRestore" && <AcceptRestore />}
       {downloadLeft && <Text style={{ color: colors.text }}>{downloadLeft}</Text>}
       <Text style={muted}>{lastSync}</Text>
       {pending && <Text style={muted}>{pending}</Text>}

@@ -1,8 +1,7 @@
 //! The sync engine on the phone: the one `Engine` a `KolodaMobile` starts, its runner, and the wire shapes and
 //! `sync.*` error codes the app reads.
 //!
-//! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the phone does not offer
-//! (creating a space, restore).
+//! Copied from `apps/electron/src-rust/src/sync.rs`, without creating a space, which the phone does not offer.
 //!
 //! INVARIANT: host calls that wait on the network run on the sync worker, never on the database worker
 //! (`KolodaMobile` in `lib.rs`).
@@ -311,6 +310,13 @@ impl SyncHost {
         engine.status()
     }
 
+    pub fn accept_restore(&self) -> Result<Status, SyncError> {
+        let engine = self.engine()?;
+        engine.accept_restore()?;
+        self.sync_soon()?;
+        engine.status()
+    }
+
     pub fn engine(&self) -> Result<&Engine, SyncError> {
         self.engine.get().ok_or_else(|| {
             SyncError::Local(AppError::new(
@@ -337,7 +343,7 @@ impl SyncHost {
         }
     }
 
-    // WHY: joining and importing start no cycle; a runner that already ran would wait for its next poll.
+    // WHY: joining, importing, and accepting a restore start no cycle; a runner that already ran would wait for its next poll.
     fn sync_soon(&self) -> Result<(), SyncError> {
         self.start_runner()?;
         self.nudge();

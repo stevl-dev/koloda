@@ -255,6 +255,7 @@ msgstr "Settings"
 msgid "mobile.sync.back"
 msgstr "Back"
 
+#: src/components/accept-restore.tsx
 #: src/components/leave-space.tsx
 #: src/components/sync-devices.tsx
 msgid "mobile.sync.cancel"
@@ -416,6 +417,18 @@ msgstr "Decks {decks} · Cards {cards} · Reviews {reviews}"
 #: src/components/join-space.tsx
 msgid "mobile.sync.preview-size {megabytes}"
 msgstr "Size: {megabytes} MB"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.confirm"
+msgstr "Replace"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.continue"
+msgstr "Continue"
+
+#: src/components/accept-restore.tsx
+msgid "mobile.sync.restore.message"
+msgstr "Replace this phone's data with the backup's? Changes made here since the backup are lost."
 
 #: src/components/invite-device.tsx
 #: src/components/join-space.tsx

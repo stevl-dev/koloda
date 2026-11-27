@@ -206,4 +206,40 @@ describe("SyncPanel", () => {
     expect(await screen.findByText("Couldn't reach the sync server")).toBeTruthy();
     expect(screen.getByText("Add")).toBeTruthy();
   });
+
+  it("continues after a restore that replaces this phone's data only once confirmed", async () => {
+    let current = statusWith({ type: "stopped", stop: { reason: "authoritativeRestore" } });
+    const syncAcceptRestore = jest.fn(() => {
+      current = statusWith({ type: "bootstrapping" });
+      return Promise.resolve(JSON.stringify(current));
+    });
+    await renderPanel(current, {
+      syncAcceptRestore,
+      syncStatus: () => Promise.resolve(JSON.stringify(current)),
+      syncDevices: () => Promise.resolve("[]"),
+    });
+
+    expect(await screen.findByText(/restored from a backup/)).toBeTruthy();
+    await fireEvent.press(screen.getByText("Continue"));
+    expect(screen.getByText(/Changes made here since the backup are lost/)).toBeTruthy();
+    expect(syncAcceptRestore).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText("Replace"));
+
+    expect(await screen.findByText("Downloading the space")).toBeTruthy();
+    expect(syncAcceptRestore).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows why continuing after a restore failed and keeps waiting", async () => {
+    await renderPanel(statusWith({ type: "stopped", stop: { reason: "authoritativeRestore" } }), {
+      syncAcceptRestore: () => Promise.reject({ tag: "App", inner: { code: "sync.unreachable" } }),
+      syncDevices: () => Promise.resolve("[]"),
+    });
+
+    await fireEvent.press(await screen.findByText("Continue"));
+    await fireEvent.press(screen.getByText("Replace"));
+
+    expect(await screen.findByText("Couldn't reach the sync server")).toBeTruthy();
+    expect(screen.getByText("Sync stopped")).toBeTruthy();
+  });
 });

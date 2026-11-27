@@ -53,8 +53,8 @@ It sits under Settings → Sync, as on desktop.
   cancel it.
 - The device list and removing a device work as §Devices says.
 - Leaving works as §Leaving a Space says, and so does a stop that needs the user to leave (§When Sync Stops).
+- Continuing after a restore that replaces every device's data works as §When Sync Stops says.
 - It cannot create a space.
-  A stop that needs the user to continue after a restore cannot be resolved on the phone.
 - It has no title bar, so the Settings tab shows a dot while sync needs attention, by §Status's rule.
   The Sync row on the Settings screen shows the state: syncing, up to date, or needs attention.
   A device that never joined a space, left one, or was removed shows neither.
