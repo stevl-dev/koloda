@@ -1203,7 +1203,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Color Scheme",
         "depth": 2,
-        "markdown": "## Color Scheme\n\nThe scheme is one of:\n\n- Light\n- Dark\n- System — follows the device's color scheme preference\n\nThe default is System.\nLight and Dark apply as chosen, regardless of the device.\nWhile set to System, the app switches live when the device switches.\n\nThe mobile app has no interface settings yet.\nIt always follows the device's color scheme, as System does, and it shows English.\n\n"
+        "markdown": "## Color Scheme\n\nThe scheme is one of:\n\n- Light\n- Dark\n- System — follows the device's color scheme preference\n\nThe default is System.\nLight and Dark apply as chosen, regardless of the device.\nWhile set to System, the app switches live when the device switches.\n\nThe mobile app offers the color scheme too; §Mobile App says what else it has.\n\n"
       },
       {
         "heading": "Color Themes",
@@ -1248,7 +1248,12 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Startup",
         "depth": 2,
-        "markdown": "## Startup\n\nThe app starts with the scheme, themes, and motion it last used on this device.\nThis avoids a flash of wrong colors before the saved settings load.\nOnce the saved settings load, they take precedence.\nLanguage is the exception; see §Language.\n"
+        "markdown": "## Startup\n\nThe app starts with the scheme, themes, and motion it last used on this device.\nThis avoids a flash of wrong colors before the saved settings load.\nOnce the saved settings load, they take precedence.\nLanguage is the exception; see §Language.\n\n"
+      },
+      {
+        "heading": "Mobile App",
+        "depth": 2,
+        "markdown": "## Mobile App\n\nThe mobile app has its interface settings under Settings → Interface.\nThey save as §Editing and Saving says.\n\n- It offers the color scheme.\n  The scheme also sets the color of the keyboard and of dialogs.\n- It offers no language, theme, motion, or date and time format yet.\n  It shows English in GitHub Light and GitHub Dark, with times as English renders them.\n  Its animations follow the device's reduced-motion preference.\n- It opens in the saved scheme, because it reads the settings before its first screen shows.\n- Joining a sync space keeps the phone's interface settings.\n"
       }
     ]
   },

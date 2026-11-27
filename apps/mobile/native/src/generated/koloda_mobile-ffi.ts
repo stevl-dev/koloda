@@ -202,7 +202,15 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_todays_review_totals(
     uniffiSelf: bigint,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_patch_settings(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_seed_db(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_set_settings(
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
@@ -244,7 +252,9 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_lessons(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_patch_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_seed_db(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_set_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_submit_lesson_result(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_can_join(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_events(): number;

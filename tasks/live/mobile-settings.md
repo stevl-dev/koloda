@@ -104,7 +104,7 @@ Out:
   Commit: Share the interface setting write with mobile
   Depends on: none
 
-- [ ] 3. Choose the color scheme on mobile
+- [x] 3. Choose the color scheme on mobile
   Goal: the Interface screen offers Light, Dark, and System, by `docs/specs/INTERFACE-SETTINGS.md` (§Color Scheme),
   and the whole app follows it: every screen, the tab bar, the headers, and the status and navigation bars.
   System keeps following the device live.

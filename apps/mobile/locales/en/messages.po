@@ -108,6 +108,15 @@ msgstr "{label} {count}"
 
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx
+msgid "mobile.settings.interface"
+msgstr "Interface"
+
+#: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.scheme"
+msgstr "Color scheme"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
 msgid "mobile.settings.sync"
 msgstr "Sync"
 

@@ -64,8 +64,7 @@ The default is System.
 Light and Dark apply as chosen, regardless of the device.
 While set to System, the app switches live when the device switches.
 
-The mobile app has no interface settings yet.
-It always follows the device's color scheme, as System does, and it shows English.
+The mobile app offers the color scheme too; §Mobile App says what else it has.
 
 ## Color Themes
 
@@ -198,3 +197,16 @@ The app starts with the scheme, themes, and motion it last used on this device.
 This avoids a flash of wrong colors before the saved settings load.
 Once the saved settings load, they take precedence.
 Language is the exception; see §Language.
+
+## Mobile App
+
+The mobile app has its interface settings under Settings → Interface.
+They save as §Editing and Saving says.
+
+- It offers the color scheme.
+  The scheme also sets the color of the keyboard and of dialogs.
+- It offers no language, theme, motion, or date and time format yet.
+  It shows English in GitHub Light and GitHub Dark, with times as English renders them.
+  Its animations follow the device's reduced-motion preference.
+- It opens in the saved scheme, because it reads the settings before its first screen shows.
+- Joining a sync space keeps the phone's interface settings.

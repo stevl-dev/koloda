@@ -1,6 +1,9 @@
+import { schemeAtom } from "@koloda/core-react";
 import { DarkTheme, DefaultTheme } from "expo-router";
 import type { Theme } from "expo-router";
-import { useColorScheme } from "react-native";
+import { useAtomValue } from "jotai";
+import { useEffect } from "react";
+import { Appearance, useColorScheme } from "react-native";
 
 export type AppColors = {
   background: string;
@@ -38,13 +41,28 @@ const DARK: AppColors = {
   border: "#3d444d",
 };
 
-// INVARIANT: the app follows the system scheme; every screen takes its colors from here, none hard-codes one.
+function useIsDark(): boolean {
+  const scheme = useAtomValue(schemeAtom);
+  const system = useColorScheme();
+  return scheme === "dark" || (scheme !== "light" && system === "dark");
+}
+
+// INVARIANT: every screen takes its colors from here, none hard-codes one, so each follows the color scheme setting.
 export function useAppColors(): AppColors {
-  return useColorScheme() === "dark" ? DARK : LIGHT;
+  return useIsDark() ? DARK : LIGHT;
+}
+
+// WHY: native views the app does not draw, such as the keyboard and alerts, follow the scheme only through this
+// override; "auto" hands them back to the device.
+export function useApplyColorScheme(): void {
+  const scheme = useAtomValue(schemeAtom);
+  useEffect(() => {
+    Appearance.setColorScheme(scheme === "light" || scheme === "dark" ? scheme : "auto");
+  }, [scheme]);
 }
 
 export function useNavigationTheme(): Theme {
-  const isDark = useColorScheme() === "dark";
+  const isDark = useIsDark();
   const colors = isDark ? DARK : LIGHT;
   const base = isDark ? DarkTheme : DefaultTheme;
   return {

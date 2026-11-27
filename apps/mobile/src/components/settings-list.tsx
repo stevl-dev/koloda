@@ -7,7 +7,10 @@ import { useAppColors } from "../colors";
 export function SettingsList() {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const screens = [{ href: "/settings/sync", title: _(msg`mobile.settings.sync`) }] as const;
+  const screens = [
+    { href: "/settings/interface", title: _(msg`mobile.settings.interface`) },
+    { href: "/settings/sync", title: _(msg`mobile.settings.sync`) },
+  ] as const;
 
   return (
     <ScrollView>

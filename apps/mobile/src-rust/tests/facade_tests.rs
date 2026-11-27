@@ -154,6 +154,48 @@ async fn a_malformed_payload_rejects_with_the_unknown_app_error() {
     assert!(details.is_some(), "the serde message travels as details");
 }
 
+#[tokio::test]
+async fn a_settings_patch_changes_its_field_and_keeps_the_rest() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+
+    let patch = json!({ "name": "interface", "content": { "scheme": "dark" } }).to_string();
+    mobile.patch_settings(patch).await.expect("patch");
+
+    let row: Value = serde_json::from_str(&mobile.get_settings("interface".to_string()).await.expect("read")).unwrap();
+    assert_eq!(row["content"]["scheme"], "dark");
+    assert_eq!(
+        row["content"]["lightTheme"], "github-light",
+        "a patch leaves the other fields as they were"
+    );
+}
+
+#[tokio::test]
+async fn a_rejected_settings_write_keeps_the_saved_row() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let saved = mobile.get_settings("learning".to_string()).await.expect("read");
+    let mut content: Value = serde_json::from_str::<Value>(&saved).unwrap()["content"].clone();
+    content["dailyLimits"]["untouched"]["value"] = json!(101);
+
+    let err = mobile
+        .set_settings(json!({ "name": "learning", "content": content }).to_string())
+        .await
+        .expect_err("a counted limit above Total");
+
+    let MobileError::App { code, .. } = err;
+    assert_eq!(
+        code,
+        "validation.settings-learning.daily-limits.untouched-exceeds-total"
+    );
+    assert_eq!(
+        mobile.get_settings("learning".to_string()).await.expect("read again"),
+        saved
+    );
+}
+
 // A 48×48 PNG, small enough to inline.
 const SAMPLE_PNG: [u8; 136] = [
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00,

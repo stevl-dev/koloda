@@ -22,6 +22,20 @@ use tokio::sync::oneshot;
 
 mod sync;
 
+#[derive(serde::Deserialize)]
+struct SettingsWrite {
+    name: String,
+    content: serde_json::Value,
+}
+
+impl SettingsWrite {
+    fn parse(json: &str) -> Result<(SettingsName, serde_json::Value), MobileError> {
+        let write: SettingsWrite = from_wire(json)?;
+        let name = write.name.parse::<SettingsName>().map_err(|e| unknown(e.to_string()))?;
+        Ok((name, write.content))
+    }
+}
+
 uniffi::setup_scaffolding!();
 
 /// `AppError` as JS receives it; `apps/mobile` rebuilds the `@koloda/app` `AppError` from its fields.
@@ -302,6 +316,22 @@ impl KolodaMobile {
         self.run(move |db| {
             let name = name.parse::<SettingsName>().map_err(|e| unknown(e.to_string()))?;
             to_wire(&repo::settings::get_settings(db, name)?)
+        })
+        .await
+    }
+
+    pub async fn set_settings(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let (name, content) = SettingsWrite::parse(&data)?;
+            to_wire(&repo::settings::set_settings(db, name, content)?)
+        })
+        .await
+    }
+
+    pub async fn patch_settings(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let (name, patch) = SettingsWrite::parse(&data)?;
+            to_wire(&repo::settings::patch_settings(db, name, patch)?)
         })
         .await
     }

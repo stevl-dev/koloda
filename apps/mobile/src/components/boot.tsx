@@ -1,11 +1,15 @@
+import { interfaceSettingsValidation } from "@koloda/app";
+import { setInterfaceSettingAtoms } from "@koloda/settings-react/interface-settings";
 import { useLingui } from "@lingui/react";
 import { msg } from "@lingui/core/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useStore } from "jotai";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { ActivityIndicator, AppState, Text } from "react-native";
 import { useAppColors } from "../colors";
 import type { KolodaFacade } from "../host/facade";
+import { useMobileQueries } from "../host/queries-context";
 import { seedDB } from "../host/setup";
 import { startSync, SYNC_START_KEY } from "../host/start-sync";
 
@@ -18,10 +22,17 @@ export function Boot({ facade, children }: BootProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const queryClient = useQueryClient();
+  const store = useStore();
+  const { getSettingsQuery } = useMobileQueries();
   const { isSuccess, error } = useQuery({
     queryKey: ["mobile-boot"],
     queryFn: async () => {
       await seedDB(facade, _);
+      // INVARIANT: the saved interface settings apply before the first screen shows, so it opens in their colors.
+      const row = await queryClient.fetchQuery(getSettingsQuery("interface"));
+      // WHY: the app shows English until it offers a language; `langAtom` stays as `activateEnglish` set it.
+      const { language: _language, ...settings } = interfaceSettingsValidation.parse(row?.content ?? {});
+      setInterfaceSettingAtoms(store, settings);
       return true;
     },
     staleTime: Infinity,

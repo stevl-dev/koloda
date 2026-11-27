@@ -7,7 +7,7 @@ import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Boot } from "../components/boot";
-import { useNavigationTheme } from "../colors";
+import { useApplyColorScheme, useNavigationTheme } from "../colors";
 import { activateEnglish } from "../i18n";
 import { imageCacheDir, openFacade } from "../host/open-facade";
 import { createMobileQueries } from "../host/queries";
@@ -28,6 +28,7 @@ function RootStack() {
 
 export default function RootLayout() {
   const theme = useNavigationTheme();
+  useApplyColorScheme();
   const [queryClient] = useState(() => new QueryClient());
   const [facade] = useState(openFacade);
   const [queries] = useState(() => createMobileQueries(facade, imageCacheDir()));

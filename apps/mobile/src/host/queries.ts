@@ -1,6 +1,6 @@
 import { queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
-import type { AllowedSettings, SettingsName } from "@koloda/settings";
+import type { AllowedSettings, PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import type {
   Attachment,
   Deck,
@@ -24,6 +24,8 @@ export type MobileQueries = Pick<
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
   | "getSettingsQuery"
+  | "setSettingsMutation"
+  | "patchSettingsMutation"
   | "getTodayReviewTotalsQuery"
 > & {
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
@@ -51,6 +53,12 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
       // WHY: the façade returns any slice; `Queries` narrows the result to the requested `T`, as on desktop.
       queryFn: async () =>
         (await read<AllowedSettings<SettingsName> | null>(() => facade.getSettings(name))) as AllowedSettings<T> | null,
+    }),
+    setSettingsMutation: <T extends SettingsName>() => ({
+      mutationFn: (data: SetSettingsData<T>) => read<AllowedSettings<T>>(() => facade.setSettings(wireArgs(data))),
+    }),
+    patchSettingsMutation: <T extends SettingsName>() => ({
+      mutationFn: (data: PatchSettingsData<T>) => read<AllowedSettings<T>>(() => facade.patchSettings(wireArgs(data))),
     }),
     getTodayReviewTotalsQuery: () => ({
       queryKey: queryKeys.lessons.todayReviewTotals(),

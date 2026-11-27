@@ -21,8 +21,9 @@ export function JoinSpace() {
   const text = { color: colors.text };
   const input = [styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }];
   const queryClient = useQueryClient();
-  const { canJoinQuery, previewSpaceMutation, joinSpaceMutation } = useMobileQueries();
+  const { canJoinQuery, getSettingsQuery, previewSpaceMutation, joinSpaceMutation } = useMobileQueries();
   const canJoin = useQuery(canJoinQuery());
+  const interfaceSettings = useQuery(getSettingsQuery("interface"));
   const [serverUrl, setServerUrl] = useState("");
   const [code, setCode] = useState("");
   const [deviceName, setDeviceName] = useState(defaultDeviceName);
@@ -59,10 +60,13 @@ export function JoinSpace() {
             join.reset();
           }}
         />
+        {/* WHY: interface settings stay on each device, so joining keeps this phone's. */}
         <Button
           title={_(msg`mobile.sync.join`)}
           disabled={join.isPending}
-          onPress={() => join.mutate({ serverUrl, code, deviceName, settings: seedSettings({}) })}
+          onPress={() =>
+            join.mutate({ serverUrl, code, deviceName, settings: seedSettings(interfaceSettings.data?.content ?? {}) })
+          }
         />
       </View>
     );

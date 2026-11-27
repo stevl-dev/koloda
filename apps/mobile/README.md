@@ -102,6 +102,10 @@ Run on each platform after a change to the app.
 - [ ] A desktop card that uses every markdown kind, with a stored image, shows each kind in a lesson.
   A remote or embedded image shows its alt text instead.
 - [ ] The card reads well with the system in light mode and in dark mode.
+- [ ] In Settings → Interface, Dark with the system light turns every screen, the tab bar, the headers, the keyboard,
+  and the leave dialog dark; Light with the system dark turns them light.
+  With System, switching the device's dark mode switches the app at once.
+  After a force-quit, the app opens in the chosen scheme with no flash of the other.
 - [ ] Tapping the card's web link opens the system browser.
 - [ ] The Lessons tab lists "All decks" first; each row's New, Learn, Review, and Total start a lesson of that type,
   and a zero does nothing.
