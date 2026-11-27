@@ -1,6 +1,6 @@
 # Mobile sync
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/SYNC.md, crates/koloda-sync/README.md, crates/koloda-sync-proto/PROTOCOL.md, docs/decisions/CACHE-REFRESH.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, agents/DEPENDENCIES.md
 Flow: local
 
@@ -225,3 +225,35 @@ Out:
   Depends on: 2
 
 ## Outcome
+
+The mobile app's Settings → Sync now does what desktop's does, except create a space, and syncs in the background.
+
+What shipped:
+
+- "Sync now", a dot on the Settings tab while sync needs attention, and the state on Settings' Sync row.
+- Inviting a device, the device list and removal, leaving, Add or Replace when a phone with data of its own joins,
+  and continuing after an authoritative restore; the façade copies the desktop host's calls for each.
+- Background sync: an `expo-background-task` task runs `syncTick`, a 60-second bounded `Engine::tick`, about every
+  15 minutes; it skips outside a space, while the space downloads, and while the choice waits.
+  The bundle's entry is now `apps/mobile/index.ts`, which defines the task before the router loads.
+- `@koloda/settings-react/sync-status` now carries the sync screens' rules: when sync needs attention, the devices
+  that came from a removed one, copy detection, the left and unknown-device states, the pairing code's format and
+  countdown, and the platform labels.
+  Items 6 and 7 moved the last three, which the plan's item 1 did not list.
+- New dependencies, approved in the session: `expo-background-task`, `expo-task-manager`, `expo-clipboard`.
+
+Deviations from the plan:
+
+- Item 3's rule that a tick runs only in a space is tested in Rust (`is_tick_due`), not in Jest.
+- Item 10 has no Rust test: accepting with no restore held fails inside the engine with `db.delete`, a state the
+  phone cannot reach, so a test would pin an incidental code.
+- The device removal's confirm button reads "Remove from the space", since the other devices' Remove buttons stay
+  on screen.
+
+Not verified on a device: by the human's choice, no device check ran.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The Russian strings were written by the agent and have not been read by a native speaker.
+
+Spec: docs/specs/SYNC.md
+Review: none, self-review only
+Change rounds: 0

@@ -34,6 +34,7 @@ Entries are grouped under one heading per package directory.
 - Handoff: port the mobile app to iOS: the Swift Keychain vault, the iOS builds, and the device checks on an iPhone.
   Evidence: at `abb4c255`, `apps/mobile/app.json` lists Android only, and no Swift vault registers on iOS.
   It also answers whether uniffi-bindgen-react-native's async calls work on iOS.
+  At `98d0c69e`, background sync registers through `expo-background-task`, which needs BGTaskScheduler set up on iOS.
   Kind: handoff
   Source: `tasks/archive/mobile-spike.md`, question 10
   Deferred because: no Mac with Xcode was available.
@@ -48,6 +49,9 @@ Entries are grouped under one heading per package directory.
   per-type starts, the init screen, session progress, and the leave confirmation; none has run.
   `mobile-settings` added or changed the checks for the Settings tab, the color scheme, the themes, the language,
   motion and timestamp formats, and learning settings, and moved the Sync checks under Settings → Sync; none has run.
+  `mobile-sync` added the checks for background runs, Sync now, the attention dot and Sync row, inviting a device,
+  the device list and removal, leaving, rejoining, Add or Replace, and continuing after a restore; none has run.
+  It also needs a fresh native build: `expo-background-task`, `expo-task-manager`, and `expo-clipboard` are native.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`
   Deferred because: the human runs every device check once the planned mobile features have shipped
@@ -63,6 +67,7 @@ Entries are grouped under one heading per package directory.
 - Handoff: share the Rust host code the mobile façade copied from the desktop addon.
   Evidence: at `f49ddbd3`, `apps/mobile/README.md` (§Copies) lists the database worker and payload helpers in
   `apps/mobile/src-rust/src/lib.rs` and the sync host in `apps/mobile/src-rust/src/sync.rs`.
+  At `98d0c69e`, `mobile-sync` copied every desktop sync host call but creating a space into `sync.rs`.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`, question 5
   Deferred because: it is the same question as the Repository needs-decision entry on the desktop command path.
@@ -73,12 +78,6 @@ Entries are grouped under one heading per package directory.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`, question 6
   Deferred because: the job needs the Android SDK, NDK, and a JDK on the runner, and is a CI task of its own.
-
-- Handoff: background sync on mobile through the engine's `tick` (WorkManager, BGTaskScheduler).
-  Evidence: at `abb4c255`, the app syncs only in the foreground; Android freezes the runner in the background.
-  Kind: handoff
-  Source: `tasks/archive/mobile-spike.md`, question 4
-  Deferred because: it does not gate the verdict and is the same code under any host.
 
 ## crates/koloda-server
 
@@ -94,10 +93,13 @@ Entries are grouped under one heading per package directory.
 - Risk, Later: a bootstrap under a bounded tick restarts each tick, so a snapshot past one tick's budget never ends.
   Evidence: at `1c0661bb`, `crates/koloda-sync-proto/PROTOCOL.md:1375-1377` states the limit;
   the desktop host does not call `Engine::tick`.
+  At `98d0c69e`, the mobile host ticks in the background but skips while the space downloads
+  (`apps/mobile/src-rust/src/sync.rs`, `is_tick_due`), so the download runs only while the app is open.
   The report gave R findings no severity.
   Kind: skipped
   Source: `tasks/archive/sync-audit-fixes.md`, finding R2
-  Deferred because: deferred to the mobile host, whose background ticks are usually further apart than the lease TTL.
+  Deferred because: the mobile host avoids it by not ticking through a download (`tasks/archive/mobile-sync.md`,
+  question 5).
 
 - Handoff: no test forces an upload nudge to land between a fetch's `404` and its deferral.
   Evidence: at `1c0661bb`, the engine releases waiting fetches after a running cycle ends
