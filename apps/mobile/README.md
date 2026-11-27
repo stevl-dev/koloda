@@ -84,7 +84,7 @@ A library moves to a new phone by joining its sync space.
 - `nx run @koloda/mobile:prebuild` — regenerates `android/` from the app config.
 - `nx run @koloda/mobile:test` — Jest unit tests; `bun run test:app-unit` runs them.
 - `nx run @koloda/mobile:typecheck`
-- `nx run @koloda/mobile:lingui-extract` and `nx run @koloda/mobile:lingui-compile` — the English catalog.
+- `nx run @koloda/mobile:lingui-extract` and `nx run @koloda/mobile:lingui-compile` — the English and Russian catalogs.
 
 ## Device checks
 
@@ -106,6 +106,9 @@ Run on each platform after a change to the app.
   and the leave dialog dark; Light with the system dark turns them light.
   With System, switching the device's dark mode switches the app at once.
   After a force-quit, the app opens in the chosen scheme with no flash of the other.
+- [ ] On a fresh install on a phone set to Russian, the app opens in Russian.
+  In Settings → Interface, English switches the tabs, headers, Lessons tab, and lesson grades to English at once,
+  and the choice holds after a force-quit.
 - [ ] With each of Atom One Light, GitHub Light, Atom One Dark, and GitHub Dark chosen and its scheme active,
   the Lessons tab, a lesson, and Settings read well, and the tab bar and headers match the screens.
   Switching the scheme keeps both theme choices.

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
-import { activateEnglish } from "../i18n";
+import { activateLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 import { LessonsList } from "./lessons-list";
 
@@ -28,7 +28,7 @@ const totals = {
 };
 
 async function renderList(result: unknown) {
-  activateEnglish();
+  activateLanguage("en");
   const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(result)));
   const getTodaysReviewTotals = () => Promise.resolve(JSON.stringify(totals));
   const queries = createMobileQueries(fakeFacade({ getLessons, getTodaysReviewTotals }), "/cache");

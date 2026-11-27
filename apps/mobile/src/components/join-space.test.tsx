@@ -5,14 +5,14 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
-import { activateEnglish } from "../i18n";
+import { activateLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 import { JoinSpace } from "./join-space";
 
 const SPACE = { spaceName: "Home", counts: { decks: 2, cards: 40, reviews: 300 }, bytes: 2_500_000 };
 
 async function renderJoin(overrides: Partial<KolodaFacade>) {
-  activateEnglish();
+  activateLanguage("en");
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
   });

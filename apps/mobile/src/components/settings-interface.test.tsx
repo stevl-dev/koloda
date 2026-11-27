@@ -1,5 +1,5 @@
 import { DARK_THEMES, LIGHT_THEMES } from "@koloda/app";
-import { darkThemeAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
+import { darkThemeAtom, langAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -10,17 +10,19 @@ import { DARK_PALETTES, LIGHT_PALETTES, useAppColors } from "../colors";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
-import { activateEnglish } from "../i18n";
+import { activateLanguage, useCatalogFollowsLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 import { SettingsInterface } from "./settings-interface";
 
 function Background() {
+  useCatalogFollowsLanguage();
   return <Text testID="background">{useAppColors().background}</Text>;
 }
 
 async function renderSettings(patchSettings: KolodaFacade["patchSettings"]) {
-  activateEnglish();
+  activateLanguage("en");
   const store = createStore();
+  store.set(langAtom, "en");
   store.set(schemeAtom, "light");
   store.set(lightThemeAtom, "github-light");
   store.set(darkThemeAtom, "github-dark");
@@ -64,6 +66,19 @@ describe("SettingsInterface", () => {
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.getByRole("radio", { name: "Light" })).toBeSelected();
     expect(screen.getByTestId("background")).toHaveTextContent("#f6f8fa");
+  });
+
+  it("switches the text to the chosen language and saves it", async () => {
+    const patchSettings = jest.fn((data: string) =>
+      Promise.resolve(JSON.stringify({ name: "interface", content: JSON.parse(data).content })),
+    );
+    await renderSettings(patchSettings);
+
+    await fireEvent.press(screen.getByRole("radio", { name: "Русский" }));
+
+    expect(JSON.parse(patchSettings.mock.calls[0]![0])).toEqual({ name: "interface", content: { language: "ru" } });
+    expect(await screen.findByText("Цветовая схема")).toBeTruthy();
+    expect(screen.getByRole("radio", { name: "Тёмная" })).toBeTruthy();
   });
 
   it("shows the chosen dark theme while the scheme is dark, and keeps it when the scheme turns light", async () => {

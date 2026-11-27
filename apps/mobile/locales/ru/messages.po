@@ -1,0 +1,185 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-27 14:19+0300\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ru\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/boot.tsx
+msgid "mobile.boot.error"
+msgstr "Приложению не удалось открыть базу данных."
+
+#: src/components/lessons-list.tsx
+msgid "mobile.learned-today.error"
+msgstr "Не удалось загрузить прогресс за сегодня."
+
+#: src/components/learned-today.tsx
+msgid "mobile.learned-today.title"
+msgstr "Изучено сегодня"
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.back"
+msgstr "К урокам"
+
+#: src/lesson/lesson-card.tsx
+msgid "mobile.lesson.card"
+msgstr "Карточка; нажмите, чтобы показать ответ"
+
+#: src/lesson/lesson-card.tsx
+msgid "mobile.lesson.continue"
+msgstr "Продолжить"
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.done"
+msgstr "Урок завершён"
+
+#: src/lesson/lesson-init.tsx
+msgid "mobile.lesson.init.available {availableCount}"
+msgstr "из {availableCount}"
+
+#: src/lesson/lesson-init.tsx
+msgid "mobile.lesson.init.start"
+msgstr "Начать"
+
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.close"
+msgstr "Закрыть"
+
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.continue"
+msgstr "Продолжить изучение"
+
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.title"
+msgstr "Завершить урок?"
+
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.load-failed"
+msgstr "Не удалось загрузить урок."
+
+#: src/lesson/lesson-progress.tsx
+msgid "mobile.lesson.progress.done {done}"
+msgstr "Готово {done}"
+
+#: src/lesson/lesson-progress.tsx
+msgid "mobile.lesson.progress.pending {pending}"
+msgstr "Осталось {pending}"
+
+#: src/lesson/lesson-progress.tsx
+#: src/lesson/lesson-screen.tsx
+msgid "mobile.lesson.save-failed {failed}"
+msgstr "Не сохранено результатов: {failed}"
+
+#: src/app/_layout.tsx
+msgid "mobile.lesson.title"
+msgstr "Урок"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.all-decks"
+msgstr "Все колоды"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.empty"
+msgstr "Колод пока нет. Библиотека приходит из приложения для компьютера: присоединитесь к его пространству синхронизации, чтобы перенести её сюда."
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.error"
+msgstr "Не удалось загрузить уроки."
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.nothing-due"
+msgstr "Нечего повторять"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.open-sync"
+msgstr "Открыть настройки синхронизации"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.start {label} {count}"
+msgstr "{label} {count}"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
+msgid "mobile.settings.interface"
+msgstr "Интерфейс"
+
+#: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.dark-theme"
+msgstr "Тёмная тема"
+
+#: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.language"
+msgstr "Язык"
+
+#: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.light-theme"
+msgstr "Светлая тема"
+
+#: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.scheme"
+msgstr "Цветовая схема"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
+msgid "mobile.settings.sync"
+msgstr "Синхронизация"
+
+#: src/app/(tabs)/settings/_layout.tsx
+msgid "mobile.settings.title"
+msgstr "Настройки"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.back"
+msgstr "Назад"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.code"
+msgstr "Код подключения"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.device-name"
+msgstr "Имя устройства"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.join"
+msgstr "Присоединиться"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.join-refused"
+msgstr "На этом телефоне уже есть собственные данные, поэтому в этой тестовой сборке он не может присоединиться к пространству. Переустановите приложение, чтобы присоединиться."
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview"
+msgstr "Показать пространство"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview-counts {decks} {cards} {reviews}"
+msgstr "Колоды {decks} · Карточки {cards} · Повторения {reviews}"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.preview-size {megabytes}"
+msgstr "Размер: {megabytes} МБ"
+
+#: src/components/join-space.tsx
+msgid "mobile.sync.server-url"
+msgstr "Адрес сервера"
+
+#: src/components/sync-panel.tsx
+msgid "mobile.sync.start-failed {message}"
+msgstr "Не удалось запустить синхронизацию: {message}"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.lessons"
+msgstr "Уроки"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.settings"
+msgstr "Настройки"

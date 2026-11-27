@@ -1253,7 +1253,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Mobile App",
         "depth": 2,
-        "markdown": "## Mobile App\n\nThe mobile app has its interface settings under Settings → Interface.\nThey save as §Editing and Saving says.\n\n- It offers the color scheme and the light and dark themes.\n  The scheme also sets the color of the keyboard and of dialogs.\n- It offers no language, motion, or date and time format yet.\n  It shows English, with times as English renders them.\n  Its animations follow the device's reduced-motion preference.\n- It opens in the saved scheme and themes, because it reads the settings before its first screen shows.\n- Joining a sync space keeps the phone's interface settings.\n"
+        "markdown": "## Mobile App\n\nThe mobile app has its interface settings under Settings → Interface.\nThey save as §Editing and Saving says.\n\n- It offers the language, the color scheme, and the light and dark themes.\n  The scheme also sets the color of the keyboard and of dialogs.\n- It offers no motion or date and time format yet.\n  It shows times as its language renders them, and its animations follow the device's reduced-motion preference.\n- It opens in the saved language, scheme, and themes, because it reads the settings before its first screen shows.\n  Its settings stay on the phone, so the language saved there is the one last chosen on it.\n- A fresh install starts in the device language when the app offers it, otherwise English.\n  Its starter content is in that language.\n- Joining a sync space keeps the phone's interface settings.\n"
       }
     ]
   },

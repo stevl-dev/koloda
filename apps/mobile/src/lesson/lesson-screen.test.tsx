@@ -12,7 +12,7 @@ import LessonRoute from "../app/lesson";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
-import { activateEnglish } from "../i18n";
+import { activateLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 import { LessonScreen } from "./lesson-screen";
 
@@ -90,7 +90,7 @@ type ProvidersProps = {
 };
 
 function providers(overrides: Partial<KolodaFacade> = {}) {
-  activateEnglish();
+  activateLanguage("en");
   const queries = createMobileQueries(fakeFacade({ ...responses, ...overrides }), "/cache");
   const store = createStore();
   const queryClient = new QueryClient({

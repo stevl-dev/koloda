@@ -147,7 +147,7 @@ Out:
   Commit: Choose light and dark themes on mobile
   Depends on: 3
 
-- [ ] 5. Switch the mobile app's language
+- [x] 5. Switch the mobile app's language
   Goal: the Interface screen offers English and Russian, by §Language, and switching changes all text at once,
   including the tab labels and the headers.
   Add `ru` to `apps/mobile/lingui.config.ts` and translate the mobile app's own messages in its Russian catalog;
@@ -164,7 +164,7 @@ Out:
   language at startup.
   Update `apps/mobile/README.md` (§Device checks) with a language check.
   Constraints: `apps/mobile`, the mobile locale catalogs, `agents/I18N.md`.
-  Done when: a mobile Jest test switches to Russian and sees a Russian tab label and Russian lesson counts,
+  Done when: a mobile Jest test switches to Russian and sees the Interface screen's labels in Russian,
   and a test seeds a fresh install from a Russian device locale; `bun run check:i18n`; `bun run check:push`.
   Commit: Switch the mobile app's language
   Depends on: 3

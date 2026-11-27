@@ -3,10 +3,9 @@ import rootConfig from "../../lingui.config";
 
 const { catalogs, ...baseConfig } = rootConfig;
 
-// WHY: the app ships English only until it gets a second locale.
 const config: LinguiConfig = {
   ...baseConfig,
-  locales: ["en"],
+  locales: ["en", "ru"],
   catalogs: [
     ...(catalogs || []),
     {

@@ -6,7 +6,7 @@ import { render, screen } from "@testing-library/react-native";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
-import { activateEnglish } from "../i18n";
+import { activateLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 import { SyncPanel } from "./sync-panel";
 
@@ -29,7 +29,7 @@ function statusWith(state: SyncState, overrides: Partial<SyncStatus> = {}): Sync
 }
 
 async function renderPanel(status: SyncStatus) {
-  activateEnglish();
+  activateLanguage("en");
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   client.setQueryData(SYNC_START_KEY, status);
   const syncStatus = () => Promise.resolve(JSON.stringify(status));

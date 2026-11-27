@@ -8,12 +8,13 @@ import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Boot } from "../components/boot";
 import { useApplyColorScheme, useNavigationTheme } from "../colors";
-import { activateEnglish } from "../i18n";
+import { activateLanguage, deviceLanguage, useCatalogFollowsLanguage } from "../i18n";
 import { imageCacheDir, openFacade } from "../host/open-facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 
-activateEnglish();
+// WHY: until boot reads the saved language, the boot screen and the starter content use the device's.
+activateLanguage(deviceLanguage());
 
 function RootStack() {
   const { _ } = useLingui();
@@ -29,6 +30,7 @@ function RootStack() {
 export default function RootLayout() {
   const theme = useNavigationTheme();
   useApplyColorScheme();
+  useCatalogFollowsLanguage();
   const [queryClient] = useState(() => new QueryClient());
   const [facade] = useState(openFacade);
   const [queries] = useState(() => createMobileQueries(facade, imageCacheDir()));

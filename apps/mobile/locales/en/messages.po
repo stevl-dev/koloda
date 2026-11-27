@@ -116,6 +116,10 @@ msgid "mobile.settings.interface.dark-theme"
 msgstr "Dark theme"
 
 #: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.language"
+msgstr "Language"
+
+#: src/components/settings-interface.tsx
 msgid "mobile.settings.interface.light-theme"
 msgstr "Light theme"
 

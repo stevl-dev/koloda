@@ -28,7 +28,7 @@ export type LessonCardProps = {
 };
 
 export function LessonCard({ content }: LessonCardProps) {
-  const { _ } = useLingui();
+  const { _, i18n } = useLingui();
   const colors = useAppColors();
   const submit = useSetAtom(submitLessonCardAtom);
   const selectGrade = useSetAtom(selectLessonGradeAtom);
@@ -94,7 +94,7 @@ export function LessonCard({ content }: LessonCardProps) {
               onPress={() => grade(i)}
             >
               <Text style={[styles.interval, { color: colors.muted }]}>
-                {formatDistanceStrict(next.dueAt, revlog.reviewTime, { locale: dateFnsLocale("en") })}
+                {formatDistanceStrict(next.dueAt, revlog.reviewTime, { locale: dateFnsLocale(i18n.locale) })}
               </Text>
               <Text style={[styles.gradeLabel, { color: colors.text }]}>{_(FSRS_GRADES[i])}</Text>
               <Text style={[styles.arrow, { color: colors.muted }]} importantForAccessibility="no">

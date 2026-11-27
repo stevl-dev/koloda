@@ -6,8 +6,6 @@ import { useLingui } from "@lingui/react";
 import { StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 
-const formatEnglish = (value: number, fractionDigits = 0) => formatNumber(value, fractionDigits, "en");
-
 // WHY: a lesson's setup holds only these two parts of today's totals, and the init screen shows them too.
 type LearnedTodayTotals = Pick<TodaysReviewTotals, "reviewTotals" | "dailyLimits">;
 
@@ -35,11 +33,13 @@ type LearnedTodayRowProps = {
 };
 
 function LearnedTodayRow({ type, totals: { reviewTotals, dailyLimits } }: LearnedTodayRowProps) {
-  const { _ } = useLingui();
+  const { _, i18n } = useLingui();
   const colors = useAppColors();
   const limit = type === "total" ? dailyLimits.total : dailyLimits[type].value;
   const learned = reviewTotals[type];
-  const progress = getLearnedTodayProgress(limit, learned, formatEnglish);
+  const progress = getLearnedTodayProgress(limit, learned, (value, fractionDigits = 0) =>
+    formatNumber(value, fractionDigits, i18n.locale),
+  );
 
   return (
     <View style={styles.row}>

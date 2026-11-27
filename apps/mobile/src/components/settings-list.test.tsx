@@ -10,7 +10,7 @@ import SyncSettingsScreen from "../app/(tabs)/settings/sync";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
-import { activateEnglish } from "../i18n";
+import { activateLanguage } from "../i18n";
 import { fakeFacade } from "../test/fake-facade";
 
 type ProvidersProps = {
@@ -19,7 +19,7 @@ type ProvidersProps = {
 
 describe("SettingsList", () => {
   it("opens the Sync screen, which offers joining a space", async () => {
-    activateEnglish();
+    activateLanguage("en");
     const status = { state: { type: "notEnrolled" }, lastSuccessAt: null, pending: 0, held: 0, uploads: 0, fetches: 0 };
     const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
     client.setQueryData(SYNC_START_KEY, status);

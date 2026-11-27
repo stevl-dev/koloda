@@ -10,6 +10,7 @@ import { ActivityIndicator, AppState, Text } from "react-native";
 import { useAppColors } from "../colors";
 import type { KolodaFacade } from "../host/facade";
 import { useMobileQueries } from "../host/queries-context";
+import { activateLanguage } from "../i18n";
 import { seedDB } from "../host/setup";
 import { startSync, SYNC_START_KEY } from "../host/start-sync";
 
@@ -28,10 +29,11 @@ export function Boot({ facade, children }: BootProps) {
     queryKey: ["mobile-boot"],
     queryFn: async () => {
       await seedDB(facade, _);
-      // INVARIANT: the saved interface settings apply before the first screen shows, so it opens in their colors.
+      // INVARIANT: the saved interface settings apply before the first screen shows, so it opens in their colors and
+      // language.
       const row = await queryClient.fetchQuery(getSettingsQuery("interface"));
-      // WHY: the app shows English until it offers a language; `langAtom` stays as `activateEnglish` set it.
-      const { language: _language, ...settings } = interfaceSettingsValidation.parse(row?.content ?? {});
+      const settings = interfaceSettingsValidation.parse(row?.content ?? {});
+      activateLanguage(settings.language);
       setInterfaceSettingAtoms(store, settings);
       return true;
     },

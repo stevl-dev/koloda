@@ -1,5 +1,5 @@
-import { DARK_THEMES, ERROR_MESSAGES, formatAppError, LIGHT_THEMES, SCHEMES } from "@koloda/app";
-import { darkThemeAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
+import { DARK_THEMES, ERROR_MESSAGES, formatAppError, LANGUAGES, LIGHT_THEMES, SCHEMES } from "@koloda/app";
+import { darkThemeAtom, langAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
 import { useInterfaceSettingWriteError, useInterfaceSettingWriteWith } from "@koloda/settings-react/interface-settings";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -15,6 +15,7 @@ export function SettingsInterface() {
   const { patchSettingsMutation } = useMobileQueries();
   const write = useInterfaceSettingWriteWith(patchSettingsMutation);
   const writeError = useInterfaceSettingWriteError();
+  const language = useAtomValue(langAtom);
   const scheme = useAtomValue(schemeAtom);
   const lightTheme = useAtomValue(lightThemeAtom);
   const darkTheme = useAtomValue(darkThemeAtom);
@@ -26,6 +27,12 @@ export function SettingsInterface() {
           {formatAppError(writeError, _, ERROR_MESSAGES["db.update"]).message}
         </Text>
       )}
+      <ChoiceGroup
+        label={_(msg`mobile.settings.interface.language`)}
+        choices={LANGUAGES.map(({ id, value }) => ({ value: id, label: value }))}
+        value={language}
+        onChange={(value) => write("language", value)}
+      />
       <ChoiceGroup
         label={_(msg`mobile.settings.interface.scheme`)}
         choices={Object.entries(SCHEMES).map(([value, label]) => ({ value, label: _(label) }))}

@@ -203,10 +203,12 @@ Language is the exception; see §Language.
 The mobile app has its interface settings under Settings → Interface.
 They save as §Editing and Saving says.
 
-- It offers the color scheme and the light and dark themes.
+- It offers the language, the color scheme, and the light and dark themes.
   The scheme also sets the color of the keyboard and of dialogs.
-- It offers no language, motion, or date and time format yet.
-  It shows English, with times as English renders them.
-  Its animations follow the device's reduced-motion preference.
-- It opens in the saved scheme and themes, because it reads the settings before its first screen shows.
+- It offers no motion or date and time format yet.
+  It shows times as its language renders them, and its animations follow the device's reduced-motion preference.
+- It opens in the saved language, scheme, and themes, because it reads the settings before its first screen shows.
+  Its settings stay on the phone, so the language saved there is the one last chosen on it.
+- A fresh install starts in the device language when the app offers it, otherwise English.
+  Its starter content is in that language.
 - Joining a sync space keeps the phone's interface settings.
