@@ -109,6 +109,7 @@ Run on each platform after a change to the app.
 - [ ] Starting a lesson opens the init screen with the default amounts and today's progress.
   Raising an amount past what is available holds it there, Total follows, and Start is disabled at a Total of zero.
   The keyboard covers neither the amounts nor Start.
+- [ ] While studying, Done and Left count the graded and remaining cards, and the bar fills as cards are graded.
 - [ ] Tap a deck's Total, then Start; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
   Each grade button shows its arrow, and a drag shows the grade it would give on the card.

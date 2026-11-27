@@ -53,6 +53,15 @@ msgstr "Start"
 msgid "mobile.lesson.load-failed"
 msgstr "The lesson could not load."
 
+#: src/lesson/lesson-progress.tsx
+msgid "mobile.lesson.progress.done {done}"
+msgstr "Done {done}"
+
+#: src/lesson/lesson-progress.tsx
+msgid "mobile.lesson.progress.pending {pending}"
+msgstr "Left {pending}"
+
+#: src/lesson/lesson-progress.tsx
 #: src/lesson/lesson-screen.tsx
 msgid "mobile.lesson.save-failed {failed}"
 msgstr "Results not saved: {failed}"

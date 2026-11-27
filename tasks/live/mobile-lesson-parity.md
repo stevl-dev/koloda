@@ -141,7 +141,7 @@ Out:
   Commit: Add the mobile lesson init screen
   Depends on: 3
 
-- [ ] 5. Show session progress while studying
+- [x] 5. Show session progress while studying
   Goal: while studying, the lesson screen shows the done count and the pending count, and a thin bar filled by the
   share of the session's cards already graded, from `lessonProgressAtom` and `lessonSessionCardsAtom`.
   Cards appended by learn-ahead grow the session, so the bar can move back.

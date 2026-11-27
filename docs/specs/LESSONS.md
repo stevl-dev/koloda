@@ -312,6 +312,9 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
 - Above the list, the Lessons tab shows today's progress (§Today's Progress).
   Pulling the list down refreshes it too.
 - In a type field, the keyboard's return key submits the card.
+- While studying, the lesson shows how many cards are done and how many are left, with a bar of the share done.
+  It shows these instead of the per-type amounts and the progress dots (§Progress).
+  When a result fails to save, it shows how many have failed.
 - There are no lesson hotkeys.
 - Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).
 

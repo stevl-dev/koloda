@@ -17,6 +17,7 @@ import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native"
 import { useAppColors } from "../colors";
 import { LessonCard } from "./lesson-card";
 import { LessonInit } from "./lesson-init";
+import { LessonProgress } from "./lesson-progress";
 import { useMobileLessonSession } from "./use-mobile-lesson-session";
 
 export type LessonScreenProps = {
@@ -61,10 +62,16 @@ export function LessonScreen({ type, deckId, onDone }: LessonScreenProps) {
   }
   if (phase === "configuring") return <LessonInit />;
   if (phase !== "studying" || !content) return <ActivityIndicator style={styles.done} color={colors.muted} />;
-  return <LessonCard content={content} />;
+  return (
+    <View style={styles.studying}>
+      <LessonProgress />
+      <LessonCard content={content} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   done: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
+  studying: { flex: 1 },
   title: { fontSize: 20, fontWeight: "600" },
 });

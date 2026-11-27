@@ -171,4 +171,25 @@ describe("LessonScreen", () => {
     expect(await screen.findByText("uno")).toBeTruthy();
     expect(JSON.parse(getLessonData.mock.calls[0][0]).amounts).toEqual({ untouched: 2, learn: 0, review: 0, total: 2 });
   });
+
+  it("shows the cards done and left, and how many results failed to save", async () => {
+    const submitLessonResult = jest
+      .fn((_data: string) => Promise.resolve())
+      .mockImplementationOnce(() => Promise.reject(new Error("disk full")));
+    await renderLesson({ submitLessonResult });
+    await fireEvent.press(await screen.findByText("Start"));
+
+    expect(await screen.findByText("uno")).toBeTruthy();
+    expect(screen.getByText("Done 0")).toBeTruthy();
+    expect(screen.getByText("Left 3")).toBeTruthy();
+    expect(screen.getByRole("progressbar").props.accessibilityValue).toMatchObject({ max: 3, now: 0 });
+
+    await fireEvent.press(screen.getByText("Continue"));
+    await fireEvent.press(screen.getByText("Good"));
+    expect(await screen.findByText("dos")).toBeTruthy();
+    expect(screen.getByText("Done 1")).toBeTruthy();
+    expect(screen.getByText("Left 2")).toBeTruthy();
+    expect(screen.getByRole("progressbar").props.accessibilityValue).toMatchObject({ max: 3, now: 1 });
+    expect(await screen.findByText("Results not saved: 1")).toBeTruthy();
+  });
 });
