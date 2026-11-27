@@ -1,6 +1,5 @@
 import { ERROR_MESSAGES, formatAppError, MOTION_SETTINGS, SCHEMES } from "@koloda/app";
-import { schemeAtom } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
+import { motionSettingAtom, schemeAtom } from "@koloda/core-react";
 import { ErrorMessage, FormLayout, ToggleGroup } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";

@@ -1,6 +1,5 @@
 import { DEFAULT_INTERFACE_SETTINGS } from "@koloda/app";
-import { darkThemeAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
+import { darkThemeAtom, lightThemeAtom, motionSettingAtom, schemeAtom } from "@koloda/core-react";
 import type { createStore } from "jotai";
 import { readUiPreferencesCache, writeUiPreferencesCache } from "./ui-preferences-cache";
 

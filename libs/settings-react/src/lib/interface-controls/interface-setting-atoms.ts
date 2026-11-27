@@ -4,10 +4,10 @@ import {
   dateFormatAtom,
   langAtom,
   lightThemeAtom,
+  motionSettingAtom,
   schemeAtom,
   timeFormatAtom,
 } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
 import type { createStore, PrimitiveAtom } from "jotai";
 
 export type InterfaceField = keyof InterfaceSettings;

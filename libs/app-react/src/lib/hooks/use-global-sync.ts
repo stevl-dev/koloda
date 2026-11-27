@@ -5,11 +5,11 @@ import {
   defaultTemplateAtom,
   langAtom,
   lightThemeAtom,
+  motionSettingAtom,
   schemeAtom,
   timeFormatAtom,
 } from "@koloda/core-react";
 import { queriesAtom } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect } from "react";

@@ -1,7 +1,7 @@
 export { focusNext, focusPrev, goToNextTab, goToPrevTab } from "./lib/core/focus";
 export { dispatchKey, matchesAnyHotkey } from "./lib/core/hotkeys";
 export { useIsWide } from "./lib/hooks/use-is-wide";
-export { motionSettingAtom, useMotionSetting } from "./lib/hooks/use-motion-settings";
+export { useMotionSetting } from "./lib/hooks/use-motion-settings";
 export { useRouteFocus } from "./lib/hooks/use-route-focus";
 export { AddIcon } from "./lib/icons/add-icon";
 export { AiIcon } from "./lib/icons/ai-icon";

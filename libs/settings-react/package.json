@@ -16,6 +16,11 @@
       "import": "./src/sync-status.ts",
       "default": "./src/sync-status.ts"
     },
+    "./interface-settings": {
+      "types": "./src/interface-settings.ts",
+      "import": "./src/interface-settings.ts",
+      "default": "./src/interface-settings.ts"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

@@ -1,5 +1,4 @@
-import { schemeAtom } from "@koloda/core-react";
-import { motionSettingAtom } from "@koloda/ui";
+import { motionSettingAtom, schemeAtom } from "@koloda/core-react";
 import { createStore } from "jotai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UI_PREFERENCES_STORAGE_KEY } from "./ui-preferences-cache";

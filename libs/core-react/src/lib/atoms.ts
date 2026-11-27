@@ -8,6 +8,7 @@ export const darkThemeAtom = atom("");
 export const dateFormatAtom = atom("locale");
 export const timeFormatAtom = atom("locale");
 export const langAtom = atom("");
+export const motionSettingAtom = atom("");
 export const defaultAlgorithmAtom = atom("");
 export const defaultTemplateAtom = atom("");
 export const aiProvidersAtom = atom<AiProvider[]>([]);

@@ -1,6 +1,5 @@
 import { AppError } from "@koloda/app";
-import { motionSettingAtom } from "@koloda/ui";
-import { langAtom, queriesAtom, schemeAtom } from "@koloda/core-react";
+import { langAtom, motionSettingAtom, queriesAtom, schemeAtom } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";

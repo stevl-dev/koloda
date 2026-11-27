@@ -32,7 +32,8 @@ What the code holds at `7bae057c`:
 - The Sync tab's last-sync time comes from `useSyncStatusLines` (`@koloda/settings-react`), which already reads
   `dateFormatAtom` and `timeFormatAtom`.
 - `INTERFACE_SETTING_ATOMS` (`libs/settings-react/src/lib/interface-controls/interface-setting-atoms.ts`) maps each
-  interface field to its atom; `motionSettingAtom` comes from `@koloda/ui`.
+  interface field to its atom; `motionSettingAtom` comes from `@koloda/ui`, and the write hook beside it
+  (`useInterfaceSettingWrite`) reads the desktop's `queriesAtom`, which the mobile app does not set.
 
 ## Scope
 
@@ -76,7 +77,7 @@ Out:
 - [x] 1. Move the Sync tab under a Settings tab
   Goal: the tabs are Lessons and Settings.
   The Settings tab is a stack: its first screen lists Sync, which opens its own screen.
-  Items 2 and 6 add the Interface and Learning rows with their screens, so no row opens an empty screen.
+  Items 3 and 7 add the Interface and Learning rows with their screens, so no row opens an empty screen.
   The Sync screen shows `SyncPanel` as the Sync tab does now, with the same keyboard handling.
   Read the installed Expo Router for how a stack nests inside a native tab before relying on it;
   the header's back control returns to the list.
@@ -89,7 +90,21 @@ Out:
   Commit: Move the mobile Sync tab under a Settings tab
   Depends on: none
 
-- [ ] 2. Choose the color scheme on mobile
+- [x] 2. Share the interface setting write with mobile
+  Goal: the mobile app can use the desktop's interface setting atoms and their write, instead of copying them.
+  Move `motionSettingAtom` from `@koloda/ui` to `@koloda/core-react`, beside the other interface atoms;
+  `@koloda/ui` reads it from there.
+  Split `useInterfaceSettingWrite` into `useInterfaceSettingWriteWith`, which takes the patch mutation,
+  and the desktop hook, which passes the one from `queriesAtom`.
+  Export the atoms and the write through a DOM-free entry, `@koloda/settings-react/interface-settings`,
+  as `@koloda/settings-react/sync-status` is.
+  Update the `tasks/DEFERRED.md` entry on `motionSettingAtom`'s typing: the move is done.
+  Constraints: `libs/core-react`, `libs/ui`, `libs/settings-react`, `libs/app-react`; no behavior change.
+  Done when: the existing interface setting tests pass; `bun run check:push`.
+  Commit: Share the interface setting write with mobile
+  Depends on: none
+
+- [ ] 3. Choose the color scheme on mobile
   Goal: the Interface screen offers Light, Dark, and System, by `docs/specs/INTERFACE-SETTINGS.md` (§Color Scheme),
   and the whole app follows it: every screen, the tab bar, the headers, and the status and navigation bars.
   System keeps following the device live.
@@ -106,7 +121,7 @@ Out:
   Joining a space seeds this device's current interface settings instead of the defaults,
   since `settings.interface` is device-local (`docs/decisions/STORAGE-BUCKETS.md`).
   Update `docs/specs/INTERFACE-SETTINGS.md`: replace "The mobile app has no interface settings yet" with what mobile
-  has so far, and add a Mobile App section that items 3 to 5 extend.
+  has so far, and add a Mobile App section that items 4 to 6 extend.
   Update `apps/mobile/README.md` (§Device checks) with a scheme check: Dark with the system light, Light with it dark,
   and System following a live switch.
   Constraints: `apps/mobile/src-rust`, `apps/mobile/native`, `apps/mobile/src`, the locale catalog.
@@ -115,24 +130,24 @@ Out:
   Done when: a mobile Jest test picks Dark and sees the façade's patch and the dark colors, and a failed write shows the
   previous choice and the error; `nx run @koloda/mobile:test-rust`; `bun run check:push`.
   Commit: Choose the color scheme on mobile
-  Depends on: 1
+  Depends on: 1, 2
 
-- [ ] 3. Choose light and dark themes on mobile
+- [ ] 4. Choose light and dark themes on mobile
   Goal: the Interface screen offers a light theme and a dark theme, from `LIGHT_THEMES` and `DARK_THEMES`
   (`@koloda/app`), by §Color Themes; only the active side's theme applies, and switching the scheme keeps both choices.
   Add Atom One Light and Atom One Dark palettes to `apps/mobile/src/colors.ts` beside the GitHub ones, keyed by the
   theme ids, with values taken from `libs/ui/src/lib/styles/themes/atom-one-light.css` and `atom-one-dark.css`;
   every `AppColors` field must read well on each palette.
-  Startup uses the saved themes, as item 2 does for the scheme.
+  Startup uses the saved themes, as item 3 does for the scheme.
   Update `agents/ADD-COLOR-THEME.md`: a new theme also adds a mobile palette.
   Update `docs/specs/INTERFACE-SETTINGS.md` (§Mobile App) and `apps/mobile/README.md` (§Device checks).
   Constraints: `apps/mobile/src`, the locale catalog, `agents/ADD-COLOR-THEME.md`.
   Done when: a mobile Jest test picks Atom One Dark under Dark and sees its colors, and a test checks every theme id
   in `LIGHT_THEMES` and `DARK_THEMES` has a mobile palette; `bun run check:push`.
   Commit: Choose light and dark themes on mobile
-  Depends on: 2
+  Depends on: 3
 
-- [ ] 4. Switch the mobile app's language
+- [ ] 5. Switch the mobile app's language
   Goal: the Interface screen offers English and Russian, by §Language, and switching changes all text at once,
   including the tab labels and the headers.
   Add `ru` to `apps/mobile/lingui.config.ts` and translate the mobile app's own messages in its Russian catalog;
@@ -152,26 +167,24 @@ Out:
   Done when: a mobile Jest test switches to Russian and sees a Russian tab label and Russian lesson counts,
   and a test seeds a fresh install from a Russian device locale; `bun run check:i18n`; `bun run check:push`.
   Commit: Switch the mobile app's language
-  Depends on: 2
+  Depends on: 3
 
-- [ ] 5. Choose motion and timestamp formats on mobile
+- [ ] 6. Choose motion and timestamp formats on mobile
   Goal: the Interface screen offers motion (On, Off, System) by §Motion, and the date and time formats by
   §Date and Time Format: the presets, a custom date pattern with its validation, and a preview under each.
   Off suppresses the card's swipe, spring, and appear animations; System follows the device's reduce-motion setting.
   Brief fades may still play.
   Read the installed Reanimated for its reduce-motion support before relying on it.
   The formats change the Sync screen's last-sync time at once.
-  If `motionSettingAtom` cannot be imported from `@koloda/ui` under Hermes without DOM code, move it to a DOM-free home
-  both hosts import; do not copy it.
   Update `docs/specs/INTERFACE-SETTINGS.md` (§Mobile App) and `apps/mobile/README.md` (§Device checks).
-  Constraints: `apps/mobile/src`, the locale catalog, and a DOM-free home for the motion atom if needed.
+  Constraints: `apps/mobile/src`, the locale catalog.
   Done when: mobile Jest tests pick Off and see the card render without animation config, pick a date preset and see
   the last-sync time change, and save an invalid custom pattern and see the error with the previous format kept;
   `bun run check:push`.
   Commit: Choose motion and timestamp formats on mobile
-  Depends on: 2
+  Depends on: 3
 
-- [ ] 6. Edit learning settings on mobile
+- [ ] 7. Edit learning settings on mobile
   Goal: the Learning screen edits the daily limits, Day starts at, and the learn-ahead limit,
   by `docs/specs/LEARNING-SETTINGS.md`.
   Total, New, Learn, and Review each take a number or Unlimited; turning Unlimited off fills in the first-setup
@@ -192,6 +205,6 @@ Out:
   see a counted limit above Total rejected with the previous settings kept, turn Unlimited off and see the
   first-setup number, and discard; `bun run check:push`.
   Commit: Edit learning settings on mobile
-  Depends on: 2
+  Depends on: 3
 
 ## Outcome

@@ -2,7 +2,8 @@ import { renderHook } from "@testing-library/react";
 import { createStore, Provider as JotaiProvider } from "jotai";
 import type { PropsWithChildren } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { motionSettingAtom, useMotionSetting } from "./use-motion-settings";
+import { motionSettingAtom } from "@koloda/core-react";
+import { useMotionSetting } from "./use-motion-settings";
 
 const device = vi.hoisted(() => ({ isReduced: false }));
 

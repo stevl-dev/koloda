@@ -10,8 +10,10 @@ global.ResizeObserver ??= class ResizeObserver {
 vi.mock("@koloda/core-react", async () => {
   const { useEffect } = await import("react");
   const { matchesAnyHotkey } = await import("./lib/core/hotkeys");
+  const { atom } = await import("jotai");
 
   return {
+    motionSettingAtom: atom(""),
     useAppHotkey: (
       hotkeys: Parameters<typeof matchesAnyHotkey>[1],
       callback: (event: KeyboardEvent) => void,

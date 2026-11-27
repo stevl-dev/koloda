@@ -1,5 +1,6 @@
 import type { AppError } from "@koloda/app";
 import { queriesAtom, queryKeys } from "@koloda/core-react";
+import type { Queries } from "@koloda/core-react";
 import type { AllowedSettings, PatchSettingsData } from "@koloda/settings";
 import { useMutation, useMutationState, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue, useStore } from "jotai";
@@ -16,12 +17,17 @@ type InterfaceWriteContext = {
   value: string;
 };
 
+export function useInterfaceSettingWrite() {
+  const { patchSettingsMutation } = useAtomValue(queriesAtom);
+  return useInterfaceSettingWriteWith(patchSettingsMutation);
+}
+
 // INVARIANT: every UI write of the interface row goes through here, so each one applies at once, saves only its
 // field, and puts the field back when the save fails (INTERFACE-SETTINGS.md §Editing and Saving).
-export function useInterfaceSettingWrite() {
+// WHY: the mutation comes in as an argument because the mobile app provides its queries without `queriesAtom`.
+export function useInterfaceSettingWriteWith(patchSettingsMutation: Queries["patchSettingsMutation"]) {
   const store = useStore();
   const queryClient = useQueryClient();
-  const { patchSettingsMutation } = useAtomValue(queriesAtom);
   // WHY: the atom and the rollback live in mutation-level callbacks, which still run when the control
   // that wrote unmounts mid-save; per-call `mutate` callbacks would be dropped.
   const { mutate } = useMutation<

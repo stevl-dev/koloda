@@ -9,6 +9,7 @@ export {
   defaultTemplateAtom,
   langAtom,
   lightThemeAtom,
+  motionSettingAtom,
   schemeAtom,
   timeFormatAtom,
 } from "./lib/atoms";

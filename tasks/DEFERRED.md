@@ -225,8 +225,8 @@ Entries are grouped under one heading per package directory.
   `""` as "not wired yet".
   Kind: skipped
   Source: `tasks/archive/ui-audit.md`, finding 25
-  Deferred because: `@koloda/app` has no motion union to type it with, its sibling atoms are untyped too, and moving it
-  to `core-react` has no concrete payoff.
+  Deferred because: `@koloda/app` has no motion union to type it with, and its sibling atoms are untyped too.
+  `mobile-settings` moved it to `libs/core-react/src/lib/atoms.ts`, so the mobile app can read it.
 
 ## Repository
 
