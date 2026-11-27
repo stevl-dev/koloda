@@ -9,6 +9,7 @@ export function SettingsList() {
   const colors = useAppColors();
   const screens = [
     { href: "/settings/interface", title: _(msg`mobile.settings.interface`) },
+    { href: "/settings/learning", title: _(msg`mobile.settings.learning`) },
     { href: "/settings/sync", title: _(msg`mobile.settings.sync`) },
   ] as const;
 

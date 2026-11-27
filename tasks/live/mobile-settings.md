@@ -205,7 +205,7 @@ Out:
   Commit: Share the learning form's rules with mobile
   Depends on: none
 
-- [ ] 9. Edit learning settings on mobile
+- [x] 9. Edit learning settings on mobile
   Goal: the Learning screen edits the daily limits, Day starts at, and the learn-ahead limit,
   by `docs/specs/LEARNING-SETTINGS.md`.
   Total, New, Learn, and Review each take a number or Unlimited; turning Unlimited off fills in the first-setup

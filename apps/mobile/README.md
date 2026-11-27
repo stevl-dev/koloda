@@ -113,6 +113,11 @@ Run on each platform after a change to the app.
   nothing snaps back; On animates them even with the device's remove-animations setting on.
 - [ ] Choosing a date or time format changes its preview and the last-sync time in Settings → Sync.
   An invalid custom date pattern shows an error on return and keeps the previous format.
+- [ ] In Settings → Learning, lower New's limit and save; the Lessons tab's today's progress shows the new limit.
+  A New limit above Total shows an error under the limits and saves nothing; Discard restores the saved values.
+  Day starts at shows AM and PM under a 12-hour time format and a 24-hour clock under a 24-hour one.
+  The keyboard covers neither the field being edited nor Save.
+  A change saved on desktop shows here while the field is untouched.
 - [ ] With each of Atom One Light, GitHub Light, Atom One Dark, and GitHub Dark chosen and its scheme active,
   the Lessons tab, a lesson, and Settings read well, and the tab bar and headers match the screens.
   Switching the scheme keeps both theme choices.

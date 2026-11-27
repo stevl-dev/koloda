@@ -131,3 +131,16 @@ Discard restores the last saved values without writing.
 Invalid input is rejected on save.
 The previous saved settings remain unchanged.
 Validation errors are shown on the form — for example when a counted per-type limit exceeds Total.
+
+## Mobile App
+
+The mobile app edits its learning settings under Settings → Learning.
+They save and sync as §Editing and Saving says, with Save and Discard below the form.
+
+- It edits the daily limits, Day starts at, and the learn-ahead limit.
+- It does not edit the defaults, since it cannot create a deck.
+  A save keeps them as they are.
+- Day starts at takes an hour and a minute.
+  With a 12-hour clock it also takes AM or PM.
+- Each number stays within its range as it is typed, and a cleared number keeps its last value.
+- The errors of a rejected save show under the part of the form they concern.

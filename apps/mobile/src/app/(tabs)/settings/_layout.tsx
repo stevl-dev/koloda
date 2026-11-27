@@ -9,6 +9,7 @@ export default function SettingsLayout() {
     <Stack>
       <Stack.Screen name="index" options={{ title: _(msg`mobile.settings.title`) }} />
       <Stack.Screen name="interface" options={{ title: _(msg`mobile.settings.interface`) }} />
+      <Stack.Screen name="learning" options={{ title: _(msg`mobile.settings.learning`) }} />
       <Stack.Screen name="sync" options={{ title: _(msg`mobile.settings.sync`) }} />
     </Stack>
   );

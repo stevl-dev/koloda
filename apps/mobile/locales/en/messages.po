@@ -154,6 +154,95 @@ msgstr "Preview: {previewValue}"
 
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx
+msgid "mobile.settings.learning"
+msgstr "Learning"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at"
+msgstr "Day starts at"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.am"
+msgstr "AM"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.hour"
+msgstr "Hour"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.minute"
+msgstr "Minute"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.period"
+msgstr "Before or after noon"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.pm"
+msgstr "PM"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.discard"
+msgstr "Discard"
+
+#: src/app/(tabs)/settings/learning.tsx
+msgid "mobile.settings.learning.error"
+msgstr "Learning settings could not load."
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead"
+msgstr "Learn ahead limit"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead.hours"
+msgstr "Hours"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead.minutes"
+msgstr "Minutes"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits"
+msgstr "Daily limits"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.counts"
+msgstr "Counts towards total"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.counts-for {label}"
+msgstr "{label} counts towards total"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.learn"
+msgstr "Learn"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.review"
+msgstr "Review"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.total"
+msgstr "Total"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.unlimited"
+msgstr "Unlimited"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.unlimited-for {label}"
+msgstr "{label} unlimited"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.untouched"
+msgstr "New"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.save"
+msgstr "Save"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
 msgid "mobile.settings.sync"
 msgstr "Sync"
 

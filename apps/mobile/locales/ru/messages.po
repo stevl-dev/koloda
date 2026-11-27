@@ -154,6 +154,95 @@ msgstr "Пример: {previewValue}"
 
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx
+msgid "mobile.settings.learning"
+msgstr "Изучение"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at"
+msgstr "Начало дня"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.am"
+msgstr "AM"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.hour"
+msgstr "Час"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.minute"
+msgstr "Минута"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.period"
+msgstr "До или после полудня"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.day-starts-at.pm"
+msgstr "PM"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.discard"
+msgstr "Сбросить"
+
+#: src/app/(tabs)/settings/learning.tsx
+msgid "mobile.settings.learning.error"
+msgstr "Не удалось загрузить настройки изучения."
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead"
+msgstr "Лимит изучения наперёд"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead.hours"
+msgstr "Часы"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.learn-ahead.minutes"
+msgstr "Минуты"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits"
+msgstr "Дневные лимиты"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.counts"
+msgstr "Идёт в счёт всего"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.counts-for {label}"
+msgstr "{label}: в счёт всего"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.learn"
+msgstr "Заучивание"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.review"
+msgstr "Повтор"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.total"
+msgstr "Всего"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.unlimited"
+msgstr "Неограниченно"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.unlimited-for {label}"
+msgstr "{label}: неограниченно"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.limits.untouched"
+msgstr "Новые"
+
+#: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.save"
+msgstr "Сохранить"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
 msgid "mobile.settings.sync"
 msgstr "Синхронизация"
 
