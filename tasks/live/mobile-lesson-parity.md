@@ -123,7 +123,7 @@ Out:
   Commit: Start mobile lessons by type and across all decks
   Depends on: 2
 
-- [ ] 4. Add the lesson init screen
+- [x] 4. Add the lesson init screen
   Goal: a lesson opens on an init screen in the configuring phase, by `docs/specs/LESSONS.md` (§Init).
   For each type it shows the amount, the available count, and today's learned count against the limit
   (item 2's component).

@@ -41,6 +41,14 @@ msgstr "Continue"
 msgid "mobile.lesson.done"
 msgstr "Lesson done"
 
+#: src/lesson/lesson-init.tsx
+msgid "mobile.lesson.init.available {availableCount}"
+msgstr "of {availableCount}"
+
+#: src/lesson/lesson-init.tsx
+msgid "mobile.lesson.init.start"
+msgstr "Start"
+
 #: src/lesson/lesson-screen.tsx
 msgid "mobile.lesson.load-failed"
 msgstr "The lesson could not load."

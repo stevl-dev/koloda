@@ -311,8 +311,6 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
   Pulling the list down refreshes the counts.
 - Above the list, the Lessons tab shows today's progress (§Today's Progress).
   Pulling the list down refreshes it too.
-- A lesson starts with no init screen.
-  It studies the default amounts (§Default Amounts) for the type that started it.
 - In a type field, the keyboard's return key submits the card.
 - There are no lesson hotkeys.
 - Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).

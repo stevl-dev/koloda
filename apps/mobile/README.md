@@ -106,7 +106,10 @@ Run on each platform after a change to the app.
 - [ ] The Lessons tab lists "All decks" first; each row's New, Learn, Review, and Total start a lesson of that type,
   and a zero does nothing.
   A Review lesson from "All decks" shows review cards from more than one deck.
-- [ ] Tap a deck's Total to start a lesson; study ten cards with swipes and buttons.
+- [ ] Starting a lesson opens the init screen with the default amounts and today's progress.
+  Raising an amount past what is available holds it there, Total follows, and Start is disabled at a Total of zero.
+  The keyboard covers neither the amounts nor Start.
+- [ ] Tap a deck's Total, then Start; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
   Each grade button shows its arrow, and a drag shows the grade it would give on the card.
 - [ ] Reveal a card too long for the screen; scrolling it up and down grades nothing.

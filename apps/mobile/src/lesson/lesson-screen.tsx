@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { LessonCard } from "./lesson-card";
+import { LessonInit } from "./lesson-init";
 import { useMobileLessonSession } from "./use-mobile-lesson-session";
 
 export type LessonScreenProps = {
@@ -58,6 +59,7 @@ export function LessonScreen({ type, deckId, onDone }: LessonScreenProps) {
       </View>
     );
   }
+  if (phase === "configuring") return <LessonInit />;
   if (phase !== "studying" || !content) return <ActivityIndicator style={styles.done} color={colors.muted} />;
   return <LessonCard content={content} />;
 }

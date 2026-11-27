@@ -106,6 +106,7 @@ describe("LessonScreen", () => {
   it("runs a three-card lesson with button grades and saves each result through the façade", async () => {
     const submitLessonResult = jest.fn((_data: string) => Promise.resolve());
     await renderLesson({ submitLessonResult });
+    await fireEvent.press(await screen.findByText("Start"));
 
     // The starter algorithm's first step is 1m, which Again keeps; FSRS-7 lengthens Good past the steps to days.
     // WHY: fuzz is on and seeded by card id, so the day count differs between cards.
@@ -131,6 +132,7 @@ describe("LessonScreen", () => {
 
   it("compares a typed answer after submit and shows the correct value only when it differs", async () => {
     await renderLesson({ getLessonData: () => lessonData("type"), submitLessonResult: () => Promise.resolve() });
+    await fireEvent.press(await screen.findByText("Start"));
 
     // A match ignores case and surrounding whitespace.
     expect(await screen.findByText("uno")).toBeTruthy();
@@ -146,5 +148,27 @@ describe("LessonScreen", () => {
     await fireEvent.press(screen.getByText("Continue"));
     expect(screen.getByText("answer tres")).toBeTruthy();
     expect(screen.getByText("answer dos")).toBeTruthy();
+  });
+
+  it("starts from the init screen with the chosen amounts, each capped at what is available", async () => {
+    const getLessonData = jest.fn((_params: string) => lessonData("reveal"));
+    await renderLesson({ getLessonData });
+
+    // The defaults fill New from the three available new cards.
+    const newAmount = await screen.findByLabelText("New");
+    expect(newAmount.props.value).toBe("3");
+
+    // An amount above what is available is held to it, and Total follows.
+    await fireEvent.changeText(newAmount, "9");
+    expect(screen.getByLabelText("New").props.value).toBe("3");
+    await fireEvent.changeText(screen.getByLabelText("New"), "0");
+    expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
+    await fireEvent.press(screen.getByText("Start"));
+    expect(getLessonData).not.toHaveBeenCalled();
+
+    await fireEvent.changeText(screen.getByLabelText("New"), "2");
+    await fireEvent.press(screen.getByText("Start"));
+    expect(await screen.findByText("uno")).toBeTruthy();
+    expect(JSON.parse(getLessonData.mock.calls[0][0]).amounts).toEqual({ untouched: 2, learn: 0, review: 0, total: 2 });
   });
 });

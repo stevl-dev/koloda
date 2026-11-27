@@ -8,8 +8,11 @@ import { useAppColors } from "../colors";
 
 const formatEnglish = (value: number, fractionDigits = 0) => formatNumber(value, fractionDigits, "en");
 
+// WHY: a lesson's setup holds only these two parts of today's totals, and the init screen shows them too.
+type LearnedTodayTotals = Pick<TodaysReviewTotals, "reviewTotals" | "dailyLimits">;
+
 export type LearnedTodayProps = {
-  totals: TodaysReviewTotals;
+  totals: LearnedTodayTotals;
 };
 
 export function LearnedToday({ totals }: LearnedTodayProps) {
@@ -28,7 +31,7 @@ export function LearnedToday({ totals }: LearnedTodayProps) {
 
 type LearnedTodayRowProps = {
   type: LessonType;
-  totals: TodaysReviewTotals;
+  totals: LearnedTodayTotals;
 };
 
 function LearnedTodayRow({ type, totals: { reviewTotals, dailyLimits } }: LearnedTodayRowProps) {
