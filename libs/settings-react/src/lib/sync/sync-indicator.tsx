@@ -1,4 +1,3 @@
-import type { SyncStatus } from "@koloda/app";
 import { useTimestampFormatter } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import { AlertIcon, Button, RefreshIcon, SuccessIcon, Tooltip } from "@koloda/ui";
@@ -7,6 +6,7 @@ import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
 import { tv } from "tailwind-variants";
 import { useSyncStopMessage } from "./sync-messages";
+import { isSyncIndicatorShown, needsSyncAttention } from "./sync-rules";
 
 const indicatorIcon = tv({
   base: "size-5 min-w-5",
@@ -20,26 +20,16 @@ const indicatorIcon = tv({
 
 export type SyncIndicatorProps = { sync: SyncQueries; onOpen: () => void };
 
-// WHY: a device that never joined a space, or that left one, chose not to sync; every other state shows here, so a
-// stop that needs the user is seen outside Settings.
-function isShown({ state }: SyncStatus) {
-  return state.type !== "notEnrolled" && !(state.type === "stopped" && state.stop.reason === "revoked");
-}
-
-function needsAttention({ state, hold, isOverQuota }: SyncStatus) {
-  return state.type === "stopped" || state.type === "importPending" || hold !== null || isOverQuota;
-}
-
 export function SyncIndicator({ sync, onOpen }: SyncIndicatorProps) {
   const { _ } = useLingui();
   const formatTimestamp = useTimestampFormatter();
   const stopMessage = useSyncStopMessage();
   const { data: status } = useQuery(sync.getStatusQuery());
 
-  if (!status || !isShown(status)) return null;
+  if (!status || !isSyncIndicatorShown(status)) return null;
 
   const { state, lastSuccessAt, hold, isOverQuota } = status;
-  const isAttention = needsAttention(status);
+  const isAttention = needsSyncAttention(status);
   const isBusy = state.type === "syncing" || state.type === "bootstrapping";
   const lastSync = lastSuccessAt === null ? null : formatTimestamp(new Date(lastSuccessAt), "datetime");
   const label =

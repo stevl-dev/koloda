@@ -6,13 +6,10 @@ import { Button, ErrorMessage } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { atom, useAtom } from "jotai";
+import { useAtom } from "jotai";
 import { useState } from "react";
 import { SyncLeaveSpace } from "./sync-leave-space";
-
-// WHY: the join's probe count reaches the choice through here: the join dialog closes once the status says the choice
-// waits. It exists only in the session that joined; a choice shown after a restart has none.
-export const syncKnownIdsAtom = atom<number | null>(null);
+import { isCopyJoin, syncKnownIdsAtom } from "./sync-rules";
 
 export type SyncImportChoiceProps = { sync: SyncQueries };
 
@@ -24,7 +21,7 @@ export function SyncImportChoice({ sync }: SyncImportChoiceProps) {
   const [knownIds, setKnownIds] = useAtom(syncKnownIdsAtom);
   const [isConfirmingReplace, setIsConfirmingReplace] = useState(false);
   const { mutate, error, isPending } = useMutation(sync.importMutation());
-  const isCopy = (knownIds ?? 0) > 0;
+  const isCopy = isCopyJoin(knownIds);
 
   const handleImport = (mode: ImportMode) => {
     mutate(mode, {

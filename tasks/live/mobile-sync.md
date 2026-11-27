@@ -85,7 +85,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Share the sync screens' rules with mobile
+- [x] 1. Share the sync screens' rules with mobile
   Goal: the mobile sync screens can use the desktop's sync rules instead of copying them.
   Move these DOM-free rules out of the DOM files in `libs/settings-react/src/lib/sync/` and export them through
   `@koloda/settings-react/sync-status`:

@@ -8,7 +8,7 @@ import { useLingui } from "@lingui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSetAtom } from "jotai";
 import { useState } from "react";
-import { syncKnownIdsAtom } from "./sync-import-choice";
+import { syncKnownIdsAtom } from "./sync-rules";
 import { joinSchema } from "./sync-forms";
 import { useFormatBytes } from "./sync-messages";
 

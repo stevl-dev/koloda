@@ -9,7 +9,7 @@ import type { PropsWithChildren } from "react";
 import * as macro from "@lingui/core/macro";
 import { describe, expect, it, vi } from "vitest";
 import { SettingsSync } from "./settings-sync";
-import { syncKnownIdsAtom } from "./sync-import-choice";
+import { syncKnownIdsAtom } from "./sync-rules";
 
 function status(state: SyncStatus["state"], overrides: Partial<SyncStatus> = {}): SyncStatus {
   return {

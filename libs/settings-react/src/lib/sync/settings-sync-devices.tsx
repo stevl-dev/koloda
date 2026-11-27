@@ -8,6 +8,7 @@ import { useLingui } from "@lingui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { SyncLeaveSpace } from "./sync-leave-space";
+import { relatedDevices } from "./sync-rules";
 
 const PLATFORM_LABELS: Record<SyncDevice["platform"], string> = {
   "desktop-win": "Windows",
@@ -72,12 +73,7 @@ function RemoveDevice({ device, devices, sync }: RemoveDeviceProps) {
   const [alsoRemoved, setAlsoRemoved] = useState<string[]>([]);
   const { mutate, error, isPending, reset } = useMutation(sync.revokeDeviceMutation());
   const name = device.name;
-  // INVARIANT: offered, never removed on their own. A copy is often the device in use, whose stale old record is the
-  // one being removed, and a retired device invited the others; only a stolen one makes them suspect.
-  const related = devices.filter(
-    (other) =>
-      !other.isRevoked && !other.isSelf && (other.forkedFromId === device.id || other.pairedById === device.id),
-  );
+  const related = relatedDevices(device, devices);
 
   const handleOpenChange = (next: boolean) => {
     setIsOpen(next);

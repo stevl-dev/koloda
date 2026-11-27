@@ -9,6 +9,7 @@ import { SettingsSyncStatus } from "./settings-sync-status";
 import { SyncLeaveSpace } from "./sync-leave-space";
 import { SyncImportChoice } from "./sync-import-choice";
 import { useSyncStopMessage } from "./sync-messages";
+import { hasLeftSpace, isUnknownDevice } from "./sync-rules";
 
 export type SettingsSyncProps = { status: SyncStatus; sync: SyncQueries };
 
@@ -16,12 +17,8 @@ export function SettingsSync({ status, sync }: SettingsSyncProps) {
   const { _ } = useLingui();
   const stopMessage = useSyncStopMessage()(status);
   const { state } = status;
-  // WHY: the file is detached, so only a join brings it back: it left, another device removed it, or a restore left
-  // it out.
-  const hasLeft = state.type === "stopped" && (state.stop.reason === "revoked" || state.stop.reason === "restored");
-  // WHY: the server no longer knows this device, but the file stays attached, and an attached file cannot join;
-  // leaving works all the same, since the engine takes that answer as a revocation (PROTOCOL.md §Devices).
-  const isUnknown = state.type === "stopped" && state.stop.reason === "unknownDevice";
+  const hasLeft = hasLeftSpace(status);
+  const isUnknown = isUnknownDevice(status);
 
   return (
     <div className="self-center flex flex-col gap-4 w-full max-w-main p-4">
