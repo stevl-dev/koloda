@@ -310,7 +310,7 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
 - It does not show today's progress (§Today's Progress).
 - Tapping a deck starts a lesson of that deck's "Total", with no init screen.
   The lesson studies the default amounts (§Default Amounts).
-- A field the template asks the user to type into is revealed instead, as a reveal field is.
+- In a type field, the keyboard's return key submits the card.
 - There are no lesson hotkeys.
 - Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).
 

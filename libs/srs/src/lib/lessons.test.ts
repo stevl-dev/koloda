@@ -1,6 +1,6 @@
 import type { AppError } from "@koloda/app";
 import { describe, expect, it } from "vitest";
-import { parseLessonResult, validateLessonAmounts } from "./lessons";
+import { isTypedAnswerCorrect, parseLessonResult, validateLessonAmounts } from "./lessons";
 
 // Twin of `crates/koloda/tests/domain/lessons_amounts_tests.rs`.
 describe("validateLessonAmounts", () => {
@@ -16,6 +16,19 @@ describe("validateLessonAmounts", () => {
     expect(() => validateLessonAmounts(amounts)).toThrow(
       expect.objectContaining({ code: "validation.lessons.amounts.negative" } satisfies Partial<AppError>),
     );
+  });
+});
+
+describe("isTypedAnswerCorrect", () => {
+  it.each([
+    { typed: "casa", correct: "casa", isCorrect: true },
+    { typed: "  Casa\n", correct: "casa", isCorrect: true },
+    { typed: "casa", correct: " CASA ", isCorrect: true },
+    { typed: "la casa", correct: "lacasa", isCorrect: false },
+    { typed: "", correct: "casa", isCorrect: false },
+    { typed: "casas", correct: "casa", isCorrect: false },
+  ])("$typed against $correct is $isCorrect", ({ typed, correct, isCorrect }) => {
+    expect(isTypedAnswerCorrect(typed, correct)).toBe(isCorrect);
   });
 });
 

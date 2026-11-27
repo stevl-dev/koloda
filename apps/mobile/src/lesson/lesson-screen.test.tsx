@@ -4,6 +4,7 @@ import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import { createStore, Provider } from "jotai";
+import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { activateEnglish } from "../i18n";
@@ -57,49 +58,54 @@ const responses = {
         decks: [{ id: DECK, title: "Spanish", untouched: 3, learn: 0, review: 0, total: 3 }],
       }),
     ),
-  getLessonData: () =>
-    Promise.resolve(
-      JSON.stringify({
-        cards: CARDS,
-        decks: [{ id: DECK, title: "Spanish", algorithmId: ALGORITHM, templateId: TEMPLATE }],
-        templates: [
-          {
-            id: TEMPLATE,
-            layout: [
-              { field: { id: FRONT, title: "Front", type: "text", isRequired: true }, operation: "display" },
-              { field: { id: BACK, title: "Back", type: "text", isRequired: true }, operation: "reveal" },
-            ],
-          },
-        ],
-        algorithms: [{ id: ALGORITHM, content: DEFAULT_FSRS_ALGORITHM }],
-      }),
-    ),
+  getLessonData: () => lessonData("reveal"),
 };
+
+function lessonData(backOperation: "reveal" | "type") {
+  return Promise.resolve(
+    JSON.stringify({
+      cards: CARDS,
+      decks: [{ id: DECK, title: "Spanish", algorithmId: ALGORITHM, templateId: TEMPLATE }],
+      templates: [
+        {
+          id: TEMPLATE,
+          layout: [
+            { field: { id: FRONT, title: "Front", type: "text", isRequired: true }, operation: "display" },
+            { field: { id: BACK, title: "Back", type: "text", isRequired: true }, operation: backOperation },
+          ],
+        },
+      ],
+      algorithms: [{ id: ALGORITHM, content: DEFAULT_FSRS_ALGORITHM }],
+    }),
+  );
+}
+
+async function renderLesson(overrides: Partial<KolodaFacade> = {}) {
+  activateEnglish();
+  const queries = createMobileQueries(fakeFacade({ ...responses, ...overrides }), "/cache");
+  await render(
+    <Provider store={createStore()}>
+      <I18nProvider i18n={i18n}>
+        <QueryClientProvider
+          client={
+            new QueryClient({
+              defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
+            })
+          }
+        >
+          <MobileQueriesContext.Provider value={queries}>
+            <LessonScreen deckId={DECK} onDone={() => {}} />
+          </MobileQueriesContext.Provider>
+        </QueryClientProvider>
+      </I18nProvider>
+    </Provider>,
+  );
+}
 
 describe("LessonScreen", () => {
   it("runs a three-card lesson with button grades and saves each result through the façade", async () => {
-    activateEnglish();
     const submitLessonResult = jest.fn((_data: string) => Promise.resolve());
-    const onDone = jest.fn();
-    const queries = createMobileQueries(fakeFacade({ ...responses, submitLessonResult }), "/cache");
-
-    await render(
-      <Provider store={createStore()}>
-        <I18nProvider i18n={i18n}>
-          <QueryClientProvider
-            client={
-              new QueryClient({
-                defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
-              })
-            }
-          >
-            <MobileQueriesContext.Provider value={queries}>
-              <LessonScreen deckId={DECK} onDone={onDone} />
-            </MobileQueriesContext.Provider>
-          </QueryClientProvider>
-        </I18nProvider>
-      </Provider>,
-    );
+    await renderLesson({ submitLessonResult });
 
     // The starter algorithm's first step is 1m, which Again keeps; FSRS-7 lengthens Good past the steps to days.
     // WHY: fuzz is on and seeded by card id, so the day count differs between cards.
@@ -121,5 +127,24 @@ describe("LessonScreen", () => {
       expect(card.reps).toBe(1);
       expect(typeof card.dueAt).toBe("number");
     }
+  });
+
+  it("compares a typed answer after submit and shows the correct value only when it differs", async () => {
+    await renderLesson({ getLessonData: () => lessonData("type"), submitLessonResult: () => Promise.resolve() });
+
+    // A match ignores case and surrounding whitespace.
+    expect(await screen.findByText("uno")).toBeTruthy();
+    await fireEvent.changeText(screen.getByLabelText("Back"), "  Answer UNO ");
+    await fireEvent(screen.getByLabelText("Back"), "submitEditing");
+    expect(screen.getByText("Answer UNO", { exact: false })).toBeTruthy();
+    expect(screen.queryByText("answer uno")).toBeNull();
+    await fireEvent.press(screen.getByText("Good"));
+
+    // A miss shows the typed answer and the correct value.
+    expect(await screen.findByText("dos")).toBeTruthy();
+    await fireEvent.changeText(screen.getByLabelText("Back"), "answer tres");
+    await fireEvent.press(screen.getByText("Continue"));
+    expect(screen.getByText("answer tres")).toBeTruthy();
+    expect(screen.getByText("answer dos")).toBeTruthy();
   });
 });

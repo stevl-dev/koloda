@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { isTypedAnswerCorrect } from "@koloda/srs";
 import { tv } from "tailwind-variants";
 
 const textDiffText = tv({
@@ -16,9 +16,7 @@ type LessonCardFieldTextDiff = {
 };
 
 export function LessonCardFieldTextDiff({ userValue, correctValue }: LessonCardFieldTextDiff) {
-  const isMatch = useMemo(() => {
-    return userValue.trim().toLowerCase() === correctValue.trim().toLowerCase();
-  }, [userValue, correctValue]);
+  const isMatch = isTypedAnswerCorrect(userValue, correctValue);
 
   return (
     <div className="flex flex-col gap-4">

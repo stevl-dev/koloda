@@ -69,7 +69,7 @@ Out:
 
 ## Plan
 
-- [ ] 1. Take typed answers in type fields
+- [x] 1. Take typed answers in type fields
   Goal: on mobile a text field whose layout operation is `type` shows a text input before submit, instead of being
   hidden until reveal.
   The input writes through `updateLessonCardFormAtom`, as desktop's text field does.

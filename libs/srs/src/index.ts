@@ -82,6 +82,7 @@ export {
   LESSON_TYPES,
   LESSON_TYPE_LABELS,
   convertTemplateToLessonTemplate,
+  isTypedAnswerCorrect,
   lessonDeckSchema,
   parseLessonResult,
   toLessonTableRows,

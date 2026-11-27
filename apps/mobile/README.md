@@ -108,6 +108,10 @@ Run on each platform after a change to the app.
   At its top a swipe down grades Hard, and at its bottom a swipe up grades Easy.
   Swipes, card transitions, and haptics feel native.
 - [ ] On a new card, "Good" shows the same interval as on desktop.
+- [ ] On a card whose template types an answer, the keyboard opens on the input and covers neither it nor
+  "Continue".
+  A tap on the card beside the input closes the keyboard and does not reveal the answer.
+  The return key submits; a right answer in another case shows as correct, and a wrong one shows the correct value.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.

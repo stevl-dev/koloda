@@ -9,6 +9,7 @@ export type AppColors = {
   muted: string;
   link: string;
   danger: string;
+  success: string;
   codeBackground: string;
   border: string;
 };
@@ -20,6 +21,7 @@ const LIGHT: AppColors = {
   muted: "#59636e",
   link: "#0969da",
   danger: "#cf222e",
+  success: "#1a7f37",
   codeBackground: "#eff2f5",
   border: "#d1d9e0",
 };
@@ -31,6 +33,7 @@ const DARK: AppColors = {
   muted: "#9198a1",
   link: "#4493f8",
   danger: "#f85149",
+  success: "#3fb950",
   codeBackground: "#262c36",
   border: "#3d444d",
 };

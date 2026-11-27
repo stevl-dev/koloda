@@ -61,6 +61,11 @@ export function validateLessonAmounts({ untouched, learn, review }: LessonAmount
   }
 }
 
+// INVARIANT: the one comparison of a typed answer for every host (LESSONS.md §Field Operations).
+export function isTypedAnswerCorrect(typed: string, correct: string) {
+  return typed.trim().toLowerCase() === correct.trim().toLowerCase();
+}
+
 export type LessonTemplateLayoutItem = Modify<TemplateLayoutItem, { field: TemplateField | undefined }>;
 
 // The lesson session consumes `layout` only; title and timestamps stay on the admin `Template`.
