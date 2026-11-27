@@ -2,7 +2,7 @@
 //! `sync.*` error codes the app reads.
 //!
 //! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the phone does not offer
-//! (creating a space, detach, import, restore).
+//! (creating a space, import, restore).
 //!
 //! INVARIANT: host calls that wait on the network run on the sync worker, never on the database worker
 //! (`KolodaMobile` in `lib.rs`).
@@ -298,6 +298,12 @@ impl SyncHost {
         let id = Uuid::parse_str(id)
             .map_err(|error| SyncError::Local(AppError::new(error_codes::UNKNOWN, Some(error.to_string()))))?;
         self.engine()?.revoke_device(id)
+    }
+
+    pub fn detach(&self) -> Result<Status, SyncError> {
+        let engine = self.engine()?;
+        engine.detach()?;
+        engine.status()
     }
 
     pub fn engine(&self) -> Result<&Engine, SyncError> {

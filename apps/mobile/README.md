@@ -168,6 +168,9 @@ Run on each platform after a change to the app.
 - [ ] Settings → Sync lists the space's devices with their systems and last-seen times, and marks this phone.
   Removing the desktop asks first, offers a device it invited, unchecked, and the desktop then stops syncing.
   With the server stopped, the list says why and "Try again" loads it once the server is back.
+- [ ] "Leave the space" asks first; once left, the phone shows the join form, and desktop no longer lists it.
+  With the server stopped, leaving says why and the phone stays in the space.
+- [ ] Remove the phone from desktop; on its next sync, the phone says it was removed and shows the join form.
 - [ ] Change a card on desktop, then send the phone app to the background and force a background run
   (`adb shell cmd jobscheduler run -f com.koloda.app <job id>`, the id from `adb shell dumpsys jobscheduler`).
   Desktop's change is on the phone when the app opens, before any foreground sync; it also arrives after a
@@ -181,7 +184,7 @@ Code copied from another app instead of shared:
 
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
-  error codes, issuing a pairing code, and the device list and removal.
+  error codes, issuing a pairing code, the device list and removal, and leaving.
 
 ## Findings
 

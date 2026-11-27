@@ -183,7 +183,7 @@ Out:
   Commit: List and remove devices on mobile
   Depends on: 1, 2
 
-- [ ] 8. Leave the space on mobile
+- [x] 8. Leave the space on mobile
   Goal: Settings → Sync offers "Leave the space", which asks first, then takes the phone out of the space and shows the
   join form, by `docs/specs/SYNC.md` (§Leaving a Space).
   A phone the server no longer knows shows the leave action with the stop message, and one that left or was removed

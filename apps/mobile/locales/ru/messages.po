@@ -254,6 +254,7 @@ msgstr "Настройки"
 msgid "mobile.sync.back"
 msgstr "Назад"
 
+#: src/components/leave-space.tsx
 #: src/components/sync-devices.tsx
 msgid "mobile.sync.cancel"
 msgstr "Отмена"
@@ -366,6 +367,18 @@ msgstr "Присоединиться"
 #: src/components/join-space.tsx
 msgid "mobile.sync.join-refused"
 msgstr "На этом телефоне уже есть собственные данные, поэтому в этой тестовой сборке он не может присоединиться к пространству. Переустановите приложение, чтобы присоединиться."
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave"
+msgstr "Выйти из пространства"
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave.confirm"
+msgstr "Выйти"
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave.message"
+msgstr "Этот телефон перестанет синхронизироваться. Его данные останутся, а позже он сможет снова подключиться к пространству."
 
 #: src/components/join-space.tsx
 msgid "mobile.sync.preview"

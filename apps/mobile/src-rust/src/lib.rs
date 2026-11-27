@@ -306,6 +306,11 @@ impl KolodaMobile {
             .await
     }
 
+    pub async fn sync_detach(&self) -> Result<String, MobileError> {
+        self.run_sync(|sync| to_wire(&sync::StatusWire::from(sync.detach().map_err(sync_error)?)))
+            .await
+    }
+
     pub fn sync_nudge(&self) {
         self.sync.nudge();
     }

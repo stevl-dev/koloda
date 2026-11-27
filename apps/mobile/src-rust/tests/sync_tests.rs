@@ -110,3 +110,16 @@ async fn a_device_id_that_is_not_a_uuid_is_refused_before_the_server_is_called()
         "the parse error is the details"
     );
 }
+
+#[tokio::test]
+async fn a_file_in_no_space_has_no_space_to_leave() {
+    register_secret_vault(Box::new(MemoryVault::default())).expect("register");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    mobile.sync_start(starter()).await.expect("start");
+
+    let error = mobile.sync_detach().await.expect_err("no space");
+
+    let MobileError::App { code, .. } = error;
+    assert_eq!(code, "sync.not-enrolled");
+}

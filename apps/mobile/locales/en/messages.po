@@ -254,6 +254,7 @@ msgstr "Settings"
 msgid "mobile.sync.back"
 msgstr "Back"
 
+#: src/components/leave-space.tsx
 #: src/components/sync-devices.tsx
 msgid "mobile.sync.cancel"
 msgstr "Cancel"
@@ -366,6 +367,18 @@ msgstr "Join"
 #: src/components/join-space.tsx
 msgid "mobile.sync.join-refused"
 msgstr "This phone already has data of its own, so it can't join a space in this test build. Reinstall the app to join."
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave"
+msgstr "Leave the space"
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave.confirm"
+msgstr "Leave"
+
+#: src/components/leave-space.tsx
+msgid "mobile.sync.leave.message"
+msgstr "This phone stops syncing. Its data stays, and it can join a space again later."
 
 #: src/components/join-space.tsx
 msgid "mobile.sync.preview"

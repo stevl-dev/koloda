@@ -1,8 +1,10 @@
 import type { SyncState, SyncStatus } from "@koloda/app";
+import { queryKeys } from "@koloda/core-react";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
@@ -28,15 +30,16 @@ function statusWith(state: SyncState, overrides: Partial<SyncStatus> = {}): Sync
   };
 }
 
-async function renderPanel(status: SyncStatus, syncNudge = () => {}) {
+async function renderPanel(status: SyncStatus, overrides: Partial<KolodaFacade> = {}) {
   activateLanguage("en");
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
+  client.setQueryData(queryKeys.sync.status(), status);
   client.setQueryData(SYNC_START_KEY, status);
   const syncStatus = () => Promise.resolve(JSON.stringify(status));
   const syncCanJoin = () => Promise.resolve(true);
-  const queries = createMobileQueries(fakeFacade({ syncStatus, syncCanJoin, syncNudge }), "/cache");
+  const queries = createMobileQueries(fakeFacade({ syncStatus, syncCanJoin, ...overrides }), "/cache");
 
-  await render(
+  return render(
     <I18nProvider i18n={i18n}>
       <QueryClientProvider client={client}>
         <MobileQueriesContext.Provider value={queries}>
@@ -64,7 +67,7 @@ describe("SyncPanel", () => {
 
   it("syncs at once when the user asks", async () => {
     const syncNudge = jest.fn();
-    await renderPanel(statusWith({ type: "idle" }), syncNudge);
+    await renderPanel(statusWith({ type: "idle" }), { syncNudge });
 
     await fireEvent.press(await screen.findByText("Sync now"));
 
@@ -91,5 +94,53 @@ describe("SyncPanel", () => {
 
     expect(await screen.findByText("Sync stopped because of an error and retries on its own.")).toBeTruthy();
     expect(screen.getByText("socket closed")).toBeTruthy();
+  });
+
+  it("leaves the space only once confirmed, then offers joining one", async () => {
+    const syncDetach = jest.fn(() => Promise.resolve(JSON.stringify(statusWith({ type: "notEnrolled" }))));
+    await renderPanel(statusWith({ type: "idle" }), {
+      syncDevices: () => Promise.resolve("[]"),
+      syncDetach,
+    });
+
+    await fireEvent.press(await screen.findByText("Leave the space"));
+    expect(screen.getByText(/stops syncing/)).toBeTruthy();
+    expect(syncDetach).not.toHaveBeenCalled();
+
+    await fireEvent.press(screen.getByText("Leave"));
+
+    expect(await screen.findByPlaceholderText("Pairing code")).toBeTruthy();
+    expect(syncDetach).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows why leaving failed and stays in the space", async () => {
+    await renderPanel(statusWith({ type: "idle" }), {
+      syncDevices: () => Promise.resolve("[]"),
+      syncDetach: () => Promise.reject({ tag: "App", inner: { code: "sync.unreachable" } }),
+    });
+
+    await fireEvent.press(await screen.findByText("Leave the space"));
+    await fireEvent.press(screen.getByText("Leave"));
+
+    expect(await screen.findByText("Couldn't reach the sync server")).toBeTruthy();
+    expect(screen.getByText("Up to date")).toBeTruthy();
+  });
+
+  it("has a device the server no longer knows leave first, since an attached device cannot join", async () => {
+    await renderPanel(statusWith({ type: "stopped", stop: { reason: "unknownDevice" } }));
+
+    expect(await screen.findByText("Leave the space")).toBeTruthy();
+    expect(screen.queryByText("Sync now")).toBeNull();
+    expect(screen.queryByPlaceholderText("Pairing code")).toBeNull();
+  });
+
+  it.each<[string, SyncState]>([
+    ["left or was removed", { type: "stopped", stop: { reason: "revoked" } }],
+    ["was left out by a restore", { type: "stopped", stop: { reason: "restored" } }],
+  ])("offers a device that %s to join again, instead of its status", async (_case, state) => {
+    await renderPanel(statusWith(state));
+
+    expect(await screen.findByPlaceholderText("Pairing code")).toBeTruthy();
+    expect(screen.queryByText("Sync now")).toBeNull();
   });
 });
