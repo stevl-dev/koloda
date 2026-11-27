@@ -38,7 +38,12 @@ describe("JoinSpace", () => {
   it("previews the space the code joins, then joins it with this device's name", async () => {
     const syncPreview = jest.fn((_data: string) => Promise.resolve(JSON.stringify(SPACE)));
     const syncJoin = jest.fn((_data: string) => Promise.resolve(JSON.stringify({ mode: "untouchedSeed" })));
-    await renderJoin({ syncCanJoin: () => Promise.resolve(true), syncPreview, syncJoin });
+    await renderJoin({
+      syncCanJoin: () => Promise.resolve(true),
+      getSettings: () => Promise.resolve(JSON.stringify({ content: { language: "ru" } })),
+      syncPreview,
+      syncJoin,
+    });
 
     await fillAndPreview();
 
@@ -51,6 +56,7 @@ describe("JoinSpace", () => {
 
     const joined = JSON.parse(syncJoin.mock.calls[0][0]);
     expect(joined).toMatchObject({ serverUrl: "https://sync.example", code: "ABCD-1234", deviceName: "Test phone" });
+    expect(joined.settings.interface.language).toBe("ru");
     expect(joined.settings.learning).toBeTruthy();
   });
 

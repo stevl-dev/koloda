@@ -1,5 +1,4 @@
 import { formatAppError } from "@koloda/app";
-import { seedSettings } from "@koloda/native-host";
 import { queryKeys } from "@koloda/core-react";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -21,15 +20,14 @@ export function JoinSpace() {
   const text = { color: colors.text };
   const input = [styles.input, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }];
   const queryClient = useQueryClient();
-  const { canJoinQuery, getSettingsQuery, previewSpaceMutation, joinSpaceMutation } = useMobileQueries();
+  const { canJoinQuery, sync } = useMobileQueries();
   const canJoin = useQuery(canJoinQuery());
-  const interfaceSettings = useQuery(getSettingsQuery("interface"));
   const [serverUrl, setServerUrl] = useState("");
   const [code, setCode] = useState("");
   const [deviceName, setDeviceName] = useState(defaultDeviceName);
-  const preview = useMutation(previewSpaceMutation());
+  const preview = useMutation(sync.previewMutation());
   const join = useMutation({
-    ...joinSpaceMutation(),
+    ...sync.joinMutation(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.sync.status() }),
   });
 
@@ -60,13 +58,10 @@ export function JoinSpace() {
             join.reset();
           }}
         />
-        {/* WHY: interface settings stay on each device, so joining keeps this phone's. */}
         <Button
           title={_(msg`mobile.sync.join`)}
           disabled={join.isPending}
-          onPress={() =>
-            join.mutate({ serverUrl, code, deviceName, settings: seedSettings(interfaceSettings.data?.content ?? {}) })
-          }
+          onPress={() => join.mutate({ serverUrl, code, deviceName })}
         />
       </View>
     );

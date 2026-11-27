@@ -11,10 +11,11 @@ import type {
   LessonsResult,
   TodaysReviewTotals,
 } from "@koloda/srs";
-import type { AppError, SyncStatus } from "@koloda/app";
-import type { QueryKey, QueryOptions, UseMutationOptions } from "@tanstack/react-query";
+import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
 import { call, read, wireArgs } from "./facade";
+import { createMobileSyncQueries } from "./sync-queries";
+import type { MobileSyncQueries } from "./sync-queries";
 
 // INVARIANT: the same keys as the other hosts' queries, so cache refreshes after a sync reach these queries too.
 export type MobileQueries = Pick<
@@ -30,17 +31,11 @@ export type MobileQueries = Pick<
 > & {
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
   getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
-  getSyncStatusQuery: () => QueryOptions<SyncStatus> & { queryKey: QueryKey };
   canJoinQuery: () => QueryOptions<boolean> & { queryKey: QueryKey };
-  previewSpaceMutation: () => UseMutationOptions<SpacePreview, AppError, PreviewSpaceData>;
-  joinSpaceMutation: () => UseMutationOptions<unknown, AppError, JoinSpaceData>;
+  sync: MobileSyncQueries;
 };
 
 const CAN_JOIN_KEY = ["mobile-sync-can-join"] as const;
-
-type SpacePreview = { spaceName: string; counts: Record<string, number>; bytes: number };
-type PreviewSpaceData = { serverUrl: string; code: string };
-type JoinSpaceData = PreviewSpaceData & { deviceName: string; settings: unknown };
 
 export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
   return {
@@ -76,16 +71,7 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
       queryKey: CAN_JOIN_KEY,
       queryFn: () => call(() => facade.syncCanJoin()),
     }),
-    previewSpaceMutation: () => ({
-      mutationFn: (data: PreviewSpaceData) => read<SpacePreview>(() => facade.syncPreview(wireArgs(data))),
-    }),
-    joinSpaceMutation: () => ({
-      mutationFn: (data: JoinSpaceData) => read<unknown>(() => facade.syncJoin(wireArgs(data))),
-    }),
-    getSyncStatusQuery: () => ({
-      queryKey: queryKeys.sync.status(),
-      queryFn: () => read<SyncStatus>(() => facade.syncStatus()),
-    }),
+    sync: createMobileSyncQueries(facade),
     getAttachmentFileQuery: (id: Attachment["id"]) => ({
       queryKey: ["attachment_file", id],
       queryFn: async () => (await call(() => facade.attachmentFile(id, cacheDir))) ?? null,

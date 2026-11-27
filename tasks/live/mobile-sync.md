@@ -100,7 +100,7 @@ Out:
   Commit: Share the sync screens' rules with mobile
   Depends on: none
 
-- [ ] 2. Move mobile sync onto the shared sync queries
+- [x] 2. Move mobile sync onto the shared sync queries
   Goal: the mobile app reads and writes sync through the `SyncQueries` type the desktop screens take,
   so later items add calls to one place.
   Add `createMobileSyncQueries(facade)` in `apps/mobile/src/host`, returning the `SyncQueries` entries mobile

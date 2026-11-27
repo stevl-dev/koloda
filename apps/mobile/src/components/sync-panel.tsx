@@ -11,10 +11,10 @@ import { JoinSpace } from "./join-space";
 export function SyncPanel() {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const { getSyncStatusQuery } = useMobileQueries();
+  const { sync } = useMobileQueries();
   // WHY: observes the start `Boot` runs; it never fetches here.
   const start = useQuery({ queryKey: SYNC_START_KEY, queryFn: skipToken });
-  const status = useQuery({ ...getSyncStatusQuery(), enabled: start.isSuccess });
+  const status = useQuery({ ...sync.getStatusQuery(), enabled: start.isSuccess });
   const statusLines = useSyncStatusLines();
   const stopMessage = useSyncStopMessage();
 
