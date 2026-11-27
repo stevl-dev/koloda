@@ -73,11 +73,11 @@ Out:
 
 ## Plan
 
-- [ ] 1. Move the Sync tab under a Settings tab
+- [x] 1. Move the Sync tab under a Settings tab
   Goal: the tabs are Lessons and Settings.
-  The Settings tab is a stack: its first screen lists Interface, Learning, and Sync, each opening its own screen.
-  The Sync screen shows `SyncPanel` as the Sync tab does now, with the same safe-area and keyboard handling.
-  Interface and Learning open screens that say nothing is there yet; items 2 and 6 fill them.
+  The Settings tab is a stack: its first screen lists Sync, which opens its own screen.
+  Items 2 and 6 add the Interface and Learning rows with their screens, so no row opens an empty screen.
+  The Sync screen shows `SyncPanel` as the Sync tab does now, with the same keyboard handling.
   Read the installed Expo Router for how a stack nests inside a native tab before relying on it;
   the header's back control returns to the list.
   Update `docs/specs/SYNC.md` (§Platform Availability): Settings → Sync on mobile, as on desktop, in place of a Sync tab.

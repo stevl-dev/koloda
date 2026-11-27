@@ -43,7 +43,7 @@ Sync is in the desktop and mobile apps.
 The web demo has no Sync settings and never syncs.
 
 The mobile app joins a space and shows its status, and nothing more.
-Its Sync tab takes the place of Settings → Sync.
+It sits under Settings → Sync, as on desktop.
 
 - Joining works as §Joining a Space says, except that a phone with data of its own cannot join.
   A phone adds no data itself, so this happens only after it left a space, which it cannot do yet.

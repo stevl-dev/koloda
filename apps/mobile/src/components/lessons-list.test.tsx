@@ -90,10 +90,10 @@ describe("LessonsList", () => {
     expect(screen.queryByRole("button", { name: "Total 0" })).toBeNull();
   });
 
-  it("points a library with no decks at the Sync tab", async () => {
+  it("points a library with no decks at the sync settings", async () => {
     await renderList({ total: { untouched: 0, learn: 0, review: 0, total: 0 }, decks: [] });
 
     expect(await screen.findByText(/^No decks yet\./)).toBeTruthy();
-    expect(screen.getByText("Open the Sync tab")).toBeTruthy();
+    expect(screen.getByText("Open sync settings")).toBeTruthy();
   });
 });

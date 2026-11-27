@@ -91,7 +91,7 @@ A library moves to a new phone by joining its sync space.
 Run on each platform after a change to the app.
 
 - [ ] The app boots to the Lessons tab.
-- [ ] The Lessons and Sync tabs both open.
+- [ ] The Lessons and Settings tabs both open, and Settings → Sync opens and returns to Settings.
 - [ ] In a lesson, a revealed card shows four grades, each with an interval.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
   That answer came back from `koloda` through an async UniFFI call.
@@ -127,7 +127,7 @@ Run on each platform after a change to the app.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
-- [ ] After a fresh install, the Sync tab shows the engine's status (not in a space), not an error.
+- [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.
 - [ ] On a fresh install: on desktop, issue a pairing code; on the phone, enter the server address and the code,
   check the preview, and join.
   The desktop library arrives, and a card with an image shows that image in a lesson.

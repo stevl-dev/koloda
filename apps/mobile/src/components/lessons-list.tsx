@@ -44,7 +44,7 @@ export function LessonsList({ onStart }: LessonsListProps) {
       ListEmptyComponent={
         <View style={styles.empty}>
           <Text style={{ color: colors.text }}>{_(msg`mobile.lessons.empty`)}</Text>
-          <Link href="/sync" style={{ color: colors.link }}>
+          <Link href="/settings/sync" style={{ color: colors.link }}>
             {_(msg`mobile.lessons.open-sync`)}
           </Link>
         </View>

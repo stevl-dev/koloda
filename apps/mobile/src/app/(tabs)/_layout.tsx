@@ -16,8 +16,8 @@ export default function TabsLayout() {
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.lessons`)}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="sync">
-        <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.sync`)}</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.settings`)}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

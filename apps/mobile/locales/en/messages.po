@@ -100,11 +100,20 @@ msgstr "Nothing due"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.open-sync"
-msgstr "Open the Sync tab"
+msgstr "Open sync settings"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.start {label} {count}"
 msgstr "{label} {count}"
+
+#: src/app/(tabs)/settings/_layout.tsx
+#: src/components/settings-list.tsx
+msgid "mobile.settings.sync"
+msgstr "Sync"
+
+#: src/app/(tabs)/settings/_layout.tsx
+msgid "mobile.settings.title"
+msgstr "Settings"
 
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
@@ -151,5 +160,5 @@ msgid "mobile.tabs.lessons"
 msgstr "Lessons"
 
 #: src/app/(tabs)/_layout.tsx
-msgid "mobile.tabs.sync"
-msgstr "Sync"
+msgid "mobile.tabs.settings"
+msgstr "Settings"

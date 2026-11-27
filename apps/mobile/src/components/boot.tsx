@@ -26,7 +26,7 @@ export function Boot({ facade, children }: BootProps) {
     },
     staleTime: Infinity,
   });
-  // WHY: a sync that cannot start leaves the app usable; the Sync tab reports it.
+  // WHY: a sync that cannot start leaves the app usable; the Sync screen reports it.
   useQuery({
     queryKey: SYNC_START_KEY,
     queryFn: () => startSync(facade, queryClient, _),
