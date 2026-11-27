@@ -262,6 +262,18 @@ msgstr "Код подключения"
 msgid "mobile.sync.device-name"
 msgstr "Имя устройства"
 
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.attention"
+msgstr "Требует внимания"
+
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.syncing"
+msgstr "Синхронизация"
+
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.up-to-date"
+msgstr "Всё синхронизировано"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Присоединиться"

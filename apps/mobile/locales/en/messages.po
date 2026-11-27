@@ -262,6 +262,18 @@ msgstr "Pairing code"
 msgid "mobile.sync.device-name"
 msgstr "Device name"
 
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.attention"
+msgstr "Needs attention"
+
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.syncing"
+msgstr "Syncing"
+
+#: src/components/settings-list.tsx
+msgid "mobile.sync.indicator.up-to-date"
+msgstr "Up to date"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Join"

@@ -2,10 +2,12 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { NativeTabs } from "expo-router/native-tabs";
 import { useAppColors } from "../../colors";
+import { useSyncIndicator } from "../../components/use-sync-indicator";
 
 export default function TabsLayout() {
   const { _ } = useLingui();
   const colors = useAppColors();
+  const indicator = useSyncIndicator();
 
   return (
     <NativeTabs
@@ -18,6 +20,7 @@ export default function TabsLayout() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.settings`)}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Badge hidden={indicator !== "attention"} />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

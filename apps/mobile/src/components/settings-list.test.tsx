@@ -1,3 +1,5 @@
+import type { SyncState, SyncStatus } from "@koloda/app";
+import { queryKeys } from "@koloda/core-react";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,35 +19,87 @@ type ProvidersProps = {
   children: ReactNode;
 };
 
+function statusWith(state: SyncState, overrides: Partial<SyncStatus> = {}): SyncStatus {
+  return {
+    state,
+    lastSuccessAt: null,
+    pending: 0,
+    held: 0,
+    uploads: 0,
+    fetches: 0,
+    lagHot: null,
+    lagCold: null,
+    skewMs: 0,
+    hold: null,
+    isOverQuota: false,
+    pushResumesAt: null,
+    ...overrides,
+  };
+}
+
+async function renderSettings(status: SyncStatus) {
+  activateLanguage("en");
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
+  client.setQueryData(SYNC_START_KEY, status);
+  // WHY: seeded, so a row that shows no state shows none because of the status, not because it has not loaded.
+  client.setQueryData(queryKeys.sync.status(), status);
+  const queries = createMobileQueries(
+    fakeFacade({
+      syncStatus: () => Promise.resolve(JSON.stringify(status)),
+      syncCanJoin: () => Promise.resolve(true),
+    }),
+    "/cache",
+  );
+  function Providers({ children }: ProvidersProps) {
+    return (
+      <I18nProvider i18n={i18n}>
+        <QueryClientProvider client={client}>
+          <MobileQueriesContext.Provider value={queries}>{children}</MobileQueriesContext.Provider>
+        </QueryClientProvider>
+      </I18nProvider>
+    );
+  }
+
+  await renderRouter(
+    { "settings/_layout": SettingsLayout, "settings/index": SettingsScreen, "settings/sync": SyncSettingsScreen },
+    { initialUrl: "/settings", wrapper: Providers },
+  );
+}
+
 describe("SettingsList", () => {
   it("opens the Sync screen, which offers joining a space", async () => {
-    activateLanguage("en");
-    const status = { state: { type: "notEnrolled" }, lastSuccessAt: null, pending: 0, held: 0, uploads: 0, fetches: 0 };
-    const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
-    client.setQueryData(SYNC_START_KEY, status);
-    const queries = createMobileQueries(
-      fakeFacade({
-        syncStatus: () => Promise.resolve(JSON.stringify(status)),
-        syncCanJoin: () => Promise.resolve(true),
-      }),
-      "/cache",
-    );
-    function Providers({ children }: ProvidersProps) {
-      return (
-        <I18nProvider i18n={i18n}>
-          <QueryClientProvider client={client}>
-            <MobileQueriesContext.Provider value={queries}>{children}</MobileQueriesContext.Provider>
-          </QueryClientProvider>
-        </I18nProvider>
-      );
-    }
+    await renderSettings(statusWith({ type: "notEnrolled" }));
 
-    await renderRouter(
-      { "settings/_layout": SettingsLayout, "settings/index": SettingsScreen, "settings/sync": SyncSettingsScreen },
-      { initialUrl: "/settings", wrapper: Providers },
-    );
     await fireEvent.press(await screen.findByText("Sync"));
 
     expect(await screen.findByPlaceholderText("Pairing code")).toBeTruthy();
+  });
+
+  it.each<[string, SyncStatus, string]>([
+    ["syncing", statusWith({ type: "syncing" }), "Syncing"],
+    ["downloading the space", statusWith({ type: "bootstrapping" }), "Syncing"],
+    ["up to date", statusWith({ type: "idle" }), "Up to date"],
+    ["stopped", statusWith({ type: "stopped", stop: { reason: "unreachable" } }), "Needs attention"],
+    ["waiting for the Add or Replace choice", statusWith({ type: "importPending" }), "Needs attention"],
+    ["over its quota while idle", statusWith({ type: "idle" }, { isOverQuota: true }), "Needs attention"],
+    [
+      "holding at a change it cannot read while syncing",
+      statusWith({ type: "syncing" }, { hold: { lane: "hot", seq: 4, reason: "updateRequired" } }),
+      "Needs attention",
+    ],
+  ])("shows a device %s on the Sync row", async (_case, status, label) => {
+    await renderSettings(status);
+
+    expect(await screen.findByText(label)).toBeTruthy();
+  });
+
+  it.each<[string, SyncStatus]>([
+    ["in no space", statusWith({ type: "notEnrolled" })],
+    ["that left its space", statusWith({ type: "stopped", stop: { reason: "revoked" } })],
+  ])("shows no sync state for a device %s", async (_case, status) => {
+    await renderSettings(status);
+
+    expect(await screen.findByText("Sync")).toBeTruthy();
+    expect(screen.queryByText(/Syncing|Up to date|Needs attention/)).toBeNull();
   });
 });

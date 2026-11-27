@@ -145,7 +145,7 @@ Out:
   Commit: Add Sync now to mobile
   Depends on: 2
 
-- [ ] 5. Show whether mobile sync needs attention
+- [x] 5. Show whether mobile sync needs attention
   Goal: by question 4, the Settings tab carries a badge while sync needs attention, by item 1's rule, and the
   Settings list's Sync row shows the state: syncing, up to date, or needs attention.
   A phone in no space, or one that left or was removed, shows neither.
