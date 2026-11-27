@@ -49,6 +49,18 @@ msgstr "of {availableCount}"
 msgid "mobile.lesson.init.start"
 msgstr "Start"
 
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.close"
+msgstr "Close"
+
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.continue"
+msgstr "Continue studying"
+
+#: src/lesson/use-leave-confirmation.ts
+msgid "mobile.lesson.leave.title"
+msgstr "End this lesson?"
+
 #: src/lesson/lesson-screen.tsx
 msgid "mobile.lesson.load-failed"
 msgstr "The lesson could not load."

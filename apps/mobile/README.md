@@ -113,6 +113,9 @@ Run on each platform after a change to the app.
 - [ ] Tap a deck's Total, then Start; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
   Each grade button shows its arrow, and a drag shows the grade it would give on the card.
+- [ ] Mid-lesson, the back button, the back gesture, and the header's back control each ask before ending it.
+  "Continue studying" keeps the card as it was, and "Close" returns to the Lessons tab.
+  On the init screen and the done screen, back leaves at once.
 - [ ] Reveal a card too long for the screen; scrolling it up and down grades nothing.
   At its top a swipe down grades Hard, and at its bottom a swipe up grades Easy.
   Swipes, card transitions, and haptics feel native.

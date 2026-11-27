@@ -316,7 +316,8 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
   It shows these instead of the per-type amounts and the progress dots (§Progress).
   When a result fails to save, it shows how many have failed.
 - There are no lesson hotkeys.
-- Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).
+- The back button, the back gesture, and the screen's back control close the lesson, as the dialog close control
+  does (§Phases).
 
 A revealed card is graded with the buttons or with a swipe:
 

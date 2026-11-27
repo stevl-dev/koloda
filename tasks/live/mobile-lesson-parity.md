@@ -153,7 +153,7 @@ Out:
   Commit: Show session progress in mobile lessons
   Depends on: 4
 
-- [ ] 6. Confirm before leaving a lesson early
+- [x] 6. Confirm before leaving a lesson early
   Goal: leaving the lesson screen while cards are loading or being studied asks for confirmation,
   by `docs/specs/LESSONS.md` (§Early Termination): "Continue studying" keeps the current card as it was,
   "Close" ends the lesson.

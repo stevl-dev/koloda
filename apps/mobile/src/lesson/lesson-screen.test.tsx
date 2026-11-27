@@ -2,8 +2,13 @@ import { DEFAULT_FSRS_ALGORITHM } from "@koloda/srs";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { router, Stack } from "expo-router";
+import { renderRouter } from "expo-router/testing-library";
 import { createStore, Provider } from "jotai";
+import type { ReactNode } from "react";
+import { Alert, Text } from "react-native";
+import LessonRoute from "../app/lesson";
 import type { KolodaFacade } from "../host/facade";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
@@ -80,26 +85,28 @@ function lessonData(backOperation: "reveal" | "type") {
   );
 }
 
-async function renderLesson(overrides: Partial<KolodaFacade> = {}) {
+function providers(overrides: Partial<KolodaFacade> = {}) {
   activateEnglish();
   const queries = createMobileQueries(fakeFacade({ ...responses, ...overrides }), "/cache");
-  await render(
-    <Provider store={createStore()}>
-      <I18nProvider i18n={i18n}>
-        <QueryClientProvider
-          client={
-            new QueryClient({
-              defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
-            })
-          }
-        >
-          <MobileQueriesContext.Provider value={queries}>
-            <LessonScreen type="total" deckId={DECK} onDone={() => {}} />
-          </MobileQueriesContext.Provider>
-        </QueryClientProvider>
-      </I18nProvider>
-    </Provider>,
-  );
+  const store = createStore();
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
+  });
+  return function Providers({ children }: { children: ReactNode }) {
+    return (
+      <Provider store={store}>
+        <I18nProvider i18n={i18n}>
+          <QueryClientProvider client={queryClient}>
+            <MobileQueriesContext.Provider value={queries}>{children}</MobileQueriesContext.Provider>
+          </QueryClientProvider>
+        </I18nProvider>
+      </Provider>
+    );
+  };
+}
+
+async function renderLesson(overrides: Partial<KolodaFacade> = {}) {
+  await render(<LessonScreen type="total" deckId={DECK} onDone={() => {}} />, { wrapper: providers(overrides) });
 }
 
 describe("LessonScreen", () => {
@@ -191,5 +198,54 @@ describe("LessonScreen", () => {
     expect(screen.getByText("Left 2")).toBeTruthy();
     expect(screen.getByRole("progressbar").props.accessibilityValue).toMatchObject({ max: 3, now: 1 });
     expect(await screen.findByText("Results not saved: 1")).toBeTruthy();
+  });
+});
+
+describe("Leaving a lesson", () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  async function openLesson() {
+    const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+    const result = await renderRouter(
+      { _layout: () => <Stack />, index: () => <Text>Lessons</Text>, lesson: LessonRoute },
+      { initialUrl: "/", wrapper: providers({ submitLessonResult: () => Promise.resolve() }) },
+    );
+    await act(() => router.push(`/lesson?type=total&deckId=${DECK}`));
+    return { ...result, alert };
+  }
+
+  function answer(alert: jest.SpyInstance, choice: "Continue studying" | "Close") {
+    const buttons: { text: string; onPress: () => void }[] = alert.mock.lastCall[2];
+    return act(() => buttons.find(({ text }) => text === choice)!.onPress());
+  }
+
+  it("asks mid-study, keeps the card on Continue studying, and leaves on Close", async () => {
+    const { alert, getPathname } = await openLesson();
+    await fireEvent.press(await screen.findByText("Start"));
+    expect(await screen.findByText("uno")).toBeTruthy();
+
+    await act(() => router.back());
+    expect(alert).toHaveBeenCalledTimes(1);
+    expect(getPathname()).toBe("/lesson");
+
+    // The card stays as it was and can still be revealed.
+    await answer(alert, "Continue studying");
+    expect(screen.getByText("uno")).toBeTruthy();
+    await fireEvent.press(screen.getByText("Continue"));
+    expect(screen.getByText("answer uno")).toBeTruthy();
+
+    await act(() => router.back());
+    expect(alert).toHaveBeenCalledTimes(2);
+    await answer(alert, "Close");
+    expect(getPathname()).toBe("/");
+  });
+
+  it("leaves the init screen without asking", async () => {
+    const { alert, getPathname } = await openLesson();
+    expect(await screen.findByText("Start")).toBeTruthy();
+
+    await act(() => router.back());
+    expect(alert).not.toHaveBeenCalled();
+    expect(getPathname()).toBe("/");
   });
 });
