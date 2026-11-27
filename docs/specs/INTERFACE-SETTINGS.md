@@ -203,10 +203,10 @@ Language is the exception; see §Language.
 The mobile app has its interface settings under Settings → Interface.
 They save as §Editing and Saving says.
 
-- It offers the color scheme.
+- It offers the color scheme and the light and dark themes.
   The scheme also sets the color of the keyboard and of dialogs.
-- It offers no language, theme, motion, or date and time format yet.
-  It shows English in GitHub Light and GitHub Dark, with times as English renders them.
+- It offers no language, motion, or date and time format yet.
+  It shows English, with times as English renders them.
   Its animations follow the device's reduced-motion preference.
-- It opens in the saved scheme, because it reads the settings before its first screen shows.
+- It opens in the saved scheme and themes, because it reads the settings before its first screen shows.
 - Joining a sync space keeps the phone's interface settings.

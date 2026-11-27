@@ -132,7 +132,7 @@ Out:
   Commit: Choose the color scheme on mobile
   Depends on: 1, 2
 
-- [ ] 4. Choose light and dark themes on mobile
+- [x] 4. Choose light and dark themes on mobile
   Goal: the Interface screen offers a light theme and a dark theme, from `LIGHT_THEMES` and `DARK_THEMES`
   (`@koloda/app`), by §Color Themes; only the active side's theme applies, and switching the scheme keeps both choices.
   Add Atom One Light and Atom One Dark palettes to `apps/mobile/src/colors.ts` beside the GitHub ones, keyed by the

@@ -106,6 +106,9 @@ Run on each platform after a change to the app.
   and the leave dialog dark; Light with the system dark turns them light.
   With System, switching the device's dark mode switches the app at once.
   After a force-quit, the app opens in the chosen scheme with no flash of the other.
+- [ ] With each of Atom One Light, GitHub Light, Atom One Dark, and GitHub Dark chosen and its scheme active,
+  the Lessons tab, a lesson, and Settings read well, and the tab bar and headers match the screens.
+  Switching the scheme keeps both theme choices.
 - [ ] Tapping the card's web link opens the system browser.
 - [ ] The Lessons tab lists "All decks" first; each row's New, Learn, Review, and Total start a lesson of that type,
   and a zero does nothing.

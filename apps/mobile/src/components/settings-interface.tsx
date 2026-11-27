@@ -1,5 +1,5 @@
-import { ERROR_MESSAGES, formatAppError, SCHEMES } from "@koloda/app";
-import { schemeAtom } from "@koloda/core-react";
+import { DARK_THEMES, ERROR_MESSAGES, formatAppError, LIGHT_THEMES, SCHEMES } from "@koloda/app";
+import { darkThemeAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
 import { useInterfaceSettingWriteError, useInterfaceSettingWriteWith } from "@koloda/settings-react/interface-settings";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -16,6 +16,8 @@ export function SettingsInterface() {
   const write = useInterfaceSettingWriteWith(patchSettingsMutation);
   const writeError = useInterfaceSettingWriteError();
   const scheme = useAtomValue(schemeAtom);
+  const lightTheme = useAtomValue(lightThemeAtom);
+  const darkTheme = useAtomValue(darkThemeAtom);
 
   return (
     <ScrollView contentContainerStyle={styles.screen}>
@@ -29,6 +31,18 @@ export function SettingsInterface() {
         choices={Object.entries(SCHEMES).map(([value, label]) => ({ value, label: _(label) }))}
         value={scheme}
         onChange={(value) => write("scheme", value)}
+      />
+      <ChoiceGroup
+        label={_(msg`mobile.settings.interface.light-theme`)}
+        choices={Object.entries(LIGHT_THEMES).map(([value, label]) => ({ value, label }))}
+        value={lightTheme}
+        onChange={(value) => write("lightTheme", value)}
+      />
+      <ChoiceGroup
+        label={_(msg`mobile.settings.interface.dark-theme`)}
+        choices={Object.entries(DARK_THEMES).map(([value, label]) => ({ value, label }))}
+        value={darkTheme}
+        onChange={(value) => write("darkTheme", value)}
       />
     </ScrollView>
   );

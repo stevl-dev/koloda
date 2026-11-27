@@ -157,6 +157,15 @@ Zod and Rust validation both reject unknown theme ids.
 `libs/app/src/lib/settings-interface-parity.test.ts` fails when the registries, the defaults, the theme files'
 `--color-bg` and `--titlebar-overlay-color`, or `theme-boot.js` `SURFACE` disagree.
 
+**Mobile** — `apps/mobile/src/colors.ts`:
+
+Add a palette under the theme id to `LIGHT_PALETTES` or `DARK_PALETTES`.
+The mobile app draws native views, so it cannot read the CSS.
+Take `surface` from `--color-bg`, `text` and `muted` from `--color-mono-1` and `--color-mono-2`,
+and the accents from the matching `--color-*`.
+Derive `background`, `codeBackground`, and `border` as the scheme file mixes them.
+`apps/mobile/src/components/settings-interface.test.tsx` fails when a theme id has no mobile palette.
+
 **Spec** — `docs/specs/INTERFACE-SETTINGS.md` (§Light Themes, §Dark Themes) lists every theme by name.
 Add the display name to its scheme's list.
 The parity test does not read the spec, so nothing else catches a missing name.
@@ -196,6 +205,7 @@ Do not change app `store.ts` seed values unless that is requested.
 - [ ] `@import` in `global.css`
 - [ ] Entry in TS `LIGHT_THEMES` or `DARK_THEMES`
 - [ ] Matching entry in Rust `LIGHT_THEMES` or `DARK_THEMES`
+- [ ] Mobile palette in `apps/mobile/src/colors.ts`
 - [ ] Display name in `docs/specs/INTERFACE-SETTINGS.md` (§Light Themes, §Dark Themes)
 - [ ] Manual verify block for the light/dark scheme with the new theme selected
 
