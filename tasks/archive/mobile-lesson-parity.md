@@ -1,6 +1,6 @@
 # Mobile lesson parity
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/LESSONS.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, libs/srs-react/README.md
 Flow: local
 
@@ -169,3 +169,29 @@ Out:
   `bun run check:push`.
   Commit: Confirm before leaving a mobile lesson early
   Depends on: 4
+
+## Outcome
+
+The mobile lesson now offers what a desktop lesson does, except hotkeys.
+
+What shipped:
+
+- Typed answers in text type fields, compared by `isTypedAnswerCorrect` in `@koloda/srs`, which desktop now calls too.
+- Today's progress above the Lessons tab, from `getLearnedTodayProgress`, which moved from `@koloda/srs-react` to
+  `@koloda/app` so mobile can import it.
+- An all-decks row and a start per type on each row of the Lessons tab; the lesson route is `/lesson`, with the type
+  and an optional deck.
+- The lesson init screen, with each amount held between zero and what is available; the automatic start is gone.
+- Done and left counts, a progress bar, and a count of failed saves while studying.
+- A confirmation before a loading or studying lesson ends through back, the back gesture, or the header's back
+  control, raised through the shared termination request.
+- `docs/specs/LESSONS.md` (§Mobile App) lists only hotkeys and the compact progress as differences.
+
+Not verified on a device: by the human's choice, no device check ran in this task.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The init screen focuses an amount, so the keyboard opens with it, as on desktop; the human may prefer it closed.
+The lesson route does not check its `type` parameter; `tasks/DEFERRED.md` holds that handoff.
+
+Spec: docs/specs/LESSONS.md
+Review: blocking 2 (LESSONS §Init, CODE-STYLE §Props Types), self-review only
+Change rounds: 0
