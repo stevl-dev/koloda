@@ -51,7 +51,7 @@ It sits under Settings → Sync, as on desktop.
   It does not show held changes, a full space, or changes waiting for the server's clock.
 - It cannot create a space, invite a device, list or remove devices, leave a space, or choose Add or Replace.
   A stop that needs the user to leave the space, or to continue after a restore, cannot be resolved on the phone.
-- It has no "Sync now" and no sync indicator.
+- It has no sync indicator.
 - It syncs while the app is open and when it returns to the foreground.
 - In the background, it syncs in short runs about every 15 minutes while the phone is online; the system may run
   them later.

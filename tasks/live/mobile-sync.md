@@ -135,7 +135,7 @@ Out:
   Commit: Sync in the background on mobile
   Depends on: 2
 
-- [ ] 4. Add Sync now to mobile
+- [x] 4. Add Sync now to mobile
   Goal: Settings → Sync shows "Sync now" while the phone is in a space, and pressing it starts a cycle through
   `SyncQueries.nudge`, as on desktop (§Status).
   Update `docs/specs/SYNC.md` (§Platform Availability): drop "no Sync now".

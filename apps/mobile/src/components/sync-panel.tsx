@@ -2,7 +2,7 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { SYNC_STATE_LABELS, useSyncStatusLines, useSyncStopMessage } from "@koloda/settings-react/sync-status";
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
@@ -34,6 +34,7 @@ export function SyncPanel() {
   return (
     <View style={styles.status}>
       <Text style={[styles.title, { color: colors.text }]}>{_(SYNC_STATE_LABELS[state.type])}</Text>
+      <Button title={_(msg`mobile.sync.sync-now`)} onPress={() => void sync.nudge()} />
       {stop && <Text style={{ color: colors.danger }}>{stop}</Text>}
       {stopDetails && <Text style={muted}>{stopDetails}</Text>}
       {downloadLeft && <Text style={{ color: colors.text }}>{downloadLeft}</Text>}

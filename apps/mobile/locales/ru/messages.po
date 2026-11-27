@@ -290,6 +290,10 @@ msgstr "Адрес сервера"
 msgid "mobile.sync.start-failed {message}"
 msgstr "Не удалось запустить синхронизацию: {message}"
 
+#: src/components/sync-panel.tsx
+msgid "mobile.sync.sync-now"
+msgstr "Синхронизировать"
+
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"
 msgstr "Уроки"

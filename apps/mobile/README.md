@@ -154,6 +154,8 @@ Run on each platform after a change to the app.
   The desktop library arrives, and a card with an image shows that image in a lesson.
 - [ ] Grade a card on the phone; desktop shows its new due time after it syncs.
 - [ ] Grade a card on desktop; after the phone returns to the foreground, it shows the change.
+- [ ] Grade a card on desktop, then press "Sync now" in Settings → Sync; the status shows syncing, then up to date,
+  and the phone shows the change.
 - [ ] Force-quit and reopen the phone app; it is still in the space, and the status is in sync.
 - [ ] Enter a wrong code; the screen says the code is wrong.
 - [ ] Change a card on desktop, then send the phone app to the background and force a background run

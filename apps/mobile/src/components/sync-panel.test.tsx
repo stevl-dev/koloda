@@ -2,7 +2,7 @@ import type { SyncState, SyncStatus } from "@koloda/app";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
@@ -28,13 +28,13 @@ function statusWith(state: SyncState, overrides: Partial<SyncStatus> = {}): Sync
   };
 }
 
-async function renderPanel(status: SyncStatus) {
+async function renderPanel(status: SyncStatus, syncNudge = () => {}) {
   activateLanguage("en");
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   client.setQueryData(SYNC_START_KEY, status);
   const syncStatus = () => Promise.resolve(JSON.stringify(status));
   const syncCanJoin = () => Promise.resolve(true);
-  const queries = createMobileQueries(fakeFacade({ syncStatus, syncCanJoin }), "/cache");
+  const queries = createMobileQueries(fakeFacade({ syncStatus, syncCanJoin, syncNudge }), "/cache");
 
   await render(
     <I18nProvider i18n={i18n}>
@@ -60,6 +60,15 @@ describe("SyncPanel", () => {
     expect(await screen.findByText("Up to date")).toBeTruthy();
     expect(screen.getByText("Not synced since the app started")).toBeTruthy();
     expect(screen.getByText("3 changes wait to upload")).toBeTruthy();
+  });
+
+  it("syncs at once when the user asks", async () => {
+    const syncNudge = jest.fn();
+    await renderPanel(statusWith({ type: "idle" }), syncNudge);
+
+    await fireEvent.press(await screen.findByText("Sync now"));
+
+    expect(syncNudge).toHaveBeenCalledTimes(1);
   });
 
   it("shows how much of the space is left to download while it downloads", async () => {
