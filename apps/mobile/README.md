@@ -109,6 +109,10 @@ Run on each platform after a change to the app.
 - [ ] On a fresh install on a phone set to Russian, the app opens in Russian.
   In Settings → Interface, English switches the tabs, headers, Lessons tab, and lesson grades to English at once,
   and the choice holds after a force-quit.
+- [ ] In Settings → Interface, Motion Off makes a graded card leave and the next appear at once, and a drag that grades
+  nothing snaps back; On animates them even with the device's remove-animations setting on.
+- [ ] Choosing a date or time format changes its preview and the last-sync time in Settings → Sync.
+  An invalid custom date pattern shows an error on return and keeps the previous format.
 - [ ] With each of Atom One Light, GitHub Light, Atom One Dark, and GitHub Dark chosen and its scheme active,
   the Lessons tab, a lesson, and Settings read well, and the tab bar and headers match the screens.
   Switching the scheme keeps both theme choices.

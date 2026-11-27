@@ -1,5 +1,13 @@
-import { DARK_THEMES, ERROR_MESSAGES, formatAppError, LANGUAGES, LIGHT_THEMES, SCHEMES } from "@koloda/app";
-import { darkThemeAtom, langAtom, lightThemeAtom, schemeAtom } from "@koloda/core-react";
+import {
+  DARK_THEMES,
+  ERROR_MESSAGES,
+  formatAppError,
+  LANGUAGES,
+  LIGHT_THEMES,
+  MOTION_SETTINGS,
+  SCHEMES,
+} from "@koloda/app";
+import { darkThemeAtom, langAtom, lightThemeAtom, motionSettingAtom, schemeAtom } from "@koloda/core-react";
 import { useInterfaceSettingWriteError, useInterfaceSettingWriteWith } from "@koloda/settings-react/interface-settings";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
@@ -8,6 +16,7 @@ import { ScrollView, StyleSheet, Text } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ChoiceGroup } from "./choice-group";
+import { TimestampFormatChoices } from "./timestamp-format-choices";
 
 export function SettingsInterface() {
   const { _ } = useLingui();
@@ -19,6 +28,7 @@ export function SettingsInterface() {
   const scheme = useAtomValue(schemeAtom);
   const lightTheme = useAtomValue(lightThemeAtom);
   const darkTheme = useAtomValue(darkThemeAtom);
+  const motion = useAtomValue(motionSettingAtom);
 
   return (
     <ScrollView contentContainerStyle={styles.screen}>
@@ -51,6 +61,14 @@ export function SettingsInterface() {
         value={darkTheme}
         onChange={(value) => write("darkTheme", value)}
       />
+      <ChoiceGroup
+        label={_(msg`mobile.settings.interface.motion`)}
+        choices={Object.entries(MOTION_SETTINGS).map(([value, label]) => ({ value, label: _(label) }))}
+        value={motion}
+        onChange={(value) => write("motion", value)}
+      />
+      <TimestampFormatChoices kind="date" write={write} />
+      <TimestampFormatChoices kind="time" write={write} />
     </ScrollView>
   );
 }

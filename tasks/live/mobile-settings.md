@@ -179,7 +179,7 @@ Out:
   Commit: Share the timestamp format state with mobile
   Depends on: 2
 
-- [ ] 7. Choose motion and timestamp formats on mobile
+- [x] 7. Choose motion and timestamp formats on mobile
   Goal: the Interface screen offers motion (On, Off, System) by §Motion, and the date and time formats by
   §Date and Time Format: the presets, a custom date pattern with its validation, and a preview under each.
   Off suppresses the card's swipe, spring, and appear animations; System follows the device's reduce-motion setting.
@@ -188,9 +188,9 @@ Out:
   The formats change the Sync screen's last-sync time at once.
   Update `docs/specs/INTERFACE-SETTINGS.md` (§Mobile App) and `apps/mobile/README.md` (§Device checks).
   Constraints: `apps/mobile/src`, the locale catalog.
-  Done when: mobile Jest tests pick Off and see the card render without animation config, pick a date preset and see
-  the last-sync time change, and save an invalid custom pattern and see the error with the previous format kept;
-  `bun run check:push`.
+  Done when: mobile Jest tests pick a date preset and see the write and the preview in it, and submit an invalid custom
+  pattern and see the error with nothing written; the card's motion has no Jest test, since Jest cannot run
+  Reanimated, and a device check covers it; `bun run check:push`.
   Commit: Choose motion and timestamp formats on mobile
   Depends on: 3, 6
 

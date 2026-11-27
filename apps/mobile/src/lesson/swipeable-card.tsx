@@ -1,9 +1,12 @@
+import { motionSettingAtom } from "@koloda/core-react";
+import { useAtomValue } from "jotai";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import type { LayoutChangeEvent, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { GestureDetector, GestureStateManager, usePanGesture } from "react-native-gesture-handler";
 import Animated, {
+  ReduceMotion,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -28,6 +31,15 @@ export type SwipeableCardProps = {
   children: ReactNode;
 };
 
+// WHY: the card's own drag follows the finger; the setting stops only the movement the app adds (INTERFACE-SETTINGS.md
+// §Motion).
+function useReduceMotion(): ReduceMotion {
+  const motion = useAtomValue(motionSettingAtom);
+  if (motion === "on") return ReduceMotion.Never;
+  if (motion === "off") return ReduceMotion.Always;
+  return ReduceMotion.System;
+}
+
 // INVARIANT: the swipe, its hint, and the card leaving the screen run on the UI thread; only the grade crosses to JS.
 export function SwipeableCard({
   cardKey,
@@ -46,13 +58,14 @@ export function SwipeableCard({
   const appear = useSharedValue(0);
   const startX = useSharedValue(0);
   const startY = useSharedValue(0);
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
     offsetX.value = 0;
     offsetY.value = 0;
     appear.value = 0;
-    appear.value = withTiming(1, { duration: 180 });
-  }, [cardKey, offsetX, offsetY, appear]);
+    appear.value = withTiming(1, { duration: 180, reduceMotion });
+  }, [cardKey, offsetX, offsetY, appear, reduceMotion]);
 
   const pan = usePanGesture({
     enabled: isEnabled,
@@ -78,12 +91,13 @@ export function SwipeableCard({
     onDeactivate: (event) => {
       const gradeIndex = swipeGrade(event.translationX, event.translationY);
       if (gradeIndex === null) {
-        offsetX.value = withSpring(0);
-        offsetY.value = withSpring(0);
+        offsetX.value = withSpring(0, { reduceMotion });
+        offsetY.value = withSpring(0, { reduceMotion });
         return;
       }
-      offsetX.value = withTiming(Math.sign(event.translationX) * width * 1.5, { duration: 160 });
-      offsetY.value = withTiming(Math.sign(event.translationY) * height, { duration: 160 }, () => {
+      offsetX.value = withTiming(Math.sign(event.translationX) * width * 1.5, { duration: 160, reduceMotion });
+      // WHY: a reduced animation jumps to its end and still calls back, so Off grades the card too.
+      offsetY.value = withTiming(Math.sign(event.translationY) * height, { duration: 160, reduceMotion }, () => {
         scheduleOnRN(onSwipe, gradeIndex);
       });
     },

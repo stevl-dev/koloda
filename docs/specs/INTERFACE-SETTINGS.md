@@ -64,7 +64,7 @@ The default is System.
 Light and Dark apply as chosen, regardless of the device.
 While set to System, the app switches live when the device switches.
 
-The mobile app offers the color scheme too; §Mobile App says what else it has.
+The mobile app offers the color scheme too; §Mobile App says how it differs.
 
 ## Color Themes
 
@@ -203,10 +203,13 @@ Language is the exception; see §Language.
 The mobile app has its interface settings under Settings → Interface.
 They save as §Editing and Saving says.
 
-- It offers the language, the color scheme, and the light and dark themes.
+- It offers every interface setting this spec describes.
   The scheme also sets the color of the keyboard and of dialogs.
-- It offers no motion or date and time format yet.
-  It shows times as its language renders them, and its animations follow the device's reduced-motion preference.
+- Motion covers the lesson card: with motion suppressed, the card appears, leaves, and returns to the center without
+  moving.
+  Screen transitions and spinners follow the device instead.
+- The format choices are buttons, not selects.
+  The custom date pattern is saved when the field loses focus or the keyboard's return key is pressed.
 - It opens in the saved language, scheme, and themes, because it reads the settings before its first screen shows.
   Its settings stay on the phone, so the language saved there is the one last chosen on it.
 - A fresh install starts in the device language when the app offers it, otherwise English.

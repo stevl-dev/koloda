@@ -115,6 +115,15 @@ msgstr "Interface"
 msgid "mobile.settings.interface.dark-theme"
 msgstr "Dark theme"
 
+#: src/components/timestamp-format-choices.tsx
+msgid "mobile.settings.interface.date-format"
+msgstr "Date format"
+
+#: src/components/timestamp-format-choices.tsx
+#: src/components/timestamp-format-choices.tsx
+msgid "mobile.settings.interface.date-format.custom"
+msgstr "Custom pattern"
+
 #: src/components/settings-interface.tsx
 msgid "mobile.settings.interface.language"
 msgstr "Language"
@@ -124,8 +133,24 @@ msgid "mobile.settings.interface.light-theme"
 msgstr "Light theme"
 
 #: src/components/settings-interface.tsx
+msgid "mobile.settings.interface.motion"
+msgstr "Motion"
+
+#: src/components/settings-interface.tsx
 msgid "mobile.settings.interface.scheme"
 msgstr "Color scheme"
+
+#: src/components/timestamp-format-choices.tsx
+msgid "mobile.settings.interface.time-format"
+msgstr "Time format"
+
+#: src/components/timestamp-format-choices.tsx
+msgid "mobile.settings.interface.timestamp-format.locale"
+msgstr "Default"
+
+#: src/components/timestamp-format-choices.tsx
+msgid "mobile.settings.interface.timestamp-format.preview {previewValue}"
+msgstr "Preview: {previewValue}"
 
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx

@@ -81,6 +81,36 @@ describe("SettingsInterface", () => {
     expect(screen.getByRole("radio", { name: "Тёмная" })).toBeTruthy();
   });
 
+  it("saves a date preset and previews today's date in it", async () => {
+    jest.useFakeTimers({ now: new Date(2026, 10, 27, 9, 5) });
+    const patchSettings = jest.fn((data: string) =>
+      Promise.resolve(JSON.stringify({ name: "interface", content: JSON.parse(data).content })),
+    );
+    await renderSettings(patchSettings);
+
+    await fireEvent.press(screen.getByRole("radio", { name: "dd.MM.yyyy" }));
+
+    expect(JSON.parse(patchSettings.mock.calls[0]![0])).toEqual({
+      name: "interface",
+      content: { dateFormat: "dd.MM.yyyy" },
+    });
+    expect(screen.getByText("Preview: 27.11.2026")).toBeTruthy();
+    jest.useRealTimers();
+  });
+
+  it("rejects an invalid custom date pattern without saving it", async () => {
+    const patchSettings = jest.fn((_data: string) => Promise.resolve("{}"));
+    await renderSettings(patchSettings);
+
+    await fireEvent.press(screen.getByRole("radio", { name: "Custom pattern" }));
+    const input = screen.getByLabelText("Custom pattern");
+    await fireEvent.changeText(input, "'unclosed");
+    await fireEvent(input, "submitEditing");
+
+    expect(screen.getByText("Invalid date format")).toBeTruthy();
+    expect(patchSettings).not.toHaveBeenCalled();
+  });
+
   it("shows the chosen dark theme while the scheme is dark, and keeps it when the scheme turns light", async () => {
     const patchSettings = (data: string) =>
       Promise.resolve(JSON.stringify({ name: "interface", content: JSON.parse(data).content }));
