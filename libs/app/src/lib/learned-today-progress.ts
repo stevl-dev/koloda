@@ -1,4 +1,4 @@
-import type { NumberFormatter } from "@koloda/app";
+import type { NumberFormatter } from "./number-format";
 
 export type LearnedTodayProgress = { width: number; label: string };
 

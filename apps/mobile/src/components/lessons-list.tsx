@@ -5,12 +5,14 @@ import { Link } from "expo-router";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
+import { LearnedToday } from "./learned-today";
 
 export function LessonsList() {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const { getLessonsQuery } = useMobileQueries();
+  const { getLessonsQuery, getTodayReviewTotalsQuery } = useMobileQueries();
   const { data, error, refetch, isRefetching } = useQuery(getLessonsQuery());
+  const totals = useQuery(getTodayReviewTotalsQuery());
 
   if (error) return <Text style={[styles.message, { color: colors.danger }]}>{_(msg`mobile.lessons.error`)}</Text>;
   if (!data) return null;
@@ -19,8 +21,18 @@ export function LessonsList() {
     <FlatList
       data={data.decks}
       keyExtractor={(deck) => deck.id}
-      refreshing={isRefetching}
-      onRefresh={() => void refetch()}
+      refreshing={isRefetching || totals.isRefetching}
+      onRefresh={() => {
+        void refetch();
+        void totals.refetch();
+      }}
+      ListHeaderComponent={
+        totals.error ? (
+          <Text style={[styles.message, { color: colors.danger }]}>{_(msg`mobile.learned-today.error`)}</Text>
+        ) : (
+          totals.data && <LearnedToday totals={totals.data} />
+        )
+      }
       ListEmptyComponent={
         <View style={styles.empty}>
           <Text style={{ color: colors.text }}>{_(msg`mobile.lessons.empty`)}</Text>

@@ -17,6 +17,14 @@ msgstr ""
 msgid "mobile.boot.error"
 msgstr "The app could not open its database."
 
+#: src/components/lessons-list.tsx
+msgid "mobile.learned-today.error"
+msgstr "Today's progress could not load."
+
+#: src/components/learned-today.tsx
+msgid "mobile.learned-today.title"
+msgstr "Learned today"
+
 #: src/lesson/lesson-screen.tsx
 msgid "mobile.lesson.back"
 msgstr "Back to lessons"

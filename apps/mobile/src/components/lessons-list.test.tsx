@@ -17,10 +17,21 @@ const lessons = {
   ],
 };
 
+const totals = {
+  reviewTotals: { untouched: 4, learn: 0, review: 30, total: 34 },
+  dailyLimits: {
+    total: null,
+    untouched: { value: 20, counts: true },
+    learn: { value: null, counts: false },
+    review: { value: 200, counts: true },
+  },
+};
+
 async function renderList(result: unknown) {
   activateEnglish();
   const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(result)));
-  const queries = createMobileQueries(fakeFacade({ getLessons }), "/cache");
+  const getTodaysReviewTotals = () => Promise.resolve(JSON.stringify(totals));
+  const queries = createMobileQueries(fakeFacade({ getLessons, getTodaysReviewTotals }), "/cache");
 
   await render(
     <I18nProvider i18n={i18n}>
@@ -45,6 +56,18 @@ describe("LessonsList", () => {
     expect(screen.getByText("Chemistry")).toBeTruthy();
     expect(screen.getByText("New 2 · Learning 0 · Review 0")).toBeTruthy();
     expect(typeof JSON.parse(getLessons.mock.calls[0][0]).dueAt).toBe("number");
+  });
+
+  it("shows what was learned today against each daily limit, with no limit as ∞", async () => {
+    await renderList(lessons);
+
+    expect(await screen.findByText("Learned today")).toBeTruthy();
+    expect(screen.getByText("4 / 20")).toBeTruthy();
+    expect(screen.getByText("20%")).toBeTruthy();
+    expect(screen.getByText("0 / ∞")).toBeTruthy();
+    expect(screen.getByText("30 / 200")).toBeTruthy();
+    expect(screen.getByText("15%")).toBeTruthy();
+    expect(screen.getByText("34 / ∞")).toBeTruthy();
   });
 
   it("says a deck with no due cards has nothing due, instead of zero counts", async () => {

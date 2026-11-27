@@ -94,5 +94,6 @@ export type {
 } from "./lib/sync";
 export { formatNumber } from "./lib/number-format";
 export type { NumberFormatter } from "./lib/number-format";
+export { getLearnedTodayProgress } from "./lib/learned-today-progress";
 export { dateFnsLocale, formatTimestamp, timeFieldFormatOptions } from "./lib/timestamp-format";
 export type { TimestampFormatter, TimestampKind } from "./lib/timestamp-format";

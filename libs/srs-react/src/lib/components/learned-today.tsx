@@ -1,3 +1,4 @@
+import { getLearnedTodayProgress } from "@koloda/app";
 import { queriesAtom, useNumberFormatter } from "@koloda/core-react";
 import { LESSON_TYPE_LABELS } from "@koloda/srs";
 import type { LessonType } from "@koloda/srs";
@@ -7,7 +8,6 @@ import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { tv } from "tailwind-variants";
-import { getLearnedTodayProgress } from "./learned-today-progress";
 import { progressBarTrack } from "./progress-bar-track";
 
 const learnedTodayAmount = tv({

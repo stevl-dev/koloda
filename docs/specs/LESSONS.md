@@ -307,7 +307,8 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
 - Its Lessons tab lists every deck with its "New", "Learn", and "Review" counts, with no aggregate row.
   A deck with nothing due says so and does not start a lesson.
   Pulling the list down refreshes the counts.
-- It does not show today's progress (§Today's Progress).
+- Above the list, the Lessons tab shows today's progress (§Today's Progress).
+  Pulling the list down refreshes it too.
 - Tapping a deck starts a lesson of that deck's "Total", with no init screen.
   The lesson studies the default amounts (§Default Amounts).
 - In a type field, the keyboard's return key submits the card.

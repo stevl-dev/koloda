@@ -96,6 +96,8 @@ Run on each platform after a change to the app.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
   That answer came back from `koloda` through an async UniFFI call.
 - [ ] After joining a space, the Lessons tab shows the desktop library's decks with their due counts.
+- [ ] Above the decks, the Lessons tab shows what was learned today against each daily limit, with ∞ for no limit.
+  After a lesson, they count its cards.
 - [ ] After force-quitting and reopening the app, the joined decks still show.
 - [ ] A desktop card that uses every markdown kind, with a stored image, shows each kind in a lesson.
   A remote or embedded image shows its alt text instead.

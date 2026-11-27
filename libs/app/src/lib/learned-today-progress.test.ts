@@ -1,4 +1,4 @@
-import { formatNumber } from "@koloda/app";
+import { formatNumber } from "./number-format";
 import { describe, expect, it } from "vitest";
 import { getLearnedTodayProgress } from "./learned-today-progress";
 

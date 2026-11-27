@@ -92,7 +92,7 @@ Out:
   Commit: Take typed answers in mobile lessons
   Depends on: none
 
-- [ ] 2. Show today's progress on the Lessons tab
+- [x] 2. Show today's progress on the Lessons tab
   Goal: above the deck list, the Lessons tab shows how many "New", "Learn", "Review", and "Total" cards were studied
   today against each daily limit, by `docs/specs/LESSONS.md` (§Today's Progress), from `getTodayReviewTotalsQuery`.
   An unlimited type shows ∞ for its limit.
