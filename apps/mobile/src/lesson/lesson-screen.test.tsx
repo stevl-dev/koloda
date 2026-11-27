@@ -85,6 +85,10 @@ function lessonData(backOperation: "reveal" | "type") {
   );
 }
 
+type ProvidersProps = {
+  children: ReactNode;
+};
+
 function providers(overrides: Partial<KolodaFacade> = {}) {
   activateEnglish();
   const queries = createMobileQueries(fakeFacade({ ...responses, ...overrides }), "/cache");
@@ -92,7 +96,7 @@ function providers(overrides: Partial<KolodaFacade> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { gcTime: Infinity } },
   });
-  return function Providers({ children }: { children: ReactNode }) {
+  return function Providers({ children }: ProvidersProps) {
     return (
       <Provider store={store}>
         <I18nProvider i18n={i18n}>
@@ -168,6 +172,8 @@ describe("LessonScreen", () => {
     // An amount above what is available is held to it, and Total follows.
     await fireEvent.changeText(newAmount, "9");
     expect(screen.getByLabelText("New").props.value).toBe("3");
+    await fireEvent.changeText(screen.getByLabelText("New"), "-2");
+    expect(screen.getByLabelText("New").props.value).toBe("0");
     await fireEvent.changeText(screen.getByLabelText("New"), "0");
     expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
     await fireEvent.press(screen.getByText("Start"));

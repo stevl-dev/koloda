@@ -42,11 +42,11 @@ export function LessonInit() {
                   value={`${amounts[type]}`}
                   autoFocus={type === focusedType}
                   selectTextOnFocus
-                  // WHY: the reducer caps nothing, so the input holds each amount to its available count, as
-                  // desktop's number field does (LESSONS.md §Init); a cleared field reaches the reducer as NaN, which
-                  // it stores as zero.
+                  // WHY: the reducer caps nothing, so the input holds each amount between zero and its available
+                  // count, as desktop's number field does (LESSONS.md §Init); a pasted sign gets past the number pad.
+                  // A cleared field reaches the reducer as NaN, which it stores as zero.
                   onChangeText={(text) =>
-                    updateAmount({ type, value: Math.min(Number.parseInt(text, 10), availableCount) })
+                    updateAmount({ type, value: Math.max(0, Math.min(Number.parseInt(text, 10), availableCount)) })
                   }
                   style={[styles.amount, styles.input, { color: colors.text, borderColor: colors.border }]}
                 />
