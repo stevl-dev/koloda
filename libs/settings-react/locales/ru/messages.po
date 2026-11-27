@@ -281,11 +281,11 @@ msgstr "Цветовая схема"
 msgid "settings.interface.time-format"
 msgstr "Формат времени"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
+#: ../../libs/settings-react/src/lib/interface-controls/use-timestamp-format.ts
 msgid "settings.interface.time-format.12-hour"
 msgstr "12-часовой"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
+#: ../../libs/settings-react/src/lib/interface-controls/use-timestamp-format.ts
 msgid "settings.interface.time-format.24-hour"
 msgstr "24-часовой"
 

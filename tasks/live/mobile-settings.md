@@ -77,7 +77,7 @@ Out:
 - [x] 1. Move the Sync tab under a Settings tab
   Goal: the tabs are Lessons and Settings.
   The Settings tab is a stack: its first screen lists Sync, which opens its own screen.
-  Items 3 and 7 add the Interface and Learning rows with their screens, so no row opens an empty screen.
+  Items 3 and 8 add the Interface and Learning rows with their screens, so no row opens an empty screen.
   The Sync screen shows `SyncPanel` as the Sync tab does now, with the same keyboard handling.
   Read the installed Expo Router for how a stack nests inside a native tab before relying on it;
   the header's back control returns to the list.
@@ -121,7 +121,7 @@ Out:
   Joining a space seeds this device's current interface settings instead of the defaults,
   since `settings.interface` is device-local (`docs/decisions/STORAGE-BUCKETS.md`).
   Update `docs/specs/INTERFACE-SETTINGS.md`: replace "The mobile app has no interface settings yet" with what mobile
-  has so far, and add a Mobile App section that items 4 to 6 extend.
+  has so far, and add a Mobile App section that items 4, 5, and 7 extend.
   Update `apps/mobile/README.md` (§Device checks) with a scheme check: Dark with the system light, Light with it dark,
   and System following a live switch.
   Constraints: `apps/mobile/src-rust`, `apps/mobile/native`, `apps/mobile/src`, the locale catalog.
@@ -169,7 +169,17 @@ Out:
   Commit: Switch the mobile app's language
   Depends on: 3
 
-- [ ] 6. Choose motion and timestamp formats on mobile
+- [x] 6. Share the timestamp format state with mobile
+  Goal: the mobile app can use the desktop's timestamp format control logic instead of copying it.
+  Move the state of `TimestampFormatSection` (the selection, the custom pattern, its validation and commit, and the
+  live preview) and the date and time presets into a DOM-free hook, `useTimestampFormat`, which takes the write.
+  The desktop section renders over it unchanged, and `@koloda/settings-react/interface-settings` exports it.
+  Constraints: `libs/settings-react`; no behavior change.
+  Done when: the existing interface settings tests pass; `bun run check:push`.
+  Commit: Share the timestamp format state with mobile
+  Depends on: 2
+
+- [ ] 7. Choose motion and timestamp formats on mobile
   Goal: the Interface screen offers motion (On, Off, System) by §Motion, and the date and time formats by
   §Date and Time Format: the presets, a custom date pattern with its validation, and a preview under each.
   Off suppresses the card's swipe, spring, and appear animations; System follows the device's reduce-motion setting.
@@ -182,9 +192,9 @@ Out:
   the last-sync time change, and save an invalid custom pattern and see the error with the previous format kept;
   `bun run check:push`.
   Commit: Choose motion and timestamp formats on mobile
-  Depends on: 3
+  Depends on: 3, 6
 
-- [ ] 7. Edit learning settings on mobile
+- [ ] 8. Edit learning settings on mobile
   Goal: the Learning screen edits the daily limits, Day starts at, and the learn-ahead limit,
   by `docs/specs/LEARNING-SETTINGS.md`.
   Total, New, Learn, and Review each take a number or Unlimited; turning Unlimited off fills in the first-setup

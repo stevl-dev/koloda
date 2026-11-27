@@ -281,11 +281,11 @@ msgstr "Color scheme"
 msgid "settings.interface.time-format"
 msgstr "Time format"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
+#: ../../libs/settings-react/src/lib/interface-controls/use-timestamp-format.ts
 msgid "settings.interface.time-format.12-hour"
 msgstr "12-hour"
 
-#: ../../libs/settings-react/src/lib/settings-interface.tsx
+#: ../../libs/settings-react/src/lib/interface-controls/use-timestamp-format.ts
 msgid "settings.interface.time-format.24-hour"
 msgstr "24-hour"
 

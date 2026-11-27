@@ -7,16 +7,11 @@ import { useAtomValue } from "jotai";
 import { DarkThemePicker, LightThemePicker } from "./interface-controls/color-theme-picker";
 import { LanguagePicker } from "./interface-controls/language-picker";
 import { TimestampFormatSection } from "./interface-controls/timestamp-format";
+import { DATE_FORMAT_PRESETS, TIME_FORMAT_PRESETS } from "./interface-controls/use-timestamp-format";
 import {
   useInterfaceSettingWrite,
   useInterfaceSettingWriteError,
 } from "./interface-controls/use-interface-setting-write";
-
-const DATE_FORMAT_PRESETS = [{ value: "yyyy-MM-dd" }, { value: "dd.MM.yyyy" }, { value: "MM/dd/yyyy" }];
-const TIME_FORMAT_PRESETS = [
-  { value: "hh:mm a", label: msg`settings.interface.time-format.12-hour` },
-  { value: "HH:mm", label: msg`settings.interface.time-format.24-hour` },
-];
 
 export function SettingsInterface() {
   const { _ } = useLingui();
