@@ -38,14 +38,16 @@ Entries are grouped under one heading per package directory.
   Source: `tasks/archive/mobile-spike.md`, question 10
   Deferred because: no Mac with Xcode was available.
 
-- Handoff: build the mobile app at the tip and run the device checks `mobile-app` and `mobile-lesson-parity` changed
-  on the emulator.
+- Handoff: build the mobile app at the tip and run the device checks `mobile-app`, `mobile-lesson-parity`, and
+  `mobile-settings` changed on the emulator.
   Evidence: at `f49ddbd3`, `nx run @koloda/mobile:build-android` last ran on `8ebd910b` (item 5), before items 6 to 10.
   Checks 8 (dark mode) and 10 (swipe hints), the long-card scroll check, and the Sync tab's join and status in
   `apps/mobile/README.md` (§Device checks) have not run.
   At `1c889d5d`, the debug build succeeded without running out of memory, but no check ran on it.
   `mobile-lesson-parity` added or changed the checks for typed answers, today's progress, the all-decks row and
   per-type starts, the init screen, session progress, and the leave confirmation; none has run.
+  `mobile-settings` added or changed the checks for the Settings tab, the color scheme, the themes, the language,
+  motion and timestamp formats, and learning settings, and moved the Sync checks under Settings → Sync; none has run.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`
   Deferred because: the human runs every device check once the planned mobile features have shipped

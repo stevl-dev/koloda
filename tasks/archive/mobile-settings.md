@@ -1,6 +1,6 @@
 # Mobile settings
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/LEARNING-SETTINGS.md, docs/specs/SYNC.md, docs/decisions/STORAGE-BUCKETS.md, docs/decisions/CACHE-REFRESH.md, agents/ADD-COLOR-THEME.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md, agents/DEPENDENCIES.md
 Flow: local
 
@@ -229,3 +229,31 @@ Out:
   Depends on: 3, 8
 
 ## Outcome
+
+The mobile app has a Settings tab with Interface, Learning, and Sync screens, in place of the Sync tab.
+
+What shipped:
+
+- Interface: language (English and Russian), color scheme, light and dark themes, motion, and date and time formats.
+  Each applies at once and saves its own field through the desktop's write hook, now reachable from
+  `@koloda/settings-react/interface-settings`.
+  The app reads the saved settings before its first screen; a fresh install starts in the device language.
+- Atom One Light and Dark palettes in `apps/mobile/src/colors.ts`; `agents/ADD-COLOR-THEME.md` now asks for a mobile
+  palette with each theme, and a mobile test fails when one is missing.
+- A Russian catalog for the mobile app's own strings.
+- Motion covers the lesson card's animations through Reanimated's reduce-motion option.
+- Learning: daily limits, Day starts at, and learn-ahead, on TanStack Form with the desktop's synced-field refresh
+  (`@koloda/ui/form-state`) and rules (`@koloda/settings-react/learning-settings`); the defaults are kept as saved.
+- `set_settings` and `patch_settings` in the `koloda-mobile` façade.
+- Joining a space keeps the phone's interface settings.
+- Three refactor items (2, 6, 8) were added during implementation so mobile shares desktop code instead of copying it;
+  `motionSettingAtom` moved to `@koloda/core-react`.
+
+Not verified on a device: by the human's choice, no device check ran in this task.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The card's motion has no Jest test, since Jest cannot run Reanimated.
+The Russian strings for the mobile app were written by the agent and have not been read by a native speaker.
+
+Spec: docs/specs/SYNC.md, docs/specs/INTERFACE-SETTINGS.md, docs/specs/LEARNING-SETTINGS.md
+Review: none, self-review only
+Change rounds: 0
