@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use koloda_mobile::KolodaMobile;
+use koloda_mobile::{KolodaMobile, MobileError};
 use koloda_mobile_vault::{register_secret_vault, SecretVault, VaultError};
 use serde_json::{json, Value};
 
@@ -76,4 +76,17 @@ async fn a_background_tick_in_no_space_starts_the_engine_and_syncs_nothing() {
     assert_eq!(ticked, json!({ "hasRun": false, "isDone": true }));
     let status: Value = serde_json::from_str(&mobile.sync_status().await.expect("status")).expect("json");
     assert_eq!(status["state"], json!({ "type": "notEnrolled" }));
+}
+
+#[tokio::test]
+async fn a_file_in_no_space_cannot_invite_a_device() {
+    register_secret_vault(Box::new(MemoryVault::default())).expect("register");
+    let dir = tempfile::tempdir().expect("temp dir");
+    let mobile = KolodaMobile::new(dir.path().join("koloda.db").to_string_lossy().into_owned()).expect("open");
+    mobile.sync_start(starter()).await.expect("start");
+
+    let error = mobile.sync_issue_pairing().await.expect_err("no space");
+
+    let MobileError::App { code, .. } = error;
+    assert_eq!(code, "sync.not-enrolled");
 }

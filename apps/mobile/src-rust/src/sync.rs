@@ -1,8 +1,8 @@
 //! The sync engine on the phone: the one `Engine` a `KolodaMobile` starts, its runner, and the wire shapes and
 //! `sync.*` error codes the app reads.
 //!
-//! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the spike does not offer
-//! (creating a space, pairing, devices, detach, import, restore).
+//! Copied from `apps/electron/src-rust/src/sync.rs`, without the calls the phone does not offer
+//! (creating a space, devices, detach, import, restore).
 //!
 //! INVARIANT: host calls that wait on the network run on the sync worker, never on the database worker
 //! (`KolodaMobile` in `lib.rs`).
@@ -82,6 +82,14 @@ pub struct JoinWire {
     code: String,
     device_name: String,
     settings: SeedSettings,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PairingWire {
+    code: String,
+    expires_at: i64,
+    server_url: String,
 }
 
 #[derive(Serialize)]
@@ -238,6 +246,17 @@ impl SyncHost {
             mode: join_mode_wire(joined.mode),
             known_ids: joined.known_ids,
             status: engine.status()?.into(),
+        })
+    }
+
+    pub fn issue_pairing(&self) -> Result<PairingWire, SyncError> {
+        let engine = self.engine()?;
+        let issued = engine.issue_pairing(None)?;
+        Ok(PairingWire {
+            code: issued.code,
+            // WHY: the server stamps the expiry by its clock; the countdown runs on this one.
+            expires_at: i64::try_from(issued.expires_at).unwrap_or(i64::MAX) - engine.skew_ms(),
+            server_url: issued.server_url,
         })
     }
 

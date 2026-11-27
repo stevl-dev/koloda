@@ -161,6 +161,10 @@ Run on each platform after a change to the app.
   and the phone shows the change.
 - [ ] Force-quit and reopen the phone app; it is still in the space, and the status is in sync.
 - [ ] Enter a wrong code; the screen says the code is wrong.
+- [ ] In Settings → Sync, "Invite a device" shows a code and the server address with a countdown.
+  Each copy button puts its value on the clipboard; desktop joins with the pasted code.
+  After ten minutes the code says it expired, and "New code" issues another.
+  With the server stopped, it says why and offers "New code".
 - [ ] Change a card on desktop, then send the phone app to the background and force a background run
   (`adb shell cmd jobscheduler run -f com.koloda.app <job id>`, the id from `adb shell dumpsys jobscheduler`).
   Desktop's change is on the phone when the app opens, before any foreground sync; it also arrives after a
@@ -173,8 +177,8 @@ Run on each platform after a change to the app.
 Code copied from another app instead of shared:
 
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
-- `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, and its
-  error codes.
+- `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
+  error codes, and issuing a pairing code.
 
 ## Findings
 

@@ -274,6 +274,47 @@ msgstr "Синхронизация"
 msgid "mobile.sync.indicator.up-to-date"
 msgstr "Всё синхронизировано"
 
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite"
+msgstr "Пригласить устройство"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.code"
+msgstr "Код подключения"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy"
+msgstr "Копировать"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy-code"
+msgstr "Скопировать код подключения"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy-server-url"
+msgstr "Скопировать адрес сервера"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.done"
+msgstr "Готово"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.expired"
+msgstr "Срок действия кода истёк."
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.expires-in {timeLeft}"
+msgstr "Код действует ещё {timeLeft}"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.message"
+msgstr "На другом устройстве откройте Настройки → Синхронизация, подключитесь к пространству и введите:"
+
+#: src/components/invite-device.tsx
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.new-code"
+msgstr "Новый код"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Присоединиться"
@@ -294,6 +335,7 @@ msgstr "Колоды {decks} · Карточки {cards} · Повторения
 msgid "mobile.sync.preview-size {megabytes}"
 msgstr "Размер: {megabytes} МБ"
 
+#: src/components/invite-device.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.server-url"
 msgstr "Адрес сервера"

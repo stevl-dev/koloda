@@ -6,6 +6,7 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { SYNC_START_KEY } from "../host/start-sync";
+import { InviteDevice } from "./invite-device";
 import { JoinSpace } from "./join-space";
 
 export function SyncPanel() {
@@ -35,6 +36,7 @@ export function SyncPanel() {
     <View style={styles.status}>
       <Text style={[styles.title, { color: colors.text }]}>{_(SYNC_STATE_LABELS[state.type])}</Text>
       <Button title={_(msg`mobile.sync.sync-now`)} onPress={() => void sync.nudge()} />
+      <InviteDevice />
       {stop && <Text style={{ color: colors.danger }}>{stop}</Text>}
       {stopDetails && <Text style={muted}>{stopDetails}</Text>}
       {downloadLeft && <Text style={{ color: colors.text }}>{downloadLeft}</Text>}

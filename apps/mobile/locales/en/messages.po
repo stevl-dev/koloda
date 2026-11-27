@@ -274,6 +274,47 @@ msgstr "Syncing"
 msgid "mobile.sync.indicator.up-to-date"
 msgstr "Up to date"
 
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite"
+msgstr "Invite a device"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.code"
+msgstr "Pairing code"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy"
+msgstr "Copy"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy-code"
+msgstr "Copy the pairing code"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.copy-server-url"
+msgstr "Copy the server address"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.done"
+msgstr "Done"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.expired"
+msgstr "This code has expired."
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.expires-in {timeLeft}"
+msgstr "The code expires in {timeLeft}"
+
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.message"
+msgstr "On the other device, open Settings → Sync, join a space, and enter:"
+
+#: src/components/invite-device.tsx
+#: src/components/invite-device.tsx
+msgid "mobile.sync.invite.new-code"
+msgstr "New code"
+
 #: src/components/join-space.tsx
 msgid "mobile.sync.join"
 msgstr "Join"
@@ -294,6 +335,7 @@ msgstr "Decks {decks} · Cards {cards} · Reviews {reviews}"
 msgid "mobile.sync.preview-size {megabytes}"
 msgstr "Size: {megabytes} MB"
 
+#: src/components/invite-device.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.server-url"
 msgstr "Server address"

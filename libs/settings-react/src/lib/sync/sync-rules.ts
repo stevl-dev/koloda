@@ -1,5 +1,8 @@
 import type { SyncDevice, SyncStatus } from "@koloda/app";
 import { atom } from "jotai";
+import { useEffect, useState } from "react";
+
+const CODE_GROUP = /(.{5})(?=.)/g;
 
 // WHY: the join's probe count reaches the choice through here: the join dialog closes once the status says the choice
 // waits. It exists only in the session that joined; a choice shown after a restart has none.
@@ -39,4 +42,25 @@ export function relatedDevices(device: SyncDevice, devices: SyncDevice[]) {
     (other) =>
       !other.isRevoked && !other.isSelf && (other.forkedFromId === device.id || other.pairedById === device.id),
   );
+}
+
+export function formatPairingCode(code: string) {
+  return code.replace(CODE_GROUP, "$1-");
+}
+
+export function pairingSecondsLeft(expiresAt: number, now: number) {
+  return Math.max(0, Math.ceil((expiresAt - now) / 1000));
+}
+
+export function formatTimeLeft(secondsLeft: number) {
+  return `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`;
+}
+
+export function useNow() {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
 }

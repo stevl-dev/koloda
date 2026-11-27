@@ -291,6 +291,11 @@ impl KolodaMobile {
         .await
     }
 
+    pub async fn sync_issue_pairing(&self) -> Result<String, MobileError> {
+        self.run_sync(|sync| to_wire(&sync.issue_pairing().map_err(sync_error)?))
+            .await
+    }
+
     pub fn sync_nudge(&self) {
         self.sync.nudge();
     }

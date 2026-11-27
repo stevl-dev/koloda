@@ -5,9 +5,8 @@ import { Button, CopyIcon, Dialog, ErrorMessage } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-
-const CODE_GROUP = /(.{5})(?=.)/g;
+import { useState } from "react";
+import { formatPairingCode, formatTimeLeft, pairingSecondsLeft, useNow } from "./sync-rules";
 
 export type SettingsSyncInviteProps = { sync: SyncQueries };
 
@@ -57,7 +56,7 @@ type PairingProps = { pairing: IssuedPairing; onNewCode: () => void; isPending: 
 function Pairing({ pairing, onNewCode, isPending }: PairingProps) {
   const { _ } = useLingui();
   const now = useNow();
-  const secondsLeft = Math.max(0, Math.ceil((pairing.expiresAt - now) / 1000));
+  const secondsLeft = pairingSecondsLeft(pairing.expiresAt, now);
 
   if (secondsLeft === 0) {
     return (
@@ -70,14 +69,14 @@ function Pairing({ pairing, onNewCode, isPending }: PairingProps) {
     );
   }
 
-  const timeLeft = `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`;
+  const timeLeft = formatTimeLeft(secondsLeft);
 
   return (
     <>
       <p className="fg-level-2">{_(msg`settings.sync.invite.message`)}</p>
       <CopyRow
         label={_(msg`settings.sync.invite.code`)}
-        value={pairing.code.replace(CODE_GROUP, "$1-")}
+        value={formatPairingCode(pairing.code)}
         copyLabel={_(msg`settings.sync.invite.copy-code`)}
       />
       <CopyRow
@@ -110,13 +109,4 @@ function CopyRow({ label, value, copyLabel }: CopyRowProps) {
       </div>
     </div>
   );
-}
-
-function useNow() {
-  const [now, setNow] = useState(Date.now);
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-  return now;
 }

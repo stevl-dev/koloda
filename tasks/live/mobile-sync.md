@@ -156,7 +156,7 @@ Out:
   Commit: Show whether mobile sync needs attention
   Depends on: 1, 2
 
-- [ ] 6. Invite a device from mobile
+- [x] 6. Invite a device from mobile
   Goal: Settings → Sync offers "Invite a device", which shows a pairing code and the server's address, each with a
   copy button, counts down to the code's expiry, offers a new code once it expires, and shows why when none could be
   issued, by `docs/specs/SYNC.md` (§Inviting a Device).

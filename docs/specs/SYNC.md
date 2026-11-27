@@ -42,14 +42,16 @@ Changes made offline sync once the device can reach the server again.
 Sync is in the desktop and mobile apps.
 The web demo has no Sync settings and never syncs.
 
-The mobile app joins a space and shows its status, and nothing more.
+The mobile app joins a space, shows its status, and invites devices.
 It sits under Settings → Sync, as on desktop.
 
 - Joining works as §Joining a Space says, except that a phone with data of its own cannot join.
   A phone adds no data itself, so this happens only after it left a space, which it cannot do yet.
 - The status shows the state, why sync stopped, the last sync, and what waits to upload or download, as §Status says.
   It does not show held changes, a full space, or changes waiting for the server's clock.
-- It cannot create a space, invite a device, list or remove devices, leave a space, or choose Add or Replace.
+- Inviting a device works as §Inviting a Device says; the code shows in place of a dialog, and hiding it does not
+  cancel it.
+- It cannot create a space, list or remove devices, leave a space, or choose Add or Replace.
   A stop that needs the user to leave the space, or to continue after a restore, cannot be resolved on the phone.
 - It has no title bar, so the Settings tab shows a dot while sync needs attention, by §Status's rule.
   The Sync row on the Settings screen shows the state: syncing, up to date, or needs attention.

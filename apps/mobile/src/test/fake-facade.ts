@@ -17,6 +17,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     submitLessonResult: unexpected,
     syncCanJoin: unexpected,
     syncEvents: () => new Promise(() => {}),
+    syncIssuePairing: unexpected,
     syncJoin: unexpected,
     syncNudge: () => {},
     syncPreview: unexpected,

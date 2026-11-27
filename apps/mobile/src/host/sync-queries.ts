@@ -1,4 +1,12 @@
-import type { InterfaceSettings, JoinData, JoinedSpace, PreviewRequest, SpacePreview, SyncStatus } from "@koloda/app";
+import type {
+  InterfaceSettings,
+  IssuedPairing,
+  JoinData,
+  JoinedSpace,
+  PreviewRequest,
+  SpacePreview,
+  SyncStatus,
+} from "@koloda/app";
 import { queryKeys } from "@koloda/core-react";
 import type { SyncQueries } from "@koloda/core-react";
 import { seedSettings } from "@koloda/native-host";
@@ -6,7 +14,10 @@ import type { KolodaFacade } from "./facade";
 import { read, wireArgs } from "./facade";
 
 // INVARIANT: the same keys as the desktop's sync queries, so the shared sync screens' cache writes reach these.
-export type MobileSyncQueries = Pick<SyncQueries, "getStatusQuery" | "previewMutation" | "joinMutation" | "nudge">;
+export type MobileSyncQueries = Pick<
+  SyncQueries,
+  "getStatusQuery" | "previewMutation" | "joinMutation" | "issuePairingMutation" | "nudge"
+>;
 
 export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries {
   return {
@@ -26,6 +37,9 @@ export function createMobileSyncQueries(facade: KolodaFacade): MobileSyncQueries
         const settings = seedSettings(current?.content ?? {});
         return read<JoinedSpace>(() => facade.syncJoin(wireArgs({ ...data, settings })));
       },
+    }),
+    issuePairingMutation: () => ({
+      mutationFn: () => read<IssuedPairing>(() => facade.syncIssuePairing()),
     }),
     nudge: async () => facade.syncNudge(),
   };
