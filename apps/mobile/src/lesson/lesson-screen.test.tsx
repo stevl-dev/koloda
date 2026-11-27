@@ -94,7 +94,7 @@ async function renderLesson(overrides: Partial<KolodaFacade> = {}) {
           }
         >
           <MobileQueriesContext.Provider value={queries}>
-            <LessonScreen deckId={DECK} onDone={() => {}} />
+            <LessonScreen type="total" deckId={DECK} onDone={() => {}} />
           </MobileQueriesContext.Provider>
         </QueryClientProvider>
       </I18nProvider>

@@ -1,4 +1,5 @@
 import { queryKeys } from "@koloda/core-react";
+import type { Deck, LessonType } from "@koloda/srs";
 import {
   closeLessonStateAtom,
   lessonContentAtom,
@@ -18,11 +19,12 @@ import { LessonCard } from "./lesson-card";
 import { useMobileLessonSession } from "./use-mobile-lesson-session";
 
 export type LessonScreenProps = {
-  deckId: string;
+  type: LessonType;
+  deckId?: Deck["id"];
   onDone: () => void;
 };
 
-export function LessonScreen({ deckId, onDone }: LessonScreenProps) {
+export function LessonScreen({ type, deckId, onDone }: LessonScreenProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const queryClient = useQueryClient();
@@ -34,13 +36,13 @@ export function LessonScreen({ deckId, onDone }: LessonScreenProps) {
   const uploadLog = useAtomValue(lessonUploadLogAtom);
 
   useEffect(() => {
-    open({ type: "total", deckId });
+    open({ type, deckId });
     return () => {
       close();
       void queryClient.invalidateQueries({ queryKey: queryKeys.lessons.all() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.lessons.todayReviewTotals() });
     };
-  }, [deckId, open, close, queryClient]);
+  }, [type, deckId, open, close, queryClient]);
 
   useMobileLessonSession();
 

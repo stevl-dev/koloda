@@ -54,8 +54,8 @@ msgid "mobile.lesson.title"
 msgstr "Lesson"
 
 #: src/components/lessons-list.tsx
-msgid "mobile.lessons.due {untouched} {learn} {review}"
-msgstr "New {untouched} · Learning {learn} · Review {review}"
+msgid "mobile.lessons.all-decks"
+msgstr "All decks"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.empty"
@@ -72,6 +72,10 @@ msgstr "Nothing due"
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.open-sync"
 msgstr "Open the Sync tab"
+
+#: src/components/lessons-list.tsx
+msgid "mobile.lessons.start {label} {count}"
+msgstr "{label} {count}"
 
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"

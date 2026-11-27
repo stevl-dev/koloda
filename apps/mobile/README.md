@@ -103,7 +103,10 @@ Run on each platform after a change to the app.
   A remote or embedded image shows its alt text instead.
 - [ ] The card reads well with the system in light mode and in dark mode.
 - [ ] Tapping the card's web link opens the system browser.
-- [ ] Tap a deck to start a lesson; study ten cards with swipes and buttons.
+- [ ] The Lessons tab lists "All decks" first; each row's New, Learn, Review, and Total start a lesson of that type,
+  and a zero does nothing.
+  A Review lesson from "All decks" shows review cards from more than one deck.
+- [ ] Tap a deck's Total to start a lesson; study ten cards with swipes and buttons.
   Left is Again, down is Hard, right is Good, up is Easy.
   Each grade button shows its arrow, and a drag shows the grade it would give on the card.
 - [ ] Reveal a card too long for the screen; scrolling it up and down grades nothing.

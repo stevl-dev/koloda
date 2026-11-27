@@ -1,3 +1,5 @@
+import { LESSON_TYPE_LABELS, LESSON_TYPES, toLessonTableRows } from "@koloda/srs";
+import type { Deck, LessonType } from "@koloda/srs";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +9,12 @@ import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { LearnedToday } from "./learned-today";
 
-export function LessonsList() {
+export type LessonsListProps = {
+  // INVARIANT: a null deck starts a lesson across all decks.
+  onStart: (type: LessonType, deckId: Deck["id"] | null) => void;
+};
+
+export function LessonsList({ onStart }: LessonsListProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getLessonsQuery, getTodayReviewTotalsQuery } = useMobileQueries();
@@ -19,8 +26,9 @@ export function LessonsList() {
 
   return (
     <FlatList
-      data={data.decks}
-      keyExtractor={(deck) => deck.id}
+      // WHY: the all-decks row comes first, and a library with no decks shows the empty state instead of it.
+      data={data.decks.length > 0 ? toLessonTableRows(data) : []}
+      keyExtractor={(row) => row.id ?? "all"}
       refreshing={isRefetching || totals.isRefetching}
       onRefresh={() => {
         void refetch();
@@ -41,23 +49,37 @@ export function LessonsList() {
           </Link>
         </View>
       }
-      renderItem={({ item: { id, title, untouched, learn, review, total } }) => {
-        const counts =
-          total > 0 ? _(msg`mobile.lessons.due ${untouched} ${learn} ${review}`) : _(msg`mobile.lessons.nothing-due`);
-        const row = (
-          <Pressable style={styles.row} disabled={total === 0}>
-            <Text style={[styles.title, { color: total > 0 ? colors.text : colors.muted }]}>{title}</Text>
-            <Text style={{ color: colors.muted }}>{counts}</Text>
-          </Pressable>
-        );
-        // WHY: a lesson of a deck with nothing due would open on no cards and end at once.
-        if (total === 0) return row;
-        return (
-          <Link href={{ pathname: "/lesson/[deckId]", params: { deckId: id } }} asChild>
-            {row}
-          </Link>
-        );
-      }}
+      renderItem={({ item: { id, title, ...counts } }) => (
+        <View style={styles.row}>
+          <Text style={[styles.title, { color: counts.total > 0 ? colors.text : colors.muted }]}>
+            {title ?? _(msg`mobile.lessons.all-decks`)}
+          </Text>
+          {/* WHY: a lesson with nothing due would open on no cards and end at once. */}
+          {counts.total === 0 ? (
+            <Text style={{ color: colors.muted }}>{_(msg`mobile.lessons.nothing-due`)}</Text>
+          ) : (
+            <View style={styles.starts}>
+              {LESSON_TYPES.map((type) => {
+                const label = _(LESSON_TYPE_LABELS[type]);
+                const count = counts[type];
+                return (
+                  <Pressable
+                    key={type}
+                    accessibilityRole="button"
+                    accessibilityLabel={_(msg`mobile.lessons.start ${label} ${count}`)}
+                    style={[styles.start, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                    disabled={count === 0}
+                    onPress={() => onStart(type, id)}
+                  >
+                    <Text style={{ color: count > 0 ? colors.text : colors.muted }}>{count}</Text>
+                    <Text style={[styles.startLabel, { color: colors.muted }]}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      )}
     />
   );
 }
@@ -65,6 +87,10 @@ export function LessonsList() {
 const styles = StyleSheet.create({
   message: { padding: 16 },
   empty: { padding: 16, gap: 12 },
-  row: { paddingVertical: 12, paddingHorizontal: 16, gap: 4 },
+  row: { paddingVertical: 12, paddingHorizontal: 16, gap: 8 },
   title: { fontSize: 17, fontWeight: "600" },
+  starts: { flexDirection: "row", gap: 8 },
+  // WHY: four starts share a narrow phone's width, and each stays tall enough to tap.
+  start: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderWidth: 1, borderRadius: 10 },
+  startLabel: { fontSize: 12 },
 });

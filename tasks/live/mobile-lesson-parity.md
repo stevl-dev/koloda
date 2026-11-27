@@ -107,7 +107,7 @@ Out:
   Commit: Show today's progress on the mobile Lessons tab
   Depends on: none
 
-- [ ] 3. Start lessons by type and across all decks
+- [x] 3. Start lessons by type and across all decks
   Goal: the Lessons tab lists an all-decks row first, from `LessonsResult.total`, then each deck.
   Each row shows its "New", "Learn", "Review", and "Total" counts as buttons; a button with a non-zero count starts a
   lesson of that type for that deck, or for all decks on the first row, and a zero button is disabled.

@@ -1,7 +1,7 @@
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import { createMobileQueries } from "../host/queries";
 import { MobileQueriesContext } from "../host/queries-context";
 import { activateEnglish } from "../i18n";
@@ -32,6 +32,7 @@ async function renderList(result: unknown) {
   const getLessons = jest.fn((_params: string) => Promise.resolve(JSON.stringify(result)));
   const getTodaysReviewTotals = () => Promise.resolve(JSON.stringify(totals));
   const queries = createMobileQueries(fakeFacade({ getLessons, getTodaysReviewTotals }), "/cache");
+  const onStart = jest.fn();
 
   await render(
     <I18nProvider i18n={i18n}>
@@ -39,23 +40,34 @@ async function renderList(result: unknown) {
         client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}
       >
         <MobileQueriesContext.Provider value={queries}>
-          <LessonsList />
+          <LessonsList onStart={onStart} />
         </MobileQueriesContext.Provider>
       </QueryClientProvider>
     </I18nProvider>,
   );
-  return getLessons;
+  return { getLessons, onStart };
 }
 
 describe("LessonsList", () => {
-  it("shows each deck with its due counts from the façade", async () => {
-    const getLessons = await renderList(lessons);
+  it("starts a lesson of the pressed type, for one deck or across all decks from the first row", async () => {
+    const { getLessons, onStart } = await renderList(lessons);
 
-    expect(await screen.findByText("Spanish")).toBeTruthy();
-    expect(screen.getByText("New 3 · Learning 1 · Review 7")).toBeTruthy();
-    expect(screen.getByText("Chemistry")).toBeTruthy();
-    expect(screen.getByText("New 2 · Learning 0 · Review 0")).toBeTruthy();
+    expect(await screen.findByText("All decks")).toBeTruthy();
     expect(typeof JSON.parse(getLessons.mock.calls[0][0]).dueAt).toBe("number");
+    const [allDecksReview, spanishReview] = screen.getAllByRole("button", { name: "Review 7" });
+    await fireEvent.press(spanishReview);
+    expect(onStart).toHaveBeenLastCalledWith("review", lessons.decks[0].id);
+    await fireEvent.press(allDecksReview);
+    expect(onStart).toHaveBeenLastCalledWith("review", null);
+    await fireEvent.press(screen.getByRole("button", { name: "Total 2" }));
+    expect(onStart).toHaveBeenLastCalledWith("total", lessons.decks[1].id);
+  });
+
+  it("does not start a lesson of a type with nothing due", async () => {
+    const { onStart } = await renderList(lessons);
+
+    await fireEvent.press(await screen.findByRole("button", { name: "Learn 0" }));
+    expect(onStart).not.toHaveBeenCalled();
   });
 
   it("shows what was learned today against each daily limit, with no limit as ∞", async () => {
@@ -75,7 +87,7 @@ describe("LessonsList", () => {
 
     expect(await screen.findByText("History")).toBeTruthy();
     expect(screen.getByText("Nothing due")).toBeTruthy();
-    expect(screen.queryByText("New 0 · Learning 0 · Review 0")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Total 0" })).toBeNull();
   });
 
   it("points a library with no decks at the Sync tab", async () => {

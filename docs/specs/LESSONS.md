@@ -304,13 +304,15 @@ What happens to results not yet saved is in §Persisting Results.
 
 The mobile app runs lessons with fewer choices than the desktop and web apps.
 
-- Its Lessons tab lists every deck with its "New", "Learn", and "Review" counts, with no aggregate row.
-  A deck with nothing due says so and does not start a lesson.
+- Its Lessons tab lists the same rows as the Dashboard (§Lessons Overview), with the all-decks row first.
+  Each count starts a lesson of its type, as a badge does; a count of zero starts nothing.
+  A row with nothing due says so instead of showing its counts.
+  The tab shows no rows, not even the all-decks row, while the library has no decks.
   Pulling the list down refreshes the counts.
 - Above the list, the Lessons tab shows today's progress (§Today's Progress).
   Pulling the list down refreshes it too.
-- Tapping a deck starts a lesson of that deck's "Total", with no init screen.
-  The lesson studies the default amounts (§Default Amounts).
+- A lesson starts with no init screen.
+  It studies the default amounts (§Default Amounts) for the type that started it.
 - In a type field, the keyboard's return key submits the card.
 - There are no lesson hotkeys.
 - Leaving the lesson screen ends the lesson at once, with no confirmation (§Early Termination).

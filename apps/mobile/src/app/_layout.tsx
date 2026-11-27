@@ -21,7 +21,7 @@ function RootStack() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="lesson/[deckId]" options={{ title: _(msg`mobile.lesson.title`) }} />
+      <Stack.Screen name="lesson" options={{ title: _(msg`mobile.lesson.title`) }} />
     </Stack>
   );
 }
