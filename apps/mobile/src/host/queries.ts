@@ -8,6 +8,7 @@ import type {
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
+  InsertCardData,
   LessonData,
   LessonFilters,
   LessonResultData,
@@ -30,6 +31,7 @@ export type MobileQueries = Pick<
   | "getCardsQuery"
   | "getTemplateQuery"
   | "getReviewsQuery"
+  | "addCardMutation"
   | "updateCardMutation"
   | "getLessonsQuery"
   | "getLessonDataQuery"
@@ -57,6 +59,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getTemplateQuery: (id: Template["id"]) => ({
       queryKey: queryKeys.templates.detail(id),
       queryFn: () => read<Template | null>(() => facade.getTemplate(id)),
+    }),
+    addCardMutation: () => ({
+      mutationFn: (data: InsertCardData) => read<Card>(() => facade.addCard(wireArgs(data))),
     }),
     updateCardMutation: () => ({
       mutationFn: (data: UpdateCardData) => read<Card>(() => facade.updateCard(wireArgs(data))),

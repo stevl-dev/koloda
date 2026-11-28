@@ -250,4 +250,8 @@ The mobile app browses and changes the cards of the decks it already has.
   It saves as §Editing Cards says, and then returns to the card view.
   A rejected field shows its error under that field; going back discards the draft without asking.
 - A change synced from another device shows in a form the user has not touched yet.
+- "Add a card" on a deck's cards opens a form for the deck's current template, as §Adding Cards says.
+  After each add, the form clears, stays open, and says how many cards it has added.
+  Going back discards the draft without asking.
+- A deck whose template is missing offers no add, and says why.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

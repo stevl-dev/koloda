@@ -13,10 +13,13 @@ export default function DeckRoute() {
   return (
     <>
       <Stack.Screen options={{ title: deck?.title ?? "" }} />
-      <DeckCards
-        deckId={id}
-        onOpenCard={(cardId) => router.push({ pathname: "/deck/[id]/card/[cardId]", params: { id, cardId } })}
-      />
+      {deck && (
+        <DeckCards
+          deck={deck}
+          onOpenCard={(cardId) => router.push({ pathname: "/deck/[id]/card/[cardId]", params: { id, cardId } })}
+          onAdd={() => router.push({ pathname: "/deck/[id]/add", params: { id } })}
+        />
+      )}
     </>
   );
 }

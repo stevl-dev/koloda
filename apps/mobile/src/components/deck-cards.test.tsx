@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react-native";
-import { card, DECK_ID, renderWithQueries, returning, template } from "../test/cards";
+import { card, DECK, DECK_ID, renderWithQueries, returning, template } from "../test/cards";
 import { DeckCards } from "./deck-cards";
 
 describe("DeckCards", () => {
@@ -9,7 +9,7 @@ describe("DeckCards", () => {
       card("c2", "Berlin", "Germany", { state: 2, dueAt: "2026-02-01T10:00:00.000Z" }),
     ];
     const getCards = returning(cards);
-    await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, {
+    await renderWithQueries(<DeckCards deck={DECK} onOpenCard={jest.fn()} onAdd={jest.fn()} />, {
       getCards,
       getTemplate: returning(template()),
     });
@@ -25,7 +25,10 @@ describe("DeckCards", () => {
   });
 
   it("says when the deck has no cards", async () => {
-    await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, { getCards: returning([]) });
+    await renderWithQueries(<DeckCards deck={DECK} onOpenCard={jest.fn()} onAdd={jest.fn()} />, {
+      getCards: returning([]),
+      getTemplate: returning(template()),
+    });
 
     expect(await screen.findByText("No cards in this deck yet.")).toBeTruthy();
   });
@@ -38,7 +41,7 @@ describe("DeckCards", () => {
     ];
 
     async function renderSearchable() {
-      await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, {
+      await renderWithQueries(<DeckCards deck={DECK} onOpenCard={jest.fn()} onAdd={jest.fn()} />, {
         getCards: returning(cards),
         getTemplate: returning(template()),
       });
@@ -80,5 +83,16 @@ describe("DeckCards", () => {
       expect(screen.queryByText("Rome")).toBeNull();
       expect(screen.getByText("No cards match.")).toBeTruthy();
     });
+  });
+
+  it("offers no Add when the deck's template is missing, and says why", async () => {
+    const onAdd = jest.fn();
+    await renderWithQueries(<DeckCards deck={DECK} onOpenCard={jest.fn()} onAdd={onAdd} />, {
+      getCards: returning([]),
+      getTemplate: returning(null),
+    });
+
+    expect(await screen.findByText("This deck's template is missing, so no card can be added to it.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Add a card" })).toBeNull();
   });
 });

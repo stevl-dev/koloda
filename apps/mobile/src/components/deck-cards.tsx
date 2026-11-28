@@ -9,17 +9,20 @@ import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
+import { ActionButton } from "./action-button";
 
 export type DeckCardsProps = {
-  deckId: Deck["id"];
+  deck: Deck;
   onOpenCard: (cardId: Card["id"]) => void;
+  onAdd: () => void;
 };
 
-export function DeckCards({ deckId, onOpenCard }: DeckCardsProps) {
+export function DeckCards({ deck, onOpenCard, onAdd }: DeckCardsProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getCardsQuery, getTemplateQuery } = useMobileQueries();
-  const cards = useQuery(getCardsQuery({ deckId }));
+  const cards = useQuery(getCardsQuery({ deckId: deck.id }));
+  const deckTemplate = useQuery(getTemplateQuery(deck.templateId));
   const templateIds = [...new Set(cards.data?.map((card) => card.templateId))];
   const templates = useQueries({ queries: templateIds.map((id) => getTemplateQuery(id)) });
   const templateMap = new Map(templates.flatMap(({ data }) => (data ? [[data.id, data] as const] : [])));
@@ -41,6 +44,12 @@ export function DeckCards({ deckId, onOpenCard }: DeckCardsProps) {
   return (
     <View style={styles.screen}>
       <View style={styles.controls}>
+        {/* WHY: a card is added with its deck's current template; without it there is nothing to fill in. */}
+        {deckTemplate.data === null ? (
+          <Text style={{ color: colors.muted }}>{_(msg`mobile.cards.add-no-template`)}</Text>
+        ) : (
+          <ActionButton label={_(msg`mobile.cards.add`)} isDisabled={!deckTemplate.data} onPress={onAdd} />
+        )}
         <TextInput
           value={search}
           onChangeText={setSearch}

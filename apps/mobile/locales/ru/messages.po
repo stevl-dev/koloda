@@ -82,6 +82,24 @@ msgstr "Карточка"
 msgid "mobile.card.updated-at"
 msgstr "Изменена"
 
+#: src/components/add-card.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.add"
+msgstr "Добавить карточку"
+
+#: src/components/add-card.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.add-no-template"
+msgstr "Шаблон колоды не найден, поэтому в неё нельзя добавить карточку."
+
+#: src/app/deck/[id]/add.tsx
+msgid "mobile.cards.add-title"
+msgstr "Новая карточка"
+
+#: src/components/add-card.tsx
+msgid "mobile.cards.added {addedCount}"
+msgstr "Добавлено карточек: {addedCount}"
+
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "К повторению {dueAt}"

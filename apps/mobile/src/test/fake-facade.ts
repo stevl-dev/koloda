@@ -4,6 +4,7 @@ import type { KolodaFacade } from "../host/facade";
 export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade {
   const unexpected = () => Promise.reject(new Error("not stubbed"));
   return {
+    addCard: unexpected,
     attachmentFile: unexpected,
     getCards: unexpected,
     getDbStatus: unexpected,

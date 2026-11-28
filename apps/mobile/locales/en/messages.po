@@ -82,6 +82,24 @@ msgstr "Card"
 msgid "mobile.card.updated-at"
 msgstr "Updated"
 
+#: src/components/add-card.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.add"
+msgstr "Add a card"
+
+#: src/components/add-card.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.add-no-template"
+msgstr "This deck's template is missing, so no card can be added to it."
+
+#: src/app/deck/[id]/add.tsx
+msgid "mobile.cards.add-title"
+msgstr "New card"
+
+#: src/components/add-card.tsx
+msgid "mobile.cards.added {addedCount}"
+msgstr "Cards added: {addedCount}"
+
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "Due {dueAt}"

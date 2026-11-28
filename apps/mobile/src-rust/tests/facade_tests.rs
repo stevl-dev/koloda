@@ -418,3 +418,29 @@ async fn a_card_edit_changes_its_content_and_a_blank_required_field_is_refused()
         "a refused edit keeps the card"
     );
 }
+
+#[tokio::test]
+async fn a_card_added_on_the_phone_joins_its_deck_and_a_blank_required_field_is_refused() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let deck_id = add_deck_with_cards(&other_connection(&path), &[]);
+    let add = |front: &str| {
+        json!({
+            "deckId": deck_id,
+            "templateId": SEED_TEMPLATE_TYPE_ID,
+            "content": { FRONT: { "text": front }, BACK: { "text": "" } },
+        })
+        .to_string()
+    };
+
+    let added: Value = serde_json::from_str(&mobile.add_card(add("uno")).await.expect("add")).expect("card json");
+    assert_eq!(added["state"], 0, "a new card is untouched");
+    let MobileError::App { code, .. } = mobile.add_card(add("")).await.expect_err("blank front");
+    assert_eq!(code, "validation.cards.content.field-empty");
+
+    let cards = deck_cards(&mobile, &deck_id).await;
+    assert_eq!(cards.len(), 1, "only the valid card was added");
+    assert_eq!(cards[0]["id"], added["id"]);
+}

@@ -169,7 +169,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Note: the card route moved to `src/app/deck/[id]/card/[cardId]/index.tsx`, beside `edit.tsx`.
   `ActionButton` moved out of `settings-learning.tsx` into `src/components/action-button.tsx` for the card screens.
 
-- [ ] 6. Add a card on mobile
+- [x] 6. Add a card on mobile
   Goal: the deck screen's Add opens a form that adds a card with the deck's current template.
   The form is item 5's, empty, and validates with `getInsertCardSchema`.
   After an add, the form clears and stays open for the next card, and says the card was added;
@@ -182,6 +182,9 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   through the façade.
   Commit: Add a card on mobile
   Depends on: 5
+  Note: the shared form validates content with `getUpdateCardSchema`, whose content rule is the one
+  `getInsertCardSchema` applies; the deck and template ids come from the deck, and `koloda` checks the whole insert.
+  The deck screen's "Add a card" waits for the deck's template, and `DeckCards` now takes the deck, not its id.
 
 - [ ] 7. Delete a card and reset its progress on mobile
   Goal: the card view deletes the card, and resets a graded card's progress.

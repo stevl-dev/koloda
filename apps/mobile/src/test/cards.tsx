@@ -1,5 +1,5 @@
 import { langAtom } from "@koloda/core-react";
-import type { Card, Template } from "@koloda/srs";
+import type { Card, Deck, Template } from "@koloda/srs";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +16,16 @@ export const DECK_ID = "01900000-0000-7000-8000-000000000101";
 export const TEMPLATE_ID = "01900000-0000-7000-8000-000000000201";
 export const FRONT = "01900000-0000-7000-8000-000000000211";
 export const BACK = "01900000-0000-7000-8000-000000000212";
+
+export const DECK: Deck = {
+  id: DECK_ID,
+  title: "Spanish",
+  notes: undefined,
+  algorithmId: "01900000-0000-7000-8000-000000000301",
+  templateId: TEMPLATE_ID,
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: null,
+};
 
 // Fixtures in the shapes the façade returns, before the wire revives their timestamps.
 export function template(overrides: Partial<Template> = {}) {
