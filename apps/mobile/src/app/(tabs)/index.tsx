@@ -12,7 +12,6 @@ export default function LessonsTab() {
         onStart={(type, deckId) =>
           router.push({ pathname: "/lesson", params: deckId === null ? { type } : { type, deckId } })
         }
-        onOpenDeck={(id) => router.push({ pathname: "/deck/[id]", params: { id } })}
       />
     </SafeAreaView>
   );

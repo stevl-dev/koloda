@@ -179,6 +179,18 @@ msgstr "Cancel"
 msgid "mobile.cards.state-filter"
 msgstr "State"
 
+#: src/components/decks-list.tsx
+msgid "mobile.decks.empty"
+msgstr "No decks yet."
+
+#: src/components/decks-list.tsx
+msgid "mobile.decks.error"
+msgstr "The decks could not load."
+
+#: src/app/(tabs)/decks/_layout.tsx
+msgid "mobile.decks.title"
+msgstr "Decks"
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Today's progress could not load."
@@ -604,6 +616,10 @@ msgstr "Sync could not start: {message}"
 #: src/components/sync-panel.tsx
 msgid "mobile.sync.sync-now"
 msgstr "Sync now"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.decks"
+msgstr "Decks"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"

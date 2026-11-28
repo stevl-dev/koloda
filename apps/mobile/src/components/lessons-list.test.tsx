@@ -33,7 +33,6 @@ async function renderList(result: unknown) {
   const getTodaysReviewTotals = () => Promise.resolve(JSON.stringify(totals));
   const queries = createMobileQueries(fakeFacade({ getLessons, getTodaysReviewTotals }), "/cache");
   const onStart = jest.fn();
-  const onOpenDeck = jest.fn();
 
   await render(
     <I18nProvider i18n={i18n}>
@@ -41,12 +40,12 @@ async function renderList(result: unknown) {
         client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } })}
       >
         <MobileQueriesContext.Provider value={queries}>
-          <LessonsList onStart={onStart} onOpenDeck={onOpenDeck} />
+          <LessonsList onStart={onStart} />
         </MobileQueriesContext.Provider>
       </QueryClientProvider>
     </I18nProvider>,
   );
-  return { getLessons, onStart, onOpenDeck };
+  return { getLessons, onStart };
 }
 
 describe("LessonsList", () => {
@@ -62,14 +61,6 @@ describe("LessonsList", () => {
     expect(onStart).toHaveBeenLastCalledWith("review", null);
     await fireEvent.press(screen.getByRole("button", { name: "Total 2" }));
     expect(onStart).toHaveBeenLastCalledWith("total", lessons.decks[1].id);
-  });
-
-  it("opens a deck's cards from its title, and nothing from the all-decks row", async () => {
-    const { onOpenDeck } = await renderList(lessons);
-
-    await fireEvent.press(await screen.findByRole("link", { name: "Chemistry" }));
-    expect(onOpenDeck).toHaveBeenCalledWith(lessons.decks[1].id);
-    expect(screen.queryByRole("link", { name: "All decks" })).toBeNull();
   });
 
   it("does not start a lesson of a type with nothing due", async () => {

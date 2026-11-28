@@ -93,7 +93,7 @@ A library moves to a new phone by joining its sync space.
 Run on each platform after a change to the app.
 
 - [ ] The app boots to the Lessons tab.
-- [ ] The Lessons and Settings tabs both open, and Settings → Sync opens and returns to Settings.
+- [ ] The Lessons, Decks, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
 - [ ] In a lesson, a revealed card shows four grades, each with an interval.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
   That answer came back from `koloda` through an async UniFFI call.
@@ -146,7 +146,9 @@ Run on each platform after a change to the app.
   A tap on the card beside the input closes the keyboard and does not reveal the answer.
   The return key submits; a right answer in another case shows as correct, and a wrong one shows the correct value.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.
-- [ ] Tapping a deck's title on the Lessons tab opens its cards, titled with the deck; "All decks" opens nothing.
+- [ ] The Decks tab lists the decks oldest first; tapping one opens its cards, titled with the deck.
+  A deck's title on the Lessons tab opens nothing.
+  On a fresh install, the Decks tab says there are no decks yet; pulling it down shows a deck added on desktop.
   Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
   a graded card shows its due time.
   A deck with no cards says so, and pulling the list down shows a card added on desktop.

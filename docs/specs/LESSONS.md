@@ -309,7 +309,7 @@ The mobile app runs lessons with fewer choices than the desktop and web apps.
   A row with nothing due says so instead of showing its counts.
   The tab shows no rows, not even the all-decks row, while the library has no decks.
   Pulling the list down refreshes the counts.
-  A deck's title opens its cards, as CARDS.md (§Mobile App) says.
+  A deck's title opens nothing there; its cards open from the Decks tab, as DECKS.md (§Mobile App) says.
 - Above the list, the Lessons tab shows today's progress (§Today's Progress).
   Pulling the list down refreshes it too.
 - In a type field, the keyboard's return key submits the card.

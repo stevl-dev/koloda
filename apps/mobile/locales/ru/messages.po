@@ -179,6 +179,18 @@ msgstr "Отмена"
 msgid "mobile.cards.state-filter"
 msgstr "Состояние"
 
+#: src/components/decks-list.tsx
+msgid "mobile.decks.empty"
+msgstr "Колод пока нет."
+
+#: src/components/decks-list.tsx
+msgid "mobile.decks.error"
+msgstr "Не удалось загрузить колоды."
+
+#: src/app/(tabs)/decks/_layout.tsx
+msgid "mobile.decks.title"
+msgstr "Колоды"
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Не удалось загрузить прогресс за сегодня."
@@ -604,6 +616,10 @@ msgstr "Не удалось запустить синхронизацию: {mess
 #: src/components/sync-panel.tsx
 msgid "mobile.sync.sync-now"
 msgstr "Синхронизировать"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.decks"
+msgstr "Колоды"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"

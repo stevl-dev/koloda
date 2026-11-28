@@ -78,7 +78,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
 (§Device checks) to match, with English and Russian strings in `apps/mobile/src/locales/`.
 `nx run @koloda/mobile:build-android` and `bun run check:push` run once, after the last item.
 
-- [ ] 1. Add a Decks tab on mobile
+- [x] 1. Add a Decks tab on mobile
   Goal: a Decks tab between Lessons and Settings lists the library's decks, and each opens its cards.
   Add `src/app/(tabs)/decks.tsx` and its trigger in `src/app/(tabs)/_layout.tsx`.
   The list reads `getDecksQuery`, in the order the query returns, which is creation time

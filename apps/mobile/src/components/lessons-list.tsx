@@ -12,10 +12,9 @@ import { LearnedToday } from "./learned-today";
 export type LessonsListProps = {
   // INVARIANT: a null deck starts a lesson across all decks.
   onStart: (type: LessonType, deckId: Deck["id"] | null) => void;
-  onOpenDeck: (deckId: Deck["id"]) => void;
 };
 
-export function LessonsList({ onStart, onOpenDeck }: LessonsListProps) {
+export function LessonsList({ onStart }: LessonsListProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getLessonsQuery, getTodayReviewTotalsQuery } = useMobileQueries();
@@ -52,15 +51,9 @@ export function LessonsList({ onStart, onOpenDeck }: LessonsListProps) {
       }
       renderItem={({ item: { id, title, ...counts } }) => (
         <View style={styles.row}>
-          {id === null ? (
-            <Text style={[styles.title, { color: counts.total > 0 ? colors.text : colors.muted }]}>
-              {_(msg`mobile.lessons.all-decks`)}
-            </Text>
-          ) : (
-            <Pressable accessibilityRole="link" onPress={() => onOpenDeck(id)}>
-              <Text style={[styles.title, { color: counts.total > 0 ? colors.text : colors.muted }]}>{title}</Text>
-            </Pressable>
-          )}
+          <Text style={[styles.title, { color: counts.total > 0 ? colors.text : colors.muted }]}>
+            {id === null ? _(msg`mobile.lessons.all-decks`) : title}
+          </Text>
           {/* WHY: a lesson with nothing due would open on no cards and end at once. */}
           {counts.total === 0 ? (
             <Text style={{ color: colors.muted }}>{_(msg`mobile.lessons.nothing-due`)}</Text>

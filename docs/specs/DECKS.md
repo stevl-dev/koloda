@@ -3,7 +3,7 @@
 ## Scope
 
 Covers decks: creating with defaults, editing title, notes, algorithm, and template, and cascade delete.
-It also covers how decks relate to cards, lessons, and the assistant.
+It also covers how decks relate to cards, lessons, and the assistant, and the mobile app's decks.
 Does not cover card browsing, reset progress, preview, lesson session flow, algorithm or template editing, or how
 the assistant reads and creates decks.
 Those are covered by CARDS.md, LESSONS.md, ALGORITHMS.md, TEMPLATES.md, and ASSISTANT-DATA-ACCESS.md.
@@ -109,3 +109,12 @@ A template or algorithm that was only referenced as this deck's current choice b
 Decks appear in a sidebar list ordered by creation time.
 Each entry opens that deck.
 An empty library with no decks is allowed.
+
+## Mobile App
+
+The mobile app lists its decks on a Decks tab, in the order §Listing and Navigation gives.
+
+- Tapping a deck opens its cards, as CARDS.md (§Mobile App) says.
+- A library with no decks says so.
+  Pulling the list down refreshes it.
+- It does not edit algorithms or templates.

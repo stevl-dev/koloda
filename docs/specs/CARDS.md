@@ -229,8 +229,7 @@ There is no filtering, selection, or pagination in the stack view.
 
 The mobile app browses and changes the cards of the decks it already has.
 
-- A deck's title on the Lessons tab opens that deck's cards.
-  The all-decks row opens none.
+- A deck on the Decks tab opens that deck's cards, as DECKS.md (§Mobile App) says.
 - Each card in the list shows its first two fields on one line each, as §Table View shows a field.
   A card image shows as an image symbol.
 - Each card also shows its state, and its due time once it has been graded.
