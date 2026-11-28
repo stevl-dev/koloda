@@ -217,7 +217,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Depends on: 3, 7
   Note: the deck route holds the selection, since its back guard (`usePreventRemove`) needs the navigator's screen.
 
-- [ ] 9. Check the lesson route's type before opening a lesson
+- [x] 9. Check the lesson route's type before opening a lesson
   Goal: a `koloda://lesson` link with an unknown `type` opens no lesson.
   `src/app/lesson.tsx` checks `type` against the lesson types the shared lesson state takes, and returns to the
   Lessons tab when it is not one of them.

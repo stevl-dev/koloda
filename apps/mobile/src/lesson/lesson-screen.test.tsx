@@ -255,3 +255,17 @@ describe("Leaving a lesson", () => {
     expect(getPathname()).toBe("/");
   });
 });
+
+describe("Opening a lesson from a link", () => {
+  it("returns to the Lessons tab for a type the app does not have, opening no lesson", async () => {
+    const getLessonData = jest.fn(() => new Promise<string>(() => {}));
+    const { getPathname } = await renderRouter(
+      { _layout: () => <Stack />, index: () => <Text>Lessons</Text>, lesson: LessonRoute },
+      { initialUrl: `/lesson?type=everything&deckId=${DECK}`, wrapper: providers({ getLessonData }) },
+    );
+
+    expect(await screen.findByText("Lessons")).toBeTruthy();
+    expect(getPathname()).toBe("/");
+    expect(getLessonData).not.toHaveBeenCalled();
+  });
+});

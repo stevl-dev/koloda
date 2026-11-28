@@ -57,13 +57,6 @@ Entries are grouped under one heading per package directory.
   Deferred because: the human runs every device check once the planned mobile features have shipped
   (`tasks/archive/mobile-lesson-parity.md`, question 4).
 
-- Handoff: check the lesson route's `type` parameter before opening a lesson.
-  Evidence: at `1c889d5d`, `apps/mobile/src/app/lesson.tsx` passes `type` from the URL to the lesson unchecked, so a
-  `koloda://lesson` link with an unknown type opens a lesson the shared lesson state does not expect.
-  Kind: handoff
-  Source: `tasks/archive/mobile-lesson-parity.md`
-  Deferred because: only a hand-made link reaches it; the app's own starts pass a valid type.
-
 - Handoff: share the Rust host code the mobile façade copied from the desktop addon.
   Evidence: at `f49ddbd3`, `apps/mobile/README.md` (§Copies) lists the database worker and payload helpers in
   `apps/mobile/src-rust/src/lib.rs` and the sync host in `apps/mobile/src-rust/src/sync.rs`.
