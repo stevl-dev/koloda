@@ -16,7 +16,6 @@ type Parsed<TData> =
 
 export type TitleFormProps<TData, TEntity> = {
   submitLabel: string;
-  // Builds the write's data from the title when the form submits.
   toData: (title: string) => TData;
   schema: { safeParse: (data: TData) => Parsed<TData> };
   mutation: UseMutationOptions<TEntity, AppError, TData, unknown>;
@@ -24,7 +23,6 @@ export type TitleFormProps<TData, TEntity> = {
   onDone: (entity: TEntity) => void;
 };
 
-// A form of one title that adds or clones an entity: the preset and template forms.
 export function TitleForm<TData, TEntity>({
   submitLabel,
   toData,

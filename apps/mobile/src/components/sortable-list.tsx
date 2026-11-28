@@ -16,7 +16,6 @@ export type SortableListProps<T> = {
   renderItem: (item: T, index: number) => ReactNode;
 };
 
-// A list whose rows a long press on their handle lifts and a drag moves.
 // WHY: a screen reader cannot drag, so each handle also moves its row up or down as an accessibility action.
 export function SortableList<T>({ items, keyOf, handleLabel, onMove, renderItem }: SortableListProps<T>) {
   const { _ } = useLingui();
