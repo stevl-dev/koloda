@@ -3,7 +3,6 @@ import type { Template, TemplateField } from "@koloda/srs";
 type CardsTableContentColumn = {
   index: number;
   header: string;
-  getFieldId: (template: Template | undefined) => TemplateField["id"] | undefined;
 };
 
 export function getCardsTableContentColumns(templates: Template[]): CardsTableContentColumn[] {
@@ -25,11 +24,7 @@ export function getCardsTableContentColumns(templates: Template[]): CardsTableCo
     const uniqueTitles = [...new Set(fieldsAtPosition.map((f) => f.title))];
     const header = uniqueTitles.length === 1 ? uniqueTitles[0] : `#${i + 1}`;
 
-    columns.push({
-      index: i,
-      header,
-      getFieldId: (template: Template | undefined) => template?.content.fields[i]?.id,
-    });
+    columns.push({ index: i, header });
   }
 
   return columns;

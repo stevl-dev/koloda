@@ -29,14 +29,12 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { CardContentTextArea } from "./card-content-text-area";
 import { CardPreview } from "./card-preview";
+import { CARD_SYNC_GROUPS } from "./card-rules";
 import { CardReviews } from "./card-reviews";
 import { CardState } from "./card-state";
 import { DeleteCard } from "./delete-card";
 
 type CardDetailsProps = { card: Card };
-
-// INVARIANT: one path per edited card sync group (crates/koloda/tests/cases/editor-sync-groups.json).
-export const CARD_SYNC_GROUPS = ["content"] as const;
 
 export function CardDetails({ card }: CardDetailsProps) {
   const queryClient = useQueryClient();

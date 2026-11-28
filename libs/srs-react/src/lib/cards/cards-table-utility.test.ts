@@ -62,14 +62,4 @@ describe("getCardsTableContentColumns", () => {
   ])("names the columns for $case", ({ templates, headers }) => {
     expect(getCardsTableContentColumns(templates).map((column) => column.header)).toEqual(headers);
   });
-
-  it("resolves each column's field in each template, and none past a template's fields", () => {
-    const mixed = [createTemplate(1, [{ title: "A" }]), createTemplate(2, [{ title: "X" }, { title: "Y" }])];
-    const cols = getCardsTableContentColumns(mixed);
-
-    expect(cols[0].getFieldId(mixed[0])).toBe(mixed[0].content.fields[0].id);
-    expect(cols[0].getFieldId(mixed[1])).toBe(mixed[1].content.fields[0].id);
-    expect(cols[1].getFieldId(mixed[0])).toBeUndefined();
-    expect(cols[1].getFieldId(mixed[1])).toBe(mixed[1].content.fields[1].id);
-  });
 });

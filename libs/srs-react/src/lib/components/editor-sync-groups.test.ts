@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { ALGORITHM_SYNC_GROUPS } from "../algorithms/algorithm";
-import { CARD_SYNC_GROUPS } from "../cards/card-details";
+import { CARD_SYNC_GROUPS } from "../cards/card-rules";
 import { DECK_SYNC_GROUPS } from "../decks/deck-details";
 import { TEMPLATE_SYNC_GROUPS } from "../templates/template";
 

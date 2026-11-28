@@ -9,6 +9,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./cards": {
+      "types": "./src/cards.ts",
+      "import": "./src/cards.ts",
+      "default": "./src/cards.ts"
+    },
     "./lesson-state": {
       "types": "./src/lesson-state.ts",
       "import": "./src/lesson-state.ts",

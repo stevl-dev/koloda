@@ -1,5 +1,4 @@
 import { queriesAtom } from "@koloda/core-react";
-import { markdownToPlainText } from "@koloda/srs";
 import type { Card, Deck, Template } from "@koloda/srs";
 import { QueryError, SearchField, Table } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
@@ -11,6 +10,7 @@ import { AnimatePresence } from "motion/react";
 import type { ComponentProps } from "react";
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { cardFieldText } from "./card-rules";
 import { CardsTableCell } from "./cards-table-cell";
 import { CardsTableColumnsVisibility } from "./cards-table-columns-visibility";
 import { CardsTableFilters } from "./cards-table-filters";
@@ -76,14 +76,8 @@ export function CardsTable({ deckId, controlsNode }: CardsTableProps) {
         }),
         ...getCardsTableContentColumns(templates).map((field) =>
           columnHelper.accessor(
-            (row) => {
-              const template = templateMapRef.current.get(row.templateId);
-              const fieldId = field.getFieldId(template);
-              const text = fieldId ? (row.content[fieldId]?.text ?? "") : "";
-              // WHY: columns are aligned by field position, so one column can hold text and markdown fields.
-              // Search and sort read this value, so they match what the cell shows.
-              return template?.content.fields[field.index]?.type === "markdown" ? markdownToPlainText(text) : text;
-            },
+            // WHY: search and sort read this value, so they match what the cell shows.
+            (row) => cardFieldText(row, templateMapRef.current.get(row.templateId), field.index),
             {
               id: `content.field.${field.index}`,
               header: field.header,

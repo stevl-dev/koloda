@@ -81,7 +81,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
 `apps/mobile/README.md` (§Device checks) to match, with English and Russian strings in `apps/mobile/src/locales/`.
 `nx run @koloda/mobile:build-android` and `bun run check:push` run once, after the last item.
 
-- [ ] 1. Share the card rules with mobile
+- [x] 1. Share the card rules with mobile
   Goal: the mobile card screens use the desktop's card rules instead of copying them.
   Add a DOM-free entry, `@koloda/srs-react/cards`, beside `@koloda/srs-react/lesson-state`, with an INVARIANT
   comment like that entry's.
