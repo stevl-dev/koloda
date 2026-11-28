@@ -193,21 +193,46 @@ msgstr "The presets could not load."
 
 #: src/components/add-deck.tsx
 #: src/components/add-deck.tsx
+#: src/components/deck-details.tsx
+#: src/components/deck-details.tsx
 msgid "mobile.decks.deck-title"
 msgstr "Title"
+
+#: src/app/deck/[id]/details.tsx
+#: src/app/deck/[id]/index.tsx
+msgid "mobile.decks.details"
+msgstr "Details"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.discard"
+msgstr "Discard"
 
 #: src/components/decks-list.tsx
 msgid "mobile.decks.empty"
 msgstr "No decks yet."
 
+#: src/components/deck-details.tsx
 #: src/components/decks-list.tsx
 msgid "mobile.decks.error"
 msgstr "The decks could not load."
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.missing"
+msgstr "This deck no longer exists."
 
 #: src/app/deck/new.tsx
 #: src/components/decks-list.tsx
 msgid "mobile.decks.new"
 msgstr "New deck"
+
+#: src/components/deck-details.tsx
+#: src/components/deck-details.tsx
+msgid "mobile.decks.notes"
+msgstr "Notes"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.save"
+msgstr "Save"
 
 #: src/components/deck-choices.tsx
 msgid "mobile.decks.template"

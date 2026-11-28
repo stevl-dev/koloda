@@ -119,6 +119,10 @@ The mobile app lists its decks on a Decks tab, in the order §Listing and Naviga
   A rejected title shows its error under the title, and nothing is added.
   After the add, the new deck's cards open in place of the form, instead of a link to the deck.
   Going back from the form discards it without asking.
+- Details on a deck's cards edits the deck as §Editing Decks says, with Save and Discard below the form.
+  Each rejected field shows its error under that field.
+- A change synced from another device shows in a field the user has not touched yet.
+- A deck deleted on another device while its details are open says it no longer exists.
 - A library with no decks says so.
   Pulling the list down refreshes it.
 - It does not edit algorithms or templates.

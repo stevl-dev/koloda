@@ -193,21 +193,46 @@ msgstr "Не удалось загрузить алгоритмы."
 
 #: src/components/add-deck.tsx
 #: src/components/add-deck.tsx
+#: src/components/deck-details.tsx
+#: src/components/deck-details.tsx
 msgid "mobile.decks.deck-title"
 msgstr "Название"
+
+#: src/app/deck/[id]/details.tsx
+#: src/app/deck/[id]/index.tsx
+msgid "mobile.decks.details"
+msgstr "Параметры"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.discard"
+msgstr "Сбросить"
 
 #: src/components/decks-list.tsx
 msgid "mobile.decks.empty"
 msgstr "Колод пока нет."
 
+#: src/components/deck-details.tsx
 #: src/components/decks-list.tsx
 msgid "mobile.decks.error"
 msgstr "Не удалось загрузить колоды."
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.missing"
+msgstr "Этой колоды больше нет."
 
 #: src/app/deck/new.tsx
 #: src/components/decks-list.tsx
 msgid "mobile.decks.new"
 msgstr "Новая колода"
+
+#: src/components/deck-details.tsx
+#: src/components/deck-details.tsx
+msgid "mobile.decks.notes"
+msgstr "Заметки"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.save"
+msgstr "Сохранить"
 
 #: src/components/deck-choices.tsx
 msgid "mobile.decks.template"

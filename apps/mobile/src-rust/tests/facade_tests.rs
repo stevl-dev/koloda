@@ -572,3 +572,34 @@ async fn a_deck_added_on_the_phone_lists_with_the_seeded_algorithm_and_template_
         "only the valid deck was added"
     );
 }
+
+#[tokio::test]
+async fn a_deck_edit_changes_its_title_and_notes_and_a_blank_title_keeps_the_deck() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let deck_id = add_deck_with_cards(&other_connection(&path), &[]);
+    let edit = |title: &str| {
+        json!({
+            "id": deck_id,
+            "values": {
+                "title": title,
+                "notes": "Verbs first",
+                "algorithmId": SEED_ALGORITHM_SIMPLE_ID,
+                "templateId": SEED_TEMPLATE_TYPE_ID,
+            },
+        })
+        .to_string()
+    };
+
+    let saved: Value =
+        serde_json::from_str(&mobile.update_deck(edit("Italian")).await.expect("update")).expect("deck json");
+    assert_eq!(saved["title"], "Italian");
+    assert_eq!(saved["notes"], "Verbs first");
+
+    let MobileError::App { code, .. } = mobile.update_deck(edit(" ")).await.expect_err("blank title");
+    assert_eq!(code, "validation.common.title.too-short");
+    let decks: Value = serde_json::from_str(&mobile.get_decks().await.expect("decks")).expect("decks json");
+    assert_eq!(decks[0]["title"], "Italian", "a refused edit keeps the deck");
+}

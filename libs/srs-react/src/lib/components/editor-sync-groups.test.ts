@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { ALGORITHM_SYNC_GROUPS } from "../algorithms/algorithm";
 import { CARD_SYNC_GROUPS } from "../cards/card-rules";
-import { DECK_SYNC_GROUPS } from "../decks/deck-details";
+import { DECK_SYNC_GROUPS } from "../decks/deck-rules";
 import { TEMPLATE_SYNC_GROUPS } from "../templates/template";
 
 // WHY: `cargo test` checks the same file against the sync field-group registry, so an editor list that matches it

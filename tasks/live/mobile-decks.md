@@ -125,7 +125,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   "New deck" sits above the list, so the empty library offers it with no second button.
   The algorithm choice reads "Preset", as desktop's picker does.
 
-- [ ] 3. Edit a deck on mobile
+- [x] 3. Edit a deck on mobile
   Goal: a deck's card screen opens the deck's details, which edit its title, notes, algorithm, and template,
   as `docs/specs/DECKS.md` (§Editing Decks) says.
   Add a header button on `src/app/deck/[id]/index.tsx` that opens a stack route `src/app/deck/[id]/details.tsx`.
@@ -149,6 +149,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   reaching an untouched field, and a missing deck; a Rust test updates a deck through the façade.
   Commit: Edit a deck on mobile
   Depends on: 2
+  Note: the deck's card screen opens Details from a header button, the app's first.
 
 - [ ] 4. Delete a deck on mobile
   Goal: the deck's details delete the deck, as `docs/specs/DECKS.md` (§Deleting Decks) says.

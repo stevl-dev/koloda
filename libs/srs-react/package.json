@@ -14,6 +14,11 @@
       "import": "./src/cards.ts",
       "default": "./src/cards.ts"
     },
+    "./decks": {
+      "types": "./src/decks.ts",
+      "import": "./src/decks.ts",
+      "default": "./src/decks.ts"
+    },
     "./lesson-state": {
       "types": "./src/lesson-state.ts",
       "import": "./src/lesson-state.ts",

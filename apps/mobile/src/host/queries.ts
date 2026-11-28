@@ -22,6 +22,7 @@ import type {
   Template,
   TodaysReviewTotals,
   UpdateCardData,
+  UpdateDeckData,
 } from "@koloda/srs";
 import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
@@ -34,6 +35,7 @@ export type MobileQueries = Pick<
   Queries,
   | "getDecksQuery"
   | "addDeckMutation"
+  | "updateDeckMutation"
   | "getAlgorithmsQuery"
   | "getTemplatesQuery"
   | "getCardsQuery"
@@ -65,6 +67,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     addDeckMutation: () => ({
       mutationFn: (data: InsertDeckData) => read<Deck>(() => facade.addDeck(wireArgs(data))),
+    }),
+    updateDeckMutation: () => ({
+      mutationFn: (data: UpdateDeckData) => read<Deck>(() => facade.updateDeck(wireArgs(data))),
     }),
     getAlgorithmsQuery: () => ({
       queryKey: queryKeys.algorithms.all(),

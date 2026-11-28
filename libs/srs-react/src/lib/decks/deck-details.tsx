@@ -9,12 +9,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AlgorithmPicker } from "../algorithms/algorithm-picker";
 import { TemplatePicker } from "../templates/template-picker";
+import { DECK_SYNC_GROUPS } from "./deck-rules";
 import { DeleteDeck } from "./delete-deck";
 
 type DeckDetailsProps = { id: Deck["id"] };
-
-// INVARIANT: one path per edited deck sync group (crates/koloda/tests/cases/editor-sync-groups.json).
-export const DECK_SYNC_GROUPS = ["title", "notes", "algorithmId", "templateId"] as const;
 
 export function DeckDetails({ id }: DeckDetailsProps) {
   const queryClient = useQueryClient();

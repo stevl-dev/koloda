@@ -154,6 +154,11 @@ Run on each platform after a change to the app.
   Add a deck: its cards open, and back returns to the Decks tab, which lists it; after a sync, desktop has it.
   Adding with a blank title shows an error under it and adds nothing.
   The keyboard covers neither the title nor "Add deck".
+- [ ] On a deck's cards, Details opens its title, notes, preset, and template.
+  Change all four and save: the cards screen shows the new title, and desktop shows the changes after a sync.
+  A blank title shows an error under it and saves nothing; Discard restores the saved values.
+  With the form untouched, a rename made on desktop shows in it once the phone syncs.
+  The keyboard covers neither the notes nor Save.
   Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
   a graded card shows its due time.
   A deck with no cards says so, and pulling the list down shows a card added on desktop.
@@ -226,8 +231,8 @@ Code copied from another app instead of shared:
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - The card, template, and review calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading a deck's
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
-- The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding a
-  deck, and listing the algorithms and the templates.
+- The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding and
+  editing a deck, and listing the algorithms and the templates.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 
