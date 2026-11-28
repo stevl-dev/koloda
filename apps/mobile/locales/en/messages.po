@@ -141,8 +141,8 @@ msgid "mobile.cards.delete.message"
 msgstr "The cards and their reviews are deleted on every device. This cannot be undone."
 
 #: src/components/deck-cards.tsx
-msgid "mobile.cards.delete.title {count}"
-msgstr "Delete the selected cards ({count})?"
+msgid "mobile.cards.delete.title {selectedCount}"
+msgstr "Delete the selected cards ({selectedCount})?"
 
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"

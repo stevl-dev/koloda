@@ -262,5 +262,5 @@ The mobile app browses and changes the cards of the decks it already has.
 - The selection's count and its delete follow §Table View: they cover only the selected cards that match the search
   and the filter.
   With none of them selected, the delete is not available.
-  The delete asks first, and a failed one shows its error above the list.
+  The delete asks first, and a failed one shows its error.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

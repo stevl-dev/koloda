@@ -48,14 +48,14 @@ export function DeckCards({ deck, onOpenCard, onAdd, selection, onSelectionChang
   // INVARIANT: the count and the delete cover only the selected cards that match the search and filter
   // (CARDS.md §Table View); the hidden ones stay selected.
   const selectedShown = shown.filter((card) => selection?.includes(card.id)).map((card) => card.id);
+  const selectedCount = selectedShown.length;
   const toggle = (id: Card["id"]) =>
     onSelectionChange(
       selection?.includes(id) ? selection.filter((selected) => selected !== id) : [...(selection ?? []), id],
     );
-  const confirmDelete = () => {
-    const count = selectedShown.length;
+  const confirmDelete = () =>
     Alert.alert(
-      _(msg`mobile.cards.delete.title ${count}`),
+      _(msg`mobile.cards.delete.title ${selectedCount}`),
       _(msg`mobile.cards.delete.message`),
       [
         { text: _(msg`mobile.cards.delete.cancel`), style: "cancel" },
@@ -67,8 +67,6 @@ export function DeckCards({ deck, onOpenCard, onAdd, selection, onSelectionChang
       ],
       { cancelable: true },
     );
-  };
-  const selectedCount = selectedShown.length;
 
   return (
     <View style={styles.screen}>
