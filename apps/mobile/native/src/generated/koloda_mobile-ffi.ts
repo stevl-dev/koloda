@@ -240,6 +240,10 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_todays_review_totals(
     uniffiSelf: bigint,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_new_id(
+    uniffiSelf: bigint,
+    uniffi_out_err: UniffiRustCallStatus,
+  ): Uint8Array;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_patch_settings(
     uniffiSelf: bigint,
     data: Uint8Array,
@@ -314,6 +318,10 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_update_template(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_card(): number;
@@ -333,6 +341,7 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_template(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_templates(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_new_id(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_patch_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_reset_card_progress(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_seed_db(): number;
@@ -353,6 +362,7 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_sync_tick(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_update_card(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_update_deck(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_update_template(): number;
   ubrn_uniffi_internal_fn_method_kolodamobile_ffi__bless_pointer(
     pointer: bigint,
     uniffi_out_err: UniffiRustCallStatus,

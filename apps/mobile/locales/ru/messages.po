@@ -708,3 +708,95 @@ msgstr "Уроки"
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.settings"
 msgstr "Настройки"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.templates"
+msgstr "Шаблоны"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.add-field"
+msgstr "Добавить поле"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.created-at"
+msgstr "Создан"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.discard"
+msgstr "Сбросить"
+
+#: src/components/template-editor.tsx
+#: src/components/templates-list.tsx
+msgid "mobile.templates.error"
+msgstr "Не удалось загрузить шаблоны."
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-required {fieldNumber}"
+msgstr "Поле {fieldNumber} обязательно"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-title {fieldNumber}"
+msgstr "Название поля {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-type {fieldNumber}"
+msgstr "Тип поля {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.fields"
+msgstr "Поля"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.layout"
+msgstr "Раскладка"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.layout-row {rowNumber} {fieldTitle}"
+msgstr "{rowNumber}. {fieldTitle}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.locked"
+msgstr "Заблокирован: шаблон используют карточки, поэтому его поля нельзя удалить, а их тип и обязательность нельзя изменить."
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.missing"
+msgstr "Этого шаблона больше нет."
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.notes"
+msgstr "Заметки"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.remove-field {fieldNumber}"
+msgstr "Удалить поле {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.required"
+msgstr "Обязательное"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.save"
+msgstr "Сохранить"
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.template-title"
+msgstr "Название"
+
+#: src/app/(tabs)/templates/_layout.tsx
+msgid "mobile.templates.title"
+msgstr "Шаблоны"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.unlocked"
+msgstr "Не заблокирован: карточек с этим шаблоном пока нет."
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.untitled-field"
+msgstr "Поле без названия"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.updated-at"
+msgstr "Изменён"

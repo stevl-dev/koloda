@@ -638,3 +638,77 @@ async fn deleting_a_deck_removes_its_cards_and_their_reviews_and_keeps_the_other
         "the other deck keeps its card"
     );
 }
+
+#[tokio::test]
+async fn a_template_edit_saves_its_content_and_a_locked_template_refuses_removing_a_field() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let added = mobile.new_id();
+    assert_ne!(added, mobile.new_id(), "each id is new");
+    let edit = |fields: Value, layout: Value| {
+        json!({
+            "id": SEED_TEMPLATE_TYPE_ID,
+            "values": { "title": "Words", "notes": "Nouns", "content": { "fields": fields, "layout": layout } },
+        })
+        .to_string()
+    };
+    let front = json!({ "id": FRONT, "title": "Front", "type": "markdown", "isRequired": true });
+    let back = json!({ "id": BACK, "title": "Back", "type": "text", "isRequired": false });
+    let extra = json!({ "id": added, "title": "Example", "type": "text", "isRequired": false });
+
+    let saved: Value = serde_json::from_str(
+        &mobile
+            .update_template(edit(
+                json!([front, back, extra]),
+                json!([
+                    { "field": BACK, "operation": "display" },
+                    { "field": FRONT, "operation": "type" },
+                    { "field": added, "operation": "reveal" },
+                ]),
+            ))
+            .await
+            .expect("update"),
+    )
+    .expect("template json");
+    assert_eq!(saved["title"], "Words");
+    assert_eq!(saved["notes"], "Nouns");
+    assert_eq!(saved["content"]["fields"][0]["type"], "markdown");
+    assert_eq!(saved["content"]["fields"][2]["id"], added);
+    assert_eq!(saved["content"]["layout"][0]["field"], BACK);
+
+    let db = other_connection(&path);
+    let deck_id = add_deck_with_cards(&db, &[]);
+    repo::cards::add_card(
+        &db,
+        serde_json::from_value(json!({
+            "deckId": deck_id,
+            "templateId": SEED_TEMPLATE_TYPE_ID,
+            "content": { FRONT: { "text": "uno" }, BACK: { "text": "one" }, added.as_str(): { "text": "" } },
+        }))
+        .expect("card data"),
+    )
+    .expect("add card");
+    let MobileError::App { code, .. } = mobile
+        .update_template(edit(
+            json!([front, back]),
+            json!([{ "field": FRONT, "operation": "display" }, { "field": BACK, "operation": "reveal" }]),
+        ))
+        .await
+        .expect_err("locked");
+    assert_eq!(code, "validation.templates.update-locked");
+    let kept: Value = serde_json::from_str(
+        &mobile
+            .get_template(SEED_TEMPLATE_TYPE_ID.to_string())
+            .await
+            .expect("template"),
+    )
+    .expect("template json");
+    assert_eq!(
+        kept["content"]["fields"].as_array().expect("fields").len(),
+        3,
+        "a refused edit keeps the fields"
+    );
+    assert_eq!(kept["isLocked"], true);
+}

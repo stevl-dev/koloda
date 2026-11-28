@@ -14,6 +14,7 @@ use koloda::domain::decks::{DeleteDeckData, InsertDeckData, UpdateDeckData};
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
+use koloda::domain::templates::UpdateTemplateData;
 use koloda::repo;
 use koloda_sync::error::SyncError;
 use std::collections::HashMap;
@@ -328,6 +329,12 @@ impl KolodaMobile {
         self.sync.nudge();
     }
 
+    // WORKAROUND: Hermes has no `crypto.getRandomValues`, which the `uuid` package the TS domain libs mint ids with
+    // needs, so the phone mints the ids a form adds (a template's fields) here.
+    pub fn new_id(&self) -> String {
+        uuid::Uuid::now_v7().to_string()
+    }
+
     pub async fn get_db_status(&self) -> Result<String, MobileError> {
         self.run(|db| {
             Ok(match init_mod::get_db_status(db)? {
@@ -435,6 +442,14 @@ impl KolodaMobile {
     pub async fn get_template(&self, id: String) -> Result<String, MobileError> {
         self.run(move |db| to_wire(&repo::templates::get_template(db, &id)?))
             .await
+    }
+
+    pub async fn update_template(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let data: UpdateTemplateData = from_wire(&data)?;
+            to_wire(&repo::templates::update_template(db, data)?)
+        })
+        .await
     }
 
     pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {

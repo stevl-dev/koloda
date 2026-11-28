@@ -21,11 +21,9 @@ import { CloneTemplate } from "./clone-template";
 import { DeleteTemplate } from "./delete-template";
 import { TemplateFields } from "./template-fields";
 import { TemplateLayout } from "./template-layout";
+import { TEMPLATE_SYNC_GROUPS } from "./template-rules";
 
 type TemplateProps = { id: TemplateType["id"] };
-
-// INVARIANT: one path per edited template sync group (crates/koloda/tests/cases/editor-sync-groups.json).
-export const TEMPLATE_SYNC_GROUPS = ["title", "notes", "content"] as const;
 
 export function Template({ id }: TemplateProps) {
   const queryClient = useQueryClient();

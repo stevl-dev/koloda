@@ -24,6 +24,7 @@ import type {
   TodaysReviewTotals,
   UpdateCardData,
   UpdateDeckData,
+  UpdateTemplateData,
 } from "@koloda/srs";
 import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
@@ -42,6 +43,7 @@ export type MobileQueries = Pick<
   | "getTemplatesQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
+  | "updateTemplateMutation"
   | "getReviewsQuery"
   | "addCardMutation"
   | "updateCardMutation"
@@ -59,6 +61,8 @@ export type MobileQueries = Pick<
   // WHY: native images load from files, so the phone reads a card image as a cache file path, not as bytes.
   getAttachmentFileQuery: (id: Attachment["id"]) => QueryOptions<string | null> & { queryKey: QueryKey };
   sync: MobileSyncQueries;
+  // WHY: the `uuid` package cannot mint ids under Hermes, so the façade mints the ids a form adds.
+  newId: () => string;
 };
 
 export function createMobileQueries(facade: KolodaFacade, cacheDir: string): MobileQueries {
@@ -91,6 +95,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getTemplateQuery: (id: Template["id"]) => ({
       queryKey: queryKeys.templates.detail(id),
       queryFn: () => read<Template | null>(() => facade.getTemplate(id)),
+    }),
+    updateTemplateMutation: () => ({
+      mutationFn: (data: UpdateTemplateData) => read<Template>(() => facade.updateTemplate(wireArgs(data))),
     }),
     addCardMutation: () => ({
       mutationFn: (data: InsertCardData) => read<Card>(() => facade.addCard(wireArgs(data))),
@@ -136,6 +143,7 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
       queryFn: () => read<LessonData | null>(() => facade.getLessonData(wireArgs(params))),
     }),
     sync: createMobileSyncQueries(facade),
+    newId: () => facade.newId(),
     getAttachmentFileQuery: (id: Attachment["id"]) => ({
       queryKey: ["attachment_file", id],
       queryFn: async () => (await call(() => facade.attachmentFile(id, cacheDir))) ?? null,

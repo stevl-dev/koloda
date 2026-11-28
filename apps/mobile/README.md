@@ -93,7 +93,7 @@ A library moves to a new phone by joining its sync space.
 Run on each platform after a change to the app.
 
 - [ ] The app boots to the Lessons tab.
-- [ ] The Lessons, Decks, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
+- [ ] The Lessons, Decks, Templates, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
 - [ ] In a lesson, a revealed card shows four grades, each with an interval.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet and points to the Decks tab and sync:
   the starter content has none.
@@ -191,6 +191,14 @@ Run on each platform after a change to the app.
   clear cards.
   Back, the back gesture, and the header's back control end the selection and stay on the deck.
   With two selected, a search that hides one counts 1, and Delete asks, then deletes only the shown one.
+- [ ] The Templates tab lists the templates oldest first; tapping one opens its editor, titled with the template.
+  Change the title, the notes, a field's title, type, and required flag, and a layout operation, and save:
+  the header shows the new title, and desktop shows the changes after a sync.
+  "Add a field" adds a field and a Display layout row; removing a field removes its layout row too.
+  A blank title shows an error under it and saves nothing; Discard restores the saved values.
+  On a template cards use, type and required are disabled and adding and removing fields are hidden.
+  With the form untouched, a rename made on desktop shows in it once the phone syncs.
+  The keyboard covers neither the field being edited nor Save.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.
@@ -239,6 +247,7 @@ Code copied from another app instead of shared:
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
+- The template edit in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: editing a template.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

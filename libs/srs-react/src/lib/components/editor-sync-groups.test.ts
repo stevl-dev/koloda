@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ALGORITHM_SYNC_GROUPS } from "../algorithms/algorithm";
 import { CARD_SYNC_GROUPS } from "../cards/card-rules";
 import { DECK_SYNC_GROUPS } from "../decks/deck-rules";
-import { TEMPLATE_SYNC_GROUPS } from "../templates/template";
+import { TEMPLATE_SYNC_GROUPS } from "../templates/template-rules";
 
 // WHY: `cargo test` checks the same file against the sync field-group registry, so an editor list that matches it
 // refreshes every group a sync can change. File shape: `crates/koloda/tests/cases/README.md` (§Editor sync groups).

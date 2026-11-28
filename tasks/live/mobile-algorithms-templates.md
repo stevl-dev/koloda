@@ -93,7 +93,7 @@ Each write goes through `useWriteMutation` with the kinds it changes (`docs/deci
 new `MobileQueries` entry keeps the shared query key.
 `nx run @koloda/mobile:build-android` and `bun run check:push` run once, after the last item.
 
-- [ ] 1. Edit a template on mobile
+- [x] 1. Edit a template on mobile
   Goal: a Templates tab lists the templates, and each opens an editor that saves its title, notes, fields, and layout
   as `docs/specs/TEMPLATES.md` (§Editing Templates, §Locking) says.
   Add `src/app/(tabs)/templates/` (a stack with an index, like `decks/`) and its trigger in
@@ -132,6 +132,11 @@ new `MobileQueries` entry keeps the shared query key.
   and a missing template; a Rust test updates a template through the façade.
   Commit: Edit a template on mobile
   Depends on: none
+  Note: Hermes has no `crypto.getRandomValues`, which the `uuid` package needs, so the façade gains `new_id` and
+  `MobileQueries` a `newId` that mints the ids "Add a field" uses; item 3 uses it for a new template's fields.
+  `LabeledSwitch` moved out of `settings-learning.tsx` here, with a disabled state, for the required flag;
+  item 5 moves only `NumberInput`.
+  `ChoiceGroup` gained a disabled state for a locked field's type.
 
 - [ ] 2. Reorder a template's fields and layout on mobile
   Goal: on the template editor, a long press and drag moves a field row or a layout row within its own list,
@@ -206,8 +211,8 @@ new `MobileQueries` entry keeps the shared query key.
   Each step is an amount and a unit (`LEARNING_STEPS_UNITS`, as a choice); "Add a step" copies the previous step,
   or uses the list's default first step from `DEFAULT_FSRS_ALGORITHM` when the list is empty; each step can be
   removed.
-  Move `NumberInput` and `LabeledSwitch` out of `src/components/settings-learning.tsx` into their own files, so the
-  editor uses them too; numbers keep their range as they are typed, as `docs/specs/LEARNING-SETTINGS.md`
+  Move `NumberInput` out of `src/components/settings-learning.tsx` into its own file, so the editor uses it too, as
+  item 1 moved `LabeledSwitch`; numbers keep their range as they are typed, as `docs/specs/LEARNING-SETTINGS.md`
   (§Mobile App) says.
   Save and Discard sit below the form; Save validates with `updateAlgorithmSchema` and shows each error under the
   part it concerns, and a rejected save shows its error above Save.

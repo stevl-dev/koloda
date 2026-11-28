@@ -145,3 +145,23 @@ Each blocked reason is explained to the user.
 
 Deleting a template does not delete decks or cards;
 those references must be cleared first by changing or removing them elsewhere.
+
+## Mobile App
+
+The mobile app lists its templates on a Templates tab, in the order they were added.
+
+- Tapping a template opens its editor, titled with the template.
+  Pulling the list down refreshes it.
+- The editor edits the template as §Editing Templates says, with Save and Discard below the form.
+  It shows the timestamps, the title, the notes, the lock status, the fields, and the layout.
+- Each field row edits its title, its type, and its required flag, and the field can be removed.
+  "Add a field" adds a field as §Fields says.
+- Each layout row shows its field's title and chooses its operation.
+- While the template is locked, the editor disables and hides controls as §Editing Templates says.
+- Each rejected part shows its error under that part.
+  A save the app refuses, such as removing a field from a template that has since become locked, shows its error
+  above Save, and the template stays as it was.
+- A change synced from another device shows in a part the user has not touched yet.
+  The title, the notes, and the fields and layout together are each one part.
+- A template deleted on another device while its editor is open says it no longer exists.
+- It does not add, clone, or delete templates, or reorder fields or layout items.

@@ -19,6 +19,11 @@
       "import": "./src/decks.ts",
       "default": "./src/decks.ts"
     },
+    "./templates": {
+      "types": "./src/templates.ts",
+      "import": "./src/templates.ts",
+      "default": "./src/templates.ts"
+    },
     "./lesson-state": {
       "types": "./src/lesson-state.ts",
       "import": "./src/lesson-state.ts",

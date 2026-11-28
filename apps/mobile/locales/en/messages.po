@@ -708,3 +708,95 @@ msgstr "Lessons"
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.settings"
 msgstr "Settings"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.templates"
+msgstr "Templates"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.add-field"
+msgstr "Add a field"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.created-at"
+msgstr "Created"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.discard"
+msgstr "Discard"
+
+#: src/components/template-editor.tsx
+#: src/components/templates-list.tsx
+msgid "mobile.templates.error"
+msgstr "The templates could not load."
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-required {fieldNumber}"
+msgstr "Field {fieldNumber} required"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-title {fieldNumber}"
+msgstr "Field {fieldNumber} title"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.field-type {fieldNumber}"
+msgstr "Field {fieldNumber} type"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.fields"
+msgstr "Fields"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.layout"
+msgstr "Layout"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.layout-row {rowNumber} {fieldTitle}"
+msgstr "{rowNumber}. {fieldTitle}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.locked"
+msgstr "Locked: cards use this template, so its fields cannot be removed or change type or required."
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.missing"
+msgstr "This template no longer exists."
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.notes"
+msgstr "Notes"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.remove-field {fieldNumber}"
+msgstr "Remove field {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.required"
+msgstr "Required"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.save"
+msgstr "Save"
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.template-title"
+msgstr "Title"
+
+#: src/app/(tabs)/templates/_layout.tsx
+msgid "mobile.templates.title"
+msgstr "Templates"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.unlocked"
+msgstr "Unlocked: no cards use this template yet."
+
+#: src/components/template-editor.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.untitled-field"
+msgstr "Untitled field"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.updated-at"
+msgstr "Updated"

@@ -9,12 +9,13 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useRef, useState } from "react";
-import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
 import { AlgorithmChoice, TemplateChoice } from "./deck-choices";
+import { LabeledSwitch } from "./labeled-switch";
 
 // WHY: errors group by the first segment of their path, so each shows under the section it names; "form" holds the
 // ones the save itself returned.
@@ -254,31 +255,6 @@ function CapInput({ label, unlimitedOffValue, value, onChange }: CapInputProps) 
   );
 }
 
-type LabeledSwitchProps = {
-  text: string;
-  accessibilityLabel: string;
-  value: boolean;
-  onChange: (value: boolean) => void;
-};
-
-function LabeledSwitch({ text, accessibilityLabel, value, onChange }: LabeledSwitchProps) {
-  const colors = useAppColors();
-
-  return (
-    <View style={styles.switchRow}>
-      <Switch
-        accessibilityLabel={accessibilityLabel}
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ true: colors.link, false: colors.border }}
-      />
-      <Text style={[styles.switchLabel, { color: colors.text }]} importantForAccessibility="no">
-        {text}
-      </Text>
-    </View>
-  );
-}
-
 type DayStartInputProps = {
   value: string;
   onChange: (value: string) => void;
@@ -338,7 +314,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
   field: { gap: 4 },
   input: { minHeight: 44, minWidth: 88, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, fontSize: 17 },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, flexShrink: 1 },
-  switchLabel: { flexShrink: 1 },
   actions: { flexDirection: "row", gap: 12, padding: 16 },
 });

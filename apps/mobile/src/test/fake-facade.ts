@@ -21,6 +21,9 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getTemplate: unexpected,
     getTemplates: unexpected,
     getTodaysReviewTotals: unexpected,
+    newId: () => {
+      throw new Error("not stubbed");
+    },
     patchSettings: unexpected,
     resetCardProgress: unexpected,
     seedDb: unexpected,
@@ -41,6 +44,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     syncTick: unexpected,
     updateCard: unexpected,
     updateDeck: unexpected,
+    updateTemplate: unexpected,
     ...overrides,
   };
 }

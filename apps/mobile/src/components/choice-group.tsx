@@ -5,10 +5,11 @@ export type ChoiceGroupProps = {
   label: string;
   choices: readonly { value: string; label: string }[];
   value: string;
+  isDisabled?: boolean;
   onChange: (value: string) => void;
 };
 
-export function ChoiceGroup({ label, choices, value, onChange }: ChoiceGroupProps) {
+export function ChoiceGroup({ label, choices, value, isDisabled = false, onChange }: ChoiceGroupProps) {
   const colors = useAppColors();
 
   return (
@@ -21,7 +22,8 @@ export function ChoiceGroup({ label, choices, value, onChange }: ChoiceGroupProp
             <Pressable
               key={choice.value}
               accessibilityRole="radio"
-              accessibilityState={{ selected: isSelected }}
+              accessibilityState={{ selected: isSelected, disabled: isDisabled }}
+              disabled={isDisabled}
               onPress={() => {
                 if (!isSelected) onChange(choice.value);
               }}
@@ -33,7 +35,7 @@ export function ChoiceGroup({ label, choices, value, onChange }: ChoiceGroupProp
                 },
               ]}
             >
-              <Text style={{ color: colors.text }}>{choice.label}</Text>
+              <Text style={{ color: isDisabled ? colors.muted : colors.text }}>{choice.label}</Text>
             </Pressable>
           );
         })}
