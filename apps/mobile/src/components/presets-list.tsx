@@ -2,15 +2,17 @@ import type { Algorithm } from "@koloda/srs";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
-import { FlatList, Pressable, StyleSheet, Text } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
+import { ActionButton } from "./action-button";
 
 export type PresetsListProps = {
   onOpenPreset: (algorithmId: Algorithm["id"]) => void;
+  onAdd: () => void;
 };
 
-export function PresetsList({ onOpenPreset }: PresetsListProps) {
+export function PresetsList({ onOpenPreset, onAdd }: PresetsListProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getAlgorithmsQuery } = useMobileQueries();
@@ -25,6 +27,11 @@ export function PresetsList({ onOpenPreset }: PresetsListProps) {
       keyExtractor={(algorithm) => algorithm.id}
       refreshing={isRefetching}
       onRefresh={() => void refetch()}
+      ListHeaderComponent={
+        <View style={styles.controls}>
+          <ActionButton label={_(msg`mobile.presets.new`)} onPress={onAdd} />
+        </View>
+      }
       renderItem={({ item }) => (
         <Pressable
           accessibilityRole="link"
@@ -40,6 +47,7 @@ export function PresetsList({ onOpenPreset }: PresetsListProps) {
 
 const styles = StyleSheet.create({
   message: { padding: 16 },
+  controls: { padding: 16 },
   row: { minHeight: 48, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth },
   title: { fontSize: 17 },
 });

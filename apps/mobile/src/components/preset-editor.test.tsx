@@ -19,7 +19,7 @@ async function renderEditor({ saved = algorithm(), rejection }: RenderOptions = 
     stored = { ...stored!, ...values, id };
     return Promise.resolve(JSON.stringify(stored));
   });
-  const { client } = await renderWithQueries(<PresetEditor algorithmId={ID} />, {
+  const { client } = await renderWithQueries(<PresetEditor algorithmId={ID} onClone={jest.fn()} />, {
     getAlgorithm: () => Promise.resolve(JSON.stringify(stored)),
     updateAlgorithm,
   });

@@ -355,6 +355,16 @@ msgstr "Открыть настройки синхронизации"
 msgid "mobile.lessons.start {label} {count}"
 msgstr "{label} {count}"
 
+#: src/components/add-preset.tsx
+msgid "mobile.presets.add"
+msgstr "Добавить алгоритм"
+
+#: src/app/preset/[id]/clone.tsx
+#: src/components/clone-preset.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.clone"
+msgstr "Клонировать алгоритм"
+
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.created-at"
 msgstr "Создан"
@@ -400,6 +410,11 @@ msgstr "Максимальный интервал, дни"
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.missing"
 msgstr "Этого алгоритма больше нет."
+
+#: src/app/preset/new.tsx
+#: src/components/presets-list.tsx
+msgid "mobile.presets.new"
+msgstr "Новый алгоритм"
 
 #: src/components/preset-editor.tsx
 #: src/components/preset-editor.tsx

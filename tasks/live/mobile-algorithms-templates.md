@@ -248,7 +248,7 @@ new `MobileQueries` entry keeps the shared query key.
   Commit: Edit a preset on mobile
   Depends on: none
 
-- [ ] 6. Add and clone a preset on mobile
+- [x] 6. Add and clone a preset on mobile
   Goal: "New preset" on the Presets tab adds an algorithm with the FSRS defaults, and Clone on the editor copies
   one, as `docs/specs/ALGORITHMS.md` (§Adding Algorithms, §Cloning Algorithms) says.
   Both are stack routes with a title field, built as item 3's are; after an add or a clone, the new preset's
@@ -262,6 +262,8 @@ new `MobileQueries` entry keeps the shared query key.
   a blank title on each; a Rust test adds and clones an algorithm through the façade.
   Commit: Add and clone a preset on mobile
   Depends on: 3, 5
+  Note: no blank-title test here: the title form's rejection is `add-template.test.tsx`'s, and a second one would be a
+  second door (`agents/TESTING.md` §One home per behavior).
 
 - [ ] 7. Delete a preset on mobile
   Goal: the preset editor deletes the preset, as `docs/specs/ALGORITHMS.md` (§Deleting Algorithms) says.

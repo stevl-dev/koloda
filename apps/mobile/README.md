@@ -199,6 +199,10 @@ Run on each platform after a change to the app.
   Weights that are not 34 numbers show an error under them and save nothing; Discard restores the saved values.
   With the form untouched, a rename made on desktop shows in it once the phone syncs.
   The keyboard covers neither the field being edited nor Save, and there is no optimization.
+- [ ] "New preset" on the Presets tab opens a title form; adding opens the new preset's editor with the default
+  parameters, and back returns to the Presets tab, which lists it; desktop has it after a sync.
+  Clone on a preset with notes opens a title form; cloning opens the clone's editor with the source's parameters and
+  no notes, and back returns to the source. A blank title shows an error under it and adds nothing.
 - [ ] The Templates tab lists the templates oldest first; tapping one opens its editor, titled with the template.
   Change the title, the notes, a field's title, type, and required flag, and a layout operation, and save:
   the header shows the new title, and desktop shows the changes after a sync.
@@ -270,8 +274,8 @@ Code copied from another app instead of shared:
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
-- The algorithm calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading and editing an
-  algorithm.
+- The algorithm calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading, adding, cloning,
+  and editing an algorithm.
 - The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, editing,
   and deleting a template, and listing the decks that use one.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its

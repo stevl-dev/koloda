@@ -223,4 +223,9 @@ The mobile app lists its algorithms on a Presets tab, in the order they were add
   The title, the notes, and the parameters together are each one part.
 - A preset deleted on another device while its editor is open says it no longer exists.
 - It has no optimization, and shows nothing in its place.
-- It does not add, clone, or delete presets.
+- "New preset" on the Presets tab adds a preset as §Adding Algorithms says.
+  After the add, the new preset's editor opens in place of the form, instead of a link to it.
+- Clone on the editor clones the preset as §Cloning Algorithms says, and then opens the clone's editor the same way.
+- A rejected title shows its error under the title, and nothing is added.
+  Going back from either form discards it without asking.
+- It does not delete presets.

@@ -36,9 +36,10 @@ type StepUnit = (typeof LEARNING_STEPS_UNITS)[number]["id"];
 
 export type PresetEditorProps = {
   algorithmId: Algorithm["id"];
+  onClone: () => void;
 };
 
-export function PresetEditor({ algorithmId }: PresetEditorProps) {
+export function PresetEditor({ algorithmId, onClone }: PresetEditorProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getAlgorithmQuery } = useMobileQueries();
@@ -48,14 +49,15 @@ export function PresetEditor({ algorithmId }: PresetEditorProps) {
   if (data === undefined) return null;
   if (data === null)
     return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.presets.missing`)}</Text>;
-  return <PresetEditorForm algorithm={data} />;
+  return <PresetEditorForm algorithm={data} onClone={onClone} />;
 }
 
 type PresetEditorFormProps = {
   algorithm: Algorithm;
+  onClone: () => void;
 };
 
-function PresetEditorForm({ algorithm }: PresetEditorFormProps) {
+function PresetEditorForm({ algorithm, onClone }: PresetEditorFormProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const formatTimestamp = useTimestampFormatter();
@@ -268,6 +270,9 @@ function PresetEditorForm({ algorithm }: PresetEditorFormProps) {
             )}
           </form.Field>
           {errorText("maximumInterval")}
+        </View>
+        <View style={styles.field}>
+          <ActionButton label={_(msg`mobile.presets.clone`)} onPress={onClone} />
         </View>
       </ScrollView>
       <View style={styles.footer}>

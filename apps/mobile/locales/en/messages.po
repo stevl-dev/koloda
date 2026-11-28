@@ -355,6 +355,16 @@ msgstr "Open sync settings"
 msgid "mobile.lessons.start {label} {count}"
 msgstr "{label} {count}"
 
+#: src/components/add-preset.tsx
+msgid "mobile.presets.add"
+msgstr "Add preset"
+
+#: src/app/preset/[id]/clone.tsx
+#: src/components/clone-preset.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.clone"
+msgstr "Clone preset"
+
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.created-at"
 msgstr "Created"
@@ -400,6 +410,11 @@ msgstr "Maximum interval, days"
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.missing"
 msgstr "This preset no longer exists."
+
+#: src/app/preset/new.tsx
+#: src/components/presets-list.tsx
+msgid "mobile.presets.new"
+msgstr "New preset"
 
 #: src/components/preset-editor.tsx
 #: src/components/preset-editor.tsx

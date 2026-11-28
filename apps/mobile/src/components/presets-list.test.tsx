@@ -7,7 +7,7 @@ const CRAMMING = algorithm({ id: "01900000-0000-7000-8000-000000000302", title: 
 describe("PresetsList", () => {
   it("lists the presets in the order the library returns them, and opens the tapped one", async () => {
     const onOpenPreset = jest.fn();
-    await renderWithQueries(<PresetsList onOpenPreset={onOpenPreset} />, {
+    await renderWithQueries(<PresetsList onOpenPreset={onOpenPreset} onAdd={jest.fn()} />, {
       getAlgorithms: returning([algorithm(), CRAMMING]),
     });
 

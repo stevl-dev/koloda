@@ -870,3 +870,43 @@ async fn an_algorithm_edit_saves_its_parameters_and_an_invalid_retention_keeps_t
         "a refused edit keeps the parameters"
     );
 }
+
+#[tokio::test]
+async fn an_algorithm_added_on_the_phone_keeps_its_parameters_and_a_clone_copies_them_without_notes() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let read = |json: String| -> Value { serde_json::from_str(&json).expect("algorithm json") };
+    let source = read(
+        mobile
+            .get_algorithm(SEED_ALGORITHM_SIMPLE_ID.to_string())
+            .await
+            .expect("source"),
+    );
+    let add = |title: &str| json!({ "title": title, "content": source["content"] }).to_string();
+
+    let added = read(mobile.add_algorithm(add(" Cramming ")).await.expect("add"));
+    assert_eq!(added["title"], "Cramming", "the title is trimmed");
+    assert_eq!(added["content"]["learningSteps"], source["content"]["learningSteps"]);
+    let MobileError::App { code, .. } = mobile.add_algorithm(add(" ")).await.expect_err("blank title");
+    assert_eq!(code, "validation.common.title.too-short");
+
+    mobile
+        .update_algorithm(
+            json!({ "id": added["id"], "values": { "title": "Cramming", "notes": "Short", "content": added["content"] } })
+                .to_string(),
+        )
+        .await
+        .expect("notes");
+    let cloned = read(
+        mobile
+            .clone_algorithm(json!({ "sourceId": added["id"], "title": "Copy" }).to_string())
+            .await
+            .expect("clone"),
+    );
+    assert_ne!(cloned["id"], added["id"]);
+    assert_eq!(cloned["title"], "Copy");
+    assert_eq!(cloned["content"], added["content"]);
+    assert!(cloned["notes"].is_null(), "a clone takes no notes");
+}

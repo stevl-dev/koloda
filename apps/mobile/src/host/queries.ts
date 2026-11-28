@@ -5,6 +5,7 @@ import type {
   Algorithm,
   Attachment,
   Card,
+  CloneAlgorithmData,
   CloneTemplateData,
   Deck,
   DeckWithOnlyTitle,
@@ -15,6 +16,7 @@ import type {
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
+  InsertAlgorithmData,
   InsertCardData,
   InsertDeckData,
   InsertTemplateData,
@@ -47,6 +49,8 @@ export type MobileQueries = Pick<
   | "getAlgorithmsQuery"
   | "getAlgorithmQuery"
   | "updateAlgorithmMutation"
+  | "addAlgorithmMutation"
+  | "cloneAlgorithmMutation"
   | "getTemplatesQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
@@ -101,6 +105,12 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     updateAlgorithmMutation: () => ({
       mutationFn: (data: UpdateAlgorithmData) => read<Algorithm>(() => facade.updateAlgorithm(wireArgs(data))),
+    }),
+    addAlgorithmMutation: () => ({
+      mutationFn: (data: InsertAlgorithmData) => read<Algorithm>(() => facade.addAlgorithm(wireArgs(data))),
+    }),
+    cloneAlgorithmMutation: () => ({
+      mutationFn: (data: CloneAlgorithmData) => read<Algorithm>(() => facade.cloneAlgorithm(wireArgs(data))),
     }),
     getTemplatesQuery: () => ({
       queryKey: queryKeys.templates.all(),
