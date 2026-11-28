@@ -95,7 +95,8 @@ Run on each platform after a change to the app.
 - [ ] The app boots to the Lessons tab.
 - [ ] The Lessons, Decks, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
 - [ ] In a lesson, a revealed card shows four grades, each with an interval.
-- [ ] A fresh install opens on the Lessons tab, which says there are no decks yet: the starter content has none.
+- [ ] A fresh install opens on the Lessons tab, which says there are no decks yet and points to the Decks tab and sync:
+  the starter content has none.
   That answer came back from `koloda` through an async UniFFI call.
 - [ ] After joining a space, the Lessons tab shows the desktop library's decks with their due counts.
 - [ ] Above the decks, the Lessons tab shows what was learned today against each daily limit, with ∞ for no limit.
@@ -149,6 +150,10 @@ Run on each platform after a change to the app.
 - [ ] The Decks tab lists the decks oldest first; tapping one opens its cards, titled with the deck.
   A deck's title on the Lessons tab opens nothing.
   On a fresh install, the Decks tab says there are no decks yet; pulling it down shows a deck added on desktop.
+- [ ] On a fresh install, "New deck" on the Decks tab opens a form whose preset and template are the starter ones.
+  Add a deck: its cards open, and back returns to the Decks tab, which lists it; after a sync, desktop has it.
+  Adding with a blank title shows an error under it and adds nothing.
+  The keyboard covers neither the title nor "Add deck".
   Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
   a graded card shows its due time.
   A deck with no cards says so, and pulling the list down shows a card added on desktop.
@@ -221,6 +226,8 @@ Code copied from another app instead of shared:
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - The card, template, and review calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading a deck's
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
+- The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding a
+  deck, and listing the algorithms and the templates.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

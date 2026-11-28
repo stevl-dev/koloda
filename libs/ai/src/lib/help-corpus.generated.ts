@@ -1047,7 +1047,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Mobile App",
         "depth": 2,
-        "markdown": "## Mobile App\n\nThe mobile app lists its decks on a Decks tab, in the order §Listing and Navigation gives.\n\n- Tapping a deck opens its cards, as CARDS.md (§Mobile App) says.\n- A library with no decks says so.\n  Pulling the list down refreshes it.\n- It does not edit algorithms or templates.\n"
+        "markdown": "## Mobile App\n\nThe mobile app lists its decks on a Decks tab, in the order §Listing and Navigation gives.\n\n- Tapping a deck opens its cards, as CARDS.md (§Mobile App) says.\n- \"New deck\" adds a deck as §Adding Decks says, with a choice of algorithm and of template.\n  A rejected title shows its error under the title, and nothing is added.\n  After the add, the new deck's cards open in place of the form, instead of a link to the deck.\n  Going back from the form discards it without asking.\n- A library with no decks says so.\n  Pulling the list down refreshes it.\n- It does not edit algorithms or templates.\n"
       }
     ]
   },

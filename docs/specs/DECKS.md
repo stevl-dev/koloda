@@ -115,6 +115,10 @@ An empty library with no decks is allowed.
 The mobile app lists its decks on a Decks tab, in the order §Listing and Navigation gives.
 
 - Tapping a deck opens its cards, as CARDS.md (§Mobile App) says.
+- "New deck" adds a deck as §Adding Decks says, with a choice of algorithm and of template.
+  A rejected title shows its error under the title, and nothing is added.
+  After the add, the new deck's cards open in place of the form, instead of a link to the deck.
+  Going back from the form discards it without asking.
 - A library with no decks says so.
   Pulling the list down refreshes it.
 - It does not edit algorithms or templates.

@@ -179,6 +179,23 @@ msgstr "Отмена"
 msgid "mobile.cards.state-filter"
 msgstr "Состояние"
 
+#: src/components/add-deck.tsx
+msgid "mobile.decks.add"
+msgstr "Создать"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.algorithm"
+msgstr "Алгоритм"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.algorithms-error"
+msgstr "Не удалось загрузить алгоритмы."
+
+#: src/components/add-deck.tsx
+#: src/components/add-deck.tsx
+msgid "mobile.decks.deck-title"
+msgstr "Название"
+
 #: src/components/decks-list.tsx
 msgid "mobile.decks.empty"
 msgstr "Колод пока нет."
@@ -186,6 +203,19 @@ msgstr "Колод пока нет."
 #: src/components/decks-list.tsx
 msgid "mobile.decks.error"
 msgstr "Не удалось загрузить колоды."
+
+#: src/app/deck/new.tsx
+#: src/components/decks-list.tsx
+msgid "mobile.decks.new"
+msgstr "Новая колода"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.template"
+msgstr "Шаблон"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.templates-error"
+msgstr "Не удалось загрузить шаблоны."
 
 #: src/app/(tabs)/decks/_layout.tsx
 msgid "mobile.decks.title"
@@ -262,7 +292,7 @@ msgstr "Все колоды"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.empty"
-msgstr "Колод пока нет. Библиотека приходит из приложения для компьютера: присоединитесь к его пространству синхронизации, чтобы перенести её сюда."
+msgstr "Колод пока нет. Создайте колоду на вкладке «Колоды» или присоединитесь к пространству синхронизации приложения для компьютера, чтобы перенести его библиотеку сюда."
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.error"
@@ -360,6 +390,7 @@ msgid "mobile.settings.learning.discard"
 msgstr "Сбросить"
 
 #: src/app/(tabs)/settings/learning.tsx
+#: src/components/add-deck.tsx
 msgid "mobile.settings.learning.error"
 msgstr "Не удалось загрузить настройки изучения."
 

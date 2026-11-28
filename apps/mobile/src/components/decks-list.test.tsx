@@ -7,7 +7,9 @@ const CHEMISTRY = { ...DECK, id: "01900000-0000-7000-8000-000000000102", title: 
 describe("DecksList", () => {
   it("lists the decks in the order the library returns them, and opens the tapped one", async () => {
     const onOpenDeck = jest.fn();
-    await renderWithQueries(<DecksList onOpenDeck={onOpenDeck} />, { getDecks: returning([DECK, CHEMISTRY]) });
+    await renderWithQueries(<DecksList onOpenDeck={onOpenDeck} onAdd={jest.fn()} />, {
+      getDecks: returning([DECK, CHEMISTRY]),
+    });
 
     await screen.findByText("Spanish");
     expect(screen.getAllByText(/^(Spanish|Chemistry)$/).map((title) => title.props.children)).toEqual([
@@ -19,7 +21,7 @@ describe("DecksList", () => {
   });
 
   it("says a library with no decks has none", async () => {
-    await renderWithQueries(<DecksList onOpenDeck={jest.fn()} />, { getDecks: returning([]) });
+    await renderWithQueries(<DecksList onOpenDeck={jest.fn()} onAdd={jest.fn()} />, { getDecks: returning([]) });
 
     expect(await screen.findByText(/^No decks yet\./)).toBeTruthy();
     expect(screen.queryByRole("link")).toBeNull();

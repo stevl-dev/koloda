@@ -2,6 +2,7 @@ import { queryKeys } from "@koloda/core-react";
 import type { Queries } from "@koloda/core-react";
 import type { AllowedSettings, PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import type {
+  Algorithm,
   Attachment,
   Card,
   Deck,
@@ -11,6 +12,7 @@ import type {
   GetLessonDataParams,
   GetReviewsData,
   InsertCardData,
+  InsertDeckData,
   LessonData,
   LessonFilters,
   LessonResultData,
@@ -31,6 +33,9 @@ import type { MobileSyncQueries } from "./sync-queries";
 export type MobileQueries = Pick<
   Queries,
   | "getDecksQuery"
+  | "addDeckMutation"
+  | "getAlgorithmsQuery"
+  | "getTemplatesQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
   | "getReviewsQuery"
@@ -57,6 +62,17 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getDecksQuery: () => ({
       queryKey: queryKeys.decks.all(),
       queryFn: () => read<Deck[]>(() => facade.getDecks()),
+    }),
+    addDeckMutation: () => ({
+      mutationFn: (data: InsertDeckData) => read<Deck>(() => facade.addDeck(wireArgs(data))),
+    }),
+    getAlgorithmsQuery: () => ({
+      queryKey: queryKeys.algorithms.all(),
+      queryFn: () => read<Algorithm[]>(() => facade.getAlgorithms()),
+    }),
+    getTemplatesQuery: () => ({
+      queryKey: queryKeys.templates.all(),
+      queryFn: () => read<Template[]>(() => facade.getTemplates()),
     }),
     getCardsQuery: (params: GetCardsParams) => ({
       queryKey: queryKeys.cards.deck(params),

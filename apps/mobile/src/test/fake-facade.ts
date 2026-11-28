@@ -5,10 +5,12 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
   const unexpected = () => Promise.reject(new Error("not stubbed"));
   return {
     addCard: unexpected,
+    addDeck: unexpected,
     attachmentFile: unexpected,
     deleteCard: unexpected,
     deleteCards: unexpected,
     getCards: unexpected,
+    getAlgorithms: unexpected,
     getDbStatus: unexpected,
     getDecks: unexpected,
     getLessonData: unexpected,
@@ -16,6 +18,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getReviews: unexpected,
     getSettings: unexpected,
     getTemplate: unexpected,
+    getTemplates: unexpected,
     getTodaysReviewTotals: unexpected,
     patchSettings: unexpected,
     resetCardProgress: unexpected,

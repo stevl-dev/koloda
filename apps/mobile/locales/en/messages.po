@@ -179,6 +179,23 @@ msgstr "Cancel"
 msgid "mobile.cards.state-filter"
 msgstr "State"
 
+#: src/components/add-deck.tsx
+msgid "mobile.decks.add"
+msgstr "Add deck"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.algorithm"
+msgstr "Preset"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.algorithms-error"
+msgstr "The presets could not load."
+
+#: src/components/add-deck.tsx
+#: src/components/add-deck.tsx
+msgid "mobile.decks.deck-title"
+msgstr "Title"
+
 #: src/components/decks-list.tsx
 msgid "mobile.decks.empty"
 msgstr "No decks yet."
@@ -186,6 +203,19 @@ msgstr "No decks yet."
 #: src/components/decks-list.tsx
 msgid "mobile.decks.error"
 msgstr "The decks could not load."
+
+#: src/app/deck/new.tsx
+#: src/components/decks-list.tsx
+msgid "mobile.decks.new"
+msgstr "New deck"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.template"
+msgstr "Template"
+
+#: src/components/deck-choices.tsx
+msgid "mobile.decks.templates-error"
+msgstr "The templates could not load."
 
 #: src/app/(tabs)/decks/_layout.tsx
 msgid "mobile.decks.title"
@@ -262,7 +292,7 @@ msgstr "All decks"
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.empty"
-msgstr "No decks yet. Your library comes from the desktop app: join its sync space to bring it here."
+msgstr "No decks yet. Create one on the Decks tab, or join the desktop app's sync space to bring its library here."
 
 #: src/components/lessons-list.tsx
 msgid "mobile.lessons.error"
@@ -360,6 +390,7 @@ msgid "mobile.settings.learning.discard"
 msgstr "Discard"
 
 #: src/app/(tabs)/settings/learning.tsx
+#: src/components/add-deck.tsx
 msgid "mobile.settings.learning.error"
 msgstr "Learning settings could not load."
 

@@ -97,7 +97,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   Commit: Add a Decks tab on mobile
   Depends on: none
 
-- [ ] 2. Add a deck on mobile
+- [x] 2. Add a deck on mobile
   Goal: "New deck" on the Decks tab opens a form that adds a deck, as `docs/specs/DECKS.md` (§Adding Decks) says.
   Add a stack route `src/app/deck/new.tsx`.
   The form has a title field, a choice of algorithm, and a choice of template.
@@ -120,6 +120,10 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   title; a Rust test adds a deck and reads the algorithms and templates through the façade.
   Commit: Add a deck on mobile
   Depends on: 1
+  Note: no `entity-choice.tsx`: `src/components/deck-choices.tsx` holds `AlgorithmChoice` and `TemplateChoice` over the
+  existing `ChoiceGroup`, for items 3 and 5 too.
+  "New deck" sits above the list, so the empty library offers it with no second button.
+  The algorithm choice reads "Preset", as desktop's picker does.
 
 - [ ] 3. Edit a deck on mobile
   Goal: a deck's card screen opens the deck's details, which edit its title, notes, algorithm, and template,

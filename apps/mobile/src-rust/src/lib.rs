@@ -10,6 +10,7 @@ use koloda::app::secrets::SecretStore;
 use koloda::domain::cards::{
     DeleteCardData, DeleteCardsData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData,
 };
+use koloda::domain::decks::InsertDeckData;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
@@ -349,6 +350,22 @@ impl KolodaMobile {
 
     pub async fn get_decks(&self) -> Result<String, MobileError> {
         self.run(|db| to_wire(&repo::decks::get_decks(db)?)).await
+    }
+
+    pub async fn add_deck(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let data: InsertDeckData = from_wire(&data)?;
+            to_wire(&repo::decks::add_deck(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn get_algorithms(&self) -> Result<String, MobileError> {
+        self.run(|db| to_wire(&repo::algorithms::get_algorithms(db)?)).await
+    }
+
+    pub async fn get_templates(&self) -> Result<String, MobileError> {
+        self.run(|db| to_wire(&repo::templates::get_templates(db)?)).await
     }
 
     pub async fn get_cards(&self, params: String) -> Result<String, MobileError> {

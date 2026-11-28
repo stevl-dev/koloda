@@ -531,3 +531,44 @@ async fn deleting_several_cards_removes_only_those() {
     assert_eq!(left.len(), 1);
     assert_eq!(&left[0]["id"], ids[1]);
 }
+
+#[tokio::test]
+async fn a_deck_added_on_the_phone_lists_with_the_seeded_algorithm_and_template_and_a_blank_title_is_refused() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+
+    let ids = |json: String| -> Vec<Value> {
+        let list: Value = serde_json::from_str(&json).expect("list json");
+        list.as_array()
+            .expect("list array")
+            .iter()
+            .map(|row| row["id"].clone())
+            .collect()
+    };
+    assert_eq!(
+        ids(mobile.get_algorithms().await.expect("algorithms")),
+        [SEED_ALGORITHM_SIMPLE_ID]
+    );
+    assert_eq!(
+        ids(mobile.get_templates().await.expect("templates")),
+        [SEED_TEMPLATE_TYPE_ID]
+    );
+
+    let add = |title: &str| {
+        json!({ "title": title, "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID })
+            .to_string()
+    };
+    let added: Value =
+        serde_json::from_str(&mobile.add_deck(add("  Spanish ")).await.expect("add")).expect("deck json");
+    assert_eq!(added["title"], "Spanish", "the title is trimmed");
+    let MobileError::App { code, .. } = mobile.add_deck(add("   ")).await.expect_err("blank title");
+    assert_eq!(code, "validation.common.title.too-short");
+
+    assert_eq!(
+        ids(mobile.get_decks().await.expect("decks")),
+        [added["id"].clone()],
+        "only the valid deck was added"
+    );
+}

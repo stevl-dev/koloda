@@ -180,6 +180,10 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_deck(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_attachment_file(
     uniffiSelf: bigint,
     id: Uint8Array,
@@ -192,6 +196,9 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_delete_cards(
     uniffiSelf: bigint,
     data: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_algorithms(
+    uniffiSelf: bigint,
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_cards(
     uniffiSelf: bigint,
@@ -222,6 +229,9 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_template(
     uniffiSelf: bigint,
     id: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_templates(
+    uniffiSelf: bigint,
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_todays_review_totals(
     uniffiSelf: bigint,
@@ -299,9 +309,11 @@ interface NativeModuleInterface {
   ubrn_ffi_koloda_mobile_uniffi_contract_version(): number;
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_card(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_card(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_cards(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_algorithms(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_cards(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_db_status(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_decks(): number;
@@ -310,6 +322,7 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_reviews(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_template(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_templates(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_patch_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_reset_card_progress(): number;
