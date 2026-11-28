@@ -17,6 +17,18 @@ msgstr ""
 msgid "mobile.boot.error"
 msgstr "Приложению не удалось открыть базу данных."
 
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.due {dueAt}"
+msgstr "К повторению {dueAt}"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.empty"
+msgstr "В этой колоде пока нет карточек."
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.error"
+msgstr "Не удалось загрузить карточки."
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Не удалось загрузить прогресс за сегодня."

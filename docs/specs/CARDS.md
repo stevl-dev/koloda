@@ -224,3 +224,16 @@ The stack view shows one card at a time using the card details view.
 The user moves between cards with previous and next buttons.
 A counter shows the current position and the total number of cards.
 There is no filtering, selection, or pagination in the stack view.
+
+## Mobile App
+
+The mobile app browses and changes the cards of the decks it already has.
+
+- A deck's title on the Lessons tab opens that deck's cards.
+  The all-decks row opens none.
+- Each card in the list shows its first two fields on one line each, as §Table View shows a field.
+  A card image shows as an image symbol.
+- Each card also shows its state, and its due time once it has been graded.
+- A deck with no cards says so.
+  Pulling the list down refreshes it.
+- It has no table view, stack view, sorting, column choices, or preview.

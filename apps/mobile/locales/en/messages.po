@@ -17,6 +17,18 @@ msgstr ""
 msgid "mobile.boot.error"
 msgstr "The app could not open its database."
 
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.due {dueAt}"
+msgstr "Due {dueAt}"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.empty"
+msgstr "No cards in this deck yet."
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.error"
+msgstr "The cards could not load."
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Today's progress could not load."

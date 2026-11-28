@@ -3,12 +3,15 @@ import type { Queries } from "@koloda/core-react";
 import type { AllowedSettings, PatchSettingsData, SetSettingsData, SettingsName } from "@koloda/settings";
 import type {
   Attachment,
+  Card,
   Deck,
+  GetCardsParams,
   GetLessonDataParams,
   LessonData,
   LessonFilters,
   LessonResultData,
   LessonsResult,
+  Template,
   TodaysReviewTotals,
 } from "@koloda/srs";
 import type { QueryKey, QueryOptions } from "@tanstack/react-query";
@@ -21,6 +24,8 @@ import type { MobileSyncQueries } from "./sync-queries";
 export type MobileQueries = Pick<
   Queries,
   | "getDecksQuery"
+  | "getCardsQuery"
+  | "getTemplateQuery"
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
@@ -39,6 +44,14 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getDecksQuery: () => ({
       queryKey: queryKeys.decks.all(),
       queryFn: () => read<Deck[]>(() => facade.getDecks()),
+    }),
+    getCardsQuery: (params: GetCardsParams) => ({
+      queryKey: queryKeys.cards.deck(params),
+      queryFn: () => read<Card[]>(() => facade.getCards(wireArgs(params))),
+    }),
+    getTemplateQuery: (id: Template["id"]) => ({
+      queryKey: queryKeys.templates.detail(id),
+      queryFn: () => read<Template | null>(() => facade.getTemplate(id)),
     }),
     getSettingsQuery: <T extends SettingsName>(name: T) => ({
       queryKey: queryKeys.settings.detail(name),

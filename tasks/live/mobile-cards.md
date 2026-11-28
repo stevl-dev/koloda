@@ -95,7 +95,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Commit: Share the card rules with mobile
   Depends on: none
 
-- [ ] 2. Open a deck's cards on mobile
+- [x] 2. Open a deck's cards on mobile
   Goal: tapping a deck row's title on the Lessons tab opens a screen that lists that deck's cards.
   Add a stack route `src/app/deck/[id].tsx` above the tabs, as `lesson.tsx` is, titled with the deck's title.
   Each row shows the text of the card's first two fields on one line each, cut short with an ellipsis,

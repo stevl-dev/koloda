@@ -2,7 +2,7 @@ import type { Template } from "@koloda/srs";
 import { Button, Checkbox, Dialog, FilterIcon } from "@koloda/ui";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { VALUES } from "./card-state";
+import { CARD_STATES } from "./card-rules";
 
 const INITIAL_FILTERS = { state: [], dueAt: { isOverdue: false, isNotDue: false }, templateIds: [] };
 
@@ -60,7 +60,7 @@ export function CardsTableFilters({ filters, setFilters, templates }: CardsTable
           )}
           <div>
             <h3 className="fg-level-1 leading-10 font-semibold tracking-wide">{_(msg`card.labels.state`)}</h3>
-            {VALUES.map((value, i) => (
+            {CARD_STATES.map((value, i) => (
               <Checkbox
                 isSelected={filters.state.includes(i)}
                 onChange={(isSelected) =>

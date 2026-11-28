@@ -7,6 +7,7 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
+use koloda::domain::cards::GetCardsParams;
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::settings::SettingsName;
 use koloda::repo;
@@ -345,6 +346,19 @@ impl KolodaMobile {
 
     pub async fn get_decks(&self) -> Result<String, MobileError> {
         self.run(|db| to_wire(&repo::decks::get_decks(db)?)).await
+    }
+
+    pub async fn get_cards(&self, params: String) -> Result<String, MobileError> {
+        self.run(move |db| {
+            let params: GetCardsParams = from_wire(&params)?;
+            to_wire(&repo::cards::get_cards(db, &params.deck_id)?)
+        })
+        .await
+    }
+
+    pub async fn get_template(&self, id: String) -> Result<String, MobileError> {
+        self.run(move |db| to_wire(&repo::templates::get_template(db, &id)?))
+            .await
     }
 
     pub async fn attachment_file(&self, id: String, cache_dir: String) -> Result<Option<String>, MobileError> {

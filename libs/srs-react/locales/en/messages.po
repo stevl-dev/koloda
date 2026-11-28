@@ -232,19 +232,19 @@ msgstr "Stability"
 msgid "card.labels.state"
 msgstr "Status"
 
-#: ../../libs/srs-react/src/lib/cards/card-state.tsx
+#: ../../libs/srs-react/src/lib/cards/card-rules.ts
 msgid "card.state.learn"
 msgstr "Learning"
 
-#: ../../libs/srs-react/src/lib/cards/card-state.tsx
+#: ../../libs/srs-react/src/lib/cards/card-rules.ts
 msgid "card.state.relearn"
 msgstr "Relearning"
 
-#: ../../libs/srs-react/src/lib/cards/card-state.tsx
+#: ../../libs/srs-react/src/lib/cards/card-rules.ts
 msgid "card.state.review"
 msgstr "Review"
 
-#: ../../libs/srs-react/src/lib/cards/card-state.tsx
+#: ../../libs/srs-react/src/lib/cards/card-rules.ts
 msgid "card.state.untouched"
 msgstr "New"
 

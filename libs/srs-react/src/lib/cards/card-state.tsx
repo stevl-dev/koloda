@@ -1,13 +1,6 @@
-import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { tv } from "tailwind-variants";
-
-export const VALUES = [
-  { t: msg`card.state.untouched`, state: "untouched" },
-  { t: msg`card.state.learn`, state: "learn" },
-  { t: msg`card.state.review`, state: "review" },
-  { t: msg`card.state.relearn`, state: "relearn" },
-] as const;
+import { CARD_STATES } from "./card-rules";
 
 const cardState = tv({
   base: "inline-flex px-1 rounded-md border-2 font-bold tracking-tighter whitespace-nowrap",
@@ -26,7 +19,7 @@ type CardStateProps = { value: number };
 export function CardState({ value }: CardStateProps) {
   const { _ } = useLingui();
 
-  if (!VALUES[value]) return null;
+  if (!CARD_STATES[value]) return null;
 
-  return <div className={cardState({ state: VALUES[value].state })}>{_(VALUES[value].t)}</div>;
+  return <div className={cardState({ state: CARD_STATES[value].state })}>{_(CARD_STATES[value].t)}</div>;
 }

@@ -1,5 +1,14 @@
 import { markdownToPlainText } from "@koloda/srs";
 import type { Card, Template } from "@koloda/srs";
+import { msg } from "@lingui/core/macro";
+
+// INVARIANT: indexed by the card's state number (`Card["state"]`), in the algorithm's order.
+export const CARD_STATES = [
+  { t: msg`card.state.untouched`, state: "untouched" },
+  { t: msg`card.state.learn`, state: "learn" },
+  { t: msg`card.state.review`, state: "review" },
+  { t: msg`card.state.relearn`, state: "relearn" },
+] as const;
 
 // INVARIANT: one path per edited card sync group (crates/koloda/tests/cases/editor-sync-groups.json).
 export const CARD_SYNC_GROUPS = ["content"] as const;

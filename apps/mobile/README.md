@@ -146,6 +146,10 @@ Run on each platform after a change to the app.
   A tap on the card beside the input closes the keyboard and does not reveal the answer.
   The return key submits; a right answer in another case shows as correct, and a wrong one shows the correct value.
 - [ ] After force-quitting and reopening the app, the deck's due count has dropped.
+- [ ] Tapping a deck's title on the Lessons tab opens its cards, titled with the deck; "All decks" opens nothing.
+  Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
+  a graded card shows its due time.
+  A deck with no cards says so, and pulling the list down shows a card added on desktop.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.
@@ -190,6 +194,8 @@ Run on each platform after a change to the app.
 Code copied from another app instead of shared:
 
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
+- The card and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading a deck's
+  cards and a template.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

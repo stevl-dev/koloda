@@ -241,3 +241,68 @@ async fn a_card_image_is_written_to_the_cache_once_and_keeps_its_path() {
     let MobileError::App { code, .. } = err;
     assert_eq!(code, "unknown");
 }
+
+// A deck of the starter template with one card per word, written as a sync would; returns the deck's id.
+fn add_deck_with_cards(db: &Database, words: &[&str]) -> String {
+    let deck = repo::decks::add_deck(
+        db,
+        serde_json::from_value(
+            json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": SEED_TEMPLATE_TYPE_ID }),
+        )
+        .expect("deck data"),
+    )
+    .expect("add deck");
+    let cards: Vec<Value> = words
+        .iter()
+        .map(|word| {
+            json!({
+                "deckId": deck.id,
+                "templateId": SEED_TEMPLATE_TYPE_ID,
+                "content": { FRONT: { "text": word }, BACK: { "text": "" } },
+            })
+        })
+        .collect();
+    repo::cards::add_cards(db, serde_json::from_value(Value::from(cards)).expect("card data")).expect("add cards");
+    deck.id.to_string()
+}
+
+#[tokio::test]
+async fn a_deck_lists_its_cards_and_each_card_reads_its_template() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let db = other_connection(&path);
+    let deck_id = add_deck_with_cards(&db, &["uno", "dos"]);
+    add_deck_with_cards(&db, &["one"]);
+
+    let cards: Value = serde_json::from_str(
+        &mobile
+            .get_cards(json!({ "deckId": deck_id }).to_string())
+            .await
+            .expect("cards"),
+    )
+    .expect("cards json");
+    let mut fronts: Vec<&str> = cards
+        .as_array()
+        .expect("cards array")
+        .iter()
+        .map(|card| card["content"][FRONT]["text"].as_str().unwrap())
+        .collect();
+    fronts.sort_unstable();
+    assert_eq!(fronts, ["dos", "uno"], "only the deck's own cards");
+
+    let template: Value = serde_json::from_str(
+        &mobile
+            .get_template(cards[0]["templateId"].as_str().unwrap().to_string())
+            .await
+            .expect("template"),
+    )
+    .expect("template json");
+    assert_eq!(template["content"]["fields"][0]["id"], FRONT);
+    let missing = mobile
+        .get_template("01900000-0000-7000-8000-00000000ffff".to_string())
+        .await
+        .expect("missing");
+    assert_eq!(missing, "null", "a template the database lacks reads as null");
+}
