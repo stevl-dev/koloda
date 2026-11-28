@@ -1,6 +1,6 @@
 # Mobile cards
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/CARDS.md, docs/specs/MEDIA.md, docs/specs/LESSONS.md, docs/decisions/CACHE-REFRESH.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md
 Flow: local
 
@@ -228,3 +228,33 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Depends on: none
 
 ## Outcome
+
+The mobile app browses and changes the cards of the decks it already has.
+
+What shipped:
+
+- `@koloda/srs-react/cards`, a DOM-free entry with the card rules both apps read: `CARD_SYNC_GROUPS`,
+  `CARD_STATES`, and `cardFieldText`, which desktop's table now uses for its cells and search.
+- A deck's title on the Lessons tab opens its cards: the first two fields, the state, and the due time, with a search
+  and a state filter.
+- A card view with rendered content, state, dates, scheduling numbers, and review history.
+- Editing, adding, resetting progress, deleting one card, and deleting a selection, with back ending a selection.
+- The façade calls these need, copied from the desktop host: `get_cards`, `get_template`, `get_reviews`,
+  `add_card`, `update_card`, `delete_card`, `delete_cards`, and `reset_card_progress`.
+- The lesson route returns to the Lessons tab for an unknown `type`; its `tasks/DEFERRED.md` handoff is gone.
+
+Deviations from the plan:
+
+- The state labels moved into the shared entry too (item 2), and a card image in the list shows as 🖼️.
+- The add form validates content with `getUpdateCardSchema`, whose content rule `getInsertCardSchema` shares (item 6).
+- The deck and card routes became folders (`src/app/deck/[id]/`), and `ActionButton` moved into its own file.
+- A self-review commit tidied the bulk delete's count and added the Lessons tab's pointer in `docs/specs/LESSONS.md`.
+
+`bun run check:push` and `nx run @koloda/mobile:build-android` passed at `51641220`.
+Not verified on a device: by the human's choice, no device check ran.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The Russian strings were written by the agent and have not been read by a native speaker.
+
+Spec: docs/specs/CARDS.md, docs/specs/LESSONS.md, docs/specs/MEDIA.md
+Review: nit 2 (CODE-STYLE §Change Discipline, FUNCTIONAL-SPECIFICATIONS §No chrome)
+Change rounds: 0

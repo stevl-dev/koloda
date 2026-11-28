@@ -52,6 +52,8 @@ Entries are grouped under one heading per package directory.
   `mobile-sync` added the checks for background runs, Sync now, the attention dot and Sync row, inviting a device,
   the device list and removal, leaving, rejoining, Add or Replace, and continuing after a restore; none has run.
   It also needs a fresh native build: `expo-background-task`, `expo-task-manager`, and `expo-clipboard` are native.
+  `mobile-cards` added the checks for a deck's cards, search and the state filter, the card view, editing, adding,
+  reset and delete, and selecting cards; none has run, though `build-android` passed at `51641220`.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`
   Deferred because: the human runs every device check once the planned mobile features have shipped
