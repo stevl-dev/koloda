@@ -14,10 +14,13 @@ import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
+import { AlgorithmChoice, TemplateChoice } from "./deck-choices";
 
 // WHY: errors group by the first segment of their path, so each shows under the section it names; "form" holds the
 // ones the save itself returned.
-type ErrorsBySection = Partial<Record<"form" | "dailyLimits" | "dayStartsAt" | "learnAheadLimit", string[]>>;
+type ErrorsBySection = Partial<
+  Record<"form" | "defaults" | "dailyLimits" | "dayStartsAt" | "learnAheadLimit", string[]>
+>;
 
 const LIMIT_TYPES = ["untouched", "learn", "review"] as const;
 
@@ -81,6 +84,16 @@ export function SettingsLearning({ data }: SettingsLearningProps) {
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {errorText("form")}
+        <View style={styles.section}>
+          <Text style={[styles.heading, { color: colors.text }]}>{_(msg`mobile.settings.learning.defaults`)}</Text>
+          <form.Field name="defaults.algorithm">
+            {(field) => <AlgorithmChoice value={field.state.value} onChange={field.handleChange} />}
+          </form.Field>
+          <form.Field name="defaults.template">
+            {(field) => <TemplateChoice value={field.state.value} onChange={field.handleChange} />}
+          </form.Field>
+          {errorText("defaults")}
+        </View>
         <View style={styles.section}>
           <Text style={[styles.heading, { color: colors.text }]}>{_(msg`mobile.settings.learning.limits`)}</Text>
           <form.Field name="dailyLimits.total">

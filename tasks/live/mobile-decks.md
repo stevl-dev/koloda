@@ -166,7 +166,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   Commit: Delete a deck on mobile
   Depends on: 3
 
-- [ ] 5. Choose the default algorithm and template on mobile
+- [x] 5. Choose the default algorithm and template on mobile
   Goal: Settings → Learning chooses the defaults a new deck starts with, as `docs/specs/LEARNING-SETTINGS.md`
   (§Defaults) says.
   `src/components/settings-learning.tsx` gains a Defaults section with item 2's algorithm and template choices.
@@ -177,3 +177,6 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   Done when: component tests cover saving a new default algorithm and template, and item 2's form starting on them.
   Commit: Choose the default algorithm and template on mobile
   Depends on: 2
+  Note: no test of item 2's form starting on the new defaults: the add form reads the saved settings, and
+  `add-deck.test.tsx` covers that, so a second test through Settings would be a second door
+  (`agents/TESTING.md` §One home per behavior).

@@ -1321,7 +1321,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Mobile App",
         "depth": 2,
-        "markdown": "## Mobile App\n\nThe mobile app edits its learning settings under Settings → Learning.\nThey save and sync as §Editing and Saving says, with Save and Discard below the form.\n\n- It edits the daily limits, Day starts at, and the learn-ahead limit.\n- It does not edit the defaults, since it cannot create a deck.\n  A save keeps them as they are.\n- Day starts at takes an hour and a minute.\n  With a 12-hour clock it also takes AM or PM.\n- Each number stays within its range as it is typed, and a cleared number keeps its last value.\n- The errors of a rejected save show under the part of the form they concern.\n"
+        "markdown": "## Mobile App\n\nThe mobile app edits its learning settings under Settings → Learning.\nThey save and sync as §Editing and Saving says, with Save and Discard below the form.\n\n- It edits every learning setting: the defaults, the daily limits, Day starts at, and the learn-ahead limit.\n- Day starts at takes an hour and a minute.\n  With a 12-hour clock it also takes AM or PM.\n- Each number stays within its range as it is typed, and a cleared number keeps its last value.\n- The errors of a rejected save show under the part of the form they concern.\n"
       }
     ]
   },

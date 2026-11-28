@@ -431,6 +431,10 @@ msgid "mobile.settings.learning.day-starts-at.pm"
 msgstr "PM"
 
 #: src/components/settings-learning.tsx
+msgid "mobile.settings.learning.defaults"
+msgstr "Defaults for new decks"
+
+#: src/components/settings-learning.tsx
 msgid "mobile.settings.learning.discard"
 msgstr "Discard"
 

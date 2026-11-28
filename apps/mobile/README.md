@@ -121,6 +121,8 @@ Run on each platform after a change to the app.
   Day starts at shows AM and PM under a 12-hour time format and a 24-hour clock under a 24-hour one.
   The keyboard covers neither the field being edited nor Save.
   A change saved on desktop shows here while the field is untouched.
+- [ ] In Settings → Learning, choose another default preset and template and save; "New deck" on the Decks tab starts
+  on them, and desktop's new deck dialog does too after a sync.
 - [ ] With each of Atom One Light, GitHub Light, Atom One Dark, and GitHub Dark chosen and its scheme active,
   the Lessons tab, a lesson, and Settings read well, and the tab bar and headers match the screens.
   Switching the scheme keeps both theme choices.
