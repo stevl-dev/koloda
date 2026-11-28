@@ -1,6 +1,6 @@
 # Mobile decks
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/DECKS.md, docs/specs/CARDS.md, docs/specs/LESSONS.md, docs/specs/LEARNING-SETTINGS.md, docs/decisions/CACHE-REFRESH.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md
 Flow: local
 
@@ -180,3 +180,37 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   Note: no test of item 2's form starting on the new defaults: the add form reads the saved settings, and
   `add-deck.test.tsx` covers that, so a second test through Settings would be a second door
   (`agents/TESTING.md` §One home per behavior).
+
+## Outcome
+
+The mobile app creates, edits, and deletes decks, so a fresh install no longer needs a desktop to start a library.
+
+What shipped:
+
+- A Decks tab between Lessons and Settings lists the decks and opens each deck's cards;
+  the Lessons tab's deck titles open nothing (question 4).
+- "New deck" adds a deck with a title, a preset, and a template, starting on the learning defaults,
+  and then opens the new deck's cards.
+- Details, from a header button on a deck's cards, edits the title, notes, preset, and template with Save and
+  Discard, takes synced changes into untouched fields, and deletes the deck after a dialog that counts its cards.
+- Settings → Learning chooses the default preset and template.
+- `@koloda/srs-react/decks`, a DOM-free entry with `DECK_SYNC_GROUPS`, which desktop's deck details now import.
+- The façade calls these need, copied from the desktop host: `add_deck`, `update_deck`, `delete_deck`,
+  `get_algorithms`, and `get_templates`.
+
+Deviations from the plan:
+
+- No `entity-choice.tsx`: `AlgorithmChoice` and `TemplateChoice` wrap the existing `ChoiceGroup` (item 2).
+- "New deck" sits above the list, so the empty library offers it with no second button (item 2).
+- No test of the add form starting on defaults saved in Settings, as a second door (item 5).
+
+`bun run check:push` and `nx run @koloda/mobile:build-android` passed at `5620099a`.
+A first run of both at once failed: Gradle's daemon was killed and lib tests timed out under the load;
+run one after the other, both passed.
+Not verified on a device: by the human's choice, no device check ran.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The Russian strings were written by the agent and have not been read by a native speaker.
+
+Spec: docs/specs/CARDS.md, docs/specs/DECKS.md, docs/specs/LEARNING-SETTINGS.md, docs/specs/LESSONS.md
+Review: none
+Change rounds: 0

@@ -54,6 +54,9 @@ Entries are grouped under one heading per package directory.
   It also needs a fresh native build: `expo-background-task`, `expo-task-manager`, and `expo-clipboard` are native.
   `mobile-cards` added the checks for a deck's cards, search and the state filter, the card view, editing, adding,
   reset and delete, and selecting cards; none has run, though `build-android` passed at `51641220`.
+  `mobile-decks` added the checks for the Decks tab, adding, editing, and deleting a deck, and the default preset
+  and template, and changed the tabs and the Lessons tab's empty state; none has run, though `build-android` passed
+  at `5620099a`.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`
   Deferred because: the human runs every device check once the planned mobile features have shipped
