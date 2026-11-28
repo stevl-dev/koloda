@@ -3,6 +3,17 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react-
 import { BACK, FRONT, renderWithQueries, template, TEMPLATE_ID } from "../test/cards";
 import { TemplateEditor } from "./template-editor";
 
+// WHY: the drag runs on Reanimated's UI runtime, which Jest lacks; these tests reorder through the handles'
+// accessibility actions.
+jest.mock("./draggable-row", () => {
+  const { createElement, Fragment } = require("react");
+  return {
+    useDragState: () => null,
+    DraggableRow: ({ handle, children }: { handle: unknown; children: unknown }) =>
+      createElement(Fragment, null, handle, children),
+  };
+});
+
 const ADDED = "01900000-0000-7000-8000-000000000213";
 
 type RenderOptions = {
@@ -169,6 +180,50 @@ describe("TemplateEditor", () => {
     expect(await screen.findByDisplayValue("Synced")).toBeTruthy();
     expect(screen.getByDisplayValue("Question")).toBeTruthy();
     expect(screen.getByDisplayValue("Words")).toBeTruthy();
+  });
+
+  describe("reorder", () => {
+    function move(handle: string, actionName: "moveUp" | "moveDown") {
+      return fireEvent(screen.getByLabelText(handle), "accessibilityAction", { nativeEvent: { actionName } });
+    }
+
+    it.each([
+      ["an unlocked", false],
+      ["a locked", true],
+    ])("on %s template, moves fields and layout rows apart and saves both orders", async (_case, isLocked) => {
+      const { updateTemplate } = await renderEditor({ saved: template({ isLocked }) });
+
+      await screen.findByLabelText("Reorder field 1");
+      await move("Reorder field 1", "moveDown");
+      expect(screen.getByLabelText("Field 1 title").props.value).toBe("Back");
+      expect(screen.getByLabelText("1. Front")).toBeTruthy();
+      await move("Reorder layout row 2", "moveUp");
+
+      const { values } = await save(updateTemplate);
+      expect(values.content.fields.map(({ id }: { id: string }) => id)).toEqual([BACK, FRONT]);
+      expect(values.content.layout.map(({ field }: { field: string }) => field)).toEqual([BACK, FRONT]);
+    });
+
+    it("moves a layout row without reordering the fields", async () => {
+      const { updateTemplate } = await renderEditor();
+
+      await screen.findByLabelText("Reorder layout row 1");
+      await move("Reorder layout row 1", "moveDown");
+
+      const { values } = await save(updateTemplate);
+      expect(values.content.fields.map(({ id }: { id: string }) => id)).toEqual([FRONT, BACK]);
+      expect(values.content.layout.map(({ field }: { field: string }) => field)).toEqual([BACK, FRONT]);
+    });
+
+    it("offers no move up on the first row and no move down on the last", async () => {
+      await renderEditor();
+
+      const names = (handle: string) =>
+        screen.getByLabelText(handle).props.accessibilityActions.map(({ name }: { name: string }) => name);
+      await screen.findByLabelText("Reorder field 1");
+      expect(names("Reorder field 1")).toEqual(["moveDown"]);
+      expect(names("Reorder field 2")).toEqual(["moveUp"]);
+    });
   });
 
   it("says a template deleted elsewhere no longer exists", async () => {

@@ -504,6 +504,18 @@ msgstr "Синхронизация"
 msgid "mobile.settings.title"
 msgstr "Настройки"
 
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.hint"
+msgstr "Нажмите и удерживайте, затем перетащите. Действия программы чтения с экрана двигают строку вверх или вниз."
+
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.move-down"
+msgstr "Переместить вниз"
+
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.move-up"
+msgstr "Переместить вверх"
+
 #: src/components/import-choice.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
@@ -770,6 +782,14 @@ msgstr "Заметки"
 #: src/components/template-editor.tsx
 msgid "mobile.templates.remove-field {fieldNumber}"
 msgstr "Удалить поле {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.reorder-field {fieldNumber}"
+msgstr "Переместить поле {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.reorder-layout-row {rowNumber}"
+msgstr "Переместить строку раскладки {rowNumber}"
 
 #: src/components/template-editor.tsx
 msgid "mobile.templates.required"

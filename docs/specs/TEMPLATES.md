@@ -157,6 +157,11 @@ The mobile app lists its templates on a Templates tab, in the order they were ad
 - Each field row edits its title, its type, and its required flag, and the field can be removed.
   "Add a field" adds a field as §Fields says.
 - Each layout row shows its field's title and chooses its operation.
+- Fields and layout rows reorder as §Fields and §Layout say, locked or not.
+  A long press on a row's handle lifts the row, and a drag moves it within its own list; the other rows make room.
+  A drag that starts before the row lifts scrolls the screen instead.
+  A screen reader moves a row up or down from its handle instead of dragging.
+  With motion suppressed, the other rows take their new places without moving there.
 - While the template is locked, the editor disables and hides controls as §Editing Templates says.
 - Each rejected part shows its error under that part.
   A save the app refuses, such as removing a field from a template that has since become locked, shows its error
@@ -164,4 +169,4 @@ The mobile app lists its templates on a Templates tab, in the order they were ad
 - A change synced from another device shows in a part the user has not touched yet.
   The title, the notes, and the fields and layout together are each one part.
 - A template deleted on another device while its editor is open says it no longer exists.
-- It does not add, clone, or delete templates, or reorder fields or layout items.
+- It does not add, clone, or delete templates.

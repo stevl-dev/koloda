@@ -138,7 +138,7 @@ new `MobileQueries` entry keeps the shared query key.
   item 5 moves only `NumberInput`.
   `ChoiceGroup` gained a disabled state for a locked field's type.
 
-- [ ] 2. Reorder a template's fields and layout on mobile
+- [x] 2. Reorder a template's fields and layout on mobile
   Goal: on the template editor, a long press and drag moves a field row or a layout row within its own list,
   as `docs/specs/TEMPLATES.md` (§Fields, §Layout) says; field order and layout order stay independent,
   and both reorder while the template is locked.
@@ -160,6 +160,12 @@ new `MobileQueries` entry keeps the shared query key.
   Jest cannot run Reanimated's UI runtime (`apps/mobile/README.md`, §Findings), so the drag itself is a device check.
   Commit: Reorder template fields and layout on mobile
   Depends on: 1
+  Note: a row lifts from a handle at its side, not from anywhere on the row: a long press on a text field selects
+  its text.
+  No edge scrolling: a drag moves a row within what the screen shows, and a longer move takes two drags with a scroll
+  between them; templates have few fields, and the drag would need a frame loop to scroll while the finger rests.
+  The drag lives in `src/components/draggable-row.tsx`, which the editor's tests replace, and the index arithmetic in
+  `src/components/sortable-moves.ts`.
 
 - [ ] 3. Add and clone a template on mobile
   Goal: "New template" on the Templates tab adds a template, and Clone on the editor copies one, as

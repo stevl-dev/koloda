@@ -504,6 +504,18 @@ msgstr "Sync"
 msgid "mobile.settings.title"
 msgstr "Settings"
 
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.hint"
+msgstr "Press and hold, then drag to move. Screen reader actions move it up or down."
+
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.move-down"
+msgstr "Move down"
+
+#: src/components/sortable-list.tsx
+msgid "mobile.sortable.move-up"
+msgstr "Move up"
+
 #: src/components/import-choice.tsx
 #: src/components/join-space.tsx
 msgid "mobile.sync.back"
@@ -770,6 +782,14 @@ msgstr "Notes"
 #: src/components/template-editor.tsx
 msgid "mobile.templates.remove-field {fieldNumber}"
 msgstr "Remove field {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.reorder-field {fieldNumber}"
+msgstr "Reorder field {fieldNumber}"
+
+#: src/components/template-editor.tsx
+msgid "mobile.templates.reorder-layout-row {rowNumber}"
+msgstr "Reorder layout row {rowNumber}"
 
 #: src/components/template-editor.tsx
 msgid "mobile.templates.required"

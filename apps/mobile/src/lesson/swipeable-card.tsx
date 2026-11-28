@@ -33,7 +33,7 @@ export type SwipeableCardProps = {
 
 // WHY: the card's own drag follows the finger; the setting stops only the movement the app adds (INTERFACE-SETTINGS.md
 // §Motion).
-function useReduceMotion(): ReduceMotion {
+export function useReduceMotion(): ReduceMotion {
   const motion = useAtomValue(motionSettingAtom);
   if (motion === "on") return ReduceMotion.Never;
   if (motion === "off") return ReduceMotion.Always;

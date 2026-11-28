@@ -21,6 +21,7 @@ import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
 import { LabeledSwitch } from "./labeled-switch";
+import { SortableList } from "./sortable-list";
 
 // WHY: errors group by the part of the form they concern, so each shows under it; content errors split into fields
 // and layout, and "form" holds the ones the save itself returned.
@@ -151,60 +152,69 @@ function TemplateEditorForm({ template }: TemplateEditorFormProps) {
           <form.Field name="content.fields" mode="array">
             {(fieldsField) => (
               <>
-                {fieldsField.state.value.map((item, i) => {
-                  const fieldNumber = i + 1;
-                  return (
-                    <View key={item.id} style={[styles.row, { borderColor: colors.border }]}>
-                      <form.Field name={`content.fields[${i}].title`}>
-                        {(field) => (
-                          <TextInput
-                            accessibilityLabel={_(msg`mobile.templates.field-title ${fieldNumber}`)}
-                            placeholder={_(msg`mobile.templates.untitled-field`)}
-                            placeholderTextColor={colors.muted}
-                            value={field.state.value}
-                            onChangeText={field.handleChange}
-                            style={inputStyle}
+                <SortableList
+                  items={fieldsField.state.value}
+                  keyOf={(item) => item.id}
+                  handleLabel={(_item, i) => {
+                    const fieldNumber = i + 1;
+                    return _(msg`mobile.templates.reorder-field ${fieldNumber}`);
+                  }}
+                  onMove={(from, to) => fieldsField.moveValue(from, to)}
+                  renderItem={(item, i) => {
+                    const fieldNumber = i + 1;
+                    return (
+                      <View style={[styles.row, { borderColor: colors.border }]}>
+                        <form.Field name={`content.fields[${i}].title`}>
+                          {(field) => (
+                            <TextInput
+                              accessibilityLabel={_(msg`mobile.templates.field-title ${fieldNumber}`)}
+                              placeholder={_(msg`mobile.templates.untitled-field`)}
+                              placeholderTextColor={colors.muted}
+                              value={field.state.value}
+                              onChangeText={field.handleChange}
+                              style={inputStyle}
+                            />
+                          )}
+                        </form.Field>
+                        <form.Field name={`content.fields[${i}].type`}>
+                          {(field) => (
+                            <ChoiceGroup
+                              label={_(msg`mobile.templates.field-type ${fieldNumber}`)}
+                              choices={fieldTypes}
+                              value={field.state.value}
+                              isDisabled={isLocked}
+                              onChange={(type) => field.handleChange(type as TemplateFieldType)}
+                            />
+                          )}
+                        </form.Field>
+                        <form.Field name={`content.fields[${i}].isRequired`}>
+                          {(field) => (
+                            <LabeledSwitch
+                              text={_(msg`mobile.templates.required`)}
+                              accessibilityLabel={_(msg`mobile.templates.field-required ${fieldNumber}`)}
+                              value={field.state.value}
+                              isDisabled={isLocked}
+                              onChange={field.handleChange}
+                            />
+                          )}
+                        </form.Field>
+                        {!isLocked && fieldsField.state.value.length > 1 && (
+                          <ActionButton
+                            label={_(msg`mobile.templates.remove-field ${fieldNumber}`)}
+                            isDanger
+                            onPress={() => {
+                              fieldsField.removeValue(i);
+                              form.setFieldValue(
+                                "content.layout",
+                                form.state.values.content.layout.filter((layoutItem) => layoutItem.field !== item.id),
+                              );
+                            }}
                           />
                         )}
-                      </form.Field>
-                      <form.Field name={`content.fields[${i}].type`}>
-                        {(field) => (
-                          <ChoiceGroup
-                            label={_(msg`mobile.templates.field-type ${fieldNumber}`)}
-                            choices={fieldTypes}
-                            value={field.state.value}
-                            isDisabled={isLocked}
-                            onChange={(type) => field.handleChange(type as TemplateFieldType)}
-                          />
-                        )}
-                      </form.Field>
-                      <form.Field name={`content.fields[${i}].isRequired`}>
-                        {(field) => (
-                          <LabeledSwitch
-                            text={_(msg`mobile.templates.required`)}
-                            accessibilityLabel={_(msg`mobile.templates.field-required ${fieldNumber}`)}
-                            value={field.state.value}
-                            isDisabled={isLocked}
-                            onChange={field.handleChange}
-                          />
-                        )}
-                      </form.Field>
-                      {!isLocked && fieldsField.state.value.length > 1 && (
-                        <ActionButton
-                          label={_(msg`mobile.templates.remove-field ${fieldNumber}`)}
-                          isDanger
-                          onPress={() => {
-                            fieldsField.removeValue(i);
-                            form.setFieldValue(
-                              "content.layout",
-                              form.state.values.content.layout.filter((layoutItem) => layoutItem.field !== item.id),
-                            );
-                          }}
-                        />
-                      )}
-                    </View>
-                  );
-                })}
+                      </View>
+                    );
+                  }}
+                />
                 {!isLocked && (
                   <ActionButton
                     label={_(msg`mobile.templates.add-field`)}
@@ -225,27 +235,37 @@ function TemplateEditorForm({ template }: TemplateEditorFormProps) {
           <form.Subscribe selector={(state) => state.values.content.fields}>
             {(fields) => (
               <form.Field name="content.layout" mode="array">
-                {(layoutField) =>
-                  layoutField.state.value.map((item, i) => {
-                    const rowNumber = i + 1;
-                    const fieldTitle =
-                      fields.find((field) => field.id === item.field)?.title || _(msg`mobile.templates.untitled-field`);
-                    return (
-                      <View key={item.field} style={[styles.row, { borderColor: colors.border }]}>
-                        <form.Field name={`content.layout[${i}].operation`}>
-                          {(field) => (
-                            <ChoiceGroup
-                              label={_(msg`mobile.templates.layout-row ${rowNumber} ${fieldTitle}`)}
-                              choices={operations}
-                              value={field.state.value}
-                              onChange={(operation) => field.handleChange(operation as TemplateOperation)}
-                            />
-                          )}
-                        </form.Field>
-                      </View>
-                    );
-                  })
-                }
+                {(layoutField) => (
+                  <SortableList
+                    items={layoutField.state.value}
+                    keyOf={(item) => item.field}
+                    handleLabel={(_item, i) => {
+                      const rowNumber = i + 1;
+                      return _(msg`mobile.templates.reorder-layout-row ${rowNumber}`);
+                    }}
+                    onMove={(from, to) => layoutField.moveValue(from, to)}
+                    renderItem={(item, i) => {
+                      const rowNumber = i + 1;
+                      const fieldTitle =
+                        fields.find((field) => field.id === item.field)?.title ||
+                        _(msg`mobile.templates.untitled-field`);
+                      return (
+                        <View style={[styles.row, { borderColor: colors.border }]}>
+                          <form.Field name={`content.layout[${i}].operation`}>
+                            {(field) => (
+                              <ChoiceGroup
+                                label={_(msg`mobile.templates.layout-row ${rowNumber} ${fieldTitle}`)}
+                                choices={operations}
+                                value={field.state.value}
+                                onChange={(operation) => field.handleChange(operation as TemplateOperation)}
+                              />
+                            )}
+                          </form.Field>
+                        </View>
+                      );
+                    }}
+                  />
+                )}
               </form.Field>
             )}
           </form.Subscribe>

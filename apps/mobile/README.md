@@ -199,6 +199,12 @@ Run on each platform after a change to the app.
   On a template cards use, type and required are disabled and adding and removing fields are hidden.
   With the form untouched, a rename made on desktop shows in it once the phone syncs.
   The keyboard covers neither the field being edited nor Save.
+- [ ] On a template's editor, press and hold a field's handle, then drag it below the next field: the other fields make
+  room, and the field stays where it is dropped; the layout keeps its order. A layout row drags the same way.
+  A quick drag on a handle scrolls the screen and lifts nothing, and the screen does not scroll while a row is lifted.
+  Both work on a template cards use. With TalkBack, a handle's actions move its row up and down.
+  With Motion Off, the rows making room jump instead of sliding. Save keeps both orders, and desktop shows them after
+  a sync.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.
