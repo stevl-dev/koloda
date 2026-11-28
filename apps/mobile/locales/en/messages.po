@@ -29,6 +29,19 @@ msgstr "No cards in this deck yet."
 msgid "mobile.cards.error"
 msgstr "The cards could not load."
 
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.no-match"
+msgstr "No cards match."
+
+#: src/components/deck-cards.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.search"
+msgstr "Search cards"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.state-filter"
+msgstr "State"
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Today's progress could not load."

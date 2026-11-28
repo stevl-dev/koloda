@@ -946,7 +946,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       {
         "heading": "Mobile App",
         "depth": 2,
-        "markdown": "## Mobile App\n\nThe mobile app browses and changes the cards of the decks it already has.\n\n- A deck's title on the Lessons tab opens that deck's cards.\n  The all-decks row opens none.\n- Each card in the list shows its first two fields on one line each, as §Table View shows a field.\n  A card image shows as an image symbol.\n- Each card also shows its state, and its due time once it has been graded.\n- A deck with no cards says so.\n  Pulling the list down refreshes it.\n- It has no table view, stack view, sorting, column choices, or preview.\n"
+        "markdown": "## Mobile App\n\nThe mobile app browses and changes the cards of the decks it already has.\n\n- A deck's title on the Lessons tab opens that deck's cards.\n  The all-decks row opens none.\n- Each card in the list shows its first two fields on one line each, as §Table View shows a field.\n  A card image shows as an image symbol.\n- Each card also shows its state, and its due time once it has been graded.\n- A deck with no cards says so.\n  Pulling the list down refreshes it.\n- A search finds cards by the text their fields show, as §Table View says, ignoring case.\n- A state filter shows the cards in any chosen state.\n  With no state chosen, it shows every card.\n- The list applies the search and the filter together, and says so when no card matches.\n  Both last while the deck stays open.\n- It has no table view, stack view, sorting, column choices, preview, or due and template filters.\n"
       }
     ]
   },

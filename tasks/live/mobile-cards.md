@@ -113,8 +113,10 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   empty deck; a Rust test reads a deck's cards and a template through the façade.
   Commit: Open a deck's cards on mobile
   Depends on: 1
+  Note: the state labels moved into `@koloda/srs-react/cards` too (`CARD_STATES`), so both apps read one list.
+  A card image in the list shows as 🖼️, since a native text view draws the table's image mark as a box.
 
-- [ ] 3. Search and filter a deck's cards on mobile
+- [x] 3. Search and filter a deck's cards on mobile
   Goal: the deck screen finds cards by their text and by their state.
   A search field above the list matches the text of every field, through `cardFieldText`, ignoring case,
   as desktop's table search does.

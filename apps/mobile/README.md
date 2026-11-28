@@ -150,6 +150,9 @@ Run on each platform after a change to the app.
   Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
   a graded card shows its due time.
   A deck with no cards says so, and pulling the list down shows a card added on desktop.
+- [ ] In a deck's cards, searching for a markdown card's words finds it in any case, and its marks find nothing.
+  Choosing Review and Learning shows only those cards; with a search too, a card must match both.
+  The keyboard covers neither the search nor the first card.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.

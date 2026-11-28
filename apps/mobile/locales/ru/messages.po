@@ -29,6 +29,19 @@ msgstr "В этой колоде пока нет карточек."
 msgid "mobile.cards.error"
 msgstr "Не удалось загрузить карточки."
 
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.no-match"
+msgstr "Подходящих карточек нет."
+
+#: src/components/deck-cards.tsx
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.search"
+msgstr "Поиск карточек"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.state-filter"
+msgstr "Состояние"
+
 #: src/components/lessons-list.tsx
 msgid "mobile.learned-today.error"
 msgstr "Не удалось загрузить прогресс за сегодня."

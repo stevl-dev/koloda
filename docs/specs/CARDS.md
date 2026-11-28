@@ -236,4 +236,9 @@ The mobile app browses and changes the cards of the decks it already has.
 - Each card also shows its state, and its due time once it has been graded.
 - A deck with no cards says so.
   Pulling the list down refreshes it.
-- It has no table view, stack view, sorting, column choices, or preview.
+- A search finds cards by the text their fields show, as §Table View says, ignoring case.
+- A state filter shows the cards in any chosen state.
+  With no state chosen, it shows every card.
+- The list applies the search and the filter together, and says so when no card matches.
+  Both last while the deck stays open.
+- It has no table view, stack view, sorting, column choices, preview, or due and template filters.
