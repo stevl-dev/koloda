@@ -6,6 +6,7 @@ import type {
   Card,
   Deck,
   DeleteCardData,
+  DeleteCardsData,
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
@@ -36,6 +37,7 @@ export type MobileQueries = Pick<
   | "addCardMutation"
   | "updateCardMutation"
   | "deleteCardMutation"
+  | "deleteCardsMutation"
   | "resetCardProgressMutation"
   | "getLessonsQuery"
   | "getLessonDataQuery"
@@ -72,6 +74,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     deleteCardMutation: () => ({
       mutationFn: (data: DeleteCardData) => call(() => facade.deleteCard(wireArgs(data))),
+    }),
+    deleteCardsMutation: () => ({
+      mutationFn: (data: DeleteCardsData) => call(() => facade.deleteCards(wireArgs(data))),
     }),
     resetCardProgressMutation: () => ({
       mutationFn: (data: ResetCardProgressData) => read<Card>(() => facade.resetCardProgress(wireArgs(data))),

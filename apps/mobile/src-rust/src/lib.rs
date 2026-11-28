@@ -7,7 +7,9 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
-use koloda::domain::cards::{DeleteCardData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData};
+use koloda::domain::cards::{
+    DeleteCardData, DeleteCardsData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData,
+};
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
@@ -377,6 +379,14 @@ impl KolodaMobile {
         self.run_write(move |db| {
             let data: DeleteCardData = from_wire(&data)?;
             Ok(repo::cards::delete_card(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn delete_cards(&self, data: String) -> Result<(), MobileError> {
+        self.run_write(move |db| {
+            let data: DeleteCardsData = from_wire(&data)?;
+            Ok(repo::cards::delete_cards(db, data)?)
         })
         .await
     }

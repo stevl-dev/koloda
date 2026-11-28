@@ -125,6 +125,26 @@ msgid "mobile.cards.added {addedCount}"
 msgstr "Cards added: {addedCount}"
 
 #: src/components/deck-cards.tsx
+msgid "mobile.cards.delete"
+msgstr "Delete"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.cancel"
+msgstr "Cancel"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.confirm"
+msgstr "Delete cards"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.message"
+msgstr "The cards and their reviews are deleted on every device. This cannot be undone."
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.title {count}"
+msgstr "Delete the selected cards ({count})?"
+
+#: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "Due {dueAt}"
 
@@ -146,6 +166,14 @@ msgstr "No cards match."
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.search"
 msgstr "Search cards"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.selected {selectedCount}"
+msgstr "Selected: {selectedCount}"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.selection-cancel"
+msgstr "Cancel"
 
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.state-filter"

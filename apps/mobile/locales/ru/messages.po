@@ -125,6 +125,26 @@ msgid "mobile.cards.added {addedCount}"
 msgstr "Добавлено карточек: {addedCount}"
 
 #: src/components/deck-cards.tsx
+msgid "mobile.cards.delete"
+msgstr "Удалить"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.cancel"
+msgstr "Отмена"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.confirm"
+msgstr "Удалить карточки"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.message"
+msgstr "Карточки и их повторения удалятся на всех устройствах. Это нельзя отменить."
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.delete.title {count}"
+msgstr "Удалить выбранные карточки ({count})?"
+
+#: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "К повторению {dueAt}"
 
@@ -146,6 +166,14 @@ msgstr "Подходящих карточек нет."
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.search"
 msgstr "Поиск карточек"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.selected {selectedCount}"
+msgstr "Выбрано: {selectedCount}"
+
+#: src/components/deck-cards.tsx
+msgid "mobile.cards.selection-cancel"
+msgstr "Отмена"
 
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.state-filter"

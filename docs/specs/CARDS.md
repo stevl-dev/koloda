@@ -257,4 +257,10 @@ The mobile app browses and changes the cards of the decks it already has.
 - The card view deletes the card as §Deleting Cards says, asking first, and then returns to the deck's cards.
 - On a graded card, the card view resets progress as §Resetting Progress says.
 - A failed delete or reset shows its error on the card view.
+- A long press on a card in the list starts selecting it.
+  While selecting, a tap selects or clears a card instead of opening it, and back ends the selection.
+- The selection's count and its delete follow §Table View: they cover only the selected cards that match the search
+  and the filter.
+  With none of them selected, the delete is not available.
+  The delete asks first, and a failed one shows its error above the list.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

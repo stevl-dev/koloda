@@ -169,6 +169,10 @@ Run on each platform after a change to the app.
   reset.
   Delete asks first; Cancel keeps the card, and "Delete card" returns to the list without it.
   Desktop loses the card after it syncs.
+- [ ] In a deck's cards, a long press selects a card and shows the count with Delete and Cancel; taps then select and
+  clear cards.
+  Back, the back gesture, and the header's back control end the selection and stay on the deck.
+  With two selected, a search that hides one counts 1, and Delete asks, then deletes only the shown one.
 - [ ] Under Findings: the cold start to the Lessons tab in a release build, and a feel verdict for the phone.
 - [ ] On Android, under Findings: the swipe frame rate in the performance monitor.
 - [ ] After a fresh install, Settings → Sync shows the engine's status (not in a space), not an error.
@@ -214,7 +218,7 @@ Code copied from another app instead of shared:
 
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - The card, template, and review calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading a deck's
-  cards, a template, and a card's reviews, and adding, editing, resetting, and deleting a card.
+  cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

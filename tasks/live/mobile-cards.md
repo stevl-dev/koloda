@@ -200,7 +200,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Commit: Delete a card and reset its progress on mobile
   Depends on: 4
 
-- [ ] 8. Delete several cards at once on mobile
+- [x] 8. Delete several cards at once on mobile
   Goal: the deck screen selects cards and deletes them together.
   A long press on a card starts selecting; taps then toggle cards, and the header shows the count with Delete and
   Cancel.
@@ -215,6 +215,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   deletes several cards through the façade.
   Commit: Delete several cards at once on mobile
   Depends on: 3, 7
+  Note: the deck route holds the selection, since its back guard (`usePreventRemove`) needs the navigator's screen.
 
 - [ ] 9. Check the lesson route's type before opening a lesson
   Goal: a `koloda://lesson` link with an unknown `type` opens no lesson.

@@ -511,3 +511,23 @@ async fn resetting_progress_makes_a_graded_card_untouched_and_removes_its_review
     assert_eq!(reset["content"][FRONT]["text"], "uno", "the content stays");
     assert!(card_reviews(&mobile, &id).await.is_empty());
 }
+
+#[tokio::test]
+async fn deleting_several_cards_removes_only_those() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let deck_id = add_deck_with_cards(&other_connection(&path), &["uno", "dos", "tres"]);
+    let cards = deck_cards(&mobile, &deck_id).await;
+    let ids: Vec<&Value> = cards.iter().map(|card| &card["id"]).collect();
+
+    mobile
+        .delete_cards(json!({ "ids": [ids[0], ids[2]] }).to_string())
+        .await
+        .expect("delete");
+
+    let left = deck_cards(&mobile, &deck_id).await;
+    assert_eq!(left.len(), 1);
+    assert_eq!(&left[0]["id"], ids[1]);
+}

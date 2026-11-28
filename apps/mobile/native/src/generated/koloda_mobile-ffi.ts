@@ -189,6 +189,10 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_delete_cards(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_cards(
     uniffiSelf: bigint,
     params: Uint8Array,
@@ -297,6 +301,7 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_card(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_card(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_cards(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_cards(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_db_status(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_decks(): number;
