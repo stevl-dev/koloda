@@ -4,11 +4,13 @@ import { useAppColors } from "../colors";
 export type ActionButtonProps = {
   label: string;
   isDisabled?: boolean;
+  isDanger?: boolean;
   onPress: () => void;
 };
 
-export function ActionButton({ label, isDisabled = false, onPress }: ActionButtonProps) {
+export function ActionButton({ label, isDisabled = false, isDanger = false, onPress }: ActionButtonProps) {
   const colors = useAppColors();
+  const color = isDisabled ? colors.muted : isDanger ? colors.danger : colors.text;
 
   return (
     <Pressable
@@ -18,7 +20,7 @@ export function ActionButton({ label, isDisabled = false, onPress }: ActionButto
       onPress={onPress}
       style={[styles.action, { borderColor: colors.border, backgroundColor: colors.surface }]}
     >
-      <Text style={{ color: isDisabled ? colors.muted : colors.text }}>{label}</Text>
+      <Text style={{ color }}>{label}</Text>
     </Pressable>
   );
 }

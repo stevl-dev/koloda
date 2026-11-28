@@ -186,7 +186,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   `getInsertCardSchema` applies; the deck and template ids come from the deck, and `koloda` checks the whole insert.
   The deck screen's "Add a card" waits for the deck's template, and `DeckCards` now takes the deck, not its id.
 
-- [ ] 7. Delete a card and reset its progress on mobile
+- [x] 7. Delete a card and reset its progress on mobile
   Goal: the card view deletes the card, and resets a graded card's progress.
   Delete asks first, in a native dialog; once deleted, the screen returns to the deck's list.
   Reset shows only on a graded card and does not ask, as `docs/specs/CARDS.md` (§Resetting Progress) says.

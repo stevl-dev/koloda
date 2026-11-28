@@ -217,6 +217,10 @@ export interface KolodaMobileLike {
     cacheDir: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string | undefined>;
+  deleteCard(
+    data: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ) /*throws*/ : Promise<void>;
   getCards(
     params: string,
     asyncOpts_?: { signal: AbortSignal },
@@ -249,6 +253,10 @@ export interface KolodaMobileLike {
     signal: AbortSignal;
   }) /*throws*/ : Promise<string>;
   patchSettings(
+    data: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ) /*throws*/ : Promise<string>;
+  resetCardProgress(
     data: string,
     asyncOpts_?: { signal: AbortSignal },
   ) /*throws*/ : Promise<string>;
@@ -423,6 +431,43 @@ export class KolodaMobile
             nativeModule().rustbuffer_free(__rb);
           }
         },
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
+          FfiConverterTypeMobileError,
+        ),
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
+  async deleteCard(
+    data: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ): Promise<void> /*throws*/ {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_delete_card(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+            FfiConverterString.lower(data, nativeModule().rustbuffer_alloc),
+          );
+        },
+        /*pollFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_poll_void,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_void,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_void,
+        /*freeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_free_void,
+        /*liftFunc:*/ (_v) => {},
         /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
         /*asyncOpts:*/ asyncOpts_,
         /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
@@ -882,6 +927,55 @@ export class KolodaMobile
         /*rustCaller:*/ uniffiCaller,
         /*rustFutureFunc:*/ () => {
           return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_patch_settings(
+            uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
+            FfiConverterString.lower(data, nativeModule().rustbuffer_alloc),
+          );
+        },
+        /*pollFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_poll_rust_buffer,
+        /*cancelFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_cancel_rust_buffer,
+        /*completeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_complete_rust_buffer,
+        /*freeFunc:*/ nativeModule()
+          .ubrn_ffi_koloda_mobile_rust_future_free_rust_buffer,
+        // Async returns always go through the JS-side converter: the
+        // completed future's value is deserialized here by the
+        // per-callable return-type converter.
+        // Borrowed view over foreign memory: the call site owns the free,
+        // as on the sync paths. Unconditional — a no-op where buffers are
+        // already JS-owned.
+        /*liftFunc:*/ (__rb) => {
+          try {
+            return FfiConverterString.lift(__rb);
+          } finally {
+            nativeModule().rustbuffer_free(__rb);
+          }
+        },
+        /*liftString:*/ FfiConverterString.lift.bind(FfiConverterString),
+        /*asyncOpts:*/ asyncOpts_,
+        /*errorHandler:*/ FfiConverterTypeMobileError.lift.bind(
+          FfiConverterTypeMobileError,
+        ),
+      );
+    } catch (__error: any) {
+      if (uniffiIsDebug && __error instanceof Error) {
+        __error.stack = __stack;
+      }
+      throw __error;
+    }
+  }
+
+  async resetCardProgress(
+    data: string,
+    asyncOpts_?: { signal: AbortSignal },
+  ): Promise<string> /*throws*/ {
+    const __stack = uniffiIsDebug ? new Error().stack : undefined;
+    try {
+      return await uniffiRustCallAsync(
+        /*rustCaller:*/ uniffiCaller,
+        /*rustFutureFunc:*/ () => {
+          return nativeModule().ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_reset_card_progress(
             uniffiTypeKolodaMobileObjectFactory.clonePointer(this),
             FfiConverterString.lower(data, nativeModule().rustbuffer_alloc),
           );
@@ -1802,6 +1896,14 @@ function uniffiEnsureInitialized() {
     );
   }
   if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_card() !==
+    27663
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_delete_card",
+    );
+  }
+  if (
     nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_cards() !==
     45275
   ) {
@@ -1879,6 +1981,14 @@ function uniffiEnsureInitialized() {
   ) {
     throw new UniffiInternalError.ApiChecksumMismatch(
       "uniffi_koloda_mobile_checksum_method_kolodamobile_patch_settings",
+    );
+  }
+  if (
+    nativeModule().ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_reset_card_progress() !==
+    16738
+  ) {
+    throw new UniffiInternalError.ApiChecksumMismatch(
+      "uniffi_koloda_mobile_checksum_method_kolodamobile_reset_card_progress",
     );
   }
   if (

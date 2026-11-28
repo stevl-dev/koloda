@@ -5,6 +5,7 @@ import type {
   Attachment,
   Card,
   Deck,
+  DeleteCardData,
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
@@ -13,6 +14,7 @@ import type {
   LessonFilters,
   LessonResultData,
   LessonsResult,
+  ResetCardProgressData,
   Review,
   Template,
   TodaysReviewTotals,
@@ -33,6 +35,8 @@ export type MobileQueries = Pick<
   | "getReviewsQuery"
   | "addCardMutation"
   | "updateCardMutation"
+  | "deleteCardMutation"
+  | "resetCardProgressMutation"
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
@@ -65,6 +69,12 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     updateCardMutation: () => ({
       mutationFn: (data: UpdateCardData) => read<Card>(() => facade.updateCard(wireArgs(data))),
+    }),
+    deleteCardMutation: () => ({
+      mutationFn: (data: DeleteCardData) => call(() => facade.deleteCard(wireArgs(data))),
+    }),
+    resetCardProgressMutation: () => ({
+      mutationFn: (data: ResetCardProgressData) => read<Card>(() => facade.resetCardProgress(wireArgs(data))),
     }),
     getReviewsQuery: (params: GetReviewsData) => ({
       queryKey: queryKeys.reviews.card(params),

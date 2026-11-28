@@ -444,3 +444,70 @@ async fn a_card_added_on_the_phone_joins_its_deck_and_a_blank_required_field_is_
     assert_eq!(cards.len(), 1, "only the valid card was added");
     assert_eq!(cards[0]["id"], added["id"]);
 }
+
+// Reads a card's reviews through the façade.
+async fn card_reviews(mobile: &KolodaMobile, card_id: &str) -> Vec<Value> {
+    let json = mobile
+        .get_reviews(json!({ "cardId": card_id }).to_string())
+        .await
+        .expect("reviews");
+    serde_json::from_str::<Value>(&json)
+        .expect("reviews json")
+        .as_array()
+        .expect("reviews array")
+        .clone()
+}
+
+#[tokio::test]
+async fn deleting_a_card_removes_it_and_its_reviews_and_keeps_the_rest() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let db = other_connection(&path);
+    let deck_id = add_deck_with_cards(&db, &["uno", "dos"]);
+    let cards = deck_cards(&mobile, &deck_id).await;
+    let (deleted, kept) = (cards[0]["id"].as_str().unwrap(), cards[1]["id"].as_str().unwrap());
+    grade(&db, deleted, 3, 1_800_000_000_000);
+
+    mobile
+        .delete_card(json!({ "id": deleted }).to_string())
+        .await
+        .expect("delete");
+
+    let left = deck_cards(&mobile, &deck_id).await;
+    assert_eq!(left.len(), 1);
+    assert_eq!(left[0]["id"], kept);
+    assert!(
+        card_reviews(&mobile, deleted).await.is_empty(),
+        "the deleted card's reviews go with it"
+    );
+}
+
+#[tokio::test]
+async fn resetting_progress_makes_a_graded_card_untouched_and_removes_its_reviews() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let db = other_connection(&path);
+    let deck_id = add_deck_with_cards(&db, &["uno"]);
+    let id = deck_cards(&mobile, &deck_id).await[0]["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    grade(&db, &id, 3, 1_800_000_000_000);
+
+    let reset: Value = serde_json::from_str(
+        &mobile
+            .reset_card_progress(json!({ "id": id }).to_string())
+            .await
+            .expect("reset"),
+    )
+    .expect("card json");
+
+    assert_eq!(reset["state"], 0);
+    assert!(reset["dueAt"].is_null(), "an untouched card has no due time");
+    assert_eq!(reset["content"][FRONT]["text"], "uno", "the content stays");
+    assert!(card_reviews(&mobile, &id).await.is_empty());
+}

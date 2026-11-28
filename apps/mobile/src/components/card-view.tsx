@@ -1,4 +1,5 @@
-import { useNumberFormatter, useTimestampFormatter } from "@koloda/core-react";
+import { formatAppError } from "@koloda/app";
+import { useNumberFormatter, useTimestampFormatter, useWriteMutation } from "@koloda/core-react";
 import { FSRS_GRADES } from "@koloda/srs";
 import type { Card, Deck } from "@koloda/srs";
 import { CARD_STATES } from "@koloda/srs-react/cards";
@@ -6,7 +7,7 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
@@ -16,12 +17,15 @@ export type CardViewProps = {
   deckId: Deck["id"];
   cardId: Card["id"];
   onEdit: () => void;
+  onDeleted: () => void;
 };
 
-export function CardView({ deckId, cardId, onEdit }: CardViewProps) {
+export function CardView({ deckId, cardId, onEdit, onDeleted }: CardViewProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const { getCardsQuery } = useMobileQueries();
+  const { getCardsQuery, deleteCardMutation, resetCardProgressMutation } = useMobileQueries();
+  const deletion = useWriteMutation(deleteCardMutation(), ["cards", "reviews"]);
+  const reset = useWriteMutation(resetCardProgressMutation(), ["cards", "reviews"]);
   // WHY: a card has no detail entry; the view reads it from its deck's list, which every card write refreshes.
   const cards = useQuery(getCardsQuery({ deckId }));
   const card = cards.data?.find((candidate) => candidate.id === cardId);
@@ -33,12 +37,47 @@ export function CardView({ deckId, cardId, onEdit }: CardViewProps) {
   // WHY: another device can delete the card while it is open; the list then refreshes without it.
   if (!card) return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.card.missing`)}</Text>;
 
+  const confirmDelete = () =>
+    Alert.alert(
+      _(msg`mobile.card.delete.title`),
+      _(msg`mobile.card.delete.message`),
+      [
+        { text: _(msg`mobile.card.delete.cancel`), style: "cancel" },
+        {
+          text: _(msg`mobile.card.delete.confirm`),
+          style: "destructive",
+          onPress: () => deletion.mutate({ id: card.id }, { onSuccess: onDeleted }),
+        },
+      ],
+      { cancelable: true },
+    );
+  const error = deletion.error ?? reset.error;
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <CardContent card={card} />
       <View style={styles.actions}>
         <ActionButton label={_(msg`mobile.card.edit`)} onPress={onEdit} />
+        {/* INVARIANT: only a graded card resets, and it does not ask first (CARDS.md §Resetting Progress). */}
+        {card.state > 0 && (
+          <ActionButton
+            label={_(msg`mobile.card.reset`)}
+            isDisabled={reset.isPending}
+            onPress={() => reset.mutate({ id: card.id })}
+          />
+        )}
+        <ActionButton
+          label={_(msg`mobile.card.delete`)}
+          isDanger
+          isDisabled={deletion.isPending}
+          onPress={confirmDelete}
+        />
       </View>
+      {error && (
+        <Text accessibilityRole="alert" style={{ color: colors.danger }}>
+          {formatAppError(error, _).message}
+        </Text>
+      )}
       <CardDetails card={card} />
     </ScrollView>
   );

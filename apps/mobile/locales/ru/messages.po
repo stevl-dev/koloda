@@ -22,6 +22,26 @@ msgid "mobile.card.created-at"
 msgstr "Создана"
 
 #: src/components/card-view.tsx
+msgid "mobile.card.delete"
+msgstr "Удалить"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.cancel"
+msgstr "Отмена"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.confirm"
+msgstr "Удалить карточку"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.message"
+msgstr "Карточка и её повторения удалятся на всех устройствах. Это нельзя отменить."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.title"
+msgstr "Удалить эту карточку?"
+
+#: src/components/card-view.tsx
 msgid "mobile.card.difficulty"
 msgstr "Сложность"
 
@@ -53,6 +73,10 @@ msgstr "Этой карточки больше нет."
 #: src/components/card-view.tsx
 msgid "mobile.card.no-template"
 msgstr "Шаблон карточки не найден, поэтому её содержимое не показать."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reset"
+msgstr "Сбросить прогресс"
 
 #: src/components/card-view.tsx
 msgid "mobile.card.reviews"

@@ -254,4 +254,7 @@ The mobile app browses and changes the cards of the decks it already has.
   After each add, the form clears, stays open, and says how many cards it has added.
   Going back discards the draft without asking.
 - A deck whose template is missing offers no add, and says why.
+- The card view deletes the card as §Deleting Cards says, asking first, and then returns to the deck's cards.
+- On a graded card, the card view resets progress as §Resetting Progress says.
+- A failed delete or reset shows its error on the card view.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

@@ -7,7 +7,7 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
-use koloda::domain::cards::{GetCardsParams, InsertCardData, UpdateCardData};
+use koloda::domain::cards::{DeleteCardData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData};
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
@@ -369,6 +369,22 @@ impl KolodaMobile {
         self.run_write(move |db| {
             let data: UpdateCardData = from_wire(&data)?;
             to_wire(&repo::cards::update_card(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn delete_card(&self, data: String) -> Result<(), MobileError> {
+        self.run_write(move |db| {
+            let data: DeleteCardData = from_wire(&data)?;
+            Ok(repo::cards::delete_card(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn reset_card_progress(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let data: ResetCardProgressData = from_wire(&data)?;
+            to_wire(&repo::cards::reset_card_progress(db, data)?)
         })
         .await
     }

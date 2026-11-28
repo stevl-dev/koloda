@@ -15,6 +15,7 @@ export default function CardRoute() {
         deckId={id}
         cardId={cardId}
         onEdit={() => router.push({ pathname: "/deck/[id]/card/[cardId]/edit", params: { id, cardId } })}
+        onDeleted={() => router.back()}
       />
     </>
   );

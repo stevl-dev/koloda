@@ -6,6 +6,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
   return {
     addCard: unexpected,
     attachmentFile: unexpected,
+    deleteCard: unexpected,
     getCards: unexpected,
     getDbStatus: unexpected,
     getDecks: unexpected,
@@ -16,6 +17,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getTemplate: unexpected,
     getTodaysReviewTotals: unexpected,
     patchSettings: unexpected,
+    resetCardProgress: unexpected,
     seedDb: unexpected,
     setSettings: unexpected,
     submitLessonResult: unexpected,

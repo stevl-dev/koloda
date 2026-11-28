@@ -22,6 +22,26 @@ msgid "mobile.card.created-at"
 msgstr "Created"
 
 #: src/components/card-view.tsx
+msgid "mobile.card.delete"
+msgstr "Delete"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.cancel"
+msgstr "Cancel"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.confirm"
+msgstr "Delete card"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.message"
+msgstr "The card and its reviews are deleted on every device. This cannot be undone."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.delete.title"
+msgstr "Delete this card?"
+
+#: src/components/card-view.tsx
 msgid "mobile.card.difficulty"
 msgstr "Difficulty"
 
@@ -53,6 +73,10 @@ msgstr "This card no longer exists."
 #: src/components/card-view.tsx
 msgid "mobile.card.no-template"
 msgstr "The card's template is missing, so its content cannot show."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reset"
+msgstr "Reset progress"
 
 #: src/components/card-view.tsx
 msgid "mobile.card.reviews"
