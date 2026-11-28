@@ -10,13 +10,15 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CardMarkdown } from "../cards/card-markdown";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
+import { ActionButton } from "./action-button";
 
 export type CardViewProps = {
   deckId: Deck["id"];
   cardId: Card["id"];
+  onEdit: () => void;
 };
 
-export function CardView({ deckId, cardId }: CardViewProps) {
+export function CardView({ deckId, cardId, onEdit }: CardViewProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getCardsQuery } = useMobileQueries();
@@ -34,6 +36,9 @@ export function CardView({ deckId, cardId }: CardViewProps) {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <CardContent card={card} />
+      <View style={styles.actions}>
+        <ActionButton label={_(msg`mobile.card.edit`)} onPress={onEdit} />
+      </View>
       <CardDetails card={card} />
     </ScrollView>
   );
@@ -139,4 +144,5 @@ const styles = StyleSheet.create({
   text: { fontSize: 16, lineHeight: 24 },
   review: { flexDirection: "row", justifyContent: "space-between", gap: 12 },
   grade: { fontWeight: "600" },
+  actions: { flexDirection: "row", gap: 12 },
 });

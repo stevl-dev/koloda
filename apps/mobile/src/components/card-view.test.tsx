@@ -17,7 +17,7 @@ function review(id: string, rating: number, createdAt: string) {
 
 describe("CardView", () => {
   it("shows an untouched card's fields, a markdown one rendered, with its state and no scheduling", async () => {
-    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c1" />, {
+    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c1" onEdit={jest.fn()} />, {
       getCards: returning([card("c1", "**Paris**", "*France*")]),
       getTemplate: returning(template()),
     });
@@ -36,7 +36,7 @@ describe("CardView", () => {
       review("r1", 1, "2026-01-03T09:00:00.000Z"),
       review("r2", 3, "2026-01-04T09:00:00.000Z"),
     ]);
-    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c2" />, {
+    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c2" onEdit={jest.fn()} />, {
       getCards: returning([GRADED]),
       getTemplate: returning(template()),
       getReviews,
@@ -53,7 +53,9 @@ describe("CardView", () => {
   });
 
   it("says so when the card is gone from its deck", async () => {
-    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c9" />, { getCards: returning([GRADED]) });
+    await renderWithQueries(<CardView deckId={DECK_ID} cardId="c9" onEdit={jest.fn()} />, {
+      getCards: returning([GRADED]),
+    });
 
     expect(await screen.findByText("This card no longer exists.")).toBeTruthy();
   });

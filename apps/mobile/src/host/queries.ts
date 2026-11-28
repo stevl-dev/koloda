@@ -15,6 +15,7 @@ import type {
   Review,
   Template,
   TodaysReviewTotals,
+  UpdateCardData,
 } from "@koloda/srs";
 import type { QueryKey, QueryOptions } from "@tanstack/react-query";
 import type { KolodaFacade } from "./facade";
@@ -29,6 +30,7 @@ export type MobileQueries = Pick<
   | "getCardsQuery"
   | "getTemplateQuery"
   | "getReviewsQuery"
+  | "updateCardMutation"
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
@@ -55,6 +57,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getTemplateQuery: (id: Template["id"]) => ({
       queryKey: queryKeys.templates.detail(id),
       queryFn: () => read<Template | null>(() => facade.getTemplate(id)),
+    }),
+    updateCardMutation: () => ({
+      mutationFn: (data: UpdateCardData) => read<Card>(() => facade.updateCard(wireArgs(data))),
     }),
     getReviewsQuery: (params: GetReviewsData) => ({
       queryKey: queryKeys.reviews.card(params),

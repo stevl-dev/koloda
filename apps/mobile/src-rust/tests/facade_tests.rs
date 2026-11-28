@@ -390,3 +390,31 @@ async fn a_card_reads_only_its_own_reviews() {
         .collect();
     assert_eq!(ratings, [1, 3], "the card's two reviews, and not the other card's");
 }
+
+#[tokio::test]
+async fn a_card_edit_changes_its_content_and_a_blank_required_field_is_refused() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let deck_id = add_deck_with_cards(&other_connection(&path), &["uno"]);
+    let id = deck_cards(&mobile, &deck_id).await[0]["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    let edit = |front: &str| {
+        json!({ "id": id, "values": { "content": { FRONT: { "text": front }, BACK: { "text": "one" } } } }).to_string()
+    };
+    let saved: Value = serde_json::from_str(&mobile.update_card(edit("un")).await.expect("update")).expect("card json");
+    assert_eq!(saved["content"][FRONT]["text"], "un");
+    assert!(!saved["updatedAt"].is_null(), "an edit stamps the update time");
+
+    let MobileError::App { code, .. } = mobile.update_card(edit("")).await.expect_err("blank front");
+    assert_eq!(code, "validation.cards.content.field-empty");
+    assert_eq!(
+        deck_cards(&mobile, &deck_id).await[0]["content"][FRONT]["text"],
+        "un",
+        "a refused edit keeps the card"
+    );
+}

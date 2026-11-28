@@ -246,4 +246,8 @@ The mobile app browses and changes the cards of the decks it already has.
 - The card view shows the state, the creation time, and the update time once the content has been edited.
   A graded card also shows its due time, the scheduling numbers §Scheduling Data names, and its review history.
 - A card deleted on another device while its view is open says it no longer exists.
+- Edit on the card view opens a form with a text field for each field of the card's template.
+  It saves as §Editing Cards says, and then returns to the card view.
+  A rejected field shows its error under that field; going back discards the draft without asking.
+- A change synced from another device shows in a form the user has not touched yet.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

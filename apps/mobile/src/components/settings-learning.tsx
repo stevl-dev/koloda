@@ -9,9 +9,10 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
+import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
 
 // WHY: errors group by the first segment of their path, so each shows under the section it names; "form" holds the
@@ -316,28 +317,6 @@ function DayStartInput({ value, onChange }: DayStartInputProps) {
   );
 }
 
-type ActionButtonProps = {
-  label: string;
-  isDisabled: boolean;
-  onPress: () => void;
-};
-
-function ActionButton({ label, isDisabled, onPress }: ActionButtonProps) {
-  const colors = useAppColors();
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled: isDisabled }}
-      disabled={isDisabled}
-      onPress={onPress}
-      style={[styles.action, { borderColor: colors.border, backgroundColor: colors.surface }]}
-    >
-      <Text style={{ color: isDisabled ? colors.muted : colors.text }}>{label}</Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { padding: 16, gap: 24 },
@@ -349,6 +328,4 @@ const styles = StyleSheet.create({
   switchRow: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, flexShrink: 1 },
   switchLabel: { flexShrink: 1 },
   actions: { flexDirection: "row", gap: 12, padding: 16 },
-  // WHY: each action stays tall enough to tap.
-  action: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderWidth: 1, borderRadius: 10 },
 });

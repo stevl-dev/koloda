@@ -30,10 +30,23 @@ msgid "mobile.card.due-at"
 msgstr "К повторению"
 
 #: src/components/card-view.tsx
+msgid "mobile.card.edit"
+msgstr "Изменить"
+
+#: src/components/edit-card.tsx
+msgid "mobile.card.edit-no-template"
+msgstr "Шаблон карточки не найден, поэтому её содержимое нельзя изменить."
+
+#: src/app/deck/[id]/card/[cardId]/edit.tsx
+msgid "mobile.card.edit-title"
+msgstr "Изменение карточки"
+
+#: src/components/card-view.tsx
 msgid "mobile.card.lapses"
 msgstr "Забывания"
 
 #: src/components/card-view.tsx
+#: src/components/edit-card.tsx
 msgid "mobile.card.missing"
 msgstr "Этой карточки больше нет."
 
@@ -49,6 +62,10 @@ msgstr "Повторения"
 msgid "mobile.card.reviews-error"
 msgstr "Не удалось загрузить повторения."
 
+#: src/components/edit-card.tsx
+msgid "mobile.card.save"
+msgstr "Сохранить"
+
 #: src/components/card-view.tsx
 msgid "mobile.card.stability"
 msgstr "Стабильность"
@@ -57,7 +74,7 @@ msgstr "Стабильность"
 msgid "mobile.card.state"
 msgstr "Состояние"
 
-#: src/app/deck/[id]/card/[cardId].tsx
+#: src/app/deck/[id]/card/[cardId]/index.tsx
 msgid "mobile.card.title"
 msgstr "Карточка"
 
@@ -75,6 +92,7 @@ msgstr "В этой колоде пока нет карточек."
 
 #: src/components/card-view.tsx
 #: src/components/deck-cards.tsx
+#: src/components/edit-card.tsx
 msgid "mobile.cards.error"
 msgstr "Не удалось загрузить карточки."
 

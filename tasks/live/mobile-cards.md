@@ -148,7 +148,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Depends on: 2
   Note: the deck route moved to `src/app/deck/[id]/index.tsx`, so the card route can sit under it.
 
-- [ ] 5. Edit a card on mobile
+- [x] 5. Edit a card on mobile
   Goal: the card view's Edit opens a form that changes the card's content.
   Each field of the card's template is a multiline text input, plain text for markdown too.
   Save validates with `getUpdateCardSchema` from `@koloda/srs` and shows each error under its field;
@@ -166,6 +166,8 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   untouched field; a Rust test updates a card through the façade.
   Commit: Edit a card on mobile
   Depends on: 4
+  Note: the card route moved to `src/app/deck/[id]/card/[cardId]/index.tsx`, beside `edit.tsx`.
+  `ActionButton` moved out of `settings-learning.tsx` into `src/components/action-button.tsx` for the card screens.
 
 - [ ] 6. Add a card on mobile
   Goal: the deck screen's Add opens a form that adds a card with the deck's current template.

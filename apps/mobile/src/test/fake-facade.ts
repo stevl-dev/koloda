@@ -31,6 +31,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     syncStart: unexpected,
     syncStatus: unexpected,
     syncTick: unexpected,
+    updateCard: unexpected,
     ...overrides,
   };
 }
