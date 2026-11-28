@@ -355,6 +355,103 @@ msgstr "Open sync settings"
 msgid "mobile.lessons.start {label} {count}"
 msgstr "{label} {count}"
 
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.created-at"
+msgstr "Created"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.discard"
+msgstr "Discard"
+
+#: src/components/preset-editor.tsx
+#: src/components/presets-list.tsx
+msgid "mobile.presets.error"
+msgstr "The presets could not load."
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.fuzz"
+msgstr "Apply fuzz factor"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.add"
+msgstr "Add a learning step"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.amount {stepNumber}"
+msgstr "Learning step {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.remove {stepNumber}"
+msgstr "Remove learning step {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.unit {stepNumber}"
+msgstr "Learning step {stepNumber} unit"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-steps"
+msgstr "Learning steps"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.maximum-interval"
+msgstr "Maximum interval, days"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.missing"
+msgstr "This preset no longer exists."
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.notes"
+msgstr "Notes"
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.preset-title"
+msgstr "Title"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.add"
+msgstr "Add a relearning step"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.amount {stepNumber}"
+msgstr "Relearning step {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.remove {stepNumber}"
+msgstr "Remove relearning step {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.unit {stepNumber}"
+msgstr "Relearning step {stepNumber} unit"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-steps"
+msgstr "Relearning steps"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.retention"
+msgstr "Retention, %"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.save"
+msgstr "Save"
+
+#: src/app/(tabs)/presets/_layout.tsx
+msgid "mobile.presets.title"
+msgstr "Presets"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.updated-at"
+msgstr "Updated"
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.weights"
+msgstr "Weights"
+
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx
 msgid "mobile.settings.interface"
@@ -716,6 +813,10 @@ msgstr "Decks"
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"
 msgstr "Lessons"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.presets"
+msgstr "Presets"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.settings"

@@ -210,7 +210,7 @@ new `MobileQueries` entry keeps the shared query key.
   Commit: Delete a template on mobile
   Depends on: 1
 
-- [ ] 5. Edit a preset on mobile
+- [x] 5. Edit a preset on mobile
   Goal: a Presets tab lists the algorithms, and each opens an editor that saves its title, notes, and parameters,
   as `docs/specs/ALGORITHMS.md` (§Parameters, §Editing Algorithms) says.
   Add `src/app/(tabs)/presets/` and its trigger between Decks and Templates; the list reads `getAlgorithmsQuery`,

@@ -20,14 +20,12 @@ import { useLingui } from "@lingui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { AlgorithmLearningSteps } from "./algorithm-learning-steps";
+import { ALGORITHM_SYNC_GROUPS } from "./algorithm-rules";
 import { CloneAlgorithm } from "./clone-algorithm";
 import { DeleteAlgorithm } from "./delete-algorithm";
 import { OptimizeAlgorithm } from "./optimize-algorithm";
 
 type AlgorithmProps = { id: AlgorithmType["id"] };
-
-// INVARIANT: one path per edited algorithm sync group (crates/koloda/tests/cases/editor-sync-groups.json).
-export const ALGORITHM_SYNC_GROUPS = ["title", "notes", "content"] as const;
 
 export function Algorithm({ id }: AlgorithmProps) {
   const queryClient = useQueryClient();

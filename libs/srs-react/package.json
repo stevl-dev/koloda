@@ -9,6 +9,11 @@
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./algorithms": {
+      "types": "./src/algorithms.ts",
+      "import": "./src/algorithms.ts",
+      "default": "./src/algorithms.ts"
+    },
     "./cards": {
       "types": "./src/cards.ts",
       "import": "./src/cards.ts",

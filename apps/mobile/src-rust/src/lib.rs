@@ -7,6 +7,7 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
+use koloda::domain::algorithms::UpdateAlgorithmData;
 use koloda::domain::cards::{
     DeleteCardData, DeleteCardsData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData,
 };
@@ -385,6 +386,19 @@ impl KolodaMobile {
 
     pub async fn get_algorithms(&self) -> Result<String, MobileError> {
         self.run(|db| to_wire(&repo::algorithms::get_algorithms(db)?)).await
+    }
+
+    pub async fn get_algorithm(&self, id: String) -> Result<String, MobileError> {
+        self.run(move |db| to_wire(&repo::algorithms::get_algorithm(db, &id)?))
+            .await
+    }
+
+    pub async fn update_algorithm(&self, data: String) -> Result<String, MobileError> {
+        self.run_write(move |db| {
+            let data: UpdateAlgorithmData = from_wire(&data)?;
+            to_wire(&repo::algorithms::update_algorithm(db, data)?)
+        })
+        .await
     }
 
     pub async fn get_templates(&self) -> Result<String, MobileError> {

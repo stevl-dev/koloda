@@ -21,6 +21,9 @@ export default function TabsLayout() {
       <NativeTabs.Trigger name="decks">
         <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.decks`)}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="presets">
+        <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.presets`)}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="templates">
         <NativeTabs.Trigger.Label>{_(msg`mobile.tabs.templates`)}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

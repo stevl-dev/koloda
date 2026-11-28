@@ -204,3 +204,23 @@ A save that changes nothing records nothing.
 A rejected save records nothing.
 
 History survives deleting its algorithm.
+
+## Mobile App
+
+The mobile app lists its algorithms on a Presets tab, in the order they were added.
+
+- Tapping a preset opens its editor, titled with the preset.
+  Pulling the list down refreshes it.
+- The editor edits the preset as §Editing Algorithms says, with Save and Discard below the form.
+  It shows the timestamps, the title, the notes, and every parameter §Parameters lists.
+- Retention is typed as a whole number rather than chosen on a slider.
+  It and the maximum interval stay at or above zero as they are typed, and retention stays at or below 99.
+  A number outside its range is rejected on save, as §Parameters says.
+- Steps are added and removed as §Parameters says.
+- Each rejected part shows its error under that part.
+  A save the app refuses shows its error above Save, and the preset stays as it was.
+- A change synced from another device shows in a part the user has not touched yet.
+  The title, the notes, and the parameters together are each one part.
+- A preset deleted on another device while its editor is open says it no longer exists.
+- It has no optimization, and shows nothing in its place.
+- It does not add, clone, or delete presets.

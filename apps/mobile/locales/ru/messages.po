@@ -355,6 +355,103 @@ msgstr "Открыть настройки синхронизации"
 msgid "mobile.lessons.start {label} {count}"
 msgstr "{label} {count}"
 
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.created-at"
+msgstr "Создан"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.discard"
+msgstr "Сбросить"
+
+#: src/components/preset-editor.tsx
+#: src/components/presets-list.tsx
+msgid "mobile.presets.error"
+msgstr "Не удалось загрузить алгоритмы."
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.fuzz"
+msgstr "Добавить случайный разброс"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.add"
+msgstr "Добавить интервал заучивания"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.amount {stepNumber}"
+msgstr "Интервал заучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.remove {stepNumber}"
+msgstr "Удалить интервал заучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-step.unit {stepNumber}"
+msgstr "Единица интервала заучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.learning-steps"
+msgstr "Интервалы заучивания"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.maximum-interval"
+msgstr "Максимальный интервал, дни"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.missing"
+msgstr "Этого алгоритма больше нет."
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.notes"
+msgstr "Заметки"
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.preset-title"
+msgstr "Название"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.add"
+msgstr "Добавить интервал переучивания"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.amount {stepNumber}"
+msgstr "Интервал переучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.remove {stepNumber}"
+msgstr "Удалить интервал переучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-step.unit {stepNumber}"
+msgstr "Единица интервала переучивания {stepNumber}"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.relearning-steps"
+msgstr "Интервалы переучивания"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.retention"
+msgstr "Удержание, %"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.save"
+msgstr "Сохранить"
+
+#: src/app/(tabs)/presets/_layout.tsx
+msgid "mobile.presets.title"
+msgstr "Алгоритмы"
+
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.updated-at"
+msgstr "Изменён"
+
+#: src/components/preset-editor.tsx
+#: src/components/preset-editor.tsx
+msgid "mobile.presets.weights"
+msgstr "Веса"
+
 #: src/app/(tabs)/settings/_layout.tsx
 #: src/components/settings-list.tsx
 msgid "mobile.settings.interface"
@@ -716,6 +813,10 @@ msgstr "Колоды"
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.lessons"
 msgstr "Уроки"
+
+#: src/app/(tabs)/_layout.tsx
+msgid "mobile.tabs.presets"
+msgstr "Алгоритмы"
 
 #: src/app/(tabs)/_layout.tsx
 msgid "mobile.tabs.settings"

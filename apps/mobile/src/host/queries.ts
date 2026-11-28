@@ -26,6 +26,7 @@ import type {
   Review,
   Template,
   TodaysReviewTotals,
+  UpdateAlgorithmData,
   UpdateCardData,
   UpdateDeckData,
   UpdateTemplateData,
@@ -44,6 +45,8 @@ export type MobileQueries = Pick<
   | "updateDeckMutation"
   | "deleteDeckMutation"
   | "getAlgorithmsQuery"
+  | "getAlgorithmQuery"
+  | "updateAlgorithmMutation"
   | "getTemplatesQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
@@ -91,6 +94,13 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getAlgorithmsQuery: () => ({
       queryKey: queryKeys.algorithms.all(),
       queryFn: () => read<Algorithm[]>(() => facade.getAlgorithms()),
+    }),
+    getAlgorithmQuery: (id: Algorithm["id"]) => ({
+      queryKey: queryKeys.algorithms.detail(id),
+      queryFn: () => read<Algorithm | null>(() => facade.getAlgorithm(id)),
+    }),
+    updateAlgorithmMutation: () => ({
+      mutationFn: (data: UpdateAlgorithmData) => read<Algorithm>(() => facade.updateAlgorithm(wireArgs(data))),
     }),
     getTemplatesQuery: () => ({
       queryKey: queryKeys.templates.all(),

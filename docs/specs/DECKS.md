@@ -128,5 +128,5 @@ The mobile app lists its decks on a Decks tab, in the order §Listing and Naviga
   A failed delete shows its error on the details, and the deck stays.
 - A library with no decks says so.
   Pulling the list down refreshes it.
-- Templates are edited on the Templates tab, as TEMPLATES.md (§Mobile App) says.
-  It does not edit algorithms.
+- Algorithms are edited on the Presets tab, as ALGORITHMS.md (§Mobile App) says.
+  Templates are edited on the Templates tab, as TEMPLATES.md (§Mobile App) says.

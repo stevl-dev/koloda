@@ -821,3 +821,52 @@ async fn a_template_no_deck_or_card_uses_is_deleted_and_one_a_deck_uses_is_refus
         .collect();
     assert_eq!(ids, [json!(SEED_TEMPLATE_TYPE_ID), json!(used)]);
 }
+
+#[tokio::test]
+async fn an_algorithm_edit_saves_its_parameters_and_an_invalid_retention_keeps_the_saved_ones() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let read = |json: String| -> Value { serde_json::from_str(&json).expect("algorithm json") };
+    let mut content = read(
+        mobile
+            .get_algorithm(SEED_ALGORITHM_SIMPLE_ID.to_string())
+            .await
+            .expect("algorithm"),
+    )["content"]
+        .clone();
+    content["retention"] = json!(85);
+    content["isFuzzEnabled"] = json!(false);
+    content["learningSteps"] = json!([[30, "s"], [5, "m"]]);
+    content["relearningSteps"] = json!([]);
+    content["maximumInterval"] = json!(365);
+    let edit = |content: &Value| {
+        json!({ "id": SEED_ALGORITHM_SIMPLE_ID, "values": { "title": "Cramming", "notes": "Short", "content": content } })
+            .to_string()
+    };
+
+    let saved = read(mobile.update_algorithm(edit(&content)).await.expect("update"));
+    assert_eq!(saved["title"], "Cramming");
+    assert_eq!(saved["notes"], "Short");
+    assert_eq!(saved["content"]["retention"], 85.0);
+    assert_eq!(saved["content"]["isFuzzEnabled"], false);
+    assert_eq!(saved["content"]["learningSteps"], content["learningSteps"]);
+    assert_eq!(saved["content"]["relearningSteps"], json!([]));
+    assert_eq!(saved["content"]["maximumInterval"], 365);
+
+    let mut invalid = content.clone();
+    invalid["retention"] = json!(100);
+    let MobileError::App { code, .. } = mobile.update_algorithm(edit(&invalid)).await.expect_err("retention");
+    assert_eq!(code, "validation.algorithm.fsrs.retention");
+    let kept = read(
+        mobile
+            .get_algorithm(SEED_ALGORITHM_SIMPLE_ID.to_string())
+            .await
+            .expect("algorithm"),
+    );
+    assert_eq!(
+        kept["content"]["retention"], 85.0,
+        "a refused edit keeps the parameters"
+    );
+}

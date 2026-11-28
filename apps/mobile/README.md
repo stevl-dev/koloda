@@ -93,7 +93,7 @@ A library moves to a new phone by joining its sync space.
 Run on each platform after a change to the app.
 
 - [ ] The app boots to the Lessons tab.
-- [ ] The Lessons, Decks, Templates, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
+- [ ] The Lessons, Decks, Presets, Templates, and Settings tabs each open, and Settings → Sync opens and returns to Settings.
 - [ ] In a lesson, a revealed card shows four grades, each with an interval.
 - [ ] A fresh install opens on the Lessons tab, which says there are no decks yet and points to the Decks tab and sync:
   the starter content has none.
@@ -191,6 +191,14 @@ Run on each platform after a change to the app.
   clear cards.
   Back, the back gesture, and the header's back control end the selection and stay on the deck.
   With two selected, a search that hides one counts 1, and Delete asks, then deletes only the shown one.
+- [ ] The Presets tab lists the presets oldest first; tapping one opens its editor, titled with the preset.
+  Change the title, the notes, retention, fuzz, the weights, a learning step's amount and unit, and the maximum
+  interval, and save: desktop shows the changes after a sync, and a lesson on a deck that uses it grades with them.
+  "Add a learning step" copies the last step, and on an empty list adds the default first step; a step's remove
+  removes it.
+  Weights that are not 34 numbers show an error under them and save nothing; Discard restores the saved values.
+  With the form untouched, a rename made on desktop shows in it once the phone syncs.
+  The keyboard covers neither the field being edited nor Save, and there is no optimization.
 - [ ] The Templates tab lists the templates oldest first; tapping one opens its editor, titled with the template.
   Change the title, the notes, a field's title, type, and required flag, and a layout operation, and save:
   the header shows the new title, and desktop shows the changes after a sync.
@@ -262,6 +270,8 @@ Code copied from another app instead of shared:
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
+- The algorithm calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading and editing an
+  algorithm.
 - The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, editing,
   and deleting a template, and listing the decks that use one.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its

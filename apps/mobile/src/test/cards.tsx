@@ -111,3 +111,31 @@ export function learningSettings(defaults: { algorithm: string; template: string
     },
   };
 }
+
+export const WEIGHTS =
+  "0.1104, 2.2395, 3.9221, 11.7841, 6.1686, 0.6457, 3.6807, 1.9795, 0, 1.3826, 0.7024, 0.5999, 0.8146, 0.6398, 1, " +
+  "1.3207, 0.6707, 3.8668, 0.4416, 0.0934, 1.8631, 0.6162, 1.0869, 0.1567, 0.0801, 0.2421, 0.9464, 0.1433, 0.7145, 0, " +
+  "0.5667, 0.3734, 0.5333, 0.3048";
+
+// An algorithm in the shape the façade returns, before the wire revives its timestamps.
+export function algorithm(overrides: Record<string, unknown> = {}) {
+  return {
+    id: DECK.algorithmId,
+    title: "FSRS",
+    content: {
+      type: "fsrs",
+      retention: 90,
+      weights: WEIGHTS,
+      isFuzzEnabled: true,
+      learningSteps: [
+        [1, "m"],
+        [10, "m"],
+      ],
+      relearningSteps: [[10, "m"]],
+      maximumInterval: 36500,
+    },
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: null,
+    ...overrides,
+  };
+}
