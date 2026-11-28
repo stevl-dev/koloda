@@ -198,6 +198,26 @@ msgstr "The presets could not load."
 msgid "mobile.decks.deck-title"
 msgstr "Title"
 
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete"
+msgstr "Delete deck"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.cancel"
+msgstr "Cancel"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.confirm"
+msgstr "Delete"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.message {cardCount}"
+msgstr "{cardCount, plural, =0 {The deck is deleted on every device. This cannot be undone.} one {The deck, its # card, and the card's reviews are deleted on every device. This cannot be undone.} other {The deck, its # cards, and their reviews are deleted on every device. This cannot be undone.}}"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.title"
+msgstr "Delete this deck?"
+
 #: src/app/deck/[id]/details.tsx
 #: src/app/deck/[id]/index.tsx
 msgid "mobile.decks.details"

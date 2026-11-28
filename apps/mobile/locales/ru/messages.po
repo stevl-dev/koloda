@@ -198,6 +198,26 @@ msgstr "Не удалось загрузить алгоритмы."
 msgid "mobile.decks.deck-title"
 msgstr "Название"
 
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete"
+msgstr "Удалить колоду"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.cancel"
+msgstr "Отмена"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.confirm"
+msgstr "Удалить"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.message {cardCount}"
+msgstr "{cardCount, plural, =0 {Колода удалится на всех устройствах. Это нельзя отменить.} one {Колода, её # карточка и её повторения удалятся на всех устройствах. Это нельзя отменить.} few {Колода, её # карточки и их повторения удалятся на всех устройствах. Это нельзя отменить.} many {Колода, её # карточек и их повторения удалятся на всех устройствах. Это нельзя отменить.} other {Колода, её # карточки и их повторения удалятся на всех устройствах. Это нельзя отменить.}}"
+
+#: src/components/deck-details.tsx
+msgid "mobile.decks.delete.title"
+msgstr "Удалить эту колоду?"
+
 #: src/app/deck/[id]/details.tsx
 #: src/app/deck/[id]/index.tsx
 msgid "mobile.decks.details"

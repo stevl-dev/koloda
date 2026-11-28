@@ -8,6 +8,7 @@ import type {
   Deck,
   DeleteCardData,
   DeleteCardsData,
+  DeleteDeckData,
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
@@ -36,6 +37,7 @@ export type MobileQueries = Pick<
   | "getDecksQuery"
   | "addDeckMutation"
   | "updateDeckMutation"
+  | "deleteDeckMutation"
   | "getAlgorithmsQuery"
   | "getTemplatesQuery"
   | "getCardsQuery"
@@ -70,6 +72,9 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     updateDeckMutation: () => ({
       mutationFn: (data: UpdateDeckData) => read<Deck>(() => facade.updateDeck(wireArgs(data))),
+    }),
+    deleteDeckMutation: () => ({
+      mutationFn: (data: DeleteDeckData) => call(() => facade.deleteDeck(wireArgs(data))),
     }),
     getAlgorithmsQuery: () => ({
       queryKey: queryKeys.algorithms.all(),

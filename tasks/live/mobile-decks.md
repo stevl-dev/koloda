@@ -151,7 +151,7 @@ An item that changes user-visible mobile behavior updates the spec it names and 
   Depends on: 2
   Note: the deck's card screen opens Details from a header button, the app's first.
 
-- [ ] 4. Delete a deck on mobile
+- [x] 4. Delete a deck on mobile
   Goal: the deck's details delete the deck, as `docs/specs/DECKS.md` (§Deleting Decks) says.
   Delete asks first, in a native dialog that states how many cards the deck holds, or asks only about the deck when
   it has none.

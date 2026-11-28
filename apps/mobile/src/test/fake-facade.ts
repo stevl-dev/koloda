@@ -9,6 +9,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     attachmentFile: unexpected,
     deleteCard: unexpected,
     deleteCards: unexpected,
+    deleteDeck: unexpected,
     getCards: unexpected,
     getAlgorithms: unexpected,
     getDbStatus: unexpected,

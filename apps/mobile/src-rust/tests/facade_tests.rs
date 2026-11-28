@@ -603,3 +603,38 @@ async fn a_deck_edit_changes_its_title_and_notes_and_a_blank_title_keeps_the_dec
     let decks: Value = serde_json::from_str(&mobile.get_decks().await.expect("decks")).expect("decks json");
     assert_eq!(decks[0]["title"], "Italian", "a refused edit keeps the deck");
 }
+
+#[tokio::test]
+async fn deleting_a_deck_removes_its_cards_and_their_reviews_and_keeps_the_other_decks() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let db = other_connection(&path);
+    let deleted = add_deck_with_cards(&db, &["uno", "dos"]);
+    let kept = add_deck_with_cards(&db, &["one"]);
+    let graded = deck_cards(&mobile, &deleted).await[0]["id"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    grade(&db, &graded, 3, 1_800_000_000_000);
+
+    mobile
+        .delete_deck(json!({ "id": deleted }).to_string())
+        .await
+        .expect("delete");
+
+    let decks: Value = serde_json::from_str(&mobile.get_decks().await.expect("decks")).expect("decks json");
+    assert_eq!(decks.as_array().expect("decks array").len(), 1);
+    assert_eq!(decks[0]["id"], kept);
+    assert!(
+        deck_cards(&mobile, &deleted).await.is_empty(),
+        "the deck's cards go with it"
+    );
+    assert!(card_reviews(&mobile, &graded).await.is_empty(), "and their reviews");
+    assert_eq!(
+        deck_cards(&mobile, &kept).await.len(),
+        1,
+        "the other deck keeps its card"
+    );
+}

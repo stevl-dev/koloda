@@ -10,7 +10,7 @@ use koloda::app::secrets::SecretStore;
 use koloda::domain::cards::{
     DeleteCardData, DeleteCardsData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData,
 };
-use koloda::domain::decks::{InsertDeckData, UpdateDeckData};
+use koloda::domain::decks::{DeleteDeckData, InsertDeckData, UpdateDeckData};
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
@@ -364,6 +364,14 @@ impl KolodaMobile {
         self.run_write(move |db| {
             let data: UpdateDeckData = from_wire(&data)?;
             to_wire(&repo::decks::update_deck(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn delete_deck(&self, data: String) -> Result<(), MobileError> {
+        self.run_write(move |db| {
+            let data: DeleteDeckData = from_wire(&data)?;
+            Ok(repo::decks::delete_deck(db, data)?)
         })
         .await
     }

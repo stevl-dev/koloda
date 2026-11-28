@@ -123,6 +123,9 @@ The mobile app lists its decks on a Decks tab, in the order §Listing and Naviga
   Each rejected field shows its error under that field.
 - A change synced from another device shows in a field the user has not touched yet.
 - A deck deleted on another device while its details are open says it no longer exists.
+- Details deletes the deck as §Deleting Decks says, in a dialog that counts the deck's cards.
+  Once deleted, the app returns to the Decks tab.
+  A failed delete shows its error on the details, and the deck stays.
 - A library with no decks says so.
   Pulling the list down refreshes it.
 - It does not edit algorithms or templates.

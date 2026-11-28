@@ -1,12 +1,13 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { KeyboardAvoidingView, StyleSheet } from "react-native";
 import { DeckDetails } from "../../../components/deck-details";
 
 export default function DeckDetailsRoute() {
   const { _ } = useLingui();
+  const router = useRouter();
   const headerHeight = useHeaderHeight();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -14,7 +15,7 @@ export default function DeckDetailsRoute() {
     // WHY: Android draws edge to edge, so the window does not resize for the keyboard; the screen pads itself.
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={headerHeight} style={styles.screen}>
       <Stack.Screen options={{ title: _(msg`mobile.decks.details`) }} />
-      <DeckDetails deckId={id} />
+      <DeckDetails deckId={id} onDeleted={() => router.dismissTo("/decks")} />
     </KeyboardAvoidingView>
   );
 }

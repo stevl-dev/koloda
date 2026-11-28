@@ -159,6 +159,10 @@ Run on each platform after a change to the app.
   A blank title shows an error under it and saves nothing; Discard restores the saved values.
   With the form untouched, a rename made on desktop shows in it once the phone syncs.
   The keyboard covers neither the notes nor Save.
+- [ ] On a deck's Details, Delete deck asks first and counts the deck's cards; a deck with none asks only about the
+  deck.
+  Cancel keeps the deck; Delete returns to the Decks tab without it, and the Lessons tab no longer lists it.
+  Desktop loses the deck, its cards, and their reviews after it syncs.
   Each card shows its first two fields, a markdown field without its marks and an image as 🖼️, and its state;
   a graded card shows its due time.
   A deck with no cards says so, and pulling the list down shows a card added on desktop.
@@ -231,8 +235,8 @@ Code copied from another app instead of shared:
 - The database worker and the payload helpers in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`.
 - The card, template, and review calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading a deck's
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
-- The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding and
-  editing a deck, and listing the algorithms and the templates.
+- The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
+  editing, and deleting a deck, and listing the algorithms and the templates.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

@@ -10,7 +10,7 @@ import { useLingui } from "@lingui/react";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
@@ -22,9 +22,10 @@ type ErrorsByField = Partial<Record<keyof UpdateDeckValues | "form", string[]>>;
 
 export type DeckDetailsProps = {
   deckId: Deck["id"];
+  onDeleted: () => void;
 };
 
-export function DeckDetails({ deckId }: DeckDetailsProps) {
+export function DeckDetails({ deckId, onDeleted }: DeckDetailsProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getDecksQuery } = useMobileQueries();
@@ -35,18 +36,22 @@ export function DeckDetails({ deckId }: DeckDetailsProps) {
   if (decks.error) return <Text style={[styles.message, { color: colors.danger }]}>{_(msg`mobile.decks.error`)}</Text>;
   if (!decks.data) return null;
   if (!deck) return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.decks.missing`)}</Text>;
-  return <DeckDetailsForm deck={deck} />;
+  return <DeckDetailsForm deck={deck} onDeleted={onDeleted} />;
 }
 
 type DeckDetailsFormProps = {
   deck: Deck;
+  onDeleted: () => void;
 };
 
-function DeckDetailsForm({ deck }: DeckDetailsFormProps) {
+function DeckDetailsForm({ deck, onDeleted }: DeckDetailsFormProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
-  const { updateDeckMutation } = useMobileQueries();
+  const { updateDeckMutation, deleteDeckMutation, getCardsQuery } = useMobileQueries();
   const { mutateAsync } = useWriteMutation(updateDeckMutation(), ["decks"]);
+  // WHY: deleting the deck deletes its cards and their reviews.
+  const deletion = useWriteMutation(deleteDeckMutation(), ["decks", "cards", "reviews"]);
+  const cards = useQuery(getCardsQuery({ deckId: deck.id }));
   const [errors, setErrors] = useState<ErrorsByField>({});
   const messageOf = (code: string) => formatAppError(new AppError(code as ErrorCode), _).message;
   const values = useMemo<UpdateDeckValues>(
@@ -92,6 +97,20 @@ function DeckDetailsForm({ deck }: DeckDetailsFormProps) {
         {message}
       </Text>
     ));
+  const confirmDelete = (cardCount: number) =>
+    Alert.alert(
+      _(msg`mobile.decks.delete.title`),
+      _(msg`mobile.decks.delete.message ${cardCount}`),
+      [
+        { text: _(msg`mobile.decks.delete.cancel`), style: "cancel" },
+        {
+          text: _(msg`mobile.decks.delete.confirm`),
+          style: "destructive",
+          onPress: () => deletion.mutate({ id: deck.id }, { onSuccess: onDeleted }),
+        },
+      ],
+      { cancelable: true },
+    );
   const inputStyle = [
     styles.input,
     { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface },
@@ -140,6 +159,20 @@ function DeckDetailsForm({ deck }: DeckDetailsFormProps) {
             {(field) => <TemplateChoice value={field.state.value} onChange={field.handleChange} />}
           </form.Field>
           {errorText("templateId")}
+        </View>
+        <View style={styles.field}>
+          {/* WHY: the dialog counts the deck's cards, so it waits for them. */}
+          <ActionButton
+            label={_(msg`mobile.decks.delete`)}
+            isDanger
+            isDisabled={deletion.isPending || !cards.data}
+            onPress={() => confirmDelete(cards.data?.length ?? 0)}
+          />
+          {deletion.error && (
+            <Text accessibilityRole="alert" style={{ color: colors.danger }}>
+              {formatAppError(deletion.error, _).message}
+            </Text>
+          )}
         </View>
       </ScrollView>
       <View style={styles.footer}>
