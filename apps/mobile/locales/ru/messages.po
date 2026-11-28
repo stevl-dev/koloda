@@ -743,6 +743,38 @@ msgstr "Клонировать шаблон"
 msgid "mobile.templates.created-at"
 msgstr "Создан"
 
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete"
+msgstr "Удалить шаблон"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.cancel"
+msgstr "Отмена"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.confirm"
+msgstr "Удалить"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.default"
+msgstr "Шаблон по умолчанию для новых колод нельзя удалить."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.locked"
+msgstr "Шаблон используют карточки, поэтому его нельзя удалить."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.message"
+msgstr "Шаблон удаляется на всех устройствах. Это нельзя отменить."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.title"
+msgstr "Удалить этот шаблон?"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.used"
+msgstr "Шаблон используется колодой, поэтому его нельзя удалить."
+
 #: src/components/template-editor.tsx
 msgid "mobile.templates.discard"
 msgstr "Сбросить"

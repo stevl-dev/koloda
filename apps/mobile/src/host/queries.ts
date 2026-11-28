@@ -7,9 +7,11 @@ import type {
   Card,
   CloneTemplateData,
   Deck,
+  DeckWithOnlyTitle,
   DeleteCardData,
   DeleteCardsData,
   DeleteDeckData,
+  DeleteTemplateData,
   GetCardsParams,
   GetLessonDataParams,
   GetReviewsData,
@@ -48,6 +50,8 @@ export type MobileQueries = Pick<
   | "updateTemplateMutation"
   | "addTemplateMutation"
   | "cloneTemplateMutation"
+  | "deleteTemplateMutation"
+  | "getTemplateDecksQuery"
   | "getReviewsQuery"
   | "addCardMutation"
   | "updateCardMutation"
@@ -108,6 +112,13 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     cloneTemplateMutation: () => ({
       mutationFn: (data: CloneTemplateData) => read<Template>(() => facade.cloneTemplate(wireArgs(data))),
+    }),
+    deleteTemplateMutation: () => ({
+      mutationFn: (data: DeleteTemplateData) => call(() => facade.deleteTemplate(wireArgs(data))),
+    }),
+    getTemplateDecksQuery: (id: Template["id"]) => ({
+      queryKey: queryKeys.templates.decks(id),
+      queryFn: () => read<DeckWithOnlyTitle[]>(() => facade.getTemplateDecks(id)),
     }),
     addCardMutation: () => ({
       mutationFn: (data: InsertCardData) => read<Card>(() => facade.addCard(wireArgs(data))),

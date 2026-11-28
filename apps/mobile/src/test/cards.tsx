@@ -93,3 +93,21 @@ export async function renderWithQueries(element: ReactElement, overrides: Partia
   );
   return { client };
 }
+
+// The learning settings row the façade returns, with the given defaults.
+export function learningSettings(defaults: { algorithm: string; template: string }) {
+  return {
+    name: "learning",
+    content: {
+      defaults,
+      dailyLimits: {
+        total: 100,
+        untouched: { value: 20, counts: true },
+        learn: { value: null, counts: false },
+        review: { value: 80, counts: true },
+      },
+      dayStartsAt: "04:00",
+      learnAheadLimit: [0, 30],
+    },
+  };
+}

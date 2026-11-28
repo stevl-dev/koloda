@@ -193,7 +193,7 @@ new `MobileQueries` entry keeps the shared query key.
   The clone's unlocked state, copied content, and missing notes are `koloda`'s, so the façade test checks them;
   the component test checks what the phone sends and opens.
 
-- [ ] 4. Delete a template on mobile
+- [x] 4. Delete a template on mobile
   Goal: the template editor deletes the template, as `docs/specs/TEMPLATES.md` (§Deleting Templates) says.
   Delete asks first, in a native dialog; once deleted, the app returns to the Templates tab.
   Delete is unavailable while the template is locked, is the learning settings' default template, or is used by a

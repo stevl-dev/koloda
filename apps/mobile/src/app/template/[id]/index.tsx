@@ -20,6 +20,7 @@ export default function TemplateRoute() {
       <TemplateEditor
         templateId={id}
         onClone={() => router.push({ pathname: "/template/[id]/clone", params: { id } })}
+        onDeleted={() => router.dismissTo("/templates")}
       />
     </KeyboardAvoidingView>
   );

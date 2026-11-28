@@ -20,6 +20,7 @@ import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
+import { DeleteTemplate } from "./delete-template";
 import { LabeledSwitch } from "./labeled-switch";
 import { SortableList } from "./sortable-list";
 
@@ -30,9 +31,10 @@ type ErrorsByPart = Partial<Record<"title" | "notes" | "fields" | "layout" | "fo
 export type TemplateEditorProps = {
   templateId: Template["id"];
   onClone: () => void;
+  onDeleted: () => void;
 };
 
-export function TemplateEditor({ templateId, onClone }: TemplateEditorProps) {
+export function TemplateEditor({ templateId, onClone, onDeleted }: TemplateEditorProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getTemplateQuery } = useMobileQueries();
@@ -42,15 +44,16 @@ export function TemplateEditor({ templateId, onClone }: TemplateEditorProps) {
   if (data === undefined) return null;
   if (data === null)
     return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.templates.missing`)}</Text>;
-  return <TemplateEditorForm template={data} onClone={onClone} />;
+  return <TemplateEditorForm template={data} onClone={onClone} onDeleted={onDeleted} />;
 }
 
 type TemplateEditorFormProps = {
   template: Template;
   onClone: () => void;
+  onDeleted: () => void;
 };
 
-function TemplateEditorForm({ template, onClone }: TemplateEditorFormProps) {
+function TemplateEditorForm({ template, onClone, onDeleted }: TemplateEditorFormProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const formatTimestamp = useTimestampFormatter();
@@ -276,6 +279,7 @@ function TemplateEditorForm({ template, onClone }: TemplateEditorFormProps) {
         <View style={styles.field}>
           <ActionButton label={_(msg`mobile.templates.clone`)} onPress={onClone} />
         </View>
+        <DeleteTemplate template={template} onDeleted={onDeleted} />
       </ScrollView>
       <View style={styles.footer}>
         {errorText("form")}

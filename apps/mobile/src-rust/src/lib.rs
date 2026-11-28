@@ -14,7 +14,7 @@ use koloda::domain::decks::{DeleteDeckData, InsertDeckData, UpdateDeckData};
 use koloda::domain::lessons::{GetLessonDataParams, GetLessonsParams, LessonResultData};
 use koloda::domain::reviews::GetReviewsData;
 use koloda::domain::settings::SettingsName;
-use koloda::domain::templates::{CloneTemplateData, InsertTemplateData, UpdateTemplateData};
+use koloda::domain::templates::{CloneTemplateData, DeleteTemplateData, InsertTemplateData, UpdateTemplateData};
 use koloda::repo;
 use koloda_sync::error::SyncError;
 use std::collections::HashMap;
@@ -458,6 +458,19 @@ impl KolodaMobile {
             to_wire(&repo::templates::clone_template(db, data)?)
         })
         .await
+    }
+
+    pub async fn delete_template(&self, data: String) -> Result<(), MobileError> {
+        self.run_write(move |db| {
+            let data: DeleteTemplateData = from_wire(&data)?;
+            Ok(repo::templates::delete_template(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn get_template_decks(&self, id: String) -> Result<String, MobileError> {
+        self.run(move |db| to_wire(&repo::templates::get_template_decks(db, &id)?))
+            .await
     }
 
     pub async fn update_template(&self, data: String) -> Result<String, MobileError> {

@@ -766,3 +766,58 @@ async fn a_template_added_on_the_phone_keeps_its_fields_and_a_clone_copies_the_s
         serde_json::from_str(&mobile.get_templates().await.expect("templates")).expect("templates json");
     assert_eq!(templates.as_array().expect("templates array").len(), 3);
 }
+
+#[tokio::test]
+async fn a_template_no_deck_or_card_uses_is_deleted_and_one_a_deck_uses_is_refused() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let clone = |title: &str| {
+        let mobile = &mobile;
+        let title = title.to_string();
+        async move {
+            let cloned: Value = serde_json::from_str(
+                &mobile
+                    .clone_template(json!({ "sourceId": SEED_TEMPLATE_TYPE_ID, "title": title }).to_string())
+                    .await
+                    .expect("clone"),
+            )
+            .expect("clone json");
+            cloned["id"].as_str().expect("clone id").to_string()
+        }
+    };
+    let unused = clone("Unused").await;
+    let used = clone("Used").await;
+    let deck: Value = serde_json::from_str(
+        &mobile
+            .add_deck(
+                json!({ "title": "Spanish", "algorithmId": SEED_ALGORITHM_SIMPLE_ID, "templateId": used }).to_string(),
+            )
+            .await
+            .expect("deck"),
+    )
+    .expect("deck json");
+
+    let decks: Value = serde_json::from_str(&mobile.get_template_decks(used.clone()).await.expect("template decks"))
+        .expect("decks json");
+    assert_eq!(decks, json!([{ "id": deck["id"], "title": "Spanish" }]));
+    let MobileError::App { code, .. } = mobile
+        .delete_template(json!({ "id": used }).to_string())
+        .await
+        .expect_err("used by a deck");
+    assert_eq!(code, "validation.templates.delete-used");
+
+    mobile
+        .delete_template(json!({ "id": unused }).to_string())
+        .await
+        .expect("delete");
+    let ids: Vec<Value> = serde_json::from_str::<Value>(&mobile.get_templates().await.expect("templates"))
+        .expect("templates json")
+        .as_array()
+        .expect("templates array")
+        .iter()
+        .map(|template| template["id"].clone())
+        .collect();
+    assert_eq!(ids, [json!(SEED_TEMPLATE_TYPE_ID), json!(used)]);
+}

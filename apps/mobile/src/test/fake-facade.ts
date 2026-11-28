@@ -12,6 +12,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     deleteCard: unexpected,
     deleteCards: unexpected,
     deleteDeck: unexpected,
+    deleteTemplate: unexpected,
     getCards: unexpected,
     getAlgorithms: unexpected,
     getDbStatus: unexpected,
@@ -21,6 +22,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getReviews: unexpected,
     getSettings: unexpected,
     getTemplate: unexpected,
+    getTemplateDecks: unexpected,
     getTemplates: unexpected,
     getTodaysReviewTotals: unexpected,
     newId: () => {

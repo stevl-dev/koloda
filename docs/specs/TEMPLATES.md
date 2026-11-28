@@ -174,4 +174,6 @@ The mobile app lists its templates on a Templates tab, in the order they were ad
 - Clone on the editor clones the template as §Cloning Templates says, and then opens the clone's editor the same way.
 - A rejected title shows its error under the title, and nothing is added.
   Going back from either form discards it without asking.
-- It does not delete templates.
+- The editor deletes the template as §Deleting Templates says, asking first, and then returns to the Templates tab.
+  While delete is unavailable, the editor says why.
+  A failed delete shows its error on the editor, and the template stays.

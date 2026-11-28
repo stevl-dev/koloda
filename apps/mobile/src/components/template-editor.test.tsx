@@ -1,6 +1,6 @@
 import { queryKeys } from "@koloda/core-react";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react-native";
-import { BACK, FRONT, renderWithQueries, template, TEMPLATE_ID } from "../test/cards";
+import { BACK, FRONT, renderWithQueries, returning, template, TEMPLATE_ID } from "../test/cards";
 import { TemplateEditor } from "./template-editor";
 
 // WHY: the drag runs on Reanimated's UI runtime, which Jest lacks; these tests reorder through the handles'
@@ -30,11 +30,16 @@ async function renderEditor({ saved = template({ isLocked: false }), rejection }
     stored = { ...stored!, ...values, id };
     return Promise.resolve(JSON.stringify(stored));
   });
-  const { client } = await renderWithQueries(<TemplateEditor templateId={TEMPLATE_ID} onClone={jest.fn()} />, {
-    getTemplate: () => Promise.resolve(JSON.stringify(stored)),
-    updateTemplate,
-    newId: () => ADDED,
-  });
+  const { client } = await renderWithQueries(
+    <TemplateEditor templateId={TEMPLATE_ID} onClone={jest.fn()} onDeleted={jest.fn()} />,
+    {
+      getTemplate: () => Promise.resolve(JSON.stringify(stored)),
+      updateTemplate,
+      newId: () => ADDED,
+      getTemplateDecks: returning([]),
+      getSettings: returning(null),
+    },
+  );
   return { client, updateTemplate };
 }
 

@@ -204,6 +204,10 @@ Run on each platform after a change to the app.
   Adding with a blank title shows an error under it and adds nothing; desktop has the new template after a sync.
 - [ ] Clone on a template cards use opens a title form; cloning opens the clone's editor, unlocked, with the source's
   fields and layout and no notes, and back returns to the source.
+- [ ] On a template's editor, Delete template is disabled and says why on a template cards use, on the default
+  template, and on one a deck uses.
+  On a clone no deck uses, it asks first; Cancel keeps it, and Delete returns to the Templates tab without it.
+  Desktop loses the template after it syncs.
 - [ ] On a template's editor, press and hold a field's handle, then drag it below the next field: the other fields make
   room, and the field stays where it is dropped; the layout keeps its order. A layout row drags the same way.
   A quick drag on a handle scrolls the screen and lifts nothing, and the screen does not scroll while a row is lifted.
@@ -258,8 +262,8 @@ Code copied from another app instead of shared:
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
-- The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, and editing a
-  template.
+- The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, editing,
+  and deleting a template, and listing the decks that use one.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

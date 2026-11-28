@@ -743,6 +743,38 @@ msgstr "Clone template"
 msgid "mobile.templates.created-at"
 msgstr "Created"
 
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete"
+msgstr "Delete template"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.cancel"
+msgstr "Cancel"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.confirm"
+msgstr "Delete"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.default"
+msgstr "The default template for new decks cannot be deleted."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.locked"
+msgstr "Cards use this template, so it cannot be deleted."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.message"
+msgstr "The template is deleted on every device. This cannot be undone."
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.title"
+msgstr "Delete this template?"
+
+#: src/components/delete-template.tsx
+msgid "mobile.templates.delete.used"
+msgstr "A deck uses this template, so it cannot be deleted."
+
 #: src/components/template-editor.tsx
 msgid "mobile.templates.discard"
 msgstr "Discard"
