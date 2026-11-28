@@ -199,6 +199,10 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     params: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_reviews(
+    uniffiSelf: bigint,
+    params: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_get_settings(
     uniffiSelf: bigint,
     name: Uint8Array,
@@ -280,6 +284,7 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_decks(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_lesson_data(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_lessons(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_reviews(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_settings(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_template(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_get_todays_review_totals(): number;

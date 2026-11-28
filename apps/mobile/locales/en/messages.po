@@ -17,6 +17,54 @@ msgstr ""
 msgid "mobile.boot.error"
 msgstr "The app could not open its database."
 
+#: src/components/card-view.tsx
+msgid "mobile.card.created-at"
+msgstr "Created"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.difficulty"
+msgstr "Difficulty"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.due-at"
+msgstr "Due"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.lapses"
+msgstr "Lapses"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.missing"
+msgstr "This card no longer exists."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.no-template"
+msgstr "The card's template is missing, so its content cannot show."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reviews"
+msgstr "Reviews"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reviews-error"
+msgstr "The reviews could not load."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.stability"
+msgstr "Stability"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.state"
+msgstr "State"
+
+#: src/app/deck/[id]/card/[cardId].tsx
+msgid "mobile.card.title"
+msgstr "Card"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.updated-at"
+msgstr "Updated"
+
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "Due {dueAt}"
@@ -25,6 +73,7 @@ msgstr "Due {dueAt}"
 msgid "mobile.cards.empty"
 msgstr "No cards in this deck yet."
 
+#: src/components/card-view.tsx
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.error"
 msgstr "The cards could not load."

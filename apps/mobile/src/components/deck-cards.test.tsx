@@ -9,7 +9,10 @@ describe("DeckCards", () => {
       card("c2", "Berlin", "Germany", { state: 2, dueAt: "2026-02-01T10:00:00.000Z" }),
     ];
     const getCards = returning(cards);
-    await renderWithQueries(<DeckCards deckId={DECK_ID} />, { getCards, getTemplate: returning(template()) });
+    await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, {
+      getCards,
+      getTemplate: returning(template()),
+    });
 
     expect(await screen.findByText("Capital Paris 🖼️")).toBeTruthy();
     expect(JSON.parse(getCards.mock.calls[0][0] as string)).toEqual({ deckId: DECK_ID });
@@ -22,7 +25,7 @@ describe("DeckCards", () => {
   });
 
   it("says when the deck has no cards", async () => {
-    await renderWithQueries(<DeckCards deckId={DECK_ID} />, { getCards: returning([]) });
+    await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, { getCards: returning([]) });
 
     expect(await screen.findByText("No cards in this deck yet.")).toBeTruthy();
   });
@@ -35,7 +38,7 @@ describe("DeckCards", () => {
     ];
 
     async function renderSearchable() {
-      await renderWithQueries(<DeckCards deckId={DECK_ID} />, {
+      await renderWithQueries(<DeckCards deckId={DECK_ID} onOpenCard={jest.fn()} />, {
         getCards: returning(cards),
         getTemplate: returning(template()),
       });

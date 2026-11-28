@@ -129,7 +129,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   Commit: Search and filter a deck's cards on mobile
   Depends on: 2
 
-- [ ] 4. Show a card on mobile
+- [x] 4. Show a card on mobile
   Goal: tapping a card in the list opens a view of the card.
   Add a stack route `src/app/deck/[id]/card/[cardId].tsx`; the card comes from the deck's list query, since a card
   has no detail entry (`docs/decisions/CACHE-REFRESH.md`).
@@ -146,6 +146,7 @@ An item that changes user-visible mobile behavior updates `docs/specs/CARDS.md` 
   reads a card's reviews through the façade.
   Commit: Show a card on mobile
   Depends on: 2
+  Note: the deck route moved to `src/app/deck/[id]/index.tsx`, so the card route can sit under it.
 
 - [ ] 5. Edit a card on mobile
   Goal: the card view's Edit opens a form that changes the card's content.

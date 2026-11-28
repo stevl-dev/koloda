@@ -10,6 +10,7 @@ export function fakeFacade(overrides: Partial<KolodaFacade> = {}): KolodaFacade 
     getDecks: unexpected,
     getLessonData: unexpected,
     getLessons: unexpected,
+    getReviews: unexpected,
     getSettings: unexpected,
     getTemplate: unexpected,
     getTodaysReviewTotals: unexpected,

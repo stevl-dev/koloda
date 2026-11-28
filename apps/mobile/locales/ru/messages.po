@@ -17,6 +17,54 @@ msgstr ""
 msgid "mobile.boot.error"
 msgstr "Приложению не удалось открыть базу данных."
 
+#: src/components/card-view.tsx
+msgid "mobile.card.created-at"
+msgstr "Создана"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.difficulty"
+msgstr "Сложность"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.due-at"
+msgstr "К повторению"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.lapses"
+msgstr "Забывания"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.missing"
+msgstr "Этой карточки больше нет."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.no-template"
+msgstr "Шаблон карточки не найден, поэтому её содержимое не показать."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reviews"
+msgstr "Повторения"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.reviews-error"
+msgstr "Не удалось загрузить повторения."
+
+#: src/components/card-view.tsx
+msgid "mobile.card.stability"
+msgstr "Стабильность"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.state"
+msgstr "Состояние"
+
+#: src/app/deck/[id]/card/[cardId].tsx
+msgid "mobile.card.title"
+msgstr "Карточка"
+
+#: src/components/card-view.tsx
+msgid "mobile.card.updated-at"
+msgstr "Изменена"
+
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.due {dueAt}"
 msgstr "К повторению {dueAt}"
@@ -25,6 +73,7 @@ msgstr "К повторению {dueAt}"
 msgid "mobile.cards.empty"
 msgstr "В этой колоде пока нет карточек."
 
+#: src/components/card-view.tsx
 #: src/components/deck-cards.tsx
 msgid "mobile.cards.error"
 msgstr "Не удалось загрузить карточки."

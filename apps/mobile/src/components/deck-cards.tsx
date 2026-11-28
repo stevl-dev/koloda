@@ -12,9 +12,10 @@ import { useMobileQueries } from "../host/queries-context";
 
 export type DeckCardsProps = {
   deckId: Deck["id"];
+  onOpenCard: (cardId: Card["id"]) => void;
 };
 
-export function DeckCards({ deckId }: DeckCardsProps) {
+export function DeckCards({ deckId, onOpenCard }: DeckCardsProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getCardsQuery, getTemplateQuery } = useMobileQueries();
@@ -77,6 +78,7 @@ export function DeckCards({ deckId }: DeckCardsProps) {
         templateMap={templateMap}
         emptyText={isFiltered ? _(msg`mobile.cards.no-match`) : _(msg`mobile.cards.empty`)}
         isRefreshing={cards.isRefetching}
+        onOpenCard={onOpenCard}
         onRefresh={() => {
           void cards.refetch();
           for (const template of templates) void template.refetch();
@@ -101,10 +103,11 @@ type CardListProps = {
   templateMap: Map<Template["id"], Template>;
   emptyText: string;
   isRefreshing: boolean;
+  onOpenCard: (cardId: Card["id"]) => void;
   onRefresh: () => void;
 };
 
-function CardList({ cards, templateMap, emptyText, isRefreshing, onRefresh }: CardListProps) {
+function CardList({ cards, templateMap, emptyText, isRefreshing, onOpenCard, onRefresh }: CardListProps) {
   const colors = useAppColors();
 
   return (
@@ -115,7 +118,9 @@ function CardList({ cards, templateMap, emptyText, isRefreshing, onRefresh }: Ca
       onRefresh={onRefresh}
       keyboardShouldPersistTaps="handled"
       ListEmptyComponent={<Text style={[styles.message, { color: colors.text }]}>{emptyText}</Text>}
-      renderItem={({ item }) => <CardRow card={item} template={templateMap.get(item.templateId)} />}
+      renderItem={({ item }) => (
+        <CardRow card={item} template={templateMap.get(item.templateId)} onOpen={() => onOpenCard(item.id)} />
+      )}
     />
   );
 }
@@ -128,9 +133,10 @@ function listText(card: Card, template: Template | undefined, index: number): st
 type CardRowProps = {
   card: Card;
   template: Template | undefined;
+  onOpen: () => void;
 };
 
-function CardRow({ card, template }: CardRowProps) {
+function CardRow({ card, template, onOpen }: CardRowProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const formatTimestamp = useTimestampFormatter();
@@ -138,7 +144,7 @@ function CardRow({ card, template }: CardRowProps) {
   const dueAt = card.state > 0 && card.dueAt ? formatTimestamp(card.dueAt, "datetime") : null;
 
   return (
-    <View style={[styles.row, { borderColor: colors.border }]}>
+    <Pressable accessibilityRole="button" onPress={onOpen} style={[styles.row, { borderColor: colors.border }]}>
       <Text numberOfLines={1} style={[styles.first, { color: colors.text }]}>
         {listText(card, template, 0)}
       </Text>
@@ -149,7 +155,7 @@ function CardRow({ card, template }: CardRowProps) {
         {state && <Text style={{ color: colors.text }}>{_(state.t)}</Text>}
         {dueAt && <Text style={{ color: colors.muted }}>{_(msg`mobile.cards.due ${dueAt}`)}</Text>}
       </View>
-    </View>
+    </Pressable>
   );
 }
 

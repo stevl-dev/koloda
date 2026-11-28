@@ -7,10 +7,12 @@ import type {
   Deck,
   GetCardsParams,
   GetLessonDataParams,
+  GetReviewsData,
   LessonData,
   LessonFilters,
   LessonResultData,
   LessonsResult,
+  Review,
   Template,
   TodaysReviewTotals,
 } from "@koloda/srs";
@@ -26,6 +28,7 @@ export type MobileQueries = Pick<
   | "getDecksQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
+  | "getReviewsQuery"
   | "getLessonsQuery"
   | "getLessonDataQuery"
   | "submitLessonResultMutation"
@@ -52,6 +55,10 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     getTemplateQuery: (id: Template["id"]) => ({
       queryKey: queryKeys.templates.detail(id),
       queryFn: () => read<Template | null>(() => facade.getTemplate(id)),
+    }),
+    getReviewsQuery: (params: GetReviewsData) => ({
+      queryKey: queryKeys.reviews.card(params),
+      queryFn: () => read<Review[]>(() => facade.getReviews(wireArgs(params))),
     }),
     getSettingsQuery: <T extends SettingsName>(name: T) => ({
       queryKey: queryKeys.settings.detail(name),

@@ -241,4 +241,9 @@ The mobile app browses and changes the cards of the decks it already has.
   With no state chosen, it shows every card.
 - The list applies the search and the filter together, and says so when no card matches.
   Both last while the deck stays open.
+- Tapping a card opens its card view.
+  It shows each field with its title, a markdown field rendered as in a lesson, unlike the editor on desktop.
+- The card view shows the state, the creation time, and the update time once the content has been edited.
+  A graded card also shows its due time, the scheduling numbers §Scheduling Data names, and its review history.
+- A card deleted on another device while its view is open says it no longer exists.
 - It has no table view, stack view, sorting, column choices, preview, or due and template filters.

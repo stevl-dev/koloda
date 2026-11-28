@@ -93,6 +93,7 @@ The stored copy keeps the file's metadata, such as where and when a photo was ta
 ## Where Images Show
 
 An image reference shows its image in card preview and in lessons.
+The mobile app's card view shows it too.
 While the image loads, its place stays empty.
 If the stored image is missing or cannot be read, the alt text shows instead.
 

@@ -2,6 +2,9 @@
 
 use koloda::app::db::Database;
 use koloda::domain::attachments::AddAttachmentData;
+use koloda::domain::cards::UpdateCardProgress;
+use koloda::domain::lessons::LessonResultData;
+use koloda::domain::reviews::InsertReviewData;
 use koloda::domain::seed_ids::{SEED_ALGORITHM_SIMPLE_ID, SEED_TEMPLATE_TYPE_ID};
 use koloda::repo;
 use koloda_mobile::{KolodaMobile, MobileError};
@@ -305,4 +308,85 @@ async fn a_deck_lists_its_cards_and_each_card_reads_its_template() {
         .await
         .expect("missing");
     assert_eq!(missing, "null", "a template the database lacks reads as null");
+}
+
+// Grades a card with the given rating at the given time, as a lesson on another device would.
+fn grade(db: &Database, card_id: &str, rating: i32, reviewed_at: i64) {
+    repo::lessons::submit_lesson_result(
+        db,
+        LessonResultData {
+            card: UpdateCardProgress {
+                id: card_id.to_string(),
+                state: 2,
+                due_at: reviewed_at + 86_400_000,
+                stability: 5.0,
+                stability_fast: 0.0,
+                difficulty: 5.0,
+                scheduled_days: 1.0,
+                learning_steps: 0,
+                reps: 1,
+                lapses: 0,
+                last_reviewed_at: Some(reviewed_at),
+            },
+            review: InsertReviewData {
+                card_id: card_id.to_string(),
+                rating,
+                state: 2,
+                due_at: reviewed_at,
+                last_reviewed_at: None,
+                reviewed_at,
+                stability: 5.0,
+                stability_fast: 0.0,
+                difficulty: 5.0,
+                scheduled_days: 1.0,
+                learning_steps: 0,
+                time: 10,
+                is_ignored: false,
+            },
+        },
+    )
+    .expect("grade");
+}
+
+// Reads a deck's cards through the façade.
+async fn deck_cards(mobile: &KolodaMobile, deck_id: &str) -> Vec<Value> {
+    let json = mobile
+        .get_cards(json!({ "deckId": deck_id }).to_string())
+        .await
+        .expect("cards");
+    serde_json::from_str::<Value>(&json)
+        .expect("cards json")
+        .as_array()
+        .expect("cards array")
+        .clone()
+}
+
+#[tokio::test]
+async fn a_card_reads_only_its_own_reviews() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let db = other_connection(&path);
+    let deck_id = add_deck_with_cards(&db, &["uno", "dos"]);
+    let cards = deck_cards(&mobile, &deck_id).await;
+    let (graded, other) = (cards[0]["id"].as_str().unwrap(), cards[1]["id"].as_str().unwrap());
+    grade(&db, graded, 1, 1_800_000_000_000);
+    grade(&db, graded, 3, 1_800_000_100_000);
+    grade(&db, other, 4, 1_800_000_200_000);
+
+    let reviews: Value = serde_json::from_str(
+        &mobile
+            .get_reviews(json!({ "cardId": graded }).to_string())
+            .await
+            .expect("reviews"),
+    )
+    .expect("reviews json");
+    let ratings: Vec<i64> = reviews
+        .as_array()
+        .expect("reviews array")
+        .iter()
+        .map(|r| r["rating"].as_i64().unwrap())
+        .collect();
+    assert_eq!(ratings, [1, 3], "the card's two reviews, and not the other card's");
 }
