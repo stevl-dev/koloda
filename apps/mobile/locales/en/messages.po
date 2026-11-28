@@ -369,6 +369,42 @@ msgstr "Clone preset"
 msgid "mobile.presets.created-at"
 msgstr "Created"
 
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete"
+msgstr "Delete preset"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.cancel"
+msgstr "Cancel"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.confirm"
+msgstr "Delete"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.default"
+msgstr "The default preset for new decks cannot be deleted."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.last"
+msgstr "The only preset left cannot be deleted."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.message"
+msgstr "The preset is deleted on every device. This cannot be undone."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.message-decks {deckCount}"
+msgstr "{deckCount, plural, one {The preset is deleted on every device, and its # deck moves to the preset you chose. This cannot be undone.} other {The preset is deleted on every device, and its # decks move to the preset you chose. This cannot be undone.}}"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.successor {deckCount}"
+msgstr "{deckCount, plural, one {# deck uses this preset. It moves to:} other {# decks use this preset. They move to:}}"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.title"
+msgstr "Delete this preset?"
+
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.discard"
 msgstr "Discard"

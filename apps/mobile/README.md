@@ -203,6 +203,11 @@ Run on each platform after a change to the app.
   parameters, and back returns to the Presets tab, which lists it; desktop has it after a sync.
   Clone on a preset with notes opens a title form; cloning opens the clone's editor with the source's parameters and
   no notes, and back returns to the source. A blank title shows an error under it and adds nothing.
+- [ ] On a preset's editor, Delete preset is disabled and says why on the default preset and on the only one left.
+  On a clone no deck uses, it asks first; Delete returns to the Presets tab without it.
+  On a clone two decks use, the editor counts them and offers the other presets, starting on the first; choose
+  another and delete: both decks use the chosen preset, on the phone and on desktop after a sync.
+  Cancel keeps the preset and its decks.
 - [ ] The Templates tab lists the templates oldest first; tapping one opens its editor, titled with the template.
   Change the title, the notes, a field's title, type, and required flag, and a layout operation, and save:
   the header shows the new title, and desktop shows the changes after a sync.
@@ -275,7 +280,7 @@ Code copied from another app instead of shared:
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
 - The algorithm calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: reading, adding, cloning,
-  and editing an algorithm.
+  editing, and deleting an algorithm, and listing the decks that use one.
 - The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, editing,
   and deleting a template, and listing the decks that use one.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its

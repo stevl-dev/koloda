@@ -910,3 +910,54 @@ async fn an_algorithm_added_on_the_phone_keeps_its_parameters_and_a_clone_copies
     assert_eq!(cloned["content"], added["content"]);
     assert!(cloned["notes"].is_null(), "a clone takes no notes");
 }
+
+#[tokio::test]
+async fn deleting_an_algorithm_moves_its_decks_to_the_successor_and_the_default_is_refused() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let read = |json: String| -> Value { serde_json::from_str(&json).expect("json") };
+    let cloned = read(
+        mobile
+            .clone_algorithm(json!({ "sourceId": SEED_ALGORITHM_SIMPLE_ID, "title": "Cramming" }).to_string())
+            .await
+            .expect("clone"),
+    );
+    let deleted = cloned["id"].as_str().expect("clone id").to_string();
+    let deck = read(
+        mobile
+            .add_deck(
+                json!({ "title": "Spanish", "algorithmId": deleted, "templateId": SEED_TEMPLATE_TYPE_ID }).to_string(),
+            )
+            .await
+            .expect("deck"),
+    );
+    assert_eq!(
+        read(
+            mobile
+                .get_algorithm_decks(deleted.clone())
+                .await
+                .expect("algorithm decks")
+        ),
+        json!([{ "id": deck["id"], "title": "Spanish" }])
+    );
+
+    let MobileError::App { code, .. } = mobile
+        .delete_algorithm(json!({ "id": SEED_ALGORITHM_SIMPLE_ID, "successorId": deleted }).to_string())
+        .await
+        .expect_err("the default");
+    assert_eq!(code, "validation.algorithms.delete-default");
+
+    mobile
+        .delete_algorithm(json!({ "id": deleted, "successorId": SEED_ALGORITHM_SIMPLE_ID }).to_string())
+        .await
+        .expect("delete");
+    let algorithms = read(mobile.get_algorithms().await.expect("algorithms"));
+    assert_eq!(algorithms.as_array().expect("algorithms array").len(), 1);
+    let decks = read(mobile.get_decks().await.expect("decks"));
+    assert_eq!(
+        decks[0]["algorithmId"], SEED_ALGORITHM_SIMPLE_ID,
+        "the deck moved to the successor"
+    );
+}

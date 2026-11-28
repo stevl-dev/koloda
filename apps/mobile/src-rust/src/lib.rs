@@ -7,7 +7,7 @@ use koloda::app::db::Database;
 use koloda::app::error::{error_codes, AppError};
 use koloda::app::init::{self as init_mod, DbStatus, SeedData};
 use koloda::app::secrets::SecretStore;
-use koloda::domain::algorithms::{CloneAlgorithmData, InsertAlgorithmData, UpdateAlgorithmData};
+use koloda::domain::algorithms::{CloneAlgorithmData, DeleteAlgorithmData, InsertAlgorithmData, UpdateAlgorithmData};
 use koloda::domain::cards::{
     DeleteCardData, DeleteCardsData, GetCardsParams, InsertCardData, ResetCardProgressData, UpdateCardData,
 };
@@ -407,6 +407,19 @@ impl KolodaMobile {
             to_wire(&repo::algorithms::clone_algorithm(db, data)?)
         })
         .await
+    }
+
+    pub async fn delete_algorithm(&self, data: String) -> Result<(), MobileError> {
+        self.run_write(move |db| {
+            let data: DeleteAlgorithmData = from_wire(&data)?;
+            Ok(repo::algorithms::delete_algorithm(db, data)?)
+        })
+        .await
+    }
+
+    pub async fn get_algorithm_decks(&self, id: String) -> Result<String, MobileError> {
+        self.run(move |db| to_wire(&repo::algorithms::get_algorithm_decks(db, &id)?))
+            .await
     }
 
     pub async fn update_algorithm(&self, data: String) -> Result<String, MobileError> {

@@ -265,7 +265,7 @@ new `MobileQueries` entry keeps the shared query key.
   Note: no blank-title test here: the title form's rejection is `add-template.test.tsx`'s, and a second one would be a
   second door (`agents/TESTING.md` §One home per behavior).
 
-- [ ] 7. Delete a preset on mobile
+- [x] 7. Delete a preset on mobile
   Goal: the preset editor deletes the preset, as `docs/specs/ALGORITHMS.md` (§Deleting Algorithms) says.
   Delete is unavailable while the preset is the learning settings' default or the only one left, and the editor
   says so.
@@ -284,5 +284,7 @@ new `MobileQueries` entry keeps the shared query key.
   with a successor and reads an algorithm's decks through the façade.
   Commit: Delete a preset on mobile
   Depends on: 5
+  Note: the successor choice sits on the editor, above Delete, rather than on a screen of its own; the native dialog
+  then confirms, counting the decks that move.
 
 ## Outcome

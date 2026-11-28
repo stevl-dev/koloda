@@ -15,6 +15,7 @@ import { useAppColors } from "../colors";
 import { useMobileQueries } from "../host/queries-context";
 import { ActionButton } from "./action-button";
 import { ChoiceGroup } from "./choice-group";
+import { DeletePreset } from "./delete-preset";
 import { LabeledSwitch } from "./labeled-switch";
 import { NumberInput } from "./number-input";
 
@@ -37,9 +38,10 @@ type StepUnit = (typeof LEARNING_STEPS_UNITS)[number]["id"];
 export type PresetEditorProps = {
   algorithmId: Algorithm["id"];
   onClone: () => void;
+  onDeleted: () => void;
 };
 
-export function PresetEditor({ algorithmId, onClone }: PresetEditorProps) {
+export function PresetEditor({ algorithmId, onClone, onDeleted }: PresetEditorProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getAlgorithmQuery } = useMobileQueries();
@@ -49,15 +51,16 @@ export function PresetEditor({ algorithmId, onClone }: PresetEditorProps) {
   if (data === undefined) return null;
   if (data === null)
     return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.presets.missing`)}</Text>;
-  return <PresetEditorForm algorithm={data} onClone={onClone} />;
+  return <PresetEditorForm algorithm={data} onClone={onClone} onDeleted={onDeleted} />;
 }
 
 type PresetEditorFormProps = {
   algorithm: Algorithm;
   onClone: () => void;
+  onDeleted: () => void;
 };
 
-function PresetEditorForm({ algorithm, onClone }: PresetEditorFormProps) {
+function PresetEditorForm({ algorithm, onClone, onDeleted }: PresetEditorFormProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const formatTimestamp = useTimestampFormatter();
@@ -274,6 +277,7 @@ function PresetEditorForm({ algorithm, onClone }: PresetEditorFormProps) {
         <View style={styles.field}>
           <ActionButton label={_(msg`mobile.presets.clone`)} onPress={onClone} />
         </View>
+        <DeletePreset algorithm={algorithm} onDeleted={onDeleted} />
       </ScrollView>
       <View style={styles.footer}>
         {errorText("form")}

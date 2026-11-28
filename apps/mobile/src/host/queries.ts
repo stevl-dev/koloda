@@ -9,6 +9,7 @@ import type {
   CloneTemplateData,
   Deck,
   DeckWithOnlyTitle,
+  DeleteAlgorithmData,
   DeleteCardData,
   DeleteCardsData,
   DeleteDeckData,
@@ -51,6 +52,8 @@ export type MobileQueries = Pick<
   | "updateAlgorithmMutation"
   | "addAlgorithmMutation"
   | "cloneAlgorithmMutation"
+  | "deleteAlgorithmMutation"
+  | "getAlgorithmDecksQuery"
   | "getTemplatesQuery"
   | "getCardsQuery"
   | "getTemplateQuery"
@@ -111,6 +114,13 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     cloneAlgorithmMutation: () => ({
       mutationFn: (data: CloneAlgorithmData) => read<Algorithm>(() => facade.cloneAlgorithm(wireArgs(data))),
+    }),
+    deleteAlgorithmMutation: () => ({
+      mutationFn: (data: DeleteAlgorithmData) => call(() => facade.deleteAlgorithm(wireArgs(data))),
+    }),
+    getAlgorithmDecksQuery: (id: Algorithm["id"]) => ({
+      queryKey: queryKeys.algorithms.decks(id),
+      queryFn: () => read<DeckWithOnlyTitle[]>(() => facade.getAlgorithmDecks(id)),
     }),
     getTemplatesQuery: () => ({
       queryKey: queryKeys.templates.all(),

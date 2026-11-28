@@ -1,6 +1,6 @@
 import { queryKeys } from "@koloda/core-react";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react-native";
-import { algorithm, DECK, renderWithQueries } from "../test/cards";
+import { algorithm, DECK, renderWithQueries, returning } from "../test/cards";
 import { PresetEditor } from "./preset-editor";
 
 const ID = DECK.algorithmId;
@@ -19,10 +19,16 @@ async function renderEditor({ saved = algorithm(), rejection }: RenderOptions = 
     stored = { ...stored!, ...values, id };
     return Promise.resolve(JSON.stringify(stored));
   });
-  const { client } = await renderWithQueries(<PresetEditor algorithmId={ID} onClone={jest.fn()} />, {
-    getAlgorithm: () => Promise.resolve(JSON.stringify(stored)),
-    updateAlgorithm,
-  });
+  const { client } = await renderWithQueries(
+    <PresetEditor algorithmId={ID} onClone={jest.fn()} onDeleted={jest.fn()} />,
+    {
+      getAlgorithm: () => Promise.resolve(JSON.stringify(stored)),
+      updateAlgorithm,
+      getAlgorithmDecks: returning([]),
+      getAlgorithms: returning([stored]),
+      getSettings: returning(null),
+    },
+  );
   return { client, updateAlgorithm };
 }
 

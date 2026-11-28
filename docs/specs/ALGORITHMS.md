@@ -228,4 +228,8 @@ The mobile app lists its algorithms on a Presets tab, in the order they were add
 - Clone on the editor clones the preset as §Cloning Algorithms says, and then opens the clone's editor the same way.
 - A rejected title shows its error under the title, and nothing is added.
   Going back from either form discards it without asking.
-- It does not delete presets.
+- The editor deletes the preset as §Deleting Algorithms says, asking first, and then returns to the Presets tab.
+  While delete is unavailable, the editor says why.
+- When decks use the preset, the editor counts them and offers the other presets as the successor, above Delete.
+  The confirmation counts the decks that move.
+- A failed delete shows its error on the editor, and the preset and its decks stay as they were.

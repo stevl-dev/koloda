@@ -369,6 +369,42 @@ msgstr "Клонировать алгоритм"
 msgid "mobile.presets.created-at"
 msgstr "Создан"
 
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete"
+msgstr "Удалить алгоритм"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.cancel"
+msgstr "Отмена"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.confirm"
+msgstr "Удалить"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.default"
+msgstr "Алгоритм по умолчанию для новых колод нельзя удалить."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.last"
+msgstr "Единственный оставшийся алгоритм нельзя удалить."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.message"
+msgstr "Алгоритм удаляется на всех устройствах. Это нельзя отменить."
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.message-decks {deckCount}"
+msgstr "{deckCount, plural, one {Алгоритм удаляется на всех устройствах, а его # колода переходит на выбранный алгоритм. Это нельзя отменить.} few {Алгоритм удаляется на всех устройствах, а его # колоды переходят на выбранный алгоритм. Это нельзя отменить.} many {Алгоритм удаляется на всех устройствах, а его # колод переходят на выбранный алгоритм. Это нельзя отменить.} other {Алгоритм удаляется на всех устройствах, а его # колоды переходят на выбранный алгоритм. Это нельзя отменить.}}"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.successor {deckCount}"
+msgstr "{deckCount, plural, one {Этот алгоритм использует # колода. Она перейдёт на:} few {Этот алгоритм используют # колоды. Они перейдут на:} many {Этот алгоритм используют # колод. Они перейдут на:} other {Этот алгоритм используют # колоды. Они перейдут на:}}"
+
+#: src/components/delete-preset.tsx
+msgid "mobile.presets.delete.title"
+msgstr "Удалить этот алгоритм?"
+
 #: src/components/preset-editor.tsx
 msgid "mobile.presets.discard"
 msgstr "Сбросить"
