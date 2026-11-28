@@ -725,9 +725,19 @@ msgstr "Настройки"
 msgid "mobile.tabs.templates"
 msgstr "Шаблоны"
 
+#: src/components/add-template.tsx
+msgid "mobile.templates.add"
+msgstr "Добавить шаблон"
+
 #: src/components/template-editor.tsx
 msgid "mobile.templates.add-field"
 msgstr "Добавить поле"
+
+#: src/app/template/[id]/clone.tsx
+#: src/components/clone-template.tsx
+#: src/components/template-editor.tsx
+msgid "mobile.templates.clone"
+msgstr "Клонировать шаблон"
 
 #: src/components/template-editor.tsx
 msgid "mobile.templates.created-at"
@@ -773,6 +783,11 @@ msgstr "Заблокирован: шаблон используют карточ
 #: src/components/template-editor.tsx
 msgid "mobile.templates.missing"
 msgstr "Этого шаблона больше нет."
+
+#: src/app/template/new.tsx
+#: src/components/templates-list.tsx
+msgid "mobile.templates.new"
+msgstr "Новый шаблон"
 
 #: src/components/template-editor.tsx
 #: src/components/template-editor.tsx
@@ -820,3 +835,8 @@ msgstr "Поле без названия"
 #: src/components/template-editor.tsx
 msgid "mobile.templates.updated-at"
 msgstr "Изменён"
+
+#: src/components/title-form.tsx
+#: src/components/title-form.tsx
+msgid "mobile.title-form.title"
+msgstr "Название"

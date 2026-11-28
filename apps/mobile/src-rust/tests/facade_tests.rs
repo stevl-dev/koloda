@@ -712,3 +712,57 @@ async fn a_template_edit_saves_its_content_and_a_locked_template_refuses_removin
     );
     assert_eq!(kept["isLocked"], true);
 }
+
+#[tokio::test]
+async fn a_template_added_on_the_phone_keeps_its_fields_and_a_clone_copies_the_source_unlocked() {
+    let dir = tempfile::tempdir().expect("temp dir");
+    let path = dir.path().join("koloda.db");
+    let mobile = KolodaMobile::new(path.to_string_lossy().into_owned()).expect("open");
+    mobile.seed_db(starter_seed()).await.expect("seed");
+    let (front, back) = (mobile.new_id(), mobile.new_id());
+    let add = |title: &str| {
+        json!({
+            "title": title,
+            "content": {
+                "fields": [
+                    { "id": front, "title": "Вопрос", "type": "text", "isRequired": true },
+                    { "id": back, "title": "Ответ", "type": "text", "isRequired": true },
+                ],
+                "layout": [{ "field": front, "operation": "display" }, { "field": back, "operation": "type" }],
+            },
+        })
+        .to_string()
+    };
+
+    let added: Value =
+        serde_json::from_str(&mobile.add_template(add(" Words ")).await.expect("add")).expect("template json");
+    assert_eq!(added["title"], "Words", "the title is trimmed");
+    assert_eq!(added["content"]["fields"][0]["id"], front);
+    assert_eq!(added["content"]["fields"][1]["title"], "Ответ");
+    let MobileError::App { code, .. } = mobile.add_template(add(" ")).await.expect_err("blank title");
+    assert_eq!(code, "validation.common.title.too-short");
+
+    add_deck_with_cards(&other_connection(&path), &["uno"]);
+    let source: Value = serde_json::from_str(
+        &mobile
+            .get_template(SEED_TEMPLATE_TYPE_ID.to_string())
+            .await
+            .expect("source"),
+    )
+    .expect("source json");
+    assert_eq!(source["isLocked"], true);
+    let cloned: Value = serde_json::from_str(
+        &mobile
+            .clone_template(json!({ "sourceId": SEED_TEMPLATE_TYPE_ID, "title": "Copy" }).to_string())
+            .await
+            .expect("clone"),
+    )
+    .expect("clone json");
+    assert_ne!(cloned["id"], SEED_TEMPLATE_TYPE_ID);
+    assert_eq!(cloned["title"], "Copy");
+    assert_eq!(cloned["content"], source["content"]);
+    assert_eq!(cloned["isLocked"], false, "the clone has no cards of its own");
+    let templates: Value =
+        serde_json::from_str(&mobile.get_templates().await.expect("templates")).expect("templates json");
+    assert_eq!(templates.as_array().expect("templates array").len(), 3);
+}

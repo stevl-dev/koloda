@@ -30,7 +30,7 @@ async function renderEditor({ saved = template({ isLocked: false }), rejection }
     stored = { ...stored!, ...values, id };
     return Promise.resolve(JSON.stringify(stored));
   });
-  const { client } = await renderWithQueries(<TemplateEditor templateId={TEMPLATE_ID} />, {
+  const { client } = await renderWithQueries(<TemplateEditor templateId={TEMPLATE_ID} onClone={jest.fn()} />, {
     getTemplate: () => Promise.resolve(JSON.stringify(stored)),
     updateTemplate,
     newId: () => ADDED,

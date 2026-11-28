@@ -167,7 +167,7 @@ new `MobileQueries` entry keeps the shared query key.
   The drag lives in `src/components/draggable-row.tsx`, which the editor's tests replace, and the index arithmetic in
   `src/components/sortable-moves.ts`.
 
-- [ ] 3. Add and clone a template on mobile
+- [x] 3. Add and clone a template on mobile
   Goal: "New template" on the Templates tab adds a template, and Clone on the editor copies one, as
   `docs/specs/TEMPLATES.md` (§Adding Templates, §Cloning Templates) says.
   Both are stack routes with a title field.
@@ -187,6 +187,11 @@ new `MobileQueries` entry keeps the shared query key.
   a Rust test adds and clones a template through the façade.
   Commit: Add and clone a template on mobile
   Depends on: 1
+  Note: both forms are `src/components/title-form.tsx`, which item 6 reuses for presets.
+  Clone sits in the editor's actions, below the layout; the editor route moved to `src/app/template/[id]/index.tsx`
+  so the clone route can sit beside it.
+  The clone's unlocked state, copied content, and missing notes are `koloda`'s, so the façade test checks them;
+  the component test checks what the phone sends and opens.
 
 - [ ] 4. Delete a template on mobile
   Goal: the template editor deletes the template, as `docs/specs/TEMPLATES.md` (§Deleting Templates) says.

@@ -5,6 +5,7 @@ import type {
   Algorithm,
   Attachment,
   Card,
+  CloneTemplateData,
   Deck,
   DeleteCardData,
   DeleteCardsData,
@@ -14,6 +15,7 @@ import type {
   GetReviewsData,
   InsertCardData,
   InsertDeckData,
+  InsertTemplateData,
   LessonData,
   LessonFilters,
   LessonResultData,
@@ -44,6 +46,8 @@ export type MobileQueries = Pick<
   | "getCardsQuery"
   | "getTemplateQuery"
   | "updateTemplateMutation"
+  | "addTemplateMutation"
+  | "cloneTemplateMutation"
   | "getReviewsQuery"
   | "addCardMutation"
   | "updateCardMutation"
@@ -98,6 +102,12 @@ export function createMobileQueries(facade: KolodaFacade, cacheDir: string): Mob
     }),
     updateTemplateMutation: () => ({
       mutationFn: (data: UpdateTemplateData) => read<Template>(() => facade.updateTemplate(wireArgs(data))),
+    }),
+    addTemplateMutation: () => ({
+      mutationFn: (data: InsertTemplateData) => read<Template>(() => facade.addTemplate(wireArgs(data))),
+    }),
+    cloneTemplateMutation: () => ({
+      mutationFn: (data: CloneTemplateData) => read<Template>(() => facade.cloneTemplate(wireArgs(data))),
     }),
     addCardMutation: () => ({
       mutationFn: (data: InsertCardData) => read<Card>(() => facade.addCard(wireArgs(data))),

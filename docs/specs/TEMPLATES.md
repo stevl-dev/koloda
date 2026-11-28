@@ -169,4 +169,9 @@ The mobile app lists its templates on a Templates tab, in the order they were ad
 - A change synced from another device shows in a part the user has not touched yet.
   The title, the notes, and the fields and layout together are each one part.
 - A template deleted on another device while its editor is open says it no longer exists.
-- It does not add, clone, or delete templates.
+- "New template" on the Templates tab adds a template as §Adding Templates says.
+  After the add, the new template's editor opens in place of the form, instead of a link to it.
+- Clone on the editor clones the template as §Cloning Templates says, and then opens the clone's editor the same way.
+- A rejected title shows its error under the title, and nothing is added.
+  Going back from either form discards it without asking.
+- It does not delete templates.

@@ -184,10 +184,18 @@ interface NativeModuleInterface {
     uniffiSelf: bigint,
     data: Uint8Array,
   ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_add_template(
+    uniffiSelf: bigint,
+    data: Uint8Array,
+  ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_attachment_file(
     uniffiSelf: bigint,
     id: Uint8Array,
     cacheDir: Uint8Array,
+  ): bigint;
+  ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_clone_template(
+    uniffiSelf: bigint,
+    data: Uint8Array,
   ): bigint;
   ubrn_uniffi_koloda_mobile_fn_method_kolodamobile_delete_card(
     uniffiSelf: bigint,
@@ -326,7 +334,9 @@ interface NativeModuleInterface {
   ubrn_uniffi_koloda_mobile_checksum_constructor_kolodamobile_new(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_card(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_deck(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_add_template(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_attachment_file(): number;
+  ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_clone_template(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_card(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_cards(): number;
   ubrn_uniffi_koloda_mobile_checksum_method_kolodamobile_delete_deck(): number;

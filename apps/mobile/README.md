@@ -199,6 +199,11 @@ Run on each platform after a change to the app.
   On a template cards use, type and required are disabled and adding and removing fields are hidden.
   With the form untouched, a rename made on desktop shows in it once the phone syncs.
   The keyboard covers neither the field being edited nor Save.
+- [ ] "New template" on the Templates tab opens a title form; adding opens the new template's editor, with Front and
+  Back fields named in the app's language, and back returns to the Templates tab, which lists it.
+  Adding with a blank title shows an error under it and adds nothing; desktop has the new template after a sync.
+- [ ] Clone on a template cards use opens a title form; cloning opens the clone's editor, unlocked, with the source's
+  fields and layout and no notes, and back returns to the source.
 - [ ] On a template's editor, press and hold a field's handle, then drag it below the next field: the other fields make
   room, and the field stays where it is dropped; the layout keeps its order. A layout row drags the same way.
   A quick drag on a handle scrolls the screen and lifts nothing, and the screen does not scroll while a row is lifted.
@@ -253,7 +258,8 @@ Code copied from another app instead of shared:
   cards, a template, and a card's reviews, and adding, editing, resetting, and deleting cards.
 - The deck, algorithm, and template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding,
   editing, and deleting a deck, and listing the algorithms and the templates.
-- The template edit in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: editing a template.
+- The template calls in `src-rust/src/lib.rs`, from `apps/electron/src-rust/src/lib.rs`: adding, cloning, and editing a
+  template.
 - `src-rust/src/sync.rs`, from `apps/electron/src-rust/src/sync.rs`: the sync host, its wire shapes, its
   error codes, and every host call but creating a space.
 

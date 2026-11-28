@@ -29,9 +29,10 @@ type ErrorsByPart = Partial<Record<"title" | "notes" | "fields" | "layout" | "fo
 
 export type TemplateEditorProps = {
   templateId: Template["id"];
+  onClone: () => void;
 };
 
-export function TemplateEditor({ templateId }: TemplateEditorProps) {
+export function TemplateEditor({ templateId, onClone }: TemplateEditorProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const { getTemplateQuery } = useMobileQueries();
@@ -41,14 +42,15 @@ export function TemplateEditor({ templateId }: TemplateEditorProps) {
   if (data === undefined) return null;
   if (data === null)
     return <Text style={[styles.message, { color: colors.text }]}>{_(msg`mobile.templates.missing`)}</Text>;
-  return <TemplateEditorForm template={data} />;
+  return <TemplateEditorForm template={data} onClone={onClone} />;
 }
 
 type TemplateEditorFormProps = {
   template: Template;
+  onClone: () => void;
 };
 
-function TemplateEditorForm({ template }: TemplateEditorFormProps) {
+function TemplateEditorForm({ template, onClone }: TemplateEditorFormProps) {
   const { _ } = useLingui();
   const colors = useAppColors();
   const formatTimestamp = useTimestampFormatter();
@@ -270,6 +272,9 @@ function TemplateEditorForm({ template }: TemplateEditorFormProps) {
             )}
           </form.Subscribe>
           {errorText("layout")}
+        </View>
+        <View style={styles.field}>
+          <ActionButton label={_(msg`mobile.templates.clone`)} onPress={onClone} />
         </View>
       </ScrollView>
       <View style={styles.footer}>
