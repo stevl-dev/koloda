@@ -1,6 +1,6 @@
 # Mobile algorithms and templates
 
-Status: ready
+Status: done
 Guides: agents/IMPLEMENTATION-PLAN.md, agents/TASKS.md, apps/mobile/README.md, docs/decisions/MOBILE-HOST.md, docs/specs/ALGORITHMS.md, docs/specs/TEMPLATES.md, docs/specs/DECKS.md, docs/decisions/CACHE-REFRESH.md, agents/FUNCTIONAL-SPECIFICATIONS.md, agents/MARKDOWN.md, agents/CODE-STYLE.md, agents/CODE-DOCUMENTATION.md, agents/TESTING.md, agents/VERIFY.md, agents/I18N.md
 Flow: local
 
@@ -288,3 +288,39 @@ new `MobileQueries` entry keeps the shared query key.
   then confirms, counting the decks that move.
 
 ## Outcome
+
+The mobile app adds, edits, clones, and deletes presets and templates, so a library started on the phone is no longer
+limited to the starter preset and template.
+
+What shipped:
+
+- Presets and Templates tabs between Decks and Settings, each listing its entities and opening an editor (question 1).
+- The template editor: title, notes, lock status, fields (title, type, required, add, remove), layout operations,
+  Save and Discard, synced changes into untouched parts, and the lock's disabled and hidden controls.
+- Reordering fields and layout rows by a long press and drag on a handle, with move up and move down as accessibility
+  actions (question 3).
+- The preset editor: title, notes, and every parameter, with no optimization (question 2).
+- New and Clone for both (question 4), through one title form.
+- Delete for both: a template is blocked while locked, the default, or used by a deck; a preset is blocked while the
+  default or the last one, and moves its decks to a chosen successor.
+- `@koloda/srs-react/templates` and `@koloda/srs-react/algorithms`, DOM-free entries with the sync groups, which
+  desktop's editors now import.
+- The façade calls, copied from the desktop host, and `new_id`.
+
+Deviations from the plan:
+
+- The façade mints new ids (`new_id`): Hermes has no `crypto.getRandomValues`, which `uuid` needs (item 1).
+- `LabeledSwitch` moved in item 1, not item 5; `ChoiceGroup` gained a disabled state (item 1).
+- A row lifts from a handle, not the whole row, and a drag does not scroll at the screen's edge (item 2).
+- The successor choice sits on the editor above Delete, not on a screen of its own (item 7).
+- No blank-title test for presets, as a second door of the title form's (item 6).
+
+Self-review found three untagged narrating comments and an unused test export, fixed in `0b61d6ac`.
+`bun run check:push` and `nx run @koloda/mobile:build-android` passed at `0b61d6ac`.
+Not verified on a device: no device check ran.
+Each item added its checks to `apps/mobile/README.md` (§Device checks); `tasks/DEFERRED.md` holds the handoff.
+The Russian strings were written by the agent and have not been read by a native speaker.
+
+Spec: docs/specs/ALGORITHMS.md, docs/specs/DECKS.md, docs/specs/TEMPLATES.md
+Review: blocking 1 (CODE-DOCUMENTATION §Strict Commenting Rules)
+Change rounds: 0

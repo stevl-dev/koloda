@@ -57,10 +57,29 @@ Entries are grouped under one heading per package directory.
   `mobile-decks` added the checks for the Decks tab, adding, editing, and deleting a deck, and the default preset
   and template, and changed the tabs and the Lessons tab's empty state; none has run, though `build-android` passed
   at `5620099a`.
+  `mobile-algorithms-templates` added the checks for the Presets and Templates tabs, both editors, reordering
+  template rows by drag, adding, cloning, and deleting presets and templates, and changed the tabs check; none has
+  run, though `build-android` passed at `0b61d6ac`.
   Kind: handoff
   Source: `tasks/archive/mobile-app.md`
   Deferred because: the human runs every device check once the planned mobile features have shipped
   (`tasks/archive/mobile-lesson-parity.md`, question 4).
+
+- Handoff: optimize a preset's weights on the phone.
+  Evidence: at `0b61d6ac`, the mobile preset editor has no optimization (`docs/specs/ALGORITHMS.md` §Mobile App);
+  desktop's runs on a worker of its own and reports progress through a JS callback
+  (`apps/electron/src-rust/src/lib.rs`, `optimize_algorithm`), and mobile takes no callbacks from Rust
+  (`apps/mobile/README.md` §Findings, 2026-11-25).
+  Kind: handoff
+  Source: `tasks/archive/mobile-algorithms-templates.md`, question 2
+  Deferred because: it needs an optimizer worker in the façade and progress that JS polls for.
+
+- Handoff: scroll the template editor while a dragged row nears the screen's top or bottom edge.
+  Evidence: at `0b61d6ac`, `apps/mobile/src/components/draggable-row.tsx` moves a row only within what the screen
+  shows; a longer move takes two drags with a scroll between them.
+  Kind: handoff
+  Source: `tasks/archive/mobile-algorithms-templates.md`
+  Deferred because: scrolling while the finger rests needs a frame loop, and templates have few fields.
 
 - Handoff: share the Rust host code the mobile façade copied from the desktop addon.
   Evidence: at `f49ddbd3`, `apps/mobile/README.md` (§Copies) lists the database worker and payload helpers in
